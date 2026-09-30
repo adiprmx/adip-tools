@@ -188,7 +188,7 @@ a { color: inherit; }
 }
 .catsec-head .n { font-family: var(--font-m); font-size: 12px; color: var(--dim); margin-left: auto; }
 .trow {
-  display: grid; grid-template-columns: 46px 1fr auto; gap: 14px; align-items: center;
+  display: grid; grid-template-columns: 46px 1fr auto auto; gap: 14px; align-items: center;
   padding: 15px 8px; text-decoration: none;
   border-bottom: 1px solid var(--line-soft);
   transition: background 0.15s, transform 0.1s var(--ease);
@@ -196,6 +196,19 @@ a { color: inherit; }
 }
 .trow:hover { background: #0b0b0d; }
 .trow:active { transform: scale(0.99); background: #101012; }
+.trow:has(.fav:active) { transform: none; }
+.trow .fav {
+  width: 44px; height: 44px; margin-right: -6px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; cursor: pointer; border-radius: 12px;
+  color: var(--dim); font-size: 21px; line-height: 1; opacity: 0.38;
+  transition: opacity 0.15s var(--ease), color 0.15s var(--ease), transform 0.12s var(--ease), background 0.15s;
+}
+.trow .fav.on { opacity: 1; color: #fff; }
+.trow .fav:hover { background: #ffffff0d; }
+.trow .fav:active { transform: scale(0.8); }
+.trow .fav.pop { animation: fav-pop 0.32s var(--ease); }
+@keyframes fav-pop { 35% { transform: scale(1.45) rotate(-10deg); } 70% { transform: scale(0.9); } }
 .trow .ic {
   width: 46px; height: 46px; border-radius: 13px; flex: none;
   background: var(--surface-2); border: 1px solid var(--line);
@@ -326,7 +339,8 @@ select.inp { appearance: none; -webkit-appearance: none; }
 .btn:focus-visible, .inp:focus-visible, .tile:focus-visible,
 .trow:focus-visible, .back:focus-visible, .sug a:focus-visible,
 .pkey:focus-visible, .drumgrid .cell:focus-visible, .tapzone:focus-visible,
-.msearch .clear:focus-visible {
+.msearch .clear:focus-visible, .fav:focus-visible, .chip:focus-visible,
+.dock-btn:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
@@ -466,6 +480,63 @@ table.inv-item th { font-weight: 700; }
   .invoice, .invoice * { visibility: visible; }
   .invoice { position: absolute; left: 0; top: 0; width: 100%; border-radius: 0; }
 }
+
+/* ---------- satset: favorit & terakhir dibuka ---------- */
+.qsec { margin: 32px 0 0; }
+.qsec-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  padding: 0 2px 12px; margin-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+}
+.qsec-head h2 { font-family: var(--font-d); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.qsec-head .n { font-family: var(--font-m); font-size: 12px; color: var(--dim); }
+.qempty { padding: 16px 2px 6px; color: var(--dim); font-size: 14px; line-height: 1.6; }
+.chips {
+  display: flex; gap: 8px; overflow-x: auto;
+  margin: 0 -18px; padding: 12px 18px 8px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 9px;
+  padding: 8px 16px 8px 8px; background: var(--surface);
+  border: 1px solid var(--line-soft); border-radius: 999px;
+  text-decoration: none; font-size: 14px; font-weight: 600; color: var(--txt);
+  transition: transform 0.12s var(--ease), background 0.15s;
+}
+.chip .cic {
+  width: 32px; height: 32px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: 999px; font-size: 16px;
+}
+.chip:active { transform: scale(0.94); background: var(--surface-2); }
+
+/* ---------- satset: dock bawah halaman tool ---------- */
+.wrap.narrow { padding-bottom: 120px; }
+.dock {
+  position: fixed; left: 14px; right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  max-width: 500px; margin-left: auto; margin-right: auto;
+  z-index: 60; display: flex; gap: 4px; padding: 7px;
+  background: rgba(18, 18, 21, 0.94);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border: 1px solid #ffffff24; border-radius: 20px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.6);
+  animation: dock-in 0.3s var(--ease);
+}
+@keyframes dock-in { from { opacity: 0; transform: translateY(16px); } }
+.dock-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 50px; padding: 12px 6px;
+  border: 0; border-radius: 14px; background: none; cursor: pointer;
+  color: var(--txt); font-family: var(--font-b); font-size: 14px; font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s var(--ease), transform 0.12s var(--ease), color 0.15s;
+}
+.dock-btn:active { transform: scale(0.94); background: #ffffff14; }
+.dock-btn.dfav { color: var(--dim); }
+.dock-btn.dfav.on { color: #fff; }
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: no-preference) {

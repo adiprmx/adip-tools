@@ -15,6 +15,35 @@
     ['base64', 'Base64'],
   ];
 
+  /* ===== satset: favorit & riwayat (localStorage) — self-contained, tanpa DOM ===== */
+  const LS = {
+    get(key, fallback) {
+      try {
+        const raw = localStorage.getItem('adip-tools:' + key);
+        if (raw == null) return fallback;
+        const v = JSON.parse(raw);
+        return Array.isArray(v) ? v : fallback;
+      } catch (e) { return fallback; }
+    },
+    set(key, val) {
+      try { localStorage.setItem('adip-tools:' + key, JSON.stringify(val)); } catch (e) {}
+    },
+  };
+  const getFavs = () => LS.get('fav', []);
+  const isFav = (id) => getFavs().indexOf(id) !== -1;
+  function toggleFav(id) {
+    const cur = getFavs();
+    const has = cur.indexOf(id) !== -1;
+    LS.set('fav', has ? cur.filter((x) => x !== id) : [id].concat(cur));
+    return !has;
+  }
+  const getRecent = () => LS.get('recent', []);
+  function pushRecent(id) {
+    if (!id) return;
+    LS.set('recent', [id].concat(getRecent().filter((x) => x !== id)).slice(0, 8));
+  }
+  /* ===== /satset ===== */
+
   let q = '', activeCat = 'semua';
 
   function runLeave() {
@@ -23,6 +52,7 @@
   }
 
   function rowEl(t, i, showCat) {
+    const fav = isFav(t.id);
     const a = T.el(
       '<a class="trow enter" style="--i:' + (i % 24) + '" href="#/t/' + encodeURIComponent(t.id) + '">' +
         '<span class="ic">' + esc(t.icon || '+') + '</span>' +
@@ -30,10 +60,66 @@
         '<span class="ds">' + esc(t.desc) + '</span>' +
         (showCat ? '<span class="ct">' + esc(catName(t.cat)) + '</span>' : '') +
         '</span>' +
+        '<button type="button" class="fav' + (fav ? ' on' : '') + '" data-tid="' + esc(t.id) + '" aria-pressed="' + fav + '" aria-label="' + (fav ? 'Hapus dari favorit' : 'Tambah ke favorit') + '">★</button>' +
         '<span class="go">↗</span>' +
       '</a>'
     );
+    a.querySelector('.fav').addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.currentTarget;
+      const on = toggleFav(t.id);
+      syncFavBtns(t.id, on);
+      btn.classList.remove('pop');
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+      T.toast(on ? 'Ditambah ke favorit' : 'Dihapus dari favorit');
+      setTimeout(refreshQuick, 280);
+    });
     return a;
+  }
+
+  // samakan semua tombol star untuk tool yang sama di layar
+  function syncFavBtns(id, on) {
+    document.querySelectorAll('.fav').forEach((b) => {
+      if (b.dataset.tid !== id) return;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on);
+      b.setAttribute('aria-label', on ? 'Hapus dari favorit' : 'Tambah ke favorit');
+    });
+  }
+
+  function refreshQuick() {
+    const box = document.getElementById('quick');
+    if (box) renderQuick(box);
+  }
+
+  // Section "Favorit" + "Terakhir dibuka" di home. Favorit hanya muncul bila ≥1;
+  // kalau user baru saja menghapus favorit terakhir, tampilkan empty state ramah.
+  function renderQuick(box) {
+    const hadFav = !!box.querySelector('[data-qsec="fav"]');
+    box.innerHTML = '';
+    const favs = getFavs().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean);
+    if (favs.length) {
+      const sec = T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2><span class="n">' + favs.length + '</span></div><div class="trows"></div></section>');
+      const rows = sec.querySelector('.trows');
+      favs.forEach((t, i) => rows.appendChild(rowEl(t, i, true)));
+      box.appendChild(sec);
+    } else if (hadFav) {
+      box.appendChild(T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2></div><p class="qempty">Belum ada favorit. Tap ☆ di tool yang sering kamu pakai.</p></section>'));
+    }
+    const recents = getRecent().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean);
+    if (recents.length) {
+      const sec = T.el('<section class="qsec" data-qsec="recent"><div class="qsec-head"><h2>↻ Terakhir dibuka</h2></div><div class="chips"></div></section>');
+      const chips = sec.querySelector('.chips');
+      recents.forEach((t) => {
+        chips.appendChild(T.el(
+          '<a class="chip" href="#/t/' + encodeURIComponent(t.id) + '">' +
+            '<span class="cic">' + esc(t.icon || '+') + '</span><span class="cnm">' + esc(t.name) + '</span></a>'
+        ));
+      });
+      box.appendChild(sec);
+    }
   }
 
   function filtered() {
@@ -71,6 +157,7 @@
           POPULAR.map(([id, label]) => '<a href="#/t/' + id + '">' + esc(label) + '</a>').join('') +
         '</div>' +
       '</section>' +
+      '<div id="quick"></div>' +
       '<nav class="rail" id="rail" aria-label="Kategori"></nav>' +
       '<main class="dir" id="dir"></main>' +
       '<footer class="foot"><span class="fmark">A</span><br>Dibuat dengan teliti.<br><b>Data tidak pernah keluar dari browser kamu.</b></footer>';
@@ -141,6 +228,7 @@
     });
     syncClear();
     paint();
+    renderQuick(v.querySelector('#quick'));
     app.appendChild(w);
     if (q) { input.focus(); try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {} }
   }
@@ -176,6 +264,7 @@
       '<section class="related" id="rel"></section>' +
       '<footer class="foot">Data diproses lokal di browser kamu.</footer>';
     app.appendChild(w);
+    pushRecent(id);
 
     // tools terkait (kategori sama)
     const rel = NS.tools.filter((x) => x.cat === t.cat && x.id !== t.id).slice(0, 3);
@@ -188,6 +277,36 @@
     }
 
     const toolbox = v.querySelector('#toolbox');
+
+    // dock bawah: kembali + favorit + bagikan — dalam jangkauan jempol
+    const dockFav = isFav(t.id);
+    const dock = T.el(
+      '<nav class="dock" aria-label="Aksi cepat">' +
+        '<a class="dock-btn" href="#/">←<span>Kembali</span></a>' +
+        '<button type="button" class="dock-btn dfav' + (dockFav ? ' on' : '') + '" aria-pressed="' + dockFav + '" aria-label="Tambah ke favorit">★<span>Favorit</span></button>' +
+        '<button type="button" class="dock-btn dshare" aria-label="Bagikan tool ini">↗<span>Bagikan</span></button>' +
+      '</nav>'
+    );
+    document.body.appendChild(dock);
+    T.onLeave(() => dock.remove());
+    const dfavBtn = dock.querySelector('.dfav');
+    dfavBtn.addEventListener('click', () => {
+      const on = toggleFav(t.id);
+      dfavBtn.classList.toggle('on', on);
+      dfavBtn.setAttribute('aria-pressed', on);
+      syncFavBtns(t.id, on);
+      T.toast(on ? 'Ditambah ke favorit' : 'Dihapus dari favorit');
+    });
+    dock.querySelector('.dshare').addEventListener('click', async () => {
+      const url = location.origin + location.pathname + '#/t/' + encodeURIComponent(t.id);
+      if (navigator.share) {
+        try { await navigator.share({ title: t.name + ' — ADIP Tools', text: t.desc, url: url }); }
+        catch (e) { /* user membatalkan */ }
+      } else {
+        T.copy(url);
+      }
+    });
+
     requestAnimationFrame(() => {
       const sk = toolbox.querySelector('.skel');
       if (sk) sk.remove();
