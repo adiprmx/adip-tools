@@ -6,14 +6,56 @@
   const catName = (id) => { const c = NS.cats.find((x) => x[0] === id); return c ? c[1] : id; };
   const esc = T.esc;
 
-  const POPULAR = [
-    ['password-generator', 'Password'],
-    ['qr-generator', 'QR Code'],
-    ['thr', 'THR'],
-    ['weton', 'Weton'],
-    ['terbilang', 'Terbilang'],
-    ['base64', 'Base64'],
-  ];
+  /* ===== search tracking: START =====
+     "Sering dicari" dihitung dari pencarian user asli (bukan gimik).
+     Blok ini murni logika + localStorage — tanpa DOM — supaya bisa di-test. */
+  const SEARCH_MAX_TERMS = 50;   // maksimal term unik tersimpan
+  const SEARCH_TOP_N = 6;        // jumlah chip yang ditampilkan
+  const SEARCH_MIN_LEN = 2;      // abaikan query < 2 karakter
+  const SEARCH_DEBOUNCE_MS = 1500;
+  let lastTracked = '';          // cegah hitung ganda beruntun (debounce + Enter)
+  const normTerm = (raw) => {
+    const t = String(raw == null ? '' : raw).trim().toLowerCase();
+    return t.length >= SEARCH_MIN_LEN ? t : '';
+  };
+  // baca + sanitasi (data korup / count bukan angka dibuang diam-diam)
+  const getSearches = () => {
+    const o = LS.getObj('searches', {});
+    const clean = {};
+    Object.keys(o).forEach((k) => {
+      const c = Math.floor(Number(o[k]));
+      if (k && c > 0) clean[k] = c;
+    });
+    return clean;
+  };
+  // catat satu pencarian; return true bila benar-benar tercatat
+  function commitSearchTerm(raw) {
+    const term = normTerm(raw);
+    if (!term || term === lastTracked) return false;
+    lastTracked = term;
+    const all = getSearches();
+    all[term] = (all[term] || 0) + 1;
+    const keys = Object.keys(all);
+    if (keys.length > SEARCH_MAX_TERMS) {
+      keys.sort((a, b) => all[a] - all[b]); // buang yang paling jarang dicari
+      for (let i = 0; i < keys.length - SEARCH_MAX_TERMS; i++) delete all[keys[i]];
+    }
+    LS.set('searches', all);
+    return true;
+  }
+  function topSearches(n) {
+    const all = getSearches();
+    return Object.keys(all).sort((a, b) => all[b] - all[a]).slice(0, n || SEARCH_TOP_N);
+  }
+  const hasSearchData = () => Object.keys(getSearches()).length > 0;
+  function clearSearches() {
+    lastTracked = '';
+    try { localStorage.removeItem('adip-tools:searches'); } catch (e) {}
+  }
+  /* ===== search tracking: END ===== */
+
+  // fallback bila user belum pernah mencari apa pun
+  const POPULAR = ['Password', 'QR Code', 'THR', 'Weton', 'Terbilang', 'Base64'];
 
   /* ===== satset: favorit & riwayat (localStorage) — self-contained, tanpa DOM ===== */
   const LS = {
@@ -27,6 +69,14 @@
     },
     set(key, val) {
       try { localStorage.setItem('adip-tools:' + key, JSON.stringify(val)); } catch (e) {}
+    },
+    getObj(key, fallback) {
+      try {
+        const raw = localStorage.getItem('adip-tools:' + key);
+        if (raw == null) return fallback;
+        const v = JSON.parse(raw);
+        return (v && typeof v === 'object' && !Array.isArray(v)) ? v : fallback;
+      } catch (e) { return fallback; }
     },
   };
   const getFavs = () => LS.get('fav', []);
@@ -152,8 +202,8 @@
           '<button type="button" class="clear" id="qclear" aria-label="Hapus pencarian">✕</button>' +
           '<kbd>/</kbd>' +
         '</div></div>' +
-        '<div class="sug" id="sug"><span class="lbl">Sering dicari</span>' +
-          POPULAR.map(([id, label]) => '<a href="#/t/' + id + '">' + esc(label) + '</a>').join('') +
+        '<div class="sug" id="sug"><span class="lbl">Sering dicari <button type="button" class="sug-del" id="sugdel">hapus</button></span>' +
+          '<span class="suglist" id="suglist"></span>' +
         '</div>' +
       '</section>' +
       '<div id="quick"></div>' +
@@ -185,8 +235,50 @@
     const sug = v.querySelector('#sug');
     const dir = v.querySelector('#dir');
     input.value = q;
+    lastTracked = ''; // sesi pencarian baru tiap buka home
 
     const syncClear = () => clear.classList.toggle('show', !!input.value);
+
+    // "Sering dicari": 6 term teratas dari data pencarian asli,
+    // fallback ke POPULAR bila user belum pernah mencari.
+    // Klik chip = isi search box + filter (bukan navigasi ke tool).
+    const sugList = v.querySelector('#suglist');
+    const sugDel = v.querySelector('#sugdel');
+    function renderSug() {
+      const terms = topSearches();
+      const list = terms.length ? terms : POPULAR;
+      sugList.innerHTML = '';
+      list.forEach((term) => {
+        const b = T.el('<button type="button" class="schip">' + esc(term) + '</button>');
+        b.addEventListener('click', () => {
+          if (debT) { clearTimeout(debT); debT = null; }
+          q = term;
+          input.value = term;
+          syncClear();
+          paint();
+          commitSearchTerm(term); // klik chip dihitung satu pencarian
+          renderSug();
+          input.focus();
+        });
+        sugList.appendChild(b);
+      });
+      sugDel.style.display = hasSearchData() ? '' : 'none';
+    }
+    sugDel.addEventListener('click', () => {
+      if (confirm('Hapus riwayat pencarian?')) { clearSearches(); renderSug(); }
+    });
+
+    // tracking: debounce 1,5 dtk setelah berhenti mengetik, atau saat Enter.
+    // tiap keystroke TIDAK dihitung ("pass","passw",... = 1x "password").
+    let debT = null;
+    T.onLeave(() => { if (debT) { clearTimeout(debT); debT = null; } });
+    const scheduleTrack = () => {
+      if (debT) clearTimeout(debT);
+      debT = setTimeout(() => {
+        debT = null;
+        if (commitSearchTerm(input.value)) renderSug();
+      }, SEARCH_DEBOUNCE_MS);
+    };
 
     const paint = () => {
       const needle = q.trim();
@@ -220,13 +312,19 @@
       list.forEach((t, i) => rows.appendChild(rowEl(t, i, true)));
     };
 
-    input.addEventListener('input', () => { q = input.value; syncClear(); paint(); });
-    clear.addEventListener('click', () => { q = ''; input.value = ''; syncClear(); paint(); input.focus(); });
+    input.addEventListener('input', () => { q = input.value; syncClear(); paint(); scheduleTrack(); });
+    const cancelTrack = () => { if (debT) { clearTimeout(debT); debT = null; } };
+    clear.addEventListener('click', () => { q = ''; input.value = ''; lastTracked = ''; cancelTrack(); syncClear(); paint(); input.focus(); });
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { q = ''; input.value = ''; syncClear(); paint(); input.blur(); }
+      if (e.key === 'Enter') {
+        cancelTrack();
+        if (commitSearchTerm(input.value)) renderSug();
+      }
+      if (e.key === 'Escape') { q = ''; input.value = ''; lastTracked = ''; cancelTrack(); syncClear(); paint(); input.blur(); }
     });
     syncClear();
     paint();
+    renderSug();
     renderQuick(v.querySelector('#quick'));
     app.appendChild(w);
     if (q) { input.focus(); try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {} }

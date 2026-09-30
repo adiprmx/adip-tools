@@ -151,13 +151,20 @@ a { color: inherit; }
 @media (max-width: 560px) {
   .sug .lbl { flex: 0 0 100%; margin-bottom: 2px; }
 }
-.sug a {
-  font-size: 13px; color: var(--mut); text-decoration: none;
+.sug .suglist { display: contents; }
+.sug .schip {
+  font: inherit; font-size: 13px; color: var(--mut); cursor: pointer;
   border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px;
   background: var(--surface); transition: transform 0.08s var(--ease), color 0.15s, border-color 0.15s;
 }
-.sug a:active { transform: scale(0.95); }
-.sug a:hover { color: var(--txt); border-color: #3f3f46; }
+.sug .schip:active { transform: scale(0.95); }
+.sug .schip:hover { color: var(--txt); border-color: #3f3f46; }
+.sug-del {
+  font: inherit; text-transform: none; letter-spacing: normal;
+  font-size: 11px; color: var(--dim); background: none; border: none;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 4px 6px;
+}
+.sug-del:hover { color: var(--txt); }
 
 /* ---------- rel kategori (snap rail) ---------- */
 .rail {
@@ -347,7 +354,7 @@ select.inp { appearance: none; -webkit-appearance: none; }
 
 /* focus keyboard */
 .btn:focus-visible, .inp:focus-visible, .tile:focus-visible,
-.trow:focus-visible, .back:focus-visible, .sug a:focus-visible,
+.trow:focus-visible, .back:focus-visible, .sug .schip:focus-visible,
 .pkey:focus-visible, .drumgrid .cell:focus-visible, .tapzone:focus-visible,
 .msearch .clear:focus-visible, .fav:focus-visible, .chip:focus-visible,
 .dock-btn:focus-visible {
