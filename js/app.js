@@ -30,7 +30,7 @@
         '<span class="ds">' + esc(t.desc) + '</span>' +
         (showCat ? '<span class="ct">' + esc(catName(t.cat)) + '</span>' : '') +
         '</span>' +
-        '<span class="go">→</span>' +
+        '<span class="go">↗</span>' +
       '</a>'
     );
     return a;
@@ -109,10 +109,13 @@
       dir.innerHTML = '';
       if (!searching) {
         // mode jelajah: section per kategori
+        let ci = 0;
         NS.cats.forEach(([id, label]) => {
           const list = NS.tools.filter((t) => t.cat === id);
           if (!list.length) return;
-          const sec = T.el('<section class="catsec"><div class="catsec-head"><h2>' + esc(label) + '</h2><span class="n">' + list.length + '</span></div><div class="trows"></div></section>');
+          ci++;
+          const idx = String(ci).padStart(2, '0');
+          const sec = T.el('<section class="catsec"><div class="catsec-head"><span class="idx">' + idx + '</span><h2>' + esc(label) + '</h2><span class="n">' + list.length + ' tools</span></div><div class="trows"></div></section>');
           const rows = sec.querySelector('.trows');
           list.forEach((t, i) => rows.appendChild(rowEl(t, i, false)));
           dir.appendChild(sec);
