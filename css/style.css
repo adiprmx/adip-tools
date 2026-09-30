@@ -81,6 +81,10 @@ a { color: inherit; }
   white-space: nowrap;
 }
 .topcount b { color: var(--txt); }
+/* cegah wordmark wrap 2 baris di HP sempit */
+@media (max-width: 560px) {
+  .brand .wm span { display: none; }
+}
 
 /* ---------- hero: search adalah pusatnya ---------- */
 .hero { padding: 32px 0 0; }
@@ -107,7 +111,7 @@ a { color: inherit; }
 .msearch .box { position: relative; }
 .msearch .glyph {
   position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-  color: var(--dim); font-size: 22px; pointer-events: none;
+  color: var(--faint); font-size: 22px; pointer-events: none;
   transition: color 0.2s;
 }
 .msearch input {
@@ -134,11 +138,19 @@ a { color: inherit; }
 }
 .msearch .clear.show { display: inline-flex; }
 .msearch .clear.show ~ kbd { display: none; }
-@media (pointer: coarse) { .msearch kbd { display: none; } }
+@media (pointer: coarse) {
+  .msearch kbd { display: none; }
+  /* tanpa kbd, padding kanan 76px mubazir & bikin placeholder kepotong */
+  .msearch input { padding-right: 20px; }
+}
 
 /* ---------- saran populer ---------- */
 .sug { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .sug .lbl { font-family: var(--font-m); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-right: 2px; }
+/* di HP: label di baris sendiri, chips tetap mengalir horizontal */
+@media (max-width: 560px) {
+  .sug .lbl { flex: 0 0 100%; margin-bottom: 2px; }
+}
 .sug a {
   font-size: 13px; color: var(--mut); text-decoration: none;
   border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px;
@@ -188,7 +200,7 @@ a { color: inherit; }
 }
 .catsec-head .n { font-family: var(--font-m); font-size: 12px; color: var(--dim); margin-left: auto; }
 .trow {
-  display: grid; grid-template-columns: 46px 1fr auto auto; gap: 14px; align-items: center;
+  display: grid; grid-template-columns: 46px 1fr auto; gap: 14px; align-items: center;
   padding: 15px 8px; text-decoration: none;
   border-bottom: 1px solid var(--line-soft);
   transition: background 0.15s, transform 0.1s var(--ease);
@@ -201,7 +213,7 @@ a { color: inherit; }
   width: 44px; height: 44px; margin-right: -6px;
   display: flex; align-items: center; justify-content: center;
   background: none; border: 0; cursor: pointer; border-radius: 12px;
-  color: var(--dim); font-size: 21px; line-height: 1; opacity: 0.38;
+  color: var(--dim); font-size: 21px; line-height: 1; opacity: 0.6;
   transition: opacity 0.15s var(--ease), color 0.15s var(--ease), transform 0.12s var(--ease), background 0.15s;
 }
 .trow .fav.on { opacity: 1; color: #fff; }
@@ -225,8 +237,6 @@ a { color: inherit; }
   color: var(--faint); font-size: 13.5px; margin-top: 4px; line-height: 1.5;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.trow .go { color: var(--dim); font-size: 19px; transition: transform 0.15s var(--ease), color 0.15s; }
-.trow:hover .go { transform: translate(3px, -3px); color: var(--txt); }
 .trow .ct {
   display: block; margin-top: 5px;
   font-size: 10.5px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
@@ -271,8 +281,8 @@ a { color: inherit; }
   font-weight: 700; line-height: 1.15;
 }
 .tool-head .meta {
-  display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
-  color: var(--mut); font-size: 14px; margin-top: 8px; line-height: 1.5;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  color: var(--mut); font-size: 14px; margin-top: 10px; line-height: 1.55;
 }
 .tool-head .meta .tag {
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
@@ -380,6 +390,8 @@ select.inp { appearance: none; -webkit-appearance: none; }
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+/* di halaman tool, toast jangan ketutup dock bawah */
+body:has(.dock) .toast { bottom: 108px; }
 
 /* ---------- footer ---------- */
 footer.foot {

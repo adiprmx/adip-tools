@@ -305,7 +305,7 @@
       T.show(box, '<pre>' + esc(current) + '</pre>');
     };
     root.appendChild(T.grid2(T.field('Tema', tema), T.field('Jenis', jenis)));
-    root.appendChild(T.row(T.btn('🎲 Acak pantun', acak, true), T.copyBtn(() => current || 'Acak dulu pantunnya', 'Salin')));
+    root.appendChild(T.row(T.btn('Acak pantun', acak, true), T.copyBtn(() => current || 'Acak dulu pantunnya', 'Salin')));
     root.appendChild(box);
     acak();
     tema.addEventListener('change', acak);
@@ -393,7 +393,7 @@
       T.beep(520, 0.12, 'square');
     };
     root.appendChild(T.grid2(T.field('Jumlah dadu', jumlah), T.field('Sisi dadu', sisi)));
-    root.appendChild(T.btn('🎲 Lempar', lempar, true));
+    root.appendChild(T.btn('Lempar', lempar, true));
     root.appendChild(box);
     root.appendChild(riwBox);
     T.hide(riwBox);

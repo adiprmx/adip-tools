@@ -271,7 +271,7 @@
     };
     root.appendChild(T.field('Panjang password', T.row(lenRange, lenNum)));
     [cUp, cLow, cNum, cSym, cAmb].forEach((c) => root.appendChild(c.el));
-    const bGen = T.btn('🎲 Buat Password', gen, true);
+    const bGen = T.btn('Buat Password', gen, true);
     const bCopy = T.btn('Salin', () => { if (last) T.copy(last); else T.toast('Buat password dulu'); });
     root.appendChild(T.row(bGen, bCopy));
     root.appendChild(out);
@@ -503,7 +503,7 @@
       ).join(''));
     };
     root.appendChild(T.field('Jumlah UUID', nInp));
-    root.appendChild(T.row(T.btn('🎲 Generate', gen, true), T.btn('Salin Semua', () => { if (last.length) T.copy(last.join('\n')); else T.toast('Generate dulu'); })));
+    root.appendChild(T.row(T.btn('Generate', gen, true), T.btn('Salin Semua', () => { if (last.length) T.copy(last.join('\n')); else T.toast('Generate dulu'); })));
     root.appendChild(out);
     gen();
   });

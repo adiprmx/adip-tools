@@ -61,7 +61,6 @@
         (showCat ? '<span class="ct">' + esc(catName(t.cat)) + '</span>' : '') +
         '</span>' +
         '<button type="button" class="fav' + (fav ? ' on' : '') + '" data-tid="' + esc(t.id) + '" aria-pressed="' + fav + '" aria-label="' + (fav ? 'Hapus dari favorit' : 'Tambah ke favorit') + '">★</button>' +
-        '<span class="go">↗</span>' +
       '</a>'
     );
     a.querySelector('.fav').addEventListener('click', (e) => {
@@ -148,7 +147,7 @@
         '<h1>Butuh <span class="qm">apa?</span></h1>' +
         '<p class="sub"><b>100 tools gratis</b> yang jalan langsung di browser. Ketik yang kamu cari, klik, langsung pakai. Tanpa daftar, tanpa upload.</p>' +
         '<div class="msearch"><div class="box">' +
-          '<input id="q" type="search" placeholder="Cari tools… misal: password, QR, THR" autocomplete="off" aria-label="Cari tools">' +
+          '<input id="q" type="search" placeholder="Cari tools…" autocomplete="off" aria-label="Cari tools">' +
           '<span class="glyph">⌕</span>' +
           '<button type="button" class="clear" id="qclear" aria-label="Hapus pencarian">✕</button>' +
           '<kbd>/</kbd>' +
@@ -254,7 +253,6 @@
       return;
     }
     v.innerHTML =
-      '<a class="back" href="#/">← Semua tools</a>' +
       '<header class="tool-head">' +
         '<span class="tic">' + esc(t.icon || '+') + '</span>' +
         '<div><h2>' + esc(t.name) + '</h2>' +
