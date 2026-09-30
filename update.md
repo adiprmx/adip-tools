@@ -28,3 +28,11 @@ kode diorganisir yang berubah (tanpa build step, tanpa framework).
 ## Berikutnya (Fase 2)
 Pecah tiap tool jadi `js/tools/<kategori>/<id>.js` + manifest — code splitting:
 tool hanya di-download saat dibuka.
+
+## Hotfix — 1 Okt 2026 ~07:00 WIB: QR Generator CDN 404
+- Temuan saat uji regresi live: tool QR Code Generator rusak — URL
+  `https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js` return 404
+  (paket npm qrcode@1.5.x tidak punya folder `build/`; bug pre-existing,
+  bukan akibat migrasi ES modules).
+- Fix: pin ke `qrcode@1.4.4` (punya `/build/qrcode.min.js`, terverifikasi 200).
+  2 baris di `js/tools-a..e` → `js/tools-b.js` diubah, API tool tidak berubah.
