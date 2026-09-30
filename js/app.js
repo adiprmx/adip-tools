@@ -6,53 +6,77 @@
   const catName = (id) => { const c = NS.cats.find((x) => x[0] === id); return c ? c[1] : id; };
   const esc = T.esc;
 
-  /* ===== search tracking: START =====
-     "Sering dicari" dihitung dari pencarian user asli (bukan gimik).
-     Blok ini murni logika + localStorage — tanpa DOM — supaya bisa di-test. */
-  const SEARCH_MAX_TERMS = 50;   // maksimal term unik tersimpan
+  /* ===== global search trends (Supabase realtime): START =====
+     "Sering dicari" = agregat pencarian SEMUA user, update realtime.
+     Blok murni logika (tanpa DOM) kecuali sbEnsure/track/fetch — bisa di-test. */
+  const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
+  const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYmFmZGR3dXB5cXB3ZXZoc3FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTA4ODIsImV4cCI6MjEwMjg2Njg4Mn0.FV11WzcVJv2GlFHpzLztFMCik1nmDucA7hZwov8090E'; // anon key: publik by design
   const SEARCH_TOP_N = 6;        // jumlah chip yang ditampilkan
-  const SEARCH_MIN_LEN = 2;      // abaikan query < 2 karakter
   const SEARCH_DEBOUNCE_MS = 1500;
+  const SEARCH_TRACK_COOLDOWN_MS = 5000; // rate-limit client: maks 1 track / 5 dtk
+  const TERM_RE = /^[a-z0-9 \-]{2,40}$/;
   let lastTracked = '';          // cegah hitung ganda beruntun (debounce + Enter)
+  let lastTrackAt = 0;
+  let sbClient = null;           // supabase-js client (lazy, hanya di home)
+  let sbLoading = null;
+  let sbTerms = [];              // cache top terms global
+  let sbReady = false;           // true bila fetch top-6 pernah sukses
+  // normalisasi + validasi ketat (murni, testable)
   const normTerm = (raw) => {
     const t = String(raw == null ? '' : raw).trim().toLowerCase();
-    return t.length >= SEARCH_MIN_LEN ? t : '';
+    return TERM_RE.test(t) ? t : '';
   };
-  // baca + sanitasi (data korup / count bukan angka dibuang diam-diam)
-  const getSearches = () => {
-    const o = LS.getObj('searches', {});
-    const clean = {};
-    Object.keys(o).forEach((k) => {
-      const c = Math.floor(Number(o[k]));
-      if (k && c > 0) clean[k] = c;
+  // lazy-load supabase-js (UMD) sekali saja; resolve null bila gagal/offline
+  function sbEnsure() {
+    if (sbClient) return Promise.resolve(sbClient);
+    if (sbLoading) return sbLoading;
+    sbLoading = new Promise((resolve) => {
+      try {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+        s.async = true;
+        s.onload = () => {
+          try { sbClient = window.supabase.createClient(SB_URL, SB_ANON); }
+          catch (e) { sbClient = null; }
+          resolve(sbClient);
+        };
+        s.onerror = () => resolve(null);
+        document.head.appendChild(s);
+        setTimeout(() => resolve(sbClient), 8000); // jangan gantung selamanya
+      } catch (e) { resolve(null); }
     });
-    return clean;
-  };
-  // catat satu pencarian; return true bila benar-benar tercatat
-  function commitSearchTerm(raw) {
+    return sbLoading;
+  }
+  // fire-and-forget: catat pencarian ke agregat global (anon hanya via RPC)
+  function trackSearchGlobal(raw) {
     const term = normTerm(raw);
-    if (!term || term === lastTracked) return false;
+    if (!term || term === lastTracked) return;
+    const now = Date.now();
+    if (now - lastTrackAt < SEARCH_TRACK_COOLDOWN_MS) return;
     lastTracked = term;
-    const all = getSearches();
-    all[term] = (all[term] || 0) + 1;
-    const keys = Object.keys(all);
-    if (keys.length > SEARCH_MAX_TERMS) {
-      keys.sort((a, b) => all[a] - all[b]); // buang yang paling jarang dicari
-      for (let i = 0; i < keys.length - SEARCH_MAX_TERMS; i++) delete all[keys[i]];
-    }
-    LS.set('searches', all);
-    return true;
+    lastTrackAt = now;
+    sbEnsure().then((sb) => {
+      if (!sb) return;
+      sb.rpc('track_search', { p_term: term }).then(() => {}, () => {});
+    });
   }
-  function topSearches(n) {
-    const all = getSearches();
-    return Object.keys(all).sort((a, b) => all[b] - all[a]).slice(0, n || SEARCH_TOP_N);
+  // ambil top-N global; resolve array term, atau null bila gagal/belum setup
+  function fetchTopSearches() {
+    return sbEnsure().then((sb) => {
+      if (!sb) return null;
+      return sb.from('tool_search_terms')
+        .select('term')
+        .order('count', { ascending: false })
+        .limit(SEARCH_TOP_N)
+        .then(({ data, error }) => {
+          if (error || !data) return null;
+          sbReady = true;
+          sbTerms = data.map((r) => r.term).filter(Boolean);
+          return sbTerms;
+        }, () => null);
+    });
   }
-  const hasSearchData = () => Object.keys(getSearches()).length > 0;
-  function clearSearches() {
-    lastTracked = '';
-    try { localStorage.removeItem('adip-tools:searches'); } catch (e) {}
-  }
-  /* ===== search tracking: END ===== */
+  /* ===== global search trends: END ===== */
 
   // fallback bila user belum pernah mencari apa pun
   const POPULAR = ['Password', 'QR Code', 'THR', 'Weton', 'Terbilang', 'Base64'];
@@ -202,14 +226,14 @@
           '<button type="button" class="clear" id="qclear" aria-label="Hapus pencarian">✕</button>' +
           '<kbd>/</kbd>' +
         '</div></div>' +
-        '<div class="sug" id="sug"><span class="lbl">Sering dicari <button type="button" class="sug-del" id="sugdel">hapus</button></span>' +
+        '<div class="sug" id="sug"><span class="lbl">Sering dicari</span>' +
           '<span class="suglist" id="suglist"></span>' +
         '</div>' +
       '</section>' +
       '<div id="quick"></div>' +
       '<nav class="rail" id="rail" aria-label="Kategori"></nav>' +
       '<main class="dir" id="dir"></main>' +
-      '<footer class="foot"><span class="fmark">A</span><br>Dibuat dengan teliti.<br><b>Data tidak pernah keluar dari browser kamu.</b></footer>';
+      '<footer class="foot"><span class="fmark">A</span><br>Dibuat dengan teliti.<br><b>Data tool tidak pernah keluar dari browser kamu.</b><br><span class="dim">Pencarian tercatat anonim untuk statistik global.</span></footer>';
 
     // rail kategori
     const rail = v.querySelector('#rail');
@@ -239,14 +263,12 @@
 
     const syncClear = () => clear.classList.toggle('show', !!input.value);
 
-    // "Sering dicari": 6 term teratas dari data pencarian asli,
-    // fallback ke POPULAR bila user belum pernah mencari.
+    // "Sering dicari": agregat GLOBAL realtime dari Supabase.
+    // Fallback ke POPULAR bila Supabase belum setup / offline (jangan blank).
     // Klik chip = isi search box + filter (bukan navigasi ke tool).
     const sugList = v.querySelector('#suglist');
-    const sugDel = v.querySelector('#sugdel');
     function renderSug() {
-      const terms = topSearches();
-      const list = terms.length ? terms : POPULAR;
+      const list = (sbReady && sbTerms.length) ? sbTerms : POPULAR;
       sugList.innerHTML = '';
       list.forEach((term) => {
         const b = T.el('<button type="button" class="schip">' + esc(term) + '</button>');
@@ -256,27 +278,45 @@
           input.value = term;
           syncClear();
           paint();
-          commitSearchTerm(term); // klik chip dihitung satu pencarian
-          renderSug();
+          trackSearchGlobal(term); // klik chip dihitung satu pencarian
           input.focus();
         });
         sugList.appendChild(b);
       });
-      sugDel.style.display = hasSearchData() ? '' : 'none';
     }
-    sugDel.addEventListener('click', () => {
-      if (confirm('Hapus riwayat pencarian?')) { clearSearches(); renderSug(); }
+    // realtime: tiap ada perubahan agregat -> refetch + re-render,
+    // tapi jangan ganggu saat user sedang mengetik
+    function startSugRealtime() {
+      sbEnsure().then((sb) => {
+        if (!sb || !sbReady) return;
+        const ch = sb.channel('sg_trends')
+          .on('postgres_changes',
+            { event: '*', schema: 'public', table: 'tool_search_terms' },
+            () => {
+              if (input.value.trim()) return;
+              fetchTopSearches().then((t) => { if (t) renderSug(); });
+            })
+          .subscribe();
+        T.onLeave(() => { try { sb.removeChannel(ch); } catch (e) {} });
+      });
+    }
+    // fetch awal (async): langsung tampilkan fallback, update saat data tiba.
+    // realtime dimulai begitu fetch sukses (walau tabel masih kosong),
+    // supaya pencarian pertama user langsung memicu update live.
+    fetchTopSearches().then((t) => {
+      if (t) { renderSug(); startSugRealtime(); }
     });
 
-    // tracking: debounce 1,5 dtk setelah berhenti mengetik, atau saat Enter.
+    // tracking global: debounce 1,5 dtk setelah berhenti mengetik, atau saat Enter.
     // tiap keystroke TIDAK dihitung ("pass","passw",... = 1x "password").
+    // fire-and-forget + rate-limit 5 dtk — tidak block UI.
     let debT = null;
     T.onLeave(() => { if (debT) { clearTimeout(debT); debT = null; } });
     const scheduleTrack = () => {
       if (debT) clearTimeout(debT);
       debT = setTimeout(() => {
         debT = null;
-        if (commitSearchTerm(input.value)) renderSug();
+        trackSearchGlobal(input.value);
       }, SEARCH_DEBOUNCE_MS);
     };
 
@@ -318,7 +358,7 @@
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         cancelTrack();
-        if (commitSearchTerm(input.value)) renderSug();
+        trackSearchGlobal(input.value);
       }
       if (e.key === 'Escape') { q = ''; input.value = ''; lastTracked = ''; cancelTrack(); syncClear(); paint(); input.blur(); }
     });

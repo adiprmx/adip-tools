@@ -159,12 +159,6 @@ a { color: inherit; }
 }
 .sug .schip:active { transform: scale(0.95); }
 .sug .schip:hover { color: var(--txt); border-color: #3f3f46; }
-.sug-del {
-  font: inherit; text-transform: none; letter-spacing: normal;
-  font-size: 11px; color: var(--dim); background: none; border: none;
-  text-decoration: underline; text-underline-offset: 2px; cursor: pointer; padding: 4px 6px;
-}
-.sug-del:hover { color: var(--txt); }
 
 /* ---------- rel kategori (snap rail) ---------- */
 .rail {
