@@ -2,10 +2,8 @@
  * 18 tools: Sehari-hari (5) + Fun & Hiburan (6) + Produktivitas & Kesehatan (3)
  *           + Pelajar (3) + Live API (1). Semua jalan 100% di browser.
  */
-(function () {
-  const NS = (window.ADIPTOOLS = window.ADIPTOOLS || { tools: [], utils: {}, cats: [], leaveCbs: [] });
-  const T = NS.h;
-  const R = (id, name, cat, icon, desc, render) => NS.tools.push({ id, name, cat, icon, desc, render });
+import { h as T, tools, utils } from './core.js?v=4.1.0';
+  const R = (id, name, cat, icon, desc, render) => tools.push({ id, name, cat, icon, desc, render });
   const esc = T.esc;
 
   /* ---------- helper internal ---------- */
@@ -32,7 +30,7 @@
   }
 
   /* ================= FUNGSI MURNI (untuk testing) ================= */
-  NS.utils.bmi = function (beratKg, tinggiCm) {
+  utils.bmi = function (beratKg, tinggiCm) {
     const b = Number(beratKg), h = Number(tinggiCm);
     if (!(b > 0) || !(h > 0)) return null;
     const v = b / Math.pow(h / 100, 2);
@@ -45,7 +43,7 @@
     return { bmi: Math.round(v * 10) / 10, kategori };
   };
 
-  NS.utils.bmr = function (gender, beratKg, tinggiCm, umur) {
+  utils.bmr = function (gender, beratKg, tinggiCm, umur) {
     const g = String(gender || '').toLowerCase().trim();
     const isMale = /^(pria|laki|laki-laki|male|m|l)$/.test(g);
     const b = Number(beratKg), h = Number(tinggiCm), u = Number(umur);
@@ -53,7 +51,7 @@
     return Math.round(10 * b + 6.25 * h - 5 * u + (isMale ? 5 : -161));
   };
 
-  NS.utils.ipk = function (entries) {
+  utils.ipk = function (entries) {
     let bobotSks = 0, sks = 0;
     (entries || []).forEach((e) => {
       const s = Number(e && e.sks), bo = Number(e && e.bobot);
@@ -63,7 +61,7 @@
     return Math.round((bobotSks / sks) * 100) / 100;
   };
 
-  NS.utils.sleepOptions = function (mode, jamAcuan) {
+  utils.sleepOptions = function (mode, jamAcuan) {
     const ref = toMin(jamAcuan);
     if (isNaN(ref)) return [];
     const out = [];
@@ -76,7 +74,7 @@
     return out;
   };
 
-  NS.utils.ageParts = function (birthISO, refISO) {
+  utils.ageParts = function (birthISO, refISO) {
     const b = parseISO(birthISO), r = parseISO(refISO);
     if (!b || !r || r < b) return null;
     let tahun = r.getUTCFullYear() - b.getUTCFullYear();
@@ -90,7 +88,7 @@
     return { tahun, bulan, hari, totalHari: Math.floor((r - b) / 86400000) };
   };
 
-  NS.utils.weatherId = function (code) {
+  utils.weatherId = function (code) {
     const m = {
       0: 'Cerah', 1: 'Cerah berawan tipis', 2: 'Berawan sebagian', 3: 'Mendung',
       45: 'Berkabut', 48: 'Berkabut tebal',
@@ -121,8 +119,8 @@
     ], '1.375');
     const box = T.out();
     const hitung = () => {
-      const r = NS.utils.bmi(T.num(berat.value), T.num(tinggi.value));
-      const bmr = NS.utils.bmr(gender.value, T.num(berat.value), T.num(tinggi.value), T.num(umur.value));
+      const r = utils.bmi(T.num(berat.value), T.num(tinggi.value));
+      const bmr = utils.bmr(gender.value, T.num(berat.value), T.num(tinggi.value), T.num(umur.value));
       if (!r || isNaN(bmr)) { T.show(box, '<span class="err">Isi berat, tinggi, dan umur dengan angka yang valid.</span>'); return; }
       const tdee = Math.round(bmr * Number(aktif.value));
       const warna = r.kategori === 'Normal' ? 'ok' : (r.kategori.indexOf('Obesitas') === 0 ? 'err' : 'warn');
@@ -155,7 +153,7 @@
     const ref = T.input('date', 'Tanggal acuan', todayISO());
     const box = T.out();
     const hitung = () => {
-      const r = NS.utils.ageParts(lahir.value, ref.value);
+      const r = utils.ageParts(lahir.value, ref.value);
       if (!r) { T.show(box, '<span class="err">Tanggal lahir harus sebelum tanggal acuan.</span>'); return; }
       const totalBulan = r.tahun * 12 + r.bulan;
       const totalMinggu = Math.floor(r.totalHari / 7);
@@ -629,7 +627,7 @@
     const tgl = T.input('date', 'Tanggal jadian', todayISO());
     const box = T.out();
     const hitung = () => {
-      const p = NS.utils.ageParts(tgl.value, todayISO());
+      const p = utils.ageParts(tgl.value, todayISO());
       if (!p) { T.show(box, '<span class="err">Tanggal jadian tidak boleh di masa depan.</span>'); return; }
       const d = p.totalHari;
       let html = '<div class="center"><div class="dim">Kalian sudah bersama</div>' +
@@ -742,8 +740,8 @@
     const siklusOf = { 3: '3 siklus', 4: '4 siklus', 5: '5 siklus', 6: '6 siklus' };
     const hitung = () => {
       const jamList = mode.value === 'now'
-        ? NS.utils.sleepOptions('now', (() => { const d = new Date(); return p2(d.getHours()) + ':' + p2(d.getMinutes()); })())
-        : NS.utils.sleepOptions('wake', jamBangun.value || '06:00');
+        ? utils.sleepOptions('now', (() => { const d = new Date(); return p2(d.getHours()) + ':' + p2(d.getMinutes()); })())
+        : utils.sleepOptions('wake', jamBangun.value || '06:00');
       if (!jamList.length) { T.show(box, '<span class="err">Isi jam dengan format HH:MM.</span>'); return; }
       const siklus = mode.value === 'now' ? [3, 4, 5, 6] : [4, 5, 6];
       let html = mode.value === 'now'
@@ -856,7 +854,7 @@
       }));
       const valid = entries.filter((e) => e.sks > 0 && !isNaN(e.bobot));
       if (!valid.length) { T.show(box, '<span class="err">Isi minimal satu mata kuliah dengan SKS dan nilai yang valid.</span>'); return; }
-      const ipk = NS.utils.ipk(valid);
+      const ipk = utils.ipk(valid);
       const totalSks = valid.reduce((a, e) => a + e.sks, 0);
       const predikat = ipk >= 3.5 ? 'Sangat Memuaskan' : ipk >= 3.0 ? 'Memuaskan' : ipk >= 2.0 ? 'Cukup' : 'Kurang';
       const warna = ipk >= 3.0 ? 'ok' : ipk >= 2.0 ? 'warn' : 'err';
@@ -1106,7 +1104,7 @@
         T.show(cuacaBox,
           '<div class="center"><div class="dim">' + esc(namaKota) + '</div>' +
           '<div class="big">' + Math.round(c.temperature_2m) + '°C</div>' +
-          '<div class="info"><b>' + esc(NS.utils.weatherId(c.weather_code)) + '</b></div></div>' +
+          '<div class="info"><b>' + esc(utils.weatherId(c.weather_code)) + '</b></div></div>' +
           '<div class="kv"><span class="k">Kelembapan</span><span class="v">' + c.relative_humidity_2m + '%</span></div>' +
           '<div class="kv"><span class="k">Angin</span><span class="v">' + c.wind_speed_10m + ' km/jam</span></div>');
       } catch (e) {
@@ -1129,5 +1127,3 @@
     root.appendChild(cuacaBox);
     muatKurs();
   });
-
-})();

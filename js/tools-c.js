@@ -2,11 +2,9 @@
  * Kategori: Indonesia Spesifik (11) + Musik & Audio (10) = 21 tools.
  * Semua tool berfungsi beneran (bukan mock). Vanilla JS murni.
  */
-(function () {
-  const NS = (window.ADIPTOOLS = window.ADIPTOOLS || { tools: [], utils: {}, cats: [], leaveCbs: [] });
-  const T = NS.h;
-  const R = (id, name, cat, icon, desc, render) => NS.tools.push({ id, name, cat, icon, desc, render });
-  const U = NS.utils;
+import { h as T, tools, utils } from './core.js?v=4.1.0';
+  const R = (id, name, cat, icon, desc, render) => tools.push({ id, name, cat, icon, desc, render });
+  const U = utils;
 
   /* ================= FUNGSI MURNI (di-test) ================= */
 
@@ -1217,5 +1215,3 @@
     root.appendChild(T.row(T.btn('Bacakan', speak, true), T.btn('Stop', stop)));
     root.appendChild(box);
   });
-
-})();

@@ -3,10 +3,8 @@
  * SEMUA pemrosesan file 100% lokal di browser (canvas/FileReader) —
  * tidak ada satu byte pun yang diupload ke mana-mana.
  */
-(function () {
-  const NS = (window.ADIPTOOLS = window.ADIPTOOLS || { tools: [], utils: {}, cats: [], leaveCbs: [] });
-  const T = NS.h;
-  const R = (id, name, cat, icon, desc, render) => NS.tools.push({ id, name, cat, icon, desc, render });
+import { h as T, tools, utils } from './core.js?v=4.1.0';
+  const R = (id, name, cat, icon, desc, render) => tools.push({ id, name, cat, icon, desc, render });
 
   const LOCAL_NOTE = 'Semua diproses 100% lokal di HP kamu, file tidak diupload ke mana-mana.';
 
@@ -47,18 +45,18 @@
     return im;
   }
 
-  // ================= FUNGSI MURNI (NS.utils) =================
+  // ================= FUNGSI MURNI (utils) =================
 
   function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a || 1; }
 
-  NS.utils.simplifyRatio = function (w, h) {
+  utils.simplifyRatio = function (w, h) {
     w = Math.round(Number(w)); h = Math.round(Number(h));
     if (!w || !h || w < 0 || h < 0) return '';
     const g = gcd(w, h);
     return (w / g) + ':' + (h / g);
   };
 
-  NS.utils.waFormat = function (text, kind) {
+  utils.waFormat = function (text, kind) {
     const s = String(text == null ? '' : text);
     const wrap = { bold: '*', italic: '_', strike: '~', mono: '```' };
     const m = wrap[kind];
@@ -111,36 +109,36 @@
       default: return ch;
     }
   }
-  NS.utils.fancy = function (text, style) {
+  utils.fancy = function (text, style) {
     return Array.from(String(text == null ? '' : text)).map((c) => fancyChar(c, style)).join('');
   };
-  NS.utils.fancyStyles = FANCY_STYLES;
+  utils.fancyStyles = FANCY_STYLES;
 
   // --- ekstrak kontak ---
-  NS.utils.extractEmails = function (s) {
+  utils.extractEmails = function (s) {
     const m = String(s == null ? '' : s).match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
     return [...new Set(m || [])];
   };
-  NS.utils.extractPhones = function (s) {
+  utils.extractPhones = function (s) {
     const str = String(s == null ? '' : s);
     const m = str.match(/(?:\+?62|0)8\d{7,11}\b/g);
     return [...new Set((m || []).map((x) => x.replace(/^\+/, '')))];
   };
 
   // --- harga jual ---
-  NS.utils.hargaJual = function (modal, marginPct) {
+  utils.hargaJual = function (modal, marginPct) {
     modal = Number(modal); marginPct = Number(marginPct);
     if (!isFinite(modal) || !isFinite(marginPct) || modal < 0 || marginPct < 0 || marginPct >= 100) return NaN;
     return modal / (1 - marginPct / 100);
   };
-  NS.utils.marginAktual = function (modal, jual) {
+  utils.marginAktual = function (modal, jual) {
     modal = Number(modal); jual = Number(jual);
     if (!isFinite(modal) || !isFinite(jual) || jual <= 0) return NaN;
     return ((jual - modal) / jual) * 100;
   };
 
   // --- cat tembok ---
-  NS.utils.catTembok = function (p, l, t, lapis, dayaSebar, kurangBukaan) {
+  utils.catTembok = function (p, l, t, lapis, dayaSebar, kurangBukaan) {
     p = T.num(p); l = T.num(l); t = T.num(t);
     lapis = T.num(lapis) || 0; dayaSebar = T.num(dayaSebar) || 0; kurangBukaan = T.num(kurangBukaan) || 0;
     let luas = 2 * (p + l) * t - kurangBukaan;
@@ -151,7 +149,7 @@
   };
 
   // --- diff per baris (LCS sederhana) ---
-  NS.utils.diffLines = function (a, b) {
+  utils.diffLines = function (a, b) {
     const A = String(a == null ? '' : a).split('\n');
     const B = String(b == null ? '' : b).split('\n');
     const n = A.length, m = B.length;
@@ -172,7 +170,7 @@
   };
 
   // --- dedup & urutkan ---
-  NS.utils.dedupSort = function (text, opts) {
+  utils.dedupSort = function (text, opts) {
     opts = opts || {};
     let lines = String(text == null ? '' : text).split('\n');
     const before = lines.length;
@@ -192,7 +190,7 @@
   const Z_UP = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0305','\u0306','\u0307','\u0308','\u0309','\u030A','\u030B','\u030C','\u030D','\u030E','\u030F','\u0310','\u0311','\u0312','\u0313','\u0314'];
   const Z_MID = ['\u0315','\u031B','\u0334','\u0335','\u0336','\u0340','\u0341','\u0342','\u0343','\u0344'];
   const Z_DOWN = ['\u0316','\u0317','\u0318','\u0319','\u031A','\u031C','\u031D','\u031E','\u031F','\u0320','\u0321','\u0322','\u0323','\u0324','\u0325','\u0326','\u0327','\u0328','\u0329','\u032A','\u032B','\u032C','\u032D','\u032E','\u032F','\u0330','\u0331','\u0332','\u0333','\u0339','\u033A','\u033B','\u033C'];
-  NS.utils.zalgo = function (text, intensity, rand) {
+  utils.zalgo = function (text, intensity, rand) {
     const r = rand || Math.random;
     const n = Math.max(1, Math.min(12, Math.round(Number(intensity) || 3)));
     return Array.from(String(text == null ? '' : text)).map((ch) => {
@@ -207,7 +205,7 @@
   };
 
   // --- sensor teks ---
-  NS.utils.sensorText = function (text, words, mask, autoPhone, autoEmail) {
+  utils.sensorText = function (text, words, mask, autoPhone, autoEmail) {
     let s = String(text == null ? '' : text);
     const m = mask || '***';
     (words || []).forEach((w) => {
@@ -217,11 +215,11 @@
       s = s.replace(re, m);
     });
     if (autoPhone) {
-      const phones = NS.utils.extractPhones(s);
+      const phones = utils.extractPhones(s);
       phones.forEach((p) => { s = s.split(p).join(m); });
     }
     if (autoEmail) {
-      const emails = NS.utils.extractEmails(s);
+      const emails = utils.extractEmails(s);
       emails.forEach((e) => { s = s.split(e).join(m); });
     }
     return s;
@@ -245,7 +243,7 @@
     'Quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.',
     'Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga, et harum quidem rerum.'
   ];
-  NS.utils.lorem = function (mode, count) {
+  utils.lorem = function (mode, count) {
     const n = Math.max(1, Math.min(50, Math.round(Number(count) || 3)));
     const pool = LOREM_BANK.slice();
     // acak ringan
@@ -327,7 +325,7 @@
     '/': ['    #', '   # ', '  #  ', ' #   ', '#    '],
     '_': ['     ', '     ', '     ', '     ', '#####']
   };
-  NS.utils.asciiArt = function (text) {
+  utils.asciiArt = function (text) {
     const s = String(text == null ? '' : text).toUpperCase();
     if (!s.trim()) return '';
     const rows = ['', '', '', '', ''];
@@ -339,7 +337,7 @@
   };
 
   // --- invoice calc ---
-  NS.utils.invoiceCalc = function (items, discPct, taxPct) {
+  utils.invoiceCalc = function (items, discPct, taxPct) {
     let sub = 0;
     (items || []).forEach((it) => { sub += (Number(it.qty) || 0) * (Number(it.harga) || 0); });
     const disc = sub * (Number(discPct) || 0) / 100;
@@ -350,7 +348,7 @@
 
   // --- perbandingan harga ---
   const UNIT_BASE = { mg: ['berat', 0.001], g: ['berat', 1], kg: ['berat', 1000], ml: ['volume', 1], l: ['volume', 1000], pcs: ['satuan', 1] };
-  NS.utils.bandingHarga = function (a, b) {
+  utils.bandingHarga = function (a, b) {
     function norm(p) {
       const u = String(p.satuan || 'g').toLowerCase();
       const info = UNIT_BASE[u] || ['satuan', 1];
@@ -537,7 +535,7 @@
     });
 
   // 4. Thumbnail YouTube
-  NS.utils.ytId = function (url) {
+  utils.ytId = function (url) {
     const s = String(url == null ? '' : url).trim();
     const pats = [
       /youtu\.be\/([A-Za-z0-9_-]{6,})/,
@@ -578,7 +576,7 @@
 
       function show() {
         T.hide(box);
-        const id = NS.utils.ytId(urlI.value);
+        const id = utils.ytId(urlI.value);
         if (!id) { T.toast('Link YouTube tidak dikenali'); return; }
         const wrap = T.el('<div></div>');
         wrap.appendChild(T.el(`<p class="note">Video ID: <b>${T.esc(id)}</b><br>Kalau kualitas maksimal tidak ada (gambar abu-abu), otomatis pakai yang di bawahnya.</p>`));
@@ -616,7 +614,7 @@
       function calc1() {
         const w = parseFloat(wI.value), h = parseFloat(hI.value);
         if (!w || !h || w <= 0 || h <= 0) { T.toast('Isi lebar & tinggi yang valid'); return; }
-        const r = NS.utils.simplifyRatio(w, h);
+        const r = utils.simplifyRatio(w, h);
         T.show(box,
           `<div class="kv"><span>Rasio</span><b>${T.esc(r)}</b></div>` +
           `<div class="kv"><span>Desimal</span><b>${(w / h).toFixed(4)} : 1</b></div>` +
@@ -635,7 +633,7 @@
         T.show(box,
           `<div class="kv"><span>Lebar</span><b>${T.fmt(Math.round(w))} px</b></div>` +
           `<div class="kv"><span>Tinggi</span><b>${T.fmt(Math.round(h))} px</b></div>` +
-          `<div class="kv"><span>Rasio</span><b>${T.esc(NS.utils.simplifyRatio(w, h))}</b></div>`);
+          `<div class="kv"><span>Rasio</span><b>${T.esc(utils.simplifyRatio(w, h))}</b></div>`);
       }
 
       const sec1 = T.el('<div class="card"></div>');
@@ -671,10 +669,10 @@
         const s = taIn.selectionStart, e = taIn.selectionEnd;
         if (s != null && e != null && e > s) {
           const sel = txt.slice(s, e);
-          last = txt.slice(0, s) + NS.utils.waFormat(sel, kind) + txt.slice(e);
+          last = txt.slice(0, s) + utils.waFormat(sel, kind) + txt.slice(e);
           taIn.value = last;
         } else {
-          last = txt.split('\n').map((ln) => ln.trim() ? NS.utils.waFormat(ln, kind) : ln).join('\n');
+          last = txt.split('\n').map((ln) => ln.trim() ? utils.waFormat(ln, kind) : ln).join('\n');
           taIn.value = last;
         }
         T.show(box, `<div class="hint">Hasil (format aktif saat ditempel ke WhatsApp):</div><pre class="pre">${T.esc(last)}</pre>`);
@@ -730,7 +728,7 @@
       let last = '';
 
       function gen() {
-        last = NS.utils.lorem(modeSel.value, countI.value);
+        last = utils.lorem(modeSel.value, countI.value);
         T.show(box, `<pre class="pre">${T.esc(last)}</pre>`);
       }
 
@@ -750,7 +748,7 @@
       const box = T.out();
 
       function diff() {
-        const ops = NS.utils.diffLines(taA.value, taB.value);
+        const ops = utils.diffLines(taA.value, taB.value);
         let add = 0, del = 0, same = 0;
         const html = ops.map((o) => {
           if (o.t === 'add') { add++; return `<div class="diff-add">+ ${T.esc(o.line) || '&nbsp;'}</div>`; }
@@ -780,7 +778,7 @@
       let last = '';
 
       function gen() {
-        last = NS.utils.asciiArt(inI.value);
+        last = utils.asciiArt(inI.value);
         if (!last) { T.toast('Ketik teks dulu'); return; }
         T.show(box, `<pre class="pre ascii">${T.esc(last)}</pre>`);
       }
@@ -805,8 +803,8 @@
         const txt = inI.value;
         if (!txt) { T.toast('Ketik teks dulu'); return; }
         T.show(box, '');
-        NS.utils.fancyStyles.forEach((st) => {
-          const v = NS.utils.fancy(txt, st);
+        utils.fancyStyles.forEach((st) => {
+          const v = utils.fancy(txt, st);
           const card = T.el('<div class="card" style="margin-bottom:10px"></div>');
           card.appendChild(T.el(`<div class="hint" style="margin-bottom:4px">${T.esc(labels[st] || st)}</div>`));
           card.appendChild(T.el(`<div class="fancy-out">${T.esc(v)}</div>`));
@@ -836,7 +834,7 @@
       function gen() {
         const n = parseInt(intR.value, 10);
         intV.textContent = n;
-        last = NS.utils.zalgo(inI.value, n);
+        last = utils.zalgo(inI.value, n);
         T.show(box, `<div class="zalgo-out">${T.esc(last)}</div>`);
       }
 
@@ -876,7 +874,7 @@
       const sortSel = T.select([['none', 'Tanpa urut'], ['az', 'A → Z'], ['za', 'Z → A']], 'none');
 
       function process() {
-        const r = NS.utils.dedupSort(taIn.value, {
+        const r = utils.dedupSort(taIn.value, {
           dedup: oDedup.box.checked,
           trim: oTrim.box.checked,
           empty: oEmpty.box.checked,
@@ -910,8 +908,8 @@
       const box = T.out();
 
       function extract() {
-        const emails = NS.utils.extractEmails(taIn.value);
-        const phones = NS.utils.extractPhones(taIn.value);
+        const emails = utils.extractEmails(taIn.value);
+        const phones = utils.extractPhones(taIn.value);
         T.show(box, '');
         const cardE = T.el('<div class="card" style="margin-bottom:10px"></div>');
         cardE.appendChild(T.el(`<b>📧 Email (${emails.length})</b>`));
@@ -959,7 +957,7 @@
       const oEmail = chk('Sensor otomatis email', true);
 
       function process() {
-        last = NS.utils.sensorText(
+        last = utils.sensorText(
           taIn.value,
           taWords.value.split('\n'),
           maskSel.value,
@@ -996,7 +994,7 @@
         const modal = T.num(modalI.value);
         if (modeSel.value === 'm1') {
           const mp = T.num(marginI.value);
-          const jual = NS.utils.hargaJual(modal, mp);
+          const jual = utils.hargaJual(modal, mp);
           if (!isFinite(jual)) { T.toast('Isi modal & margin yang valid (margin < 100%)'); return; }
           T.show(box,
             `<div class="kv"><span>Harga jual</span><b>${T.rp(jual)}</b></div>` +
@@ -1004,7 +1002,7 @@
             `<div class="kv"><span>Margin</span><b>${mp}% dari harga jual</b></div>`);
         } else {
           const jual = T.num(jualI.value);
-          const mp = NS.utils.marginAktual(modal, jual);
+          const mp = utils.marginAktual(modal, jual);
           if (!isFinite(mp)) { T.toast('Isi modal & harga jual yang valid'); return; }
           T.show(box,
             `<div class="kv"><span>Margin aktual</span><b>${mp.toFixed(1)}%</b></div>` +
@@ -1084,7 +1082,7 @@
       function preview() {
         const list = items();
         if (!list.length) { T.toast('Tambah minimal satu item'); return; }
-        const calc = NS.utils.invoiceCalc(list, T.num(discI.value) || 0, T.num(taxI.value) || 0);
+        const calc = utils.invoiceCalc(list, T.num(discI.value) || 0, T.num(taxI.value) || 0);
         const rows = list.map((it, i) =>
           `<tr><td>${i + 1}</td><td>${T.esc(it.nama)}</td><td>${T.fmt(it.qty)}</td><td>${T.rp(it.harga)}</td><td>${T.rp(it.qty * it.harga)}</td></tr>`
         ).join('');
@@ -1110,7 +1108,7 @@
       function dlHtml() {
         const list = items();
         if (!list.length) { T.toast('Tambah minimal satu item'); return; }
-        const calc = NS.utils.invoiceCalc(list, T.num(discI.value) || 0, T.num(taxI.value) || 0);
+        const calc = utils.invoiceCalc(list, T.num(discI.value) || 0, T.num(taxI.value) || 0);
         const rows = list.map((it, i) =>
           `<tr><td>${i + 1}</td><td>${T.esc(it.nama)}</td><td>${T.fmt(it.qty)}</td><td>${T.rp(it.harga)}</td><td>${T.rp(it.qty * it.harga)}</td></tr>`
         ).join('');
@@ -1166,7 +1164,7 @@
       function calc() {
         const a = pA._get(), b = pB._get();
         if (!a.harga || !a.isi || !b.harga || !b.isi) { T.toast('Isi harga & isi kedua produk'); return; }
-        const r = NS.utils.bandingHarga(a, b);
+        const r = utils.bandingHarga(a, b);
         const unitName = r.a.jenis === 'berat' ? 'gram' : r.a.jenis === 'volume' ? 'ml' : 'pcs';
         let html =
           `<div class="kv"><span>${T.esc(a.nama || 'A')} /${unitName}</span><b>${T.rp(r.a.perBase)}</b></div>` +
@@ -1212,7 +1210,7 @@
       }
 
       function calc() {
-        const r = NS.utils.catTembok(pI.value, lI.value, tI.value, lapisI.value, dayaI.value, bukaanI.value);
+        const r = utils.catTembok(pI.value, lI.value, tI.value, lapisI.value, dayaI.value, bukaanI.value);
         if (r.luas <= 0) { T.toast('Cek ukuran ruangan, luas dinding nol'); return; }
         T.show(box,
           `<div class="kv"><span>Luas dinding dicat</span><b>${r.luas} m²</b></div>` +
@@ -1231,5 +1229,3 @@
       root.appendChild(T.btn('Hitung', calc, true));
       root.appendChild(box);
     });
-
-})();

@@ -1,9 +1,12 @@
 /* ADIP Tools v4: premium overhaul — calm luxury, command palette, quick cards. */
-(function () {
-  const NS = window.ADIPTOOLS;
-  const T = NS.h;
+import { h as T, cats, tools, leaveCbs } from './core.js?v=4.1.0';
+import './tools-a.js?v=4.1.0';
+import './tools-b.js?v=4.1.0';
+import './tools-c.js?v=4.1.0';
+import './tools-d.js?v=4.1.0';
+import './tools-e.js?v=4.1.0';
   const app = document.getElementById('app');
-  const catName = (id) => { const c = NS.cats.find((x) => x[0] === id); return c ? c[1] : id; };
+  const catName = (id) => { const c = cats.find((x) => x[0] === id); return c ? c[1] : id; };
   const esc = T.esc;
 
   // Sapaan waktu-aware untuk hero. HANYA teks statis — bukan popup/modal,
@@ -158,7 +161,7 @@
     const n = String(needle).trim().toLowerCase();
     if (!n) return [];
     const out = [];
-    for (const t of NS.tools) {
+    for (const t of tools) {
       const sN = fuzzyScore(n, t.name);
       if (sN >= 0) { out.push({ t: t, s: sN + 20 }); continue; }
       const sD = fuzzyScore(n, t.desc || '');
@@ -215,7 +218,7 @@
     const n = String(needle).trim();
     if (!n) {
       // query kosong: tawarkan "terakhir dibuka" sebagai jalan pintas
-      palItems = getRecent().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean).slice(0, 5);
+      palItems = getRecent().map((id) => tools.find((x) => x.id === id)).filter(Boolean).slice(0, 5);
       if (!palItems.length) {
         list.appendChild(T.el('<div class="pal-empty">Ketik untuk mencari dari 100 tools.<br>Coba "password", "qr", atau "kalkulator".</div>'));
         palIdx = -1;
@@ -311,7 +314,7 @@
   let q = '', activeCat = 'semua';
 
   function runLeave() {
-    const cbs = NS.leaveCbs.splice(0, NS.leaveCbs.length);
+    const cbs = leaveCbs.splice(0, leaveCbs.length);
     cbs.forEach((fn) => { try { fn(); } catch (e) {} });
   }
 
@@ -383,7 +386,7 @@
   function renderQuick(box) {
     const hadFav = !!box.querySelector('[data-qsec="fav"]');
     box.innerHTML = '';
-    const favs = getFavs().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean);
+    const favs = getFavs().map((id) => tools.find((x) => x.id === id)).filter(Boolean);
     if (favs.length) {
       const sec = T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2><span class="n">' + favs.length + '</span></div><div class="qrail"></div></section>');
       const rail = sec.querySelector('.qrail');
@@ -392,7 +395,7 @@
     } else if (hadFav) {
       box.appendChild(T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2></div><p class="qempty">Belum ada favorit nih. Tap ☆ di tool langgananmu biar muncul di sini.</p></section>'));
     }
-    const recents = getRecent().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean);
+    const recents = getRecent().map((id) => tools.find((x) => x.id === id)).filter(Boolean);
     if (recents.length) {
       const sec = T.el('<section class="qsec" data-qsec="recent"><div class="qsec-head"><h2>↻ Terakhir dibuka</h2></div><div class="chips"></div></section>');
       const chips = sec.querySelector('.chips');
@@ -408,7 +411,7 @@
 
   function filtered() {
     const needle = q.trim().toLowerCase();
-    return NS.tools.filter((t) => {
+    return tools.filter((t) => {
       if (activeCat !== 'semua' && t.cat !== activeCat) return false;
       if (!needle) return true;
       return (t.name + ' ' + t.desc + ' ' + catName(t.cat)).toLowerCase().includes(needle);
@@ -420,7 +423,7 @@
     app.innerHTML = '';
     const w = T.el('<div class="wrap"><div class="view"></div></div>');
     const v = w.firstElementChild;
-    const total = NS.tools.length;
+    const total = tools.length;
 
     v.innerHTML =
       '<header class="topbar">' +
@@ -463,8 +466,8 @@
       return b;
     };
     rail.appendChild(mkTile('semua', 'Semua', total));
-    NS.cats.forEach(([id, label]) => {
-      const n = NS.tools.filter((t) => t.cat === id).length;
+    cats.forEach(([id, label]) => {
+      const n = tools.filter((t) => t.cat === id).length;
       if (n) rail.appendChild(mkTile(id, label, n));
     });
 
@@ -545,8 +548,8 @@
       if (!searching) {
         // mode jelajah: section per kategori
         let ci = 0;
-        NS.cats.forEach(([id, label]) => {
-          const list = NS.tools.filter((t) => t.cat === id);
+        cats.forEach(([id, label]) => {
+          const list = tools.filter((t) => t.cat === id);
           if (!list.length) return;
           ci++;
           const idx = String(ci).padStart(2, '0');
@@ -618,7 +621,7 @@
 
   function toolPage(id) {
     runLeave();
-    const t = NS.tools.find((x) => x.id === id);
+    const t = tools.find((x) => x.id === id);
     app.innerHTML = '';
     const w = T.el('<div class="wrap narrow"><div class="view"></div></div>');
     const v = w.firstElementChild;
@@ -640,7 +643,7 @@
     pushRecent(id);
 
     // tools terkait (kategori sama)
-    const rel = NS.tools.filter((x) => x.cat === t.cat && x.id !== t.id).slice(0, 3);
+    const rel = tools.filter((x) => x.cat === t.cat && x.id !== t.id).slice(0, 3);
     if (rel.length) {
       const box = v.querySelector('#rel');
       const relWrap = T.el('<div class="relwrap"><h3>Lihat juga</h3><div class="trows"></div></div>');
@@ -705,4 +708,3 @@
   }
   window.addEventListener('hashchange', route);
   route();
-})();

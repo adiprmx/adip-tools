@@ -1,14 +1,12 @@
 /* ADIP Tools — batch A: Keamanan (7) + Converter (13).
  * Semua tool jalan 100% di browser, tanpa data keluar.
- * Kontrak: (window.ADIPTOOLS = window.ADIPTOOLS || {...}), const T = NS.h,
- * R(id, name, cat, icon, desc, render) -> NS.tools.push(...).
+ * Kontrak: import { h as T, tools, utils } from './core.js',
+ * R(id, name, cat, icon, desc, render) -> tools.push(...).
  */
-(function () {
-  const NS = (window.ADIPTOOLS = window.ADIPTOOLS || { tools: [], utils: {}, cats: [], leaveCbs: [] });
-  const T = NS.h;
-  const R = (id, name, cat, icon, desc, render) => NS.tools.push({ id, name, cat, icon, desc, render });
+import { h as T, tools, utils } from './core.js?v=4.1.0';
+  const R = (id, name, cat, icon, desc, render) => tools.push({ id, name, cat, icon, desc, render });
 
-  /* ================= FUNGSI MURNI (NS.utils) ================= */
+  /* ================= FUNGSI MURNI (utils) ================= */
 
   // --- Terbilang Indonesia (support s/d triliun, handle 0 & negatif) ---
   (function () {
@@ -37,7 +35,7 @@
       return s;
     }
     const SAT = ['', 'ribu', 'juta', 'miliar', 'triliun'];
-    NS.utils.terbilang = function (n) {
+    utils.terbilang = function (n) {
       const neg = Number(n) < 0;
       let x = Math.floor(Math.abs(Number(n)));
       if (!Number.isFinite(x)) return '';
@@ -65,14 +63,14 @@
   // --- Angka romawi ---
   (function () {
     const TBL = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
-    NS.utils.toRoman = function (n) {
+    utils.toRoman = function (n) {
       n = Math.floor(Number(n));
       if (!Number.isFinite(n) || n < 1 || n > 3999) return '';
       let s = '';
       for (const [v, r] of TBL) while (n >= v) { s += r; n -= v; }
       return s;
     };
-    NS.utils.fromRoman = function (s) {
+    utils.fromRoman = function (s) {
       s = String(s == null ? '' : s).toUpperCase().trim();
       if (!/^[MDCLXVI]+$/.test(s)) return NaN;
       const V = { M: 1000, D: 500, C: 100, L: 50, X: 10, V: 5, I: 1 };
@@ -81,7 +79,7 @@
         const v = V[s[i]];
         if (v < prev) total -= v; else { total += v; prev = v; }
       }
-      return NS.utils.toRoman(total) === s ? total : NaN;
+      return utils.toRoman(total) === s ? total : NaN;
     };
   })();
 
@@ -99,21 +97,21 @@
     };
     const INV = {};
     for (const k in M) INV[M[k]] = k;
-    NS.utils.morseEncode = function (s) {
+    utils.morseEncode = function (s) {
       return String(s == null ? '' : s).toUpperCase().trim().split(/\s+/)
         .map((w) => w.split('').map((c) => M[c] || '').filter(Boolean).join(' '))
         .join(' / ');
     };
-    NS.utils.morseDecode = function (s) {
+    utils.morseDecode = function (s) {
       return String(s == null ? '' : s).trim().split(/\s*\/\s*/)
         .map((w) => w.trim().split(/\s+/).map((m) => INV[m] || '').join(''))
         .join(' ');
     };
-    NS.utils.morseMap = M;
+    utils.morseMap = M;
   })();
 
   // --- MD5 murni JS (implementasi standar RFC 1321) ---
-  NS.utils.md5 = async function (str) { return _md5(str); };
+  utils.md5 = async function (str) { return _md5(str); };
   function _md5(string) {
     function rotL(v, s) { return (v << s) | (v >>> (32 - s)); }
     function addU(x, y) {
@@ -204,7 +202,7 @@
     const buf = await crypto.subtle.digest(alg, new TextEncoder().encode(String(text)));
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
   }
-  NS.utils.shaHex = shaHex;
+  utils.shaHex = shaHex;
 
   /* ================= KEAMANAN ================= */
 
@@ -344,7 +342,7 @@
       const txt = inp.value;
       if (!txt) { T.show(out, '<span class="err">Isi teksnya dulu.</span>'); return; }
       const jobs = [];
-      if (cMd5.box.checked) jobs.push(['MD5', NS.utils.md5(txt)]);
+      if (cMd5.box.checked) jobs.push(['MD5', utils.md5(txt)]);
       if (cSha1.box.checked) jobs.push(['SHA-1', shaHex('SHA-1', txt)]);
       if (cSha256.box.checked) jobs.push(['SHA-256', shaHex('SHA-256', txt)]);
       if (cSha512.box.checked) jobs.push(['SHA-512', shaHex('SHA-512', txt)]);
@@ -752,16 +750,16 @@
         '<div class="kv"><span class="k">Oktal</span><span class="v" class="monoall">' + sgn + a.toString(8) + '</span></div>' +
         '<div class="kv"><span class="k">Desimal</span><span class="v" class="monoall">' + T.fmt(n) + '</span></div>' +
         '<div class="kv"><span class="k">Hex</span><span class="v" class="monoall">' + sgn + a.toString(16).toUpperCase() + '</span></div>' +
-        '<div class="kv"><span class="k">Romawi</span><span class="v" class="monoall">' + (n >= 1 && n <= 3999 ? NS.utils.toRoman(n) : '<span class="dim">1-3999 saja</span>') + '</span></div>');
+        '<div class="kv"><span class="k">Romawi</span><span class="v" class="monoall">' + (n >= 1 && n <= 3999 ? utils.toRoman(n) : '<span class="dim">1-3999 saja</span>') + '</span></div>');
     };
     const r2d = () => {
-      const v = NS.utils.fromRoman(rInp.value);
+      const v = utils.fromRoman(rInp.value);
       if (Number.isNaN(v)) T.show(out2, '<span class="err">Bukan angka romawi yang valid.</span>');
       else { T.show(out2, '<div class="kv"><span class="k">Desimal</span><span class="v big">' + T.fmt(v) + '</span></div>'); dInp2.value = v; }
     };
     const d2r = () => {
       const n = Math.floor(Number(dInp2.value));
-      const r = NS.utils.toRoman(n);
+      const r = utils.toRoman(n);
       if (!r) T.show(out2, '<span class="err">Romawi hanya untuk 1-3999.</span>');
       else { T.show(out2, '<div class="kv"><span class="k">Romawi</span><span class="v big" style="font-family:ui-monospace,monospace">' + r + '</span></div>'); rInp.value = r; }
     };
@@ -966,10 +964,10 @@
     let token = 0;
     T.onLeave(() => { token++; });
 
-    const enc = () => { outp.value = NS.utils.morseEncode(inp.value) || '⚠️ Tidak ada karakter yang bisa di-encode.'; };
-    const dec = () => { outp.value = NS.utils.morseDecode(inp.value); };
+    const enc = () => { outp.value = utils.morseEncode(inp.value) || '⚠️ Tidak ada karakter yang bisa di-encode.'; };
+    const dec = () => { outp.value = utils.morseDecode(inp.value); };
     const play = () => {
-      const seq = (outp.value || NS.utils.morseEncode(inp.value)).split('');
+      const seq = (outp.value || utils.morseEncode(inp.value)).split('');
       if (!seq.length) { T.toast('Tidak ada morse untuk dimainkan'); return; }
       const my = ++token;
       T.toast('Memutar morse…');
@@ -1157,11 +1155,11 @@
       const neg = n < 0, a = Math.abs(n);
       const bulat = Math.floor(a);
       const sen = Math.round((a - bulat) * 100);
-      let kata = NS.utils.terbilang(neg ? -bulat : bulat);
+      let kata = utils.terbilang(neg ? -bulat : bulat);
       if (kata === 'angka terlalu besar') { T.show(out, '<span class="err">Angka terlalu besar (maksimal 999 triliun).</span>'); return; }
       if (rpBox.checked) kata += ' rupiah';
-      if (sen > 0 && senBox.checked) kata += ' ' + NS.utils.terbilang(sen) + ' sen';
-      else if (sen > 0) kata += ' koma ' + String(sen).split('').map((d) => NS.utils.terbilang(+d)).join(' ');
+      if (sen > 0 && senBox.checked) kata += ' ' + utils.terbilang(sen) + ' sen';
+      else if (sen > 0) kata += ' koma ' + String(sen).split('').map((d) => utils.terbilang(+d)).join(' ');
       T.show(out,
         '<div class="kv"><span class="k">Terbilang</span></div>' +
         '<div class="big" style="font-size:20px;line-height:1.5;text-transform:capitalize">' + T.esc(kata) + '</div>');
@@ -1175,5 +1173,3 @@
     root.appendChild(out);
     go();
   });
-
-})();
