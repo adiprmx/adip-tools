@@ -1,4 +1,4 @@
-/* ADIP Tools v3: command deck, search sebagai hero, direktori rich-list. */
+/* ADIP Tools v4: premium overhaul — calm luxury, command palette, quick cards. */
 (function () {
   const NS = window.ADIPTOOLS;
   const T = NS.h;
@@ -129,11 +129,206 @@
   }
   /* ===== /satset ===== */
 
+  /* ===== command palette (Ctrl+K): satset 10x — fuzzy search semua tools,
+     navigasi keyboard penuh. Murni logika kecuali open/close/render. ===== */
+  // skor fuzzy: subsequence match; bonus untuk kecocokan berurutan,
+  // word boundary, dan prefix. -1 = tidak cocok.
+  function fuzzyScore(needle, hay) {
+    needle = String(needle).toLowerCase();
+    hay = String(hay).toLowerCase();
+    if (!needle) return 0;
+    let si = 0, score = 0, consec = 0;
+    for (let i = 0; i < needle.length; i++) {
+      const j = hay.indexOf(needle[i], si);
+      if (j < 0) return -1;
+      if (j === si) { consec++; score += 12 + consec * 6; }
+      else {
+        consec = 0;
+        score += (j === 0 || hay[j - 1] === ' ' || hay[j - 1] === '-') ? 9 : 2;
+      }
+      si = j + 1;
+    }
+    if (hay.indexOf(needle) === 0) score += 40;
+    else if (hay.indexOf(needle) > 0) score += 12;
+    score -= hay.length * 0.15;
+    return score;
+  }
+  // hasil palette: cocokkan nama > deskripsi > kategori, maks 8, urut skor.
+  function palResults(needle) {
+    const n = String(needle).trim().toLowerCase();
+    if (!n) return [];
+    const out = [];
+    for (const t of NS.tools) {
+      const sN = fuzzyScore(n, t.name);
+      if (sN >= 0) { out.push({ t: t, s: sN + 20 }); continue; }
+      const sD = fuzzyScore(n, t.desc || '');
+      if (sD >= 0) { out.push({ t: t, s: sD }); continue; }
+      const sC = fuzzyScore(n, catName(t.cat));
+      if (sC >= 0) out.push({ t: t, s: sC - 5 });
+    }
+    out.sort((a, b) => b.s - a.s);
+    return out.slice(0, 8).map((x) => x.t);
+  }
+  // highlight karakter yang cocok di nama (subsequence), aman dari HTML.
+  function hiMark(name, needle) {
+    const nl = String(needle).trim().toLowerCase();
+    const nm = String(name == null ? '' : name);
+    if (!nl) return esc(nm);
+    const low = nm.toLowerCase();
+    let si = 0, out = '';
+    for (let i = 0; i < nm.length; i++) {
+      if (si < nl.length && low[i] === nl[si]) { out += '<mark>' + esc(nm[i]) + '</mark>'; si++; }
+      else out += esc(nm[i]);
+    }
+    return out;
+  }
+
+  let palEl = null, palItems = [], palIdx = -1;
+  function palItemEl(t, needle, i) {
+    const b = T.el(
+      '<button type="button" class="pal-item" role="option" data-pi="' + i + '">' +
+        '<span class="pic">' + esc(t.icon || '+') + '</span>' +
+        '<span class="ptx"><span class="pnm">' + hiMark(t.name, needle) + '</span>' +
+        '<span class="pds">' + esc(t.desc) + '</span></span>' +
+        '<span class="pct">' + esc(catName(t.cat)) + '</span>' +
+      '</button>'
+    );
+    b.addEventListener('click', () => palGo(t));
+    return b;
+  }
+  function palGo(t) {
+    closePalette();
+    location.hash = '#/t/' + encodeURIComponent(t.id);
+  }
+  function syncPalActive() {
+    if (!palEl) return;
+    palEl.querySelectorAll('.pal-item').forEach((el) => {
+      el.classList.toggle('act', Number(el.dataset.pi) === palIdx);
+    });
+    const act = palEl.querySelector('.pal-item.act');
+    if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest' });
+  }
+  function renderPal(needle) {
+    if (!palEl) return;
+    const list = palEl.querySelector('.pal-list');
+    list.innerHTML = '';
+    const n = String(needle).trim();
+    if (!n) {
+      // query kosong: tawarkan "terakhir dibuka" sebagai jalan pintas
+      palItems = getRecent().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean).slice(0, 5);
+      if (!palItems.length) {
+        list.appendChild(T.el('<div class="pal-empty">Ketik untuk mencari dari 100 tools.<br>Coba "password", "qr", atau "kalkulator".</div>'));
+        palIdx = -1;
+        return;
+      }
+      list.appendChild(T.el('<div class="pal-sec">Terakhir dibuka</div>'));
+    } else {
+      palItems = palResults(n);
+      if (!palItems.length) {
+        list.appendChild(T.el('<div class="pal-empty">Hmm, nggak ketemu nih.<br>Coba kata lain.</div>'));
+        palIdx = -1;
+        return;
+      }
+    }
+    palIdx = 0;
+    palItems.forEach((t, i) => list.appendChild(palItemEl(t, n, i)));
+    syncPalActive();
+  }
+  function openPalette() {
+    if (palEl) {
+      const inp = palEl.querySelector('input');
+      if (inp) inp.focus();
+      return;
+    }
+    // T.el hanya mengembalikan firstElementChild: satu wrapper .pal-wrap.
+    palEl = T.el(
+      '<div class="pal-wrap">' +
+        '<div class="pal-backdrop"></div>' +
+        '<div class="pal" role="dialog" aria-modal="true" aria-label="Cari cepat">' +
+          '<div class="pal-bar"><span class="glyph">⌕</span>' +
+          '<input type="text" placeholder="Cari tools…" autocomplete="off" aria-label="Cari cepat">' +
+          '<kbd>esc</kbd></div>' +
+          '<div class="pal-list" role="listbox"></div>' +
+          '<div class="pal-hint"><span><kbd>↑↓</kbd>navigasi</span><span><kbd>↵</kbd>buka</span><span><kbd>esc</kbd>tutup</span></div>' +
+        '</div>' +
+      '</div>'
+    );
+    const input = palEl.querySelector('input');
+    palEl.querySelector('.pal-backdrop').addEventListener('click', closePalette);
+    input.addEventListener('input', () => renderPal(input.value));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (!palItems.length) return;
+        palIdx = (palIdx + (e.key === 'ArrowDown' ? 1 : -1) + palItems.length) % palItems.length;
+        syncPalActive();
+      } else if (e.key === 'Enter') {
+        const t = palItems[palIdx];
+        if (t) palGo(t);
+      } else if (e.key === 'Escape') {
+        closePalette();
+      }
+    });
+    document.body.appendChild(palEl);
+    document.body.style.overflow = 'hidden';
+    input.focus();
+    renderPal('');
+  }
+  function closePalette() {
+    if (!palEl) return;
+    palEl.remove();
+    palEl = null;
+    palItems = [];
+    palIdx = -1;
+    document.body.style.overflow = '';
+  }
+  /* ===== /command palette ===== */
+
+  /* ===== placeholder search yang "hidup": rotasi contoh pencarian.
+     Hanya teks placeholder, berhenti saat input fokus/terisi.
+     Nonaktif bila prefers-reduced-motion. ===== */
+  const PH_EXAMPLES = ['password', 'kalkulator thr', 'qr code', 'weton', 'terbilang', 'cek ongkir'];
+  let phTimer = null, phIdx = 0;
+  function stopPhRotate() {
+    if (phTimer) { clearInterval(phTimer); phTimer = null; }
+  }
+  function startPhRotate(input) {
+    stopPhRotate();
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    } catch (e) {}
+    input.setAttribute('placeholder', 'Coba "' + PH_EXAMPLES[0] + '"…');
+    phTimer = setInterval(() => {
+      if (!document.body.contains(input)) { stopPhRotate(); return; }
+      if (document.activeElement === input || input.value) return;
+      phIdx = (phIdx + 1) % PH_EXAMPLES.length;
+      input.setAttribute('placeholder', 'Coba "' + PH_EXAMPLES[phIdx] + '"…');
+    }, 3200);
+    T.onLeave(stopPhRotate);
+  }
+  /* ===== /placeholder hidup ===== */
+
   let q = '', activeCat = 'semua';
 
   function runLeave() {
     const cbs = NS.leaveCbs.splice(0, NS.leaveCbs.length);
     cbs.forEach((fn) => { try { fn(); } catch (e) {} });
+  }
+
+  // handler bintang favorit — dipakai baris direktori & kartu quick access.
+  // stopPropagation supaya tap bintang tidak ikut membuka halaman tool.
+  function bindFav(btn, id) {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const on = toggleFav(id);
+      syncFavBtns(id, on);
+      btn.classList.remove('pop');
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+      T.toast(on ? 'Sip, masuk favorit' : 'Dihapus dari favorit');
+      setTimeout(refreshQuick, 280);
+    });
   }
 
   function rowEl(t, i, showCat) {
@@ -148,18 +343,7 @@
         '<button type="button" class="fav' + (fav ? ' on' : '') + '" data-tid="' + esc(t.id) + '" aria-pressed="' + fav + '" aria-label="' + (fav ? 'Hapus dari favorit' : 'Tambah ke favorit') + '">★</button>' +
       '</a>'
     );
-    a.querySelector('.fav').addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const btn = e.currentTarget;
-      const on = toggleFav(t.id);
-      syncFavBtns(t.id, on);
-      btn.classList.remove('pop');
-      void btn.offsetWidth;
-      btn.classList.add('pop');
-      T.toast(on ? 'Sip, masuk favorit' : 'Dihapus dari favorit');
-      setTimeout(refreshQuick, 280);
-    });
+    bindFav(a.querySelector('.fav'), t.id);
     return a;
   }
 
@@ -178,6 +362,22 @@
     if (box) renderQuick(box);
   }
 
+  // Kartu favorit premium: snap rail horizontal, bukan baris penuh.
+  // Toggle bintang tetap jalan via bindFav + syncFavBtns global.
+  function qcardEl(t) {
+    const fav = isFav(t.id);
+    const a = T.el(
+      '<a class="qcard" href="#/t/' + encodeURIComponent(t.id) + '">' +
+        '<span class="qic">' + esc(t.icon || '+') + '</span>' +
+        '<span class="qtx"><span class="qnm">' + esc(t.name) + '</span>' +
+        '<span class="qct">' + esc(catName(t.cat)) + '</span></span>' +
+        '<button type="button" class="fav' + (fav ? ' on' : '') + '" data-tid="' + esc(t.id) + '" aria-pressed="' + fav + '" aria-label="' + (fav ? 'Hapus dari favorit' : 'Tambah ke favorit') + '">★</button>' +
+      '</a>'
+    );
+    bindFav(a.querySelector('.fav'), t.id);
+    return a;
+  }
+
   // Section "Favorit" + "Terakhir dibuka" di home. Favorit hanya muncul bila ≥1;
   // kalau user baru saja menghapus favorit terakhir, tampilkan empty state ramah.
   function renderQuick(box) {
@@ -185,9 +385,9 @@
     box.innerHTML = '';
     const favs = getFavs().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean);
     if (favs.length) {
-      const sec = T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2><span class="n">' + favs.length + '</span></div><div class="trows"></div></section>');
-      const rows = sec.querySelector('.trows');
-      favs.forEach((t, i) => rows.appendChild(rowEl(t, i, true)));
+      const sec = T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2><span class="n">' + favs.length + '</span></div><div class="qrail"></div></section>');
+      const rail = sec.querySelector('.qrail');
+      favs.forEach((t) => rail.appendChild(qcardEl(t)));
       box.appendChild(sec);
     } else if (hadFav) {
       box.appendChild(T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2></div><p class="qempty">Belum ada favorit nih. Tap ☆ di tool langgananmu biar muncul di sini.</p></section>'));
@@ -225,7 +425,10 @@
     v.innerHTML =
       '<header class="topbar">' +
         '<a class="brand" href="#/"><span class="mark">A</span><span class="wm">ADIP Tools <span>· perkakas browser</span></span></a>' +
-        '<span class="topcount"><b>' + total + '</b> tools</span>' +
+        '<div class="top-right">' +
+          '<button type="button" class="kbtn" id="kbtn" aria-label="Cari cepat"><span class="ktxt">Cari cepat</span><kbd>⌘K</kbd></button>' +
+          '<span class="topcount"><b>' + total + '</b> tools</span>' +
+        '</div>' +
       '</header>' +
       '<section class="hero">' +
         '<p class="eyebrow">' + esc(greet()) + ' · Gratis tanpa daftar</p>' +
@@ -267,6 +470,9 @@
 
     const input = v.querySelector('#q');
     const clear = v.querySelector('#qclear');
+    const kbtn = v.querySelector('#kbtn');
+    if (kbtn) kbtn.addEventListener('click', openPalette);
+    startPhRotate(input); // placeholder contoh pencarian yang berganti
     const sug = v.querySelector('#sug');
     const dir = v.querySelector('#dir');
     input.value = q;
@@ -393,14 +599,22 @@
     if (q) { input.focus(); try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {} }
   }
 
-  // shortcut "/" untuk fokus ke search (saat di home)
+  // shortcut global: Ctrl/Cmd+K = command palette, "/" = fokus search (home).
+  // Esc menutup palette dari mana pun.
   document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === 'k') {
+      e.preventDefault();
+      openPalette();
+      return;
+    }
+    if (e.key === 'Escape' && palEl) { closePalette(); return; }
     if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
     const tag = (document.activeElement && document.activeElement.tagName) || '';
     if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
     const box = document.getElementById('q');
     if (box) { e.preventDefault(); box.focus(); }
   });
+  window.addEventListener('hashchange', closePalette); // navigasi lain menutup palette
 
   function toolPage(id) {
     runLeave();
