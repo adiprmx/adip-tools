@@ -157,8 +157,16 @@ a { color: inherit; }
   border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px;
   background: var(--surface); transition: transform 0.08s var(--ease), color 0.15s, border-color 0.15s;
 }
-.sug .schip:active { transform: scale(0.95); }
-.sug .schip:hover { color: var(--txt); border-color: #3f3f46; }
+.sug .schip:active, .empty .sugx .schip:active { transform: scale(0.95); }
+.sug .schip:hover, .empty .sugx .schip:hover { color: var(--txt); border-color: #3f3f46; }
+/* saran tappable di empty state pencarian: wrap & center, bukan scroll */
+.empty .sugx { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+.empty .sugx .schip {
+  font: inherit; font-size: 13px; color: var(--mut); cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 15px;
+  background: var(--surface); transition: transform 0.08s var(--ease), color 0.15s, border-color 0.15s;
+}
+.out .retry { margin-top: 14px; }
 
 /* ---------- rel kategori (snap rail) ---------- */
 .rail {

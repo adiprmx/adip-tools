@@ -53,7 +53,7 @@
   }
 
   function copy(text) {
-    const done = () => toast('Disalin ke clipboard');
+    const done = () => toast('Tersalin!');
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(String(text)).then(done, () => fallback());
     } else fallback();
@@ -64,7 +64,7 @@
       ta.style.opacity = '0';
       document.body.appendChild(ta);
       ta.select();
-      try { document.execCommand('copy'); done(); } catch (e) { toast('Gagal menyalin'); }
+      try { document.execCommand('copy'); done(); } catch (e) { toast('Gagal menyalin, coba lagi'); }
       ta.remove();
     }
   }
@@ -154,7 +154,7 @@
     const orig = b.textContent;
     b.addEventListener('click', () => {
       const t = getText();
-      if (t == null || String(t) === '') { toast('Belum ada yang bisa disalin'); return; }
+      if (t == null || String(t) === '') { toast('Belum ada yang bisa disalin nih'); return; }
       const done = () => {
         b.textContent = '✓ Tersalin';
         b.classList.add('done');

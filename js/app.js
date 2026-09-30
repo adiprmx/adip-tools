@@ -6,6 +6,17 @@
   const catName = (id) => { const c = NS.cats.find((x) => x[0] === id); return c ? c[1] : id; };
   const esc = T.esc;
 
+  // Sapaan waktu-aware untuk hero. HANYA teks statis — bukan popup/modal,
+  // tidak mengganggu. Bikin halaman terasa hidup kayak ada yang nyapa.
+  function greet() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 11) return 'Selamat pagi';
+    if (h >= 11 && h < 15) return 'Selamat siang';
+    if (h >= 15 && h < 19) return 'Selamat sore';
+    if (h >= 19) return 'Selamat malam';
+    return 'Begadang nih?'; // 00–04
+  }
+
   /* ===== global search trends (Supabase realtime): START =====
      "Sering dicari" = agregat pencarian SEMUA user, update realtime.
      Blok murni logika (tanpa DOM) kecuali sbEnsure/track/fetch — bisa di-test. */
@@ -146,7 +157,7 @@
       btn.classList.remove('pop');
       void btn.offsetWidth;
       btn.classList.add('pop');
-      T.toast(on ? 'Ditambah ke favorit' : 'Dihapus dari favorit');
+      T.toast(on ? 'Sip, masuk favorit' : 'Dihapus dari favorit');
       setTimeout(refreshQuick, 280);
     });
     return a;
@@ -179,7 +190,7 @@
       favs.forEach((t, i) => rows.appendChild(rowEl(t, i, true)));
       box.appendChild(sec);
     } else if (hadFav) {
-      box.appendChild(T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2></div><p class="qempty">Belum ada favorit. Tap ☆ di tool yang sering kamu pakai.</p></section>'));
+      box.appendChild(T.el('<section class="qsec" data-qsec="fav"><div class="qsec-head"><h2>★ Favorit</h2></div><p class="qempty">Belum ada favorit nih. Tap ☆ di tool langgananmu biar muncul di sini.</p></section>'));
     }
     const recents = getRecent().map((id) => NS.tools.find((x) => x.id === id)).filter(Boolean);
     if (recents.length) {
@@ -217,9 +228,9 @@
         '<span class="topcount"><b>' + total + '</b> tools</span>' +
       '</header>' +
       '<section class="hero">' +
-        '<p class="eyebrow">Gratis · Tanpa daftar</p>' +
+        '<p class="eyebrow">' + esc(greet()) + ' · Gratis tanpa daftar</p>' +
         '<h1>Butuh <span class="qm">apa?</span></h1>' +
-        '<p class="sub"><b>100 tools gratis</b> yang jalan langsung di browser. Ketik yang kamu cari, klik, langsung pakai. Tanpa daftar, tanpa upload.</p>' +
+        '<p class="sub"><b>100 tools gratis</b> yang jalan langsung di browser kamu. Ketik yang dicari, klik, langsung pakai. Tanpa daftar, tanpa upload.</p>' +
         '<div class="msearch"><div class="box">' +
           '<input id="q" type="search" placeholder="Cari tools…" autocomplete="off" aria-label="Cari tools">' +
           '<span class="glyph">⌕</span>' +
@@ -346,7 +357,19 @@
       dir.appendChild(sec);
       const rows = sec.querySelector('#resrows');
       if (!list.length) {
-        rows.appendChild(T.el('<div class="empty"><b>Tidak ketemu.</b><p>Coba kata kunci lain, atau telusuri kategori di atas.</p></div>'));
+        // Empty state yang ngobrol + kasih jalan keluar (contoh bisa di-tap),
+        // bukan sekadar "tidak ketemu" yang buntu.
+        const emp = T.el('<div class="empty"><b>Hmm, nggak ketemu nih.</b><p>Coba kata lain, atau intip contoh ini:</p><div class="sugx"></div></div>');
+        const sx = emp.querySelector('.sugx');
+        ['password', 'qr code', 'kalkulator', 'terbilang'].forEach((s) => {
+          const c = T.el('<button type="button" class="schip">' + esc(s) + '</button>');
+          c.addEventListener('click', () => {
+            if (debT) { clearTimeout(debT); debT = null; }
+            q = s; input.value = s; syncClear(); paint(); trackSearchGlobal(s);
+          });
+          sx.appendChild(c);
+        });
+        rows.appendChild(emp);
         return;
       }
       list.forEach((t, i) => rows.appendChild(rowEl(t, i, true)));
@@ -386,7 +409,7 @@
     const w = T.el('<div class="wrap narrow"><div class="view"></div></div>');
     const v = w.firstElementChild;
     if (!t) {
-      v.innerHTML = '<a class="back" href="#/">← Semua tools</a><div class="empty"><b>Tool tidak ditemukan.</b><p>Alamatnya mungkin salah.</p></div>';
+      v.innerHTML = '<a class="back" href="#/">← Semua tools</a><div class="empty"><b>Yah, alamatnya kayaknya salah.</b><p>Balik ke beranda aja, semua tools ada di sana.</p></div>';
       app.appendChild(w);
       return;
     }
@@ -431,7 +454,7 @@
       dfavBtn.classList.toggle('on', on);
       dfavBtn.setAttribute('aria-pressed', on);
       syncFavBtns(t.id, on);
-      T.toast(on ? 'Ditambah ke favorit' : 'Dihapus dari favorit');
+      T.toast(on ? 'Sip, masuk favorit' : 'Dihapus dari favorit');
     });
     dock.querySelector('.dshare').addEventListener('click', async () => {
       const url = location.origin + location.pathname + '#/t/' + encodeURIComponent(t.id);
@@ -449,7 +472,13 @@
       try {
         t.render(toolbox);
       } catch (e) {
-        toolbox.innerHTML = '<div class="out"><span class="err">Tool gagal dimuat.</span><br><span class="dim">' + esc(String(e && e.message || e)) + '</span></div>';
+        // Error yang menenangkan + kasih jalan keluar (coba lagi),
+        // bukan pesan teknis yang bikin bingung. Detail ke console aja.
+        if (window.console) console.warn('[adip-tools] render gagal:', e);
+        const box = T.el('<div class="out"><span class="err">Yah, tool-nya gagal kebuka.</span><div class="retry"></div></div>');
+        box.querySelector('.retry').appendChild(T.btn('Coba lagi', () => route(), true));
+        toolbox.innerHTML = '';
+        toolbox.appendChild(box);
       }
     });
     window.scrollTo(0, 0);
