@@ -124,9 +124,9 @@
       }
       // mode hasil: flat + label kategori
       const list = filtered();
-      const sec = T.el('<div class="resline"><h2>' + (needle ? 'Hasil pencarian' : esc(catName(activeCat))) + '</h2><span class="n">' + list.length + ' dari ' + total + '</span></div><div class="trows" id="resrows"></div>');
+      const sec = T.el('<div class="reswrap"><div class="resline"><h2>' + (needle ? 'Hasil pencarian' : esc(catName(activeCat))) + '</h2><span class="n">' + list.length + ' dari ' + total + '</span></div><div class="trows" id="resrows"></div></div>');
       dir.appendChild(sec);
-      const rows = dir.querySelector('#resrows');
+      const rows = sec.querySelector('#resrows');
       if (!list.length) {
         rows.appendChild(T.el('<div class="empty"><b>Tidak ketemu.</b><p>Coba kata kunci lain, atau telusuri kategori di atas.</p></div>'));
         return;
@@ -181,8 +181,9 @@
     const rel = NS.tools.filter((x) => x.cat === t.cat && x.id !== t.id).slice(0, 3);
     if (rel.length) {
       const box = v.querySelector('#rel');
-      box.appendChild(T.el('<h3>Lihat juga</h3><div class="trows"></div>'));
-      const rows = box.querySelector('.trows');
+      const relWrap = T.el('<div class="relwrap"><h3>Lihat juga</h3><div class="trows"></div></div>');
+      box.appendChild(relWrap);
+      const rows = relWrap.querySelector('.trows');
       rel.forEach((r, i) => rows.appendChild(rowEl(r, i, false)));
     }
 
