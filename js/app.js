@@ -16,22 +16,34 @@
   function home() {
     runLeave();
     app.innerHTML = '';
-    const w = T.el('<div class="wrap"></div>');
+    const w = T.el('<div class="wrap"><div class="view"></div></div>');
+    const v = w.firstElementChild;
     const total = NS.tools.length;
-    w.innerHTML =
-      '<header class="hero">' +
-        '<div class="brand"><div class="logo">A</div>' +
-        '<h1>ADIP Tools<small>100 tools gratis, langsung di browser</small></h1></div>' +
-        '<p class="sub">Kumpulan alat bantu harian: kalkulator, converter, generator, dan lainnya. ' +
-        'Semuanya jalan 100% di HP kamu — tanpa daftar, tanpa upload, tanpa dilacak.</p>' +
-        '<span class="count"><b>' + total + '</b> tools tersedia</span>' +
+    v.innerHTML =
+      '<header class="topbar">' +
+        '<a class="brand" href="#/"><span class="mark">A</span><span class="wm">ADIP Tools <span>· perkakas browser</span></span></a>' +
+        '<span class="count-pill"><b>' + total + '</b> tools</span>' +
       '</header>' +
-      '<div class="search"><input id="q" type="search" placeholder="Cari tools… misal: password, QR, THR" autocomplete="off"></div>' +
+      '<section class="hero">' +
+        '<p class="eyebrow">Gratis · Tanpa daftar</p>' +
+        '<h1><span class="n">100</span> tools, satu browser.</h1>' +
+        '<p class="sub">Kalkulator, converter, dan generator harian — jalan langsung di HP kamu, tanpa daftar dan tanpa upload.</p>' +
+        '<div class="hero-cta">' +
+          '<a class="btn-hero" href="#daftar">Jelajahi tools ↓</a>' +
+          '<div class="stats"><span><b>14</b> kategori</span><span><b>0</b> data keluar</span></div>' +
+        '</div>' +
+      '</section>' +
+      '<div class="searchbar"><div class="box">' +
+        '<span class="glyph">⌕</span>' +
+        '<input id="q" type="search" placeholder="Cari tools… misal: password, QR, THR" autocomplete="off" aria-label="Cari tools">' +
+        '<button type="button" class="clear" id="qclear" aria-label="Hapus pencarian">✕</button>' +
+      '</div></div>' +
       '<div class="chips" id="chips"></div>' +
+      '<div class="sec-head" id="daftar"><h2>Semua tools</h2><span class="res" id="res"></span></div>' +
       '<div class="grid" id="grid"></div>' +
-      '<footer class="foot">Dibuat dengan teliti · <b>data tidak pernah keluar dari browser kamu</b></footer>';
+      '<footer class="foot"><span class="fmark">A</span><br>Dibuat dengan teliti.<br><b>Data tidak pernah keluar dari browser kamu.</b></footer>';
 
-    const chips = w.querySelector('#chips');
+    const chips = v.querySelector('#chips');
     const mkChip = (id, label, n) => {
       const c = T.el('<button type="button" class="chip' + (activeCat === id ? ' on' : '') + '">' + esc(label) + (n != null ? '<span class="n">' + n + '</span>' : '') + '</button>');
       c.addEventListener('click', () => { activeCat = id; home(); });
@@ -43,19 +55,23 @@
       if (n) chips.appendChild(mkChip(id, label, n));
     });
 
-    const input = w.querySelector('#q');
+    const input = v.querySelector('#q');
+    const clear = v.querySelector('#qclear');
+    const res = v.querySelector('#res');
     input.value = q;
-    const grid = w.querySelector('#grid');
+    const grid = v.querySelector('#grid');
+    const syncClear = () => clear.classList.toggle('show', !!input.value);
     const paint = () => {
       const needle = q.trim().toLowerCase();
       const list = NS.tools.filter((t) => {
         if (activeCat !== 'semua' && t.cat !== activeCat) return false;
         if (!needle) return true;
-        return (t.name + ' ' + t.desc).toLowerCase().includes(needle);
+        return (t.name + ' ' + t.desc + ' ' + catName(t.cat)).toLowerCase().includes(needle);
       });
+      res.textContent = (needle || activeCat !== 'semua') ? list.length + ' dari ' + total : total + ' tools';
       grid.innerHTML = '';
       if (!list.length) {
-        grid.appendChild(T.el('<div class="empty">Tidak ketemu. Coba kata kunci lain.</div>'));
+        grid.appendChild(T.el('<div class="empty"><b>Tidak ketemu.</b>Coba kata kunci lain atau pilih kategori berbeda.</div>'));
         return;
       }
       list.forEach((t) => {
@@ -64,48 +80,58 @@
             '<span class="ic">' + esc(t.icon || '🔧') + '</span>' +
             '<span class="nm">' + esc(t.name) + '</span>' +
             '<span class="ds">' + esc(t.desc) + '</span>' +
+            '<span class="cat">' + esc(catName(t.cat)) + '</span>' +
           '</a>'
         );
         grid.appendChild(a);
       });
     };
-    input.addEventListener('input', () => { q = input.value; paint(); });
+    input.addEventListener('input', () => { q = input.value; syncClear(); paint(); });
+    clear.addEventListener('click', () => { q = ''; input.value = ''; syncClear(); paint(); input.focus(); });
+    syncClear();
     paint();
     app.appendChild(w);
-    const si = w.querySelector('#q');
-    if (q) { si.focus(); si.setSelectionRange(si.value.length, si.value.length); }
+    if (q) { input.focus(); try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {} }
   }
 
   function toolPage(id) {
     runLeave();
     const t = NS.tools.find((x) => x.id === id);
     app.innerHTML = '';
-    const w = T.el('<div class="wrap narrow"></div>');
+    const w = T.el('<div class="wrap narrow"><div class="view"></div></div>');
+    const v = w.firstElementChild;
     if (!t) {
-      w.innerHTML = '<a class="back" href="#/">← Kembali</a><div class="empty">Tool tidak ditemukan.</div>';
+      v.innerHTML = '<a class="back" href="#/">← Semua tools</a><div class="empty"><b>Tool tidak ditemukan.</b>Alamatnya mungkin salah.</div>';
       app.appendChild(w);
       return;
     }
-    w.innerHTML =
+    v.innerHTML =
       '<a class="back" href="#/">← Semua tools</a>' +
-      '<div class="tool-head"><h2><span>' + esc(t.icon || '🔧') + '</span> ' + esc(t.name) + '</h2>' +
-      '<p>' + esc(t.desc) + ' · <span class="dim">' + esc(catName(t.cat)) + '</span></p></div>';
-    const box = T.el('<div class="tool"></div>');
-    w.appendChild(box);
-    w.appendChild(T.el('<footer class="foot">Data diproses lokal di browser kamu.</footer>'));
+      '<header class="tool-head">' +
+        '<span class="tic">' + esc(t.icon || '🔧') + '</span>' +
+        '<div><h2>' + esc(t.name) + '</h2>' +
+        '<div class="meta"><span class="tag">' + esc(catName(t.cat)) + '</span><span>' + esc(t.desc) + '</span></div></div>' +
+      '</header>' +
+      '<div class="tool" id="toolbox"><div class="skel"><i class="short"></i><i></i><i class="tall"></i></div></div>' +
+      '<footer class="foot">Data diproses lokal di browser kamu.</footer>';
     app.appendChild(w);
-    try {
-      t.render(box);
-    } catch (e) {
-      box.innerHTML = '<div class="out"><span class="err">Tool gagal dimuat.</span><br><span class="dim">' + esc(String(e && e.message || e)) + '</span></div>';
-    }
+    const box = v.querySelector('#toolbox');
+    requestAnimationFrame(() => {
+      box.querySelector('.skel').remove();
+      try {
+        t.render(box);
+      } catch (e) {
+        box.innerHTML = '<div class="out"><span class="err">Tool gagal dimuat.</span><br><span class="dim">' + esc(String(e && e.message || e)) + '</span></div>';
+      }
+    });
     window.scrollTo(0, 0);
   }
 
   function route() {
     const h = location.hash || '#/';
     if (h.indexOf('#/t/') === 0) toolPage(decodeURIComponent(h.slice(4)));
-    else home();
+    else if (h === '#/' || h === '') home();
+    // hash jangkar lain (mis. #daftar): jangan render ulang, biarkan browser scroll
   }
   window.addEventListener('hashchange', route);
   route();
