@@ -8,7 +8,7 @@
   const T = NS.h;
   const R = (id, name, cat, icon, desc, render) => NS.tools.push({ id, name, cat, icon, desc, render });
 
-  const LOCAL_NOTE = 'Semua diproses 100% lokal di HP kamu — file tidak diupload ke mana-mana.';
+  const LOCAL_NOTE = 'Semua diproses 100% lokal di HP kamu, file tidak diupload ke mana-mana.';
 
   // ---------- helper lokal (non-DOM) ----------
   function loadImage(file) {
@@ -572,7 +572,7 @@
           T.toast('Berhasil diunduh');
         } catch (e) {
           window.open(url, '_blank', 'noopener');
-          T.toast('Unduh langsung diblokir — dibuka di tab baru');
+          T.toast('Unduh langsung diblokir, dibuka di tab baru');
         }
       }
 
@@ -639,12 +639,12 @@
       }
 
       const sec1 = T.el('<div class="card"></div>');
-      sec1.appendChild(T.el('<b>Mode 1 — dari lebar & tinggi</b>'));
+      sec1.appendChild(T.el('<b>Mode 1: dari lebar & tinggi</b>'));
       sec1.appendChild(T.grid2(T.field('Lebar (px)', wI), T.field('Tinggi (px)', hI)));
       sec1.appendChild(T.btn('Hitung Rasio', calc1, true));
 
       const sec2 = T.el('<div class="card"></div>');
-      sec2.appendChild(T.el('<b>Mode 2 — dari rasio + satu sisi</b>'));
+      sec2.appendChild(T.el('<b>Mode 2: dari rasio + satu sisi</b>'));
       sec2.appendChild(T.grid2(T.field('Rasio', rI), T.field('Sisi diketahui', sideSel)));
       sec2.appendChild(T.field('Nilai sisi (px)', sideI));
       sec2.appendChild(T.btn('Hitung Sisi Lain', calc2, true));
@@ -693,7 +693,7 @@
   // 7. Penghitung Kata
   R('word-counter', 'Penghitung Kata', 'teks', '🔡', 'Kata, karakter, estimasi baca.',
     (root) => {
-      const taIn = T.ta(8, 'Ketik atau tempel teks di sini — hitungan live…');
+      const taIn = T.ta(8, 'Ketik atau tempel teks di sini, hitungan live…');
       const box = T.out();
 
       function count() {
@@ -785,7 +785,7 @@
         T.show(box, `<pre class="pre ascii">${T.esc(last)}</pre>`);
       }
 
-      root.appendChild(T.field('Teks', inI, 'Huruf A–Z, angka, dan simbol umum. Maks 24 karakter.'));
+      root.appendChild(T.field('Teks', inI, 'Huruf A-Z, angka, dan simbol umum. Maks 24 karakter.'));
       root.appendChild(T.row(
         T.btn('Generate', gen, true),
         T.copyBtn(() => last, 'Salin')
@@ -1020,7 +1020,7 @@
       }
       modeSel.addEventListener('change', toggle);
 
-      root.appendChild(T.el('<p class="note">Margin dihitung <b>dari harga jual</b> (bukan dari modal) — standar dagang yang bener.</p>'));
+      root.appendChild(T.el('<p class="note">Margin dihitung <b>dari harga jual</b> (bukan dari modal), standar dagang yang bener.</p>'));
       root.appendChild(T.field('Mode', modeSel));
       root.appendChild(T.field('Modal (Rp)', modalI));
       root.appendChild(T.field('Target margin (%)', marginI));
@@ -1104,7 +1104,7 @@
           </div>
         </div>`);
         box.appendChild(inv);
-        T.toast('Invoice siap — bisa dicetak atau diunduh');
+        T.toast('Invoice siap, bisa dicetak atau diunduh');
       }
 
       function dlHtml() {
@@ -1199,7 +1199,7 @@
       const box = T.out();
 
       function saranKemasan(liter) {
-        if (liter <= 0) return '—';
+        if (liter <= 0) return '-';
         const sizes = [5, 2.5, 1];
         let sisa = liter;
         const parts = [];
@@ -1213,7 +1213,7 @@
 
       function calc() {
         const r = NS.utils.catTembok(pI.value, lI.value, tI.value, lapisI.value, dayaI.value, bukaanI.value);
-        if (r.luas <= 0) { T.toast('Cek ukuran ruangan — luas dinding nol'); return; }
+        if (r.luas <= 0) { T.toast('Cek ukuran ruangan, luas dinding nol'); return; }
         T.show(box,
           `<div class="kv"><span>Luas dinding dicat</span><b>${r.luas} m²</b></div>` +
           `<div class="kv"><span>Kebutuhan cat</span><b>${r.liter.toFixed(1)} liter</b></div>` +
@@ -1225,7 +1225,7 @@
       root.appendChild(T.grid2(T.field('Panjang (m)', pI), T.field('Lebar (m)', lI)));
       root.appendChild(T.grid2(T.field('Tinggi (m)', tI), T.field('Jumlah lapis', lapisI)));
       root.appendChild(T.grid2(
-        T.field('Daya sebar (m²/liter)', dayaI, 'Cek label kaleng, umumnya 8–12.'),
+        T.field('Daya sebar (m²/liter)', dayaI, 'Cek label kaleng, umumnya 8-12.'),
         T.field('Kurangi pintu/jendela (m²)', bukaanI, 'Total luas bukaan.')
       ));
       root.appendChild(T.btn('Hitung', calc, true));

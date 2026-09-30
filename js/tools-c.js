@@ -212,7 +212,7 @@
         '<div class="big" style="margin-top:8px">' + T.rp(u.hargaAkhir) + '</div>' +
         kv('Total hemat', '<span class="ok"><b>' + T.rp(u.totalHemat) + '</b></span>') +
         '<p class="hint">Catatan: diskon ' + (arr.join('% lalu ') || '…') + '% itu <b>tidak</b> sama dengan ' +
-        T.esc(String(arr.reduce((a, b) => a + b, 0))) + '%. Contoh: 50% lalu 20% = hemat 60%, bukan 70% — karena diskon kedua dihitung dari harga yang sudah didiskon.</p>');
+        T.esc(String(arr.reduce((a, b) => a + b, 0))) + '%. Contoh: 50% lalu 20% = hemat 60%, bukan 70%, karena diskon kedua dihitung dari harga yang sudah didiskon.</p>');
     };
     addRow(50); addRow(20);
     harga.addEventListener('input', hitung);
@@ -285,7 +285,7 @@
         kv('Total harta', T.rp(h)) +
         (u.wajib
           ? '<div class="big ok">' + T.rp(u.zakat) + '</div><p class="hint">Hartamu mencapai nisab. Zakat maal = <b>2,5%</b> dari total harta.</p>'
-          : '<p class="warn">Belum wajib zakat — hartamu di bawah nisab (' + T.rp(u.nisab) + ').</p>'));
+          : '<p class="warn">Belum wajib zakat. Hartamu di bawah nisab (' + T.rp(u.nisab) + ').</p>'));
     };
     const hitFitrah = () => {
       const j = Math.max(1, Math.round(T.num(jiwa.value)) || 1), b = T.num(beras.value) || 0;
@@ -344,7 +344,7 @@
         kv('Total bunga', '<span class="ok"><b>' + T.rp(akhir - totalSetor) + '</b></span>') +
         '<table class="tbl" style="margin-top:8px"><tr><th>Tahun</th><th>Saldo akhir</th></tr>' +
         rows.map((x) => '<tr><td>' + x.y + '</td><td>' + T.rp(x.bal) + '</td></tr>').join('') + '</table>' +
-        '<p class="hint">Setoran bulanan dibagi rata ke tiap periode compounding. Ini simulasi — hasil investasi asli bisa naik-turun.</p>');
+        '<p class="hint">Setoran bulanan dibagi rata ke tiap periode compounding. Ini simulasi, hasil investasi asli bisa naik-turun.</p>');
     };
     [modal, setor, bunga, tahun].forEach((x) => x.addEventListener('input', hitung));
     freq.addEventListener('change', hitung);
@@ -463,7 +463,7 @@
     let timer = null;
     const targetOf = () => {
       const p = preset.value;
-      if (p === 'lebaran') return { d: LEBARAN, label: 'Lebaran / Idulfitri 1448 H', note: 'Tanggal perkiraan — penetapan resmi bisa bergeser mengikuti sidang isbat.' };
+      if (p === 'lebaran') return { d: LEBARAN, label: 'Lebaran / Idulfitri 1448 H', note: 'Tanggal perkiraan. Penetapan resmi bisa bergeser mengikuti sidang isbat.' };
       if (p === 'tahunbaru') return { d: nextJan1(), label: 'Tahun Baru', note: '' };
       if (p === 'natal') return { d: nextXmas(), label: 'Hari Natal', note: '' };
       if (!tgl.value) return null;
@@ -547,15 +547,15 @@
     let taps = [];
     const labelTempo = (bpm) => {
       if (bpm < 40) return 'Sangat lambat';
-      if (bpm < 60) return 'Largo — lambat & lebar';
-      if (bpm < 66) return 'Larghetto — agak lambat';
-      if (bpm < 76) return 'Adagio — tenang';
-      if (bpm < 108) return 'Andante — seperti langkah kaki';
-      if (bpm < 120) return 'Moderato — sedang';
-      if (bpm < 156) return 'Allegro — cepat & ceria';
-      if (bpm < 168) return 'Vivace — hidup';
-      if (bpm < 200) return 'Presto — sangat cepat';
-      return 'Prestissimo — secepat mungkin';
+      if (bpm < 60) return 'Largo: lambat & lebar';
+      if (bpm < 66) return 'Larghetto: agak lambat';
+      if (bpm < 76) return 'Adagio: tenang';
+      if (bpm < 108) return 'Andante: seperti langkah kaki';
+      if (bpm < 120) return 'Moderato: sedang';
+      if (bpm < 156) return 'Allegro: cepat & ceria';
+      if (bpm < 168) return 'Vivace: hidup';
+      if (bpm < 200) return 'Presto: sangat cepat';
+      return 'Prestissimo: secepat mungkin';
     };
     const render = () => {
       if (taps.length < 2) { T.show(box, '<p class="center mut">Ketuk minimal 2 kali untuk mulai mengukur.</p>'); return; }
@@ -725,7 +725,7 @@
       const a = U.keyToCamelot(inKey.value), b = U.camelotToKey(inCam.value);
       let html = '';
       if (inKey.value.trim()) html += a ? kv('"' + inKey.value.trim() + '" → Camelot', '<b>' + T.esc(a) + '</b>') : '<p class="warn">Kunci "' + T.esc(inKey.value.trim()) + '" tidak dikenali.</p>';
-      if (inCam.value.trim()) html += b ? kv('"' + inCam.value.trim() + '" → Kunci', '<b>' + T.esc(b) + '</b>') : '<p class="warn">Kode "' + T.esc(inCam.value.trim()) + '" tidak valid (1A–12B).</p>';
+      if (inCam.value.trim()) html += b ? kv('"' + inCam.value.trim() + '" → Kunci', '<b>' + T.esc(b) + '</b>') : '<p class="warn">Kode "' + T.esc(inCam.value.trim()) + '" tidak valid (1A-12B).</p>';
       if (html) T.show(boxC, html); else T.hide(boxC);
     };
     [inKey, inCam].forEach((i) => i.addEventListener('input', conv));
@@ -909,7 +909,7 @@
       wrap.appendChild(canvas);
       wrap.appendChild(T.grid2(T.field('Mulai (detik)', sIn), T.field('Selesai (detik)', eIn)));
       wrap.appendChild(T.row(playBtn, stopBtn, dlBtn));
-      wrap.appendChild(T.el('<p class="hint">Semua proses jalan lokal di browser — file tidak di-upload ke mana pun. Export menghasilkan WAV 16-bit.</p>'));
+      wrap.appendChild(T.el('<p class="hint">Semua proses jalan lokal di browser, file tidak di-upload ke mana pun. Export menghasilkan WAV 16-bit.</p>'));
       requestAnimationFrame(refresh);
     });
     root.appendChild(T.field('Pilih file audio', file, 'MP3, WAV, OGG, M4A…'));
@@ -1015,7 +1015,7 @@
     root.appendChild(T.field('Tempo (BPM)', bpmIn));
     root.appendChild(grid);
     root.appendChild(T.row(playBtn, T.btn('Pola dasar', preset), T.btn('Bersihkan', clear)));
-    root.appendChild(T.el('<p class="hint">Ketuk kotak untuk mengaktifkan/mematikan suara. Semua suara disintesis langsung — tanpa sample.</p>'));
+    root.appendChild(T.el('<p class="hint">Ketuk kotak untuk mengaktifkan/mematikan suara. Semua suara disintesis langsung, tanpa sample.</p>'));
   });
 
   R('piano', 'Piano Browser', 'musik', '🎹', 'Main piano di browser.', (root) => {
@@ -1058,11 +1058,11 @@
 
   R('white-noise', 'White Noise', 'musik', '🌧️', 'Suara fokus & tidur.', (root) => {
     const jenis = T.select([
-      ['hujan', 'Hujan — rintik menenangkan'],
-      ['kafe', 'Kafe — dengung ramai yang jauh'],
-      ['api', 'Api unggun — hangat + letupan'],
-      ['putih', 'White noise — desis datar'],
-      ['pink', 'Pink noise — lembut untuk tidur'],
+      ['hujan', 'Hujan: rintik menenangkan'],
+      ['kafe', 'Kafe: dengung ramai yang jauh'],
+      ['api', 'Api unggun: hangat + letupan'],
+      ['putih', 'White noise: desis datar'],
+      ['pink', 'Pink noise: lembut untuk tidur'],
     ], 'hujan');
     const vol = T.el('<input type="range" class="inp" min="0" max="100" value="60">');
     const box = T.out();

@@ -27,7 +27,7 @@
       '<section class="hero">' +
         '<p class="eyebrow">Gratis · Tanpa daftar</p>' +
         '<h1><span class="n">100</span> tools, satu browser.</h1>' +
-        '<p class="sub">Kalkulator, converter, dan generator harian — jalan langsung di HP kamu, tanpa daftar dan tanpa upload.</p>' +
+        '<p class="sub">Kalkulator, converter, dan generator harian yang jalan langsung di HP kamu. Tanpa daftar, tanpa upload.</p>' +
         '<div class="hero-cta">' +
           '<a class="btn-hero" href="#daftar">Jelajahi tools ↓</a>' +
           '<div class="stats"><span><b>14</b> kategori</span><span><b>0</b> data keluar</span></div>' +

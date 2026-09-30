@@ -93,15 +93,17 @@
     return n;
   }
 
-  function btn(label, onClick, primary) {
+  function btn(label, onClick, primary, disabled) {
     const b = el(`<button type="button" class="btn${primary ? ' primary' : ''}">${esc(label)}</button>`);
+    if (disabled) b.disabled = true;
     b.addEventListener('click', onClick);
     return b;
   }
 
   function field(labelText, inputEl, hint) {
     const f = el('<div class="fld"></div>');
-    const lb = el(`<label>${esc(labelText)}</label>`);
+    if (!inputEl.id) inputEl.id = 'f' + Math.random().toString(36).slice(2, 9);
+    const lb = el(`<label for="${inputEl.id}">${esc(labelText)}</label>`);
     f.appendChild(lb);
     f.appendChild(inputEl);
     if (hint) f.appendChild(el(`<div class="hint">${esc(hint)}</div>`));
@@ -148,7 +150,32 @@
   function hide(box) { box.hidden = true; box.innerHTML = ''; }
 
   function copyBtn(getText, label) {
-    return btn(label || 'Salin', () => copy(getText()));
+    const b = btn(label || 'Salin', null);
+    const orig = b.textContent;
+    b.addEventListener('click', () => {
+      const t = getText();
+      if (t == null || String(t) === '') { toast('Belum ada yang bisa disalin'); return; }
+      const done = () => {
+        b.textContent = '✓ Tersalin';
+        b.classList.add('done');
+        clearTimeout(b._rt);
+        b._rt = setTimeout(() => { b.textContent = orig; b.classList.remove('done'); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(String(t)).then(done, () => fallback());
+      } else fallback();
+      function fallback() {
+        const ta = document.createElement('textarea');
+        ta.value = String(t);
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { toast('Gagal menyalin'); }
+        ta.remove();
+      }
+    });
+    return b;
   }
 
   function dlBtn(filename, getContent, mime, label) {

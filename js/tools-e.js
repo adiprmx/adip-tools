@@ -114,9 +114,9 @@
     const gender = T.select([['pria', 'Pria'], ['wanita', 'Wanita']]);
     const aktif = T.select([
       ['1.2', 'Jarang gerak (kantoran)'],
-      ['1.375', 'Ringan (olahraga 1–3x/minggu)'],
-      ['1.55', 'Sedang (olahraga 3–5x/minggu)'],
-      ['1.725', 'Berat (olahraga 6–7x/minggu)'],
+      ['1.375', 'Ringan (olahraga 1-3x/minggu)'],
+      ['1.55', 'Sedang (olahraga 3-5x/minggu)'],
+      ['1.725', 'Berat (olahraga 6-7x/minggu)'],
       ['1.9', 'Atlet / fisik sangat berat'],
     ], '1.375');
     const box = T.out();
@@ -208,14 +208,14 @@
           const w = new Date(t).getUTCDay();
           if (w >= 1 && w <= 5) kerja++;
         }
-        html += '<div class="kv"><span class="k">Hari kerja (Senin–Jumat)</span><span class="v">' + T.fmt(kerja) + ' hari</span></div>';
+        html += '<div class="kv"><span class="k">Hari kerja (Senin-Jumat)</span><span class="v">' + T.fmt(kerja) + ' hari</span></div>';
       }
       T.show(box, html);
     };
     root.appendChild(T.grid2(T.field('Tanggal awal', dari), T.field('Tanggal akhir', sampai)));
     const lbl = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0 10px"></label>');
     lbl.appendChild(cekKerja);
-    lbl.appendChild(document.createTextNode('Hitung hari kerja (Senin–Jumat)'));
+    lbl.appendChild(document.createTextNode('Hitung hari kerja (Senin-Jumat)'));
     root.appendChild(lbl);
     root.appendChild(T.btn('Hitung', hitung, true));
     root.appendChild(box);
@@ -516,7 +516,7 @@
           (ok.length
             ? '<div class="kv"><span class="k">Rata-rata</span><span class="v">' + avg + ' ms</span></div>' +
               '<div class="kv"><span class="k">Terbaik</span><span class="v">' + best + ' ms</span></div>'
-            : '<div class="err">Semua percobaan gagal — coba lagi lebih sabar 😅</div>') + '</div>');
+            : '<div class="err">Semua percobaan gagal. Coba lagi lebih sabar 😅</div>') + '</div>');
         tries = [];
         paint('#222', 'Klik area ini untuk mulai lagi', '5 percobaan selesai');
         T.beep(880, 0.2);
@@ -542,7 +542,7 @@
         state = 'idle';
         tries.push(null);
         paint('#222', 'Terlalu cepat! 😅', 'Klik "Mulai" untuk coba lagi');
-        T.show(statBox, '<div class="err center">Gagal — klik sebelum hijau. Percobaan ' + tries.length + '/5.</div>');
+        T.show(statBox, '<div class="err center">Gagal, klik sebelum hijau. Percobaan ' + tries.length + '/5.</div>');
         ringkas();
         return;
       }
@@ -678,7 +678,7 @@
     const fmtT = (s) => p2(Math.floor(s / 60)) + ':' + p2(s % 60);
     const paintSiklus = () => {
       T.show(cycBox, '<div class="center dim">Sesi fokus selesai: <b>' + siklus + '</b> 🍅' +
-        (siklus > 0 && siklus % 4 === 0 ? '<br><span class="info">Sudah 4 sesi — saatnya istirahat panjang!</span>' : '') + '</div>');
+        (siklus > 0 && siklus % 4 === 0 ? '<br><span class="info">Sudah 4 sesi, saatnya istirahat panjang!</span>' : '') + '</div>');
     };
     const setMode = (m, resetTimer) => {
       mode = m; total = Math.max(1, Math.round(Number(dur[m]))) * 60; left = total;
@@ -790,7 +790,7 @@
     bar.appendChild(fill);
     const info = T.el('<div class="center"></div>');
     const targetInp = T.input('number', 'Target harian (ml)', String(st.target));
-    const beratInp = T.input('number', 'Berat badan (kg) — untuk saran', '');
+    const beratInp = T.input('number', 'Berat badan (kg), untuk saran', '');
     const paint = () => {
       const pct = Math.min(100, Math.round((st.ml / st.target) * 100));
       fill.style.width = pct + '%';
@@ -831,7 +831,7 @@
       r.nama = T.input('text', 'Nama mata kuliah', nama || '');
       r.sks = T.input('number', 'SKS', sks != null ? String(sks) : '3');
       r.grade = T.select(GRADES, grade || '3');
-      r.bobot = T.input('number', 'Bobot (0–4)', '');
+      r.bobot = T.input('number', 'Bobot (0-4)', '');
       r.bobot.style.display = 'none';
       r.grade.addEventListener('change', () => { r.bobot.style.display = r.grade.value === 'custom' ? '' : 'none'; });
       r.del = T.btn('✕', () => {
@@ -1050,7 +1050,7 @@
 
   /* ================= 18. KURS & CUACA ================= */
   R('kurs-cuaca', 'Kurs & Cuaca', 'liveapi', '💱', 'Kurs mata uang live & cuaca kota.', (root) => {
-    const CURS = [['IDR', 'IDR – Rupiah'], ['USD', 'USD – Dolar AS'], ['EUR', 'EUR – Euro'], ['SGD', 'SGD – Dolar Singapura'], ['MYR', 'MYR – Ringgit'], ['JPY', 'JPY – Yen'], ['GBP', 'GBP – Pound'], ['AUD', 'AUD – Dolar Australia'], ['THB', 'THB – Baht'], ['CNY', 'CNY – Yuan'], ['KRW', 'KRW – Won'], ['SAR', 'SAR – Riyal'], ['PHP', 'PHP – Peso'], ['VND', 'VND – Dong'], ['INR', 'INR – Rupee'], ['HKD', 'HKD – Dolar HK']];
+    const CURS = [['IDR', 'IDR - Rupiah'], ['USD', 'USD - Dolar AS'], ['EUR', 'EUR - Euro'], ['SGD', 'SGD - Dolar Singapura'], ['MYR', 'MYR - Ringgit'], ['JPY', 'JPY - Yen'], ['GBP', 'GBP - Pound'], ['AUD', 'AUD - Dolar Australia'], ['THB', 'THB - Baht'], ['CNY', 'CNY - Yuan'], ['KRW', 'KRW - Won'], ['SAR', 'SAR - Riyal'], ['PHP', 'PHP - Peso'], ['VND', 'VND - Dong'], ['INR', 'INR - Rupee'], ['HKD', 'HKD - Dolar HK']];
     const jml = T.input('number', 'Jumlah', '100000');
     const dari = T.select(CURS, 'IDR');
     const ke = T.select(CURS, 'USD');
@@ -1111,6 +1111,9 @@
           '<div class="kv"><span class="k">Angin</span><span class="v">' + c.wind_speed_10m + ' km/jam</span></div>');
       } catch (e) {
         T.show(cuacaBox, '<span class="err">Gagal memuat cuaca. Periksa koneksi internet atau coba kota lain.</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+        const wr = T.el('<div class="mt8"></div>');
+        wr.appendChild(T.btn('🔄 Coba lagi', cariCuaca));
+        cuacaBox.appendChild(wr);
       }
     };
     [jml, dari, ke].forEach((elx) => elx.addEventListener('input', konversi));

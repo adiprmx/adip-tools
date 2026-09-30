@@ -211,15 +211,15 @@
   // 1. Password Generator
   R('password-generator', 'Password Generator', 'keamanan', '🔑', 'Buat password kuat yang susah ditebak.', (root) => {
     const mkChk = (label, checked) => {
-      const l = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:7px 0;cursor:pointer"><input type="checkbox"' + (checked ? ' checked' : '') + ' style="width:20px;height:20px"> <span>' + T.esc(label) + '</span></label>');
+      const l = T.el('<label class="pick"><input type="checkbox"' + (checked ? ' checked' : '') + ' style="width:20px;height:20px"> <span>' + T.esc(label) + '</span></label>');
       return { el: l, box: l.querySelector('input') };
     };
     const lenRange = T.el('<input type="range" min="8" max="64" value="16" class="inp" style="padding:0">');
     const lenNum = T.input('number', 'Panjang', 16);
     lenNum.min = 8; lenNum.max = 64; lenNum.style.maxWidth = '90px';
-    const cUp = mkChk('Huruf besar (A–Z)', true);
-    const cLow = mkChk('Huruf kecil (a–z)', true);
-    const cNum = mkChk('Angka (0–9)', true);
+    const cUp = mkChk('Huruf besar (A-Z)', true);
+    const cLow = mkChk('Huruf kecil (a-z)', true);
+    const cNum = mkChk('Angka (0-9)', true);
     const cSym = mkChk('Simbol (!@#$%…)', true);
     const cAmb = mkChk('Hindari karakter ambigu (l, 1, I, 0, O)', false);
     const out = T.out();
@@ -265,17 +265,15 @@
       const ent = Math.round(len * Math.log2(pool.length));
       const lvl = ent < 50 ? ['Lemah', 'err'] : ent < 70 ? ['Sedang', 'warn'] : ent < 90 ? ['Kuat', 'ok'] : ['Sangat kuat', 'ok'];
       T.show(out,
-        '<div class="kv"><span class="k">Password</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + T.esc(last) + '</span></div>' +
+        '<div class="kv"><span class="k">Password</span><span class="v" class="monoall">' + T.esc(last) + '</span></div>' +
         '<div class="kv"><span class="k">Kekuatan (entropi)</span><span class="v ' + lvl[1] + '">' + lvl[0] + ' · ~' + ent + ' bit</span></div>' +
         '<div class="hint">Dibuat dengan angka acak kriptografis (crypto.getRandomValues).</div>');
     };
     root.appendChild(T.field('Panjang password', T.row(lenRange, lenNum)));
     [cUp, cLow, cNum, cSym, cAmb].forEach((c) => root.appendChild(c.el));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     const bGen = T.btn('🎲 Buat Password', gen, true);
     const bCopy = T.btn('Salin', () => { if (last) T.copy(last); else T.toast('Buat password dulu'); });
     root.appendChild(T.row(bGen, bCopy));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(out);
     gen();
   });
@@ -298,15 +296,15 @@
       const len = pw.length;
       skor += Math.min(40, len * 4);
       let jenis = 0;
-      if (/[a-z]/.test(pw)) jenis++; else saran.push('Tambah huruf kecil (a–z).');
-      if (/[A-Z]/.test(pw)) jenis++; else saran.push('Tambah huruf besar (A–Z).');
-      if (/[0-9]/.test(pw)) jenis++; else saran.push('Tambah angka (0–9).');
+      if (/[a-z]/.test(pw)) jenis++; else saran.push('Tambah huruf kecil (a-z).');
+      if (/[A-Z]/.test(pw)) jenis++; else saran.push('Tambah huruf besar (A-Z).');
+      if (/[0-9]/.test(pw)) jenis++; else saran.push('Tambah angka (0-9).');
       if (/[^a-zA-Z0-9]/.test(pw)) jenis++; else saran.push('Tambah simbol (!@#$%).');
       skor += jenis * 12;
       if (!pw) { skor = 0; }
-      if (len > 0 && len < 8) saran.push('Terlalu pendek — minimal 8 karakter, idealnya 12 atau lebih.');
+      if (len > 0 && len < 8) saran.push('Terlalu pendek. Minimal 8 karakter, idealnya 12 atau lebih.');
       if (/(.)\1{2,}/.test(pw)) { skor -= 10; saran.push('Hindari karakter berulang seperti "aaa" atau "111".'); }
-      if (/password|sandi|123456|qwerty|admin|abc123|letmein/i.test(pw)) { skor -= 25; saran.push('Password terlalu umum — jangan pakai kata yang mudah ditebak.'); }
+      if (/password|sandi|123456|qwerty|admin|abc123|letmein/i.test(pw)) { skor -= 25; saran.push('Password terlalu umum. Jangan pakai kata yang mudah ditebak.'); }
       if (/123|abc|qwe|asd|098/i.test(pw)) { skor -= 8; saran.push('Hindari pola berurutan seperti "123" atau "abc".'); }
       skor = Math.max(0, Math.min(100, Math.round(skor)));
       const lbl = skor < 30 ? ['Sangat Lemah', 'err'] : skor < 50 ? ['Lemah', 'err'] : skor < 65 ? ['Cukup', 'warn'] : skor < 85 ? ['Kuat', 'ok'] : ['Sangat Kuat', 'ok'];
@@ -327,7 +325,7 @@
           : '<div class="ok" style="margin-top:8px">👍 Password sudah bagus. Tetap jangan pakai ulang di situs lain.</div>'));
     };
     inp.addEventListener('input', cek);
-    root.appendChild(T.field('Password', T.row(inp, bShow), '🔒 Password hanya dihitung di HP/browser ini — tidak dikirim ke mana pun.'));
+    root.appendChild(T.field('Password', T.row(inp, bShow), '🔒 Password hanya dihitung di HP/browser ini, tidak dikirim ke mana pun.'));
     root.appendChild(bar);
     root.appendChild(out);
     cek();
@@ -337,7 +335,7 @@
   R('hash-generator', 'Hash Generator', 'keamanan', '#️⃣', 'Hash teks ke MD5, SHA-1, SHA-256, SHA-512.', (root) => {
     const inp = T.ta(4, 'Tulis teks yang mau di-hash…');
     const mkChk = (label, checked) => {
-      const l = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;cursor:pointer"><input type="checkbox"' + (checked ? ' checked' : '') + ' style="width:20px;height:20px"> <span>' + T.esc(label) + '</span></label>');
+      const l = T.el('<label class="pick"><input type="checkbox"' + (checked ? ' checked' : '') + ' style="width:20px;height:20px"> <span>' + T.esc(label) + '</span></label>');
       return { el: l, box: l.querySelector('input') };
     };
     const cMd5 = mkChk('MD5', true), cSha1 = mkChk('SHA-1', true), cSha256 = mkChk('SHA-256', true), cSha512 = mkChk('SHA-512', false);
@@ -354,16 +352,14 @@
       T.show(out, '<span class="dim">Menghitung…</span>');
       const hasil = await Promise.all(jobs.map(([n, p]) => p.then((h) => [n, h])));
       T.show(out, hasil.map(([n, h]) =>
-        '<div class="kv"><span class="k">' + n + '</span><span class="v" style="font-family:ui-monospace,monospace;font-size:12px;user-select:all">' + T.esc(h) + '</span></div>'
+        '<div class="kv"><span class="k">' + n + '</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(h) + '</span></div>'
       ).join('') + '<div style="margin-top:10px">' +
         hasil.map(([n, h], i) => '<button type="button" class="btn small" data-h="' + i + '" style="margin:0 6px 6px 0">Salin ' + n + '</button>').join('') + '</div>');
       out.querySelectorAll('button[data-h]').forEach((b) => b.addEventListener('click', () => T.copy(hasil[+b.dataset.h][1])));
     };
     root.appendChild(T.field('Teks', inp));
     root.appendChild(T.grid2(cMd5.el, cSha1.el, cSha256.el, cSha512.el));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(T.row(T.btn('Hash Sekarang', go, true)));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(out);
   });
 
@@ -392,7 +388,7 @@
             const salt = B().genSaltSync(parseInt(rounds.value, 10));
             const h = B().hashSync(pw, salt);
             T.show(hashOut,
-              '<div class="kv"><span class="k">Hash</span><span class="v" style="font-family:ui-monospace,monospace;font-size:12px;user-select:all">' + T.esc(h) + '</span></div>');
+              '<div class="kv"><span class="k">Hash</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(h) + '</span></div>');
             hashOut.appendChild(T.row(T.btn('Salin Hash', () => T.copy(h))));
           } catch (e) { T.show(hashOut, '<span class="err">Gagal: ' + T.esc(e.message) + '</span>'); }
         }, 30);
@@ -416,24 +412,40 @@
 
     T.loadScript(CDN).then((ok) => {
       if (!ok || !B()) {
-        T.show(status, '<span class="err">⚠️ CDN tidak bisa dimuat, cek koneksi internet kamu lalu buka ulang halaman ini.</span>');
+        status.innerHTML = '<span class="err">⚠️ CDN tidak bisa dimuat, cek koneksi internet kamu.</span>';
+        const retry = T.btn('🔄 Coba Lagi', () => {
+          status.innerHTML = '<span class="dim">⏳ Memuat library bcrypt…</span>';
+          T.loadScript(CDN).then((ok2) => {
+            if (!ok2 || !B()) {
+              status.innerHTML = '<span class="err">⚠️ Masih gagal. Coba lagi nanti.</span>';
+              status.appendChild(retry);
+              return;
+            }
+            init();
+          });
+        });
+        retry.style.marginTop = '10px';
+        status.appendChild(retry);
         return;
       }
+      init();
+    });
+    let booted = false;
+    function init() {
+      if (booted) return; booted = true;
       T.hide(status);
       wrap.appendChild(T.field('Password', pwInp));
       wrap.appendChild(T.field('Tingkat keamanan', rounds, 'Makin banyak putaran, makin lama dihitung tapi makin aman.'));
       wrap.appendChild(T.row(T.btn('🔐 Buat Hash', goHash, true)));
-      wrap.appendChild(T.el('<div style="height:8px"></div>'));
       wrap.appendChild(hashOut);
-      wrap.appendChild(T.el('<hr style="border:none;border-top:1px solid #27272a;margin:18px 0">'));
-      wrap.appendChild(T.el('<h3 style="margin:0 0 10px;font-size:16px">Verifikasi</h3>'));
+      wrap.appendChild(T.el('<hr class="divi">'));
+      wrap.appendChild(T.el('<h3 class="h3">Verifikasi</h3>'));
       wrap.appendChild(T.field('Password', vPw));
       wrap.appendChild(T.field('Hash bcrypt', vHash));
       wrap.appendChild(T.row(T.btn('Cek Kecocokan', goVerify)));
-      wrap.appendChild(T.el('<div style="height:8px"></div>'));
       wrap.appendChild(vOut);
       wrap.hidden = false;
-    });
+    }
   });
 
   // 5. HMAC Generator
@@ -455,8 +467,8 @@
         for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
         const b64 = btoa(bin);
         T.show(out,
-          '<div class="kv"><span class="k">Hex</span><span class="v" style="font-family:ui-monospace,monospace;font-size:12px;user-select:all">' + T.esc(hex) + '</span></div>' +
-          '<div class="kv"><span class="k">Base64</span><span class="v" style="font-family:ui-monospace,monospace;font-size:12px;user-select:all">' + T.esc(b64) + '</span></div>');
+          '<div class="kv"><span class="k">Hex</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(hex) + '</span></div>' +
+          '<div class="kv"><span class="k">Base64</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(b64) + '</span></div>');
         out.appendChild(T.row(T.btn('Salin Hex', () => T.copy(hex)), T.btn('Salin Base64', () => T.copy(b64))));
       } catch (e) { T.show(out, '<span class="err">Gagal: ' + T.esc(e.message) + '</span>'); }
     };
@@ -464,13 +476,12 @@
     root.appendChild(T.field('Secret key', key, 'Kunci rahasia hanya dipakai di browser ini.'));
     root.appendChild(T.field('Algoritma', alg));
     root.appendChild(T.row(T.btn('Buat HMAC', go, true)));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(out);
   });
 
   // 6. UUID Generator
   R('uuid-generator', 'UUID Generator', 'keamanan', '🆔', 'Buat UUID v4 acak.', (root) => {
-    const nInp = T.input('number', 'Jumlah (1–100)', 5);
+    const nInp = T.input('number', 'Jumlah (1-100)', 5);
     nInp.min = 1; nInp.max = 100;
     const out = T.out();
     let last = [];
@@ -493,7 +504,6 @@
     };
     root.appendChild(T.field('Jumlah UUID', nInp));
     root.appendChild(T.row(T.btn('🎲 Generate', gen, true), T.btn('Salin Semua', () => { if (last.length) T.copy(last.join('\n')); else T.toast('Generate dulu'); })));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(out);
     gen();
   });
@@ -545,7 +555,6 @@
       out.appendChild(codeEl);
       out.appendChild(prog);
       out.appendChild(sisaEl);
-      out.appendChild(T.el('<div style="height:8px"></div>'));
       const bCopy = T.btn('Salin Kode', () => T.copy(kode));
       out.appendChild(T.row(bCopy));
       const tick = async () => {
@@ -566,9 +575,8 @@
       timer = setInterval(tick, 500);
       T.onLeave(() => { if (timer) clearInterval(timer); });
     };
-    root.appendChild(T.field('Secret (Base32)', secInp, '🔒 Secret hanya dipakai di browser ini dan TIDAK disimpan — tutup halaman, secret hilang.'));
+    root.appendChild(T.field('Secret (Base32)', secInp, '🔒 Secret hanya dipakai di browser ini dan TIDAK disimpan. Tutup halaman, secret hilang.'));
     root.appendChild(T.row(T.btn('▶️ Tampilkan Kode', mulai, true)));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(out);
   });
 
@@ -579,7 +587,7 @@
     const inp = T.ta(5, 'Tulis atau tempel teks di sini…');
     const outp = T.ta(5, 'Hasil muncul di sini…');
     outp.readOnly = true;
-    const urlSafe = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:8px 0;cursor:pointer"><input type="checkbox" style="width:20px;height:20px"> <span>Varian URL-safe (tanpa + / =)</span></label>');
+    const urlSafe = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:8px 0;cursor:pointer"><input type="checkbox"> <span>Varian URL-safe (tanpa + / =)</span></label>');
     const usBox = urlSafe.querySelector('input');
 
     function utf8ToB64(s) {
@@ -609,7 +617,6 @@
     root.appendChild(T.field('Input', inp));
     root.appendChild(urlSafe);
     root.appendChild(T.row(T.btn('Encode →', enc, true), T.btn('← Decode', dec)));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(T.field('Output', outp));
     root.appendChild(T.row(T.btn('Salin Hasil', () => T.copy(outp.value)), T.btn('Tukar ⇅', () => { const t = inp.value; inp.value = outp.value; outp.value = t; })));
   });
@@ -619,8 +626,8 @@
     const inp = T.ta(4, 'Tulis URL atau teks di sini…');
     const outp = T.ta(4, 'Hasil muncul di sini…');
     outp.readOnly = true;
-    const r1 = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;cursor:pointer"><input type="radio" name="urlm" value="comp" checked style="width:20px;height:20px"> <span><b>encodeURIComponent</b> — untuk parameter/nilai (semua karakter khusus di-encode)</span></label>');
-    const r2 = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;cursor:pointer"><input type="radio" name="urlm" value="full" style="width:20px;height:20px"> <span><b>encodeURI</b> — untuk URL utuh (: / ? & dibiarkan)</span></label>');
+    const r1 = T.el('<label class="pick"><input type="radio" name="urlm" value="comp" checked style="width:20px;height:20px"> <span><b>encodeURIComponent</b>: untuk parameter/nilai (semua karakter khusus di-encode)</span></label>');
+    const r2 = T.el('<label class="pick"><input type="radio" name="urlm" value="full" style="width:20px;height:20px"> <span><b>encodeURI</b>: untuk URL utuh (: / ? & dibiarkan)</span></label>');
     // nama radio harus unik per render agar tidak bentrok antar tool
     const nm = 'urlm_' + Math.random().toString(36).slice(2, 8);
     r1.querySelector('input').name = nm; r2.querySelector('input').name = nm;
@@ -634,9 +641,7 @@
     };
     root.appendChild(T.field('Input', inp));
     root.appendChild(r1); root.appendChild(r2);
-    root.appendChild(T.el('<div style="height:8px"></div>'));
     root.appendChild(T.row(T.btn('Encode →', enc, true), T.btn('← Decode', dec)));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(T.field('Output', outp));
     root.appendChild(T.row(T.copyBtn(() => outp.value, 'Salin Hasil')));
   });
@@ -708,9 +713,9 @@
       const hslS = 'hsl(' + hsl.h + ', ' + hsl.s + '%, ' + hsl.l + '%)';
       prev.style.background = hex;
       T.show(out,
-        '<div class="kv"><span class="k">HEX</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + hex + '</span></div>' +
-        '<div class="kv"><span class="k">RGB</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + rgb + '</span></div>' +
-        '<div class="kv"><span class="k">HSL</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + hslS + '</span></div>' +
+        '<div class="kv"><span class="k">HEX</span><span class="v" class="monoall">' + hex + '</span></div>' +
+        '<div class="kv"><span class="k">RGB</span><span class="v" class="monoall">' + rgb + '</span></div>' +
+        '<div class="kv"><span class="k">HSL</span><span class="v" class="monoall">' + hslS + '</span></div>' +
         '<div class="hint">Klik tombol untuk menyalin tiap format.</div>');
       const vals = [hex, rgb, hslS];
       const names = ['HEX', 'RGB', 'HSL'];
@@ -743,11 +748,11 @@
       if (!Number.isFinite(n)) { T.show(out, '<span class="err">Masukkan angka yang valid.</span>'); return; }
       const neg = n < 0, a = Math.abs(n), sgn = neg ? '-' : '';
       T.show(out,
-        '<div class="kv"><span class="k">Biner</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + sgn + a.toString(2) + '</span></div>' +
-        '<div class="kv"><span class="k">Oktal</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + sgn + a.toString(8) + '</span></div>' +
-        '<div class="kv"><span class="k">Desimal</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + T.fmt(n) + '</span></div>' +
-        '<div class="kv"><span class="k">Hex</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + sgn + a.toString(16).toUpperCase() + '</span></div>' +
-        '<div class="kv"><span class="k">Romawi</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + (n >= 1 && n <= 3999 ? NS.utils.toRoman(n) : '<span class="dim">1–3999 saja</span>') + '</span></div>');
+        '<div class="kv"><span class="k">Biner</span><span class="v" class="monoall">' + sgn + a.toString(2) + '</span></div>' +
+        '<div class="kv"><span class="k">Oktal</span><span class="v" class="monoall">' + sgn + a.toString(8) + '</span></div>' +
+        '<div class="kv"><span class="k">Desimal</span><span class="v" class="monoall">' + T.fmt(n) + '</span></div>' +
+        '<div class="kv"><span class="k">Hex</span><span class="v" class="monoall">' + sgn + a.toString(16).toUpperCase() + '</span></div>' +
+        '<div class="kv"><span class="k">Romawi</span><span class="v" class="monoall">' + (n >= 1 && n <= 3999 ? NS.utils.toRoman(n) : '<span class="dim">1-3999 saja</span>') + '</span></div>');
     };
     const r2d = () => {
       const v = NS.utils.fromRoman(rInp.value);
@@ -757,19 +762,17 @@
     const d2r = () => {
       const n = Math.floor(Number(dInp2.value));
       const r = NS.utils.toRoman(n);
-      if (!r) T.show(out2, '<span class="err">Romawi hanya untuk 1–3999.</span>');
+      if (!r) T.show(out2, '<span class="err">Romawi hanya untuk 1-3999.</span>');
       else { T.show(out2, '<div class="kv"><span class="k">Romawi</span><span class="v big" style="font-family:ui-monospace,monospace">' + r + '</span></div>'); rInp.value = r; }
     };
-    root.appendChild(T.el('<h3 style="margin:0 0 10px;font-size:16px">Basis bilangan</h3>'));
+    root.appendChild(T.el('<h3 class="h3">Basis bilangan</h3>'));
     root.appendChild(T.field('Desimal', decInp));
     root.appendChild(T.row(T.btn('Konversi', basis, true)));
-    root.appendChild(T.el('<div style="height:8px"></div>'));
     root.appendChild(out);
-    root.appendChild(T.el('<hr style="border:none;border-top:1px solid #27272a;margin:18px 0">'));
-    root.appendChild(T.el('<h3 style="margin:0 0 10px;font-size:16px">Romawi ↔ Desimal</h3>'));
+    root.appendChild(T.el('<hr class="divi">'));
+    root.appendChild(T.el('<h3 class="h3">Romawi ↔ Desimal</h3>'));
     root.appendChild(T.grid2(T.field('Romawi', rInp), T.field('Desimal', dInp2)));
     root.appendChild(T.row(T.btn('Romawi → Desimal', r2d), T.btn('Desimal → Romawi', d2r)));
-    root.appendChild(T.el('<div style="height:8px"></div>'));
     root.appendChild(out2);
     basis();
   });
@@ -793,15 +796,15 @@
       T.show(out1,
         '<div class="kv"><span class="k">WIB (UTC+7)</span><span class="v">' + T.esc(fWib.format(d)) + '</span></div>' +
         '<div class="kv"><span class="k">UTC</span><span class="v">' + T.esc(fUtc.format(d)) + '</span></div>' +
-        '<div class="kv"><span class="k">ISO 8601</span><span class="v" style="font-family:ui-monospace,monospace;font-size:12px;user-select:all">' + d.toISOString() + '</span></div>');
+        '<div class="kv"><span class="k">ISO 8601</span><span class="v" class="monoall" style="font-size:12px">' + d.toISOString() + '</span></div>');
     };
     const keTs = () => {
       if (!dtInp.value) { T.show(out2, '<span class="err">Pilih tanggal & jam dulu.</span>'); return; }
       const d = new Date(dtInp.value);
       const s = Math.floor(d.getTime() / 1000);
       T.show(out2,
-        '<div class="kv"><span class="k">Detik</span><span class="v big" style="font-family:ui-monospace,monospace;user-select:all">' + s + '</span></div>' +
-        '<div class="kv"><span class="k">Milidetik</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + d.getTime() + '</span></div>');
+        '<div class="kv"><span class="k">Detik</span><span class="v big" class="monoall">' + s + '</span></div>' +
+        '<div class="kv"><span class="k">Milidetik</span><span class="v" class="monoall">' + d.getTime() + '</span></div>');
       out2.appendChild(T.row(T.btn('Salin Detik', () => T.copy(String(s)))));
     };
     const sekarang = () => {
@@ -809,16 +812,14 @@
       tsInp.value = s;
       keTanggal();
     };
-    root.appendChild(T.el('<h3 style="margin:0 0 10px;font-size:16px">Timestamp → Tanggal</h3>'));
+    root.appendChild(T.el('<h3 class="h3">Timestamp → Tanggal</h3>'));
     root.appendChild(T.field('Unix timestamp', tsInp, 'Otomatis dikenali detik / milidetik.'));
     root.appendChild(T.row(T.btn('Ke Tanggal', keTanggal, true), T.btn('⏱️ Sekarang', sekarang)));
-    root.appendChild(T.el('<div style="height:8px"></div>'));
     root.appendChild(out1);
-    root.appendChild(T.el('<hr style="border:none;border-top:1px solid #27272a;margin:18px 0">'));
-    root.appendChild(T.el('<h3 style="margin:0 0 10px;font-size:16px">Tanggal → Timestamp</h3>'));
+    root.appendChild(T.el('<hr class="divi">'));
+    root.appendChild(T.el('<h3 class="h3">Tanggal → Timestamp</h3>'));
     root.appendChild(T.field('Tanggal & jam (zona HP kamu)', dtInp));
     root.appendChild(T.row(T.btn('Ke Timestamp', keTs, true)));
-    root.appendChild(T.el('<div style="height:8px"></div>'));
     root.appendChild(out2);
   });
 
@@ -856,19 +857,36 @@
     T.hide(wrap);
     T.loadScript(CDN).then((ok) => {
       if (!ok || !window.jsyaml) {
-        T.show(status, '<span class="err">⚠️ CDN tidak bisa dimuat, cek koneksi internet kamu lalu buka ulang halaman ini.</span>');
+        status.innerHTML = '<span class="err">⚠️ CDN tidak bisa dimuat, cek koneksi internet kamu.</span>';
+        const retry = T.btn('🔄 Coba Lagi', () => {
+          status.innerHTML = '<span class="dim">⏳ Memuat library YAML…</span>';
+          T.loadScript(CDN).then((ok2) => {
+            if (!ok2 || !window.jsyaml) {
+              status.innerHTML = '<span class="err">⚠️ Masih gagal. Coba lagi nanti.</span>';
+              status.appendChild(retry);
+              return;
+            }
+            init();
+          });
+        });
+        retry.style.marginTop = '10px';
+        status.appendChild(retry);
         return;
       }
+      init();
+    });
+    let booted = false;
+    function init() {
+      if (booted) return; booted = true;
       T.hide(status);
       wrap.appendChild(T.field('Input', inp));
       wrap.appendChild(T.row(T.btn('JSON → YAML', keYaml, true), T.btn('YAML → JSON', keJson)));
-      wrap.appendChild(T.el('<div style="height:10px"></div>'));
       wrap.appendChild(errBox);
       T.hide(errBox);
       wrap.appendChild(T.field('Output', outp));
       wrap.appendChild(T.row(T.copyBtn(() => outp.value, 'Salin Hasil')));
       wrap.hidden = false;
-    });
+    }
   });
 
   // 14. Case Converter
@@ -879,7 +897,7 @@
     const cap = (w) => w.charAt(0).toUpperCase() + w.slice(1);
     const go = () => {
       const ws = kata(inp.value);
-      if (!ws.length) { T.show(out, '<span class="dim">Ketik sesuatu dulu — semua varian muncul otomatis.</span>'); return; }
+      if (!ws.length) { T.show(out, '<span class="dim">Ketik sesuatu dulu, semua varian muncul otomatis.</span>'); return; }
       const varian = [
         ['camelCase', ws.map((w, i) => (i ? cap(w) : w)).join('')],
         ['PascalCase', ws.map(cap).join('')],
@@ -927,9 +945,8 @@
       }
       if (!slug) { T.show(out, '<span class="err">Tidak ada kata yang bisa dijadikan slug.</span>'); return; }
       T.show(out,
-        '<div class="kv"><span class="k">Slug</span><span class="v" style="font-family:ui-monospace,monospace;user-select:all">' + T.esc(slug) + '</span></div>' +
+        '<div class="kv"><span class="k">Slug</span><span class="v" class="monoall">' + T.esc(slug) + '</span></div>' +
         '<div class="kv"><span class="k">Panjang</span><span class="v">' + slug.length + ' karakter</span></div>');
-      out.appendChild(T.el('<div style="height:8px"></div>'));
       out.appendChild(T.row(T.btn('Salin Slug', () => T.copy(slug), true)));
     };
     inp.addEventListener('input', go);
@@ -971,7 +988,6 @@
     bStop.addEventListener('click', () => { token++; T.toast('Berhenti'); });
     root.appendChild(T.field('Input', inp, 'Huruf, angka, dan tanda baca umum didukung.'));
     root.appendChild(T.row(T.btn('Teks → Morse', enc, true), T.btn('Morse → Teks', dec)));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(T.field('Output', outp));
     root.appendChild(T.row(bPlay, bStop, T.copyBtn(() => outp.value, 'Salin')));
   });
@@ -998,7 +1014,7 @@
             '<div class="kv"><span class="k">Dimensi</span><span class="v">' + img.naturalWidth + ' × ' + img.naturalHeight + ' px</span></div>' +
             '<div class="kv"><span class="k">Tipe</span><span class="v">' + T.esc(f.type) + '</span></div>' +
             '<div class="kv"><span class="k">Panjang string</span><span class="v">' + T.fmt(lastUrl.length) + ' karakter</span></div>' +
-            (f.size > 2 * 1024 * 1024 ? '<div class="hint" style="color:#eab308">⚠️ File besar — string Base64 sangat panjang, mungkin berat disalin.</div>' : '') +
+            (f.size > 2 * 1024 * 1024 ? '<div class="hint" style="color:#eab308">⚠️ File besar. String Base64 sangat panjang, mungkin berat disalin.</div>' : '') +
             '<div class="center" style="margin:10px 0"><img src="' + T.esc(lastUrl) + '" alt="preview" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid #3f3f46"></div>');
           out.appendChild(T.row(
             T.btn('Salin Base64', () => T.copy(lastUrl), true),
@@ -1012,7 +1028,7 @@
       rd.onerror = () => T.show(out, '<span class="err">Gagal membaca file.</span>');
       rd.readAsDataURL(f);
     });
-    root.appendChild(T.field('Pilih gambar', fileInp, 'Semua diproses lokal — gambar tidak di-upload ke mana pun.'));
+    root.appendChild(T.field('Pilih gambar', fileInp, 'Semua diproses lokal, gambar tidak di-upload ke mana pun.'));
     root.appendChild(out);
   });
 
@@ -1045,7 +1061,7 @@
     const keC = (v, u) => (u === 'C' ? v : u === 'F' ? (v - 32) * 5 / 9 : v - 273.15);
     const dariC = (v, u) => (u === 'C' ? v : u === 'F' ? v * 9 / 5 + 32 : v + 273.15);
     const fmtH = (v) => {
-      if (!Number.isFinite(v)) return '—';
+      if (!Number.isFinite(v)) return '-';
       const a = Math.abs(v);
       if (a !== 0 && (a >= 1e12 || a < 1e-6)) return v.toExponential(6);
       return String(Math.round(v * 1e6) / 1e6);
@@ -1073,7 +1089,6 @@
     root.appendChild(T.row(T.btn('⇅ Tukar', () => {
       const t = fromSel.value; fromSel.value = toSel.value; toSel.value = t; hitung();
     })));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(out);
     isiUnit();
   });
@@ -1124,7 +1139,6 @@
     root.appendChild(T.field('Bahan', bahanSel));
     root.appendChild(customWrap);
     root.appendChild(T.grid2(T.field('Jumlah', valInp), T.field('Satuan', dariSel)));
-    root.appendChild(T.el('<div style="height:10px"></div>'));
     root.appendChild(out);
     hitung();
   });
@@ -1133,8 +1147,8 @@
   R('terbilang', 'Terbilang Indonesia', 'converter', '💬', 'Angka jadi kata bahasa Indonesia.', (root) => {
     const inp = T.input('text', 'Angka, misal: 1500000 atau 1.500.000,50', '1500000');
     inp.inputMode = 'decimal';
-    const cRp = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;cursor:pointer"><input type="checkbox" checked style="width:20px;height:20px"> <span>Tambah kata "rupiah" di akhir</span></label>');
-    const cSen = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;cursor:pointer"><input type="checkbox" checked style="width:20px;height:20px"> <span>Tampilkan sen untuk angka desimal</span></label>');
+    const cRp = T.el('<label class="pick"><input type="checkbox" checked style="width:20px;height:20px"> <span>Tambah kata "rupiah" di akhir</span></label>');
+    const cSen = T.el('<label class="pick"><input type="checkbox" checked style="width:20px;height:20px"> <span>Tampilkan sen untuk angka desimal</span></label>');
     const rpBox = cRp.querySelector('input'), senBox = cSen.querySelector('input');
     const out = T.out();
     const go = () => {
@@ -1151,7 +1165,6 @@
       T.show(out,
         '<div class="kv"><span class="k">Terbilang</span></div>' +
         '<div class="big" style="font-size:20px;line-height:1.5;text-transform:capitalize">' + T.esc(kata) + '</div>');
-      out.appendChild(T.el('<div style="height:8px"></div>'));
       out.appendChild(T.row(T.btn('Salin', () => T.copy(kata), true)));
     };
     inp.addEventListener('input', go);
@@ -1159,7 +1172,6 @@
     root.appendChild(T.field('Angka', inp, 'Boleh pakai format Indonesia: 1.500.000,50'));
     root.appendChild(cRp);
     root.appendChild(cSen);
-    root.appendChild(T.el('<div style="height:8px"></div>'));
     root.appendChild(out);
     go();
   });
