@@ -1,3 +1,21 @@
+# Update — 1 Okt 2026: QA Fixes v5.0.0 → v5.0.1 (7 temuan visual)
+
+## Yang diperbaiki
+1. Ikon "Takaran Masak": string mentah "U0001f373" → emoji 🍳 (di meta tool + manifest).
+2. Section "Lihat Juga" di halaman tool tidak tampil: `observeRv()` tidak pernah dipanggil
+   untuk baris terkait (class `.rv` tetap `opacity: 0`) — sekarang di-observe setelah render.
+3. Pill "muse-test" di "Sering dicari": artefak testing di tabel Supabase global
+   `tool_search_terms` (bukan localStorage, bukan hardcoded). Baris tidak bisa dihapus
+   via API (RLS blokir DELETE) → tambah `SEARCH_DENY` di app.js, filter di `fetchTopSearches`.
+   Untuk hapus permanen: `DELETE FROM tool_search_terms WHERE term='muse-test';` via SQL editor.
+4. Fade gradient di tepi kanan (dan kiri saat ter-scroll) pada `.rail` (pills kategori)
+   dan `.qrail` (★ Favorit): mask-image + `watchFadeX()` toggle kelas saat scroll.
+5. Ikon "QR Code Generator": ⬛ → 🔲 (di meta tool + manifest).
+6. Label "Iuran pensiun..." terpotong di tepi kiri: `.fld > label` tambah `padding-left: 2px`.
+7. Sapaan time-aware: sore 15:00–18:00, malam 18:00+ (sebelumnya sore sampai 19:00).
+
+---
+
 # Update — 1 Okt 2026: Redesign Total "Liquid Minimal" (v5.0.0)
 
 ## Ringkasan

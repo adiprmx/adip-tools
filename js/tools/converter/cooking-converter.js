@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.0.0';
+import { h as T, utils } from '../../core.js?v=5.0.1';
 
-export const meta = {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "U0001f373", "desc": "Konversi sendok, cup, gram, ml."};
+export const meta = {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "🍳", "desc": "Konversi sendok, cup, gram, ml."};
 
 export function render(root) {
 

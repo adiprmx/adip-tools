@@ -381,7 +381,7 @@ a { color: inherit; }
    PRIMITIF FORM (dipakai core.js + semua tools — jangan hapus)
    ============================================================ */
 .fld { display: flex; flex-direction: column; gap: 8px; }
-.fld > label { font-size: 13px; font-weight: 650; color: var(--mut); }
+.fld > label { font-size: 13px; font-weight: 650; color: var(--mut); padding-left: 2px; }
 .hint { font-size: 12.5px; color: var(--faint); }
 .inp {
   width: 100%; background: var(--surface-2); border: 1px solid var(--line);
@@ -606,6 +606,20 @@ table.inv-item th { font-weight: 700; }
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 .qrail::-webkit-scrollbar { display: none; }
+/* affordance scroll horizontal: fade gradient di tepi yang masih bisa digeser.
+   Kelas .fx-l/.fx-r di-toggle via JS (watchFadeX); tanpa mengubah layout. */
+.rail.fx-r, .qrail.fx-r {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
+}
+.rail.fx-l, .qrail.fx-l {
+  -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 30px), transparent);
+  mask-image: linear-gradient(to left, #000 calc(100% - 30px), transparent);
+}
+.rail.fx-l.fx-r, .qrail.fx-l.fx-r {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 30px, #000 calc(100% - 30px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 30px, #000 calc(100% - 30px), transparent);
+}
 .qcard {
   flex: 0 0 238px; position: relative;
   display: flex; gap: 12px; align-items: center;

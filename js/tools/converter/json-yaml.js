@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.0.0';
+import { h as T, utils } from '../../core.js?v=5.0.1';
 
 export const meta = {"id": "json-yaml", "name": "JSON ↔ YAML", "cat": "converter", "icon": "⇄", "desc": "Konversi JSON ke YAML dan sebaliknya."};
 

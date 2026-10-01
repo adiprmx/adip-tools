@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.0.0';
+import { h as T, utils } from '../../core.js?v=5.0.1';
 
 export const meta = {"id": "metronome", "name": "Metronom", "cat": "musik", "icon": "🥁", "desc": "Metronom dengan birama."};
 

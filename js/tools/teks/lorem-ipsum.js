@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.0.0';
+import { h as T, utils } from '../../core.js?v=5.0.1';
 
 const LOREM_BANK = [
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',

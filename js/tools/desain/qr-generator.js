@@ -1,11 +1,11 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=5.0.0';
+import { h as T, utils, errBox, esc } from '../../core.js?v=5.0.1';
 
 function wifiString(ssid, pass, enc) {
     const e = (v) => String(v == null ? '' : v).replace(/([\\;,":])/g, '\\$1');
     return 'WIFI:T:' + enc + ';S:' + e(ssid) + ';P:' + e(pass) + ';;';
   }
 
-export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "⬛", "desc": "QR Code teks, URL, & WiFi."};
+export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, & WiFi."};
 
 export function render(root) {
 

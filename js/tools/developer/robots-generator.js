@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.0.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.0.1';
 
 export const meta = {"id": "robots-generator", "name": "Robots.txt Generator", "cat": "developer", "icon": "🤖", "desc": "Susun file robots.txt."};
 

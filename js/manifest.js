@@ -1,8 +1,8 @@
-/* ADIP Tools v5.0.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v5.0.1 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/split-tools.py dari folder tools per kategori.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '5.0.0';
+export const VERSION = '5.0.1';
 export const manifest = [
   {"id": "banding-harga", "name": "Perbandingan Harga", "cat": "bisnis", "icon": "⚖️", "desc": "Mana lebih hemat per unit?", "file": "tools/bisnis/banding-harga.js"},
   {"id": "cat-tembok", "name": "Kalkulator Cat", "cat": "bisnis", "icon": "🪣", "desc": "Kebutuhan cat dari luas ruangan.", "file": "tools/bisnis/cat-tembok.js"},
@@ -12,7 +12,7 @@ export const manifest = [
   {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Encode & decode Base64, termasuk varian URL-safe.", "file": "tools/converter/base64.js"},
   {"id": "case-converter", "name": "Case Converter", "cat": "converter", "icon": "✏️", "desc": "camelCase, snake_case, kebab-case, Title Case, dll.", "file": "tools/converter/case-converter.js"},
   {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL + preview.", "file": "tools/converter/color-converter.js"},
-  {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "U0001f373", "desc": "Konversi sendok, cup, gram, ml.", "file": "tools/converter/cooking-converter.js"},
+  {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "🍳", "desc": "Konversi sendok, cup, gram, ml.", "file": "tools/converter/cooking-converter.js"},
   {"id": "csv-json", "name": "CSV ↔ JSON", "cat": "converter", "icon": "🔄", "desc": "Konversi CSV ke JSON dan sebaliknya.", "file": "tools/converter/csv-json.js"},
   {"id": "image-base64", "name": "Gambar ke Base64", "cat": "converter", "icon": "🖼️", "desc": "Gambar jadi string Base64 siap embed.", "file": "tools/converter/image-base64.js"},
   {"id": "json-yaml", "name": "JSON ↔ YAML", "cat": "converter", "icon": "⇄", "desc": "Konversi JSON ke YAML dan sebaliknya.", "file": "tools/converter/json-yaml.js"},
@@ -30,7 +30,7 @@ export const manifest = [
   {"id": "gradient", "name": "Gradient Generator", "cat": "desain", "icon": "🌈", "desc": "Bikin gradient CSS + preview.", "file": "tools/desain/gradient.js"},
   {"id": "kontras", "name": "Cek Kontras Warna", "cat": "desain", "icon": "◐", "desc": "Rasio kontras WCAG AA/AAA.", "file": "tools/desain/kontras.js"},
   {"id": "palette", "name": "Color Palette Generator", "cat": "desain", "icon": "🎨", "desc": "Palet warna harmonis sekali klik.", "file": "tools/desain/palette.js"},
-  {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "⬛", "desc": "QR Code teks, URL, & WiFi.", "file": "tools/desain/qr-generator.js"},
+  {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, & WiFi.", "file": "tools/desain/qr-generator.js"},
   {"id": "chmod", "name": "Kalkulator Chmod", "cat": "developer", "icon": "🔒", "desc": "Permission oktal ↔ simbolik.", "file": "tools/developer/chmod.js"},
   {"id": "cron", "name": "Cron Parser & Builder", "cat": "developer", "icon": "⏰", "desc": "Terjemahkan & susun cron expression.", "file": "tools/developer/cron.js"},
   {"id": "dns-lookup", "name": "DNS Lookup", "cat": "developer", "icon": "📡", "desc": "Lookup DNS via Google DNS-over-HTTPS.", "file": "tools/developer/dns-lookup.js"},

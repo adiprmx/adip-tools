@@ -1,4 +1,4 @@
-import { h as T, utils, esc, kvRows } from '../../core.js?v=5.0.0';
+import { h as T, utils, esc, kvRows } from '../../core.js?v=5.0.1';
 
 export const meta = {"id": "zerowidth", "name": "Detektor Karakter Tak Terlihat", "cat": "developer", "icon": "👻", "desc": "Temukan zero-width & karakter aneh di teks."};
 

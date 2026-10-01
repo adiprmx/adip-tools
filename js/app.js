@@ -1,7 +1,7 @@
 /* ADIP Tools v5: "Liquid Minimal" — redesign total. Dark zinc-950,
    satu aksen mint, liquid glass di elemen mengambang, Plus Jakarta Sans. */
-import { h as T, cats, tools, leaveCbs } from './core.js?v=5.0.0';
-import { manifest, VERSION } from './manifest.js?v=5.0.0';
+import { h as T, cats, tools, leaveCbs } from './core.js?v=5.0.1';
+import { manifest, VERSION } from './manifest.js?v=5.0.1';
 // FASE 2: code splitting — metadata 110 tools dimuat ringan,
 // kode tiap tool di-import on-demand saat dibuka (lihat loadToolRender).
 for (const m of manifest) tools.push({ ...m, render: null });
@@ -28,8 +28,8 @@ async function loadToolRender(t) {
     const h = new Date().getHours();
     if (h >= 5 && h < 11) return 'Selamat pagi';
     if (h >= 11 && h < 15) return 'Selamat siang';
-    if (h >= 15 && h < 19) return 'Selamat sore';
-    if (h >= 19) return 'Selamat malam';
+    if (h >= 15 && h < 18) return 'Selamat sore';
+    if (h >= 18) return 'Selamat malam';
     return 'Begadang nih?'; // 00–04
   }
 
@@ -39,6 +39,7 @@ async function loadToolRender(t) {
   const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
   const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYmFmZGR3dXB5cXB3ZXZoc3FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyOTA4ODIsImV4cCI6MjEwMjg2Njg4Mn0.FV11WzcVJv2GlFHpzLztFMCik1nmDucA7hZwov8090E'; // anon key: publik by design
   const SEARCH_TOP_N = 6;        // jumlah chip yang ditampilkan
+  const SEARCH_DENY = ['muse-test']; // artefak testing — jangan tampil ke produksi
   const SEARCH_DEBOUNCE_MS = 1500;
   const SEARCH_TRACK_COOLDOWN_MS = 5000; // rate-limit client: maks 1 track / 5 dtk
   const TERM_RE = /^[a-z0-9 \-]{2,40}$/;
@@ -98,7 +99,7 @@ async function loadToolRender(t) {
         .then(({ data, error }) => {
           if (error || !data) return null;
           sbReady = true;
-          sbTerms = data.map((r) => r.term).filter(Boolean);
+          sbTerms = data.map((r) => r.term).filter((t) => t && SEARCH_DENY.indexOf(t) < 0);
           return sbTerms;
         }, () => null);
     });
@@ -370,6 +371,22 @@ async function loadToolRender(t) {
     els.forEach((el) => rvObs.observe(el));
   }
 
+  // affordance scroll horizontal: toggle .fx-l/.fx-r agar mask-image fade
+  // muncul hanya di tepi yang masih bisa digeser. Sekali pasang per elemen.
+  function paintFadeX(el) {
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    el.classList.toggle('fx-l', el.scrollLeft > 6);
+    el.classList.toggle('fx-r', max > 6 && el.scrollLeft < max - 6);
+  }
+  function watchFadeX(el) {
+    if (!el || el._fx) return;
+    el._fx = 1;
+    el.addEventListener('scroll', () => paintFadeX(el), { passive: true });
+    window.addEventListener('resize', () => paintFadeX(el), { passive: true });
+    requestAnimationFrame(() => paintFadeX(el));
+  }
+
   function rowEl(t, i, showCat) {
     const fav = isFav(t.id);
     const a = T.el(
@@ -443,6 +460,7 @@ async function loadToolRender(t) {
       });
       box.appendChild(sec);
     }
+    box.querySelectorAll('.qrail').forEach(watchFadeX); // fade tepi rail favorit
   }
 
   function filtered() {
@@ -506,6 +524,7 @@ async function loadToolRender(t) {
       const n = tools.filter((t) => t.cat === id).length;
       if (n) rail.appendChild(mkTile(id, label, n));
     });
+    watchFadeX(rail); // fade tepi saat pills terpotong
 
     const input = v.querySelector('#q');
     const clear = v.querySelector('#qclear');
@@ -686,6 +705,7 @@ async function loadToolRender(t) {
       box.appendChild(relWrap);
       const rows = relWrap.querySelector('.trows');
       rel.forEach((r, i) => rows.appendChild(rowEl(r, i, false)));
+      observeRv(box); // row .rv butuh observer, kalau tidak tetap opacity:0
     }
 
     const toolbox = v.querySelector('#toolbox');
