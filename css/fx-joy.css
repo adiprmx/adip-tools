@@ -1,0 +1,94 @@
+/* ============================================================
+   fx-joy.css — "joy details": momen kecil yang bikin situs
+   terasa dirawat. Dimuat SETELAH style.css (override halus).
+
+   Aturan main file ini:
+   - Hanya transform, opacity, dan sedikit box-shadow.
+   - Tidak mengubah warna, ukuran, atau layout.
+   - Memakai variabel --spring / --snappy / --ease dari style.css.
+   ============================================================ */
+
+/* ---------- 1. Toast: muncul dengan pegas dari bawah ---------- */
+.toast {
+  transition: opacity 0.25s, transform 0.5s var(--spring);
+}
+.toast.show {
+  animation: toast-spring 0.55s var(--spring);
+}
+@keyframes toast-spring {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.94); }
+  55%  { opacity: 1; transform: translateX(-50%) translateY(-3px) scale(1.015); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ---------- 2. Command palette: indikator geser di item ---------- */
+.pal-item { position: relative; }
+.pal-item::before {
+  content: ""; position: absolute; left: 2px; top: 11px; bottom: 11px;
+  width: 3px; border-radius: 3px; background: var(--acc);
+  transform: scaleY(0); opacity: 0; transform-origin: center;
+  transition: transform 0.28s var(--spring), opacity 0.2s;
+  pointer-events: none;
+}
+.pal-item:hover::before,
+.pal-item.act::before { transform: scaleY(1); opacity: 1; }
+.pal-item .pic { transition: transform 0.28s var(--spring); }
+.pal-item:hover .pic,
+.pal-item.act .pic { transform: translateX(3px) scale(1.06); }
+
+/* ---------- 3. Skeleton: shimmer elegan yang menyapu ---------- */
+.skel i {
+  animation: none; /* ganti kedip bawaan */
+  position: relative; overflow: hidden;
+}
+.skel i::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.08) 50%, transparent 75%);
+  transform: translateX(-102%);
+  animation: skel-sweep 1.9s var(--ease) infinite;
+}
+.skel i:nth-child(2)::after { animation-delay: 0.18s; }
+.skel i:nth-child(3)::after { animation-delay: 0.36s; }
+.skel i:nth-child(4)::after { animation-delay: 0.54s; }
+@keyframes skel-sweep {
+  0%   { transform: translateX(-102%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(102%); opacity: 0; }
+}
+
+/* ---------- 4. Empty state: bernapas pelan + chip stagger ---------- */
+.empty b { animation: empty-breathe 4.2s ease-in-out infinite; }
+@keyframes empty-breathe {
+  50% { transform: translateY(-3px); opacity: 0.82; }
+}
+.empty .sugx .schip { animation: rise-in 0.45s var(--snappy) both; }
+.empty .sugx .schip:nth-child(1) { animation-delay: 0.05s; }
+.empty .sugx .schip:nth-child(2) { animation-delay: 0.11s; }
+.empty .sugx .schip:nth-child(3) { animation-delay: 0.17s; }
+.empty .sugx .schip:nth-child(4) { animation-delay: 0.23s; }
+.empty .sugx .schip:nth-child(5) { animation-delay: 0.29s; }
+.empty .sugx .schip:nth-child(6) { animation-delay: 0.35s; }
+
+/* ---------- 5. Bottom tab: ikon aktif memantul halus ---------- */
+.tab.on .ti { animation: tab-pop 0.55s var(--spring); }
+@keyframes tab-pop {
+  0%   { transform: scale(0.65); }
+  55%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- hormati yang tidak suka gerak ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .toast, .toast.show,
+  .pal-item::before, .pal-item .pic,
+  .skel i::after,
+  .empty b, .empty .sugx .schip,
+  .tab.on .ti {
+    animation: none !important;
+    transition: none !important;
+  }
+  .pal-item::before { opacity: 0 !important; }
+  .toast { transform: translateX(-50%) translateY(14px); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+}

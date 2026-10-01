@@ -1,0 +1,138 @@
+/* ============================================================
+   fx-entrance.css — koreografi entrance ADIP Tools
+   Dimuat SETELAH style.css: aturan di sini menang bila konflik.
+
+   Prinsip:
+   - Hanya transform & opacity (aman untuk HP kentang).
+   - Cepat (<0.6s), expo-out, tanpa glow/bloom.
+   - Stagger "musikal": jeda menyempit (accelerando) lalu
+     menyatu — bukan jeda seragam robotik.
+   - Ritardando kuadratik untuk .rise: section awal renggang,
+     lalu menenangkan diri.
+   ============================================================ */
+
+/* ---------- keyframes ---------- */
+
+/* transisi antar route: halaman baru "mendarat" */
+@keyframes fx-view {
+  from { opacity: 0; transform: translateY(12px) scale(0.995); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* section: naik + sedikit membesar, expo-out */
+@keyframes fx-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* kartu tool: muncul dari bawah dengan scale 0.93 — terasa "pop" tapi kalem */
+@keyframes fx-card {
+  from { opacity: 0; transform: translateY(12px) scale(0.93); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ubin kategori: sedikit lebih ringan dari kartu */
+@keyframes fx-tile {
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* kepala halaman (judul / cat-head / tool-head): sederhana & tegas */
+@keyframes fx-head {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* kartu carousel populer: meluncur dari kanan mengikuti arah rail */
+@keyframes fx-hcard {
+  from { opacity: 0; transform: translateX(20px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ikon: pegas halus dengan overshoot kecil */
+@keyframes fx-iconpop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  55%  { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ---------- transisi route ---------- */
+.view { animation: fx-view 0.38s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)); }
+
+/* ---------- stagger section: ritardando kuadratik ----------
+   --i: 0→1→2… ; jeda = 70ms*i + 9ms*i² (melebar halus, menenangkan) */
+.rise {
+  opacity: 0;
+  animation: fx-rise 0.55s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms + var(--i, 0) * var(--i, 0) * 9ms);
+}
+
+/* ---------- grid kartu: accelerando ----------
+   jeda menyempit tiap kartu — seperti ombak yang menyatu */
+.tgrid > .tcard { animation: fx-card 0.5s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both; }
+.tgrid > .tcard:nth-child(1)  { animation-delay: 0.02s; }
+.tgrid > .tcard:nth-child(2)  { animation-delay: 0.06s; }
+.tgrid > .tcard:nth-child(3)  { animation-delay: 0.10s; }
+.tgrid > .tcard:nth-child(4)  { animation-delay: 0.135s; }
+.tgrid > .tcard:nth-child(5)  { animation-delay: 0.165s; }
+.tgrid > .tcard:nth-child(6)  { animation-delay: 0.19s; }
+.tgrid > .tcard:nth-child(7)  { animation-delay: 0.212s; }
+.tgrid > .tcard:nth-child(8)  { animation-delay: 0.232s; }
+.tgrid > .tcard:nth-child(9)  { animation-delay: 0.25s; }
+.tgrid > .tcard:nth-child(10) { animation-delay: 0.266s; }
+.tgrid > .tcard:nth-child(11) { animation-delay: 0.28s; }
+.tgrid > .tcard:nth-child(12) { animation-delay: 0.292s; }
+.tgrid > .tcard:nth-child(13) { animation-delay: 0.302s; }
+.tgrid > .tcard:nth-child(14) { animation-delay: 0.311s; }
+.tgrid > .tcard:nth-child(15) { animation-delay: 0.319s; }
+.tgrid > .tcard:nth-child(16) { animation-delay: 0.326s; }
+
+/* ---------- ubin kategori ---------- */
+.catgrid > .cattile { animation: fx-tile 0.45s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both; }
+.catgrid > .cattile:nth-child(1)  { animation-delay: 0.02s; }
+.catgrid > .cattile:nth-child(2)  { animation-delay: 0.06s; }
+.catgrid > .cattile:nth-child(3)  { animation-delay: 0.095s; }
+.catgrid > .cattile:nth-child(4)  { animation-delay: 0.125s; }
+.catgrid > .cattile:nth-child(5)  { animation-delay: 0.15s; }
+.catgrid > .cattile:nth-child(6)  { animation-delay: 0.172s; }
+.catgrid > .cattile:nth-child(7)  { animation-delay: 0.191s; }
+.catgrid > .cattile:nth-child(8)  { animation-delay: 0.208s; }
+.catgrid > .cattile:nth-child(9)  { animation-delay: 0.223s; }
+.catgrid > .cattile:nth-child(10) { animation-delay: 0.236s; }
+.catgrid > .cattile:nth-child(11) { animation-delay: 0.248s; }
+.catgrid > .cattile:nth-child(12) { animation-delay: 0.258s; }
+.catgrid > .cattile:nth-child(13) { animation-delay: 0.267s; }
+.catgrid > .cattile:nth-child(14) { animation-delay: 0.275s; }
+
+/* ---------- carousel populer: meluncur searah scroll ---------- */
+.hcard { animation: fx-hcard 0.45s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both; }
+.hcard:nth-child(1) { animation-delay: 0.02s; }
+.hcard:nth-child(2) { animation-delay: 0.07s; }
+.hcard:nth-child(3) { animation-delay: 0.115s; }
+.hcard:nth-child(4) { animation-delay: 0.155s; }
+.hcard:nth-child(5) { animation-delay: 0.19s; }
+.hcard:nth-child(6) { animation-delay: 0.22s; }
+.hcard:nth-child(7) { animation-delay: 0.246s; }
+.hcard:nth-child(8) { animation-delay: 0.27s; }
+
+/* ---------- kepala halaman ---------- */
+.pagetitle, .cat-head, .tool-head {
+  animation: fx-head 0.5s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+/* ikon kepala tool: pop pegas (menggantikan tic-pop yang lama) */
+.tool-head .tic { animation: fx-iconpop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+
+/* ---------- aksesibilitas: matikan SEMUA, paksa state akhir ----------
+   (.rise & .w punya opacity:0 bawaan — tanpa ini mereka tak terlihat) */
+@media (prefers-reduced-motion: reduce) {
+  .view, .rise,
+  .tgrid > .tcard, .catgrid > .cattile, .hcard,
+  .pagetitle, .cat-head, .tool-head, .tool-head .tic,
+  .hero h1 .w {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}

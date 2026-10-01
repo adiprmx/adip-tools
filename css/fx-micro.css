@@ -1,0 +1,125 @@
+/* ============================================================
+   fx-micro.css — micro-interactions kelas premium untuk ADIP Tools
+   Dimuat SETELAH style.css. Aturan: hanya transform & opacity
+   (+ box-shadow hemat). Tanpa ubah warna/layout.
+   Estetika "Tenang": spring halus, tanpa glow norak.
+   ============================================================ */
+
+/* ---------- 1. TOMBOL: press dengan spring overshoot ---------- */
+.btn {
+  transition: transform 0.28s var(--spring), filter 0.15s var(--ease), border-color 0.15s, color 0.15s;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: scale(0.93); transition-duration: 0.1s; }
+.icobtn {
+  transition: transform 0.28s var(--spring), color 0.15s, border-color 0.15s, background 0.15s;
+}
+.icobtn:hover { transform: scale(1.07) rotate(-4deg); }
+.icobtn:active { transform: scale(0.88); transition-duration: 0.1s; }
+
+/* ---------- 2. KARTU: hover terangkat, ikon ikut gerak ---------- */
+.tcard, .hcard, .cattile {
+  transition: transform 0.3s var(--spring), border-color 0.18s, box-shadow 0.3s var(--spring);
+}
+.tcard:hover, .hcard:hover, .cattile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+.tcard:active, .hcard:active, .cattile:active {
+  transform: translateY(-1px) scale(0.96);
+  transition-duration: 0.12s;
+}
+/* ikon kartu: membesar + bergoyang pelan saat hover */
+.tcard .tic, .hcard .hic, .cattile .ci {
+  transition: transform 0.32s var(--spring);
+  display: inline-block;
+}
+.tcard:hover .tic, .hcard:hover .hic { transform: scale(1.14) rotate(-6deg); }
+.cattile:hover .ci { animation: ci-wiggle 0.5s var(--spring); }
+@keyframes ci-wiggle {
+  25% { transform: scale(1.18) rotate(-10deg); }
+  55% { transform: scale(1.05) rotate(6deg); }
+  80% { transform: scale(1.1) rotate(-2deg); }
+}
+
+/* ---------- 3. INPUT: ring coral "bernapas" masuk ---------- */
+.hsearch {
+  transition: border-color 0.25s var(--ease), box-shadow 0.35s var(--spring);
+}
+.hsearch:focus-within {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 22%, transparent);
+}
+.hsearch .glyph { transition: transform 0.3s var(--spring), color 0.2s; }
+.hsearch:focus-within .glyph { transform: translateY(-50%) scale(1.15); }
+.inp {
+  transition: border-color 0.2s, box-shadow 0.35s var(--spring);
+}
+.inp:focus {
+  border-color: var(--acc-line);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 18%, transparent);
+}
+
+/* ---------- 4. FAVORIT: pop pegas + semburan partikel CSS ---------- */
+.fav {
+  transition: transform 0.3s var(--spring), opacity 0.15s, color 0.2s, background 0.15s;
+  position: relative;
+}
+.fav:active { transform: scale(0.75); transition-duration: 0.08s; }
+.fav.pop { animation: fav-pop 0.5s var(--spring); }
+/* partikel: 2 pseudo-element × 4 titik via box-shadow, menyembur keluar */
+.fav.on::before, .fav.on::after {
+  content: ""; position: absolute; left: 50%; top: 50%;
+  width: 4px; height: 4px; margin: -2px; border-radius: 50%;
+  background: var(--acc); opacity: 0; pointer-events: none;
+}
+.fav.on::before {
+  box-shadow: 0 -16px 0 var(--acc), 14px -8px 0 var(--acc), -14px -8px 0 var(--acc), 0 16px 0 var(--acc);
+  animation: fav-burst 0.55s var(--snappy) 0.05s;
+}
+.fav.on::after {
+  box-shadow: 16px 0 0 color-mix(in srgb, var(--acc) 70%, #fff), -16px 0 0 color-mix(in srgb, var(--acc) 70%, #fff), 10px 12px 0 var(--acc), -10px 12px 0 var(--acc);
+  animation: fav-burst 0.55s var(--snappy) 0.12s;
+}
+@keyframes fav-burst {
+  0% { opacity: 1; transform: scale(0.3); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+/* ---------- 5. TAB BAWAH: indikator geser spring + ikon memantul ---------- */
+.tab-ind {
+  transition: transform 0.42s var(--spring), opacity 0.2s;
+}
+.tab { transition: transform 0.28s var(--spring), color 0.18s; }
+.tab:hover { transform: translateY(-2px); }
+.tab:active { transform: scale(0.9); transition-duration: 0.1s; }
+.tab .ti { display: inline-block; transition: transform 0.3s var(--spring); }
+.tab.on .ti { animation: tab-pop 0.45s var(--spring); }
+@keyframes tab-pop {
+  30% { transform: scale(1.3) translateY(-3px); }
+  60% { transform: scale(0.92); }
+}
+
+/* ---------- 6. CHIP SARAN: hover lift kecil ---------- */
+.empty .sugx .schip {
+  transition: transform 0.25s var(--spring), color 0.15s, border-color 0.15s, background 0.15s;
+}
+.empty .sugx .schip:hover { transform: translateY(-2px); }
+.empty .sugx .schip:active { transform: scale(0.92); transition-duration: 0.1s; }
+
+/* ---------- 7. LINK KEMBALI & tombol semua-tools: sentuhan akhir ---------- */
+.back { transition: transform 0.25s var(--spring), color 0.15s; }
+.back:hover { transform: translateX(-3px); }
+.allbtn { transition: transform 0.28s var(--spring), border-color 0.15s; }
+.allbtn:hover { transform: translateY(-2px); }
+.allbtn:active { transform: scale(0.97); transition-duration: 0.1s; }
+.allbtn:hover .ago { animation: ago-nudge 0.4s var(--spring); display: inline-block; }
+@keyframes ago-nudge { 40% { transform: translateX(5px); } }
+
+/* ---------- hormati preferensi gerak ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
