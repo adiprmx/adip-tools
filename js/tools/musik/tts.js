@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.1.1';
+import { h as T, utils } from '../../core.js?v=6.2.0';
 
 export const meta = {"id": "tts", "name": "Text-to-Speech", "cat": "musik", "icon": "🗣️", "desc": "Bacakan teks bahasa Indonesia.", "keywords": "tts,suara,baca,teks"};
 export function render(root) {

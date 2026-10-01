@@ -1,4 +1,4 @@
-import { h as T, utils, U, _NI, _normAcc } from '../../core.js?v=6.1.1';
+import { h as T, utils, U, _NI, _normAcc } from '../../core.js?v=6.2.0';
 
 const _NS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 

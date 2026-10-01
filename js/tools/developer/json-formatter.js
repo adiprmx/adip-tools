@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.1.1';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.2.0';
 
 export const meta = {"id": "json-formatter", "name": "JSON Formatter", "cat": "developer", "icon": "🧩", "desc": "Rapikan, minify, & validasi JSON.", "keywords": "json,format,rapi,validasi"};
 export function render(root) {

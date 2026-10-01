@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.1.1';
+import { h as T, utils } from '../../core.js?v=6.2.0';
 
 export const meta = {"id": "drum-machine", "name": "Drum Machine", "cat": "musik", "icon": "🎛️", "desc": "Step sequencer drum sederhana.", "keywords": "drum,beat,musik"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, money, kv } from '../../core.js?v=6.1.1';
+import { h as T, money, kv } from '../../core.js?v=6.2.0';
 
 // PTKP setahun (Rp) — PMK 101/2016
 const PTKP = {

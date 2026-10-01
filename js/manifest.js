@@ -1,8 +1,8 @@
-/* ADIP Tools v6.1.1 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.2.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.1.1';
+export const VERSION = '6.2.0';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -114,4 +114,38 @@ export const manifest = [
   {"id":"wa-formatter","name":"WA Text Formatter","cat":"teks","icon":"✍️","desc":"Teks biasa jadi format WhatsApp.","keywords":"whatsapp,wa,format,teks,bold","file":"tools/teks/wa-formatter.js"},
   {"id":"word-counter","name":"Penghitung Kata","cat":"teks","icon":"🔡","desc":"Kata, karakter, estimasi baca.","keywords":"kata,hitung,karakter,skripsi","file":"tools/teks/word-counter.js"},
   {"id":"zalgo","name":"Zalgo Text","cat":"teks","icon":"🌀","desc":"Teks rusak ala zalgo.","keywords":"zalgo,rusak,teks,lucu","file":"tools/teks/zalgo.js"},
+  {"id":"jadwal-sholat","name":"Jadwal Sholat","cat":"liveapi","icon":"🕌","desc":"Jadwal sholat harian per kota + countdown ke waktu berikutnya.","keywords":"jadwal,sholat,shalat,waktu,subuh,dzuhur,ashar,maghrib,isya,kota,adzan","file":"tools/liveapi/jadwal-sholat.js"},
+  {"id":"gempa-bmkg","name":"Gempa BMKG Terkini","cat":"liveapi","icon":"🌊","desc":"Info gempa bumi terbaru langsung dari BMKG.","keywords":"gempa,bmkg,tsunami,lindu,magnitudo,gempa bumi,terkini","file":"tools/liveapi/gempa-bmkg.js"},
+  {"id":"wifi-qr","name":"WiFi QR Generator","cat":"keamanan","icon":"📶","desc":"QR WiFi siap scan — tamu konek tanpa ketik password.","keywords":"wifi,qr,ssid,password,scan,kode wifi,wireless,hotspot","file":"tools/keamanan/wifi-qr.js"},
+  {"id":"denda-pajak-stnk","name":"Denda Pajak STNK","cat":"indonesia","icon":"🚗","desc":"Hitung denda telat bayar pajak kendaraan (PKB + SWDKLLJ).","keywords":"denda,pajak,stnk,pkb,swdkllj,kendaraan,motor,mobil,samsat,telat","file":"tools/indonesia/denda-pajak-stnk.js"},
+  {"id":"kalkulator-pesangon","name":"Kalkulator Pesangon","cat":"indonesia","icon":"💼","desc":"Estimasi uang pesangon (UP + UPMK + UPH) ala PP 35/2021.","keywords":"pesangon,phk,up,upmk,uph,pp 35,karyawan,kerja,gaji","file":"tools/indonesia/kalkulator-pesangon.js"},
+  {"id":"kalkulator-lembur","name":"Kalkulator Lembur","cat":"indonesia","icon":"⏰","desc":"Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.","keywords":"lembur,upah,overtime,gaji,kerja,jam,lemburan","file":"tools/indonesia/kalkulator-lembur.js"},
+  {"id":"denda-spt","name":"Denda Telat Lapor SPT","cat":"indonesia","icon":"📄","desc":"Hitung denda + bunga telat lapor SPT Tahunan.","keywords":"denda,spt,pajak,spt tahunan,telat lapor,bunga,djp","file":"tools/indonesia/denda-spt.js"},
+  {"id":"iuran-bpjs","name":"Iuran BPJS Kesehatan","cat":"indonesia","icon":"🏥","desc":"Hitung iuran BPJS Kesehatan per bulan & per tahun.","keywords":"bpjs,kesehatan,iuran,kelas,jkn,jaminan","file":"tools/indonesia/iuran-bpjs.js"},
+  {"id":"balik-nama-kendaraan","name":"Biaya Balik Nama","cat":"indonesia","icon":"🔄","desc":"Estimasi biaya balik nama motor & mobil.","keywords":"balik nama,kendaraan,bbn-kb,stnk,bpkb,motor,mobil,samsat","file":"tools/indonesia/balik-nama-kendaraan.js"},
+  {"id":"token-listrik","name":"Kalkulator Token Listrik","cat":"indonesia","icon":"⚡","desc":"Konversi rupiah ke kWh token listrik & sebaliknya.","keywords":"token,listrik,kwh,pln,prabayar,tarif","file":"tools/indonesia/token-listrik.js"},
+  {"id":"hitung-1000-hari","name":"Hitung 1000 Hari","cat":"indonesia","icon":"🕊️","desc":"Tanggal selamatan 40, 100 & 1000 hari + pasaran Jawa.","keywords":"1000 hari,selamatan,wafat,meninggal,pasaran,jawa,haul","file":"tools/indonesia/hitung-1000-hari.js"},
+  {"id":"fee-marketplace","name":"Fee Admin Marketplace","cat":"indonesia","icon":"🛒","desc":"Bandingin fee admin Shopee, Tokopedia & TikTok Shop.","keywords":"fee,admin,marketplace,shopee,tokopedia,tiktok,komisi,seller","file":"tools/indonesia/fee-marketplace.js"},
+  {"id":"split-grid-ig","name":"Split Grid Instagram","cat":"gambar","icon":"🔲","desc":"Potong foto jadi grid siap posting berurutan ke IG.","keywords":"instagram,grid,split,potong,foto,feed,puzzle","file":"tools/gambar/split-grid-ig.js"},
+  {"id":"kalkulator-ppn","name":"Kalkulator PPN 12%","cat":"bisnis","icon":"🧾","desc":"Bedah harga jadi DPP + PPN, include maupun exclude.","keywords":"ppn,pajak,dpp,12 persen,include,exclude,faktur","file":"tools/bisnis/kalkulator-ppn.js"},
+  {"id":"break-even-point","name":"Break-Even Point","cat":"bisnis","icon":"⚖️","desc":"Jual berapa unit biar modal balik? Cari titik impasmu.","keywords":"bep,break even,titik impas,modal balik,unit,usaha","file":"tools/bisnis/break-even-point.js"},
+  {"id":"kalkulator-hpp","name":"Kalkulator HPP","cat":"bisnis","icon":"🏭","desc":"Hitung biaya pokok per unit + saran harga jual.","keywords":"hpp,harga pokok,produksi,biaya,unit,modal","file":"tools/bisnis/kalkulator-hpp.js"},
+  {"id":"margin-markup","name":"Margin vs Markup","cat":"bisnis","icon":"📊","desc":"Bedain margin & markup, plus cari harga jual dari target.","keywords":"margin,markup,modal,harga jual,profit,untung","file":"tools/bisnis/margin-markup.js"},
+  {"id":"kalkulator-roi","name":"Kalkulator ROI","cat":"bisnis","icon":"📈","desc":"Ukur balik modal: ROI %, profit, dan payback period.","keywords":"roi,return,investasi,balik modal,payback,profit","file":"tools/bisnis/kalkulator-roi.js"},
+  {"id":"siklus-haid","name":"Siklus Haid & Masa Subur","cat":"sehari","icon":"🌸","desc":"Prediksi haid berikut & jendela masa subur dari HPHT.","keywords":"haid,mens,masa subur,ovulasi,hpht,siklus,kehamilan","file":"tools/sehari/siklus-haid.js"},
+  {"id":"hitung-hpl","name":"Hitung HPL","cat":"sehari","icon":"🤰","desc":"Perkiraan hari lahir (HPL) + usia kehamilan dari HPHT.","keywords":"hpl,hari lahir,kehamilan,hpht,naegele,trimester,usg","file":"tools/sehari/hitung-hpl.js"},
+  {"id":"habit-tracker","name":"Habit Tracker","cat":"produktivitas","icon":"✅","desc":"Bangun kebiasaan baik & pantau streak harianmu.","keywords":"habit,kebiasaan,streak,rutinitas,produktif,target","file":"tools/produktivitas/habit-tracker.js"},
+  {"id":"matriks-eisenhower","name":"Matriks Eisenhower","cat":"produktivitas","icon":"🎯","desc":"Pilah tugas: kerjakan, jadwalkan, delegasikan, atau buang.","keywords":"eisenhower,matriks,prioritas,tugas,penting,mendesak,produktivitas","file":"tools/produktivitas/matriks-eisenhower.js"},
+  {"id":"catatan-cepat","name":"Catatan Cepat","cat":"produktivitas","icon":"📝","desc":"Catat ide secepat kilat, cari lagi kapan pun.","keywords":"catatan,notes,ide,cepat,memo","file":"tools/produktivitas/catatan-cepat.js"},
+  {"id":"nilai-akhir","name":"Kalkulator Nilai Akhir","cat":"pelajar","icon":"🎓","desc":"Hitung nilai akhir dari bobot tiap komponen + predikat A–E.","keywords":"nilai,akhir,bobot,predikat,rapor,uts,uas,tugas,kuliah,sekolah","file":"tools/pelajar/nilai-akhir.js"},
+  {"id":"bangun-datar","name":"Rumus Bangun Datar & Ruang","cat":"pelajar","icon":"📐","desc":"Hitung luas, keliling & volume lengkap dengan rumusnya.","keywords":"bangun datar,bangun ruang,luas,keliling,volume,rumus,matematika,geometri,persegi,lingkaran,kubus","file":"tools/pelajar/bangun-datar.js"},
+  {"id":"tabel-periodik","name":"Tabel Periodik","cat":"pelajar","icon":"⚛️","desc":"118 unsur kimia: ketuk buat lihat detailnya.","keywords":"tabel periodik,unsur,kimia,atom,simbol,massa","file":"tools/pelajar/tabel-periodik.js"},
+  {"id":"flashcard","name":"Flashcard","cat":"pelajar","icon":"🃏","desc":"Hafalkan apa pun dengan kartu bolak-balik.","keywords":"flashcard,kartu,hafalan,belajar,kuis,memori","file":"tools/pelajar/flashcard.js"},
+  {"id":"tod-indonesia","name":"Truth or Dare Indonesia","cat":"fun","icon":"😈","desc":"Main truth or dare bareng, 110 soal anti basi.","keywords":"truth or dare,tod,jujur,tantangan,game,main bareng,nongkrong","file":"tools/fun/tod-indonesia.js"},
+  {"id":"cocoklogi-nama","name":"Cocoklogi Nama","cat":"fun","icon":"💘","desc":"Cek kecocokan dua nama, hasilnya konsisten.","keywords":"cocoklogi,nama,jodoh,kecocokan,cinta,pasangan,fun","file":"tools/fun/cocoklogi-nama.js"},
+  {"id":"tebak-tebakan","name":"Tebak-tebakan Receh","cat":"fun","icon":"🤣","desc":"45 tebak-tebakan receh + mode kuis 10 soal.","keywords":"tebak-tebakan,teka-teki,lucu,receh,kuis,game,hiburan","file":"tools/fun/tebak-tebakan.js"},
+  {"id":"waktu-delay-bpm","name":"Delay/Reverb Time dari BPM","cat":"musik","icon":"🎛️","desc":"Waktu delay & reverb yang nempel sama BPM.","keywords":"delay,reverb,bpm,waktu,ms,daw,tempo,musik,echo","file":"tools/musik/waktu-delay-bpm.js"},
+  {"id":"ukuran-file-audio","name":"Ukuran File Audio","cat":"musik","icon":"🎵","desc":"Bitrate × durasi jadi ukuran file, atau sebaliknya.","keywords":"ukuran file,audio,bitrate,mp3,wav,flac,mb,durasi,kbps","file":"tools/musik/ukuran-file-audio.js"},
+  {"id":"palet-foto","name":"Palet Warna dari Foto","cat":"gambar","icon":"🎨","desc":"Ambil 6 warna dominan dari fotomu.","keywords":"palet,warna,foto,hex,dominan,swatch,desain","file":"tools/gambar/palet-foto.js"},
+  {"id":"watermark-foto","name":"Watermark Foto","cat":"gambar","icon":"©️","desc":"Tempel watermark teks ke foto, unduh PNG.","keywords":"watermark,foto,teks,tulisan,hak cipta,logo,png,download","file":"tools/gambar/watermark-foto.js"},
 ];

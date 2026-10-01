@@ -1,4 +1,4 @@
-import { h as T, fileInput } from '../../core.js?v=6.1.1';
+import { h as T, fileInput } from '../../core.js?v=6.2.0';
 
 // Parser CSV yang benar: dukung quote, koma di dalam field, quote ganda, newline di dalam field.
 function parseCSV(text, delim) {
