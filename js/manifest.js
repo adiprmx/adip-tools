@@ -1,8 +1,8 @@
-/* ADIP Tools v6.3.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.4.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.3.0';
+export const VERSION = '6.4.0';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -177,4 +177,30 @@ export const manifest = [
   {"id":"foto-sketca","name":"Foto ke Sketsa","cat":"gambar","icon":"✏️","desc":"Ubah foto jadi sketsa pensil.","keywords":"sketsa,pensil,foto,efek,grayscale,hitam putih","file":"tools/gambar/foto-sketca.js"},
   {"id":"kolase-foto","name":"Kolase Foto","cat":"gambar","icon":"🖼️","desc":"Gabung 2–4 foto jadi satu kanvas.","keywords":"kolase,foto,gabung,grid,instagram","file":"tools/gambar/kolase-foto.js"},
   {"id":"arah-kiblat","name":"Arah Kiblat","cat":"liveapi","icon":"🧭","desc":"Cari arah kiblat dari lokasimu.","keywords":"kiblat,kabah,kompas,arah,sholat","file":"tools/liveapi/arah-kiblat.js"},
+  {"id":"cek-operator","name":"Cek Operator","cat":"indonesia","icon":"📱","desc":"Masukkan nomor HP, langsung tahu operatornya dari prefix-nya.","keywords":"operator,telkomsel,indosat,xl,tri,smartfren,prefix,nomor hp,cek operator","file":"tools/indonesia/cek-operator.js"},
+  {"id":"anggaran-lebaran","name":"Anggaran Lebaran","cat":"indonesia","icon":"🕌","desc":"Rencana biaya mudik: transport, THR, parcel, zakat — plus tips hemat.","keywords":"lebaran,idul fitri,mudik,thr,zakat fitrah,parcel,anggaran","file":"tools/indonesia/anggaran-lebaran.js"},
+  {"id":"kalkulator-kurban","name":"Kalkulator Kurban","cat":"indonesia","icon":"🐄","desc":"Patungan sapi (maks 7 orang) atau kambing — iuran per orang otomatis.","keywords":"kurban,qurban,sapi,kambing,idul adha,patungan,iuran","file":"tools/indonesia/kalkulator-kurban.js"},
+  {"id":"slip-gaji","name":"Slip Gaji","cat":"bisnis","icon":"🧾","desc":"Bikin slip gaji rapi: gaji, tunjangan, potongan — siap cetak.","keywords":"slip gaji,payroll,gaji karyawan,tunjangan,potongan,cetak gaji","file":"tools/bisnis/slip-gaji.js"},
+  {"id":"buat-invoice","name":"Buat Invoice","cat":"bisnis","icon":"🧮","desc":"Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.","keywords":"invoice,buat invoice,nota,tagihan,ppn 11%,klien,cetak","file":"tools/bisnis/buat-invoice.js"},
+  {"id":"simulasi-franchise","name":"Simulasi Franchise","cat":"bisnis","icon":"🏪","desc":"Hitung BEP franchise: biaya awal, royalti, omzet → balik modal berapa bulan?","keywords":"franchise,waralaba,bep,balik modal,royalti,omzet,bisnis","file":"tools/bisnis/simulasi-franchise.js"},
+  {"id":"kalkulator-cashflow","name":"Arus Kas","cat":"bisnis","icon":"💹","desc":"Catat pemasukan & pengeluaran bulanan, ketahuan sisa kasnya.","keywords":"cashflow,arus kas,pemasukan,pengeluaran,surplus,defisit,keuangan","file":"tools/bisnis/kalkulator-cashflow.js"},
+  {"id":"catat-minum-air","name":"Catat Minum Air","cat":"sehari","icon":"💧","desc":"Pantau air minum harianmu, jangan sampai kurang.","keywords":"air minum,hidrasi,catat minum,tracker air,kesehatan","file":"tools/sehari/catat-minum-air.js"},
+  {"id":"biaya-bbm","name":"Biaya BBM","cat":"sehari","icon":"⛽","desc":"Estimasi biaya bensin untuk jarak tempuhmu.","keywords":"bbm,bensin,biaya perjalanan,pertalite,pertamax,harga bensin,konsumsi","file":"tools/sehari/biaya-bbm.js"},
+  {"id":"konversi-resep","name":"Konversi Resep","cat":"sehari","icon":"🍳","desc":"Skala bahan resep otomatis buat porsi yang beda.","keywords":"resep,konversi,porsi,masak,bahan,skala","file":"tools/sehari/konversi-resep.js"},
+  {"id":"timer-masak","name":"Timer Masak","cat":"sehari","icon":"🍜","desc":"Timer masak dengan preset telur, mie, nasi — bunyi saat matang.","keywords":"timer,masak,telur,mie,nasi,countdown,pengingat","file":"tools/sehari/timer-masak.js"},
+  {"id":"prioritas-harian","name":"Prioritas Harian","cat":"produktivitas","icon":"🎯","desc":"Pilih top-3 tugas hari ini, coret satu per satu, pulang dengan tenang.","keywords":"prioritas,harian,todo,todolist,tugas,top 3,produktivitas,fokus","file":"tools/produktivitas/prioritas-harian.js"},
+  {"id":"jurnal-harian","name":"Jurnal Harian","cat":"produktivitas","icon":"📓","desc":"Tulis jurnal per tanggal, buka lagi kapan pun kangen masa lalu.","keywords":"jurnal,diary,harian,catatan,refleksi,menulis,curhat","file":"tools/produktivitas/jurnal-harian.js"},
+  {"id":"target-menulis","name":"Target Menulis","cat":"produktivitas","icon":"✍️","desc":"Pasang target kata, pantau bar progresnya sampai garis finis.","keywords":"target,menulis,kata,word count,progres,progress,novel,skripsi,naskah","file":"tools/produktivitas/target-menulis.js"},
+  {"id":"matriks-keputusan","name":"Matriks Keputusan","cat":"produktivitas","icon":"⚖️","desc":"Bingung milih? Nilai tiap pilihan per kriteria berbobot, biar angka yang bicara.","keywords":"keputusan,matriks,bobot,kriteria,pilihan,analisis,tertimbang,galau","file":"tools/produktivitas/matriks-keputusan.js"},
+  {"id":"matriks-kalkulator","name":"Kalkulator Matriks","cat":"pelajar","icon":"🔢","desc":"Matriks 2×2 & 3×3: determinan, invers, transpos + langkahnya.","keywords":"matriks,determinan,invers,transpos,2x2,3x3,aljabar,linear,matematika","file":"tools/pelajar/matriks-kalkulator.js"},
+  {"id":"kalkulator-trigonometri","name":"Kalkulator Trigonometri","cat":"pelajar","icon":"📐","desc":"Sin cos tan (& kawan-kawan) dari derajat, atau cari sudutnya dari nilai.","keywords":"trigonometri,sin,cos,tan,sudut,derajat,arcsin,arccos,arctan,cosec,sec,cotan","file":"tools/pelajar/kalkulator-trigonometri.js"},
+  {"id":"kombinasi-permutasi","name":"Kombinasi & Permutasi","cat":"pelajar","icon":"🎲","desc":"Hitung C(n,r) dan P(n,r) lengkap dengan langkah perhitungannya.","keywords":"kombinasi,permutasi,peluang,matematika,c(n,r),p(n,r),faktorial","file":"tools/pelajar/kombinasi-permutasi.js"},
+  {"id":"generator-nama-grup","name":"Nama Grup","cat":"fun","icon":"😂","desc":"66 nama grup WA lucu: keluarga, teman, kerja. Acak & salin.","keywords":"nama grup,whatsapp,grup wa,lucu,keluarga,teman,kerja,acak","file":"tools/fun/generator-nama-grup.js"},
+  {"id":"generator-pantun","name":"Generator Pantun","cat":"fun","icon":"🎭","desc":"Rakit pantun 4 baris acak: cinta, lucu, nasehat. 45 pantun.","keywords":"pantun,sampiran,isi,cinta,lucu,nasehat,puisi,acak","file":"tools/fun/generator-pantun.js"},
+  {"id":"kuis-ibukota","name":"Kuis Ibukota","cat":"fun","icon":"🗺️","desc":"Kuis 10 soal acak: ibukota 38 provinsi Indonesia.","keywords":"ibukota,provinsi,indonesia,kuis,geografi,peta","file":"tools/fun/kuis-ibukota.js"},
+  {"id":"tebak-bendera","name":"Tebak Bendera","cat":"fun","icon":"🏳️","desc":"Kuis 10 soal acak: tebak negara dari emoji benderanya.","keywords":"bendera,negara,kuis,flag,geografi,dunia","file":"tools/fun/tebak-bendera.js"},
+  {"id":"meter-bucin","name":"Meter Bucin","cat":"fun","icon":"💘","desc":"Ukur level kebucinanmu lewat 8 pertanyaan jujur.","keywords":"bucin,cinta,kuis,lucu,fun","file":"tools/fun/meter-bucin.js"},
+  {"id":"kalkulator-capo","name":"Kalkulator Capo","cat":"musik","icon":"🎸","desc":"Bentuk jari + capo = nada apa yang terdengar?","keywords":"capo,gitar,akor,chord,transpose,fret","file":"tools/musik/kalkulator-capo.js"},
+  {"id":"skala-musik","name":"Skala Musik","cat":"musik","icon":"🎹","desc":"Lihat & dengarkan nada-nada dalam tiap skala.","keywords":"skala,scale,mayor,minor,pentatonik,blues,nada,musik","file":"tools/musik/skala-musik.js"},
+  {"id":"latihan-interval","name":"Latihan Interval","cat":"musik","icon":"👂","desc":"Asah kuping: tebak jarak 2 nada dalam 10 ronde.","keywords":"interval,ear training,telinga,nada,musik,latihan","file":"tools/musik/latihan-interval.js"},
 ];

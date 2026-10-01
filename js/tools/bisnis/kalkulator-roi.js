@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.3.0';
+import { h as T, kv } from '../../core.js?v=6.4.0';
 
 export const meta = {"id": "kalkulator-roi", "name": "Kalkulator ROI", "cat": "bisnis", "icon": "📈", "desc": "Ukur balik modal: ROI %, profit, dan payback period.", "keywords": "roi,return,investasi,balik modal,payback,profit"};
 export function render(root) {

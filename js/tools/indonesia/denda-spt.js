@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.3.0';
+import { h as T, utils, kv } from '../../core.js?v=6.4.0';
 
 export const meta = {"id": "denda-spt", "name": "Denda Telat Lapor SPT", "cat": "indonesia", "icon": "📄", "desc": "Hitung denda + bunga telat lapor SPT Tahunan.", "keywords": "denda,spt,pajak,spt tahunan,telat lapor,bunga,djp"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils, parseISO, todayISO } from '../../core.js?v=6.3.0';
+import { h as T, utils, parseISO, todayISO } from '../../core.js?v=6.4.0';
 
 export const meta = {"id": "hitung-1000-hari", "name": "Hitung 1000 Hari", "cat": "indonesia", "icon": "🕊️", "desc": "Tanggal selamatan 40, 100 & 1000 hari + pasaran Jawa.", "keywords": "1000 hari,selamatan,wafat,meninggal,pasaran,jawa,haul"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.3.0';
+import { h as T, utils } from '../../core.js?v=6.4.0';
 
 export const meta = {"id": "panjang-sample", "name": "Panjang Sample", "cat": "musik", "icon": "🎚️", "desc": "Bar × BPM jadi detik, atau sebaliknya.", "keywords": "sample,bar,bpm,durasi,detik,loop,musik"};
 export function render(root) {

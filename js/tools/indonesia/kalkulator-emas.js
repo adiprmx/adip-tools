@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.3.0';
+import { h as T, utils, kv } from '../../core.js?v=6.4.0';
 
 export const meta = {
   id: 'kalkulator-emas',

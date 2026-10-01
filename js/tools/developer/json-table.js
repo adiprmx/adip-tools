@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=6.3.0';
+import { h as T, utils, errBox, esc } from '../../core.js?v=6.4.0';
 
 export const meta = {"id": "json-table", "name": "JSON ke Tabel", "cat": "developer", "icon": "📊", "desc": "Paste JSON jadi tabel yang enak dibaca.", "keywords": "json,tabel"};
 export function render(root) {

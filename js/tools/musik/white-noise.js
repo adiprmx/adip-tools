@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.3.0';
+import { h as T, utils } from '../../core.js?v=6.4.0';
 
 export const meta = {"id": "white-noise", "name": "White Noise", "cat": "musik", "icon": "🌧️", "desc": "Suara fokus & tidur.", "keywords": "noise,tidur,fokus,suara,hujan"};
 export function render(root) {
