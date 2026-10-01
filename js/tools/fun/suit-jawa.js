@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "suit-jawa", "name": "Suit Jawa", "cat": "fun", "icon": "✊", "desc": "Gunting-batu-kertas lawan komputer. Suit...!", "keywords": "suit,gunting,batu,kertas,game,jawa"};
 

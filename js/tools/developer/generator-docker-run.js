@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "generator-docker-run", "name": "Docker Run Builder", "cat": "developer", "icon": "🐳", "desc": "Rakit perintah docker run + docker-compose setara lewat form.", "keywords": "docker,container,compose,docker run,devops,deployment"};
 export function render(root) {

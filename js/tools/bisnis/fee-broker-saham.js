@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.7.0';
+import { h as T, kv } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"fee-broker-saham","name":"Fee Broker Saham","cat":"bisnis","icon":"📉","desc":"Fee broker beli & jual saham + estimasi bersih yang kamu terima.","keywords":"saham,fee broker,komisi,beli saham,jual saham,investasi,sekuritas"};
 export function render(root) {

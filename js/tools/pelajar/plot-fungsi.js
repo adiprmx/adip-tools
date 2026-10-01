@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "plot-fungsi", "name": "Plot Fungsi", "cat": "pelajar", "icon": "📉", "desc": "Gambar grafik f(x) + tabel nilai x dari -10 sampai 10.", "keywords": "fungsi,grafik,plot,matematika,kurva,fx"};
 

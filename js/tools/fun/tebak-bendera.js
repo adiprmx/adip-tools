@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"tebak-bendera","name":"Tebak Bendera","cat":"fun","icon":"🏳️","desc":"Kuis 10 soal acak: tebak negara dari emoji benderanya.","keywords":"bendera,negara,kuis,flag,geografi,dunia"};
 

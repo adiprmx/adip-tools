@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"generator-nama-grup","name":"Nama Grup","cat":"fun","icon":"😂","desc":"66 nama grup WA lucu: keluarga, teman, kerja. Acak & salin.","keywords":"nama grup,whatsapp,grup wa,lucu,keluarga,teman,kerja,acak"};
 

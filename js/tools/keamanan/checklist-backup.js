@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"checklist-backup","name":"Checklist Backup","cat":"keamanan","icon":"💾","desc":"Checklist backup 3-2-1 + pengingat jadwal.","keywords":"backup,checklist,3-2-1,data,aman,pengingat"};
 

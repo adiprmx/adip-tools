@@ -1,4 +1,4 @@
-import { h as T, p2, todayISO } from '../../core.js?v=6.7.0';
+import { h as T, p2, todayISO } from '../../core.js?v=6.8.0';
 
 // Algoritma Kuwaiti (kalender Hijriah tabular/astronomis).
 // Perkiraan — bisa selisih ±1-2 hari dari penetapan rukyat pemerintah.

@@ -1,4 +1,4 @@
-import { h as T, preHtml } from '../../core.js?v=6.7.0';
+import { h as T, preHtml } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"matriks-kalkulator","name":"Kalkulator Matriks","cat":"pelajar","icon":"🔢","desc":"Matriks 2×2 & 3×3: determinan, invers, transpos + langkahnya.","keywords":"matriks,determinan,invers,transpos,2x2,3x3,aljabar,linear,matematika"};
 

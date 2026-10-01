@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"jadwal-siram-tanaman","name":"Jadwal Siram","cat":"sehari","icon":"🪴","desc":"Catat tanamanmu, diingetin kapan waktunya disiram.","keywords":"tanaman,siram,jadwal,berkebun,menyiram,rawat tanaman,air"};
 

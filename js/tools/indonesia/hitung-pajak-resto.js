@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "hitung-pajak-resto", "name": "Pajak Resto", "cat": "indonesia", "icon": "🍽️", "desc": "Hitung total bayar makan di resto + split bill patungan.", "keywords": "pajak,resto,restoran,split bill,patungan,service charge,tagihan"};
 

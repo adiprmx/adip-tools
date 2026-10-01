@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "kalkulator-gaji-bersih", "name": "Kalkulator Gaji Bersih", "cat": "bisnis", "icon": "💰", "desc": "Gaji pokok + tunjangan − BPJS & potongan = take-home pay.", "keywords": "gaji,bersih,take home pay,bpjs,jht,potongan,tunjangan,payroll,thr"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "reaction", "name": "Tes Refleks", "cat": "fun", "icon": "⚡", "desc": "Ukur kecepatan refleks.", "keywords": "refleks,reaksi,cepat,tes"};
 export function render(root) {

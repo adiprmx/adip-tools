@@ -1,8 +1,8 @@
-/* ADIP Tools v6.7.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.8.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.7.0';
+export const VERSION = '6.8.0';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -277,4 +277,33 @@ export const manifest = [
   {"id": "posisi-iss", "name": "Posisi ISS", "cat": "liveapi", "icon": "🛰️", "desc": "Lacak posisi Stasiun Luar Angkasa Internasional secara live.", "keywords": "iss,satelit,posisi,stasiun luar angkasa,nasa,live", "file": "tools/liveapi/posisi-iss.js"},
   {"id": "terbit-terbenam", "name": "Terbit & Terbenam", "cat": "liveapi", "icon": "🌅", "desc": "Jadwal matahari terbit & terbenam + hitung mundur.", "keywords": "matahari,terbit,terbenam,sunrise,sunset,jadwal,shubuh,maghrib", "file": "tools/liveapi/terbit-terbenam.js"},
 
+  {"id": "iuran-kas-rt", "name": "Iuran Kas RT", "cat": "indonesia", "icon": "🧾", "desc": "Hitung iuran per KK, catat siapa sudah bayar, pantau total terkumpul & penunggak.", "keywords": "iuran,kas,rt,rw,kk,bayar,tagihan,penunggak,dana", "file": "tools/indonesia/iuran-kas-rt.js"},
+  {"id": "jadwal-ronda", "name": "Jadwal Ronda", "cat": "indonesia", "icon": "🌙", "desc": "Generate jadwal ronda malam 14 hari: rotasi otomatis warga per malam.", "keywords": "ronda,siskamling,jaga,malam,warga,jadwal,rotasi,keamanan", "file": "tools/indonesia/jadwal-ronda.js"},
+  {"id": "jadwal-piket", "name": "Jadwal Piket", "cat": "indonesia", "icon": "🧹", "desc": "Rotasi piket harian: pilih hari aktif, tampilkan jadwal 2 minggu ke depan.", "keywords": "piket,jadwal,bersih,sekolah,kantor,giliran,rotasi,hari", "file": "tools/indonesia/jadwal-piket.js"},
+  {"id": "biaya-perpanjang-sim", "name": "Biaya Perpanjang SIM", "cat": "indonesia", "icon": "🪪", "desc": "Hitung total biaya perpanjangan SIM: PNBP + cek kesehatan + psikotes, bisa diedit.", "keywords": "sim,perpanjang,surat,izin,mengemudi,pnbp,biaya,kesehatan,psikotes", "file": "tools/indonesia/biaya-perpanjang-sim.js"},
+  {"id": "rumus-eksponen", "name": "Kalkulator Eksponen", "cat": "pelajar", "icon": "🔢", "desc": "Hitung pangkat & akar plus kartu sifat-sifat eksponen.", "keywords": "eksponen,pangkat,akar,matematika,rumus", "file": "tools/pelajar/rumus-eksponen.js"},
+  {"id": "tabel-perkalian", "name": "Tabel Perkalian", "cat": "pelajar", "icon": "✖️", "desc": "Tabel perkalian 1–20 plus mode kuis 10 soal.", "keywords": "perkalian,tabel,matematika,kuis,latihan", "file": "tools/pelajar/tabel-perkalian.js"},
+  {"id": "pilih-satu", "name": "Pilih Satu", "cat": "fun", "icon": "🎯", "desc": "Bingung milih? Biar acak yang menentukan.", "keywords": "pilih,acak,random,keputusan,opsi", "file": "tools/fun/pilih-satu.js"},
+  {"id": "generator-komplimen", "name": "Generator Komplimen", "cat": "fun", "icon": "💛", "desc": "Komplimen hangat acak buat cerahkan harimu.", "keywords": "komplimen,pujian,acak,semangat,motivasi", "file": "tools/fun/generator-komplimen.js"},
+  {"id": "bola-ramalan", "name": "Bola Ramalan", "cat": "fun", "icon": "🔮", "desc": "Tanya ya/tidak, biar bola ajaib yang jawab.", "keywords": "ramalan,magic 8 ball,tanya,ya tidak,hiburan", "file": "tools/fun/bola-ramalan.js"},
+  {"id": "pengacak-kalimat", "name": "Pengacak Kalimat", "cat": "teks", "icon": "🔀", "desc": "Acak urutan kata dalam tiap kalimat.", "keywords": "acak,kata,kalimat,shuffle,random,teks", "file": "tools/teks/pengacak-kalimat.js"},
+  {"id": "kalkulator-gaji-freelance", "name": "Kalkulator Gaji Freelance", "cat": "bisnis", "icon": "💼", "desc": "Hitung gaji bersih freelance per bulan", "keywords": "gaji,freelance,rate,honor,potongan,platform,pajak", "file": "tools/bisnis/kalkulator-gaji-freelance.js"},
+  {"id": "estimasi-modal-usaha", "name": "Estimasi Modal Usaha", "cat": "bisnis", "icon": "🏪", "desc": "Total modal awal & kapan balik modal", "keywords": "modal,usaha,bep,balik modal,bisnis,investasi", "file": "tools/bisnis/estimasi-modal-usaha.js"},
+  {"id": "kalkulator-tabungan", "name": "Kalkulator Tabungan", "cat": "bisnis", "icon": "🏦", "desc": "Kapan target tabunganmu tercapai?", "keywords": "tabungan,menabung,target,bunga,deposito,nabung", "file": "tools/bisnis/kalkulator-tabungan.js"},
+  {"id": "pengingat-obat", "name": "Pengingat Obat", "cat": "sehari", "icon": "💊", "desc": "Alarm minum obat + checklist harian", "keywords": "obat,pengingat,alarm,jadwal,minum,checklist,kesehatan", "file": "tools/sehari/pengingat-obat.js"},
+  {"id": "hitung-parkir", "name": "Hitung Parkir", "cat": "sehari", "icon": "🅿️", "desc": "Estimasi biaya parkir motor & mobil", "keywords": "parkir,motor,mobil,tarif,biaya,inap", "file": "tools/sehari/hitung-parkir.js"},
+  {"id": "kalkulator-umur", "name": "Kalkulator Umur", "cat": "sehari", "icon": "🎂", "desc": "Hitung umur persis: tahun, bulan, hari + total hari & hitung mundur ultah", "keywords": "umur,usia,ulang tahun,ultah,age,tanggal lahir", "file": "tools/sehari/kalkulator-umur.js"},
+  {"id": "target-baca", "name": "Target Baca", "cat": "sehari", "icon": "📚", "desc": "Pantau pace baca buku & halaman", "keywords": "baca,buku,halaman,target,pace,reading,literasi", "file": "tools/sehari/target-baca.js"},
+  {"id": "efek-komik", "name": "Efek Komik", "cat": "gambar", "icon": "💥", "desc": "Ubah foto jadi gaya komik: kontras tegas + halftone + outline.", "keywords": "komik,halftone,foto,efek,posterize", "file": "tools/gambar/efek-komik.js"},
+  {"id": "efek-cermin", "name": "Efek Cermin", "cat": "gambar", "icon": "🪞", "desc": "Bikin efek cermin/kaleidoskop sederhana dari foto.", "keywords": "cermin,mirror,foto,efek,kaleidoskop", "file": "tools/gambar/efek-cermin.js"},
+  {"id": "kalkulator-bandwidth", "name": "Kalkulator Bandwidth", "cat": "developer", "icon": "📡", "desc": "Estimasi waktu transfer file & kecepatan minimum yang dibutuhkan.", "keywords": "bandwidth,transfer,mbps,kecepatan,download,upload", "file": "tools/developer/kalkulator-bandwidth.js"},
+  {"id": "cheatsheet-git", "name": "Cheatsheet Git", "cat": "developer", "icon": "📝", "desc": "Perintah git penting, dikelompokkan + bisa dicari.", "keywords": "git,cheatsheet,perintah,commit,branch,remote", "file": "tools/developer/cheatsheet-git.js"},
+  {"id": "pembanding-teks", "name": "Pembanding Teks", "cat": "developer", "icon": "🔀", "desc": "Bandingkan dua teks baris per baris, lihat bedanya.", "keywords": "diff,teks,bandingkan,perbandingan,kode", "file": "tools/developer/pembanding-teks.js"},
+  {"id": "komponen-wireframe", "name": "Komponen Wireframe", "cat": "desain", "icon": "🧩", "desc": "Wireframe grayscale siap pakai: tombol, kartu, navbar, dll.", "keywords": "wireframe,komponen,desain,html,ui,mockup", "file": "tools/desain/komponen-wireframe.js"},
+  {"id": "teks-gradien", "name": "Teks Gradien", "cat": "desain", "icon": "🌅", "desc": "Bikin teks berwarna gradasi + salin sebagai HTML/CSS.", "keywords": "gradien,teks,warna,css,desain,gradient", "file": "tools/desain/teks-gradien.js"},
+  {"id": "konversi-kecepatan-internet", "name": "Kecepatan Internet", "cat": "converter", "icon": "🌐", "desc": "Konversi Mbps ↔ MB/s dan satuan kecepatan internet.", "keywords": "internet,kecepatan,mbps,mb/s,bandwidth,download,konversi", "file": "tools/converter/konversi-kecepatan-internet.js"},
+  {"id": "konversi-kecepatan", "name": "Konversi Kecepatan", "cat": "converter", "icon": "💨", "desc": "Konversi km/jam ↔ m/s ↔ mph ↔ knot.", "keywords": "kecepatan,km/jam,ms,mph,knot,konversi,lari,berkendara", "file": "tools/converter/konversi-kecepatan.js"},
+  {"id": "info-hari-ini", "name": "Info Hari Ini", "cat": "liveapi", "icon": "📅", "desc": "Info tanggal hari ini — 100% dihitung lokal di HP-mu.", "keywords": "tanggal,hari ini,kalender,hari ke,lokal,offline,pekan", "file": "tools/liveapi/info-hari-ini.js"},
+  {"id": "frekuensi-nada", "name": "Frekuensi Nada", "cat": "musik", "icon": "🎵", "desc": "Hitung frekuensi Hz dari nama nada + dengarkan.", "keywords": "frekuensi,nada,hz,audio,tuning,musik,oktaf,440", "file": "tools/musik/frekuensi-nada.js"},
+  {"id": "kuis-phising", "name": "Kuis Phising", "cat": "keamanan", "icon": "🎣", "desc": "Uji kemampuanmu membedakan email asli vs phising.", "keywords": "phising,phishing,kuis,email,keamanan,edukasi", "file": "tools/keamanan/kuis-phising.js"},
 ];

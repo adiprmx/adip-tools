@@ -1,4 +1,4 @@
-import { h as T, utils, todayISO } from '../../core.js?v=6.7.0';
+import { h as T, utils, todayISO } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "jadwal-shift", "name": "Jadwal Shift", "cat": "indonesia", "icon": "🔄", "desc": "Susun jadwal shift karyawan: definisikan pola, rotasi otomatis per tanggal.", "keywords": "jadwal,shift,karyawan,kerja,roster,piket,rotasi,giliran"};
 export function render(root) {

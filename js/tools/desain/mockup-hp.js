@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"mockup-hp","name":"Mockup HP","cat":"desain","icon":"📱","desc":"Tempel screenshot ke bingkai HP, unduh PNG.","keywords":"mockup,hp,smartphone,screenshot,bingkai,phone,frame"};
 

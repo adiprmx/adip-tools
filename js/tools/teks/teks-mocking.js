@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.7.0';
+import { h as T } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"teks-mocking","name":"Teks Mocking","cat":"teks","icon":"🐔","desc":"Ubah teks jadi tEkS mOcKiNg ala SpongeBob.","keywords":"mocking,spongebob,teks,lucu,acak,besar kecil,ejekan"};
 

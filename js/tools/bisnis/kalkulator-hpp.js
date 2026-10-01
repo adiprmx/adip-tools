@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.7.0';
+import { h as T, kv } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "kalkulator-hpp", "name": "Kalkulator HPP", "cat": "bisnis", "icon": "🏭", "desc": "Hitung biaya pokok per unit + saran harga jual.", "keywords": "hpp,harga pokok,produksi,biaya,unit,modal"};
 export function render(root) {

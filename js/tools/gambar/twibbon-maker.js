@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.7.0';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"twibbon-maker","name":"Twibbon Maker","cat":"gambar","icon":"🖼️","desc":"Bikin twibbon: bingkai + pita teks buat fotomu.","keywords":"twibbon,bingkai,frame,foto,kampanye,pita,teks"};
 

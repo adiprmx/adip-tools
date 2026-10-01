@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "teks-pelangi", "name": "Teks Pelangi", "cat": "teks", "icon": "🌈", "desc": "Ubah teks jadi pelangi huruf per huruf, salin sebagai HTML.", "keywords": "pelangi,rainbow,teks berwarna,html,warnai teks,gradient teks"};
 export function render(root) {

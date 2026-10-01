@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "bcrypt", "name": "Bcrypt Hasher", "cat": "keamanan", "icon": "🔐", "desc": "Hash password ala bcrypt + verifikasi.", "keywords": "bcrypt,hash,password"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.7.0';
+import { h as T, utils, kv } from '../../core.js?v=6.8.0';
 
 // Data UMP TAHUN 2025 (38 provinsi), diringkas dari berbagai sumber media.
 // DISCLAIMER: angka resmi bisa berubah — selalu cek Disnaker setempat.

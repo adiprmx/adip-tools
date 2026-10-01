@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "fase-bulan", "name": "Fase Bulan", "cat": "liveapi", "icon": "🌕", "desc": "Fase bulan hari ini, dihitung lokal tanpa internet.", "keywords": "bulan,fase,purnama,bulan baru,moon,lunar"};
 export function render(root) {

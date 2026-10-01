@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "efek-vintage", "name": "Efek Vintage", "cat": "gambar", "icon": "📷", "desc": "Ubah foto jadi nuansa vintage: sepia, vignette, grain.", "keywords": "vintage,foto,filter,sepia,vignette,grain,foto jadul"};
 export function render(root) {

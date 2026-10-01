@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "kalkulator-gadai", "name": "Kalkulator Gadai", "cat": "indonesia", "icon": "🏦", "desc": "Simulasi gadai: taksiran barang → plafon pinjaman, sewa modal, total tebus.", "keywords": "gadai,pinjaman,pegadaian,sewa modal,tebus,taksiran,plafon"};
 export function render(root) {

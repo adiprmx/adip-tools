@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "ukuran-cincin", "name": "Ukuran Cincin", "cat": "converter", "icon": "💍", "desc": "Konversi ukuran cincin internasional.", "keywords": "cincin,ukuran,ring,size"};
 export function render(root) {

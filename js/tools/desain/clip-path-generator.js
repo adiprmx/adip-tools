@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"clip-path-generator","name":"Clip-Path Generator","cat":"desain","icon":"✂️","desc":"Potong bentuk pakai clip-path CSS.","keywords":"clip-path,polygon,css,bentuk,potong"};
 

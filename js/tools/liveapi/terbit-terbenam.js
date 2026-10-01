@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "terbit-terbenam", "name": "Terbit & Terbenam", "cat": "liveapi", "icon": "🌅", "desc": "Jadwal matahari terbit & terbenam + hitung mundur.", "keywords": "matahari,terbit,terbenam,sunrise,sunset,jadwal,shubuh,maghrib"};
 export function render(root) {

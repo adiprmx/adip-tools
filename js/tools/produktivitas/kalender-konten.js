@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"kalender-konten","name":"Kalender Konten","cat":"produktivitas","icon":"📅","desc":"Jadwalkan ide konten per tanggal & platform.","keywords":"kalender,konten,content,tiktok,instagram,youtube,ide,jadwal,sosmed"};
 

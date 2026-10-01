@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "hmac-generator", "name": "HMAC Generator", "cat": "keamanan", "icon": "🔏", "desc": "Buat HMAC-SHA256/SHA-512 dari teks + secret key.", "keywords": "hmac,sha,secret,api"};
 export function render(root) {

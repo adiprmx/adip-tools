@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.7.0';
+import { h as T } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"cek-vibes","name":"Cek Vibes","cat":"fun","icon":"✨","desc":"Kuis 6 pertanyaan buat nentuin vibes kamu hari ini. 100% nggak ilmiah.","keywords":"vibes,kuis,kepribadian,fun,hiburan,zodiak"};
 

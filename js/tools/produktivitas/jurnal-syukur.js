@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"jurnal-syukur","name":"Jurnal Syukur","cat":"produktivitas","icon":"🙏","desc":"Tulis 3 hal yang kamu syukuri hari ini, simpel dan menenangkan.","keywords":"jurnal,syukur,gratitude,harian,refleksi,mindfulness,catatan"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"estimasi-skor-toefl","name":"Estimasi TOEFL","cat":"pelajar","icon":"🎓","desc":"Perkirakan skor TOEFL dari nilai latihan listening, structure, reading.","keywords":"toefl,skor,estimasi,itp,listening,structure,reading,tes bahasa inggris,latihan"};
 

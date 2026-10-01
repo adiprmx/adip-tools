@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "zodiak-hari-ini", "name": "Zodiak Hari Ini", "cat": "fun", "icon": "♈", "desc": "Cek zodiakmu + ramalan receh hari ini. Cuma hiburan!", "keywords": "zodiak,ramalan,horoskop,bintang,lahir"};
 

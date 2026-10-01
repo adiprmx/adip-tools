@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "rate-card-endorse", "name": "Rate Card Endorse", "cat": "bisnis", "icon": "📣", "desc": "Estimasi tarif endorse dari jumlah followers & engagement rate.", "keywords": "endorse,rate card,influencer,tarif,instagram,followers,engagement,iklan,promosi"};
 export function render(root) {

@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
-import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
+import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"pixel-art","name":"Pixel Art","cat":"gambar","icon":"👾","desc":"Ubah foto jadi pixel art retro.","keywords":"pixel,pixelate,retro,foto,efek"};
 

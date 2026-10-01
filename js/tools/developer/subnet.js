@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=6.7.0';
+import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=6.8.0';
 
 function subnet(ip, cidr) {
     const o = String(ip == null ? '' : ip).trim().split('.');

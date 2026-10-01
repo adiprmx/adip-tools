@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.7.0';
+import { h as T, utils, kv } from '../../core.js?v=6.8.0';
 
 export const meta = {"id": "slip-gaji", "name": "Slip Gaji", "cat": "bisnis", "icon": "🧾", "desc": "Bikin slip gaji rapi: gaji, tunjangan, potongan — siap cetak.", "keywords": "slip gaji,payroll,gaji karyawan,tunjangan,potongan,cetak gaji"};
 

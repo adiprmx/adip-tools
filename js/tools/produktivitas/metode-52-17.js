@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.7.0';
+import { h as T, utils } from '../../core.js?v=6.8.0';
 
 export const meta = {"id":"metode-52-17","name":"Metode 52-17","cat":"produktivitas","icon":"⏱️","desc":"Timer fokus 52 menit + istirahat 17 menit, siklusnya jalan otomatis.","keywords":"timer,fokus,52-17,istirahat,produktivitas,kerja,belajar,deep work,konsentrasi"};
 
