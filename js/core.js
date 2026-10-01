@@ -246,3 +246,123 @@ export const h = {
   copy, copyBtn, dl, dlBtn, toast, row, grid2, onLeave,
   fmt, rp, num, actx, beep, loadScript,
 };
+
+/* ================= FASE 2: shared helpers (dipakai >1 tool) =================
+   Dipindah otomatis dari tools-*.js oleh scripts/split-tools.py. Jangan edit manual;
+   edit di file tool asalnya lalu jalankan ulang generator bila perlu. */
+const T = h; // alias untuk helper pindahan yang memakai T.*
+export function preHtml(text, cls) {
+    return '<pre class="' + (cls || '') + '" style="white-space:pre-wrap;word-break:break-word;background:#0d0d0f;border:1px solid #27272a;border-radius:8px;padding:12px;font-size:12.5px;line-height:1.5;overflow-x:auto">' + esc(text) + '</pre>';
+  }
+
+export function errBox(msg) { return '<div style="color:#ef4444;font-size:13px;line-height:1.5">' + esc(msg) + '</div>'; }
+
+export function kvRows(pairs) {
+    return '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+      pairs.map(([k, v]) => '<tr><td style="padding:7px 8px;color:#a1a1aa;border-bottom:1px solid #1f1f23;vertical-align:top;white-space:nowrap">' + esc(k) + '</td><td style="padding:7px 8px;border-bottom:1px solid #1f1f23;font-family:monospace;word-break:break-all">' + esc(v) + '</td></tr>').join('') +
+      '</table>';
+  }
+
+export function tabs(buttons, pages) {
+    // buttons: [[label, idx]], pages: [el...]
+    const bar = T.el('<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>');
+    const set = (i) => {
+      pages.forEach((p, j) => { p.hidden = j !== i; });
+      bar.querySelectorAll('button').forEach((b, j) => b.classList.toggle('primary', j === i));
+    };
+    buttons.forEach(([label, i]) => {
+      const b = T.btn(label, () => set(i));
+      b.style.flex = '1';
+      bar.appendChild(b);
+    });
+    set(0);
+    return bar;
+  }
+
+export const U = utils;
+
+export const _NI = { C: 0, 'B#': 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, Fb: 4, 'E#': 5, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11, Cb: 11 };
+
+export const _normAcc = (a) => (a === '♯' ? '#' : a === '♭' ? 'b' : a || '');
+
+export const money = (inpEl, ph, val) => { const i = T.input('text', ph, val); i.inputMode = 'decimal'; return i; };
+
+export const kv = (k, v) => '<div class="kv"><span class="k">' + T.esc(k) + '</span><span class="v">' + v + '</span></div>';
+
+export const LOCAL_NOTE = 'Semua diproses 100% lokal di HP kamu, file tidak diupload ke mana-mana.';
+
+export function loadImage(file) {
+    return new Promise((res, rej) => {
+      if (!file || !/^image\//.test(file.type)) return rej(new Error('not-image'));
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); res(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('bad-image')); };
+      img.src = url;
+    });
+  }
+
+export function fmtBytes(n) {
+    if (!n && n !== 0) return '-';
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1024 / 1024).toFixed(2) + ' MB';
+  }
+
+export function canvasToBlob(canvas, type, q) {
+    return new Promise((res) => canvas.toBlob((b) => res(b), type, q));
+  }
+
+export function fileInput(accept) {
+    const i = document.createElement('input');
+    i.type = 'file';
+    i.accept = accept || 'image/*';
+    return i;
+  }
+
+export function imgEl(src, alt) {
+    const im = document.createElement('img');
+    im.src = src; im.alt = alt || '';
+    im.style.cssText = 'max-width:100%;height:auto;border-radius:10px;border:1px solid #ffffff20;display:block';
+    return im;
+  }
+
+utils.extractEmails = function (s) {
+    const m = String(s == null ? '' : s).match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g);
+    return [...new Set(m || [])];
+  };
+
+utils.extractPhones = function (s) {
+    const str = String(s == null ? '' : s);
+    const m = str.match(/(?:\+?62|0)8\d{7,11}\b/g);
+    return [...new Set((m || []).map((x) => x.replace(/^\+/, '')))];
+  };
+
+export function p2(n) { return String(n).padStart(2, '0'); }
+
+export function todayISO() {
+    const d = new Date();
+    return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+  }
+
+export function parseISO(s) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || '').trim());
+    if (!m) return null;
+    const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;
+    return d;
+  }
+
+utils.ageParts = function (birthISO, refISO) {
+    const b = parseISO(birthISO), r = parseISO(refISO);
+    if (!b || !r || r < b) return null;
+    let tahun = r.getUTCFullYear() - b.getUTCFullYear();
+    let bulan = r.getUTCMonth() - b.getUTCMonth();
+    let hari = r.getUTCDate() - b.getUTCDate();
+    if (hari < 0) {
+      bulan -= 1;
+      hari += new Date(Date.UTC(r.getUTCFullYear(), r.getUTCMonth(), 0)).getUTCDate();
+    }
+    if (bulan < 0) { tahun -= 1; bulan += 12; }
+    return { tahun, bulan, hari, totalHari: Math.floor((r - b) / 86400000) };
+  };

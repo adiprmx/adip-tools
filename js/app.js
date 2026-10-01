@@ -1,10 +1,22 @@
 /* ADIP Tools v4: premium overhaul — calm luxury, command palette, quick cards. */
-import { h as T, cats, tools, leaveCbs } from './core.js?v=4.1.0';
-import './tools-a.js?v=4.1.0';
-import './tools-b.js?v=4.1.0';
-import './tools-c.js?v=4.1.0';
-import './tools-d.js?v=4.1.0';
-import './tools-e.js?v=4.1.0';
+import { h as T, cats, tools, leaveCbs } from './core.js?v=4.2.0';
+import { manifest, VERSION } from './manifest.js?v=4.2.0';
+// FASE 2: code splitting — metadata 100 tools dimuat ringan,
+// kode tiap tool di-import on-demand saat dibuka (lihat loadToolRender).
+for (const m of manifest) tools.push({ ...m, render: null });
+
+/** Muat kode tool on-demand (dynamic import), cache di entri tools. */
+const toolMods = {};
+async function loadToolRender(t) {
+  if (t.render) return t.render;
+  if (!toolMods[t.id]) {
+    toolMods[t.id] = import('./' + t.file + '?v=' + VERSION).then((mod) => {
+      t.render = mod.render;
+      return mod.render;
+    });
+  }
+  return toolMods[t.id];
+}
   const app = document.getElementById('app');
   const catName = (id) => { const c = cats.find((x) => x[0] === id); return c ? c[1] : id; };
   const esc = T.esc;
@@ -686,17 +698,26 @@ import './tools-e.js?v=4.1.0';
     requestAnimationFrame(() => {
       const sk = toolbox.querySelector('.skel');
       if (sk) sk.remove();
-      try {
-        t.render(toolbox);
-      } catch (e) {
-        // Error yang menenangkan + kasih jalan keluar (coba lagi),
-        // bukan pesan teknis yang bikin bingung. Detail ke console aja.
-        if (window.console) console.warn('[adip-tools] render gagal:', e);
-        const box = T.el('<div class="out"><span class="err">Yah, tool-nya gagal kebuka.</span><div class="retry"></div></div>');
+      // FASE 2: kode tool di-load on-demand; skeleton tampil selama fetch modul.
+      loadToolRender(t).then((render) => {
+        try {
+          render(toolbox);
+        } catch (e) {
+          // Error yang menenangkan + kasih jalan keluar (coba lagi),
+          // bukan pesan teknis yang bikin bingung. Detail ke console aja.
+          if (window.console) console.warn('[adip-tools] render gagal:', e);
+          const box = T.el('<div class="out"><span class="err">Yah, tool-nya gagal kebuka.</span><div class="retry"></div></div>');
+          box.querySelector('.retry').appendChild(T.btn('Coba lagi', () => route(), true));
+          toolbox.innerHTML = '';
+          toolbox.appendChild(box);
+        }
+      }).catch((e) => {
+        if (window.console) console.warn('[adip-tools] load tool gagal:', e);
+        const box = T.el('<div class="out"><span class="err">Yah, tool-nya gagal dimuat. Cek koneksi lalu coba lagi.</span><div class="retry"></div></div>');
         box.querySelector('.retry').appendChild(T.btn('Coba lagi', () => route(), true));
         toolbox.innerHTML = '';
         toolbox.appendChild(box);
-      }
+      });
     });
     window.scrollTo(0, 0);
   }
