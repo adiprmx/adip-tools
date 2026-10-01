@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=6.1.0';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=6.1.1';
 
 export const meta = {"id": "boxshadow", "name": "Box-Shadow Generator", "cat": "desain", "icon": "🌓", "desc": "Atur bayangan visual + copy CSS.", "keywords": "box,shadow,bayangan,css"};
 export function render(root) {

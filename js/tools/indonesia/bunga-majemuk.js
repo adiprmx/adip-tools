@@ -1,4 +1,4 @@
-import { h as T, utils, kv, money } from '../../core.js?v=6.1.0';
+import { h as T, utils, kv, money } from '../../core.js?v=6.1.1';
 
 export const meta = {"id": "bunga-majemuk", "name": "Bunga Majemuk", "cat": "indonesia", "icon": "📈", "desc": "Simulasi compound interest.", "keywords": "bunga,majemuk,investasi,compound"};
 export function render(root) {

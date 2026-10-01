@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.1.0';
+import { h as T, utils } from '../../core.js?v=6.1.1';
 
 const ASCII_FONT = {
     ' ': ['     ', '     ', '     ', '     ', '     '],

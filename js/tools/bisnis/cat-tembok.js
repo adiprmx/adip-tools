@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.1.0';
+import { h as T, utils } from '../../core.js?v=6.1.1';
 
 utils.catTembok = function (p, l, t, lapis, dayaSebar, kurangBukaan) {
     p = T.num(p); l = T.num(l); t = T.num(t);
