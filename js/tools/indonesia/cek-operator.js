@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.5.0';
+import { h as T, utils, kv } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "cek-operator", "name": "Cek Operator", "cat": "indonesia", "icon": "📱", "desc": "Masukkan nomor HP, langsung tahu operatornya dari prefix-nya.", "keywords": "operator,telkomsel,indosat,xl,tri,smartfren,prefix,nomor hp,cek operator"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
 
 export const meta = {"id":"http-status","name":"HTTP Status Lookup","cat":"developer","icon":"🌐","desc":"Cari arti 35 kode status HTTP + contoh pemakaiannya.","keywords":"http,status code,api,developer,404,500"};
 

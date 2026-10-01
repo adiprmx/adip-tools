@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
 
 /* 12 pasangan Google Fonts (judul + isi) siap pakai, lengkap dengan preview & salin CSS. */
 

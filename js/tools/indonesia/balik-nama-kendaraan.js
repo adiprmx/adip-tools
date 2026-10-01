@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.5.0';
+import { h as T, utils, kv } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "balik-nama-kendaraan", "name": "Biaya Balik Nama", "cat": "indonesia", "icon": "🔄", "desc": "Estimasi biaya balik nama motor & mobil.", "keywords": "balik nama,kendaraan,bbn-kb,stnk,bpkb,motor,mobil,samsat"};
 export function render(root) {

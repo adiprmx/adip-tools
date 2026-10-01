@@ -1,8 +1,8 @@
-/* ADIP Tools v6.5.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.6.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.5.0';
+export const VERSION = '6.6.0';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -223,4 +223,29 @@ export const manifest = [
   {"id":"nama-panggung","name":"Nama Panggung","cat":"fun","icon":"🌟","desc":"Generator nama panggung dari namamu.","keywords":"nama,panggung,artis,musisi,brand","file":"tools/fun/nama-panggung.js"},
   {"id":"kuis-emoji-hewan","name":"Kuis Emoji Hewan","cat":"fun","icon":"🐾","desc":"Tebak hewan dari deretan emoji.","keywords":"kuis,emoji,hewan,tebak,game","file":"tools/fun/kuis-emoji-hewan.js"},
   {"id":"wishlist","name":"Wishlist","cat":"produktivitas","icon":"🎁","desc":"Daftar barang impian + progress nabung.","keywords":"wishlist,impian,nabung,target,belanja","file":"tools/produktivitas/wishlist.js"},
+  {"id": "kalkulator-gadai", "name": "Kalkulator Gadai", "cat": "indonesia", "icon": "🏦", "desc": "Simulasi gadai: taksiran barang → plafon pinjaman, sewa modal, total tebus.", "keywords": "gadai,pinjaman,pegadaian,sewa modal,tebus,taksiran,plafon", "file": "tools/indonesia/kalkulator-gadai.js"},
+  {"id": "jadwal-shift", "name": "Jadwal Shift", "cat": "indonesia", "icon": "🔄", "desc": "Susun jadwal shift karyawan: definisikan pola, rotasi otomatis per tanggal.", "keywords": "jadwal,shift,karyawan,kerja,roster,piket,rotasi,giliran", "file": "tools/indonesia/jadwal-shift.js"},
+  {"id": "rate-card-endorse", "name": "Rate Card Endorse", "cat": "bisnis", "icon": "📣", "desc": "Estimasi tarif endorse dari jumlah followers & engagement rate.", "keywords": "endorse,rate card,influencer,tarif,instagram,followers,engagement,iklan,promosi", "file": "tools/bisnis/rate-card-endorse.js"},
+  {"id": "kalkulator-gaji-bersih", "name": "Kalkulator Gaji Bersih", "cat": "bisnis", "icon": "💰", "desc": "Gaji pokok + tunjangan − BPJS & potongan = take-home pay.", "keywords": "gaji,bersih,take home pay,bpjs,jht,potongan,tunjangan,payroll,thr", "file": "tools/bisnis/kalkulator-gaji-bersih.js"},
+  {"id": "daftar-belanja", "name": "Daftar Belanja", "cat": "sehari", "icon": "🛒", "desc": "Catat belanjaan, centang yang udah dibeli, pantau totalnya.", "keywords": "belanja,daftar,shopping,grocery,total,harga,list,pasar", "file": "tools/sehari/daftar-belanja.js"},
+  {"id": "jadwal-latihan", "name": "Jadwal Latihan", "cat": "sehari", "icon": "🏋️", "desc": "Susun jadwal latihan mingguanmu, Senin sampai Minggu.", "keywords": "jadwal,latihan,workout,gym,fitness,minggu,olahraga,lengan,dada,kaki", "file": "tools/sehari/jadwal-latihan.js"},
+  {"id": "zona-denyut-jantung", "name": "Zona Denyut Jantung", "cat": "sehari", "icon": "❤️", "desc": "Hitung zona latihan dari denyut jantung maksimalmu.", "keywords": "denyut,jantung,heart,rate,zona,kardio,latihan,olahraga,bpm", "file": "tools/sehari/zona-denyut-jantung.js"},
+  {"id": "kalender-konten", "name": "Kalender Konten", "cat": "produktivitas", "icon": "📅", "desc": "Jadwalkan ide konten per tanggal & platform.", "keywords": "kalender,konten,content,tiktok,instagram,youtube,ide,jadwal,sosmed", "file": "tools/produktivitas/kalender-konten.js"},
+  {"id": "review-mingguan", "name": "Review Mingguan", "cat": "produktivitas", "icon": "📝", "desc": "Refleksi mingguan: 3 yang beres, 3 pelajaran, 3 fokus.", "keywords": "review,mingguan,refleksi,weekly,jurnal,evaluasi,fokus,retro", "file": "tools/produktivitas/review-mingguan.js"},
+  {"id": "kalkulator-logaritma", "name": "Kalkulator Logaritma", "cat": "pelajar", "icon": "📊", "desc": "Hitung log basis bebas + bedah sifat perkalian, pembagian, dan pangkat.", "keywords": "logaritma,log,ln,matematika,basis,sifat logaritma,pelajar", "file": "tools/pelajar/kalkulator-logaritma.js"},
+  {"id": "statistika-dasar", "name": "Statistika Dasar", "cat": "pelajar", "icon": "📈", "desc": "Mean, median, modus, range & standar deviasi dari deret angka.", "keywords": "statistika,mean,median,modus,range,standar deviasi,rata-rata,pelajar", "file": "tools/pelajar/statistika-dasar.js"},
+  {"id": "hitung-mundur-ujian", "name": "Hitung Mundur Ujian", "cat": "pelajar", "icon": "⏳", "desc": "Countdown live tiap ujian: hari, jam, menit, detik + label mepet.", "keywords": "ujian,countdown,hitung mundur,jadwal,sekolah,kuliah,ulangan", "file": "tools/pelajar/hitung-mundur-ujian.js"},
+  {"id": "cek-vibes", "name": "Cek Vibes", "cat": "fun", "icon": "✨", "desc": "Kuis 6 pertanyaan buat nentuin vibes kamu hari ini. 100% nggak ilmiah.", "keywords": "vibes,kuis,kepribadian,fun,hiburan,zodiak", "file": "tools/fun/cek-vibes.js"},
+  {"id": "tantangan-30-hari", "name": "Tantangan 30 Hari", "cat": "fun", "icon": "🗓️", "desc": "30 tantangan harian per tema + checklist progres yang kesimpan.", "keywords": "tantangan,challenge,30 hari,habit,kebiasaan,olahraga,baca,hemat,produktif", "file": "tools/fun/tantangan-30-hari.js"},
+  {"id": "pencari-rima", "name": "Pencari Rima", "cat": "musik", "icon": "🎤", "desc": "Cari kata yang berima buat nulis lirik lagu.", "keywords": "rima,sajak,lirik,lagu,puisi,kata,berima,rap", "file": "tools/musik/pencari-rima.js"},
+  {"id": "efek-duotone", "name": "Efek Duotone", "cat": "gambar", "icon": "🎭", "desc": "Foto biasa jadi poster duotone dua warna.", "keywords": "duotone,efek,warna,foto,poster,canvas", "file": "tools/gambar/efek-duotone.js"},
+  {"id": "twibbon-maker", "name": "Twibbon Maker", "cat": "gambar", "icon": "🖼️", "desc": "Bikin twibbon: bingkai + pita teks buat fotomu.", "keywords": "twibbon,bingkai,frame,foto,kampanye,pita,teks", "file": "tools/gambar/twibbon-maker.js"},
+  {"id": "efek-polaroid", "name": "Efek Polaroid", "cat": "gambar", "icon": "📸", "desc": "Foto jadi polaroid klasik + caption tulisan tangan.", "keywords": "polaroid,foto,efek,vintage,retro,caption,klasik", "file": "tools/gambar/efek-polaroid.js"},
+  {"id": "teks-mocking", "name": "Teks Mocking", "cat": "teks", "icon": "🐔", "desc": "Ubah teks jadi tEkS mOcKiNg ala SpongeBob.", "keywords": "mocking,spongebob,teks,lucu,acak,besar kecil,ejekan", "file": "tools/teks/teks-mocking.js"},
+  {"id": "generator-hashtag", "name": "Generator Hashtag", "cat": "teks", "icon": "#️⃣", "desc": "Bikin 15 hashtag siap pakai dari satu topik.", "keywords": "hashtag,tagar,instagram,tiktok,reels,caption", "file": "tools/teks/generator-hashtag.js"},
+  {"id": "file-ke-base64", "name": "File ke Base64", "cat": "developer", "icon": "📦", "desc": "File apa pun jadi string Base64 + data URI.", "keywords": "base64,file,data uri,encode,konversi", "file": "tools/developer/file-ke-base64.js"},
+  {"id": "cheatsheet-regex", "name": "Cheatsheet Regex", "cat": "developer", "icon": "📜", "desc": "8 pola regex umum + tester mini tiap kartu.", "keywords": "regex,regular expression,validasi,pola,email,url", "file": "tools/developer/cheatsheet-regex.js"},
+  {"id": "desimal-ke-pecahan", "name": "Desimal ke Pecahan", "cat": "converter", "icon": "➗", "desc": "Desimal jadi pecahan tersederhana + langkahnya.", "keywords": "desimal,pecahan,fraksi,fpb,persen", "file": "tools/converter/desimal-ke-pecahan.js"},
+  {"id": "brankas-sandi", "name": "Brankas Sandi", "cat": "keamanan", "icon": "🗝️", "desc": "Simpan password terenkripsi AES di HP ini.", "keywords": "brankas,password,sandi,manager,enkripsi,aes", "file": "tools/keamanan/brankas-sandi.js"},
+
 ];

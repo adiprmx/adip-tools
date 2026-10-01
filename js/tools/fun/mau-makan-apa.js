@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "mau-makan-apa", "name": "Mau Makan Apa?", "cat": "fun", "icon": "🍜", "desc": "Bingung mau makan apa? Biar acak yang mutusin.", "keywords": "makan,kuliner,acak,makanan,indonesia,laper"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils, p2, todayISO } from '../../core.js?v=6.5.0';
+import { h as T, utils, p2, todayISO } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "water-tracker", "name": "Tracker Air Minum", "cat": "produktivitas", "icon": "💧", "desc": "Target minum harian.", "keywords": "air,minum,sehat,tracker"};
 export function render(root) {

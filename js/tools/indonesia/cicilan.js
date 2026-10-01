@@ -1,4 +1,4 @@
-import { h as T, utils, U, money } from '../../core.js?v=6.5.0';
+import { h as T, utils, U, money } from '../../core.js?v=6.6.0';
 
 U.cicilanFlat = (pokok, bungaTahunanPct, bulan) => {
     pokok = +pokok || 0; bulan = Math.max(1, Math.round(+bulan) || 1);

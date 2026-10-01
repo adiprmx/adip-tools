@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.5.0';
+import { h as T, kv } from '../../core.js?v=6.6.0';
 
 export const meta = {"id":"target-menulis","name":"Target Menulis","cat":"produktivitas","icon":"✍️","desc":"Pasang target kata, pantau bar progresnya sampai garis finis.","keywords":"target,menulis,kata,word count,progres,progress,novel,skripsi,naskah"};
 

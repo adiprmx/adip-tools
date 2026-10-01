@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "ukuran-baju", "name": "Ukuran Baju", "cat": "converter", "icon": "👕", "desc": "Konversi ukuran baju internasional.", "keywords": "baju,ukuran,size,pakaian"};
 export function render(root) {

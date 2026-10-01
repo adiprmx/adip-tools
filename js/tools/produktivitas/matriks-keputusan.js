@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.5.0';
+import { h as T, kv } from '../../core.js?v=6.6.0';
 
 export const meta = {"id":"matriks-keputusan","name":"Matriks Keputusan","cat":"produktivitas","icon":"⚖️","desc":"Bingung milih? Nilai tiap pilihan per kriteria berbobot, biar angka yang bicara.","keywords":"keputusan,matriks,bobot,kriteria,pilihan,analisis,tertimbang,galau"};
 

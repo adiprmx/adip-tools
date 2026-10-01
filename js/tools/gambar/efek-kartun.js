@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
-import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
+import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.6.0';
 
 export const meta = {"id":"efek-kartun","name":"Efek Kartun","cat":"gambar","icon":"🎨","desc":"Ubah foto jadi efek kartun/poster.","keywords":"kartun,poster,foto,efek,filter"};
 

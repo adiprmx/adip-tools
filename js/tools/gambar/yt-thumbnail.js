@@ -1,4 +1,4 @@
-import { h as T, utils, imgEl } from '../../core.js?v=6.5.0';
+import { h as T, utils, imgEl } from '../../core.js?v=6.6.0';
 
 utils.ytId = function (url) {
     const s = String(url == null ? '' : url).trim();

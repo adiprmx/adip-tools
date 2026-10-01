@@ -1,4 +1,4 @@
-import { h as T, loadImage, fileInput, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.5.0';
+import { h as T, loadImage, fileInput, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "watermark-foto", "name": "Watermark Foto", "cat": "gambar", "icon": "©️", "desc": "Tempel watermark teks ke foto, unduh PNG.", "keywords": "watermark,foto,teks,tulisan,hak cipta,logo,png,download"};
 

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.5.0';
+import { h as T } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "ukuran-file-audio", "name": "Ukuran File Audio", "cat": "musik", "icon": "🎵", "desc": "Bitrate × durasi jadi ukuran file, atau sebaliknya.", "keywords": "ukuran file,audio,bitrate,mp3,wav,flac,mb,durasi,kbps"};
 

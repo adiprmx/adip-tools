@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
 
 export const meta = {"id":"cek-khodam","name":"Cek Khodam","cat":"fun","icon":"👻","desc":"Cek khodam penjagamu (hiburan!).","keywords":"khodam,ramalan,fun,lucu,hiburan"};
 

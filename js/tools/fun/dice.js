@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "dice", "name": "Dadu", "cat": "fun", "icon": "🎲", "desc": "Lempar dadu + riwayat.", "keywords": "dadu,acak,random"};
 export function render(root) {

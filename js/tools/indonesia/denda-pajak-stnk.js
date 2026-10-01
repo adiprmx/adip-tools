@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.5.0';
+import { h as T, utils, kv } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "denda-pajak-stnk", "name": "Denda Pajak STNK", "cat": "indonesia", "icon": "🚗", "desc": "Hitung denda telat bayar pajak kendaraan (PKB + SWDKLLJ).", "keywords": "denda,pajak,stnk,pkb,swdkllj,kendaraan,motor,mobil,samsat,telat"};
 export function render(root) {

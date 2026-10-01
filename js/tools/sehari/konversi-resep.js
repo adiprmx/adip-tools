@@ -1,4 +1,4 @@
-import { h as T, num, fmt } from '../../core.js?v=6.5.0';
+import { h as T, num, fmt } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "konversi-resep", "name": "Konversi Resep", "cat": "sehari", "icon": "🍳", "desc": "Skala bahan resep otomatis buat porsi yang beda.", "keywords": "resep,konversi,porsi,masak,bahan,skala"};
 

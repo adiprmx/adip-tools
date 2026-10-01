@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.5.0';
+import { h as T, utils } from '../../core.js?v=6.6.0';
 
 export const meta = {"id":"generator-pantun","name":"Generator Pantun","cat":"fun","icon":"🎭","desc":"Rakit pantun 4 baris acak: cinta, lucu, nasehat. 45 pantun.","keywords":"pantun,sampiran,isi,cinta,lucu,nasehat,puisi,acak"};
 

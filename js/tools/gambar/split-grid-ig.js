@@ -1,4 +1,4 @@
-import { h as T, utils, loadImage } from '../../core.js?v=6.5.0';
+import { h as T, utils, loadImage } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "split-grid-ig", "name": "Split Grid Instagram", "cat": "gambar", "icon": "🔲", "desc": "Potong foto jadi grid siap posting berurutan ke IG.", "keywords": "instagram,grid,split,potong,foto,feed,puzzle"};
 export function render(root) {

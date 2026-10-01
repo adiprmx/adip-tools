@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.5.0';
+import { h as T } from '../../core.js?v=6.6.0';
 
 export const meta = {"id": "tod-indonesia", "name": "Truth or Dare Indonesia", "cat": "fun", "icon": "😈", "desc": "Main truth or dare bareng, 110 soal anti basi.", "keywords": "truth or dare,tod,jujur,tantangan,game,main bareng,nongkrong"};
 

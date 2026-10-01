@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, imgEl, loadImage } from '../../core.js?v=6.5.0';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, imgEl, loadImage } from '../../core.js?v=6.6.0';
 
 export const meta = {"id":"kolase-foto","name":"Kolase Foto","cat":"gambar","icon":"🖼️","desc":"Gabung 2–4 foto jadi satu kanvas.","keywords":"kolase,foto,gabung,grid,instagram"};
 

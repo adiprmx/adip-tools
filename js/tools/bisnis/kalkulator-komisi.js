@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.5.0';
+import { h as T, utils, kv } from '../../core.js?v=6.6.0';
 
 export const meta = {
   id: 'kalkulator-komisi',
