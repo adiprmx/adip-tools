@@ -30,11 +30,13 @@ const CATS = [
   ['desain','Desain'],['indonesia','Indonesia'],['musik','Musik'],['gambar','Gambar'],
   ['teks','Teks'],['bisnis','Bisnis'],['sehari','Sehari-hari'],['fun','Fun'],
   ['produktivitas','Produktivitas'],['pelajar','Pelajar'],['liveapi','Live API'],
+  ['fakesos','Fake Sosmed'],
 ];
 const CAT_ICON = {
   keamanan: '🔐', converter: '🔁', developer: '🧑‍💻', desain: '🎨', indonesia: '🇮🇩',
   musik: '🎧', gambar: '🖼️', teks: '🔤', bisnis: '💼', sehari: '🏠',
   fun: '🎲', produktivitas: '⚡', pelajar: '📚', liveapi: '🌐', semua: '🧰',
+  fakesos: '🎭',
 };
 const catLabel = (id) => (CATS.find((c) => c[0] === id) || ['?','Lainnya'])[1];
 const byId = (id) => manifest.find((m) => m.id === id);

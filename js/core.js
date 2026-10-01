@@ -189,6 +189,21 @@ export function dlBtn(filename, getContent, mime, label) {
   return btn(label || 'Unduh', () => dl(filename, getContent(), mime));
 }
 
+/* PNG export untuk fake-sosmed: render node DOM -> PNG via html2canvas (CDN).
+   Dipakai >1 tool (10 tools fakesos), jadi tinggal di core.js per kontrak. */
+const H2C_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+export async function dlNodePng(node, filename) {
+  const ok = await loadScript(H2C_CDN);
+  if (!ok || typeof window.html2canvas !== 'function') { toast('Gagal memuat pustaka export. Cek koneksi lalu coba lagi.'); return false; }
+  try {
+    const canvas = await window.html2canvas(node, { backgroundColor: null, scale: 2, useCORS: true, logging: false });
+    const blob = await canvasToBlob(canvas, 'image/png');
+    if (!blob) { toast('Gagal membuat PNG.'); return false; }
+    dl(filename || 'fake.png', blob, 'image/png');
+    return true;
+  } catch (e) { toast('Gagal export: ' + (e && e.message ? e.message : e)); return false; }
+}
+
 export function row(...children) {
   const r = el('<div class="row"></div>');
   children.forEach((c) => c && r.appendChild(c));
