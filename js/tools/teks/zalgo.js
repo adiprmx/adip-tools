@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 const Z_UP = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0305','\u0306','\u0307','\u0308','\u0309','\u030A','\u030B','\u030C','\u030D','\u030E','\u030F','\u0310','\u0311','\u0312','\u0313','\u0314'];
 
@@ -20,8 +20,7 @@ utils.zalgo = function (text, intensity, rand) {
     }).join('');
   };
 
-export const meta = {"id": "zalgo", "name": "Zalgo Text", "cat": "teks", "icon": "🌀", "desc": "Teks rusak ala zalgo."};
-
+export const meta = {"id": "zalgo", "name": "Zalgo Text", "cat": "teks", "icon": "🌀", "desc": "Teks rusak ala zalgo.", "keywords": "zalgo,rusak,teks,lucu"};
 export function render(root) {
 
       const inI = T.input('text', 'Ketik teks…', 'zalgo');

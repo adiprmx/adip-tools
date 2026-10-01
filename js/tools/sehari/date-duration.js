@@ -1,7 +1,6 @@
-import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=5.1.0';
+import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal."};
-
+export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal.", "keywords": "tanggal,durasi,selisih,hari"};
 export function render(root) {
 
     const dari = T.input('date', 'Tanggal awal', todayISO());

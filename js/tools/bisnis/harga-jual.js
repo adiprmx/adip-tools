@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.hargaJual = function (modal, marginPct) {
     modal = Number(modal); marginPct = Number(marginPct);
@@ -12,8 +12,7 @@ utils.marginAktual = function (modal, jual) {
     return ((jual - modal) / jual) * 100;
   };
 
-export const meta = {"id": "harga-jual", "name": "Kalkulator Harga Jual", "cat": "bisnis", "icon": "💰", "desc": "Modal + margin jadi harga jual."};
-
+export const meta = {"id": "harga-jual", "name": "Kalkulator Harga Jual", "cat": "bisnis", "icon": "💰", "desc": "Modal + margin jadi harga jual.", "keywords": "harga,jual,modal,margin,untung,jualan"};
 export function render(root) {
 
       const modeSel = T.select([['m1', 'Modal + margin → harga jual'], ['m2', 'Modal + harga jual → margin']], 'm1');

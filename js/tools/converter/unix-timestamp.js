@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "unix-timestamp", "name": "Unix Timestamp", "cat": "converter", "icon": "🕰️", "desc": "Unix timestamp ↔ tanggal (WIB)."};
-
+export const meta = {"id": "unix-timestamp", "name": "Unix Timestamp", "cat": "converter", "icon": "🕰️", "desc": "Unix timestamp ↔ tanggal (WIB).", "keywords": "unix,timestamp,waktu,epoch"};
 export function render(root) {
 
     const tsInp = T.input('number', 'Timestamp, misal: 1759257200');

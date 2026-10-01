@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc } from '../../core.js?v=5.2.0';
 
 function chmodToSym(oct) {
     const s = String(oct == null ? '' : oct).trim();
@@ -13,8 +13,7 @@ function chmodToSym(oct) {
     return a.join('');
   }
 
-export const meta = {"id": "chmod", "name": "Kalkulator Chmod", "cat": "developer", "icon": "🔒", "desc": "Permission oktal ↔ simbolik."};
-
+export const meta = {"id": "chmod", "name": "Kalkulator Chmod", "cat": "developer", "icon": "🔒", "desc": "Permission oktal ↔ simbolik.", "keywords": "chmod,permission,linux,server"};
 export function render(root) {
 
     const roles = [['u', 'User'], ['g', 'Group'], ['o', 'Other']];

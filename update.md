@@ -1,3 +1,34 @@
+# Update — 1 Okt 2026: Smart Search & Visual-First (v5.1.0 → v5.2.0)
+
+Atas persetujuan owner via mockup: bikin user satset nemu tool tanpa buang waktu,
+dan label membingungkan diganti visual. Tema "Arang & Coral" TIDAK diubah.
+
+## Yang baru
+1. Kartu "Lanjutkan" di atas beranda: tool terakhir dibuka + "dibuka X lalu"
+   (timestamp disimpan di localStorage, migrasi otomatis dari format lama).
+   Sembunyi bila belum ada riwayat. Satu tap langsung buka tool.
+2. Smart search: (a) toleran typo via Levenshtein per kata ("kalkultor" tetap
+   nemu kalkulator); (b) field `keywords` di meta 110 tools (mis. pph21 →
+   "gaji,pajak,penghasilan") — search mencocokkan nama, keywords, deskripsi.
+3. Label visual-first: "Sering dicari" → "🔥 Populer", "Terakhir dibuka" → "🕐 Riwayat"
+   (di beranda + command palette).
+4. Kategori jadi grid ubin berikon (🇮🇩🔒🔄💻🎨🎵🖼️✏️💼🏠🎉⚡🎓🌐), tap untuk
+   filter, tap lagi untuk kembali ke Semua.
+5. Ikon bottom tab bar lebih besar (🏠 🔍 ⭐, 26px).
+6. Urutan cerdas: favorit + yang baru/sering dibuka naik ke atas di hasil
+   pencarian & command palette.
+
+## Bug yang diperbaiki
+- Filter kategori v5.1 tidak cocok dengan manifest: id 'dev'/'harian'/'produktif'/'api'
+  vs manifest 'developer'/'sehari'/'produktivitas'/'liveapi' — 25 tool tidak pernah
+  muncul saat filter kategori dipakai. Id diselaraskan ke manifest.
+
+## Verifikasi
+- scripts/check-tools.js: lolos (lihat output di bawah).
+- node --check: app.js, core.js, manifest.js OK.
+
+---
+
 # Update — 1 Okt 2026: Rebuild Total "Arang & Coral" (v5.0.1 → v5.1.0)
 
 Atas permintaan owner ("redesign total semua halaman, tema yang baru"): shell

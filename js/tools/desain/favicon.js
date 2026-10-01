@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "favicon", "name": "Favicon Generator", "cat": "desain", "icon": "⭐", "desc": "Bikin favicon dari emoji/teks."};
-
+export const meta = {"id": "favicon", "name": "Favicon Generator", "cat": "desain", "icon": "⭐", "desc": "Bikin favicon dari emoji/teks.", "keywords": "favicon,icon,emoji,website"};
 export function render(root) {
 
     const fTxt = T.input('text', 'Emoji atau 1-2 huruf, misal: 🍜 atau AM', '🍜');

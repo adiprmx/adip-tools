@@ -1,7 +1,6 @@
-import { h as T, utils, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "og-preview", "name": "Open Graph Preview", "cat": "developer", "icon": "👁️", "desc": "Preview tampilan link di medsos."};
-
+export const meta = {"id": "og-preview", "name": "Open Graph Preview", "cat": "developer", "icon": "👁️", "desc": "Preview tampilan link di medsos.", "keywords": "og,preview,link,sosmed,medsos"};
 export function render(root) {
 
     const fT = T.input('text', 'Judul link', 'Judul Artikel yang Menarik');

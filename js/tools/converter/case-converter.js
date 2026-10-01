@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "case-converter", "name": "Case Converter", "cat": "converter", "icon": "✏️", "desc": "camelCase, snake_case, kebab-case, Title Case, dll."};
-
+export const meta = {"id": "case-converter", "name": "Case Converter", "cat": "converter", "icon": "✏️", "desc": "camelCase, snake_case, kebab-case, Title Case, dll.", "keywords": "case,huruf,camel,snake,kebab,kapital"};
 export function render(root) {
 
     const inp = T.ta(3, 'Tulis teks di sini… misal: halo dunia keren');

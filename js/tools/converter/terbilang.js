@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 (function () {
     const K = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
@@ -51,8 +51,7 @@ import { h as T, utils } from '../../core.js?v=5.1.0';
     };
   })();
 
-export const meta = {"id": "terbilang", "name": "Terbilang Indonesia", "cat": "converter", "icon": "💬", "desc": "Angka jadi kata bahasa Indonesia."};
-
+export const meta = {"id": "terbilang", "name": "Terbilang Indonesia", "cat": "converter", "icon": "💬", "desc": "Angka jadi kata bahasa Indonesia.", "keywords": "terbilang,angka,kata,rupiah"};
 export function render(root) {
 
     const inp = T.input('text', 'Angka, misal: 1500000 atau 1.500.000,50', '1500000');

@@ -1,7 +1,6 @@
-import { h as T, utils, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "citation", "name": "Citation Generator", "cat": "pelajar", "icon": "📚", "desc": "Daftar pustaka APA & MLA."};
-
+export const meta = {"id": "citation", "name": "Citation Generator", "cat": "pelajar", "icon": "📚", "desc": "Daftar pustaka APA & MLA.", "keywords": "citation,sitasi,skripsi,daftar,pustaka"};
 export function render(root) {
 
     const tipe = T.select([['buku', '📕 Buku'], ['jurnal', '📰 Jurnal'], ['web', '🌐 Website']], 'buku');

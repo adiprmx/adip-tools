@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "word-counter", "name": "Penghitung Kata", "cat": "teks", "icon": "🔡", "desc": "Kata, karakter, estimasi baca."};
-
+export const meta = {"id": "word-counter", "name": "Penghitung Kata", "cat": "teks", "icon": "🔡", "desc": "Kata, karakter, estimasi baca.", "keywords": "kata,hitung,karakter,skripsi"};
 export function render(root) {
 
       const taIn = T.ta(8, 'Ketik atau tempel teks di sini, hitungan live…');

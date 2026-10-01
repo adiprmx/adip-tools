@@ -1,7 +1,6 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "boxshadow", "name": "Box-Shadow Generator", "cat": "desain", "icon": "🌓", "desc": "Atur bayangan visual + copy CSS."};
-
+export const meta = {"id": "boxshadow", "name": "Box-Shadow Generator", "cat": "desain", "icon": "🌓", "desc": "Atur bayangan visual + copy CSS.", "keywords": "box,shadow,bayangan,css"};
 export function render(root) {
 
     const mk = (label, min, max, val) => {

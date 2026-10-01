@@ -1,4 +1,4 @@
-import { h as T, utils, U, money } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, money } from '../../core.js?v=5.2.0';
 
 U.cicilanFlat = (pokok, bungaTahunanPct, bulan) => {
     pokok = +pokok || 0; bulan = Math.max(1, Math.round(+bulan) || 1);
@@ -15,8 +15,7 @@ U.cicilanAnuitas = (pokok, bungaTahunanPct, bulan) => {
     return { perBulan, totalBunga: totalBayar - pokok, totalBayar };
   };
 
-export const meta = {"id": "cicilan", "name": "Kalkulator Cicilan", "cat": "indonesia", "icon": "🏍️", "desc": "Simulasi cicilan flat & anuitas."};
-
+export const meta = {"id": "cicilan", "name": "Kalkulator Cicilan", "cat": "indonesia", "icon": "🏍️", "desc": "Simulasi cicilan flat & anuitas.", "keywords": "cicilan,kredit,motor,angsuran"};
 export function render(root) {
 
     const pokok = money(null, 'cth: 20000000'), bunga = money(null, 'cth: 12', '12'), tenor = T.input('number', 'cth: 12', '12');

@@ -1,7 +1,6 @@
-import { h as T, utils, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "spinwheel", "name": "Roda Putar", "cat": "fun", "icon": "🎡", "desc": "Spin wheel visual."};
-
+export const meta = {"id": "spinwheel", "name": "Roda Putar", "cat": "fun", "icon": "🎡", "desc": "Spin wheel visual.", "keywords": "roda,putar,spin,acak,undian"};
 export function render(root) {
 
     const taOpsi = T.ta(5, 'Satu nama per baris\nmisal:\nAndi\nBudi\nCitra\nDewi');

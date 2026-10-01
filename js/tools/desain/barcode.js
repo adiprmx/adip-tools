@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=5.2.0';
 
 function vcardString(d) {
     const e = (v) => String(v == null ? '' : v).replace(/\n/g, ' ');
@@ -11,8 +11,7 @@ function vcardString(d) {
     return L.join('\n');
   }
 
-export const meta = {"id": "barcode", "name": "vCard QR & Barcode", "cat": "desain", "icon": "🧾", "desc": "QR kontak vCard & barcode produk."};
-
+export const meta = {"id": "barcode", "name": "vCard QR & Barcode", "cat": "desain", "icon": "🧾", "desc": "QR kontak vCard & barcode produk.", "keywords": "barcode,vcard,qr,kontak"};
 export function render(root) {
 
     const QR_CDN = 'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js';

@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "unit-converter", "name": "Konverter Satuan", "cat": "converter", "icon": "📏", "desc": "Panjang, berat, suhu, volume, kecepatan."};
-
+export const meta = {"id": "unit-converter", "name": "Konverter Satuan", "cat": "converter", "icon": "📏", "desc": "Panjang, berat, suhu, volume, kecepatan.", "keywords": "satuan,konversi,panjang,berat,suhu,km,mile"};
 export function render(root) {
 
     const DEFS = {

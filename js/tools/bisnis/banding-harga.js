@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 const UNIT_BASE = { mg: ['berat', 0.001], g: ['berat', 1], kg: ['berat', 1000], ml: ['volume', 1], l: ['volume', 1000], pcs: ['satuan', 1] };
 
@@ -18,8 +18,7 @@ utils.bandingHarga = function (a, b) {
     return { a: na, b: nb, sebanding, winner, selisihPct };
   };
 
-export const meta = {"id": "banding-harga", "name": "Perbandingan Harga", "cat": "bisnis", "icon": "⚖️", "desc": "Mana lebih hemat per unit?"};
-
+export const meta = {"id": "banding-harga", "name": "Perbandingan Harga", "cat": "bisnis", "icon": "⚖️", "desc": "Mana lebih hemat per unit?", "keywords": "banding,harga,murah,hemat,unit,belanja"};
 export function render(root) {
 
       function prodCard(label, dflt) {

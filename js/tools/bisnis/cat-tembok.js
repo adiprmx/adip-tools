@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.catTembok = function (p, l, t, lapis, dayaSebar, kurangBukaan) {
     p = T.num(p); l = T.num(l); t = T.num(t);
@@ -10,8 +10,7 @@ utils.catTembok = function (p, l, t, lapis, dayaSebar, kurangBukaan) {
     return { luas: Math.round(luas * 100) / 100, liter: Math.round(liter * 100) / 100 };
   };
 
-export const meta = {"id": "cat-tembok", "name": "Kalkulator Cat", "cat": "bisnis", "icon": "🪣", "desc": "Kebutuhan cat dari luas ruangan."};
-
+export const meta = {"id": "cat-tembok", "name": "Kalkulator Cat", "cat": "bisnis", "icon": "🪣", "desc": "Kebutuhan cat dari luas ruangan.", "keywords": "cat,tembok,dinding,ruangan,renovasi"};
 export function render(root) {
 
       const pI = T.input('text', 'Panjang (m)', '4');

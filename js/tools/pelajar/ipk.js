@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.ipk = function (entries) {
     let bobotSks = 0, sks = 0;
@@ -10,8 +10,7 @@ utils.ipk = function (entries) {
     return Math.round((bobotSks / sks) * 100) / 100;
   };
 
-export const meta = {"id": "ipk", "name": "Kalkulator IPK", "cat": "pelajar", "icon": "🎓", "desc": "Hitung IPK semester."};
-
+export const meta = {"id": "ipk", "name": "Kalkulator IPK", "cat": "pelajar", "icon": "🎓", "desc": "Hitung IPK semester.", "keywords": "ipk,nilai,kuliah,semester"};
 export function render(root) {
 
     const GRADES = [['4', 'A (4,0)'], ['3.7', 'A− (3,7)'], ['3.3', 'B+ (3,3)'], ['3', 'B (3,0)'], ['2.7', 'B− (2,7)'], ['2.3', 'C+ (2,3)'], ['2', 'C (2,0)'], ['1', 'D (1,0)'], ['0', 'E (0,0)'], ['custom', 'Bobot custom…']];

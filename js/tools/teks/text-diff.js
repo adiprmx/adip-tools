@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.diffLines = function (a, b) {
     const A = String(a == null ? '' : a).split('\n');
@@ -20,8 +20,7 @@ utils.diffLines = function (a, b) {
     return ops;
   };
 
-export const meta = {"id": "text-diff", "name": "Pembanding Teks", "cat": "teks", "icon": "🔀", "desc": "Bandingkan dua teks."};
-
+export const meta = {"id": "text-diff", "name": "Pembanding Teks", "cat": "teks", "icon": "🔀", "desc": "Bandingkan dua teks.", "keywords": "diff,banding,teks"};
 export function render(root) {
 
       const taA = T.ta(6, 'Teks pertama (asli)…');

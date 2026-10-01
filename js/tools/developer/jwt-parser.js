@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.2.0';
 
 function b64urlDecode(seg) {
     const b64 = seg.replace(/-/g, '+').replace(/_/g, '/');
@@ -21,8 +21,7 @@ function jwtDecode(token) {
     }
   }
 
-export const meta = {"id": "jwt-parser", "name": "JWT Parser", "cat": "developer", "icon": "🎫", "desc": "Baca isi header & payload JWT."};
-
+export const meta = {"id": "jwt-parser", "name": "JWT Parser", "cat": "developer", "icon": "🎫", "desc": "Baca isi header & payload JWT.", "keywords": "jwt,token,auth"};
 export function render(root) {
 
     const ta = T.ta(4, 'Paste token JWT (xxxxx.yyyyy.zzzzz)…');

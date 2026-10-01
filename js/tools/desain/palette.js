@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 function hslToHex(h, s, l) {
     h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
@@ -9,8 +9,7 @@ function hslToHex(h, s, l) {
     return '#' + to(f(0)) + to(f(8)) + to(f(4));
   }
 
-export const meta = {"id": "palette", "name": "Color Palette Generator", "cat": "desain", "icon": "🎨", "desc": "Palet warna harmonis sekali klik."};
-
+export const meta = {"id": "palette", "name": "Color Palette Generator", "cat": "desain", "icon": "🎨", "desc": "Palet warna harmonis sekali klik.", "keywords": "palette,palet,warna,harmonis"};
 export function render(root) {
 
     const modeSel = T.select([

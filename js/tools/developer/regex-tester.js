@@ -1,7 +1,6 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "regex-tester", "name": "Regex Tester", "cat": "developer", "icon": "🔍", "desc": "Tes regex + highlight hasil."};
-
+export const meta = {"id": "regex-tester", "name": "Regex Tester", "cat": "developer", "icon": "🔍", "desc": "Tes regex + highlight hasil.", "keywords": "regex,tes,pola"};
 export function render(root) {
 
     const pat = T.input('text', 'Pattern, misal: \\d{4}-\\d{2}-\\d{2}', '');

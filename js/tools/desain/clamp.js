@@ -1,7 +1,6 @@
-import { h as T } from '../../core.js?v=5.1.0';
+import { h as T } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "clamp", "name": "CSS Clamp Generator", "cat": "desain", "icon": "📏", "desc": "Font responsif fluid dengan clamp()."};
-
+export const meta = {"id": "clamp", "name": "CSS Clamp Generator", "cat": "desain", "icon": "📏", "desc": "Font responsif fluid dengan clamp().", "keywords": "clamp,css,font,responsif"};
 export function render(root) {
 
     const minF = T.input('number', 'cth: 16', '16'); minF.inputMode = 'decimal';

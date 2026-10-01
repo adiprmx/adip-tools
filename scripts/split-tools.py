@@ -15,7 +15,7 @@ import json, os, re, shutil, sys
 
 ROOT = '/home/hatch/workspace/projects/adip-tools'
 JS = os.path.join(ROOT, 'js')
-VERSION = '5.1.0'
+VERSION = '5.2.0'
 analysis = json.load(open('/tmp/split/analysis.json'))
 
 # Muat source per batch
@@ -124,6 +124,30 @@ clash = {n for (_, n) in shared if not n.startswith('utils.') and not n.startswi
 # 'esc' memang sudah ada di core.js -> tool import dari sana, def 'esc' dibuang
 print(f'Clash dengan core.js: {clash if clash else "tidak ada"}')
 
+# ---------- 4c. Pertahankan keywords dari file tool existing ----------
+# v5.2: keywords hidup di meta tiap file tool; generator wajib membawanya
+# agar tidak hilang bila manifest/file di-regenerate.
+kw_map = {}
+_tools_dir = os.path.join(JS, 'tools')
+if os.path.isdir(_tools_dir):
+    for _cat in os.listdir(_tools_dir):
+        _cdir = os.path.join(_tools_dir, _cat)
+        if not os.path.isdir(_cdir):
+            continue
+        for _fn in os.listdir(_cdir):
+            if not _fn.endswith('.js'):
+                continue
+            _src = open(os.path.join(_cdir, _fn), encoding='utf-8').read()
+            _mm = re.search(r'^export const meta = (\{.*\});\s*$', _src, re.M)
+            if _mm:
+                try:
+                    _old = json.loads(_mm.group(1))
+                    if _old.get('keywords'):
+                        kw_map[_old['id']] = _old['keywords']
+                except Exception:
+                    pass
+print(f'keywords dipertahankan: {len(kw_map)} tool')
+
 # ---------- 5. Tulis file tool ----------
 out_dir = os.path.join(JS, 'tools')
 if os.path.exists(out_dir):
@@ -166,7 +190,8 @@ for t in tools:
         lines.append('')
     # meta + render
     meta = {'id': t['id'], 'name': t['name'], 'cat': t['cat'],
-            'icon': t['icon'], 'desc': t['desc']}
+            'icon': t['icon'], 'desc': t['desc'],
+            'keywords': kw_map.get(t['id'], '')}
     lines.append(f"export const meta = {json.dumps(meta, ensure_ascii=False)};")
     lines.append('')
     lines.append('export function render(root) {')

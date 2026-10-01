@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=5.1.0';
+import { h as T } from '../../core.js?v=5.2.0';
 
 // Kode plat nomor kendaraan Indonesia: kode -> [wilayah, contoh daerah]
 const PLAT = {
@@ -58,8 +58,7 @@ const PLAT = {
   PB: ['Papua Barat', 'Manokwari, Sorong, dsb.'],
 };
 
-export const meta = {"id": "plat-nomor", "name": "Cek Asal Plat Nomor", "cat": "indonesia", "icon": "🚗", "desc": "Asal daerah dari kode plat kendaraan."};
-
+export const meta = {"id": "plat-nomor", "name": "Cek Asal Plat Nomor", "cat": "indonesia", "icon": "🚗", "desc": "Asal daerah dari kode plat kendaraan.", "keywords": "plat,nomor,kendaraan,motor,mobil,daerah"};
 export function render(root) {
 
     const inp = T.input('text', 'cth: B 1234 XYZ  atau  D');

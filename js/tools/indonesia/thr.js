@@ -1,12 +1,11 @@
-import { h as T, utils, U, money } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, money } from '../../core.js?v=5.2.0';
 
 U.hitungTHR = (gaji, bulanKerja) => {
     gaji = +gaji || 0; bulanKerja = +bulanKerja || 0;
     return bulanKerja >= 12 ? gaji : (gaji * bulanKerja) / 12;
   };
 
-export const meta = {"id": "thr", "name": "Kalkulator THR", "cat": "indonesia", "icon": "🧧", "desc": "THR proporsional sesuai masa kerja."};
-
+export const meta = {"id": "thr", "name": "Kalkulator THR", "cat": "indonesia", "icon": "🧧", "desc": "THR proporsional sesuai masa kerja.", "keywords": "thr,bonus,lebaran,gaji"};
 export function render(root) {
 
     const gaji = money(null, 'cth: 5000000'), bulan = T.input('number', 'cth: 8', '12');

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 (function () {
     const M = {
@@ -26,8 +26,7 @@ import { h as T, utils } from '../../core.js?v=5.1.0';
     utils.morseMap = M;
   })();
 
-export const meta = {"id": "morse", "name": "Sandi Morse", "cat": "converter", "icon": "📻", "desc": "Teks ↔ sandi Morse + bunyi."};
-
+export const meta = {"id": "morse", "name": "Sandi Morse", "cat": "converter", "icon": "📻", "desc": "Teks ↔ sandi Morse + bunyi.", "keywords": "morse,sandi,kode"};
 export function render(root) {
 
     const inp = T.ta(4, 'Tulis teks di sini…');

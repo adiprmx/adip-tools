@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 const LOREM_BANK = [
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
@@ -45,8 +45,7 @@ utils.lorem = function (mode, count) {
     return paras.join('\n\n');
   };
 
-export const meta = {"id": "lorem-ipsum", "name": "Lorem Ipsum Generator", "cat": "teks", "icon": "📄", "desc": "Generator teks dummy."};
-
+export const meta = {"id": "lorem-ipsum", "name": "Lorem Ipsum Generator", "cat": "teks", "icon": "📄", "desc": "Generator teks dummy.", "keywords": "lorem,dummy,teks"};
 export function render(root) {
 
       const modeSel = T.select([['paragraf', 'Paragraf'], ['kalimat', 'Kalimat'], ['kata', 'Kata']], 'paragraf');

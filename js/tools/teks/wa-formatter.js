@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.waFormat = function (text, kind) {
     const s = String(text == null ? '' : text);
@@ -8,8 +8,7 @@ utils.waFormat = function (text, kind) {
     return m + s + m;
   };
 
-export const meta = {"id": "wa-formatter", "name": "WA Text Formatter", "cat": "teks", "icon": "✍️", "desc": "Teks biasa jadi format WhatsApp."};
-
+export const meta = {"id": "wa-formatter", "name": "WA Text Formatter", "cat": "teks", "icon": "✍️", "desc": "Teks biasa jadi format WhatsApp.", "keywords": "whatsapp,wa,format,teks,bold"};
 export function render(root) {
 
       const taIn = T.ta(6, 'Ketik atau tempel teks di sini…');

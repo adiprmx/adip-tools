@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=5.2.0';
 
 function subnet(ip, cidr) {
     const o = String(ip == null ? '' : ip).trim().split('.');
@@ -22,8 +22,7 @@ function subnet(ip, cidr) {
     };
   }
 
-export const meta = {"id": "subnet", "name": "Kalkulator Subnet IPv4", "cat": "developer", "icon": "🌐", "desc": "Network, broadcast, range host dari CIDR."};
-
+export const meta = {"id": "subnet", "name": "Kalkulator Subnet IPv4", "cat": "developer", "icon": "🌐", "desc": "Network, broadcast, range host dari CIDR.", "keywords": "subnet,ip,network,cidr"};
 export function render(root) {
 
     const inp = T.input('text', 'misal: 192.168.1.10/24', '192.168.1.10/24');

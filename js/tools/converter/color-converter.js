@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL + preview."};
-
+export const meta = {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL + preview.", "keywords": "warna,color,hex,rgb,hsl"};
 export function render(root) {
 
     const inp = T.input('text', '#ff6b6b  atau  255,107,107  atau  hsl(0,100%,65%)', '#ff6b6b');

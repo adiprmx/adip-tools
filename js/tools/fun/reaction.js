@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "reaction", "name": "Tes Refleks", "cat": "fun", "icon": "⚡", "desc": "Ukur kecepatan refleks."};
-
+export const meta = {"id": "reaction", "name": "Tes Refleks", "cat": "fun", "icon": "⚡", "desc": "Ukur kecepatan refleks.", "keywords": "refleks,reaksi,cepat,tes"};
 export function render(root) {
 
     const area = T.el('<div class="out center" style="min-height:150px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;user-select:none"></div>');

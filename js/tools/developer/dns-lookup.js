@@ -1,7 +1,6 @@
-import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "dns-lookup", "name": "DNS Lookup", "cat": "developer", "icon": "📡", "desc": "Lookup DNS via Google DNS-over-HTTPS."};
-
+export const meta = {"id": "dns-lookup", "name": "DNS Lookup", "cat": "developer", "icon": "📡", "desc": "Lookup DNS via Google DNS-over-HTTPS.", "keywords": "dns,domain,lookup,website"};
 export function render(root) {
 
     const name = T.input('text', 'misal: adipmusic.my.id', '');

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.2.0';
 
 function xmlPretty(src) {
     const doc = new DOMParser().parseFromString(String(src || ''), 'text/xml');
@@ -47,8 +47,7 @@ function xmlPretty(src) {
     return { xml: (decl ? decl[0] + '\n' : '') + out.trim() + '\n' };
   }
 
-export const meta = {"id": "xml-formatter", "name": "XML Formatter", "cat": "developer", "icon": "📰", "desc": "Rapikan & validasi XML."};
-
+export const meta = {"id": "xml-formatter", "name": "XML Formatter", "cat": "developer", "icon": "📰", "desc": "Rapikan & validasi XML.", "keywords": "xml,format"};
 export function render(root) {
 
     const ta = T.ta(8, 'Paste XML di sini…');

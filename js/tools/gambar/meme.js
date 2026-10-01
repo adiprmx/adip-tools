@@ -1,7 +1,6 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=5.1.0';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "meme", "name": "Meme Generator", "cat": "gambar", "icon": "😂", "desc": "Bikin meme teks atas-bawah + unduh PNG."};
-
+export const meta = {"id": "meme", "name": "Meme Generator", "cat": "gambar", "icon": "😂", "desc": "Bikin meme teks atas-bawah + unduh PNG.", "keywords": "meme,lucu,gambar,teks"};
 export function render(root) {
 
     const fileI = fileInput('image/*');

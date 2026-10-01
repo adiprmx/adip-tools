@@ -1,7 +1,6 @@
-import { h as T, utils, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "baby-name", "name": "Nama Bayi", "cat": "fun", "icon": "👶", "desc": "Nama bayi Indonesia + arti."};
-
+export const meta = {"id": "baby-name", "name": "Nama Bayi", "cat": "fun", "icon": "👶", "desc": "Nama bayi Indonesia + arti.", "keywords": "bayi,nama,arti,anak"};
 export function render(root) {
 
     const L = [

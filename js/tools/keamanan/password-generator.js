@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "password-generator", "name": "Password Generator", "cat": "keamanan", "icon": "🔑", "desc": "Buat password kuat yang susah ditebak."};
-
+export const meta = {"id": "password-generator", "name": "Password Generator", "cat": "keamanan", "icon": "🔑", "desc": "Buat password kuat yang susah ditebak.", "keywords": "password,sandi,aman,kuat,acak"};
 export function render(root) {
 
     const mkChk = (label, checked) => {

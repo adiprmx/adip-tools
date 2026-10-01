@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv, money } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, kv, money } from '../../core.js?v=5.2.0';
 
 U.hitungPatungan = (total, pajakPct, servicePct, orang) => {
     total = +total || 0; pajakPct = +pajakPct || 0; servicePct = +servicePct || 0;
@@ -9,8 +9,7 @@ U.hitungPatungan = (total, pajakPct, servicePct, orang) => {
     return { subtotal: total, pajak, service, grandTotal, perOrang: grandTotal / orang };
   };
 
-export const meta = {"id": "patungan", "name": "Kalkulator Patungan", "cat": "indonesia", "icon": "🧾", "desc": "Split bill + pajak & service."};
-
+export const meta = {"id": "patungan", "name": "Kalkulator Patungan", "cat": "indonesia", "icon": "🧾", "desc": "Split bill + pajak & service.", "keywords": "patungan,split,bill,bayar,bareng"};
 export function render(root) {
 
     const total = money(null, 'cth: 150000'), pajak = money(null, 'cth: 10', '10'),

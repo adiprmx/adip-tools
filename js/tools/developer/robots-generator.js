@@ -1,7 +1,6 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "robots-generator", "name": "Robots.txt Generator", "cat": "developer", "icon": "🤖", "desc": "Susun file robots.txt."};
-
+export const meta = {"id": "robots-generator", "name": "Robots.txt Generator", "cat": "developer", "icon": "🤖", "desc": "Susun file robots.txt.", "keywords": "robots,seo,txt"};
 export function render(root) {
 
     const rules = [];

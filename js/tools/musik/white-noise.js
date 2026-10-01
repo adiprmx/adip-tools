@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "white-noise", "name": "White Noise", "cat": "musik", "icon": "🌧️", "desc": "Suara fokus & tidur."};
-
+export const meta = {"id": "white-noise", "name": "White Noise", "cat": "musik", "icon": "🌧️", "desc": "Suara fokus & tidur.", "keywords": "noise,tidur,fokus,suara,hujan"};
 export function render(root) {
 
     const jenis = T.select([

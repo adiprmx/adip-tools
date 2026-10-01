@@ -1,7 +1,6 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "gradient", "name": "Gradient Generator", "cat": "desain", "icon": "🌈", "desc": "Bikin gradient CSS + preview."};
-
+export const meta = {"id": "gradient", "name": "Gradient Generator", "cat": "desain", "icon": "🌈", "desc": "Bikin gradient CSS + preview.", "keywords": "gradient,gradasi,css,warna"};
 export function render(root) {
 
     const typeSel = T.select([['linear', 'Linear'], ['radial', 'Radial']], 'linear');

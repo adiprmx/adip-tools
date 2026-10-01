@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "image-base64", "name": "Gambar ke Base64", "cat": "converter", "icon": "🖼️", "desc": "Gambar jadi string Base64 siap embed."};
-
+export const meta = {"id": "image-base64", "name": "Gambar ke Base64", "cat": "converter", "icon": "🖼️", "desc": "Gambar jadi string Base64 siap embed.", "keywords": "gambar,base64,foto,embed"};
 export function render(root) {
 
     const fileInp = T.el('<input type="file" accept="image/*" class="inp">');

@@ -1,4 +1,4 @@
-import { h as T, money, kv } from '../../core.js?v=5.1.0';
+import { h as T, money, kv } from '../../core.js?v=5.2.0';
 
 // PTKP setahun (Rp) — PMK 101/2016
 const PTKP = {
@@ -30,8 +30,7 @@ function pphProgresif(pkp) {
   return { total: Math.round(total), rinc };
 }
 
-export const meta = {"id": "pph21", "name": "Kalkulator PPh 21", "cat": "indonesia", "icon": "🧾", "desc": "Hitung PPh 21 karyawan + PTKP."};
-
+export const meta = {"id": "pph21", "name": "Kalkulator PPh 21", "cat": "indonesia", "icon": "🧾", "desc": "Hitung PPh 21 karyawan + PTKP.", "keywords": "gaji,pajak,penghasilan,pph,karyawan"};
 export function render(root) {
 
     const gaji = money(null, 'cth: 12000000');

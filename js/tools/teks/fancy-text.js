@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 const FANCY_STYLES = ['bold', 'italic', 'mono', 'script', 'struck', 'circled', 'fullwidth'];
 
@@ -52,8 +52,7 @@ utils.fancy = function (text, style) {
 
 utils.fancyStyles = FANCY_STYLES;
 
-export const meta = {"id": "fancy-text", "name": "Fancy Text", "cat": "teks", "icon": "✨", "desc": "Teks gaya unik untuk sosmed."};
-
+export const meta = {"id": "fancy-text", "name": "Fancy Text", "cat": "teks", "icon": "✨", "desc": "Teks gaya unik untuk sosmed.", "keywords": "fancy,teks,sosmed,keren,gaya"};
 export function render(root) {
 
       const inI = T.input('text', 'Ketik teks…', 'Adip Store');

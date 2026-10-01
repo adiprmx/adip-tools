@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "tap-bpm", "name": "Tap BPM", "cat": "musik", "icon": "👆", "desc": "Ketuk layar untuk deteksi tempo."};
-
+export const meta = {"id": "tap-bpm", "name": "Tap BPM", "cat": "musik", "icon": "👆", "desc": "Ketuk layar untuk deteksi tempo.", "keywords": "bpm,tempo,ketuk,dj"};
 export function render(root) {
 
     const zone = T.el('<div class="tapzone">Ketuk di sini mengikuti beat</div>');

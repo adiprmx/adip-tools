@@ -1,7 +1,6 @@
-import { h as T, utils, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "decision", "name": "Pengacak Keputusan", "cat": "fun", "icon": "🔮", "desc": "Bantu ambil keputusan."};
-
+export const meta = {"id": "decision", "name": "Pengacak Keputusan", "cat": "fun", "icon": "🔮", "desc": "Bantu ambil keputusan.", "keywords": "keputusan,acak,pilih,random"};
 export function render(root) {
 
     const mode = T.select([

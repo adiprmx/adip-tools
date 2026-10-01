@@ -1,7 +1,6 @@
-import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=5.1.0';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "extract-contact", "name": "Ekstrak Kontak", "cat": "teks", "icon": "📇", "desc": "Ambil email & nomor HP dari teks."};
-
+export const meta = {"id": "extract-contact", "name": "Ekstrak Kontak", "cat": "teks", "icon": "📇", "desc": "Ambil email & nomor HP dari teks.", "keywords": "kontak,email,nomor,ekstrak"};
 export function render(root) {
 
       const taIn = T.ta(8, 'Tempel teks yang berisi email / nomor HP…');

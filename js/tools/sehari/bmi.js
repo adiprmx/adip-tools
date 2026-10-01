@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc } from '../../core.js?v=5.2.0';
 
 utils.bmi = function (beratKg, tinggiCm) {
     const b = Number(beratKg), h = Number(tinggiCm);
@@ -21,8 +21,7 @@ utils.bmr = function (gender, beratKg, tinggiCm, umur) {
     return Math.round(10 * b + 6.25 * h - 5 * u + (isMale ? 5 : -161));
   };
 
-export const meta = {"id": "bmi", "name": "BMI & Kalori", "cat": "sehari", "icon": "⚕️", "desc": "BMI + estimasi kebutuhan kalori."};
-
+export const meta = {"id": "bmi", "name": "BMI & Kalori", "cat": "sehari", "icon": "⚕️", "desc": "BMI + estimasi kebutuhan kalori.", "keywords": "bmi,berat,badan,diet,kalori"};
 export function render(root) {
 
     const berat = T.input('number', 'Berat badan (kg)', '65');

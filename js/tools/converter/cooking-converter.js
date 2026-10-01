@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "🍳", "desc": "Konversi sendok, cup, gram, ml."};
-
+export const meta = {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "🍳", "desc": "Konversi sendok, cup, gram, ml.", "keywords": "masak,takaran,sendok,cup,gram,resep,dapur"};
 export function render(root) {
 
     // gram per 1 cup (US, 240 ml) — nilai umum dapur

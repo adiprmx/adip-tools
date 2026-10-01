@@ -1,4 +1,4 @@
-import { h as T, utils, U, _NI, _normAcc } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, _NI, _normAcc } from '../../core.js?v=5.2.0';
 
 const _NS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
@@ -31,8 +31,7 @@ U.transposeChord = (chord, steps, preferFlat) => {
     return out;
   };
 
-export const meta = {"id": "chord-transpose", "name": "Chord Transposer", "cat": "musik", "icon": "🎸", "desc": "Naik-turunkan kunci chord lagu."};
-
+export const meta = {"id": "chord-transpose", "name": "Chord Transposer", "cat": "musik", "icon": "🎸", "desc": "Naik-turunkan kunci chord lagu.", "keywords": "chord,kunci,gitar,lagu,transpose"};
 export function render(root) {
 
     const src = T.ta(8, '[Am]           [G]\nAku di sini menunggumu\n[F]            [C]\nDi bawah langit yang biru…');

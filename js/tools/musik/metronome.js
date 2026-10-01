@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "metronome", "name": "Metronom", "cat": "musik", "icon": "🥁", "desc": "Metronom dengan birama."};
-
+export const meta = {"id": "metronome", "name": "Metronom", "cat": "musik", "icon": "🥁", "desc": "Metronom dengan birama.", "keywords": "metronom,tempo,ketuk"};
 export function render(root) {
 
     const bpmNum = T.input('number', 'BPM', '120');

@@ -1,7 +1,6 @@
-import { h as T, utils, kv, money } from '../../core.js?v=5.1.0';
+import { h as T, utils, kv, money } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "bunga-majemuk", "name": "Bunga Majemuk", "cat": "indonesia", "icon": "📈", "desc": "Simulasi compound interest."};
-
+export const meta = {"id": "bunga-majemuk", "name": "Bunga Majemuk", "cat": "indonesia", "icon": "📈", "desc": "Simulasi compound interest.", "keywords": "bunga,majemuk,investasi,compound"};
 export function render(root) {
 
     const modal = money(null, 'cth: 10000000'), setor = money(null, 'cth: 1000000', '0'),

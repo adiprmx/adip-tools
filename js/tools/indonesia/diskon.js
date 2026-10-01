@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv, money } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, kv, money } from '../../core.js?v=5.2.0';
 
 U.diskonBertingkat = (harga, arrDiskon) => {
     let sisa = +harga || 0;
@@ -12,8 +12,7 @@ U.diskonBertingkat = (harga, arrDiskon) => {
     return { tahapan, hargaAkhir: sisa, totalHemat: (+harga || 0) - sisa };
   };
 
-export const meta = {"id": "diskon", "name": "Diskon Bertingkat", "cat": "indonesia", "icon": "💸", "desc": "Hitung diskon berlapis yang benar."};
-
+export const meta = {"id": "diskon", "name": "Diskon Bertingkat", "cat": "indonesia", "icon": "💸", "desc": "Hitung diskon berlapis yang benar.", "keywords": "diskon,promo,potongan,belanja"};
 export function render(root) {
 
     const harga = money(null, 'cth: 200000');

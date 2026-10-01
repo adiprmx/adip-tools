@@ -1,4 +1,4 @@
-import { h as T, utils, esc, p2 } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc, p2 } from '../../core.js?v=5.2.0';
 
 function fmtHM(min) {
     min = ((Math.round(min) % 1440) + 1440) % 1440;
@@ -24,8 +24,7 @@ utils.sleepOptions = function (mode, jamAcuan) {
     return out;
   };
 
-export const meta = {"id": "sleep-cycle", "name": "Siklus Tidur", "cat": "produktivitas", "icon": "😴", "desc": "Jam bangun ideal per 90 menit."};
-
+export const meta = {"id": "sleep-cycle", "name": "Siklus Tidur", "cat": "produktivitas", "icon": "😴", "desc": "Jam bangun ideal per 90 menit.", "keywords": "tidur,bangun,siklus,jam"};
 export function render(root) {
 
     const mode = T.select([['now', '😴 Saya mau tidur sekarang'], ['wake', '⏰ Saya harus bangun jam…']], 'now');

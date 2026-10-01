@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a || 1; }
 
@@ -9,8 +9,7 @@ utils.simplifyRatio = function (w, h) {
     return (w / g) + ':' + (h / g);
   };
 
-export const meta = {"id": "aspect-ratio", "name": "Kalkulator Rasio", "cat": "gambar", "icon": "📐", "desc": "Rasio aspek & resolusi."};
-
+export const meta = {"id": "aspect-ratio", "name": "Kalkulator Rasio", "cat": "gambar", "icon": "📐", "desc": "Rasio aspek & resolusi.", "keywords": "rasio,aspek,resolusi,ukuran"};
 export function render(root) {
 
       const wI = T.input('number', 'Lebar', '1920');

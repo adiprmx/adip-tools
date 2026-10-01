@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "countdown", "name": "Countdown Acara", "cat": "indonesia", "icon": "🎉", "desc": "Hitung mundur ke hari penting."};
-
+export const meta = {"id": "countdown", "name": "Countdown Acara", "cat": "indonesia", "icon": "🎉", "desc": "Hitung mundur ke hari penting.", "keywords": "countdown,hitung,mundur,acara"};
 export function render(root) {
 
     const LEBARAN = new Date(2027, 2, 10, 0, 0, 0); // 10 Mar 2027, perkiraan

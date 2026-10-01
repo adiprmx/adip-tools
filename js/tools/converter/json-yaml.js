@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "json-yaml", "name": "JSON ↔ YAML", "cat": "converter", "icon": "⇄", "desc": "Konversi JSON ke YAML dan sebaliknya."};
-
+export const meta = {"id": "json-yaml", "name": "JSON ↔ YAML", "cat": "converter", "icon": "⇄", "desc": "Konversi JSON ke YAML dan sebaliknya.", "keywords": "json,yaml"};
 export function render(root) {
 
     const CDN = 'https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js';

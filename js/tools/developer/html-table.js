@@ -1,7 +1,6 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=5.1.0';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "html-table", "name": "Generator Tabel HTML", "cat": "developer", "icon": "📋", "desc": "Bikin tabel HTML dari data baris."};
-
+export const meta = {"id": "html-table", "name": "Generator Tabel HTML", "cat": "developer", "icon": "📋", "desc": "Bikin tabel HTML dari data baris.", "keywords": "html,tabel"};
 export function render(root) {
 
     const ta = T.ta(6, 'Satu baris = satu row. Pisahkan kolom dengan | atau Tab.\nContoh:\nNama | Umur | Kota\nAdip | 25 | Jakarta');

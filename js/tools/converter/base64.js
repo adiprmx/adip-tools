@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Encode & decode Base64, termasuk varian URL-safe."};
-
+export const meta = {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Encode & decode Base64, termasuk varian URL-safe.", "keywords": "base64,encode,decode"};
 export function render(root) {
 
     const inp = T.ta(5, 'Tulis atau tempel teks di sini…');

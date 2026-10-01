@@ -1,4 +1,4 @@
-import { h as T, fileInput } from '../../core.js?v=5.1.0';
+import { h as T, fileInput } from '../../core.js?v=5.2.0';
 
 // Parser CSV yang benar: dukung quote, koma di dalam field, quote ganda, newline di dalam field.
 function parseCSV(text, delim) {
@@ -35,8 +35,7 @@ function rowsToCSV(rows, delim) {
   return rows.map((r) => r.map((c) => csvCell(c, delim)).join(delim)).join('\n');
 }
 
-export const meta = {"id": "csv-json", "name": "CSV ↔ JSON", "cat": "converter", "icon": "🔄", "desc": "Konversi CSV ke JSON dan sebaliknya."};
-
+export const meta = {"id": "csv-json", "name": "CSV ↔ JSON", "cat": "converter", "icon": "🔄", "desc": "Konversi CSV ke JSON dan sebaliknya.", "keywords": "csv,json,konversi,data,spreadsheet,excel"};
 export function render(root) {
 
     const mode = T.select([['auto', 'Otomatis (deteksi)'], ['c2j', 'CSV → JSON'], ['j2c', 'JSON → CSV']], 'auto');

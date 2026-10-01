@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.md5 = async function (str) { return _md5(str); };
 
@@ -92,8 +92,7 @@ async function shaHex(alg, text) {
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
-export const meta = {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks ke MD5, SHA-1, SHA-256, SHA-512."};
-
+export const meta = {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks ke MD5, SHA-1, SHA-256, SHA-512.", "keywords": "hash,md5,sha"};
 export function render(root) {
 
     const inp = T.ta(4, 'Tulis teks yang mau di-hash…');

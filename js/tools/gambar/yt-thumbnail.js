@@ -1,4 +1,4 @@
-import { h as T, utils, imgEl } from '../../core.js?v=5.1.0';
+import { h as T, utils, imgEl } from '../../core.js?v=5.2.0';
 
 utils.ytId = function (url) {
     const s = String(url == null ? '' : url).trim();
@@ -13,8 +13,7 @@ utils.ytId = function (url) {
     return '';
   };
 
-export const meta = {"id": "yt-thumbnail", "name": "Thumbnail YouTube", "cat": "gambar", "icon": "📺", "desc": "Download thumbnail YouTube dari URL."};
-
+export const meta = {"id": "yt-thumbnail", "name": "Thumbnail YouTube", "cat": "gambar", "icon": "📺", "desc": "Download thumbnail YouTube dari URL.", "keywords": "youtube,thumbnail,gambar,unduh"};
 export function render(root) {
 
       const urlI = T.input('url', 'Tempel link YouTube…');

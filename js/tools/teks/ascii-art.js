@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 const ASCII_FONT = {
     ' ': ['     ', '     ', '     ', '     ', '     '],
@@ -66,8 +66,7 @@ utils.asciiArt = function (text) {
     return rows.join('\n').replace(/[ \t]+$/gm, '');
   };
 
-export const meta = {"id": "ascii-art", "name": "ASCII Art", "cat": "teks", "icon": "⌨️", "desc": "Teks jadi seni ASCII."};
-
+export const meta = {"id": "ascii-art", "name": "ASCII Art", "cat": "teks", "icon": "⌨️", "desc": "Teks jadi seni ASCII.", "keywords": "ascii,seni,teks"};
 export function render(root) {
 
       const inI = T.input('text', 'Ketik teks…', 'ADIP');

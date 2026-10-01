@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "password-strength", "name": "Cek Kekuatan Password", "cat": "keamanan", "icon": "🛡️", "desc": "Ukur seberapa kuat password kamu."};
-
+export const meta = {"id": "password-strength", "name": "Cek Kekuatan Password", "cat": "keamanan", "icon": "🛡️", "desc": "Ukur seberapa kuat password kamu.", "keywords": "password,kuat,cek,sandi"};
 export function render(root) {
 
     const inp = T.input('password', 'Ketik password di sini…');

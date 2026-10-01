@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, kv } from '../../core.js?v=5.2.0';
 
 U.weton = (yyyy, mm, dd) => {
     const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -16,8 +16,7 @@ U.weton = (yyyy, mm, dd) => {
     return { hari, pasaran, weton: hari + ' ' + pasaran, neptuHari, neptuPasaran, neptuTotal: neptuHari + neptuPasaran };
   };
 
-export const meta = {"id": "weton", "name": "Weton Jawa", "cat": "indonesia", "icon": "🗓️", "desc": "Hitung weton & pasaran dari tanggal lahir."};
-
+export const meta = {"id": "weton", "name": "Weton Jawa", "cat": "indonesia", "icon": "🗓️", "desc": "Hitung weton & pasaran dari tanggal lahir.", "keywords": "weton,jawa,pasaran,lahir,primbon"};
 export function render(root) {
 
     const tgl = T.input('date');

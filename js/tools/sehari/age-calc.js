@@ -1,7 +1,6 @@
-import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=5.1.0';
+import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "age-calc", "name": "Kalkulator Umur", "cat": "sehari", "icon": "🎂", "desc": "Umur presisi tahun-bulan-hari."};
-
+export const meta = {"id": "age-calc", "name": "Kalkulator Umur", "cat": "sehari", "icon": "🎂", "desc": "Umur presisi tahun-bulan-hari.", "keywords": "umur,usia,lahir,tanggal"};
 export function render(root) {
 
     const lahir = T.input('date', 'Tanggal lahir', '2000-01-01');

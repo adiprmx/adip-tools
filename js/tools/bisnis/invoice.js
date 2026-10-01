@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.invoiceCalc = function (items, discPct, taxPct) {
     let sub = 0;
@@ -28,8 +28,7 @@ function ensurePrintCss() {
     document.head.appendChild(st);
   }
 
-export const meta = {"id": "invoice", "name": "Invoice Generator", "cat": "bisnis", "icon": "📑", "desc": "Bikin invoice rapi siap cetak."};
-
+export const meta = {"id": "invoice", "name": "Invoice Generator", "cat": "bisnis", "icon": "📑", "desc": "Bikin invoice rapi siap cetak.", "keywords": "invoice,tagihan,nota,kwitansi,cetak"};
 export function render(root) {
 
       ensurePrintCss();

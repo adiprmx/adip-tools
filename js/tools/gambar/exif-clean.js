@@ -1,7 +1,6 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=5.1.0';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "exif-clean", "name": "Hapus EXIF", "cat": "gambar", "icon": "🧹", "desc": "Bersihkan metadata sebelum dishare."};
-
+export const meta = {"id": "exif-clean", "name": "Hapus EXIF", "cat": "gambar", "icon": "🧹", "desc": "Bersihkan metadata sebelum dishare.", "keywords": "exif,metadata,bersih,privasi"};
 export function render(root) {
 
       const fileI = fileInput('image/*');

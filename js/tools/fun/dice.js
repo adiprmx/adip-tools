@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "dice", "name": "Dadu", "cat": "fun", "icon": "🎲", "desc": "Lempar dadu + riwayat."};
-
+export const meta = {"id": "dice", "name": "Dadu", "cat": "fun", "icon": "🎲", "desc": "Lempar dadu + riwayat.", "keywords": "dadu,acak,random"};
 export function render(root) {
 
     const jumlah = T.select([['1', '1 dadu'], ['2', '2 dadu'], ['3', '3 dadu'], ['4', '4 dadu'], ['5', '5 dadu'], ['6', '6 dadu']], '2');

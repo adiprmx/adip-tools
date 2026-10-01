@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv, money } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, kv, money } from '../../core.js?v=5.2.0';
 
 U.zakatMaal = (harta, hargaEmas) => {
     harta = +harta || 0; hargaEmas = +hargaEmas || 0;
@@ -7,8 +7,7 @@ U.zakatMaal = (harta, hargaEmas) => {
     return { nisab, wajib, zakat: wajib ? harta * 0.025 : 0 };
   };
 
-export const meta = {"id": "zakat", "name": "Kalkulator Zakat", "cat": "indonesia", "icon": "🤲", "desc": "Zakat maal & fitrah."};
-
+export const meta = {"id": "zakat", "name": "Kalkulator Zakat", "cat": "indonesia", "icon": "🤲", "desc": "Zakat maal & fitrah.", "keywords": "zakat,maal,fitrah,islam"};
 export function render(root) {
 
     const harta = money(null, 'cth: 200000000'), emas = money(null, 'cth: 1400000', '1400000');

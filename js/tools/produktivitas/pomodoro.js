@@ -1,7 +1,6 @@
-import { h as T, utils, p2 } from '../../core.js?v=5.1.0';
+import { h as T, utils, p2 } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "pomodoro", "name": "Pomodoro Timer", "cat": "produktivitas", "icon": "🍅", "desc": "Timer fokus 25/5."};
-
+export const meta = {"id": "pomodoro", "name": "Pomodoro Timer", "cat": "produktivitas", "icon": "🍅", "desc": "Timer fokus 25/5.", "keywords": "pomodoro,fokus,timer,belajar"};
 export function render(root) {
 
     const dur = { focus: 25, short: 5, long: 15 };

@@ -1,11 +1,11 @@
-/* ADIP Tools — v5.1 "Arang & Coral" shell + router.
-   Tema benar-benar baru: arang hangat + aksen coral, Bricolage Grotesque,
-   direktori grid kartu 2 kolom, bottom tab bar persisten (Beranda/Cari/Favorit).
-   Logika dipertahankan: routing hash #/ & #/t/:id, LS fav/recent,
-   Supabase trends + SEARCH_DENY, fuzzy palette, chip deny permanen.
-   Kelas CSS memakai kontrak style.css v5.1. */
-import { h as T, utils } from './core.js?v=5.1.0';
-import { manifest, VERSION } from './manifest.js?v=5.1.0';
+/* ADIP Tools — v5.2 shell + router.
+   Tema v5.1 "Arang & Coral" dipertahankan. v5.2 menambah:
+   kartu "Lanjutkan", smart search (fuzzy typo-tolerant + keywords),
+   label visual-first (Populer/Riwayat), grid kategori berikon,
+   ikon tab bar lebih besar, urutan cerdas (favorit & riwayat naik).
+   Kelas CSS memakai kontrak style.css v5.2. */
+import { h as T, utils } from './core.js?v=5.2.0';
+import { manifest, VERSION } from './manifest.js?v=5.2.0';
 
 /* ============ sapaan waktu-aware ============ */
 function greet() {
@@ -20,13 +20,23 @@ function greet() {
 /* Kata ini tidak boleh muncul sebagai chip. Jika muncul dari Supabase,
    langsung hapus permanen dari tool_search_terms (bukan sekadar filter). */
 const SEARCH_DENY = ['muse-test'];
+/* Id kategori WAJIB sama persis dengan nilai "cat" di manifest
+   (v5.2: perbaiki bug v5.1 — id 'dev'/'harian'/'produktif'/'api' tidak
+   cocok dengan manifest 'developer'/'sehari'/'produktivitas'/'liveapi'
+   sehingga 25 tool tak pernah muncul di filter kategori). */
 const CATS = [
   ['semua', 'Semua'], ['indonesia', 'Indonesia'], ['keamanan', 'Keamanan'],
-  ['converter', 'Converter'], ['dev', 'Dev & Web'], ['desain', 'Desain'],
-  ['musik', 'Musik'], ['gambar', 'Gambar'], ['teks', 'Teks'],
-  ['bisnis', 'Bisnis'], ['harian', 'Sehari-hari'], ['fun', 'Fun'],
-  ['produktif', 'Produktivitas'], ['pelajar', 'Pelajar'], ['api', 'Live API'],
+  ['converter', 'Converter'], ['developer', 'Dev & Web'], ['desain', 'Desain'],
+  ['musik', 'Musik & Audio'], ['gambar', 'Gambar'], ['teks', 'Teks'],
+  ['bisnis', 'Bisnis'], ['sehari', 'Sehari-hari'], ['fun', 'Fun'],
+  ['produktivitas', 'Produktivitas'], ['pelajar', 'Pelajar'], ['liveapi', 'Live API'],
 ];
+const CAT_ICON = {
+  semua: '🗂️', indonesia: '🇮🇩', keamanan: '🛡️', converter: '🔄',
+  developer: '💻', desain: '🎨', musik: '🎵', gambar: '🖼️', teks: '✏️',
+  bisnis: '💼', sehari: '🏠', fun: '🎉', produktivitas: '⚡',
+  pelajar: '🎓', liveapi: '🌐',
+};
 const catLabel = id => (CATS.find(c => c[0] === id) || [id, id])[1];
 
 /* ============ Supabase: trending + pencatatan search ============ */
@@ -75,10 +85,29 @@ function toggleFav(id) {
   localStorage.setItem(LS_FAV, JSON.stringify(f));
   return f.includes(id);
 }
-const getRecent = () => { try { return JSON.parse(localStorage.getItem(LS_REC)) || []; } catch (e) { return []; } };
+const getRecent = () => {
+  try {
+    const r = JSON.parse(localStorage.getItem(LS_REC)) || [];
+    /* v5.2: format [{id, t}] dengan timestamp; migrasi otomatis dari format lama [id] */
+    return r.map(x => (typeof x === 'string' ? { id: x, t: 0 } : x)).filter(x => x && x.id);
+  } catch (e) { return []; }
+};
 function pushRecent(id) {
-  const r = [id, ...getRecent().filter(x => x !== id)].slice(0, 12);
+  const r = [{ id, t: Date.now() }, ...getRecent().filter(x => x.id !== id)].slice(0, 12);
   localStorage.setItem(LS_REC, JSON.stringify(r));
+}
+/* "dibuka X lalu" — Bahasa Indonesia */
+function ago(ts) {
+  if (!ts) return '';
+  const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (s < 60) return 'baru saja';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + ' mnt lalu';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' jam lalu';
+  const d = Math.floor(h / 24);
+  if (d < 30) return d + ' hari lalu';
+  return Math.floor(d / 30) + ' bln lalu';
 }
 const byId = id => manifest.find(m => m.id === id);
 
@@ -115,7 +144,7 @@ function syncFavBtns(id, on) {
 }
 
 /* ============ placeholder contoh bergilir ============ */
-const PH_EXAMPLES = ['Coba "kalkulator THR"...', 'Coba "weton jawa"...', 'Coba "kompres gambar"...', 'Coba "cicilan motor"...', 'Coba "password aman"...', 'Coba "camelot wheel"...'];
+const PH_EXAMPLES = ['Coba "gaji"...', 'Coba "qr"...', 'Coba "weton"...', 'Coba "kompres foto"...', 'Coba "thr"...', 'Coba "meme"...'];
 let phIdx = 0, phTimer;
 function rotatePh(input) {
   clearInterval(phTimer);
@@ -150,7 +179,24 @@ function watchFadeX(box) {
   setTimeout(paint, 60);
 }
 
-/* ============ fuzzy search + highlight ============ */
+/* ============ smart search: typo-tolerant + keywords + urutan cerdas ============ */
+/* Levenshtein distance untuk toleransi typo ("kalkultor" -> "kalkulator") */
+function lev(a, b) {
+  a = a.toLowerCase(); b = b.toLowerCase();
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = new Array(n + 1), cur = new Array(n + 1);
+  for (let j = 0; j <= n; j++) prev[j] = j;
+  for (let i = 1; i <= m; i++) {
+    cur[0] = i;
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    const t = prev; prev = cur; cur = t;
+  }
+  return prev[n];
+}
 function fuzzyScore(q, text) {
   q = q.toLowerCase().trim(); text = text.toLowerCase();
   if (!q) return 0;
@@ -161,18 +207,73 @@ function fuzzyScore(q, text) {
   }
   return qi === q.length ? score : 0;
 }
+/* skor satu token query terhadap daftar kata (nama/keywords/deskripsi) */
+function wordScore(tok, words) {
+  let best = 0;
+  for (const w of words) {
+    if (!w || w.length < 2) continue;
+    if (w === tok) return 500;
+    if (w.startsWith(tok)) best = Math.max(best, 400 + tok.length);
+    else if (w.includes(tok)) best = Math.max(best, 300 + tok.length);
+    else {
+      const d = lev(tok, w);
+      const tol = w.length >= 6 ? 2 : w.length >= 4 ? 1 : 0;
+      if (d > 0 && d <= tol) best = Math.max(best, 200 - d * 60 + tok.length);
+    }
+  }
+  return best;
+}
+const splitWords = s => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1);
+function searchScore(q, m) {
+  const toks = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (!toks.length) return 0;
+  const nameW = splitWords(m.name);
+  const kwW = String(m.keywords || '').split(',').map(s => s.trim().toLowerCase()).filter(w => w.length > 1);
+  const descW = splitWords(m.desc);
+  let total = 0;
+  for (const t of toks) {
+    const s = Math.max(wordScore(t, nameW), wordScore(t, kwW) * 0.9, wordScore(t, descW) * 0.5);
+    if (s > 0) { total += s; continue; }
+    /* fallback: subsequence di teks gabungan (pola lama) */
+    const fb = fuzzyScore(t, `${m.name} ${m.desc}`);
+    if (fb <= 0) return 0;
+    total += fb * 0.3;
+  }
+  return total;
+}
+/* urutan cerdas: favorit & yang baru/sering dibuka naik ke atas */
+function smartBoost(m, base, favSet, recIdx) {
+  let s = base;
+  if (favSet.has(m.id)) s += 250;
+  const ri = recIdx.get(m.id);
+  if (ri !== undefined) s += 200 - ri * 12;
+  return s;
+}
+function searchCtx() {
+  return { favSet: new Set(getFav()), recIdx: new Map(getRecent().map((x, i) => [x.id, i])) };
+}
+function rankedSearch(q) {
+  const ql = (q || '').trim().toLowerCase();
+  if (!ql) return [];
+  const { favSet, recIdx } = searchCtx();
+  return manifest
+    .map(m => ({ m, s: smartBoost(m, searchScore(ql, m), favSet, recIdx) }))
+    .filter(x => x.s > 0)
+    .sort((a, b) => b.s - a.s)
+    .map(x => x.m);
+}
 function palResults(q) {
-  q = (q || '').trim().toLowerCase();
-  if (!q) return { recent: getRecent().map(byId).filter(Boolean).slice(0, 5), favs: getFav().map(byId).filter(Boolean).slice(0, 5), all: [] };
-  return {
-    recent: [], favs: [],
-    all: manifest
-      .map(m => ({ m, s: fuzzyScore(q, `${m.name} ${m.desc} ${catLabel(m.cat)}`) }))
-      .filter(x => x.s > 0)
-      .sort((a, b) => b.s - a.s)
-      .slice(0, 12)
-      .map(x => x.m),
-  };
+  q = (q || '').trim();
+  if (!q) {
+    const { favSet } = searchCtx();
+    const recIds = new Set(getRecent().map(x => x.id));
+    return {
+      recent: getRecent().map(x => byId(x.id)).filter(Boolean).slice(0, 5),
+      favs: getFav().map(byId).filter(m => m && !recIds.has(m.id)).slice(0, 5),
+      all: [],
+    };
+  }
+  return { recent: [], favs: [], all: rankedSearch(q).slice(0, 12) };
 }
 function hiMark(text, q) {
   if (!q) return T.esc(text);
@@ -242,9 +343,9 @@ function renderPalList() {
       html = `<div class="pal-sec">${all.length} hasil</div>` + all.map(m => palItem(m, idx++)).join('');
     }
   } else {
-    if (recent.length) html += `<div class="pal-sec">Terakhir dibuka</div>` + recent.map(m => palItem(m, idx++)).join('');
-    if (favs.length) html += `<div class="pal-sec">Favorit</div>` + favs.map(m => palItem(m, idx++)).join('');
-    if (!recent.length && !favs.length) html = `<div class="pal-empty">Ketik untuk mencari 110 tools.<br>Misal: kalkulator THR, kompres gambar, weton.</div>`;
+    if (recent.length) html += `<div class="pal-sec">🕐 Riwayat</div>` + recent.map(m => palItem(m, idx++)).join('');
+    if (favs.length) html += `<div class="pal-sec">⭐ Favorit</div>` + favs.map(m => palItem(m, idx++)).join('');
+    if (!recent.length && !favs.length) html = `<div class="pal-empty">Ketik untuk mencari ${manifest.length} tools.<br>Misal: gaji, qr, weton.</div>`;
   }
   box.innerHTML = html;
   box.querySelectorAll('.pal-item').forEach(el => {
@@ -267,9 +368,9 @@ function ensureTabs() {
   nav.className = 'tabs';
   nav.setAttribute('aria-label', 'Navigasi utama');
   nav.innerHTML = `
-    <a class="tab" data-tab="home" href="#/"><span class="ti">⌂</span><span>Beranda</span></a>
-    <button class="tab" data-tab="search" id="tabSearch" aria-label="Cari cepat"><span class="ti">⌕</span><span>Cari</span></button>
-    <a class="tab" data-tab="fav" href="#/favorit"><span class="ti">★</span><span>Favorit</span></a>`;
+    <a class="tab" data-tab="home" href="#/"><span class="ti">🏠</span><span>Beranda</span></a>
+    <button class="tab" data-tab="search" id="tabSearch" aria-label="Cari cepat"><span class="ti">🔍</span><span>Cari</span></button>
+    <a class="tab" data-tab="fav" href="#/favorit"><span class="ti">⭐</span><span>Favorit</span></a>`;
   document.body.appendChild(nav);
   nav.querySelector('#tabSearch').onclick = openPalette;
   return nav;
@@ -301,7 +402,7 @@ function renderSug() {
   const box = document.getElementById('sug');
   if (!box) return;
   const chips = SB_POPULAR.length ? SB_POPULAR : ['kalkulator thr', 'weton jawa', 'kompres gambar', 'password aman', 'camelot wheel'];
-  box.innerHTML = `<span class="lbl">Sering dicari</span>` +
+  box.innerHTML = `<span class="lbl">🔥 Populer</span>` +
     chips.map(c => `<button class="schip" data-q="${T.esc(c)}">${T.esc(c)}</button>`).join('');
   box.querySelectorAll('.schip').forEach(b => {
     b.onclick = () => {
@@ -316,12 +417,12 @@ function renderQuick() {
   const box = document.getElementById('quick');
   if (!box) return;
   const favs = getFav().map(byId).filter(Boolean);
-  const recs = getRecent().map(byId).filter(Boolean);
+  const recs = getRecent().map(x => byId(x.id)).filter(Boolean);
   const frag = document.createDocumentFragment();
   if (favs.length) {
     const sec = document.createElement('section');
     sec.className = 'sec';
-    sec.innerHTML = `<div class="sechead"><h2>Favorit</h2><span class="n">${favs.length}</span></div>`;
+    sec.innerHTML = `<div class="sechead"><h2>⭐ Favorit</h2><span class="n">${favs.length}</span></div>`;
     const rail = document.createElement('div');
     rail.className = 'frail';
     favs.forEach(m => {
@@ -339,7 +440,7 @@ function renderQuick() {
   if (recs.length) {
     const sec = document.createElement('section');
     sec.className = 'sec';
-    sec.innerHTML = `<div class="sechead"><h2>Terakhir dibuka</h2></div>`;
+    sec.innerHTML = `<div class="sechead"><h2>🕐 Riwayat</h2></div>`;
     const chips = document.createElement('div');
     chips.className = 'rchips';
     recs.forEach(m => {
@@ -363,9 +464,11 @@ function home() {
   setTabActive('home');
   const app = document.getElementById('app');
   const total = manifest.length;
-  const catsBar = CATS.map(([id, label]) => {
+  const catTiles = CATS.map(([id, label]) => {
     const n = id === 'semua' ? total : manifest.filter(m => m.cat === id).length;
-    return `<button class="catchip${homeState.cat === id ? ' on' : ''}" data-cat="${id}">${label}<span class="n">${n}</span></button>`;
+    return `<button class="cattile${homeState.cat === id ? ' on' : ''}" data-cat="${id}" aria-label="Kategori ${label}">
+      <span class="ci">${CAT_ICON[id] || '🧰'}</span><span class="cl">${label}</span><span class="cn">${n}</span>
+    </button>`;
   }).join('');
   app.innerHTML = `
   <div class="wrap view">
@@ -389,7 +492,8 @@ function home() {
       <p class="sub"><b>${total} tools gratis</b> yang jalan langsung di browser. Tanpa daftar, tanpa ribet.</p>
       <div class="sug" id="sug"></div>
     </section>
-    <div class="cats" id="cats">${catsBar}</div>
+    <div id="contd"></div>
+    <div class="catgrid" id="cats">${catTiles}</div>
     <div id="quick"></div>
     <div id="dir"></div>
     <footer class="foot">
@@ -411,20 +515,40 @@ function home() {
   clearBtn.onclick = () => { inp.value = ''; clearBtn.classList.remove('show'); onSearch(''); inp.focus(); };
   rotatePh(inp);
   document.getElementById('palBtn').onclick = openPalette;
-  document.getElementById('cats').querySelectorAll('.catchip').forEach(b => {
+  document.getElementById('cats').querySelectorAll('.cattile').forEach(b => {
     b.onclick = () => {
-      homeState.cat = b.dataset.cat;
-      document.getElementById('cats').querySelectorAll('.catchip').forEach(x => x.classList.toggle('on', x === b));
+      const next = homeState.cat === b.dataset.cat ? 'semua' : b.dataset.cat;
+      homeState.cat = next;
+      document.getElementById('cats').querySelectorAll('.cattile').forEach(x => x.classList.toggle('on', x.dataset.cat === next));
       renderDir();
       document.getElementById('dir').scrollIntoView({ behavior: 'smooth' });
     };
   });
-  watchFadeX(document.getElementById('cats'));
   renderSug();
   sbFetchPopular();
+  renderContinue();
   renderQuick();
   renderDir();
   observeRv(app);
+}
+/* kartu "Lanjutkan": tool terakhir dibuka, satu tap langsung pakai lagi */
+function renderContinue() {
+  const box = document.getElementById('contd');
+  if (!box) return;
+  const r = getRecent()[0];
+  const t = r && byId(r.id);
+  if (!t) { box.innerHTML = ''; return; }
+  box.innerHTML = `
+    <a class="contd rv" href="#/t/${t.id}">
+      <span class="cic">${t.icon}</span>
+      <span class="ctx">
+        <span class="clbl">Lanjutkan</span>
+        <span class="cnm">${T.esc(t.name)}</span>
+        ${r.t ? `<span class="cts">dibuka ${ago(r.t)}</span>` : ''}
+      </span>
+      <span class="cgo">→</span>
+    </a>`;
+  observeRv(box);
 }
 function onSearch(q) {
   homeState.q = q;
@@ -444,11 +568,7 @@ function renderDir() {
   let html = '';
   const frag = document.createDocumentFragment();
   if (ql) {
-    const hits = manifest
-      .map(m => ({ m, s: fuzzyScore(ql, `${m.name} ${m.desc} ${catLabel(m.cat)}`) }))
-      .filter(x => x.s > 0)
-      .sort((a, b) => b.s - a.s)
-      .map(x => x.m);
+    const hits = rankedSearch(q);
     const sec = document.createElement('section');
     sec.className = 'sec';
     sec.innerHTML = `<div class="sechead"><h2>Hasil pencarian</h2><span class="n">${hits.length}</span></div>`;

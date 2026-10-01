@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=5.1.0';
+import { h as T } from '../../core.js?v=5.2.0';
 
 // Wordlist Bahasa Indonesia umum (tanpa spasi, huruf kecil) untuk passphrase.
 const _WORDS_RAW = ('kucing anjing kelinci rumah mobil motor sepeda buku meja kursi pintu jendela lampu ' +
@@ -33,8 +33,7 @@ function rand(n) {
   return a[0] % n;
 }
 
-export const meta = {"id": "passphrase", "name": "Passphrase Indonesia", "cat": "keamanan", "icon": "🔑", "desc": "Passphrase kata Indonesia yang kuat."};
-
+export const meta = {"id": "passphrase", "name": "Passphrase Indonesia", "cat": "keamanan", "icon": "🔑", "desc": "Passphrase kata Indonesia yang kuat.", "keywords": "passphrase,kata,sandi,aman,indonesia"};
 export function render(root) {
 
     const jml = T.select([['3', '3 kata'], ['4', '4 kata'], ['5', '5 kata'], ['6', '6 kata'], ['7', '7 kata'], ['8', '8 kata']], '4');

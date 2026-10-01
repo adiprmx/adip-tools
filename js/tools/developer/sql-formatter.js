@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.2.0';
 
 function sqlFormat(src) {
     const kws = ['INSERT INTO', 'DELETE FROM', 'GROUP BY', 'ORDER BY', 'UNION ALL', 'LEFT JOIN', 'RIGHT JOIN', 'FULL JOIN', 'INNER JOIN', 'CROSS JOIN', 'CREATE TABLE', 'DROP TABLE', 'ALTER TABLE', 'SELECT', 'FROM', 'WHERE', 'HAVING', 'LIMIT', 'OFFSET', 'JOIN', 'ON', 'AND', 'OR', 'UNION', 'VALUES', 'UPDATE', 'SET', 'INTO'];
@@ -13,8 +13,7 @@ function sqlFormat(src) {
     return lines.map((l) => (/^(AND|OR|ON)\b/.test(l) ? '  ' + l : l)).join('\n');
   }
 
-export const meta = {"id": "sql-formatter", "name": "SQL Formatter", "cat": "developer", "icon": "🗄️", "desc": "Rapikan query SQL."};
-
+export const meta = {"id": "sql-formatter", "name": "SQL Formatter", "cat": "developer", "icon": "🗄️", "desc": "Rapikan query SQL.", "keywords": "sql,query,database"};
 export function render(root) {
 
     const ta = T.ta(8, 'Paste query SQL… misal: select id, nama from users where aktif = 1 order by nama');

@@ -1,7 +1,6 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "arisan", "name": "Arisan Picker", "cat": "indonesia", "icon": "🎰", "desc": "Kocok nama anggota arisan."};
-
+export const meta = {"id": "arisan", "name": "Arisan Picker", "cat": "indonesia", "icon": "🎰", "desc": "Kocok nama anggota arisan.", "keywords": "arisan,kocok,nama,acak"};
 export function render(root) {
 
     const daftar = T.ta(6, 'Satu nama per baris…\ncth:\nBudi\nSari\nAndi');

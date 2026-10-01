@@ -1,4 +1,4 @@
-import { h as T, p2, todayISO } from '../../core.js?v=5.1.0';
+import { h as T, p2, todayISO } from '../../core.js?v=5.2.0';
 
 // Algoritma Kuwaiti (kalender Hijriah tabular/astronomis).
 // Perkiraan — bisa selisih ±1-2 hari dari penetapan rukyat pemerintah.
@@ -35,8 +35,7 @@ const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 // JDN 2460000 = Senin? — hitung weekday dari JDN: (jdn + 1) % 7 → 0=Minggu
 const weekday = (jdn) => HARI[(jdn + 1) % 7];
 
-export const meta = {"id": "hijriah", "name": "Konverter Hijriah", "cat": "indonesia", "icon": "🌙", "desc": "Konversi Masehi ↔ Hijriah dua arah."};
-
+export const meta = {"id": "hijriah", "name": "Konverter Hijriah", "cat": "indonesia", "icon": "🌙", "desc": "Konversi Masehi ↔ Hijriah dua arah.", "keywords": "hijriah,kalender,islam,puasa,lebaran,ramadhan"};
 export function render(root) {
 
     // --- Tab manual ---

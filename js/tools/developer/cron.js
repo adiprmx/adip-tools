@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, kvRows, tabs } from '../../core.js?v=5.1.0';
+import { h as T, utils, errBox, esc, kvRows, tabs } from '../../core.js?v=5.2.0';
 
 const DOW_ID = { 0: 'Minggu', 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 
@@ -51,8 +51,7 @@ function cronToId(cron) {
     return parts.join(', ');
   }
 
-export const meta = {"id": "cron", "name": "Cron Parser & Builder", "cat": "developer", "icon": "⏰", "desc": "Terjemahkan & susun cron expression."};
-
+export const meta = {"id": "cron", "name": "Cron Parser & Builder", "cat": "developer", "icon": "⏰", "desc": "Terjemahkan & susun cron expression.", "keywords": "cron,jadwal,server"};
 export function render(root) {
 
     const pInput = T.input('text', 'misal: */5 * * * *', '*/5 * * * *');

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=5.1.0';
+import { h as T } from '../../core.js?v=5.2.0';
 
 function hex2rgb(hex) {
   let h = String(hex || '').trim().replace('#', '');
@@ -17,8 +17,7 @@ const badge = (ok) => ok
   ? '<b class="ok">✓ Lolos</b>'
   : '<b class="warn">✗ Gagal</b>';
 
-export const meta = {"id": "kontras", "name": "Cek Kontras Warna", "cat": "desain", "icon": "◐", "desc": "Rasio kontras WCAG AA/AAA."};
-
+export const meta = {"id": "kontras", "name": "Cek Kontras Warna", "cat": "desain", "icon": "◐", "desc": "Rasio kontras WCAG AA/AAA.", "keywords": "kontras,wcag,warna,aksesibilitas"};
 export function render(root) {
 
     const c1 = T.input('color', '', '#ffffff');

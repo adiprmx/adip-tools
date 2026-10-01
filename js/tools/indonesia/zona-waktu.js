@@ -1,7 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=5.1.0';
+import { h as T, utils, kv } from '../../core.js?v=5.2.0';
 
-export const meta = {"id": "zona-waktu", "name": "Konverter Zona Waktu", "cat": "indonesia", "icon": "🕐", "desc": "WIB, WITA, WIT + kota dunia."};
-
+export const meta = {"id": "zona-waktu", "name": "Konverter Zona Waktu", "cat": "indonesia", "icon": "🕐", "desc": "WIB, WITA, WIT + kota dunia.", "keywords": "waktu,zona,wib,wita,wit,jam"};
 export function render(root) {
 
     const jam = T.input('time', '', '12:00');

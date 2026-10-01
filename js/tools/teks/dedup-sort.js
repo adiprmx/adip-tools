@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.1.0';
+import { h as T, utils } from '../../core.js?v=5.2.0';
 
 utils.dedupSort = function (text, opts) {
     opts = opts || {};
@@ -16,8 +16,7 @@ utils.dedupSort = function (text, opts) {
     return { text: lines.join('\n'), before, after: lines.length, removed: before - lines.length };
   };
 
-export const meta = {"id": "dedup-sort", "name": "Dedup & Urutkan", "cat": "teks", "icon": "🧲", "desc": "Hapus duplikat & urutkan baris."};
-
+export const meta = {"id": "dedup-sort", "name": "Dedup & Urutkan", "cat": "teks", "icon": "🧲", "desc": "Hapus duplikat & urutkan baris.", "keywords": "duplikat,urut,baris,sort"};
 export function render(root) {
 
       const taIn = T.ta(8, 'Tempel daftar baris di sini…');

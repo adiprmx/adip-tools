@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv } from '../../core.js?v=5.1.0';
+import { h as T, utils, U, kv } from '../../core.js?v=5.2.0';
 
 U.parseDuration = (s) => {
     const parts = String(s).trim().split(':').map((p) => p.trim());
@@ -15,8 +15,7 @@ const fmtDur = (sec) => {
     return h ? h + ':' + mm + ':' + ss : m + ':' + ss;
   };
 
-export const meta = {"id": "playlist-duration", "name": "Durasi Playlist", "cat": "musik", "icon": "📃", "desc": "Total durasi dari daftar lagu."};
-
+export const meta = {"id": "playlist-duration", "name": "Durasi Playlist", "cat": "musik", "icon": "📃", "desc": "Total durasi dari daftar lagu.", "keywords": "playlist,durasi,lagu"};
 export function render(root) {
 
     const src = T.ta(8, 'Judul lagu - 3:45\nLagu kedua - 4:12\nIntro - 1:02:30');
