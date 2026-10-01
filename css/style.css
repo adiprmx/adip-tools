@@ -247,10 +247,12 @@ a { color: inherit; }
   display: flex; flex-direction: column; align-items: center; gap: 7px;
   border-radius: 16px; padding: 15px 6px 13px;
   font-family: inherit; color: var(--txt); cursor: pointer; text-decoration: none;
-  transition: transform 0.12s var(--ease), border-color 0.15s;
+  transition: transform 0.14s var(--ease), border-color 0.15s, box-shadow 0.2s var(--ease);
 }
 .cattile:active { transform: scale(0.94); }
-.cattile:hover { border-color: rgba(255, 255, 255, 0.16); }
+.cattile:hover { border-color: rgba(255, 255, 255, 0.16); transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); }
+.cattile:hover .ci { animation: ci-bounce 0.42s var(--ease); }
+@keyframes ci-bounce { 35% { transform: translateY(-5px) scale(1.1); } 70% { transform: translateY(1px); } }
 .cattile .ci { font-size: 26px; line-height: 1; }
 .cattile .cl { font-size: 12px; font-weight: 700; letter-spacing: -0.005em; text-align: center; line-height: 1.25; }
 .cattile .cn { font-family: var(--font-m); font-size: 11.5px; font-weight: 600; color: var(--faint); }
@@ -275,10 +277,10 @@ a { color: inherit; }
   position: relative; display: flex; flex-direction: column; gap: 10px;
   border-radius: var(--r-card); padding: 14px 13px 13px;
   text-decoration: none; min-height: 128px;
-  transition: transform 0.14s var(--ease), border-color 0.15s;
+  transition: transform 0.14s var(--ease), border-color 0.15s, box-shadow 0.2s var(--ease);
 }
-.tcard:hover { border-color: rgba(255, 255, 255, 0.16); }
-.tcard:active { transform: scale(0.97); }
+.tcard:hover { border-color: rgba(255, 255, 255, 0.16); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.38); }
+.tcard:active { transform: translateY(-1px) scale(0.97); }
 .tcard .tic {
   width: 44px; height: 44px; border-radius: 12px; flex: none;
   background: rgba(255, 255, 255, 0.05); border: 1px solid var(--hair);
@@ -682,4 +684,73 @@ table.inv-item th { font-weight: 700; }
   .rise { opacity: 1; animation: none; }
   .pal, .pal-backdrop, .tabs { animation: none; }
   body::after { display: none; }
+}
+
+/* ============================================================
+   LAPISAN ANIMASI v6.8.1 — hidup, tapi tetap tenang.
+   Prinsip: cepat (<0.4s), halus, sekali jalan. Infinite hanya
+   untuk denyut pelan yang nyaris tak terasa.
+   ============================================================ */
+
+/* stagger masuk kartu di grid (12 pertama, sisanya bareng) */
+.tgrid > .tcard { animation: rise-in 0.34s var(--ease) both; }
+.tgrid > .tcard:nth-child(1) { animation-delay: 0.01s; }
+.tgrid > .tcard:nth-child(2) { animation-delay: 0.04s; }
+.tgrid > .tcard:nth-child(3) { animation-delay: 0.07s; }
+.tgrid > .tcard:nth-child(4) { animation-delay: 0.1s; }
+.tgrid > .tcard:nth-child(5) { animation-delay: 0.13s; }
+.tgrid > .tcard:nth-child(6) { animation-delay: 0.16s; }
+.tgrid > .tcard:nth-child(7) { animation-delay: 0.19s; }
+.tgrid > .tcard:nth-child(8) { animation-delay: 0.22s; }
+.tgrid > .tcard:nth-child(9) { animation-delay: 0.25s; }
+.tgrid > .tcard:nth-child(10) { animation-delay: 0.28s; }
+.tgrid > .tcard:nth-child(11) { animation-delay: 0.31s; }
+.tgrid > .tcard:nth-child(12) { animation-delay: 0.34s; }
+
+/* ubin kategori ikut stagger */
+.catgrid > .cattile { animation: rise-in 0.34s var(--ease) both; }
+.catgrid > .cattile:nth-child(2) { animation-delay: 0.04s; }
+.catgrid > .cattile:nth-child(3) { animation-delay: 0.08s; }
+.catgrid > .cattile:nth-child(4) { animation-delay: 0.12s; }
+.catgrid > .cattile:nth-child(5) { animation-delay: 0.16s; }
+.catgrid > .cattile:nth-child(6) { animation-delay: 0.2s; }
+.catgrid > .cattile:nth-child(7) { animation-delay: 0.24s; }
+.catgrid > .cattile:nth-child(8) { animation-delay: 0.28s; }
+
+/* headline: tanda tanya coral berdenyut pelan */
+.hero h1 .qm { display: inline-block; animation: qm-pulse 2.8s ease-in-out infinite; transform-origin: bottom center; }
+@keyframes qm-pulse { 50% { opacity: 0.62; transform: translateY(-3px) rotate(-4deg); } }
+
+/* titik live di badge jumlah tools */
+.livedot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--acc); margin-right: 7px; vertical-align: 1px;
+  animation: live-ping 2.2s ease-out infinite;
+}
+@keyframes live-ping {
+  0% { box-shadow: 0 0 0 0 rgba(255, 122, 89, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 122, 89, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 122, 89, 0); }
+}
+
+/* logo: goyang dikit pas di-hover */
+.brand:hover .mark { animation: mark-wig 0.45s var(--ease); }
+@keyframes mark-wig { 25% { transform: rotate(-9deg) scale(1.07); } 60% { transform: rotate(6deg); } }
+
+/* ikon halaman tool: pop pas masuk */
+.tool-head .tic { animation: tic-pop 0.38s var(--ease); }
+@keyframes tic-pop { 0% { transform: scale(0.55); opacity: 0; } 60% { transform: scale(1.1); } }
+
+/* skeleton: shimmer yang jalan, bukan kedip */
+.skel { animation: none; }
+.skel i {
+  background: linear-gradient(100deg, var(--surface-2) 30%, rgba(255,255,255,0.06) 50%, var(--surface-2) 70%);
+  background-size: 200% 100%;
+  animation: skel-slide 1.4s linear infinite;
+}
+@keyframes skel-slide { to { background-position: -200% 0; } }
+
+/* hormati yang tidak suka gerak */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

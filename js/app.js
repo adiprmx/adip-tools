@@ -375,7 +375,7 @@ function home() {
     <header class="top">
       <a class="brand" href="#/"><span class="mark" aria-hidden="true">a</span><span class="wm">ADIP <em>Tools</em></span></a>
       <div class="top-right">
-        <span class="topcount"><b>${n}</b> tools</span>
+        <span class="topcount"><span class="livedot" aria-hidden="true"></span><b>${n}</b> tools</span>
         <button class="icobtn" id="palBtn" aria-label="Cari cepat (Ctrl+K)">⌕</button>
       </div>
     </header>
