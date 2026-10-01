@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.4.0';
+import { h as T, utils, errBox, kv } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "gempa-bmkg", "name": "Gempa BMKG Terkini", "cat": "liveapi", "icon": "🌊", "desc": "Info gempa bumi terbaru langsung dari BMKG.", "keywords": "gempa,bmkg,tsunami,lindu,magnitudo,gempa bumi,terkini"};
 export function render(root) {

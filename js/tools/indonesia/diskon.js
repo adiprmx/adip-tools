@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv, money } from '../../core.js?v=6.4.0';
+import { h as T, utils, U, kv, money } from '../../core.js?v=6.5.0';
 
 U.diskonBertingkat = (harga, arrDiskon) => {
     let sisa = +harga || 0;

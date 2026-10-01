@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.4.0';
+import { h as T, utils } from '../../core.js?v=6.5.0';
 
 export const meta = {"id":"kuis-ibukota","name":"Kuis Ibukota","cat":"fun","icon":"🗺️","desc":"Kuis 10 soal acak: ibukota 38 provinsi Indonesia.","keywords":"ibukota,provinsi,indonesia,kuis,geografi,peta"};
 
@@ -82,6 +82,9 @@ export function render(root) {
     const q = quiz.list[quiz.idx];
     const ok = btn.textContent === q.kota;
     if (ok) quiz.score++;
+    // status diperbarui langsung biar skor tidak tampak reset
+    const hint = box.querySelector('.hint');
+    if (hint) hint.innerHTML = 'Soal ' + (quiz.idx + 1) + ' dari 10 &bull; Skor: ' + quiz.score;
     btns.forEach((b) => {
       b.disabled = true;
       if (b.textContent === q.kota) { b.classList.add('primary'); }

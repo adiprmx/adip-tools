@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.4.0';
+import { h as T, utils } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "chord-progression", "name": "Chord Progression", "cat": "musik", "icon": "🎼", "desc": "Progresi akor sesuai nada dasar & mood, bisa dibunyikan.", "keywords": "chord,akor,progresi,musik,gitar,piano,nada"};
 export function render(root) {

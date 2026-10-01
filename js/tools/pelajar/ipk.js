@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.4.0';
+import { h as T, utils } from '../../core.js?v=6.5.0';
 
 utils.ipk = function (entries) {
     let bobotSks = 0, sks = 0;

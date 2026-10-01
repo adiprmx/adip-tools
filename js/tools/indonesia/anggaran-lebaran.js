@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.4.0';
+import { h as T, utils, kv } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "anggaran-lebaran", "name": "Anggaran Lebaran", "cat": "indonesia", "icon": "🕌", "desc": "Rencana biaya mudik: transport, THR, parcel, zakat — plus tips hemat.", "keywords": "lebaran,idul fitri,mudik,thr,zakat fitrah,parcel,anggaran"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.4.0';
+import { h as T, utils } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "🍳", "desc": "Konversi sendok, cup, gram, ml.", "keywords": "masak,takaran,sendok,cup,gram,resep,dapur"};
 export function render(root) {

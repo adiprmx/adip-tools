@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.4.0';
+import { h as T, utils, kv } from '../../core.js?v=6.5.0';
 
 const DEFAULT_POS = [
   ['Katering', 40, 'Porsi paling gede: makanan tamu + keluarga.'],

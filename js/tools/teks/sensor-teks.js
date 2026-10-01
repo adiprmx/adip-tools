@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.4.0';
+import { h as T, utils } from '../../core.js?v=6.5.0';
 
 utils.sensorText = function (text, words, mask, autoPhone, autoEmail) {
     let s = String(text == null ? '' : text);

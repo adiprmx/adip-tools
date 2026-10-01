@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.4.0';
+import { h as T, utils, esc } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "typing-test", "name": "Tes Mengetik", "cat": "pelajar", "icon": "🚀", "desc": "Kecepatan mengetik Indonesia.", "keywords": "mengetik,kecepatan,keyboard,tes"};
 export function render(root) {

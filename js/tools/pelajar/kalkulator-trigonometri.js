@@ -1,4 +1,4 @@
-import { h as T, kvRows, tabs } from '../../core.js?v=6.4.0';
+import { h as T, kvRows, tabs } from '../../core.js?v=6.5.0';
 
 export const meta = {"id":"kalkulator-trigonometri","name":"Kalkulator Trigonometri","cat":"pelajar","icon":"📐","desc":"Sin cos tan (& kawan-kawan) dari derajat, atau cari sudutnya dari nilai.","keywords":"trigonometri,sin,cos,tan,sudut,derajat,arcsin,arccos,arctan,cosec,sec,cotan"};
 

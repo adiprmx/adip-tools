@@ -1,4 +1,4 @@
-import { h as T, num, p2 } from '../../core.js?v=6.4.0';
+import { h as T, num, p2 } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "timer-masak", "name": "Timer Masak", "cat": "sehari", "icon": "🍜", "desc": "Timer masak dengan preset telur, mie, nasi — bunyi saat matang.", "keywords": "timer,masak,telur,mie,nasi,countdown,pengingat"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv, rp, num, todayISO } from '../../core.js?v=6.4.0';
+import { h as T, kv, rp, num, todayISO } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "simulasi-franchise", "name": "Simulasi Franchise", "cat": "bisnis", "icon": "🏪", "desc": "Hitung BEP franchise: biaya awal, royalti, omzet → balik modal berapa bulan?", "keywords": "franchise,waralaba,bep,balik modal,royalti,omzet,bisnis"};
 

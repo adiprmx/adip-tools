@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.4.0';
+import { h as T, kv } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "break-even-point", "name": "Break-Even Point", "cat": "bisnis", "icon": "⚖️", "desc": "Jual berapa unit biar modal balik? Cari titik impasmu.", "keywords": "bep,break even,titik impas,modal balik,unit,usaha"};
 export function render(root) {

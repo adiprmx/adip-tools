@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.4.0';
+import { h as T, utils } from '../../core.js?v=6.5.0';
 
 export const meta = {"id": "fee-marketplace", "name": "Fee Admin Marketplace", "cat": "indonesia", "icon": "🛒", "desc": "Bandingin fee admin Shopee, Tokopedia & TikTok Shop.", "keywords": "fee,admin,marketplace,shopee,tokopedia,tiktok,komisi,seller"};
 export function render(root) {

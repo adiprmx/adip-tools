@@ -1,8 +1,8 @@
-/* ADIP Tools v6.4.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.5.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.4.0';
+export const VERSION = '6.5.0';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -203,4 +203,24 @@ export const manifest = [
   {"id":"kalkulator-capo","name":"Kalkulator Capo","cat":"musik","icon":"🎸","desc":"Bentuk jari + capo = nada apa yang terdengar?","keywords":"capo,gitar,akor,chord,transpose,fret","file":"tools/musik/kalkulator-capo.js"},
   {"id":"skala-musik","name":"Skala Musik","cat":"musik","icon":"🎹","desc":"Lihat & dengarkan nada-nada dalam tiap skala.","keywords":"skala,scale,mayor,minor,pentatonik,blues,nada,musik","file":"tools/musik/skala-musik.js"},
   {"id":"latihan-interval","name":"Latihan Interval","cat":"musik","icon":"👂","desc":"Asah kuping: tebak jarak 2 nada dalam 10 ronde.","keywords":"interval,ear training,telinga,nada,musik,latihan","file":"tools/musik/latihan-interval.js"},
+  {"id":"efek-kartun","name":"Efek Kartun","cat":"gambar","icon":"🎨","desc":"Ubah foto jadi efek kartun/poster.","keywords":"kartun,poster,foto,efek,filter","file":"tools/gambar/efek-kartun.js"},
+  {"id":"pixel-art","name":"Pixel Art","cat":"gambar","icon":"👾","desc":"Ubah foto jadi pixel art retro.","keywords":"pixel,pixelate,retro,foto,efek","file":"tools/gambar/pixel-art.js"},
+  {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop foto sesuai rasio pas foto resmi.","keywords":"pas foto,crop,ktp,lamaran,rasio","file":"tools/gambar/crop-pas-foto.js"},
+  {"id":"teks-di-foto","name":"Teks di Foto","cat":"gambar","icon":"🔤","desc":"Tambahkan tulisan ke foto.","keywords":"teks,foto,caption,meme,tulisan","file":"tools/gambar/teks-di-foto.js"},
+  {"id":"sandikan-teks","name":"Sandi Teks","cat":"teks","icon":"🔏","desc":"Enkripsi teks dengan sandi Caesar & Vigenère.","keywords":"sandi,caesar,vigenere,enkripsi,rahasia","file":"tools/teks/sandikan-teks.js"},
+  {"id":"paduan-font","name":"Paduan Font","cat":"desain","icon":"🔤","desc":"12 pasangan font Google Fonts siap pakai.","keywords":"font,pairing,tipografi,google fonts,desain","file":"tools/desain/paduan-font.js"},
+  {"id":"radius-playground","name":"Radius Playground","cat":"desain","icon":"⬛","desc":"Atur border-radius tiap sudut secara visual.","keywords":"border,radius,sudut,css,desain","file":"tools/desain/radius-playground.js"},
+  {"id":"skala-tipografi","name":"Skala Tipografi","cat":"desain","icon":"🔠","desc":"Skala ukuran font harmonis h1–h6.","keywords":"tipografi,skala,font,h1,css","file":"tools/desain/skala-tipografi.js"},
+  {"id":"estimasi-storage","name":"Estimasi Storage","cat":"developer","icon":"💽","desc":"Hitung kebutuhan penyimpanan file.","keywords":"storage,gb,mb,penyimpanan,ukuran","file":"tools/developer/estimasi-storage.js"},
+  {"id":"analisis-url","name":"Analisis URL","cat":"keamanan","icon":"🔗","desc":"Bedah URL & deteksi pola mencurigakan.","keywords":"url,phising,aman,link,analisis","file":"tools/keamanan/analisis-url.js"},
+  {"id":"catatan-terkunci","name":"Catatan Terkunci","cat":"keamanan","icon":"🔐","desc":"Catatan terenkripsi AES dengan password.","keywords":"catatan,enkripsi,aes,password,rahasia","file":"tools/keamanan/catatan-terkunci.js"},
+  {"id":"ukuran-sepatu","name":"Ukuran Sepatu","cat":"converter","icon":"👟","desc":"Konversi ukuran sepatu US/UK/EU/JP.","keywords":"sepatu,ukuran,size,us,uk,eu","file":"tools/converter/ukuran-sepatu.js"},
+  {"id":"ukuran-baju","name":"Ukuran Baju","cat":"converter","icon":"👕","desc":"Konversi ukuran baju internasional.","keywords":"baju,ukuran,size,pakaian","file":"tools/converter/ukuran-baju.js"},
+  {"id":"ukuran-cincin","name":"Ukuran Cincin","cat":"converter","icon":"💍","desc":"Konversi ukuran cincin internasional.","keywords":"cincin,ukuran,ring,size","file":"tools/converter/ukuran-cincin.js"},
+  {"id":"konversi-suhu-oven","name":"Suhu Oven","cat":"converter","icon":"🔥","desc":"Konversi suhu oven °C/°F/Gas Mark.","keywords":"oven,suhu,gas mark,masak,resep","file":"tools/converter/konversi-suhu-oven.js"},
+  {"id":"jam-dunia","name":"Jam Dunia","cat":"liveapi","icon":"🌍","desc":"Jam realtime 8 kota dunia.","keywords":"jam,dunia,timezone,waktu,kota","file":"tools/liveapi/jam-dunia.js"},
+  {"id":"cek-khodam","name":"Cek Khodam","cat":"fun","icon":"👻","desc":"Cek khodam penjagamu (hiburan!).","keywords":"khodam,ramalan,fun,lucu,hiburan","file":"tools/fun/cek-khodam.js"},
+  {"id":"nama-panggung","name":"Nama Panggung","cat":"fun","icon":"🌟","desc":"Generator nama panggung dari namamu.","keywords":"nama,panggung,artis,musisi,brand","file":"tools/fun/nama-panggung.js"},
+  {"id":"kuis-emoji-hewan","name":"Kuis Emoji Hewan","cat":"fun","icon":"🐾","desc":"Tebak hewan dari deretan emoji.","keywords":"kuis,emoji,hewan,tebak,game","file":"tools/fun/kuis-emoji-hewan.js"},
+  {"id":"wishlist","name":"Wishlist","cat":"produktivitas","icon":"🎁","desc":"Daftar barang impian + progress nabung.","keywords":"wishlist,impian,nabung,target,belanja","file":"tools/produktivitas/wishlist.js"},
 ];
