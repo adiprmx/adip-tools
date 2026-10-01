@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=4.2.0';
+import { h as T, utils, esc } from '../../core.js?v=4.3.0';
 
 export const meta = {"id": "og-preview", "name": "Open Graph Preview", "cat": "developer", "icon": "👁️", "desc": "Preview tampilan link di medsos."};
 

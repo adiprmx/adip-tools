@@ -1,4 +1,4 @@
-import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=4.2.0';
+import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=4.3.0';
 
 export const meta = {"id": "couple-days", "name": "Hari Jadian", "cat": "fun", "icon": "💑", "desc": "Sudah berapa hari bareng?"};
 

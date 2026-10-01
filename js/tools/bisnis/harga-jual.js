@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=4.2.0';
+import { h as T, utils } from '../../core.js?v=4.3.0';
 
 utils.hargaJual = function (modal, marginPct) {
     modal = Number(modal); marginPct = Number(marginPct);

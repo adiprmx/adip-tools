@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=4.2.0';
+import { h as T, utils } from '../../core.js?v=4.3.0';
 
 (function () {
     const K = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];

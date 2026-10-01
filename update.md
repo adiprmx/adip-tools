@@ -1,3 +1,54 @@
+# Update — 1 Okt 2026: 10 Tools Baru (v4.3.0)
+
+## Ringkasan
+100 → 110 tools. Sepuluh tool baru mengikuti kontrak kerapian penuh: satu file
+= satu tool (`js/tools/<kategori>/<id>.js`), 1 baris manifest per tool (sorted
+cat,id seperti output generator), `scripts/check-tools.js` lolos. Tidak ada
+perubahan `core.js`/`app.js` selain bump versi. Semua tool 100% client-side,
+tanpa backend/API key.
+
+## Tool baru
+- **indonesia/pph21** 🧾 Kalkulator PPh 21 — bruto/bulan + iuran + status PTKP
+  (12 pilihan TK/K/KI), tarif progresif Pasal 17 (5/15/25/30/35%), biaya jabatan
+  5% (maks 500rb/bln), PKP dibulatkan ke bawah ribuan. Output PPh/bln & thn,
+  take-home pay, rincian per lapisan + catatan TER (PP 58/2023).
+- **indonesia/plat-nomor** 🚗 Cek Asal Plat Nomor — 52 kode plat Indonesia
+  ter-embed (wilayah + contoh daerah), input bebas ("B 1234 XYZ" → B),
+  daftar semua kode di `<details>`.
+- **indonesia/hijriah** 🌙 Konverter Hijriah — Masehi ↔ Hijriah dua arah,
+  algoritma Kuwaiti, nama bulan & hari Indonesia, disclaimer ±1–2 hari.
+- **bisnis/kpr** 🏠 Simulasi KPR — harga, DP, tenor, bunga; cicilan anuitas,
+  total bunga, tabel angsuran per tahun.
+- **gambar/meme** 😂 Meme Generator — upload foto / background warna, teks
+  atas-bawah gaya Impact + outline, unduh PNG via canvas.
+- **gambar/blur-foto** 🫣 Blur Foto — upload, seret area di foto (pointer events,
+  mobile-friendly), intensitas pixel, blur seluruh foto, undo, unduh PNG.
+- **keamanan/passphrase** 🔑 Passphrase Indonesia — wordlist 324 kata unik
+  ter-embed, crypto.getRandomValues, opsi jumlah kata/pemisah/kapital/angka/
+  simbol, estimasi entropi + label kekuatan.
+- **desain/clamp** 📏 CSS Clamp Generator — output `clamp()` versi px & rem +
+  tombol salin, preview live dengan slider simulasi lebar layar.
+- **desain/kontras** ◐ Cek Kontras Warna — rasio WCAG dari 2 warna (color picker
+  + hex), badge lolos/gagal AA/AAA (normal & besar), preview dua arah, tukar.
+- **converter/csv-json** 🔄 CSV ↔ JSON — parser CSV benar (quote, delimiter
+  `,`/`;` auto-deteksi ala Excel Indonesia), deteksi arah otomatis, upload file,
+  salin/unduh hasil.
+
+## Yang berubah
+- `js/manifest.js`: 110 entri, `VERSION` 4.2.0 → 4.3.0.
+- Cache-buster `?v=4.2.0` → `?v=4.3.0` di 100 file tool lama + `js/app.js`
+  (2 import) + `index.html` (`js/app.js`); `css/style.css` tetap `?v=4.0.0`.
+- `scripts/split-tools.py`: `VERSION` → '4.3.0' (konsistensi regenerasi).
+
+## Verifikasi
+- `scripts/check-tools.js`: 110/110 tool ter-import, semua cek konsistensi lolos.
+- Algoritma Hijriah diuji di Node vs tanggal known: 1 Muh 1447 → 27 Jun 2026,
+  1 Ram 1447 → 18 Feb 2026, 17 Agu 1945 → 8 Ramadan 1364H, round-trip OK.
+- Logika PPh 21 & KPR dihitung manual spot-check (12jt/bln TK/0 → PPh 550rb/bln).
+- Parser CSV di-trace untuk quote/`,` di dalam field/quote ganda/trailing newline.
+
+---
+
 # Update — 1 Okt 2026: Migrasi ES Modules (Fase 1)
 
 ## Ringkasan

@@ -1,17 +1,19 @@
-/* ADIP Tools v4.2.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v4.3.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/split-tools.py dari folder tools per kategori.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '4.2.0';
+export const VERSION = '4.3.0';
 export const manifest = [
   {"id": "banding-harga", "name": "Perbandingan Harga", "cat": "bisnis", "icon": "⚖️", "desc": "Mana lebih hemat per unit?", "file": "tools/bisnis/banding-harga.js"},
   {"id": "cat-tembok", "name": "Kalkulator Cat", "cat": "bisnis", "icon": "🪣", "desc": "Kebutuhan cat dari luas ruangan.", "file": "tools/bisnis/cat-tembok.js"},
   {"id": "harga-jual", "name": "Kalkulator Harga Jual", "cat": "bisnis", "icon": "💰", "desc": "Modal + margin jadi harga jual.", "file": "tools/bisnis/harga-jual.js"},
   {"id": "invoice", "name": "Invoice Generator", "cat": "bisnis", "icon": "📑", "desc": "Bikin invoice rapi siap cetak.", "file": "tools/bisnis/invoice.js"},
+  {"id": "kpr", "name": "Simulasi KPR", "cat": "bisnis", "icon": "🏠", "desc": "Simulasi cicilan KPR + tabel angsuran.", "file": "tools/bisnis/kpr.js"},
   {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Encode & decode Base64, termasuk varian URL-safe.", "file": "tools/converter/base64.js"},
   {"id": "case-converter", "name": "Case Converter", "cat": "converter", "icon": "✏️", "desc": "camelCase, snake_case, kebab-case, Title Case, dll.", "file": "tools/converter/case-converter.js"},
   {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL + preview.", "file": "tools/converter/color-converter.js"},
   {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "U0001f373", "desc": "Konversi sendok, cup, gram, ml.", "file": "tools/converter/cooking-converter.js"},
+  {"id": "csv-json", "name": "CSV ↔ JSON", "cat": "converter", "icon": "🔄", "desc": "Konversi CSV ke JSON dan sebaliknya.", "file": "tools/converter/csv-json.js"},
   {"id": "image-base64", "name": "Gambar ke Base64", "cat": "converter", "icon": "🖼️", "desc": "Gambar jadi string Base64 siap embed.", "file": "tools/converter/image-base64.js"},
   {"id": "json-yaml", "name": "JSON ↔ YAML", "cat": "converter", "icon": "⇄", "desc": "Konversi JSON ke YAML dan sebaliknya.", "file": "tools/converter/json-yaml.js"},
   {"id": "morse", "name": "Sandi Morse", "cat": "converter", "icon": "📻", "desc": "Teks ↔ sandi Morse + bunyi.", "file": "tools/converter/morse.js"},
@@ -23,8 +25,10 @@ export const manifest = [
   {"id": "url-encoder", "name": "URL Encoder/Decoder", "cat": "converter", "icon": "🔗", "desc": "Encode/decode URL & komponennya.", "file": "tools/converter/url-encoder.js"},
   {"id": "barcode", "name": "vCard QR & Barcode", "cat": "desain", "icon": "🧾", "desc": "QR kontak vCard & barcode produk.", "file": "tools/desain/barcode.js"},
   {"id": "boxshadow", "name": "Box-Shadow Generator", "cat": "desain", "icon": "🌓", "desc": "Atur bayangan visual + copy CSS.", "file": "tools/desain/boxshadow.js"},
+  {"id": "clamp", "name": "CSS Clamp Generator", "cat": "desain", "icon": "📏", "desc": "Font responsif fluid dengan clamp().", "file": "tools/desain/clamp.js"},
   {"id": "favicon", "name": "Favicon Generator", "cat": "desain", "icon": "⭐", "desc": "Bikin favicon dari emoji/teks.", "file": "tools/desain/favicon.js"},
   {"id": "gradient", "name": "Gradient Generator", "cat": "desain", "icon": "🌈", "desc": "Bikin gradient CSS + preview.", "file": "tools/desain/gradient.js"},
+  {"id": "kontras", "name": "Cek Kontras Warna", "cat": "desain", "icon": "◐", "desc": "Rasio kontras WCAG AA/AAA.", "file": "tools/desain/kontras.js"},
   {"id": "palette", "name": "Color Palette Generator", "cat": "desain", "icon": "🎨", "desc": "Palet warna harmonis sekali klik.", "file": "tools/desain/palette.js"},
   {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "⬛", "desc": "QR Code teks, URL, & WiFi.", "file": "tools/desain/qr-generator.js"},
   {"id": "chmod", "name": "Kalkulator Chmod", "cat": "developer", "icon": "🔒", "desc": "Permission oktal ↔ simbolik.", "file": "tools/developer/chmod.js"},
@@ -50,9 +54,11 @@ export const manifest = [
   {"id": "reaction", "name": "Tes Refleks", "cat": "fun", "icon": "⚡", "desc": "Ukur kecepatan refleks.", "file": "tools/fun/reaction.js"},
   {"id": "spinwheel", "name": "Roda Putar", "cat": "fun", "icon": "🎡", "desc": "Spin wheel visual.", "file": "tools/fun/spinwheel.js"},
   {"id": "aspect-ratio", "name": "Kalkulator Rasio", "cat": "gambar", "icon": "📐", "desc": "Rasio aspek & resolusi.", "file": "tools/gambar/aspect-ratio.js"},
+  {"id": "blur-foto", "name": "Blur Foto (Sensor)", "cat": "gambar", "icon": "🫣", "desc": "Sensor area foto dengan blur pixel.", "file": "tools/gambar/blur-foto.js"},
   {"id": "exif-clean", "name": "Hapus EXIF", "cat": "gambar", "icon": "🧹", "desc": "Bersihkan metadata sebelum dishare.", "file": "tools/gambar/exif-clean.js"},
   {"id": "image-compress", "name": "Kompres Gambar", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran foto langsung di HP.", "file": "tools/gambar/image-compress.js"},
   {"id": "image-convert", "name": "Convert Gambar", "cat": "gambar", "icon": "🔁", "desc": "Convert WebP/JPG/PNG di browser.", "file": "tools/gambar/image-convert.js"},
+  {"id": "meme", "name": "Meme Generator", "cat": "gambar", "icon": "😂", "desc": "Bikin meme teks atas-bawah + unduh PNG.", "file": "tools/gambar/meme.js"},
   {"id": "yt-thumbnail", "name": "Thumbnail YouTube", "cat": "gambar", "icon": "📺", "desc": "Download thumbnail YouTube dari URL.", "file": "tools/gambar/yt-thumbnail.js"},
   {"id": "arisan", "name": "Arisan Picker", "cat": "indonesia", "icon": "🎰", "desc": "Kocok nama anggota arisan.", "file": "tools/indonesia/arisan.js"},
   {"id": "bunga-majemuk", "name": "Bunga Majemuk", "cat": "indonesia", "icon": "📈", "desc": "Simulasi compound interest.", "file": "tools/indonesia/bunga-majemuk.js"},
@@ -60,7 +66,10 @@ export const manifest = [
   {"id": "countdown", "name": "Countdown Acara", "cat": "indonesia", "icon": "🎉", "desc": "Hitung mundur ke hari penting.", "file": "tools/indonesia/countdown.js"},
   {"id": "diskon", "name": "Diskon Bertingkat", "cat": "indonesia", "icon": "💸", "desc": "Hitung diskon berlapis yang benar.", "file": "tools/indonesia/diskon.js"},
   {"id": "format-hp", "name": "Format Nomor HP", "cat": "indonesia", "icon": "📱", "desc": "08xx ↔ +62 ↔ 62xx.", "file": "tools/indonesia/format-hp.js"},
+  {"id": "hijriah", "name": "Konverter Hijriah", "cat": "indonesia", "icon": "🌙", "desc": "Konversi Masehi ↔ Hijriah dua arah.", "file": "tools/indonesia/hijriah.js"},
   {"id": "patungan", "name": "Kalkulator Patungan", "cat": "indonesia", "icon": "🧾", "desc": "Split bill + pajak & service.", "file": "tools/indonesia/patungan.js"},
+  {"id": "plat-nomor", "name": "Cek Asal Plat Nomor", "cat": "indonesia", "icon": "🚗", "desc": "Asal daerah dari kode plat kendaraan.", "file": "tools/indonesia/plat-nomor.js"},
+  {"id": "pph21", "name": "Kalkulator PPh 21", "cat": "indonesia", "icon": "🧾", "desc": "Hitung PPh 21 karyawan + PTKP.", "file": "tools/indonesia/pph21.js"},
   {"id": "thr", "name": "Kalkulator THR", "cat": "indonesia", "icon": "🧧", "desc": "THR proporsional sesuai masa kerja.", "file": "tools/indonesia/thr.js"},
   {"id": "weton", "name": "Weton Jawa", "cat": "indonesia", "icon": "🗓️", "desc": "Hitung weton & pasaran dari tanggal lahir.", "file": "tools/indonesia/weton.js"},
   {"id": "zakat", "name": "Kalkulator Zakat", "cat": "indonesia", "icon": "🤲", "desc": "Zakat maal & fitrah.", "file": "tools/indonesia/zakat.js"},
@@ -68,6 +77,7 @@ export const manifest = [
   {"id": "bcrypt", "name": "Bcrypt Hasher", "cat": "keamanan", "icon": "🔐", "desc": "Hash password ala bcrypt + verifikasi.", "file": "tools/keamanan/bcrypt.js"},
   {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks ke MD5, SHA-1, SHA-256, SHA-512.", "file": "tools/keamanan/hash-generator.js"},
   {"id": "hmac-generator", "name": "HMAC Generator", "cat": "keamanan", "icon": "🔏", "desc": "Buat HMAC-SHA256/SHA-512 dari teks + secret key.", "file": "tools/keamanan/hmac-generator.js"},
+  {"id": "passphrase", "name": "Passphrase Indonesia", "cat": "keamanan", "icon": "🔑", "desc": "Passphrase kata Indonesia yang kuat.", "file": "tools/keamanan/passphrase.js"},
   {"id": "password-generator", "name": "Password Generator", "cat": "keamanan", "icon": "🔑", "desc": "Buat password kuat yang susah ditebak.", "file": "tools/keamanan/password-generator.js"},
   {"id": "password-strength", "name": "Cek Kekuatan Password", "cat": "keamanan", "icon": "🛡️", "desc": "Ukur seberapa kuat password kamu.", "file": "tools/keamanan/password-strength.js"},
   {"id": "totp-generator", "name": "OTP Authenticator", "cat": "keamanan", "icon": "⏱️", "desc": "Kode OTP 30-detik dari secret (kayak Google Authenticator).", "file": "tools/keamanan/totp-generator.js"},

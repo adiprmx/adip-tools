@@ -1,6 +1,6 @@
 /* ADIP Tools v4: premium overhaul — calm luxury, command palette, quick cards. */
-import { h as T, cats, tools, leaveCbs } from './core.js?v=4.2.0';
-import { manifest, VERSION } from './manifest.js?v=4.2.0';
+import { h as T, cats, tools, leaveCbs } from './core.js?v=4.3.0';
+import { manifest, VERSION } from './manifest.js?v=4.3.0';
 // FASE 2: code splitting — metadata 100 tools dimuat ringan,
 // kode tiap tool di-import on-demand saat dibuka (lihat loadToolRender).
 for (const m of manifest) tools.push({ ...m, render: null });

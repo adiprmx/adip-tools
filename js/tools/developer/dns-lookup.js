@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=4.2.0';
+import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=4.3.0';
 
 export const meta = {"id": "dns-lookup", "name": "DNS Lookup", "cat": "developer", "icon": "📡", "desc": "Lookup DNS via Google DNS-over-HTTPS."};
 

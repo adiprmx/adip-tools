@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=4.2.0';
+import { h as T, utils, esc } from '../../core.js?v=4.3.0';
 
 export const meta = {"id": "citation", "name": "Citation Generator", "cat": "pelajar", "icon": "📚", "desc": "Daftar pustaka APA & MLA."};
 

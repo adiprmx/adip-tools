@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=4.2.0';
+import { h as T, utils, esc } from '../../core.js?v=4.3.0';
 
 export const meta = {"id": "baby-name", "name": "Nama Bayi", "cat": "fun", "icon": "👶", "desc": "Nama bayi Indonesia + arti."};
 

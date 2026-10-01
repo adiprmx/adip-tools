@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=4.2.0';
+import { h as T, utils, errBox, esc } from '../../core.js?v=4.3.0';
 
 function chmodToSym(oct) {
     const s = String(oct == null ? '' : oct).trim();

@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=4.2.0';
+import { h as T, utils, esc } from '../../core.js?v=4.3.0';
 
 utils.weatherId = function (code) {
     const m = {
