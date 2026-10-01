@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=4.3.0';
+import { h as T, utils, esc } from '../../core.js?v=5.0.0';
 
 export const meta = {"id": "typing-test", "name": "Tes Mengetik", "cat": "pelajar", "icon": "🚀", "desc": "Kecepatan mengetik Indonesia."};
 

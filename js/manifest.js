@@ -1,8 +1,8 @@
-/* ADIP Tools v4.3.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v5.0.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/split-tools.py dari folder tools per kategori.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '4.3.0';
+export const VERSION = '5.0.0';
 export const manifest = [
   {"id": "banding-harga", "name": "Perbandingan Harga", "cat": "bisnis", "icon": "⚖️", "desc": "Mana lebih hemat per unit?", "file": "tools/bisnis/banding-harga.js"},
   {"id": "cat-tembok", "name": "Kalkulator Cat", "cat": "bisnis", "icon": "🪣", "desc": "Kebutuhan cat dari luas ruangan.", "file": "tools/bisnis/cat-tembok.js"},

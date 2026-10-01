@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=4.3.0';
+import { h as T, utils } from '../../core.js?v=5.0.0';
 
 utils.dedupSort = function (text, opts) {
     opts = opts || {};

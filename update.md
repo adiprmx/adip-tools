@@ -1,3 +1,32 @@
+# Update — 1 Okt 2026: Redesign Total "Liquid Minimal" (v5.0.0)
+
+## Ringkasan
+Redesign total UI/UX atas perintah owner: minimalism, liquid glass, modern,
+beranimasi, anti AI slop. 110 tools, logika tool tidak disentuh.
+
+## Yang berubah
+- Font: Space Grotesk → Plus Jakarta Sans (self-host woff2 variable 200-800,
+  `css/fonts/plus-jakarta-sans.woff2`; file lama dihapus).
+- Tema: dark only, base #09090b (zinc-950, bukan pure black). Satu aksen mint
+  #34d399, dikunci di seluruh halaman (mark, focus ring, tombol primary,
+  tab kategori aktif, bintang favorit).
+- Liquid glass (aproksimasi web: backdrop-filter + inner highlight) hanya di
+  elemen mengambang: topbar sticky, command palette, dock bawah, toast.
+  Fallback solid via `prefers-reduced-transparency`.
+- Shape lock: kartu 20px, permukaan 16px, kontrol (tombol/chip/tab) pill.
+- Hero compact left-aligned: "Butuh apa?" dipertahankan, sub ≤20 kata.
+- Kategori: pill tabs (ganti kartu 132px); nomor urut section (01, 02…)
+  dihapus.
+- Direktori: scroll-reveal stagger via IntersectionObserver (tanpa scroll
+  listener), hover angkat ikon + border aksen.
+- Copy audit: "100 tools" → "110 tools" di semua string; footer dipangkas.
+- `js/core.js`: hanya penyesuaian warna inline helper (preHtml, kvRows);
+  API tidak berubah.
+- Versi 4.3.0 → 5.0.0 di semua tempat (manifest, split-tools.py, 110 file
+  tool, app.js imports, index.html css+js).
+
+---
+
 # Update — 1 Okt 2026: 10 Tools Baru (v4.3.0)
 
 ## Ringkasan

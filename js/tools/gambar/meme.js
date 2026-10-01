@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=4.3.0';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=5.0.0';
 
 export const meta = {"id": "meme", "name": "Meme Generator", "cat": "gambar", "icon": "😂", "desc": "Bikin meme teks atas-bawah + unduh PNG."};
 

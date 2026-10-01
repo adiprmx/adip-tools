@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=4.3.0';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=5.0.0';
 
 export const meta = {"id": "gradient", "name": "Gradient Generator", "cat": "desain", "icon": "🌈", "desc": "Bikin gradient CSS + preview."};
 

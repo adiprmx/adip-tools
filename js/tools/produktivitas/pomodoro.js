@@ -1,4 +1,4 @@
-import { h as T, utils, p2 } from '../../core.js?v=4.3.0';
+import { h as T, utils, p2 } from '../../core.js?v=5.0.0';
 
 export const meta = {"id": "pomodoro", "name": "Pomodoro Timer", "cat": "produktivitas", "icon": "🍅", "desc": "Timer fokus 25/5."};
 

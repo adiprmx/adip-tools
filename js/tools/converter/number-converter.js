@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=4.3.0';
+import { h as T, utils } from '../../core.js?v=5.0.0';
 
 (function () {
     const TBL = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];

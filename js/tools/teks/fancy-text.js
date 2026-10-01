@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=4.3.0';
+import { h as T, utils } from '../../core.js?v=5.0.0';
 
 const FANCY_STYLES = ['bold', 'italic', 'mono', 'script', 'struck', 'circled', 'fullwidth'];
 

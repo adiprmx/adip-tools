@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=4.3.0';
+import { h as T } from '../../core.js?v=5.0.0';
 
 export const meta = {"id": "clamp", "name": "CSS Clamp Generator", "cat": "desain", "icon": "📏", "desc": "Font responsif fluid dengan clamp()."};
 

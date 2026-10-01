@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=4.3.0';
+import { h as T, utils } from '../../core.js?v=5.0.0';
 
 function hslToHex(h, s, l) {
     h = ((h % 360) + 360) % 360; s /= 100; l /= 100;

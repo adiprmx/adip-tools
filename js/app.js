@@ -1,7 +1,8 @@
-/* ADIP Tools v4: premium overhaul — calm luxury, command palette, quick cards. */
-import { h as T, cats, tools, leaveCbs } from './core.js?v=4.3.0';
-import { manifest, VERSION } from './manifest.js?v=4.3.0';
-// FASE 2: code splitting — metadata 100 tools dimuat ringan,
+/* ADIP Tools v5: "Liquid Minimal" — redesign total. Dark zinc-950,
+   satu aksen mint, liquid glass di elemen mengambang, Plus Jakarta Sans. */
+import { h as T, cats, tools, leaveCbs } from './core.js?v=5.0.0';
+import { manifest, VERSION } from './manifest.js?v=5.0.0';
+// FASE 2: code splitting — metadata 110 tools dimuat ringan,
 // kode tiap tool di-import on-demand saat dibuka (lihat loadToolRender).
 for (const m of manifest) tools.push({ ...m, render: null });
 
@@ -232,7 +233,7 @@ async function loadToolRender(t) {
       // query kosong: tawarkan "terakhir dibuka" sebagai jalan pintas
       palItems = getRecent().map((id) => tools.find((x) => x.id === id)).filter(Boolean).slice(0, 5);
       if (!palItems.length) {
-        list.appendChild(T.el('<div class="pal-empty">Ketik untuk mencari dari 100 tools.<br>Coba "password", "qr", atau "kalkulator".</div>'));
+        list.appendChild(T.el('<div class="pal-empty">Ketik untuk mencari dari 110 tools.<br>Coba "password", "qr", atau "kalkulator".</div>'));
         palIdx = -1;
         return;
       }
@@ -346,10 +347,33 @@ async function loadToolRender(t) {
     });
   }
 
+  // scroll reveal: .rv -> .in saat masuk viewport (hanya transform/opacity).
+  // Tanpa window scroll listener; prefers-reduced-motion ditangani CSS.
+  let rvObs = null;
+  function observeRv(scope) {
+    const els = (scope || document).querySelectorAll('.rv:not(.in)');
+    if (!els.length) return;
+    const instant = (function () {
+      try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+      } catch (e) {}
+      return !('IntersectionObserver' in window);
+    })();
+    if (instant) { els.forEach((el) => el.classList.add('in')); return; }
+    if (!rvObs) {
+      rvObs = new IntersectionObserver((ents) => {
+        ents.forEach((en) => {
+          if (en.isIntersecting) { en.target.classList.add('in'); rvObs.unobserve(en.target); }
+        });
+      }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
+    }
+    els.forEach((el) => rvObs.observe(el));
+  }
+
   function rowEl(t, i, showCat) {
     const fav = isFav(t.id);
     const a = T.el(
-      '<a class="trow enter" style="--i:' + (i % 24) + '" href="#/t/' + encodeURIComponent(t.id) + '">' +
+      '<a class="trow rv" style="--i:' + (i % 12) + '" href="#/t/' + encodeURIComponent(t.id) + '">' +
         '<span class="ic">' + esc(t.icon || '+') + '</span>' +
         '<span class="tx"><span class="nm">' + esc(t.name) + '</span>' +
         '<span class="ds">' + esc(t.desc) + '</span>' +
@@ -446,9 +470,9 @@ async function loadToolRender(t) {
         '</div>' +
       '</header>' +
       '<section class="hero">' +
-        '<p class="eyebrow">' + esc(greet()) + ' · Gratis tanpa daftar</p>' +
+        '<p class="eyebrow">' + esc(greet()) + ' <span class="dot">·</span> Gratis tanpa daftar</p>' +
         '<h1>Butuh <span class="qm">apa?</span></h1>' +
-        '<p class="sub"><b>100 tools gratis</b> yang jalan langsung di browser kamu. Ketik yang dicari, klik, langsung pakai. Tanpa daftar, tanpa upload.</p>' +
+        '<p class="sub"><b>110 tools gratis</b> yang jalan langsung di browser kamu. Ketik, klik, langsung pakai.</p>' +
         '<div class="msearch"><div class="box">' +
           '<input id="q" type="search" placeholder="Cari tools…" autocomplete="off" aria-label="Cari tools">' +
           '<span class="glyph">⌕</span>' +
@@ -462,7 +486,7 @@ async function loadToolRender(t) {
       '<div id="quick"></div>' +
       '<nav class="rail" id="rail" aria-label="Kategori"></nav>' +
       '<main class="dir" id="dir"></main>' +
-      '<footer class="foot"><span class="fmark">A</span><br>Dibuat dengan teliti.<br><b>Data tool tidak pernah keluar dari browser kamu.</b><br><span class="dim">Pencarian tercatat anonim untuk statistik global.</span></footer>';
+      '<footer class="foot"><span class="fmark">A</span><br>Dibuat dengan teliti.<br><b>Semua tool jalan 100% lokal di browser kamu.</b><br><span class="dim">Pencarian tercatat anonim untuk statistik global.</span></footer>';
 
     // rail kategori
     const rail = v.querySelector('#rail');
@@ -559,17 +583,15 @@ async function loadToolRender(t) {
       dir.innerHTML = '';
       if (!searching) {
         // mode jelajah: section per kategori
-        let ci = 0;
         cats.forEach(([id, label]) => {
           const list = tools.filter((t) => t.cat === id);
           if (!list.length) return;
-          ci++;
-          const idx = String(ci).padStart(2, '0');
-          const sec = T.el('<section class="catsec"><div class="catsec-head"><span class="idx">' + idx + '</span><h2>' + esc(label) + '</h2><span class="n">' + list.length + ' tools</span></div><div class="trows"></div></section>');
+          const sec = T.el('<section class="catsec"><div class="catsec-head"><h2>' + esc(label) + '</h2><span class="n">' + list.length + ' tools</span></div><div class="trows"></div></section>');
           const rows = sec.querySelector('.trows');
           list.forEach((t, i) => rows.appendChild(rowEl(t, i, false)));
           dir.appendChild(sec);
         });
+        observeRv(dir);
         return;
       }
       // mode hasil: flat + label kategori
@@ -594,6 +616,8 @@ async function loadToolRender(t) {
         return;
       }
       list.forEach((t, i) => rows.appendChild(rowEl(t, i, true)));
+      // mode hasil: tampil instan, tanpa stagger (mengetik = re-render cepat)
+      rows.querySelectorAll('.rv').forEach((el) => el.classList.add('in'));
     };
 
     input.addEventListener('input', () => { q = input.value; syncClear(); paint(); scheduleTrack(); });
