@@ -1,4 +1,35 @@
-# Update — 1 Okt 2026: QA Fixes v5.0.0 → v5.0.1 (7 temuan visual)
+# Update — 1 Okt 2026: Rebuild Total "Arang & Coral" (v5.0.1 → v5.1.0)
+
+Atas permintaan owner ("redesign total semua halaman, tema yang baru"): shell
++ tema ditulis ulang dari nol. Bahasa visual putus total dari v5 "Liquid Minimal".
+
+## Yang baru
+1. Tema "Arang & Coral": base arang hangat #161311 (bukan zinc dingin), satu aksen
+   coral #ff6f61 (bukan mint). Status tetap hijau/merah/kuning/biru fungsional.
+2. Tipografi: Bricolage Grotesque variable, self-host (css/fonts/, 76KB woff2).
+   Font lama (Plus Jakarta Sans) dihapus.
+3. Shape tegas: kartu 14px, kontrol 10px, pill HANYA untuk tag/chip (bukan serba-pill).
+4. Navigasi: bottom tab bar persisten (Beranda / Cari / Favorit) — menggantikan
+   dock khusus halaman tool. Favorit sekarang punya halaman sendiri (#/favorit).
+5. Direktori: grid kartu 2 kolom (3-4 kolom di layar lebar), bukan baris.
+6. Search sticky di bawah header dengan kaca hangat; command palette (Ctrl+K)
+   tetap ada, di-restyling.
+7. Tool page: back link teks, header + tombol favorit/share, footer lokal.
+8. Copy Indonesia dipangkas (hero 3 baris, tanpa em-dash, tanpa label AI-slop).
+
+## Yang dipertahankan (logika nol berubah)
+- 110 tools: file tidak disentuh kecuali bump `?v=5.1.0` (import core.js).
+- Kontrak CSS tools (.fld/.inp/.btn/.out/.kv/.card/.tbl/.piano/.drumgrid dll) —
+  semua kelas tetap ada di style.css, di-restyling mengikuti tema.
+- Routing hash #/ & #/t/:id, LS fav/recent, Supabase trends + SEARCH_DENY,
+  fuzzy search, placeholder bergilir, reveal-on-scroll, fade tepi scroll.
+- Recolor kecil di helper pindahan core.js (preHtml/kvRows) agar hangat.
+
+## Verifikasi
+- scripts/check-tools.js: 110/110 tools OK, core.js import OK, manifest 110 tools.
+- node --check: app.js, core.js OK.
+
+---
 
 ## Yang diperbaiki
 1. Ikon "Takaran Masak": string mentah "U0001f373" → emoji 🍳 (di meta tool + manifest).

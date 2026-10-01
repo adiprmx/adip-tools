@@ -252,14 +252,14 @@ export const h = {
    edit di file tool asalnya lalu jalankan ulang generator bila perlu. */
 const T = h; // alias untuk helper pindahan yang memakai T.*
 export function preHtml(text, cls) {
-    return '<pre class="' + (cls || '') + '" style="white-space:pre-wrap;word-break:break-word;background:#0a0a0d;border:1px solid #232329;border-radius:8px;padding:12px;font-size:12.5px;line-height:1.5;overflow-x:auto">' + esc(text) + '</pre>';
+    return '<pre class="' + (cls || '') + '" style="white-space:pre-wrap;word-break:break-word;background:#12100d;border:1px solid #2e2823;border-radius:8px;padding:12px;font-size:12.5px;line-height:1.5;overflow-x:auto">' + esc(text) + '</pre>';
   }
 
 export function errBox(msg) { return '<div style="color:#ef4444;font-size:13px;line-height:1.5">' + esc(msg) + '</div>'; }
 
 export function kvRows(pairs) {
     return '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
-      pairs.map(([k, v]) => '<tr><td style="padding:7px 8px;color:#a8a8b0;border-bottom:1px solid #16161b;vertical-align:top;white-space:nowrap">' + esc(k) + '</td><td style="padding:7px 8px;border-bottom:1px solid #16161b;font-family:monospace;word-break:break-all">' + esc(v) + '</td></tr>').join('') +
+      pairs.map(([k, v]) => '<tr><td style="padding:7px 8px;color:#c9bda9;border-bottom:1px solid #251f18;vertical-align:top;white-space:nowrap">' + esc(k) + '</td><td style="padding:7px 8px;border-bottom:1px solid #251f18;font-family:monospace;word-break:break-all">' + esc(v) + '</td></tr>').join('') +
       '</table>';
   }
 

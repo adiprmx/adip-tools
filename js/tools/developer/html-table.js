@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=5.0.1';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=5.1.0';
 
 export const meta = {"id": "html-table", "name": "Generator Tabel HTML", "cat": "developer", "icon": "📋", "desc": "Bikin tabel HTML dari data baris."};
 

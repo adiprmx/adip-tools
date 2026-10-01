@@ -1,4 +1,4 @@
-import { h as T, money, kv } from '../../core.js?v=5.0.1';
+import { h as T, money, kv } from '../../core.js?v=5.1.0';
 
 export const meta = {"id": "kpr", "name": "Simulasi KPR", "cat": "bisnis", "icon": "🏠", "desc": "Simulasi cicilan KPR + tabel angsuran."};
 

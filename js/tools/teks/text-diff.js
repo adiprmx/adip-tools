@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.0.1';
+import { h as T, utils } from '../../core.js?v=5.1.0';
 
 utils.diffLines = function (a, b) {
     const A = String(a == null ? '' : a).split('\n');

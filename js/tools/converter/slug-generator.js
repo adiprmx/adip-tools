@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.0.1';
+import { h as T, utils } from '../../core.js?v=5.1.0';
 
 export const meta = {"id": "slug-generator", "name": "Slug Generator", "cat": "converter", "icon": "🏷️", "desc": "Judul jadi slug URL yang rapi."};
 

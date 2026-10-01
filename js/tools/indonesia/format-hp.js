@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=5.0.1';
+import { h as T, utils, kv } from '../../core.js?v=5.1.0';
 
 export const meta = {"id": "format-hp", "name": "Format Nomor HP", "cat": "indonesia", "icon": "📱", "desc": "08xx ↔ +62 ↔ 62xx."};
 

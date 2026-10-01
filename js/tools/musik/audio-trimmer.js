@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.0.1';
+import { h as T, utils } from '../../core.js?v=5.1.0';
 
 export const meta = {"id": "audio-trimmer", "name": "Audio Trimmer", "cat": "musik", "icon": "✂️", "desc": "Potong audio di browser, export WAV."};
 

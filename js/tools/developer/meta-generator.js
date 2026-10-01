@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.0.1';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=5.1.0';
 
 export const meta = {"id": "meta-generator", "name": "Meta Tag Generator", "cat": "developer", "icon": "🏷️", "desc": "Generator meta tag SEO lengkap."};
 
