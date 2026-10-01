@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.2.0';
+import { h as T, utils } from '../../core.js?v=6.0.0';
 
 export const meta = {"id": "totp-generator", "name": "OTP Authenticator", "cat": "keamanan", "icon": "⏱️", "desc": "Kode OTP 30-detik dari secret (kayak Google Authenticator).", "keywords": "otp,authenticator,2fa,kode"};
 export function render(root) {

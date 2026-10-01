@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv, money } from '../../core.js?v=5.2.0';
+import { h as T, utils, U, kv, money } from '../../core.js?v=6.0.0';
 
 U.zakatMaal = (harta, hargaEmas) => {
     harta = +harta || 0; hargaEmas = +hargaEmas || 0;

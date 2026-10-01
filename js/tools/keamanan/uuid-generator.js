@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.2.0';
+import { h as T, utils } from '../../core.js?v=6.0.0';
 
 export const meta = {"id": "uuid-generator", "name": "UUID Generator", "cat": "keamanan", "icon": "🆔", "desc": "Buat UUID v4 acak.", "keywords": "uuid,acak,id"};
 export function render(root) {

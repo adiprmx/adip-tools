@@ -1,4 +1,4 @@
-import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=5.2.0';
+import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=6.0.0';
 
 export const meta = {"id": "couple-days", "name": "Hari Jadian", "cat": "fun", "icon": "💑", "desc": "Sudah berapa hari bareng?", "keywords": "jadian,pacar,pasangan,hari,anniversary"};
 export function render(root) {

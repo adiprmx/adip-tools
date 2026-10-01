@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.2.0';
+import { h as T, utils } from '../../core.js?v=6.0.0';
 
 utils.waFormat = function (text, kind) {
     const s = String(text == null ? '' : text);

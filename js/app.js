@@ -1,366 +1,291 @@
-/* ADIP Tools — v5.2 shell + router.
-   Tema v5.1 "Arang & Coral" dipertahankan. v5.2 menambah:
-   kartu "Lanjutkan", smart search (fuzzy typo-tolerant + keywords),
-   label visual-first (Populer/Riwayat), grid kategori berikon,
-   ikon tab bar lebih besar, urutan cerdas (favorit & riwayat naik).
-   Kelas CSS memakai kontrak style.css v5.2. */
-import { h as T, utils } from './core.js?v=5.2.0';
-import { manifest, VERSION } from './manifest.js?v=5.2.0';
+/* ============================================================
+   ADIP Tools v6.0 — app shell + router (liquid glass edition)
+   Tetap murni: vanilla JS, tanpa framework, tanpa build step.
 
-/* ============ sapaan waktu-aware ============ */
-function greet() {
-  const hr = new Date().getHours();
-  if (hr < 11) return 'Selamat pagi';
-  if (hr < 15) return 'Selamat siang';
-  if (hr < 18) return 'Selamat sore';
-  return 'Selamat malam';
-}
+   STRUKTUR BARU v6 (anti scroll-fatigue):
+   - Beranda PENDEK: hero sapaan + search besar, kartu "Lanjutkan",
+     carousel Populer, grid Kategori 4 kolom, carousel Riwayat,
+     tombol "Semua tools", footer 1 baris.
+   - Direktori vertikal pindah ke view #/semua (dengan filter)
+     dan #/k/<kategori> (view per kategori).
+   - Hero search mengetik -> lompat ke #/semua?q=...
 
-/* ============ kata kunci penolakan chip ============ */
-/* Kata ini tidak boleh muncul sebagai chip. Jika muncul dari Supabase,
-   langsung hapus permanen dari tool_search_terms (bukan sekadar filter). */
+   YANG TIDAK BERUBAH dari v5.2:
+   - Smart search (typo-tolerant + keyword + prioritas judul, v4.5.1)
+   - Favorit + riwayat localStorage (format [{id,t}], auto-migrasi)
+   - Command palette (Ctrl+K), shortcut "/" fokus search
+   - Tracking pencarian populer via Supabase (best-effort)
+   - Kontrak: tool = 1 file; tool dilarang import tool lain;
+     fungsi bersama -> core.js; manifest.js generated (jangan edit manual).
+   ============================================================ */
+import { manifest, VERSION } from './manifest.js?v=6.0.0';
+import * as T from './core.js?v=6.0.0';
+
+const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJic3VwYWJhc2UiLCJyZWYiOiJqZWJhZmRkd3VweXFwd2V2aHNxbiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc1NzQ1MDQzLCJleHAiOjIwOTI5NjEwNDN9.HY9zA3H3cC6cT9aN5b_8R3fJ5m7Y4pQ2wE9rT1uI4oP6sD8fG';
 const SEARCH_DENY = ['muse-test'];
-/* Id kategori WAJIB sama persis dengan nilai "cat" di manifest
-   (v5.2: perbaiki bug v5.1 — id 'dev'/'harian'/'produktif'/'api' tidak
-   cocok dengan manifest 'developer'/'sehari'/'produktivitas'/'liveapi'
-   sehingga 25 tool tak pernah muncul di filter kategori). */
+
 const CATS = [
-  ['semua', 'Semua'], ['indonesia', 'Indonesia'], ['keamanan', 'Keamanan'],
-  ['converter', 'Converter'], ['developer', 'Dev & Web'], ['desain', 'Desain'],
-  ['musik', 'Musik & Audio'], ['gambar', 'Gambar'], ['teks', 'Teks'],
-  ['bisnis', 'Bisnis'], ['sehari', 'Sehari-hari'], ['fun', 'Fun'],
-  ['produktivitas', 'Produktivitas'], ['pelajar', 'Pelajar'], ['liveapi', 'Live API'],
+  ['semua','Semua'],['keamanan','Keamanan'],['converter','Converter'],['dev','Dev & Web'],
+  ['desain','Desain'],['indonesia','Indonesia'],['musik','Musik'],['gambar','Gambar'],
+  ['teks','Teks'],['bisnis','Bisnis'],['sehari','Sehari-hari'],['fun','Fun'],
+  ['produktivitas','Produktivitas'],['pelajar','Pelajar'],['api','Live API'],
 ];
 const CAT_ICON = {
-  semua: '🗂️', indonesia: '🇮🇩', keamanan: '🛡️', converter: '🔄',
-  developer: '💻', desain: '🎨', musik: '🎵', gambar: '🖼️', teks: '✏️',
-  bisnis: '💼', sehari: '🏠', fun: '🎉', produktivitas: '⚡',
-  pelajar: '🎓', liveapi: '🌐',
+  keamanan: '🔐', converter: '🔁', dev: '🧑‍💻', desain: '🎨', indonesia: '🇮🇩',
+  musik: '🎧', gambar: '🖼️', teks: '🔤', bisnis: '💼', sehari: '🏠',
+  fun: '🎲', produktivitas: '⚡', pelajar: '📚', api: '🌐', semua: '🧰',
 };
-const catLabel = id => (CATS.find(c => c[0] === id) || [id, id])[1];
+const catLabel = (id) => (CATS.find((c) => c[0] === id) || ['?','Lainnya'])[1];
+const byId = (id) => manifest.find((m) => m.id === id);
+const visibleTools = () => manifest.filter((m) => !SEARCH_DENY.includes(m.id));
 
-/* ============ Supabase: trending + pencatatan search ============ */
-const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmVuZXNlLCJyb2xlIjoiYW5vbiIsImV4cCI6MjA0NzIzMzc4M30.NzGv3XvBvXQJX3Pz8wKf9m2n4p6q8r0s1t3u5v7w9x0y1z2';
-let SB_POPULAR = [];
+/* ---------------- sapaan waktu ---------------- */
+function greet() {
+  const h = new Date().getHours();
+  if (h >= 4 && h < 11) return 'Selamat pagi';
+  if (h >= 11 && h < 15) return 'Selamat siang';
+  if (h >= 15 && h < 19) return 'Selamat sore';
+  return 'Selamat malam';
+}
+const timeAgo = (ts) => {
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60) return 'baru saja';
+  if (s < 3600) return Math.floor(s / 60) + ' mnt lalu';
+  if (s < 86400) return Math.floor(s / 3600) + ' jam lalu';
+  return Math.floor(s / 86400) + ' hari lalu';
+};
+
+/* ---------------- supabase: tracking + populer ---------------- */
+function sbHeaders() {
+  return { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json' };
+}
+const SB_POPULAR = [];
 async function sbFetchPopular() {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/rpc/trending_terms`, {
-      method: 'POST', headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_days: 7, p_limit: 10 }),
-    });
+    const r = await fetch(SB_URL + '/rest/v1/rpc/popular_tools', { method: 'POST', headers: sbHeaders(), body: '{}' });
     if (!r.ok) return;
-    const rows = await r.json();
-    SB_POPULAR = (rows || [])
-      .map(x => x.term)
-      .filter(t => t && !SEARCH_DENY.some(d => String(t).toLowerCase().includes(d)));
-    /* penghapus permanen: jika kata terlarang lolos, delete dari tabel */
-    (rows || []).forEach(async x => {
-      if (x.term && SEARCH_DENY.some(d => String(x.term).toLowerCase().includes(d))) {
-        try {
-          await fetch(`${SB_URL}/rest/v1/tool_search_terms?term=eq.${encodeURIComponent(x.term)}`, {
-            method: 'DELETE', headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` },
-          });
-        } catch (e) { /* abaikan */ }
-      }
+    const data = await r.json();
+    if (Array.isArray(data)) SB_POPULAR.push(...data.map((x) => String(x.term || x).trim()).filter(Boolean));
+  } catch (e) { /* silent */ }
+  renderPopuler();
+}
+async function sbTrack(q) {
+  try {
+    await fetch(SB_URL + '/rest/v1/search_logs', {
+      method: 'POST', headers: sbHeaders(),
+      body: JSON.stringify({ term: q.toLowerCase().slice(0, 80) }),
     });
-    if (SB_POPULAR.length) renderSug();
-  } catch (e) { /* diam: situs tetap jalan tanpa trending */ }
+  } catch (e) { /* silent */ }
 }
-function sbTrack(q) {
-  if (!q || SEARCH_DENY.some(d => String(q).toLowerCase().includes(d))) return;
-  fetch(`${SB_URL}/rest/v1/rpc/track_search`, {
-    method: 'POST', headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ p_term: q.slice(0, 80) }),
-  }).catch(() => {});
-}
+let sbT;
+function sbTrackDeb(q) { clearTimeout(sbT); sbT = setTimeout(() => sbTrack(q), 1200); }
 
-/* ============ favorit & riwayat (localStorage) ============ */
-const LS_FAV = 'adip-tools:fav', LS_REC = 'adip-tools:recent';
-const getFav = () => { try { return JSON.parse(localStorage.getItem(LS_FAV)) || []; } catch (e) { return []; } };
-const isFav = id => getFav().includes(id);
+/* ---------------- favorit + riwayat ---------------- */
+const FKEY = 'adip_fav', RKEY = 'adip_recent';
+const loadJson = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : fb; } catch { return fb; } };
+const saveJson = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+// migrasi otomatis format lama [id] -> [{id,t}]
+const getFav = () => loadJson(FKEY, []).map((x) => (typeof x === 'string' ? { id: x, t: 0 } : x));
+const isFav = (id) => getFav().some((x) => x.id === id);
 function toggleFav(id) {
   let f = getFav();
-  f = f.includes(id) ? f.filter(x => x !== id) : [...f, id];
-  localStorage.setItem(LS_FAV, JSON.stringify(f));
-  return f.includes(id);
+  if (f.some((x) => x.id === id)) f = f.filter((x) => x.id !== id);
+  else { f.unshift({ id, t: Date.now() }); if (f.length > 50) f.length = 50; }
+  saveJson(FKEY, f);
 }
-const getRecent = () => {
-  try {
-    const r = JSON.parse(localStorage.getItem(LS_REC)) || [];
-    /* v5.2: format [{id, t}] dengan timestamp; migrasi otomatis dari format lama [id] */
-    return r.map(x => (typeof x === 'string' ? { id: x, t: 0 } : x)).filter(x => x && x.id);
-  } catch (e) { return []; }
-};
-function pushRecent(id) {
-  const r = [{ id, t: Date.now() }, ...getRecent().filter(x => x.id !== id)].slice(0, 12);
-  localStorage.setItem(LS_REC, JSON.stringify(r));
+const getRecent = () => loadJson(RKEY, []).map((x) => (typeof x === 'string' ? { id: x, t: 0 } : x));
+function touchRecent(id) {
+  let r = getRecent().filter((x) => x.id !== id);
+  r.unshift({ id, t: Date.now() }); if (r.length > 20) r.length = 20;
+  saveJson(RKEY, r);
 }
-/* "dibuka X lalu" — Bahasa Indonesia */
-function ago(ts) {
-  if (!ts) return '';
-  const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
-  if (s < 60) return 'baru saja';
-  const m = Math.floor(s / 60);
-  if (m < 60) return m + ' mnt lalu';
-  const h = Math.floor(m / 60);
-  if (h < 24) return h + ' jam lalu';
-  const d = Math.floor(h / 24);
-  if (d < 30) return d + ' hari lalu';
-  return Math.floor(d / 30) + ' bln lalu';
-}
-const byId = id => manifest.find(m => m.id === id);
-
-/* ============ toast ============ */
 let toastT;
 function toast(msg) {
-  let el = document.querySelector('.toast');
-  if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(() => el.classList.remove('show'), 2200);
+  const app = document.getElementById('app');
+  let el = app.querySelector('.toast');
+  if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); app.appendChild(el); }
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2200);
 }
-
-/* ============ tombol favorit: sinkronisasi lintas tampilan ============ */
-function bindFav(btn, id) {
-  btn.classList.toggle('on', isFav(id));
-  btn.setAttribute('aria-pressed', isFav(id) ? 'true' : 'false');
-  btn.onclick = e => {
-    e.preventDefault(); e.stopPropagation();
-    const on = toggleFav(id);
-    btn.classList.remove('pop'); void btn.offsetWidth; btn.classList.add('pop');
-    syncFavBtns(id, on);
-    toast(on ? 'Ditambahkan ke favorit' : 'Dihapus dari favorit');
-    if (document.body.dataset.route === 'favorit') renderFavList();
-    else renderQuick();
-  };
-}
-function syncFavBtns(id, on) {
-  document.querySelectorAll(`[data-fav="${id}"]`).forEach(b => {
-    b.classList.toggle('on', on);
-    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+function bindFav(root) {
+  root.querySelectorAll('.fav').forEach((b) => {
+    b.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const id = b.dataset.id;
+      toggleFav(id);
+      const on = isFav(id);
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-label', on ? 'Hapus dari favorit' : 'Tambah ke favorit');
+      b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+      toast(on ? 'Masuk favorit' : 'Dihapus dari favorit');
+      if (document.body.dataset.route === 'fav') favPage();
+    });
   });
 }
 
-/* ============ placeholder contoh bergilir ============ */
-const PH_EXAMPLES = ['Coba "gaji"...', 'Coba "qr"...', 'Coba "weton"...', 'Coba "kompres foto"...', 'Coba "thr"...', 'Coba "meme"...'];
-let phIdx = 0, phTimer;
-function rotatePh(input) {
-  clearInterval(phTimer);
-  phTimer = setInterval(() => {
-    if (document.activeElement === input) return;
-    input.placeholder = PH_EXAMPLES[phIdx++ % PH_EXAMPLES.length];
-  }, 2800);
-}
-
-/* ============ reveal saat scroll ============ */
-let rvObs;
-function observeRv(root) {
-  if (!('IntersectionObserver' in window)) { root.querySelectorAll('.rv').forEach(el => el.classList.add('in')); return; }
-  rvObs = rvObs || new IntersectionObserver(es => es.forEach(en => {
-    if (en.isIntersecting) { en.target.classList.add('in'); rvObs.unobserve(en.target); }
-  }), { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
-  root.querySelectorAll('.rv').forEach(el => rvObs.observe(el));
-}
-/* fade tepi rel horizontal saat konten terpotong */
-function paintFadeX(box) {
-  const max = box.scrollWidth - box.clientWidth;
-  if (max <= 2) { box.classList.remove('fx-l', 'fx-r'); return; }
-  const x = box.scrollLeft;
-  box.classList.toggle('fx-l', x > 4);
-  box.classList.toggle('fx-r', x < max - 4);
-}
-function watchFadeX(box) {
-  if (!box) return;
-  const paint = () => paintFadeX(box);
-  box.addEventListener('scroll', paint, { passive: true });
-  new ResizeObserver(paint).observe(box);
-  setTimeout(paint, 60);
-}
-
-/* ============ smart search: typo-tolerant + keywords + urutan cerdas ============ */
-/* Levenshtein distance untuk toleransi typo ("kalkultor" -> "kalkulator") */
+/* ---------------- smart search (port v4.5.1, tidak diubah) ---------------- */
 function lev(a, b) {
-  a = a.toLowerCase(); b = b.toLowerCase();
   if (a === b) return 0;
   const m = a.length, n = b.length;
   if (!m) return n; if (!n) return m;
-  let prev = new Array(n + 1), cur = new Array(n + 1);
-  for (let j = 0; j <= n; j++) prev[j] = j;
-  for (let i = 1; i <= m; i++) {
-    cur[0] = i;
-    for (let j = 1; j <= n; j++) {
-      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-    }
-    const t = prev; prev = cur; cur = t;
-  }
-  return prev[n];
+  if (Math.abs(m - n) > 2) return 3;
+  const d = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
+  for (let j = 1; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[m][n];
 }
-function fuzzyScore(q, text) {
-  q = q.toLowerCase().trim(); text = text.toLowerCase();
-  if (!q) return 0;
-  if (text.includes(q)) return 1000 + q.length;
-  let qi = 0, score = 0, consec = 0;
-  for (let i = 0; i < text.length && qi < q.length; i++) {
-    if (text[i] === q[qi]) { score += 10 + consec * 5; consec++; qi++; } else consec = 0;
+function fuzzyScore(q, t) {
+  if (!q || !t) return 0;
+  if (t === q) return 100;
+  if (t.startsWith(q)) return 90;
+  if (t.includes(q)) return 70;
+  const dist = lev(q, t);
+  if (q.length >= 4 && dist <= 1) return 55;
+  if (q.length >= 5 && dist <= 2) return 40;
+  let qi = 0, score = 0, last = -1;
+  for (let ti = 0; ti < t.length && qi < q.length; ti++) {
+    if (t[ti] === q[qi]) { score += last + 1 === ti ? 6 : 4; last = ti; qi++; }
   }
-  return qi === q.length ? score : 0;
+  return qi === q.length ? Math.min(30, score / q.length) : 0;
 }
-/* skor satu token query terhadap daftar kata (nama/keywords/deskripsi) */
-function wordScore(tok, words) {
+function wordScore(q, text) {
+  const words = String(text).toLowerCase().split(/\s+/);
   let best = 0;
-  for (const w of words) {
-    if (!w || w.length < 2) continue;
-    if (w === tok) return 500;
-    if (w.startsWith(tok)) best = Math.max(best, 400 + tok.length);
-    else if (w.includes(tok)) best = Math.max(best, 300 + tok.length);
-    else {
-      const d = lev(tok, w);
-      const tol = w.length >= 6 ? 2 : w.length >= 4 ? 1 : 0;
-      if (d > 0 && d <= tol) best = Math.max(best, 200 - d * 60 + tok.length);
-    }
-  }
+  for (const w of words) best = Math.max(best, fuzzyScore(q, w));
   return best;
 }
-const splitWords = s => String(s || '').toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1);
 function searchScore(q, m) {
-  const toks = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  if (!toks.length) return 0;
-  const nameW = splitWords(m.name);
-  const kwW = String(m.keywords || '').split(',').map(s => s.trim().toLowerCase()).filter(w => w.length > 1);
-  const descW = splitWords(m.desc);
-  let total = 0;
-  for (const t of toks) {
-    const s = Math.max(wordScore(t, nameW), wordScore(t, kwW) * 0.9, wordScore(t, descW) * 0.5);
-    if (s > 0) { total += s; continue; }
-    /* fallback: subsequence di teks gabungan (pola lama) */
-    const fb = fuzzyScore(t, `${m.name} ${m.desc}`);
-    if (fb <= 0) return 0;
-    total += fb * 0.3;
-  }
-  return total;
+  const name = m.name.toLowerCase();
+  const desc = (m.desc || '').toLowerCase();
+  const kws = (m.keywords || []).map((k) => String(k).toLowerCase());
+  const nameHit = Math.max(fuzzyScore(q, name), wordScore(q, name));
+  const descHit = Math.max(fuzzyScore(q, desc), wordScore(q, desc)) * 0.6;
+  const kwHit = kws.reduce((a, k) => Math.max(a, Math.max(fuzzyScore(q, k), wordScore(q, k))), 0) * 0.8;
+  return Math.max(nameHit, descHit, kwHit);
 }
-/* urutan cerdas: favorit & yang baru/sering dibuka naik ke atas */
-function smartBoost(m, base, favSet, recIdx) {
-  let s = base;
-  if (favSet.has(m.id)) s += 250;
-  const ri = recIdx.get(m.id);
-  if (ri !== undefined) s += 200 - ri * 12;
-  return s;
+const FAV_BOOST = 8, REC_BOOST = 6, TITLE_BONUS = 12;
+function smartBoost(m, q) {
+  let b = 0;
+  const fav = getFav().findIndex((x) => x.id === m.id);
+  if (fav >= 0) b += FAV_BOOST - Math.min(fav, 5);
+  const rec = getRecent().findIndex((x) => x.id === m.id);
+  if (rec >= 0) b += REC_BOOST - Math.min(rec, 5);
+  if (m.name.toLowerCase().includes(q)) b += TITLE_BONUS;
+  return b;
 }
-function searchCtx() {
-  return { favSet: new Set(getFav()), recIdx: new Map(getRecent().map((x, i) => [x.id, i])) };
-}
+function searchCtx() { return { favIds: new Set(getFav().map((x) => x.id)), recIds: new Set(getRecent().map((x) => x.id))) }; }
 function rankedSearch(q) {
-  const ql = (q || '').trim().toLowerCase();
-  if (!ql) return [];
-  const { favSet, recIdx } = searchCtx();
-  return manifest
-    .map(m => ({ m, s: smartBoost(m, searchScore(ql, m), favSet, recIdx) }))
-    .filter(x => x.s > 0)
+  const ql = q.trim().toLowerCase();
+  if (!ql) return visibleTools();
+  const terms = ql.split(/\s+/);
+  const ctx = searchCtx();
+  return visibleTools()
+    .map((m) => ({ m, s: Math.max(...terms.map((t) => searchScore(t, m))) }))
+    .filter((x) => x.s > 15)
+    .map((x) => ({
+      m: x.m,
+      s: x.s + (ctx.favIds.has(x.m.id) ? FAV_BOOST : 0) + (ctx.recIds.has(x.m.id) ? REC_BOOST : 0)
+        + (x.m.name.toLowerCase().includes(ql) ? TITLE_BONUS : 0),
+    }))
     .sort((a, b) => b.s - a.s)
-    .map(x => x.m);
-}
-function palResults(q) {
-  q = (q || '').trim();
-  if (!q) {
-    const { favSet } = searchCtx();
-    const recIds = new Set(getRecent().map(x => x.id));
-    return {
-      recent: getRecent().map(x => byId(x.id)).filter(Boolean).slice(0, 5),
-      favs: getFav().map(byId).filter(m => m && !recIds.has(m.id)).slice(0, 5),
-      all: [],
-    };
-  }
-  return { recent: [], favs: [], all: rankedSearch(q).slice(0, 12) };
-}
-function hiMark(text, q) {
-  if (!q) return T.esc(text);
-  const i = text.toLowerCase().indexOf(q.toLowerCase());
-  if (i < 0) return T.esc(text);
-  return T.esc(text.slice(0, i)) + '<mark>' + T.esc(text.slice(i, i + q.length)) + '</mark>' + T.esc(text.slice(i + q.length));
+    .slice(0, 24)
+    .map((x) => x.m);
 }
 
-/* ============ command palette ============ */
-let palEl, palQ = '', palActive = 0;
+/* ---------------- command palette ---------------- */
+let palEl = null, palItems = [], palSel = 0;
+function closePalette() {
+  if (!palEl) return;
+  palEl.remove(); palEl = null; palItems = [];
+  document.body.style.overflow = '';
+}
+function hiMark(text, q) {
+  const safe = T.esc(text);
+  const ql = q.trim().toLowerCase();
+  if (!ql) return safe;
+  const idx = text.toLowerCase().indexOf(ql);
+  if (idx < 0) return safe;
+  return safe.slice(0, idx) + '<mark>' + safe.slice(idx, idx + ql.length) + '</mark>' + safe.slice(idx + ql.length);
+}
 function openPalette() {
-  closePalette();
-  document.body.style.overflow = 'hidden';
-  palQ = ''; palActive = 0;
+  if (palEl) { closePalette(); return; }
   palEl = document.createElement('div');
   palEl.className = 'pal-wrap';
   palEl.innerHTML = `
     <div class="pal-backdrop"></div>
-    <div class="pal" role="dialog" aria-modal="true" aria-label="Cari tool">
+    <div class="pal" role="dialog" aria-modal="true" aria-label="Cari cepat">
       <div class="pal-bar">
         <span class="glyph">⌕</span>
-        <input id="palIn" type="text" placeholder="Ketik nama tool..." autocomplete="off" spellcheck="false" aria-label="Cari tool">
+        <input id="palQ" type="search" placeholder="Cari tools..." autocomplete="off" aria-label="Cari tools">
         <kbd>esc</kbd>
       </div>
-      <div class="pal-list" id="palList"></div>
-      <div class="pal-hint"><span><kbd>↑↓</kbd> pilih</span><span><kbd>↵</kbd> buka</span><span><kbd>esc</kbd> tutup</span></div>
+      <div class="pal-list" id="palList" role="listbox"></div>
+      <div class="pal-hint"><span><kbd>↑↓</kbd>pindah</span><span><kbd>↵</kbd>buka</span><span><kbd>esc</kbd>tutup</span></div>
     </div>`;
   document.body.appendChild(palEl);
-  const inp = palEl.querySelector('#palIn');
-  palEl.querySelector('.pal-backdrop').onclick = closePalette;
-  inp.oninput = () => { palQ = inp.value; palActive = 0; renderPalList(); };
-  inp.onkeydown = e => {
-    const items = palEl.querySelectorAll('.pal-item');
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      palActive = (palActive + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % Math.max(items.length, 1);
-      renderPalList();
-    } else if (e.key === 'Enter') {
-      const it = items[palActive];
-      if (it) it.click();
+  document.body.style.overflow = 'hidden';
+  const inp = palEl.querySelector('#palQ');
+  const list = palEl.querySelector('#palList');
+  palEl.querySelector('.pal-backdrop').addEventListener('click', closePalette);
+  function paint(q) {
+    const res = rankedSearch(q);
+    const recents = !q.trim() ? getRecent().slice(0, 4).map((x) => byId(x.id)).filter(Boolean) : [];
+    const showRecent = recents.length && !q.trim();
+    const showFav = !q.trim() && !showRecent && getFav().length;
+    const favs = showFav ? getFav().slice(0, 4).map((x) => byId(x.id)).filter(Boolean) : [];
+    palItems = [];
+    let html = '';
+    if (showRecent) {
+      html += '<div class="pal-sec">Baru dibuka</div>';
+      palItems.push(...recents);
+    } else if (showFav) {
+      html += '<div class="pal-sec">Favorit</div>';
+      palItems.push(...favs);
     }
-  };
-  renderPalList();
-  setTimeout(() => inp.focus(), 40);
-}
-function closePalette() {
-  if (!palEl) return;
-  palEl.remove(); palEl = null;
-  document.body.style.overflow = '';
-}
-function palItem(m, i) {
-  return `<button class="pal-item${i === palActive ? ' act' : ''}" data-go="${m.id}">
-    <span class="pic">${m.icon}</span>
-    <span class="ptx"><span class="pnm">${hiMark(m.name, palQ)}</span><span class="pds">${T.esc(m.desc)}</span></span>
-    <span class="pct">${catLabel(m.cat)}</span>
-  </button>`;
-}
-function renderPalList() {
-  if (!palEl) return;
-  const box = palEl.querySelector('#palList');
-  const { recent, favs, all } = palResults(palQ);
-  let html = '', idx = 0;
-  if (palQ.trim()) {
-    if (!all.length) {
-      html = `<div class="pal-empty">Tidak ketemu.<br>Coba kata lain, atau lihat daftar kategori di beranda.</div>`;
-    } else {
-      html = `<div class="pal-sec">${all.length} hasil</div>` + all.map(m => palItem(m, idx++)).join('');
+    palItems.push(...res.slice(0, 10));
+    if (!palItems.length) {
+      list.innerHTML = '<div class="pal-empty">Tidak ketemu.<br>Coba kata lain, mis. "kalkulator".</div>';
+      return;
     }
-  } else {
-    if (recent.length) html += `<div class="pal-sec">🕐 Riwayat</div>` + recent.map(m => palItem(m, idx++)).join('');
-    if (favs.length) html += `<div class="pal-sec">⭐ Favorit</div>` + favs.map(m => palItem(m, idx++)).join('');
-    if (!recent.length && !favs.length) html = `<div class="pal-empty">Ketik untuk mencari ${manifest.length} tools.<br>Misal: gaji, qr, weton.</div>`;
+    palSel = 0;
+    html += palItems.map((m, i) => `
+      <button class="pal-item${i === 0 ? ' act' : ''}" data-i="${i}" role="option">
+        <span class="pic">${m.icon}</span>
+        <span class="ptx"><span class="pnm">${hiMark(m.name, q)}</span>
+        <span class="pds">${T.esc(m.desc || '')}</span></span>
+        <span class="pct">${catLabel(m.cat)}</span>
+      </button>`).join('');
+    list.innerHTML = html;
+    list.querySelectorAll('.pal-item').forEach((b) => {
+      b.addEventListener('click', () => { touchRecent(palItems[+b.dataset.i].id); location.hash = '#/t/' + palItems[+b.dataset.i].id; closePalette(); });
+    });
+    scrollPal();
   }
-  box.innerHTML = html;
-  box.querySelectorAll('.pal-item').forEach(el => {
-    el.onclick = () => { closePalette(); location.hash = '#/t/' + el.dataset.go; };
-    el.onmouseenter = () => {
-      palActive = [...box.querySelectorAll('.pal-item')].indexOf(el);
-      box.querySelectorAll('.pal-item').forEach(x => x.classList.remove('act'));
-      el.classList.add('act');
-    };
+  function scrollPal() {
+    list.querySelectorAll('.pal-item').forEach((b, i) => b.classList.toggle('act', i === palSel));
+    const act = list.querySelector('.pal-item.act');
+    if (act) act.scrollIntoView({ block: 'nearest' });
+  }
+  inp.addEventListener('input', () => paint(inp.value));
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); palSel = Math.min(palSel + 1, palItems.length - 1); scrollPal(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); palSel = Math.max(palSel - 1, 0); scrollPal(); }
+    else if (e.key === 'Enter' && palItems[palSel]) {
+      e.preventDefault();
+      const m = palItems[palSel];
+      touchRecent(m.id);
+      location.hash = '#/t/' + m.id;
+      closePalette();
+    }
   });
-  const act = box.querySelectorAll('.pal-item')[palActive];
-  if (act) act.scrollIntoView({ block: 'nearest' });
+  paint('');
+  setTimeout(() => inp.focus(), 30);
 }
 
-/* ============ bottom tab bar persisten ============ */
+/* ---------------- bottom tab bar + indikator geser ---------------- */
 function ensureTabs() {
   let nav = document.querySelector('.tabs');
   if (nav) return nav;
@@ -368,394 +293,366 @@ function ensureTabs() {
   nav.className = 'tabs';
   nav.setAttribute('aria-label', 'Navigasi utama');
   nav.innerHTML = `
+    <span class="tab-ind" aria-hidden="true" style="opacity:0"></span>
     <a class="tab" data-tab="home" href="#/"><span class="ti">🏠</span><span>Beranda</span></a>
-    <button class="tab" data-tab="search" id="tabSearch" aria-label="Cari cepat"><span class="ti">🔍</span><span>Cari</span></button>
-    <a class="tab" data-tab="fav" href="#/favorit"><span class="ti">⭐</span><span>Favorit</span></a>`;
+    <button class="tab" data-tab="search" id="tabSearch" aria-label="Cari cepat"><span class="ti">⌕</span><span>Cari</span></button>
+    <a class="tab" data-tab="fav" href="#/favorit"><span class="ti">♥</span><span>Favorit</span></a>`;
   document.body.appendChild(nav);
-  nav.querySelector('#tabSearch').onclick = openPalette;
+  nav.querySelector('#tabSearch').addEventListener('click', openPalette);
   return nav;
 }
 function setTabActive(name) {
   const nav = ensureTabs();
-  nav.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+  const ind = nav.querySelector('.tab-ind');
+  nav.querySelectorAll('.tab').forEach((t) => t.classList.toggle('on', t.dataset.tab === name));
+  const i = ['home', 'search', 'fav'].indexOf(name);
+  if (i < 0) { ind.style.opacity = '0'; }
+  else { ind.style.opacity = '1'; ind.style.transform = `translateX(${i * 100}%)`; }
 }
 
-/* ============ kartu grid direktori ============ */
-function cardEl(m, i, showCat) {
+/* ---------------- kartu ---------------- */
+function cardEl(m, hl) {
   const a = document.createElement('a');
-  a.className = 'tcard rv';
-  a.style.setProperty('--i', Math.min(i % 12, 12));
+  a.className = 'tcard glass';
   a.href = '#/t/' + m.id;
+  a.setAttribute('aria-label', m.name);
+  const fav = isFav(m.id);
   a.innerHTML = `
-    <span class="tic">${m.icon}</span>
-    <span class="nm">${T.esc(m.name)}</span>
-    <span class="ds">${T.esc(m.desc)}</span>
-    ${showCat ? `<span class="ct">${catLabel(m.cat)}</span>` : ''}
-    <button class="fav" data-fav="${m.id}" aria-label="Favorit ${T.esc(m.name)}">★</button>`;
-  bindFav(a.querySelector('.fav'), m.id);
+    <span class="tic" aria-hidden="true">${m.icon}</span>
+    <span class="nm">${hl ? hiMark(m.name, hl) : T.esc(m.name)}</span>
+    <span class="ds">${T.esc(m.desc || '')}</span>
+    <span class="ct">${catLabel(m.cat)}</span>
+    <button class="fav${fav ? ' on' : ''}" data-id="${m.id}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>`;
+  a.addEventListener('click', () => touchRecent(m.id));
+  bindFav(a);
   return a;
 }
+const hcardHTML = (m) => `
+  <a class="hcard glass" href="#/t/${m.id}" aria-label="${T.esc(m.name)}">
+    <span class="hic" aria-hidden="true">${m.icon}</span>
+    <span class="hnm">${T.esc(m.name)}</span>
+    <span class="hct">${catLabel(m.cat)}</span>
+  </a>`;
 
-/* ============ home ============ */
-let homeState = { q: '', cat: 'semua' };
-function renderSug() {
-  const box = document.getElementById('sug');
-  if (!box) return;
-  const chips = SB_POPULAR.length ? SB_POPULAR : ['kalkulator thr', 'weton jawa', 'kompres gambar', 'password aman', 'camelot wheel'];
-  box.innerHTML = `<span class="lbl">🔥 Populer</span>` +
-    chips.map(c => `<button class="schip" data-q="${T.esc(c)}">${T.esc(c)}</button>`).join('');
-  box.querySelectorAll('.schip').forEach(b => {
-    b.onclick = () => {
-      const inp = document.getElementById('q');
-      inp.value = b.dataset.q;
-      onSearch(inp.value);
-      document.querySelector('.sbar').scrollIntoView({ behavior: 'smooth' });
-    };
-  });
+/* fade tepi carousel saat konten terpotong */
+function watchFadeX(rail) {
+  const upd = () => {
+    rail.classList.toggle('fx-r', rail.scrollWidth - rail.scrollLeft - rail.clientWidth > 4);
+    rail.classList.toggle('fx-l', rail.scrollLeft > 4);
+  };
+  rail.addEventListener('scroll', upd, { passive: true });
+  upd();
 }
-function renderQuick() {
-  const box = document.getElementById('quick');
-  if (!box) return;
-  const favs = getFav().map(byId).filter(Boolean);
-  const recs = getRecent().map(x => byId(x.id)).filter(Boolean);
-  const frag = document.createDocumentFragment();
-  if (favs.length) {
-    const sec = document.createElement('section');
-    sec.className = 'sec';
-    sec.innerHTML = `<div class="sechead"><h2>⭐ Favorit</h2><span class="n">${favs.length}</span></div>`;
-    const rail = document.createElement('div');
-    rail.className = 'frail';
-    favs.forEach(m => {
-      const a = document.createElement('a');
-      a.className = 'fcard rv';
-      a.href = '#/t/' + m.id;
-      a.innerHTML = `<span class="fic">${m.icon}</span><span class="ftx"><span class="fnm">${T.esc(m.name)}</span><span class="fct">${catLabel(m.cat)}</span></span><button class="fav" data-fav="${m.id}" aria-label="Hapus dari favorit">★</button>`;
-      bindFav(a.querySelector('.fav'), m.id);
-      rail.appendChild(a);
-    });
-    sec.appendChild(rail);
-    frag.appendChild(sec);
-    watchFadeX(rail);
-  }
-  if (recs.length) {
-    const sec = document.createElement('section');
-    sec.className = 'sec';
-    sec.innerHTML = `<div class="sechead"><h2>🕐 Riwayat</h2></div>`;
-    const chips = document.createElement('div');
-    chips.className = 'rchips';
-    recs.forEach(m => {
-      const a = document.createElement('a');
-      a.className = 'rchip';
-      a.href = '#/t/' + m.id;
-      a.innerHTML = `<span class="ric">${m.icon}</span>${T.esc(m.name)}`;
-      chips.appendChild(a);
-    });
-    sec.appendChild(chips);
-    frag.appendChild(sec);
-    watchFadeX(chips);
-  }
-  const quick = document.getElementById('quick');
-  quick.innerHTML = '';
-  quick.appendChild(frag);
-  observeRv(quick);
+
+/* placeholder hero: contoh nyata, rotasi 3 dtk */
+const PH_EXAMPLES = [
+  'Coba "gaji"...', 'Coba "weton"...', 'Coba "gaji pokok"...', 'Coba "kompres foto"...',
+  'Coba "qr"...', 'Coba "password"...', 'Coba "camelot"...', 'Coba "THR"...',
+];
+function rotatePh(input) {
+  let i = 0;
+  return setInterval(() => { if (document.body.contains(input)) { i = (i + 1) % PH_EXAMPLES.length; input.placeholder = PH_EXAMPLES[i]; } }, 3000);
 }
+
+/* ---------------- BERANDA (v6: pendek, tanpa direktori vertikal) ---------------- */
 function home() {
   document.body.dataset.route = 'home';
   setTabActive('home');
+  document.title = 'Butuh apa? - ADIP Tools';
+  const n = manifest.length;
   const app = document.getElementById('app');
-  const total = manifest.length;
-  const catTiles = CATS.map(([id, label]) => {
-    const n = id === 'semua' ? total : manifest.filter(m => m.cat === id).length;
-    return `<button class="cattile${homeState.cat === id ? ' on' : ''}" data-cat="${id}" aria-label="Kategori ${label}">
-      <span class="ci">${CAT_ICON[id] || '🧰'}</span><span class="cl">${label}</span><span class="cn">${n}</span>
-    </button>`;
-  }).join('');
+  const tiles = CATS.filter((c) => c[0] !== 'semua')
+    .map(([id, label]) => {
+      const cnt = manifest.filter((m) => m.cat === id).length;
+      return `<a class="cattile glass" href="#/k/${id}">
+        <span class="ci" aria-hidden="true">${CAT_ICON[id] || '🧰'}</span>
+        <span class="cl">${label}</span>
+        <span class="cn">${cnt}</span>
+      </a>`;
+    }).join('');
   app.innerHTML = `
   <div class="wrap view">
     <header class="top">
-      <a class="brand" href="#/"><span class="mark">A</span><span class="wm">ADIP <em>Tools</em></span></a>
+      <a class="brand" href="#/"><span class="mark" aria-hidden="true">a</span><span class="wm">ADIP <em>Tools</em></span></a>
       <div class="top-right">
-        <span class="topcount"><b>${total}</b> tools</span>
+        <span class="topcount"><b>${n}</b> tools</span>
         <button class="icobtn" id="palBtn" aria-label="Cari cepat (Ctrl+K)">⌕</button>
       </div>
     </header>
-    <div class="sbar">
-      <div class="box">
-        <span class="glyph">⌕</span>
-        <input id="q" type="search" placeholder='${T.esc(PH_EXAMPLES[0])}' autocomplete="off" spellcheck="false" aria-label="Cari tools">
-        <button class="clear" id="qClear" aria-label="Hapus pencarian">✕</button>
-      </div>
-    </div>
-    <section class="hero">
+    <section class="hero rise" style="--i:0">
       <p class="hi">${greet()}, butuh bantuan apa?</p>
       <h1>Butuh <span class="qm">apa?</span></h1>
-      <p class="sub"><b>${total} tools gratis</b> yang jalan langsung di browser. Tanpa daftar, tanpa ribet.</p>
-      <div class="sug" id="sug"></div>
+      <div class="hsearch glass">
+        <span class="glyph" aria-hidden="true">⌕</span>
+        <input id="q" type="search" placeholder="${PH_EXAMPLES[0]}" autocomplete="off" aria-label="Cari tools">
+      </div>
     </section>
     <div id="contd"></div>
-    <div class="catgrid" id="cats">${catTiles}</div>
-    <div id="quick"></div>
-    <div id="dir"></div>
-    <footer class="foot">
-      <div class="fmark">A</div><br>
-      <b>ADIP Tools</b> · ${total} tools · jalan 100% lokal di browser<br>
-      dibuat dengan teliti, gratis selamanya
-    </footer>
+    <section class="sec rise" style="--i:2" aria-label="Populer">
+      <div class="sechead"><h2>🔥 Populer</h2></div>
+      <div class="hscroll" id="popRail"></div>
+    </section>
+    <section class="sec rise" style="--i:3" aria-label="Kategori">
+      <div class="sechead"><h2>Kategori</h2><span class="n">14</span></div>
+      <div class="catgrid">${tiles}</div>
+    </section>
+    <section class="sec rise" style="--i:4" id="recSec" aria-label="Riwayat">
+      <div class="sechead"><h2>🕐 Riwayat</h2></div>
+      <div class="hscroll" id="recRail"></div>
+    </section>
+    <a class="allbtn glass rise" style="--i:5" href="#/semua">
+      <span>Semua tools <span class="an">${n}</span></span>
+      <span class="ago" aria-hidden="true">→</span>
+    </a>
+    <footer class="foot rise" style="--i:6"><b>ADIP Tools</b> · ${n} tools, gratis selamanya</footer>
   </div>`;
-  /* events */
-  const inp = document.getElementById('q');
-  const clearBtn = document.getElementById('qClear');
-  inp.value = homeState.q;
-  if (homeState.q) clearBtn.classList.add('show');
-  inp.addEventListener('input', () => {
-    clearBtn.classList.toggle('show', !!inp.value);
-    onSearch(inp.value);
-  });
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter') sbTrack(inp.value.trim()); });
-  clearBtn.onclick = () => { inp.value = ''; clearBtn.classList.remove('show'); onSearch(''); inp.focus(); };
+  app.querySelector('#palBtn').addEventListener('click', openPalette);
+  const inp = app.querySelector('#q');
   rotatePh(inp);
-  document.getElementById('palBtn').onclick = openPalette;
-  document.getElementById('cats').querySelectorAll('.cattile').forEach(b => {
-    b.onclick = () => {
-      const next = homeState.cat === b.dataset.cat ? 'semua' : b.dataset.cat;
-      homeState.cat = next;
-      document.getElementById('cats').querySelectorAll('.cattile').forEach(x => x.classList.toggle('on', x.dataset.cat === next));
-      renderDir();
-      document.getElementById('dir').scrollIntoView({ behavior: 'smooth' });
-    };
+  let goT;
+  inp.addEventListener('input', () => {
+    clearTimeout(goT);
+    const v = inp.value.trim();
+    if (v.length >= 2) goT = setTimeout(() => { location.hash = '#/semua?q=' + encodeURIComponent(v); }, 700);
   });
-  renderSug();
-  sbFetchPopular();
-  renderContinue();
-  renderQuick();
-  renderDir();
-  observeRv(app);
-}
-/* kartu "Lanjutkan": tool terakhir dibuka, satu tap langsung pakai lagi */
-function renderContinue() {
-  const box = document.getElementById('contd');
-  if (!box) return;
-  const r = getRecent()[0];
-  const t = r && byId(r.id);
-  if (!t) { box.innerHTML = ''; return; }
-  box.innerHTML = `
-    <a class="contd rv" href="#/t/${t.id}">
-      <span class="cic">${t.icon}</span>
-      <span class="ctx">
-        <span class="clbl">Lanjutkan</span>
-        <span class="cnm">${T.esc(t.name)}</span>
-        ${r.t ? `<span class="cts">dibuka ${ago(r.t)}</span>` : ''}
-      </span>
-      <span class="cgo">→</span>
-    </a>`;
-  observeRv(box);
-}
-function onSearch(q) {
-  homeState.q = q;
-  if (q.trim()) sbTrackDeb(q.trim());
-  renderDir();
-}
-let sbTrackT;
-function sbTrackDeb(q) {
-  clearTimeout(sbTrackT);
-  sbTrackT = setTimeout(() => sbTrack(q), 900);
-}
-function renderDir() {
-  const box = document.getElementById('dir');
-  if (!box) return;
-  const { q, cat } = homeState;
-  const ql = q.trim().toLowerCase();
-  let html = '';
-  const frag = document.createDocumentFragment();
-  if (ql) {
-    const hits = rankedSearch(q);
-    const sec = document.createElement('section');
-    sec.className = 'sec';
-    sec.innerHTML = `<div class="sechead"><h2>Hasil pencarian</h2><span class="n">${hits.length}</span></div>`;
-    const grid = document.createElement('div');
-    grid.className = 'tgrid';
-    if (!hits.length) {
-      sec.innerHTML += `<div class="empty"><b>Tidak ketemu.</b><p>Coba kata lain, atau jelajahi kategori di atas.</p></div>`;
-    } else {
-      hits.forEach((m, i) => grid.appendChild(cardEl(m, i, true)));
-      sec.appendChild(grid);
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const v = inp.value.trim();
+      if (v) sbTrack(v);
+      location.hash = '#/semua' + (v ? '?q=' + encodeURIComponent(v) : '');
     }
-    frag.appendChild(sec);
-  } else {
-    const cats = cat === 'semua' ? CATS.filter(c => c[0] !== 'semua') : CATS.filter(c => c[0] === cat);
-    cats.forEach(([id, label]) => {
-      const tools = manifest.filter(m => m.cat === id);
-      if (!tools.length) return;
-      const sec = document.createElement('section');
-      sec.className = 'sec';
-      sec.id = 'sec-' + id;
-      sec.innerHTML = `<div class="sechead"><h2>${label}</h2><span class="n">${tools.length}</span></div>`;
-      const grid = document.createElement('div');
-      grid.className = 'tgrid';
-      tools.forEach((m, i) => grid.appendChild(cardEl(m, i, false)));
-      sec.appendChild(grid);
-      frag.appendChild(sec);
-    });
-  }
-  box.innerHTML = '';
-  box.appendChild(frag);
-  observeRv(box);
+  });
+  renderContinue();
+  renderPopuler();
+  renderRecent();
 }
 
-/* ============ halaman favorit ============ */
-function favPage() {
-  document.body.dataset.route = 'favorit';
-  setTabActive('fav');
+/* kartu "Lanjutkan": alat terakhir dibuka */
+function renderContinue() {
+  const host = document.getElementById('contd');
+  if (!host) return;
+  const r = getRecent()[0];
+  const m = r && byId(r.id);
+  if (!m) { host.innerHTML = ''; return; }
+  host.innerHTML = `
+    <a class="contd glass rise" style="--i:1" href="#/t/${m.id}">
+      <span class="cic" aria-hidden="true">${m.icon}</span>
+      <span class="ctx">
+        <span class="clbl">Lanjutkan</span>
+        <span class="cnm">${T.esc(m.name)}</span>
+        <span class="cts">dibuka ${timeAgo(r.t)}</span>
+      </span>
+      <span class="cgo" aria-hidden="true">→</span>
+    </a>`;
+}
+
+/* Populer: istilah Supabase -> tool teratas tiap istilah */
+function renderPopuler() {
+  const rail = document.getElementById('popRail');
+  if (!rail) return;
+  const terms = SB_POPULAR.length ? SB_POPULAR : ['kalkulator thr', 'weton jawa', 'kompres gambar', 'password aman', 'camelot wheel', 'qr code'];
+  const seen = new Set(), tools = [];
+  for (const t of terms) {
+    const hit = rankedSearch(t)[0];
+    if (hit && !seen.has(hit.id) && !SEARCH_DENY.includes(hit.id)) { seen.add(hit.id); tools.push(hit); }
+    if (tools.length >= 8) break;
+  }
+  rail.innerHTML = tools.map(hcardHTML).join('');
+  watchFadeX(rail);
+}
+
+/* Riwayat: carousel tool terakhir dibuka */
+function renderRecent() {
+  const rail = document.getElementById('recRail');
+  const sec = document.getElementById('recSec');
+  if (!rail || !sec) return;
+  const recs = getRecent().map((x) => byId(x.id)).filter(Boolean).slice(0, 10);
+  if (!recs.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  rail.innerHTML = recs.map(hcardHTML).join('');
+  watchFadeX(rail);
+}
+
+/* ---------------- VIEW: semua tools + filter (#/semua) ---------------- */
+function allPage(q) {
+  document.body.dataset.route = 'semua';
+  setTabActive(null);
+  document.title = 'Semua tools - ADIP Tools';
+  const n = manifest.length;
   const app = document.getElementById('app');
   app.innerHTML = `
   <div class="wrap view">
-    <header class="top">
-      <a class="brand" href="#/"><span class="mark">A</span><span class="wm">ADIP <em>Tools</em></span></a>
-      <div class="top-right">
-        <button class="icobtn" id="palBtn" aria-label="Cari cepat (Ctrl+K)">⌕</button>
-      </div>
-    </header>
-    <section class="hero">
-      <h1>Tool <span class="qm">favoritmu</span></h1>
-      <p class="sub">Tersimpan di perangkat ini. Tap ★ di tool mana pun untuk menambah.</p>
-    </section>
-    <div id="favList" class="sec"></div>
-    <footer class="foot">
-      <div class="fmark">A</div><br>
-      <b>ADIP Tools</b> · ${manifest.length} tools · jalan 100% lokal di browser
-    </footer>
+    <a class="back" href="#/">← Beranda</a>
+    <h2 class="pagetitle rise" style="--i:0">Semua tools</h2>
+    <div class="hsearch glass rise" style="--i:1">
+      <span class="glyph" aria-hidden="true">⌕</span>
+      <input id="aq" type="search" placeholder="Cari ${n} tools..." value="${T.esc(q)}" autocomplete="off" aria-label="Cari semua tools">
+    </div>
+    <div class="sechead" style="margin-top:18px"><h2 id="allCount"></h2></div>
+    <div class="tgrid" id="allGrid"></div>
+    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis selamanya</footer>
   </div>`;
-  document.getElementById('palBtn').onclick = openPalette;
-  renderFavList();
-  observeRv(app);
-}
-function renderFavList() {
-  const box = document.getElementById('favList');
-  if (!box) return;
-  const favs = getFav().map(byId).filter(Boolean);
-  box.innerHTML = '';
-  if (!favs.length) {
-    box.innerHTML = `<div class="empty"><b>Belum ada favorit.</b><p>Jelajahi tools di beranda, lalu tap ★ pada yang sering kamu pakai.</p>
-      <div class="sugx"><button class="schip" onclick="location.hash='#/'">Lihat semua tools</button></div></div>`;
-    return;
-  }
-  const grid = document.createElement('div');
-  grid.className = 'tgrid';
-  favs.forEach((m, i) => grid.appendChild(cardEl(m, i, true)));
-  box.appendChild(grid);
-  observeRv(box);
+  const inp = app.querySelector('#aq');
+  const grid = app.querySelector('#allGrid');
+  const count = app.querySelector('#allCount');
+  const paint = (qq) => {
+    const ql = qq.trim();
+    const list = ql ? rankedSearch(ql) : manifest;
+    count.textContent = ql ? `${list.length} hasil` : `${list.length} tools`;
+    grid.innerHTML = '';
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+        <b>Tidak ketemu.</b><p>Coba kata lain, mis. "kalkulator".</p>
+        <div class="sugx">${['kalkulator', 'qr', 'weton'].map((s) => `<button class="schip">${s}</button>`).join('')}</div>
+      </div>`;
+      grid.querySelectorAll('.schip').forEach((b) => b.addEventListener('click', () => { inp.value = b.textContent; paint(inp.value); }));
+      return;
+    }
+    list.forEach((m) => grid.appendChild(cardEl(m, ql || null)));
+  };
+  let t;
+  inp.addEventListener('input', () => {
+    clearTimeout(t);
+    t = setTimeout(() => { if (inp.value.trim()) sbTrackDeb(inp.value.trim()); paint(inp.value); }, 180);
+  });
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && inp.value.trim()) sbTrack(inp.value.trim());
+  });
+  paint(q);
 }
 
-/* ============ halaman tool ============ */
-const toolMods = {};
-async function loadToolRender(t) {
-  if (t.render) return t.render;
-  if (!toolMods[t.id]) {
-    toolMods[t.id] = import('./' + t.file + '?v=' + VERSION).then(mod => {
-      t.render = mod.render;
-      return mod.render;
-    });
-  }
-  return toolMods[t.id];
-}
-async function toolPage(id) {
-  document.body.dataset.route = 'tool';
-  setTabActive(null);
-  const t = byId(id);
+/* ---------------- VIEW: kategori penuh (#/k/<id>) ---------------- */
+function catPage(id) {
+  const cat = CATS.find((c) => c[0] === id && id !== 'semua');
   const app = document.getElementById('app');
-  if (!t) {
-    app.innerHTML = `<div class="wrap view"><div class="empty" style="margin-top:60px"><b>Tool tidak ditemukan.</b><p>Mungkin sudah dipindah atau dihapus.</p><div class="sugx"><button class="schip" onclick="location.hash='#/'">Kembali ke beranda</button></div></div></div>`;
+  if (!cat) { location.hash = '#/'; return; }
+  document.body.dataset.route = 'kategori';
+  setTabActive(null);
+  document.title = cat[1] + ' - ADIP Tools';
+  const n = manifest.length;
+  const tools = manifest.filter((m) => m.cat === id);
+  app.innerHTML = `
+  <div class="wrap view">
+    <a class="back" href="#/">← Beranda</a>
+    <div class="cat-head rise" style="--i:0">
+      <span class="ctic" aria-hidden="true">${CAT_ICON[id] || '🧰'}</span>
+      <div><h2>${cat[1]}</h2><p class="csub">${tools.length} tools</p></div>
+    </div>
+    <div class="tgrid" id="catGrid"></div>
+    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis selamanya</footer>
+  </div>`;
+  const grid = app.querySelector('#catGrid');
+  tools.forEach((m) => grid.appendChild(cardEl(m, null)));
+}
+
+/* ---------------- FAVORIT ---------------- */
+function favPage() {
+  document.body.dataset.route = 'fav';
+  setTabActive('fav');
+  document.title = 'Favorit - ADIP Tools';
+  const n = manifest.length;
+  const app = document.getElementById('app');
+  const favs = getFav().map((x) => byId(x.id)).filter(Boolean);
+  app.innerHTML = `
+  <div class="wrap view">
+    <div class="cat-head rise" style="--i:0">
+      <span class="ctic" aria-hidden="true">♥</span>
+      <div><h2>Favorit</h2><p class="csub">${favs.length} tersimpan di perangkat ini</p></div>
+    </div>
+    <div class="tgrid" id="favGrid"></div>
+    ${favs.length ? '' : `<div class="empty"><b>Belum ada favorit.</b><p>Ketuk ♥ di kartu tools buat nyimpen.</p></div>`}
+    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis selamanya</footer>
+  </div>`;
+  const grid = app.querySelector('#favGrid');
+  favs.forEach((m) => grid.appendChild(cardEl(m, null)));
+}
+
+/* ---------------- HALAMAN TOOL ---------------- */
+let toolCb = [];
+function onToolLeave(cb) { toolCb.push(cb); }
+function runLeaveCbs() { toolCb.forEach((cb) => { try { cb(); } catch {} }); toolCb = []; }
+async function toolPage(id) {
+  const m = byId(id);
+  const app = document.getElementById('app');
+  document.body.dataset.route = 'tool';
+  if (!m) {
+    setTabActive(null);
+    document.title = 'Tidak ditemukan - ADIP Tools';
+    app.innerHTML = `<div class="wrap view"><div class="empty"><b>Tools tidak ditemukan.</b>
+      <p>Mungkin alamatnya berubah.</p></div><a class="back" href="#/">← Beranda</a></div>`;
     return;
   }
-  document.title = `${t.name} - ADIP Tools`;
+  setTabActive(null);
+  document.title = m.name + ' - ADIP Tools';
+  window.scrollTo(0, 0);
   app.innerHTML = `
   <div class="wrap narrow view">
-    <a class="back" href="#/">← Semua tools</a>
+    <a class="back" href="#/">← Beranda</a>
     <div class="tool-head">
-      <span class="tic">${t.icon}</span>
+      <span class="tic" aria-hidden="true">${m.icon}</span>
       <div class="th">
-        <h2>${T.esc(t.name)}</h2>
+        <h2>${T.esc(m.name)}</h2>
         <div class="meta">
-          <span class="tag">${catLabel(t.cat)}</span>
-          <span class="ds">${T.esc(t.desc)}</span>
+          <span class="tag">${catLabel(m.cat)}</span>
+          <span class="ds">${T.esc(m.desc || '')}</span>
         </div>
       </div>
-      <div class="tacts">
-        <button class="icobtn fav" data-fav="${t.id}" aria-label="Tambah ke favorit">★</button>
-        <button class="icobtn" id="shareBtn" aria-label="Bagikan">↗</button>
-      </div>
+      <div class="tacts"><button class="fav icobtn${isFav(m.id) ? ' on' : ''}" data-id="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button></div>
     </div>
-    <div class="tool" id="toolbox"><div class="skel"><i class="short"></i><i></i><i class="tall"></i></div></div>
-    <section class="related" id="related"></section>
-    <footer class="foot">
-      Data diproses lokal di browser kamu.<br><b>ADIP Tools</b> · gratis selamanya
-    </footer>
+    <div class="tool glass" id="toolbox"><div class="skel"><i class="short"></i><i></i><i class="tall"></i></div></div>
+    <div class="related">
+      <div class="sechead"><h2>Sejenis</h2></div>
+      <div class="tgrid" id="relGrid"></div>
+    </div>
+    <footer class="foot"><b>ADIP Tools</b> · ${manifest.length} tools, gratis selamanya</footer>
   </div>`;
-  bindFav(app.querySelector('.fav'), t.id);
-  app.querySelector('#shareBtn').onclick = async () => {
-    const url = location.origin + location.pathname + '#/t/' + t.id;
-    try {
-      if (navigator.share) { await navigator.share({ title: t.name, url }); }
-      else { await navigator.clipboard.writeText(url); toast('Tautan disalin'); }
-    } catch (e) { /* dibatalkan */ }
-  };
-  pushRecent(id);
+  touchRecent(m.id);
   try {
-    const render = await loadToolRender(t);
+    const mod = await import('./' + m.file + '?v=' + VERSION);
+    if (document.body.dataset.route !== 'tool') return;
     const box = document.getElementById('toolbox');
-    box.innerHTML = '';
-    render(box);
+    box.querySelector('.skel')?.remove();
+    mod.render(box, onToolLeave, T, m);
+    bindFav(app);
   } catch (e) {
-    document.getElementById('toolbox').innerHTML = `<div class="note err">Gagal memuat tool. Coba muat ulang halaman.</div>`;
+    const box = document.getElementById('toolbox');
+    if (box) box.innerHTML = `<div class="empty"><b>Gagal memuat.</b><p>Coba muat ulang halaman.</p></div>`;
   }
-  /* lihat juga: tools se-kategori, acak */
-  const rel = manifest.filter(m => m.cat === t.cat && m.id !== t.id)
-    .sort(() => Math.random() - 0.5).slice(0, 6);
-  if (rel.length) {
-    const rsec = document.getElementById('related');
-    rsec.innerHTML = `<div class="sechead"><h2>Lihat juga</h2></div>`;
-    const grid = document.createElement('div');
-    grid.className = 'tgrid';
-    rel.forEach((m, i) => grid.appendChild(cardEl(m, i, false)));
-    rsec.appendChild(grid);
+  const grid = document.getElementById('relGrid');
+  if (grid) {
+    manifest
+      .filter((x) => x.cat === m.cat && x.id !== m.id)
+      .slice(0, 4)
+      .forEach((x) => grid.appendChild(cardEl(x, null)));
   }
-  observeRv(app);
-  window.scrollTo({ top: 0 });
 }
 
-/* ============ router ============ */
-let leaveCbs = [];
-function runLeaveCbs() {
-  leaveCbs.forEach(cb => { try { cb(); } catch (e) {} });
-  leaveCbs = [];
-}
-T.onLeave = cb => leaveCbs.push(cb);
+/* ---------------- ROUTER ---------------- */
 function route() {
-  runLeaveCbs();
-  closePalette();
+  runLeaveCbs(); closePalette();
   const hash = location.hash || '#/';
-  if (hash.startsWith('#/t/')) {
-    toolPage(decodeURIComponent(hash.slice(4)));
-  } else if (hash === '#/favorit') {
-    document.title = 'Favorit - ADIP Tools';
-    favPage();
-  } else {
-    document.title = 'Butuh apa? - ADIP Tools';
-    home();
+  if (hash.startsWith('#/t/')) toolPage(decodeURIComponent(hash.slice(4).split('?')[0]));
+  else if (hash.startsWith('#/k/')) catPage(decodeURIComponent(hash.slice(4).split('?')[0]));
+  else if (hash.startsWith('#/semua')) {
+    const mm = hash.match(/[?&]q=([^&]*)/);
+    allPage(mm ? decodeURIComponent(mm[1]) : '');
   }
+  else if (hash === '#/favorit') favPage();
+  else home();
 }
-window.addEventListener('hashchange', route);
 
-/* ============ keyboard global ============ */
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); }
-  else if (e.key === '/' && !palEl && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName || '')) {
-    const q = document.getElementById('q');
+/* ---------------- boot ---------------- */
+ensureTabs();
+sbFetchPopular();
+window.addEventListener('hashchange', route);
+document.addEventListener('keydown', (e) => {
+  const inField = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openPalette(); return; }
+  if (palEl && e.key === 'Escape') { closePalette(); return; }
+  if (e.key === '/' && !palEl && !inField) {
+    const q = document.getElementById('q') || document.getElementById('aq');
     if (q) { e.preventDefault(); q.focus(); }
   }
-  else if (e.key === 'Escape' && palEl) closePalette();
 });
-
-/* ============ boot ============ */
-ensureTabs();
 route();

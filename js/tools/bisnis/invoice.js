@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=5.2.0';
+import { h as T, utils } from '../../core.js?v=6.0.0';
 
 utils.invoiceCalc = function (items, discPct, taxPct) {
     let sub = 0;
