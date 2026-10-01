@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.6.0';
+import { h as T } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"tantangan-30-hari","name":"Tantangan 30 Hari","cat":"fun","icon":"🗓️","desc":"30 tantangan harian per tema + checklist progres yang kesimpan.","keywords":"tantangan,challenge,30 hari,habit,kebiasaan,olahraga,baca,hemat,produktif"};
 

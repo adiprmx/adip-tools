@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.6.0';
+import { h as T, kv } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"laporan-laba-rugi","name":"Laba Rugi Sederhana","cat":"bisnis","icon":"📒","desc":"Catat pemasukan, HPP & operasional — langsung ketahuan laba bersihmu.","keywords":"laba rugi,pemasukan,hpp,operasional,keuangan usaha,laporan keuangan,margin,untung,rugi"};
 export function render(root) {

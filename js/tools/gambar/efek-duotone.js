@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.6.0';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"efek-duotone","name":"Efek Duotone","cat":"gambar","icon":"🎭","desc":"Foto biasa jadi poster duotone dua warna.","keywords":"duotone,efek,warna,foto,poster,canvas"};
 

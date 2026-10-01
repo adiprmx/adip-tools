@@ -1,4 +1,4 @@
-import { h as T, kv, rp, num, fmt } from '../../core.js?v=6.6.0';
+import { h as T, kv, rp, num, fmt } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "biaya-bbm", "name": "Biaya BBM", "cat": "sehari", "icon": "⛽", "desc": "Estimasi biaya bensin untuk jarak tempuhmu.", "keywords": "bbm,bensin,biaya perjalanan,pertalite,pertamax,harga bensin,konsumsi"};
 

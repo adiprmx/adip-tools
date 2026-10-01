@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"hitung-suku-kata","name":"Hitung Suku Kata","cat":"teks","icon":"🗣️","desc":"Estimasi suku kata per kata Bahasa Indonesia.","keywords":"suku kata,puisi,pantun,bahasa indonesia,hitung"};
 

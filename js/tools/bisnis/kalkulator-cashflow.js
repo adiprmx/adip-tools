@@ -1,4 +1,4 @@
-import { h as T, kv, rp, num } from '../../core.js?v=6.6.0';
+import { h as T, kv, rp, num } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "kalkulator-cashflow", "name": "Arus Kas", "cat": "bisnis", "icon": "💹", "desc": "Catat pemasukan & pengeluaran bulanan, ketahuan sisa kasnya.", "keywords": "cashflow,arus kas,pemasukan,pengeluaran,surplus,defisit,keuangan"};
 

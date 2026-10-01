@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"nama-panggung","name":"Nama Panggung","cat":"fun","icon":"🌟","desc":"Generator nama panggung dari namamu.","keywords":"nama,panggung,artis,musisi,brand"};
 

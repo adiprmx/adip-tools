@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.6.0';
+import { h as T, kv } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "kalkulator-ppn", "name": "Kalkulator PPN 12%", "cat": "bisnis", "icon": "🧾", "desc": "Bedah harga jadi DPP + PPN, include maupun exclude.", "keywords": "ppn,pajak,dpp,12 persen,include,exclude,faktur"};
 export function render(root) {

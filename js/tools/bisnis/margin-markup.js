@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.6.0';
+import { h as T, kv } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "margin-markup", "name": "Margin vs Markup", "cat": "bisnis", "icon": "📊", "desc": "Bedain margin & markup, plus cari harga jual dari target.", "keywords": "margin,markup,modal,harga jual,profit,untung"};
 export function render(root) {

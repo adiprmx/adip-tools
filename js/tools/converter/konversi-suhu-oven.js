@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "konversi-suhu-oven", "name": "Suhu Oven", "cat": "converter", "icon": "🔥", "desc": "Konversi suhu oven °C/°F/Gas Mark.", "keywords": "oven,suhu,gas mark,masak,resep"};
 export function render(root) {

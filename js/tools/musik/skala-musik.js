@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "skala-musik", "name": "Skala Musik", "cat": "musik", "icon": "🎹", "desc": "Lihat & dengarkan nada-nada dalam tiap skala.", "keywords": "skala,scale,mayor,minor,pentatonik,blues,nada,musik"};
 

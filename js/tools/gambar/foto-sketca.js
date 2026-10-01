@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.6.0';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"foto-sketca","name":"Foto ke Sketsa","cat":"gambar","icon":"✏️","desc":"Ubah foto jadi sketsa pensil.","keywords":"sketsa,pensil,foto,efek,grayscale,hitam putih"};
 

@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
-import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
+import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop foto sesuai rasio pas foto resmi.","keywords":"pas foto,crop,ktp,lamaran,rasio"};
 

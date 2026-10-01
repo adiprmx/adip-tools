@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.6.0';
+import { h as T, kv } from '../../core.js?v=6.7.0';
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];

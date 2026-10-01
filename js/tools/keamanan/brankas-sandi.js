@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 /* Enkripsi AES-GCM via WebCrypto — pendekatan meniru catatan-terkunci.js.
  * Satu vault terenkripsi menyimpan {cek, entri[]}; password tidak pernah

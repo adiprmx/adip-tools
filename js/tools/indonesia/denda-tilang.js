@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.6.0';
+import { h as T, utils, kv } from '../../core.js?v=6.7.0';
 
 // Denda MAKSIMAL sesuai UU No. 22 Tahun 2009 tentang LLAJ
 // (pidana kurungan paling lama X atau denda paling banyak RpY).

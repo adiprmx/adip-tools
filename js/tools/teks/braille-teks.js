@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"braille-teks","name":"Teks ke Braille","cat":"teks","icon":"⠿","desc":"Konversi dua arah teks Latin ↔ huruf braille Unicode.","keywords":"braille,tunanetra,konversi,teks,aksara"};
 

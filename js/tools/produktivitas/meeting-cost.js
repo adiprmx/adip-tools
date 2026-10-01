@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.6.0';
+import { h as T, kv } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"meeting-cost","name":"Biaya Meeting","cat":"produktivitas","icon":"💸","desc":"Hitung berapa rupiah yang 'terbakar' tiap detik meeting berjalan.","keywords":"meeting,biaya meeting,rapat,gaji,timer live,efisiensi,biaya rapat"};
 export function render(root) {

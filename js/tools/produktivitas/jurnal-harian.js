@@ -1,4 +1,4 @@
-import { h as T, todayISO } from '../../core.js?v=6.6.0';
+import { h as T, todayISO } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"jurnal-harian","name":"Jurnal Harian","cat":"produktivitas","icon":"📓","desc":"Tulis jurnal per tanggal, buka lagi kapan pun kangen masa lalu.","keywords":"jurnal,diary,harian,catatan,refleksi,menulis,curhat"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "tes-kepribadian", "name": "Tes Kepribadian Receh", "cat": "fun", "icon": "🧠", "desc": "10 pertanyaan, 4 tipe hasil yang nggak disangka-sangka.", "keywords": "tes,kepribadian,kuis,receh,lucu,fun"};
 export function render(root) {

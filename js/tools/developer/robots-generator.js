@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.6.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "robots-generator", "name": "Robots.txt Generator", "cat": "developer", "icon": "🤖", "desc": "Susun file robots.txt.", "keywords": "robots,seo,txt"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"review-mingguan","name":"Review Mingguan","cat":"produktivitas","icon":"📝","desc":"Refleksi mingguan: 3 yang beres, 3 pelajaran, 3 fokus.","keywords":"review,mingguan,refleksi,weekly,jurnal,evaluasi,fokus,retro"};
 

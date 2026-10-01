@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "latihan-interval", "name": "Latihan Interval", "cat": "musik", "icon": "👂", "desc": "Asah kuping: tebak jarak 2 nada dalam 10 ronde.", "keywords": "interval,ear training,telinga,nada,musik,latihan"};
 

@@ -1,8 +1,8 @@
-/* ADIP Tools v6.6.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.7.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.6.0';
+export const VERSION = '6.7.0';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -247,5 +247,34 @@ export const manifest = [
   {"id": "cheatsheet-regex", "name": "Cheatsheet Regex", "cat": "developer", "icon": "📜", "desc": "8 pola regex umum + tester mini tiap kartu.", "keywords": "regex,regular expression,validasi,pola,email,url", "file": "tools/developer/cheatsheet-regex.js"},
   {"id": "desimal-ke-pecahan", "name": "Desimal ke Pecahan", "cat": "converter", "icon": "➗", "desc": "Desimal jadi pecahan tersederhana + langkahnya.", "keywords": "desimal,pecahan,fraksi,fpb,persen", "file": "tools/converter/desimal-ke-pecahan.js"},
   {"id": "brankas-sandi", "name": "Brankas Sandi", "cat": "keamanan", "icon": "🗝️", "desc": "Simpan password terenkripsi AES di HP ini.", "keywords": "brankas,password,sandi,manager,enkripsi,aes", "file": "tools/keamanan/brankas-sandi.js"},
+
+  {"id": "hitung-pajak-resto", "name": "Pajak Resto", "cat": "indonesia", "icon": "🍽️", "desc": "Hitung total bayar makan di resto + split bill patungan.", "keywords": "pajak,resto,restoran,split bill,patungan,service charge,tagihan", "file": "tools/indonesia/hitung-pajak-resto.js"},
+  {"id": "kalkulator-dana-darurat", "name": "Dana Darurat", "cat": "indonesia", "icon": "🛟", "desc": "Hitung target dana darurat ideal + progres menabungmu.", "keywords": "dana darurat,tabungan,keuangan,emergency fund,pengeluaran", "file": "tools/indonesia/kalkulator-dana-darurat.js"},
+  {"id": "kalkulator-preorder", "name": "Kalkulator Pre-Order", "cat": "bisnis", "icon": "📦", "desc": "Tentukan harga jual per slot & estimasi laba pre-order batch.", "keywords": "preorder,pre-order,harga jual,margin,laba,bisnis,batch", "file": "tools/bisnis/kalkulator-preorder.js"},
+  {"id": "beli-vs-sewa", "name": "Beli vs Sewa", "cat": "bisnis", "icon": "⚖️", "desc": "Bandingkan total biaya beli vs sewa + titik impasnya.", "keywords": "beli,sewa,break even,impas,perbandingan,biaya", "file": "tools/bisnis/beli-vs-sewa.js"},
+  {"id": "jejak-karbon", "name": "Jejak Karbon", "cat": "sehari", "icon": "🌱", "desc": "Estimasi jejak karbon tahunanmu + tips menguranginya.", "keywords": "karbon,emisi,co2,lingkungan,kendaraan,listrik,penerbangan", "file": "tools/sehari/jejak-karbon.js"},
+  {"id": "jadwal-siram-tanaman", "name": "Jadwal Siram", "cat": "sehari", "icon": "🪴", "desc": "Catat tanamanmu, diingetin kapan waktunya disiram.", "keywords": "tanaman,siram,jadwal,berkebun,menyiram,rawat tanaman,air", "file": "tools/sehari/jadwal-siram-tanaman.js"},
+  {"id": "metode-52-17", "name": "Metode 52-17", "cat": "produktivitas", "icon": "⏱️", "desc": "Timer fokus 52 menit + istirahat 17 menit, siklusnya jalan otomatis.", "keywords": "timer,fokus,52-17,istirahat,produktivitas,kerja,belajar,deep work,konsentrasi", "file": "tools/produktivitas/metode-52-17.js"},
+  {"id": "jurnal-syukur", "name": "Jurnal Syukur", "cat": "produktivitas", "icon": "🙏", "desc": "Tulis 3 hal yang kamu syukuri hari ini, simpel dan menenangkan.", "keywords": "jurnal,syukur,gratitude,harian,refleksi,mindfulness,catatan", "file": "tools/produktivitas/jurnal-syukur.js"},
+  {"id": "estimasi-skor-toefl", "name": "Estimasi TOEFL", "cat": "pelajar", "icon": "🎓", "desc": "Perkirakan skor TOEFL dari nilai latihan listening, structure, reading.", "keywords": "toefl,skor,estimasi,itp,listening,structure,reading,tes bahasa inggris,latihan", "file": "tools/pelajar/estimasi-skor-toefl.js"},
+  {"id": "plot-fungsi", "name": "Plot Fungsi", "cat": "pelajar", "icon": "📉", "desc": "Gambar grafik f(x) + tabel nilai x dari -10 sampai 10.", "keywords": "fungsi,grafik,plot,matematika,kurva,fx", "file": "tools/pelajar/plot-fungsi.js"},
+  {"id": "zodiak-hari-ini", "name": "Zodiak Hari Ini", "cat": "fun", "icon": "♈", "desc": "Cek zodiakmu + ramalan receh hari ini. Cuma hiburan!", "keywords": "zodiak,ramalan,horoskop,bintang,lahir", "file": "tools/fun/zodiak-hari-ini.js"},
+  {"id": "tebak-angka", "name": "Tebak Angka", "cat": "fun", "icon": "🔢", "desc": "Komputer mikir angka 1-100. Berani nebak?", "keywords": "tebak,angka,game,kuis,skor", "file": "tools/fun/tebak-angka.js"},
+  {"id": "suit-jawa", "name": "Suit Jawa", "cat": "fun", "icon": "✊", "desc": "Gunting-batu-kertas lawan komputer. Suit...!", "keywords": "suit,gunting,batu,kertas,game,jawa", "file": "tools/fun/suit-jawa.js"},
+  {"id": "tebak-kata", "name": "Tebak Kata", "cat": "fun", "icon": "🔤", "desc": "Hangman Bahasa Indonesia: 64 kata, 6 nyawa.", "keywords": "hangman,tebak,kata,game,indonesia,huruf", "file": "tools/fun/tebak-kata.js"},
+  {"id": "efek-vintage", "name": "Efek Vintage", "cat": "gambar", "icon": "📷", "desc": "Ubah foto jadi nuansa vintage: sepia, vignette, grain.", "keywords": "vintage,foto,filter,sepia,vignette,grain,foto jadul", "file": "tools/gambar/efek-vintage.js"},
+  {"id": "teks-pelangi", "name": "Teks Pelangi", "cat": "teks", "icon": "🌈", "desc": "Ubah teks jadi pelangi huruf per huruf, salin sebagai HTML.", "keywords": "pelangi,rainbow,teks berwarna,html,warnai teks,gradient teks", "file": "tools/teks/teks-pelangi.js"},
+  {"id": "pembuat-singkatan", "name": "Pembuat Singkatan", "cat": "teks", "icon": "🔤", "desc": "Bikin beberapa varian singkatan dari kalimat atau frasa.", "keywords": "singkatan,akronim,initsial,abbreviation,frasa", "file": "tools/teks/pembuat-singkatan.js"},
+  {"id": "generator-env", "name": "Generator .env", "cat": "developer", "icon": "⚙️", "desc": "Susun file .env dari template: Node.js, Laravel, Django, Next.js.", "keywords": "env,environment variable,dotenv,config,node,laravel,django,nextjs", "file": "tools/developer/generator-env.js"},
+  {"id": "generator-docker-run", "name": "Docker Run Builder", "cat": "developer", "icon": "🐳", "desc": "Rakit perintah docker run + docker-compose setara lewat form.", "keywords": "docker,container,compose,docker run,devops,deployment", "file": "tools/developer/generator-docker-run.js"},
+  {"id": "favicon-generator", "name": "Favicon Generator", "cat": "desain", "icon": "⭐", "desc": "Bikin favicon PNG dari emoji atau huruf.", "keywords": "favicon,icon,emoji,png,apple-touch,logo,website", "file": "tools/desain/favicon-generator.js"},
+  {"id": "mockup-hp", "name": "Mockup HP", "cat": "desain", "icon": "📱", "desc": "Tempel screenshot ke bingkai HP, unduh PNG.", "keywords": "mockup,hp,smartphone,screenshot,bingkai,phone,frame", "file": "tools/desain/mockup-hp.js"},
+  {"id": "ukuran-konten-sosmed", "name": "Ukuran Sosmed", "cat": "desain", "icon": "📐", "desc": "Panduan ukuran konten sosmed 2026 + kalkulator rasio.", "keywords": "ukuran,sosmed,instagram,tiktok,youtube,rasio,dimensi,feed,story,reels,thumbnail", "file": "tools/desain/ukuran-konten-sosmed.js"},
+  {"id": "kekuatan-pin", "name": "Kekuatan PIN", "cat": "keamanan", "icon": "🔢", "desc": "Cek seberapa kuat PIN kamu, 100% offline.", "keywords": "pin,password,keamanan,kuat,sandi,cek", "file": "tools/keamanan/kekuatan-pin.js"},
+  {"id": "checklist-backup", "name": "Checklist Backup", "cat": "keamanan", "icon": "💾", "desc": "Checklist backup 3-2-1 + pengingat jadwal.", "keywords": "backup,checklist,3-2-1,data,aman,pengingat", "file": "tools/keamanan/checklist-backup.js"},
+  {"id": "kalkulator-ppi", "name": "Kalkulator PPI", "cat": "converter", "icon": "🖥️", "desc": "Hitung kerapatan piksel layar dari resolusi & diagonal.", "keywords": "ppi,resolusi,layar,piksel,dpi,monitor,hp,tv", "file": "tools/converter/kalkulator-ppi.js"},
+  {"id": "fase-bulan", "name": "Fase Bulan", "cat": "liveapi", "icon": "🌕", "desc": "Fase bulan hari ini, dihitung lokal tanpa internet.", "keywords": "bulan,fase,purnama,bulan baru,moon,lunar", "file": "tools/liveapi/fase-bulan.js"},
+  {"id": "posisi-iss", "name": "Posisi ISS", "cat": "liveapi", "icon": "🛰️", "desc": "Lacak posisi Stasiun Luar Angkasa Internasional secara live.", "keywords": "iss,satelit,posisi,stasiun luar angkasa,nasa,live", "file": "tools/liveapi/posisi-iss.js"},
+  {"id": "terbit-terbenam", "name": "Terbit & Terbenam", "cat": "liveapi", "icon": "🌅", "desc": "Jadwal matahari terbit & terbenam + hitung mundur.", "keywords": "matahari,terbit,terbenam,sunrise,sunset,jadwal,shubuh,maghrib", "file": "tools/liveapi/terbit-terbenam.js"},
 
 ];

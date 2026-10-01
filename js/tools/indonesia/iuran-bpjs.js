@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "iuran-bpjs", "name": "Iuran BPJS Kesehatan", "cat": "indonesia", "icon": "🏥", "desc": "Hitung iuran BPJS Kesehatan per bulan & per tahun.", "keywords": "bpjs,kesehatan,iuran,kelas,jkn,jaminan"};
 export function render(root) {

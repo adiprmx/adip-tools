@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.6.0';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"efek-polaroid","name":"Efek Polaroid","cat":"gambar","icon":"📸","desc":"Foto jadi polaroid klasik + caption tulisan tangan.","keywords":"polaroid,foto,efek,vintage,retro,caption,klasik"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id":"zona-denyut-jantung","name":"Zona Denyut Jantung","cat":"sehari","icon":"❤️","desc":"Hitung zona latihan dari denyut jantung maksimalmu.","keywords":"denyut,jantung,heart,rate,zona,kardio,latihan,olahraga,bpm"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "analisis-url", "name": "Analisis URL", "cat": "keamanan", "icon": "🔗", "desc": "Bedah URL & deteksi pola mencurigakan.", "keywords": "url,phising,aman,link,analisis"};
 export function render(root) {

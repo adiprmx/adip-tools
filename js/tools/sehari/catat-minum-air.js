@@ -1,4 +1,4 @@
-import { h as T, kv, todayISO } from '../../core.js?v=6.6.0';
+import { h as T, kv, todayISO } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "catat-minum-air", "name": "Catat Minum Air", "cat": "sehari", "icon": "💧", "desc": "Pantau air minum harianmu, jangan sampai kurang.", "keywords": "air minum,hidrasi,catat minum,tracker air,kesehatan"};
 

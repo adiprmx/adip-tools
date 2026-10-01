@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.6.0';
+import { h as T, utils } from '../../core.js?v=6.7.0';
 
 export const meta = {"id": "meter-bucin", "name": "Meter Bucin", "cat": "fun", "icon": "💘", "desc": "Ukur level kebucinanmu lewat 8 pertanyaan jujur.", "keywords": "bucin,cinta,kuis,lucu,fun"};
 
