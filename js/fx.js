@@ -43,21 +43,28 @@ function initRipple() {
   }, { passive: true });
 }
 
+/* ---------- 1b. BEBASKAN ENTRANCE: fill "both" menimpa :hover/:active
+   selamanya → lepas animasi kartu/ubin setelah selesai.
+   Jalan di semua device (bukan cuma pointer halus).
+   (Hanya kartu/ubin: base style mereka = state akhir, aman dibebaskan.
+    .rise/.w punya opacity:0 bawaan → JANGAN dibebaskan.) ---------- */
+function initFreeEntrance() {
+  const SEL = '.tcard,.hcard,.cattile';
+  const ENTRANCE = new Set(['fx-card', 'fx-hcard', 'fx-tile', 'rise-in']);
+  document.addEventListener('animationend', (e) => {
+    const t = e.target;
+    if (ENTRANCE.has(e.animationName) && t && t.closest && t.closest(SEL)) {
+      t.style.animation = 'none';
+    }
+  });
+}
+
 /* ---------- 2. TILT 3D: kartu miring mengikuti pointer ---------- */
 function initTilt() {
   if (!FINE_POINTER) return; // mati di touch
   const SEL = '.tcard,.hcard';
   const MAX = 5; // derajat maks — sangat halus
   let cur = null, raf = 0, px = 0, py = 0;
-
-  // CSS entrance (.tgrid > .tcard) memakai animation fill "both" yang
-  // menimpa inline transform selamanya → bebaskan setelah selesai.
-  document.addEventListener('animationend', (e) => {
-    const t = e.target;
-    if (e.animationName === 'rise-in' && t && t.closest && t.closest(SEL)) {
-      t.style.animation = 'none';
-    }
-  });
 
   const apply = () => {
     raf = 0;
@@ -152,6 +159,7 @@ function initConfetti() {
 
 /* ---------- jalan ---------- */
 if (!RM) {
+  initFreeEntrance();
   initRipple();
   initTilt();
   initConfetti();
