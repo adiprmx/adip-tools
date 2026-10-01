@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.0.0';
+import { h as T, utils } from '../../core.js?v=6.0.1';
 
 export const meta = {"id": "favicon", "name": "Favicon Generator", "cat": "desain", "icon": "⭐", "desc": "Bikin favicon dari emoji/teks.", "keywords": "favicon,icon,emoji,website"};
 export function render(root) {

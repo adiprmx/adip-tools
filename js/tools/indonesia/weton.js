@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv } from '../../core.js?v=6.0.0';
+import { h as T, utils, U, kv } from '../../core.js?v=6.0.1';
 
 U.weton = (yyyy, mm, dd) => {
     const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];

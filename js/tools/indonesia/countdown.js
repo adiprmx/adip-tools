@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.0.0';
+import { h as T, utils } from '../../core.js?v=6.0.1';
 
 export const meta = {"id": "countdown", "name": "Countdown Acara", "cat": "indonesia", "icon": "🎉", "desc": "Hitung mundur ke hari penting.", "keywords": "countdown,hitung,mundur,acara"};
 export function render(root) {

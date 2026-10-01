@@ -18,23 +18,23 @@
    - Kontrak: tool = 1 file; tool dilarang import tool lain;
      fungsi bersama -> core.js; manifest.js generated (jangan edit manual).
    ============================================================ */
-import { manifest, VERSION } from './manifest.js?v=6.0.0';
-import * as T from './core.js?v=6.0.0';
+import { manifest, VERSION } from './manifest.js?v=6.0.1';
+import * as T from './core.js?v=6.0.1';
 
 const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJic3VwYWJhc2UiLCJyZWYiOiJqZWJhZmRkd3VweXFwd2V2aHNxbiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc1NzQ1MDQzLCJleHAiOjIwOTI5NjEwNDN9.HY9zA3H3cC6cT9aN5b_8R3fJ5m7Y4pQ2wE9rT1uI4oP6sD8fG';
 const SEARCH_DENY = ['muse-test'];
 
 const CATS = [
-  ['semua','Semua'],['keamanan','Keamanan'],['converter','Converter'],['dev','Dev & Web'],
+  ['semua','Semua'],['keamanan','Keamanan'],['converter','Converter'],['developer','Dev & Web'],
   ['desain','Desain'],['indonesia','Indonesia'],['musik','Musik'],['gambar','Gambar'],
   ['teks','Teks'],['bisnis','Bisnis'],['sehari','Sehari-hari'],['fun','Fun'],
-  ['produktivitas','Produktivitas'],['pelajar','Pelajar'],['api','Live API'],
+  ['produktivitas','Produktivitas'],['pelajar','Pelajar'],['liveapi','Live API'],
 ];
 const CAT_ICON = {
-  keamanan: '🔐', converter: '🔁', dev: '🧑‍💻', desain: '🎨', indonesia: '🇮🇩',
+  keamanan: '🔐', converter: '🔁', developer: '🧑‍💻', desain: '🎨', indonesia: '🇮🇩',
   musik: '🎧', gambar: '🖼️', teks: '🔤', bisnis: '💼', sehari: '🏠',
-  fun: '🎲', produktivitas: '⚡', pelajar: '📚', api: '🌐', semua: '🧰',
+  fun: '🎲', produktivitas: '⚡', pelajar: '📚', liveapi: '🌐', semua: '🧰',
 };
 const catLabel = (id) => (CATS.find((c) => c[0] === id) || ['?','Lainnya'])[1];
 const byId = (id) => manifest.find((m) => m.id === id);
@@ -160,7 +160,7 @@ function wordScore(q, text) {
 function searchScore(q, m) {
   const name = m.name.toLowerCase();
   const desc = (m.desc || '').toLowerCase();
-  const kws = (m.keywords || []).map((k) => String(k).toLowerCase());
+  const kws = String(m.keywords || '').split(',').map((k) => k.trim().toLowerCase()).filter(Boolean);
   const nameHit = Math.max(fuzzyScore(q, name), wordScore(q, name));
   const descHit = Math.max(fuzzyScore(q, desc), wordScore(q, desc)) * 0.6;
   const kwHit = kws.reduce((a, k) => Math.max(a, Math.max(fuzzyScore(q, k), wordScore(q, k))), 0) * 0.8;
@@ -176,7 +176,7 @@ function smartBoost(m, q) {
   if (m.name.toLowerCase().includes(q)) b += TITLE_BONUS;
   return b;
 }
-function searchCtx() { return { favIds: new Set(getFav().map((x) => x.id)), recIds: new Set(getRecent().map((x) => x.id))) }; }
+function searchCtx() { return { favIds: new Set(getFav().map((x) => x.id)), recIds: new Set(getRecent().map((x) => x.id)) }; }
 function rankedSearch(q) {
   const ql = q.trim().toLowerCase();
   if (!ql) return visibleTools();

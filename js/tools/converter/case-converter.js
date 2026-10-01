@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.0.0';
+import { h as T, utils } from '../../core.js?v=6.0.1';
 
 export const meta = {"id": "case-converter", "name": "Case Converter", "cat": "converter", "icon": "✏️", "desc": "camelCase, snake_case, kebab-case, Title Case, dll.", "keywords": "case,huruf,camel,snake,kebab,kapital"};
 export function render(root) {

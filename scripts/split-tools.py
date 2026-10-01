@@ -15,7 +15,7 @@ import json, os, re, shutil, sys
 
 ROOT = '/home/hatch/workspace/projects/adip-tools'
 JS = os.path.join(ROOT, 'js')
-VERSION = '6.0.0'
+VERSION = '6.0.1'
 analysis = json.load(open('/tmp/split/analysis.json'))
 
 # Muat source per batch

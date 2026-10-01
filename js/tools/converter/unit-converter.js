@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.0.0';
+import { h as T, utils } from '../../core.js?v=6.0.1';
 
 export const meta = {"id": "unit-converter", "name": "Konverter Satuan", "cat": "converter", "icon": "📏", "desc": "Panjang, berat, suhu, volume, kecepatan.", "keywords": "satuan,konversi,panjang,berat,suhu,km,mile"};
 export function render(root) {
