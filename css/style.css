@@ -53,6 +53,7 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --spring: cubic-bezier(0.34, 1.45, 0.64, 1);
   --snappy: cubic-bezier(0.22, 1, 0.36, 1);
+  --lux: cubic-bezier(0.19, 1, 0.22, 1);
   --z-header: 40;
   --z-tabs: 60;
   --z-pal: 80;
@@ -98,13 +99,22 @@ a { color: inherit; }
 .rise { opacity: 0; animation: rise-in 0.5s var(--snappy) forwards; animation-delay: calc(var(--i, 0) * 55ms); }
 @keyframes rise-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
 
-/* ---------- headline: kata per kata, blur-to-sharp ---------- */
-.hero h1 .w { display: inline-block; opacity: 0; animation: word-in 0.6s var(--snappy) forwards; animation-delay: calc(0.15s + var(--i, 0) * 110ms); }
-@keyframes word-in { from { opacity: 0; transform: translateY(16px); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
-/* sapaan: typewriter */
-.hero .hi .tw { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; max-width: 0; animation: tw-type 1.15s steps(34) 0.1s forwards; border-right: 2px solid var(--acc); }
-@keyframes tw-type { to { max-width: 42ch; } }
-.hero .hi .tw.done { border-right-color: transparent; transition: border-right-color 0.3s; }
+/* ---------- headline: masked reveal ala editorial (bukan fade generik) ---------- */
+.hero h1 .w { display: inline-block; }
+.hero h1 .mask { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0.08em 0 0.12em; margin: -0.08em 0 -0.12em; }
+.hero h1 .mi { display: inline-block; transform: translateY(115%) rotate(2.5deg); transform-origin: 0% 100%; animation: mi-up 1.05s var(--lux) forwards; animation-delay: calc(0.12s + var(--i, 0) * 130ms); }
+@keyframes mi-up { to { transform: none; } }
+/* sapaan: fade naik yang tenang (typewriter dicabut — terlalu klise) */
+.hero .hi { opacity: 0; animation: hi-in 0.9s var(--lux) 0.72s forwards; }
+@keyframes hi-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* search: masuk dengan koreografi */
+.hero .hsearch { opacity: 0; animation: hs-in 1s var(--lux) 0.55s forwards; }
+@keyframes hs-in { from { opacity: 0; transform: translateY(18px) scale(0.985); } to { opacity: 1; transform: none; } }
+/* transisi antar halaman: View Transitions API */
+::view-transition-old(root) { animation: vt-out 0.32s var(--snappy); }
+::view-transition-new(root) { animation: vt-in 0.55s var(--snappy); }
+@keyframes vt-out { to { opacity: 0; transform: translateY(-14px) scale(0.992); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(18px); } }
 
 /* ---------- header ramping (sticky), solid ---------- */
 .top {

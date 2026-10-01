@@ -38,7 +38,7 @@
   transform: scaleX(0);
   transform-origin: left center;
   animation:
-    ul-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.05s forwards,
+    ul-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.4s forwards,
     ul-sheen 9s ease-in-out 2.6s infinite;
 }
 
@@ -121,11 +121,9 @@
     transform: scaleX(1);
   }
   /* pastikan state akhir animasi style.css tetap tercapai */
-  .hero h1 .w {
+  .hero h1 .mi,
+  .hero .hi,
+  .hero .hsearch {
     animation-duration: 0.01ms !important;
-  }
-  .hero .hi .tw {
-    animation-duration: 0.01ms !important;
-    border-right-color: transparent;
   }
 }

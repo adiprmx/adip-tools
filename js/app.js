@@ -380,8 +380,8 @@ function home() {
       </div>
     </header>
     <section class="hero rise" style="--i:0">
-      <p class="hi"><span class="tw" id="twHi">${greet()}, butuh bantuan apa?</span></p>
-      <h1><span class="w" style="--i:0">Butuh</span> <span class="w" style="--i:1"><span class="qm">apa?</span></span></h1>
+      <p class="hi">${greet()}, butuh bantuan apa?</p>
+      <h1><span class="w" style="--i:0"><span class="mask"><span class="mi">Butuh</span></span></span> <span class="w" style="--i:1"><span class="mask"><span class="mi"><span class="qm">apa?</span></span></span></span></h1>
       <div class="hsearch glass">
         <span class="glyph" aria-hidden="true">⌕</span>
         <input id="q" type="search" placeholder="${PH_EXAMPLES[0]}" autocomplete="off" aria-label="Cari tools">
@@ -426,9 +426,6 @@ function home() {
   renderContinue();
   renderPopuler();
   renderRecent();
-  // typewriter: hilangkan kursor setelah selesai mengetik
-  const tw = app.querySelector('#twHi');
-  if (tw) setTimeout(() => tw.classList.add('done'), 1450);
   // count-up angka tools
   const cb = app.querySelector('[data-countup]');
   if (cb) {
@@ -646,15 +643,20 @@ async function toolPage(id) {
 /* ---------------- ROUTER ---------------- */
 function route() {
   runLeaveCbs(); closePalette();
-  const hash = location.hash || '#/';
-  if (hash.startsWith('#/t/')) toolPage(decodeURIComponent(hash.slice(4).split('?')[0]));
-  else if (hash.startsWith('#/k/')) catPage(decodeURIComponent(hash.slice(4).split('?')[0]));
-  else if (hash.startsWith('#/semua')) {
-    const mm = hash.match(/[?&]q=([^&]*)/);
-    allPage(mm ? decodeURIComponent(mm[1]) : '');
-  }
-  else if (hash === '#/favorit') favPage();
-  else home();
+  const run = () => {
+    const hash = location.hash || '#/';
+    if (hash.startsWith('#/t/')) toolPage(decodeURIComponent(hash.slice(4).split('?')[0]));
+    else if (hash.startsWith('#/k/')) catPage(decodeURIComponent(hash.slice(4).split('?')[0]));
+    else if (hash.startsWith('#/semua')) {
+      const mm = hash.match(/[?&]q=([^&]*)/);
+      allPage(mm ? decodeURIComponent(mm[1]) : '');
+    }
+    else if (hash === '#/favorit') favPage();
+    else home();
+  };
+  // transisi halaman ala aplikasi native (fallback: render biasa)
+  if (document.startViewTransition) document.startViewTransition(run);
+  else run();
 }
 
 /* ---------------- boot ---------------- */
