@@ -375,13 +375,13 @@ function home() {
     <header class="top">
       <a class="brand" href="#/"><span class="mark" aria-hidden="true">a</span><span class="wm">ADIP <em>Tools</em></span></a>
       <div class="top-right">
-        <span class="topcount"><span class="livedot" aria-hidden="true"></span><b>${n}</b> tools</span>
+        <span class="topcount"><span class="livedot" aria-hidden="true"></span><b data-countup="${n}">0</b> tools</span>
         <button class="icobtn" id="palBtn" aria-label="Cari cepat (Ctrl+K)">⌕</button>
       </div>
     </header>
     <section class="hero rise" style="--i:0">
-      <p class="hi">${greet()}, butuh bantuan apa?</p>
-      <h1>Butuh <span class="qm">apa?</span></h1>
+      <p class="hi"><span class="tw" id="twHi">${greet()}, butuh bantuan apa?</span></p>
+      <h1><span class="w" style="--i:0">Butuh</span> <span class="w" style="--i:1"><span class="qm">apa?</span></span></h1>
       <div class="hsearch glass">
         <span class="glyph" aria-hidden="true">⌕</span>
         <input id="q" type="search" placeholder="${PH_EXAMPLES[0]}" autocomplete="off" aria-label="Cari tools">
@@ -426,6 +426,21 @@ function home() {
   renderContinue();
   renderPopuler();
   renderRecent();
+  // typewriter: hilangkan kursor setelah selesai mengetik
+  const tw = app.querySelector('#twHi');
+  if (tw) setTimeout(() => tw.classList.add('done'), 1450);
+  // count-up angka tools
+  const cb = app.querySelector('[data-countup]');
+  if (cb) {
+    const target = parseInt(cb.dataset.countup, 10) || 0;
+    const t0 = performance.now(), dur = 900;
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      cb.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
 }
 
 /* kartu "Lanjutkan": alat terakhir dibuka */
