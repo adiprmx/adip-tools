@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.2.0';
+import { h as T, utils } from '../../core.js?v=6.3.0';
 
 export const meta = {"id":"catatan-cepat","name":"Catatan Cepat","cat":"produktivitas","icon":"📝","desc":"Catat ide secepat kilat, cari lagi kapan pun.","keywords":"catatan,notes,ide,cepat,memo"};
 

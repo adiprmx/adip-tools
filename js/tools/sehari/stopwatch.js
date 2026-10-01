@@ -1,4 +1,4 @@
-import { h as T, utils, p2 } from '../../core.js?v=6.2.0';
+import { h as T, utils, p2 } from '../../core.js?v=6.3.0';
 
 export const meta = {"id": "stopwatch", "name": "Stopwatch", "cat": "sehari", "icon": "🏁", "desc": "Stopwatch + catat lap.", "keywords": "stopwatch,waktu,lap,timer"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.2.0';
+import { h as T } from '../../core.js?v=6.3.0';
 
 export const meta = {"id": "cocoklogi-nama", "name": "Cocoklogi Nama", "cat": "fun", "icon": "💘", "desc": "Cek kecocokan dua nama, hasilnya konsisten.", "keywords": "cocoklogi,nama,jodoh,kecocokan,cinta,pasangan,fun"};
 

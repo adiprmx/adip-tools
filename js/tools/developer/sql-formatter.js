@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.2.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.3.0';
 
 function sqlFormat(src) {
     const kws = ['INSERT INTO', 'DELETE FROM', 'GROUP BY', 'ORDER BY', 'UNION ALL', 'LEFT JOIN', 'RIGHT JOIN', 'FULL JOIN', 'INNER JOIN', 'CROSS JOIN', 'CREATE TABLE', 'DROP TABLE', 'ALTER TABLE', 'SELECT', 'FROM', 'WHERE', 'HAVING', 'LIMIT', 'OFFSET', 'JOIN', 'ON', 'AND', 'OR', 'UNION', 'VALUES', 'UPDATE', 'SET', 'INTO'];

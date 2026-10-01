@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.2.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.3.0';
 
 function b64urlDecode(seg) {
     const b64 = seg.replace(/-/g, '+').replace(/_/g, '/');

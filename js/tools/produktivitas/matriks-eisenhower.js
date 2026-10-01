@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.2.0';
+import { h as T, utils } from '../../core.js?v=6.3.0';
 
 export const meta = {"id":"matriks-eisenhower","name":"Matriks Eisenhower","cat":"produktivitas","icon":"🎯","desc":"Pilah tugas: kerjakan, jadwalkan, delegasikan, atau buang.","keywords":"eisenhower,matriks,prioritas,tugas,penting,mendesak,produktivitas"};
 

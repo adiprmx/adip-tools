@@ -1,8 +1,8 @@
-/* ADIP Tools v6.2.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.3.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.2.0';
+export const VERSION = '6.3.0';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -148,4 +148,33 @@ export const manifest = [
   {"id":"ukuran-file-audio","name":"Ukuran File Audio","cat":"musik","icon":"🎵","desc":"Bitrate × durasi jadi ukuran file, atau sebaliknya.","keywords":"ukuran file,audio,bitrate,mp3,wav,flac,mb,durasi,kbps","file":"tools/musik/ukuran-file-audio.js"},
   {"id":"palet-foto","name":"Palet Warna dari Foto","cat":"gambar","icon":"🎨","desc":"Ambil 6 warna dominan dari fotomu.","keywords":"palet,warna,foto,hex,dominan,swatch,desain","file":"tools/gambar/palet-foto.js"},
   {"id":"watermark-foto","name":"Watermark Foto","cat":"gambar","icon":"©️","desc":"Tempel watermark teks ke foto, unduh PNG.","keywords":"watermark,foto,teks,tulisan,hak cipta,logo,png,download","file":"tools/gambar/watermark-foto.js"},
+  {"id":"anggaran-nikah","name":"Anggaran Nikah","cat":"indonesia","icon":"💒","desc":"Bagi-bagi budget nikah per pos, biar nggak jebol di tengah jalan.","keywords":"nikah,budget,anggaran,wedding,katering,gedung,pernikahan,biaya","file":"tools/indonesia/anggaran-nikah.js"},
+  {"id":"denda-tilang","name":"Denda Tilang","cat":"indonesia","icon":"🚔","desc":"Cek denda maksimal tiap pelanggaran + pasalnya (UU LLAJ No. 22/2009).","keywords":"tilang,denda,polisi,pasal,llaj,lalu lintas,helm,sim,stnk","file":"tools/indonesia/denda-tilang.js"},
+  {"id":"ump-provinsi","name":"UMP per Provinsi","cat":"indonesia","icon":"💵","desc":"Daftar UMP 2025 38 provinsi + bandingkan gajimu dengan UMP daerahmu.","keywords":"ump,gaji,upah minimum,provinsi,2025,buruh,pekerja","file":"tools/indonesia/ump-provinsi.js"},
+  {"id":"kalkulator-emas","name":"Kalkulator Emas","cat":"indonesia","icon":"🪙","desc":"Hitung harga emas dari berat, atau berat emas dari budget-mu.","keywords":"emas,harga emas,gram,logam mulia,antam,investasi","file":"tools/indonesia/kalkulator-emas.js"},
+  {"id":"kalkulator-komisi","name":"Kalkulator Komisi","cat":"bisnis","icon":"🤝","desc":"Hitung komisi bertingkat (marginal): makin gede omzet, makin gede persennya.","keywords":"komisi,bonus,sales,tier,omzet,insentif,marketing","file":"tools/bisnis/kalkulator-komisi.js"},
+  {"id":"simulasi-deposito","name":"Simulasi Deposito","cat":"bisnis","icon":"🏦","desc":"Simulasi bunga deposito: bruto, pajak 20%, dan hasil bersih yang kamu terima.","keywords":"deposito,bunga,bank,tabungan,pajak bunga,investasi,simulasi","file":"tools/bisnis/simulasi-deposito.js"},
+  {"id":"fee-broker-saham","name":"Fee Broker Saham","cat":"bisnis","icon":"📉","desc":"Fee broker beli & jual saham + estimasi bersih yang kamu terima.","keywords":"saham,fee broker,komisi,beli saham,jual saham,investasi,sekuritas","file":"tools/bisnis/fee-broker-saham.js"},
+  {"id":"laporan-laba-rugi","name":"Laba Rugi Sederhana","cat":"bisnis","icon":"📒","desc":"Catat pemasukan, HPP & operasional — langsung ketahuan laba bersihmu.","keywords":"laba rugi,pemasukan,hpp,operasional,keuangan usaha,laporan keuangan,margin,untung,rugi","file":"tools/bisnis/laporan-laba-rugi.js"},
+  {"id":"kanban-board","name":"Kanban Board","cat":"produktivitas","icon":"🗂️","desc":"Atur kerjaanmu: Todo → Doing → Done. Tersimpan otomatis di HP.","keywords":"kanban,todo,task,kerjaan,produktivitas,board,doing,done","file":"tools/produktivitas/kanban-board.js"},
+  {"id":"time-tracker","name":"Time Tracker","cat":"produktivitas","icon":"⏱️","desc":"Catat waktu kerjamu per tugas — start, stop, ketahuan totalnya.","keywords":"time tracker,timer,tugas,waktu kerja,produktivitas,stopwatch,catat waktu","file":"tools/produktivitas/time-tracker.js"},
+  {"id":"meeting-cost","name":"Biaya Meeting","cat":"produktivitas","icon":"💸","desc":"Hitung berapa rupiah yang terbakar tiap detik meeting berjalan.","keywords":"meeting,biaya meeting,rapat,gaji,timer live,efisiensi,biaya rapat","file":"tools/produktivitas/meeting-cost.js"},
+  {"id":"rumus-fisika","name":"Rumus Fisika","cat":"pelajar","icon":"🔬","desc":"Isi yang diketahui, kosongkan satu — jawabannya dihitung + langkahnya.","keywords":"fisika,rumus,glb,glbb,gaya,usaha,daya,energi kinetik,gerak lurus,percepatan","file":"tools/pelajar/rumus-fisika.js"},
+  {"id":"konversi-nilai","name":"Konversi Nilai","cat":"pelajar","icon":"🔄","desc":"Angka, huruf, atau skala 4.0 — ubah dua arah.","keywords":"nilai,konversi,grade,huruf,skala,ipk,angka,rapor","file":"tools/pelajar/konversi-nilai.js"},
+  {"id":"generator-alasan","name":"Generator Alasan","cat":"fun","icon":"🫣","desc":"Stok alasan mangkir yang anti mainstream.","keywords":"alasan,mangkir,izin,lucu,kerja,sekolah,kondangan","file":"tools/fun/generator-alasan.js"},
+  {"id":"tes-kepribadian","name":"Tes Kepribadian Receh","cat":"fun","icon":"🧠","desc":"10 pertanyaan, 4 tipe hasil yang nggak disangka-sangka.","keywords":"tes,kepribadian,kuis,receh,lucu,fun","file":"tools/fun/tes-kepribadian.js"},
+  {"id":"mau-makan-apa","name":"Mau Makan Apa?","cat":"fun","icon":"🍜","desc":"Bingung mau makan apa? Biar acak yang mutusin.","keywords":"makan,kuliner,acak,makanan,indonesia,laper","file":"tools/fun/mau-makan-apa.js"},
+  {"id":"chord-progression","name":"Chord Progression","cat":"musik","icon":"🎼","desc":"Progresi akor sesuai nada dasar & mood, bisa dibunyikan.","keywords":"chord,akor,progresi,musik,gitar,piano,nada","file":"tools/musik/chord-progression.js"},
+  {"id":"panjang-sample","name":"Panjang Sample","cat":"musik","icon":"🎚️","desc":"Bar × BPM jadi detik, atau sebaliknya.","keywords":"sample,bar,bpm,durasi,detik,loop,musik","file":"tools/musik/panjang-sample.js"},
+  {"id":"setlist-timer","name":"Setlist Timer","cat":"musik","icon":"⏳","desc":"Timer setlist manggung: countdown per lagu + total durasi.","keywords":"setlist,timer,manggung,live,dj,musik,konser,panggung","file":"tools/musik/setlist-timer.js"},
+  {"id":"braille-teks","name":"Teks ke Braille","cat":"teks","icon":"⠿","desc":"Konversi dua arah teks Latin ↔ huruf braille Unicode.","keywords":"braille,tunanetra,konversi,teks,aksara","file":"tools/teks/braille-teks.js"},
+  {"id":"balik-teks","name":"Teks Terbalik","cat":"teks","icon":"🙃","desc":"Teks upside-down unicode atau dibalik urutannya.","keywords":"terbalik,upside down,reverse,teks,flip","file":"tools/teks/balik-teks.js"},
+  {"id":"hitung-suku-kata","name":"Hitung Suku Kata","cat":"teks","icon":"🗣️","desc":"Estimasi suku kata per kata Bahasa Indonesia.","keywords":"suku kata,puisi,pantun,bahasa indonesia,hitung","file":"tools/teks/hitung-suku-kata.js"},
+  {"id":"http-status","name":"HTTP Status Lookup","cat":"developer","icon":"🌐","desc":"Cari arti 35 kode status HTTP + contoh pemakaiannya.","keywords":"http,status code,api,developer,404,500","file":"tools/developer/http-status.js"},
+  {"id":"easing-visualizer","name":"Easing Visualizer","cat":"developer","icon":"〰️","desc":"Lihat & racik kurva easing cubic-bezier dengan animasi live.","keywords":"easing,cubic-bezier,css,animasi,transition","file":"tools/developer/easing-visualizer.js"},
+  {"id":"css-grid-generator","name":"CSS Grid Generator","cat":"desain","icon":"🔳","desc":"Rancang layout grid, salin CSS-nya.","keywords":"grid,css,layout,kolom,baris,gap","file":"tools/desain/css-grid-generator.js"},
+  {"id":"clip-path-generator","name":"Clip-Path Generator","cat":"desain","icon":"✂️","desc":"Potong bentuk pakai clip-path CSS.","keywords":"clip-path,polygon,css,bentuk,potong","file":"tools/desain/clip-path-generator.js"},
+  {"id":"foto-sketca","name":"Foto ke Sketsa","cat":"gambar","icon":"✏️","desc":"Ubah foto jadi sketsa pensil.","keywords":"sketsa,pensil,foto,efek,grayscale,hitam putih","file":"tools/gambar/foto-sketca.js"},
+  {"id":"kolase-foto","name":"Kolase Foto","cat":"gambar","icon":"🖼️","desc":"Gabung 2–4 foto jadi satu kanvas.","keywords":"kolase,foto,gabung,grid,instagram","file":"tools/gambar/kolase-foto.js"},
+  {"id":"arah-kiblat","name":"Arah Kiblat","cat":"liveapi","icon":"🧭","desc":"Cari arah kiblat dari lokasimu.","keywords":"kiblat,kabah,kompas,arah,sholat","file":"tools/liveapi/arah-kiblat.js"},
 ];
