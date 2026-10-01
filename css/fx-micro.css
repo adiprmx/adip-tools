@@ -123,3 +123,6 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* favorit di halaman tool juga ikut pop (bukan cuma di kartu) */
+.tool-head .tacts .fav.pop { animation: fav-pop 0.45s var(--spring); }
