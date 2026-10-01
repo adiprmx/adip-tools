@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.0.1';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.1.0';
 
 export const meta = {"id": "image-compress", "name": "Kompres Gambar", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran foto langsung di HP.", "keywords": "kompres,gambar,foto,kecil,ukuran"};
 export function render(root) {

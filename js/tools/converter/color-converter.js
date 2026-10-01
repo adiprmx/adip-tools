@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.0.1';
+import { h as T, utils } from '../../core.js?v=6.1.0';
 
 export const meta = {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL + preview.", "keywords": "warna,color,hex,rgb,hsl"};
 export function render(root) {

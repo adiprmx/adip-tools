@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.0.1';
+import { h as T, utils } from '../../core.js?v=6.1.0';
 
 export const meta = {"id": "word-counter", "name": "Penghitung Kata", "cat": "teks", "icon": "🔡", "desc": "Kata, karakter, estimasi baca.", "keywords": "kata,hitung,karakter,skripsi"};
 export function render(root) {

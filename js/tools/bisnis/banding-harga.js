@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.0.1';
+import { h as T, utils } from '../../core.js?v=6.1.0';
 
 const UNIT_BASE = { mg: ['berat', 0.001], g: ['berat', 1], kg: ['berat', 1000], ml: ['volume', 1], l: ['volume', 1000], pcs: ['satuan', 1] };
 

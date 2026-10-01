@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=6.0.1';
+import { h as T, utils, errBox, esc } from '../../core.js?v=6.1.0';
 
 export const meta = {"id": "regex-tester", "name": "Regex Tester", "cat": "developer", "icon": "🔍", "desc": "Tes regex + highlight hasil.", "keywords": "regex,tes,pola"};
 export function render(root) {
