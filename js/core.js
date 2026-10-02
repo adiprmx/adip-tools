@@ -285,19 +285,20 @@ const SYSBAR_ICO = {
     bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" opacity="0.5" stroke-width="1.2"/><rect x="2.5" y="2.5" width="13" height="7" rx="1" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
   },
   samsung: {
-    sig: '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7.5" width="3.2" height="4.5" rx="1.2"/><rect x="4.8" y="5" width="3.2" height="7" rx="1.2"/><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="1.2"/><rect x="14.4" y="0" width="3.2" height="12" rx="1.2"/></svg>',
-    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1.8 4.5a9.5 9.5 0 0 1 12.4 0"/><path d="M4.3 7a6 6 0 0 1 7.4 0"/><circle cx="8" cy="9.8" r="1.4" fill="currentColor" stroke="none"/></svg>',
-    bat: '<svg width="26" height="12" viewBox="0 0 26 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="22" height="11" rx="3.5" stroke="currentColor" opacity="0.55" stroke-width="1.4"/><rect x="2.8" y="2.8" width="13" height="6.4" rx="1.8" fill="currentColor"/><path d="M24.3 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" opacity="0.55"/></svg>',
+    sig: '<svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3.4" height="5" rx="1.7"/><rect x="5" y="4.5" width="3.4" height="7.5" rx="1.7"/><rect x="10" y="2" width="3.4" height="10" rx="1.7"/><rect x="15" y="0" width="3.4" height="12" rx="1.7"/></svg>',
+    wifi: '<svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M1.8 4.5a10 10 0 0 1 13.4 0"/><path d="M4.5 7a6.4 6.4 0 0 1 8 0"/><circle cx="8.5" cy="9.8" r="1.5" fill="currentColor" stroke="none"/></svg>',
+    bat: '<svg width="28" height="13" viewBox="0 0 28 13" fill="none" aria-hidden="true"><rect x="0.6" y="0.6" width="23" height="11.8" rx="4" stroke="currentColor" opacity="0.6" stroke-width="1.6"/><rect x="3" y="3" width="13" height="7" rx="2" fill="currentColor"/><path d="M25.8 4.5v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.6"/></svg>',
   },
   xiaomi: {
+    tag: '<span style="font-size:10px;font-weight:700;letter-spacing:.4px;line-height:1">5G</span>',
     sig: '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3.6" height="5" rx="0.8"/><rect x="4.9" y="4.5" width="3.6" height="7.5" rx="0.8"/><rect x="9.8" y="2" width="3.6" height="10" rx="0.8"/><rect x="14.7" y="0" width="3.3" height="12" rx="0.8"/></svg>',
     wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.5a10 10 0 0 1 13 0"/><path d="M4.2 7a6.2 6.2 0 0 1 7.6 0"/><circle cx="8" cy="9.7" r="1.35" fill="currentColor" stroke="none"/></svg>',
     bat: '<svg width="27" height="12" viewBox="0 0 27 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="23" height="11" rx="5.5" fill="currentColor" opacity="0.28"/><rect x="2.5" y="2.5" width="14" height="7" rx="3.5" fill="currentColor"/><path d="M25.2 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" opacity="0.45"/></svg>',
   },
   vivo: {
-    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="2.6" height="4" rx="0.5"/><rect x="4.2" y="5.5" width="2.6" height="6.5" rx="0.5"/><rect x="8.4" y="3" width="2.6" height="9" rx="0.5"/><rect x="12.6" y="0.5" width="2.6" height="11.5" rx="0.5"/></svg>',
-    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.2" fill="currentColor" stroke="none"/></svg>',
-    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="2" stroke="currentColor" opacity="0.5" stroke-width="1.1"/><rect x="2.3" y="2.3" width="13.5" height="7.4" rx="1" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
+    sig: '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="2.2" height="4" rx="0.4"/><rect x="3.8" y="5.5" width="2.2" height="6.5" rx="0.4"/><rect x="7.6" y="3" width="2.2" height="9" rx="0.4"/><rect x="11.4" y="0.5" width="2.2" height="11.5" rx="0.4"/></svg>',
+    wifi: '<svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a9.5 9.5 0 0 1 12 0"/><path d="M4 6.8a6 6 0 0 1 7 0"/><circle cx="7.5" cy="9.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+    bat: '<svg width="24" height="12" viewBox="0 0 24 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="20" height="11" rx="2" stroke="currentColor" opacity="0.5" stroke-width="1"/><rect x="2.2" y="2.2" width="12.5" height="7.6" rx="1" fill="currentColor"/><path d="M22.3 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
   },
   oppo: {
     sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8.2" width="3" height="3.8" rx="0.6"/><rect x="4.4" y="5.8" width="3" height="6.2" rx="0.6"/><rect x="8.8" y="3.2" width="3" height="8.8" rx="0.6"/><rect x="13.2" y="0.6" width="3" height="11.4" rx="0.6"/></svg>',
@@ -312,7 +313,7 @@ export function sysbar(platform, brand) {
   const key = platform === 'iphone' ? 'iphone' : (SYSBAR_ICO[brand] ? brand : 'xiaomi');
   const ic = SYSBAR_ICO[key];
   const clock = '<span style="font-family:' + SYSBAR_FONTS[key] + ';font-weight:600;font-size:14px;letter-spacing:-.2px;line-height:1">9:41</span>';
-  const icons = '<span style="display:inline-flex;align-items:center;gap:5px;line-height:1">' + ic.sig + ic.wifi + ic.bat + '</span>';
+  const icons = '<span style="display:inline-flex;align-items:center;gap:5px;line-height:1">' + (ic.tag || '') + ic.sig + ic.wifi + ic.bat + '</span>';
   if (platform === 'iphone') {
     return clock +
       '<span style="position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;background:#000;border-radius:18px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)"></span>' +
