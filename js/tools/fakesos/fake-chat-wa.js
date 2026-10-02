@@ -17,6 +17,20 @@ const SAMPLE =
   'A|09:15: Sekarang masih jam 9 pagi woy\n' +
   'B|09:16|blue: ...';
 
+// Tema obrolan ala WhatsApp: warna bubble keluar + wallpaper (terang/gelap).
+const CHAT_THEMES = {
+  default: { label: 'Default (Biru)', out: '#D3E5FD', outD: '#1D4FD7', wall: 'linear-gradient(165deg,#3a4a7a 0%,#7b5ea7 38%,#d67fa1 68%,#f7b267 100%)', wallD: 'linear-gradient(165deg,#101736 0%,#2c2350 45%,#4a2b52 75%,#5c3a3a 100%)' },
+  klasik: { label: 'Klasik (Hijau)', out: '#D9FDD3', outD: '#005C4B', wall: '#EFEAE2', wallD: '#0B1014' },
+  biru: { label: 'Biru', out: '#CDE3FC', outD: '#0B57D0', wall: 'linear-gradient(165deg,#e8f1fd,#c9defb)', wallD: 'linear-gradient(165deg,#0a1c38,#0f2c5c)' },
+  toska: { label: 'Toska', out: '#C2EBDF', outD: '#0D7A6E', wall: 'linear-gradient(165deg,#e6faf4,#bfe9db)', wallD: 'linear-gradient(165deg,#06302b,#0a4a43)' },
+  ungu: { label: 'Ungu', out: '#E2D4FB', outD: '#7C3AED', wall: 'linear-gradient(165deg,#f3e8ff,#d9c6f7 45%,#e9a8f2)', wallD: 'linear-gradient(165deg,#2a1065,#4c1d95 60%,#6d28d9)' },
+  pink: { label: 'Pink', out: '#FAD2E6', outD: '#C026D3', wall: 'linear-gradient(165deg,#fdeef6,#f9c6de 50%,#f5a3c8)', wallD: 'linear-gradient(165deg,#4a0f2e,#7e1c4e)' },
+  oranye: { label: 'Oranye', out: '#FFE0C0', outD: '#EA580C', wall: 'linear-gradient(165deg,#fff3e2,#ffd9ad 55%,#ffb877)', wallD: 'linear-gradient(165deg,#3d1c07,#7c2d12)' },
+  pantai: { label: 'Pantai', out: '#BDE7DB', outD: '#0F766E', wall: 'linear-gradient(165deg,#a8e0d4 0%,#7fd4c1 35%,#f6d9a8 70%,#f2b8c6 100%)', wallD: 'linear-gradient(165deg,#07332d,#0b4f47 60%,#3f2b3a)' },
+  merah: { label: 'Merah', out: '#FBD3D3', outD: '#DC2626', wall: 'linear-gradient(165deg,#fdecec,#f9c9c9)', wallD: 'linear-gradient(165deg,#3f0a0a,#7f1d1d)' },
+  kuning: { label: 'Kuning', out: '#FFF0B8', outD: '#CA8A04', wall: 'linear-gradient(165deg,#fffbe8,#fdf0b8 60%,#fde68a)', wallD: 'linear-gradient(165deg,#3a2a05,#713f12)' },
+};
+
 const SVG_BACK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
 const SVG_CALL = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>';
 const SVG_VID = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
@@ -99,8 +113,8 @@ export function render(root) {
 .fcw-hdios .fcw-nm{margin-left:0;flex:none;max-width:180px}
 .fcw-hdios .fcw-hic{gap:20px}
 /* ---- area chat ---- */
-.fcw-chat{display:flex;flex-direction:column;padding:8px 12px 12px;background:#EFEAE2;min-height:340px}
-.fcw-dark .fcw-chat{background:#0B1014}
+.fcw-chat{display:flex;flex-direction:column;padding:8px 12px 12px;background:var(--fcw-wall,#EFEAE2);min-height:340px}
+.fcw-dark .fcw-chat{background:var(--fcw-walld,#0B1014)}
 .fcw-chip{align-self:center;background:#F0F2F5;color:#54656F;font-size:11.5px;font-weight:500;letter-spacing:.4px;padding:6px 12px;border-radius:8px;margin:6px 0 10px}
 .fcw-dark .fcw-chip{background:#182229;color:#8696A0}
 .fcw-enc{align-self:center;max-width:94%;background:#FDF3C6;color:#54656F;font-size:12px;line-height:1.45;padding:7px 12px;border-radius:8px;text-align:center;margin:0 0 8px}
@@ -109,15 +123,15 @@ export function render(root) {
 .fcw-bub{position:relative;max-width:78%;padding:7px 8px 7px 9px;border-radius:9px;font-size:14.5px;line-height:19px;margin-top:2px;overflow-wrap:break-word;box-shadow:0 1px 1px rgba(0,0,0,.08)}
 .fcw-grp{margin-top:10px}
 .fcw-in{align-self:flex-start;background:#FFFFFF;color:#111B21}
-.fcw-out{align-self:flex-end;background:#D9FDD3;color:#111B21}
+.fcw-out{align-self:flex-end;background:var(--fcw-out,#D9FDD3);color:#111B21}
 .fcw-dark .fcw-in{background:#182229;color:#E9EDEF}
-.fcw-dark .fcw-out{background:#005C4B;color:#E9EDEF}
+.fcw-dark .fcw-out{background:var(--fcw-outd,#005C4B);color:#E9EDEF}
 .fcw-in.fcw-tail{border-top-left-radius:2px}
 .fcw-out.fcw-tail{border-top-right-radius:2px}
 .fcw-in.fcw-tail::before{content:"";position:absolute;left:-7px;top:0;width:0;height:0;border:8px solid transparent;border-top-color:#FFFFFF;border-left:0}
-.fcw-out.fcw-tail::before{content:"";position:absolute;right:-7px;top:0;width:0;height:0;border:8px solid transparent;border-top-color:#D9FDD3;border-right:0}
+.fcw-out.fcw-tail::before{content:"";position:absolute;right:-7px;top:0;width:0;height:0;border:8px solid transparent;border-top-color:var(--fcw-out,#D9FDD3);border-right:0}
 .fcw-dark .fcw-in.fcw-tail::before{border-top-color:#182229}
-.fcw-dark .fcw-out.fcw-tail::before{border-top-color:#005C4B}
+.fcw-dark .fcw-out.fcw-tail::before{border-top-color:var(--fcw-outd,#005C4B)}
 .fcw-meta{float:right;font-size:11px;color:#667781;margin:9px -1px 0 8px;line-height:1;white-space:nowrap}
 .fcw-dark .fcw-meta{color:#8696A0}
 .fcw-tdots{display:inline-flex;gap:5px;align-items:center;padding:5px 3px}
@@ -155,6 +169,7 @@ export function render(root) {
   const inStatus = T.input('text', 'Status (online / last seen...)', 'online');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
+  const selChatTheme = T.select(Object.keys(CHAT_THEMES).map((k) => [k, CHAT_THEMES[k].label]), 'default');
   const selTicks = T.select([['blue', 'Dua biru (dibaca)'], ['2', 'Dua abu (diterima)'], ['1', 'Satu abu (terkirim)'], ['0', 'Tanpa centang']], 'blue');
   const inChip = T.input('text', 'Teks chip tanggal', 'HARI INI');
   const selChip = T.select([['1', 'Tampilkan'], ['0', 'Sembunyikan']], '1');
@@ -176,6 +191,7 @@ export function render(root) {
   ctl.appendChild(T.field('Status', inStatus));
   ctl.appendChild(T.field('Platform', selPlatform));
   ctl.appendChild(T.field('Tema', selTheme));
+  ctl.appendChild(T.field('Tema obrolan', selChatTheme));
   ctl.appendChild(T.field('Centang default (pesan keluar)', selTicks));
   ctl.appendChild(T.field('Teks chip tanggal', inChip));
   ctl.appendChild(T.field('Chip tanggal', selChip));
@@ -264,10 +280,15 @@ export function render(root) {
         '<div class="fcw-nav"><i></i></div>';
 
     phone.className = 'fcw-phone' + (dark ? ' fcw-dark' : '');
+    const ct = CHAT_THEMES[selChatTheme.value] || CHAT_THEMES.default;
+    phone.style.setProperty('--fcw-wall', ct.wall);
+    phone.style.setProperty('--fcw-walld', ct.wallD);
+    phone.style.setProperty('--fcw-out', ct.out);
+    phone.style.setProperty('--fcw-outd', ct.outD);
     phone.innerHTML = sbHtml + hdHtml + '<div class="fcw-chat">' + chatHtml + '</div>' + ibarHtml;
   }
 
-  [inName, inStatus, selPlatform, selTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {
+  [inName, inStatus, selPlatform, selTheme, selChatTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {
     el.addEventListener('input', draw);
     el.addEventListener('change', draw);
   });
