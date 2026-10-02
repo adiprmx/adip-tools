@@ -11,6 +11,14 @@ const GRADS = {
   hitam: 'linear-gradient(135deg,#1c1c1e 0%,#000000 100%)'
 };
 
+/* Ikon line-art gaya Instagram (24x24, stroke round) — ganti glyph emoji ♡✈✕🔗 */
+const SW = 'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+const SVG_DOTS = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>';
+const SVG_X = '<svg width="22" height="22" viewBox="0 0 24 24" ' + SW + ' aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+const SVG_HEART = '<svg width="26" height="26" viewBox="0 0 24 24" ' + SW + ' aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+const SVG_PLANE = '<svg width="26" height="26" viewBox="0 0 24 24" ' + SW + ' aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>';
+const SVG_LINK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
 export function render(root) {
   const S = {
     username: 'adip.rmx', time: '2h', text: 'Contoh teks story',
@@ -24,34 +32,40 @@ export function render(root) {
     '.' + P + '-frame{width:300px;height:534px;border-radius:18px;overflow:hidden;position:relative;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}' +
     '.' + P + '-bg{position:absolute;inset:0}' +
     '.' + P + '-bg img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '.' + P + '-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 24%,rgba(0,0,0,0) 66%,rgba(0,0,0,.45) 100%)}' +
-    /* status bar */
-    '.' + P + '-sb{position:absolute;top:0;left:0;right:0;z-index:8;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
-    '.' + P + '-sbrow{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 0}' +
+    /* scrim atas & bawah untuk keterbacaan chrome */
+    '.' + P + '-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.38) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 68%,rgba(0,0,0,.42) 100%)}' +
+    /* status bar (via T.sysbar) */
+    '.' + P + '-sb{position:absolute;top:0;left:0;right:0;z-index:8;color:#fff}' +
+    '.' + P + '-sbrow{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 0}' +
     /* progress bar segmen */
-    '.' + P + '-prog{position:absolute;left:0;right:0;display:flex;gap:5px;padding:0 10px;z-index:7}' +
-    '.' + P + '-seg{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35);overflow:hidden}' +
-    '.' + P + '-seg i{display:block;height:100%;background:#fff;border-radius:2px}' +
-    '.' + P + '-frame.plat-iph .' + P + '-prog{top:42px}' +
-    '.' + P + '-frame.plat-and .' + P + '-prog{top:32px}' +
-    /* header story */
-    '.' + P + '-head{position:absolute;left:0;right:0;display:flex;align-items:center;gap:9px;padding:6px 12px;z-index:7}' +
-    '.' + P + '-frame.plat-iph .' + P + '-head{top:56px}' +
-    '.' + P + '-frame.plat-and .' + P + '-head{top:46px}' +
-    '.' + P + '-av{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;background:linear-gradient(135deg,#feda75,#d62976,#962fbf)}' +
-    '.' + P + '-who{flex:1;min-width:0;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
-    '.' + P + '-who b{font-weight:700}' +
-    '.' + P + '-who span{color:rgba(255,255,255,.78);font-weight:400}' +
-    '.' + P + '-x{color:#fff;font-size:22px;line-height:1;background:none;border:0;padding:2px 4px;cursor:default;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
+    '.' + P + '-prog{position:absolute;left:10px;right:10px;display:flex;gap:4px;z-index:7}' +
+    '.' + P + '-seg{flex:1;height:3px;border-radius:1.5px;background:rgba(255,255,255,.3);overflow:hidden}' +
+    '.' + P + '-seg i{display:block;height:100%;background:#fff;border-radius:1.5px}' +
+    '.' + P + '-frame.plat-iphone .' + P + '-prog{top:46px}' +
+    '.' + P + '-frame.plat-android .' + P + '-prog{top:34px}' +
+    /* header story: avatar + username + waktu ... kanan: (...) (X) */
+    '.' + P + '-head{position:absolute;left:0;right:0;display:flex;align-items:center;gap:10px;padding:0 12px;z-index:7}' +
+    '.' + P + '-frame.plat-iphone .' + P + '-head{top:60px}' +
+    '.' + P + '-frame.plat-android .' + P + '-head{top:48px}' +
+    '.' + P + '-av{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;background:linear-gradient(135deg,#feda75,#d62976,#962fbf)}' +
+    '.' + P + '-who{flex:1;min-width:0;font-size:14px;line-height:1.25;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.55)}' +
+    '.' + P + '-who b{font-weight:600}' +
+    '.' + P + '-who span{color:rgba(255,255,255,.72);font-weight:400}' +
+    '.' + P + '-hbtn{display:flex;align-items:center;justify-content:center;color:#fff;background:none;border:0;padding:4px;cursor:default;text-shadow:0 1px 3px rgba(0,0,0,.55)}' +
+    '.' + P + '-hbtn svg{display:block}' +
+    '.' + P + '-x{margin-left:4px}' +
     /* konten teks overlay */
     '.' + P + '-txt{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:26px;text-align:center;pointer-events:none;z-index:5}' +
     '.' + P + '-txt span{font-weight:800;text-shadow:0 2px 10px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.9);line-height:1.35;word-break:break-word}' +
-    /* footer */
-    '.' + P + '-foot{position:absolute;left:0;right:0;bottom:16px;padding:0 12px;display:flex;align-items:center;gap:14px;z-index:7}' +
-    '.' + P + '-pill{flex:1;border:1.5px solid rgba(255,255,255,.95);border-radius:999px;background:rgba(0,0,0,.18);color:#fff;font-size:14px;padding:11px 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-fic{color:#fff;font-size:26px;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.6)}' +
-    '.' + P + '-link{position:absolute;left:0;right:0;bottom:82px;display:flex;justify-content:center;z-index:7}' +
-    '.' + P + '-link b{background:#fff;color:#111;font-size:14px;font-weight:700;border-radius:999px;padding:9px 20px;box-shadow:0 4px 14px rgba(0,0,0,.35)}' +
+    /* footer: pill "Send message" + hati + paper plane */
+    '.' + P + '-foot{position:absolute;left:12px;right:12px;bottom:16px;display:flex;align-items:center;gap:14px;z-index:7}' +
+    '.' + P + '-pill{flex:1;height:44px;border:1px solid rgba(255,255,255,.5);border-radius:22px;background:rgba(0,0,0,.12);color:#fff;font-size:14px;display:flex;align-items:center;padding:0 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.' + P + '-fic{color:#fff;flex:none;display:flex;text-shadow:0 1px 3px rgba(0,0,0,.5)}' +
+    '.' + P + '-fic svg{display:block}' +
+    /* stiker link ala IG */
+    '.' + P + '-link{position:absolute;left:0;right:0;bottom:78px;display:flex;justify-content:center;z-index:7}' +
+    '.' + P + '-link b{display:flex;align-items:center;gap:7px;background:#fff;color:#111;font-size:14px;font-weight:700;border-radius:999px;padding:9px 18px;box-shadow:0 4px 14px rgba(0,0,0,.35)}' +
+    '.' + P + '-link svg{display:block;flex:none}' +
     /* home indicator / nav pill */
     '.' + P + '-home{position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:102px;height:4px;border-radius:2px;background:#fff;z-index:8;box-shadow:0 1px 3px rgba(0,0,0,.45)}' +
     '.' + P + '-navpill{position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:100px;height:4px;border-radius:2px;background:rgba(255,255,255,.85);z-index:8}' +
@@ -76,7 +90,7 @@ export function render(root) {
       ? '<div class="' + P + '-bg"><img src="' + S.photo + '" alt=""></div>'
       : '<div class="' + P + '-bg" style="background:' + GRADS[S.bg] + '"></div>';
     frame = T.el(
-      '<div class="' + P + '-frame plat-' + plat + '">' +
+      '<div class="' + P + '-frame plat-' + (isIph ? 'iphone' : 'android') + '">' +
         bgHtml +
         '<div class="' + P + '-shade"></div>' +
         sbHtml +
@@ -88,14 +102,15 @@ export function render(root) {
         '<div class="' + P + '-head">' +
           '<div class="' + P + '-av">' + T.esc(initial(S.username)) + '</div>' +
           '<div class="' + P + '-who"><b>' + T.esc(S.username) + '</b> <span>' + T.esc(S.time) + '</span></div>' +
-          '<button class="' + P + '-x" tabindex="-1">✕</button>' +
+          '<span class="' + P + '-hbtn">' + SVG_DOTS + '</span>' +
+          '<span class="' + P + '-hbtn ' + P + '-x">' + SVG_X + '</span>' +
         '</div>' +
         '<div class="' + P + '-txt"><span style="font-size:' + S.size + 'px;color:' + T.esc(S.color) + '">' + T.esc(S.text) + '</span></div>' +
-        (S.link ? '<div class="' + P + '-link"><b>🔗 Lihat selengkapnya</b></div>' : '') +
+        (S.link ? '<div class="' + P + '-link"><b>' + SVG_LINK + '<span>Lihat selengkapnya</span></b></div>' : '') +
         '<div class="' + P + '-foot">' +
           '<div class="' + P + '-pill">Send message</div>' +
-          '<div class="' + P + '-fic">♡</div>' +
-          '<div class="' + P + '-fic">✈</div>' +
+          '<span class="' + P + '-fic">' + SVG_HEART + '</span>' +
+          '<span class="' + P + '-fic">' + SVG_PLANE + '</span>' +
         '</div>' +
         (isIph ? '<div class="' + P + '-home"></div>' : '<div class="' + P + '-navpill"></div>') +
       '</div>'

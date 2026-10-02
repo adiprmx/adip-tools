@@ -31,7 +31,26 @@ const CHAT_THEMES = {
   kuning: { label: 'Kuning', out: '#FFF0B8', outD: '#CA8A04', wall: 'linear-gradient(165deg,#fffbe8,#fdf0b8 60%,#fde68a)', wallD: 'linear-gradient(165deg,#3a2a05,#713f12)' },
 };
 
+// Pola doodle khas wallpaper default WhatsApp (rekreasi, tile 140px).
+function doodleTile(stroke) {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140">' +
+    '<g fill="none" stroke="' + stroke + '" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="16" y="14" width="28" height="19" rx="9.5"/><path d="M25 33l-5 8 10-8"/>' +
+    '<path d="M98 20l2.4 6 6 2.4-6 2.4-2.4 6-2.4-6-6-2.4 6-2.4z"/>' +
+    '<path d="M14 66c7-9 13 9 20 0s13 9 20 0"/>' +
+    '<circle cx="106" cy="68" r="10"/>' +
+    '<path d="M52 106c-5-7-15-3-11 5l11 9 11-9c4-8-6-12-11-5z"/>' +
+    '<path d="M116 100l5 12M124 98l-3 14"/>' +
+    '<circle cx="30" cy="112" r="4"/>' +
+    '<path d="M74 44h14M81 37v14"/>' +
+    '</g></svg>';
+  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+}
+const DOODLE_L = doodleTile('#D8D1C3');
+const DOODLE_D = doodleTile('rgba(255,255,255,0.055)');
+
 const SVG_BACK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
+const SVG_CHEV = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>';
 const SVG_CALL = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>';
 const SVG_VID = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
 const SVG_MORE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>';
@@ -39,6 +58,7 @@ const SVG_MIC = '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><pa
 const SVG_SMILEY = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M8.2 14.2s1.4 2.1 3.8 2.1 3.8-2.1 3.8-2.1"/><line x1="9.2" y1="9.4" x2="9.2" y2="9.4"/><line x1="14.8" y1="9.4" x2="14.8" y2="9.4"/></svg>';
 const SVG_CLIP = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
 const SVG_CAMIN = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.6"/></svg>';
+const SVG_LOCK = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px;margin-right:4px"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z"/></svg>';
 
 function parseMsgs(text, defTicks) {
   const out = [];
@@ -68,19 +88,21 @@ function parseMsgs(text, defTicks) {
   return out;
 }
 
-function ticksHtml(tk) {
-  if (tk === '1') return '<span class="fcw-tk" style="color:#8696A0">✓</span>';
-  if (tk === '2') return '<span class="fcw-tk" style="color:#8696A0">✓✓</span>';
-  if (tk === 'blue') return '<span class="fcw-tk" style="color:#53BDEB">✓✓</span>';
+// Centang ala WhatsApp: path kustom (bukan karakter ✓). Abu mengikuti tema, biru #53BDEB.
+function ticksHtml(tk, dark) {
+  const c = tk === 'blue' ? '#53BDEB' : (dark ? '#8696A0' : '#667781');
+  if (tk === '1') return '<svg class="fcw-tk" width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="' + c + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1.6 5.8l3.4 3.4L13.4 1.4"/></svg>';
+  if (tk === '2' || tk === 'blue') return '<svg class="fcw-tk" width="19" height="11" viewBox="0 0 19 11" fill="none" stroke="' + c + '" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M1.2 5.8l3.4 3.4L12 1.6"/><path d="M7.4 5.8l3.4 3.4L17.8 1.6"/></svg>';
   return '';
 }
 
 export function render(root) {
   root.appendChild(T.el(`<style>
 .fcw-ctl{display:grid;gap:10px;margin-bottom:12px}
-.fcw-phone{max-width:380px;margin:14px auto;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.fcw-phone{max-width:380px;margin:14px auto;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;font-family:Roboto,"Segoe UI",system-ui,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.fcw-phone.fcw-ios{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .fcw-dark{background:#0B1014!important;border-color:rgba(255,255,255,.12)}
-/* ---- status bar (system chrome) ---- */
+/* ---- status bar (system chrome, via T.sysbar) ---- */
 .fcw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 16px 0 22px;background:#F0F2F5;color:#111B21}
 .fcw-dark .fcw-sb{background:#1F2C34;color:#E9EDEF}
 /* ---- header ---- */
@@ -91,55 +113,55 @@ export function render(root) {
 .fcw-av{width:40px;height:40px;border-radius:50%;background:#8696A0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;overflow:hidden;flex:none}
 .fcw-av img{width:100%;height:100%;object-fit:cover;display:block}
 .fcw-nm{flex:1;min-width:0;margin-left:8px}
-.fcw-nm b{display:block;font-size:16.5px;font-weight:600;color:#111B21;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcw-nm b{display:block;font-size:17px;font-weight:500;color:#111B21;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcw-ios .fcw-nm b{font-weight:600}
 .fcw-dark .fcw-nm b{color:#E9EDEF}
-.fcw-nm span{display:block;font-size:12.5px;color:#667781;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcw-nm span{display:block;font-size:13px;color:#667781;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fcw-dark .fcw-nm span{color:#8696A0}
-.fcw-hic{display:flex;align-items:center;gap:22px;padding-right:10px;color:#3B4A54;flex:none}
+.fcw-nm span.fcw-on{color:#00A884}
+.fcw-hic{display:flex;align-items:center;gap:24px;padding-right:12px;color:#3B4A54;flex:none}
 .fcw-dark .fcw-hic{color:#AEBAC1}
-/* header iPhone: identitas di tengah */
-.fcw-hdios .fcw-bkios{background:none;border:0;padding:6px 2px 6px 10px;cursor:pointer;color:#3B4A54;font-size:34px;line-height:1;font-weight:300;display:flex;align-items:center;flex:none}
-.fcw-dark .fcw-hdios .fcw-bkios{color:#AEBAC1}
-.fcw-idctr{display:flex;align-items:center;gap:8px;margin:0 auto;min-width:0}
-.fcw-hdios .fcw-nm{margin-left:0;flex:none;max-width:180px}
-.fcw-hdios .fcw-hic{gap:20px}
+/* header iPhone: chevron + identitas rata kiri (bukan tengah) */
+.fcw-bkios{background:none;border:0;padding:8px 2px 8px 6px;cursor:pointer;color:#3B4A54;display:flex;align-items:center;flex:none}
+.fcw-dark .fcw-bkios{color:#AEBAC1}
 /* ---- area chat ---- */
-.fcw-chat{display:flex;flex-direction:column;padding:8px 12px 12px;background:var(--fcw-wall,#EFEAE2);min-height:340px}
-.fcw-dark .fcw-chat{background:var(--fcw-walld,#0B1014)}
-.fcw-chip{align-self:center;background:#F0F2F5;color:#54656F;font-size:11.5px;font-weight:500;letter-spacing:.4px;padding:6px 12px;border-radius:8px;margin:6px 0 10px}
+.fcw-chat{display:flex;flex-direction:column;padding:8px 12px 12px;background:var(--fcw-di,none),var(--fcw-wall,#EFEAE2);min-height:340px}
+.fcw-dark .fcw-chat{background:var(--fcw-did,none),var(--fcw-walld,#0B1014)}
+.fcw-chip{align-self:center;background:#F0F2F5;color:#667781;font-size:12px;font-weight:500;letter-spacing:.4px;padding:6px 12px;border-radius:8px;margin:6px 0 10px}
 .fcw-dark .fcw-chip{background:#182229;color:#8696A0}
-.fcw-enc{align-self:center;max-width:94%;background:#FDF3C6;color:#54656F;font-size:12px;line-height:1.45;padding:7px 12px;border-radius:8px;text-align:center;margin:0 0 8px}
+.fcw-enc{align-self:center;max-width:94%;background:#FDF3C6;color:#54656F;font-size:12.5px;line-height:1.5;padding:7px 12px;border-radius:8px;text-align:center;margin:0 0 8px}
 .fcw-dark .fcw-enc{background:#182229;color:#8696A0}
-/* bubble berekor klasik (stable 2025) */
-.fcw-bub{position:relative;max-width:78%;padding:7px 8px 7px 9px;border-radius:9px;font-size:14.5px;line-height:19px;margin-top:2px;overflow-wrap:break-word;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+/* bubble berekor klasik (stable 2025): ekor di sudut atas sisi pengirim */
+.fcw-bub{position:relative;max-width:80%;padding:7px 9px 8px;border-radius:8px;font-size:16px;line-height:21px;margin-top:2px;overflow-wrap:break-word;box-shadow:0 1px 0.5px rgba(0,0,0,.08)}
+.fcw-ios .fcw-bub{font-size:17px;line-height:22px}
 .fcw-grp{margin-top:10px}
 .fcw-in{align-self:flex-start;background:#FFFFFF;color:#111B21}
 .fcw-out{align-self:flex-end;background:var(--fcw-out,#D9FDD3);color:#111B21}
-.fcw-dark .fcw-in{background:#182229;color:#E9EDEF}
+.fcw-dark .fcw-in{background:#1F2C34;color:#E9EDEF}
 .fcw-dark .fcw-out{background:var(--fcw-outd,#005C4B);color:#E9EDEF}
 .fcw-in.fcw-tail{border-top-left-radius:2px}
 .fcw-out.fcw-tail{border-top-right-radius:2px}
-.fcw-in.fcw-tail::before{content:"";position:absolute;left:-7px;top:0;width:0;height:0;border:8px solid transparent;border-top-color:#FFFFFF;border-left:0}
-.fcw-out.fcw-tail::before{content:"";position:absolute;right:-7px;top:0;width:0;height:0;border:8px solid transparent;border-top-color:var(--fcw-out,#D9FDD3);border-right:0}
-.fcw-dark .fcw-in.fcw-tail::before{border-top-color:#182229}
+.fcw-in.fcw-tail::before{content:"";position:absolute;left:-8px;top:0;width:0;height:0;border:9px solid transparent;border-top-color:#FFFFFF;border-left:0}
+.fcw-out.fcw-tail::before{content:"";position:absolute;right:-8px;top:0;width:0;height:0;border:9px solid transparent;border-top-color:var(--fcw-out,#D9FDD3);border-right:0}
+.fcw-dark .fcw-in.fcw-tail::before{border-top-color:#1F2C34}
 .fcw-dark .fcw-out.fcw-tail::before{border-top-color:var(--fcw-outd,#005C4B)}
-.fcw-meta{float:right;font-size:11px;color:#667781;margin:9px -1px 0 8px;line-height:1;white-space:nowrap}
+.fcw-meta{float:right;font-size:11px;color:#667781;margin:10px -1px 0 8px;line-height:1;white-space:nowrap}
 .fcw-dark .fcw-meta{color:#8696A0}
+.fcw-tk{vertical-align:-1px;margin-left:3px}
 .fcw-tdots{display:inline-flex;gap:5px;align-items:center;padding:5px 3px}
 .fcw-tdots i{width:7px;height:7px;border-radius:50%;background:#8696A0;animation:fcw-tb 1.1s infinite}
 .fcw-tdots i:nth-child(2){animation-delay:.18s}
 .fcw-tdots i:nth-child(3){animation-delay:.36s}
 @keyframes fcw-tb{0%,60%,100%{transform:none;opacity:.55}30%{transform:translateY(-3px);opacity:1}}
-.fcw-tk{letter-spacing:-1.5px;font-size:12.5px;margin-left:3px}
 /* ---- kolom input ---- */
 .fcw-ibar{display:flex;align-items:center;gap:6px;padding:6px 8px 8px;background:#F0F2F5}
 .fcw-dark .fcw-ibar{background:#1F2C34}
 .fcw-pill{flex:1;display:flex;align-items:center;background:#FFFFFF;border-radius:24px;min-height:50px;padding:0 10px 0 12px}
 .fcw-dark .fcw-pill{background:#2A3942}
-.fcw-ph{flex:1;font-size:16.5px;color:#8696A0;margin:0 6px;white-space:nowrap;overflow:hidden}
+.fcw-ph{flex:1;font-size:17px;color:#8696A0;margin:0 6px;white-space:nowrap;overflow:hidden}
 .fcw-pico{display:flex;align-items:center;gap:14px;color:#8696A0;flex:none}
 .fcw-mic{width:48px;height:48px;flex:none;border-radius:50%;background:#00A884;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.25)}
-.fcw-plus{width:34px;height:34px;flex:none;border:0;background:none;color:#8696A0;font-size:32px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.fcw-plus{width:32px;height:32px;flex:none;border:0;background:none;color:#8696A0;font-size:30px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .fcw-cam{flex:none;display:flex;align-items:center;color:#8696A0;padding:0 2px}
 /* nav bawah: Android pill gesture / iPhone home indicator */
 .fcw-nav{display:flex;justify-content:center;padding:4px 0 9px;background:#F0F2F5}
@@ -226,10 +248,12 @@ export function render(root) {
     const avHtml = avatarUrl
       ? '<img src="' + avatarUrl + '" alt="">'
       : T.esc(initial);
+    const online = /^online$/i.test(status);
+    const statusHtml = '<span' + (online ? ' class="fcw-on"' : '') + '>' + T.esc(status) + '</span>';
 
     let chatHtml = '';
     if (showChip && chipTxt) chatHtml += '<div class="fcw-chip">' + T.esc(chipTxt) + '</div>';
-    if (showEnc) chatHtml += '<div class="fcw-enc">🔒 Pesan bersifat terenkripsi end-to-end. Tidak seorang pun di luar chat ini, bahkan WhatsApp, yang dapat membaca atau mendengarkannya.</div>';
+    if (showEnc) chatHtml += '<div class="fcw-enc">' + SVG_LOCK + 'Pesan dan panggilan terenkripsi secara end-to-end. Tidak seorang pun di luar chat ini, termasuk WhatsApp, yang dapat membaca atau mendengarkannya.</div>';
 
     let prevSide = null;
     msgs.forEach((m) => {
@@ -239,7 +263,7 @@ export function render(root) {
       const typing = m.msg.trim() === '...';
       let metaHtml = '';
       if (!typing && m.time) metaHtml += T.esc(m.time);
-      if (!typing && m.side === 'B' && m.tk !== '0') metaHtml += ticksHtml(m.tk);
+      if (!typing && m.side === 'B' && m.tk !== '0') metaHtml += ticksHtml(m.tk, dark);
       chatHtml += '<div class="fcw-bub ' + cls + (first ? ' fcw-grp fcw-tail' : '') + '">' +
         (typing ? '<span class="fcw-tdots"><i></i><i></i><i></i></span>' : '<span>' + T.esc(m.msg) + '</span>') +
         (metaHtml ? '<span class="fcw-meta">' + metaHtml + '</span>' : '') +
@@ -249,13 +273,13 @@ export function render(root) {
     const sbHtml = '<div class="fcw-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
 
     const hdHtml = isIPh
-      ? '<div class="fcw-hd fcw-hdios"><button class="fcw-bkios" type="button" tabindex="-1">‹</button>' +
-        '<div class="fcw-idctr"><div class="fcw-av">' + avHtml + '</div>' +
-        '<div class="fcw-nm"><b>' + T.esc(name) + '</b><span>' + T.esc(status) + '</span></div></div>' +
+      ? '<div class="fcw-hd fcw-hdios"><button class="fcw-bkios" type="button" tabindex="-1">' + SVG_CHEV + '</button>' +
+        '<div class="fcw-av">' + avHtml + '</div>' +
+        '<div class="fcw-nm"><b>' + T.esc(name) + '</b>' + statusHtml + '</div>' +
         '<div class="fcw-hic">' + SVG_VID + SVG_CALL + '</div></div>'
       : '<div class="fcw-hd"><button class="fcw-bk" type="button" tabindex="-1">' + SVG_BACK + '</button>' +
         '<div class="fcw-av">' + avHtml + '</div>' +
-        '<div class="fcw-nm"><b>' + T.esc(name) + '</b><span>' + T.esc(status) + '</span></div>' +
+        '<div class="fcw-nm"><b>' + T.esc(name) + '</b>' + statusHtml + '</div>' +
         '<div class="fcw-hic">' + SVG_VID + SVG_CALL + SVG_MORE + '</div></div>';
 
     const ibarHtml = isIPh
@@ -270,12 +294,19 @@ export function render(root) {
         '<div class="fcw-mic">' + SVG_MIC + '</div></div>' +
         '<div class="fcw-nav"><i></i></div>';
 
-    phone.className = 'fcw-phone' + (dark ? ' fcw-dark' : '');
+    phone.className = 'fcw-phone fcw-' + (isIPh ? 'ios' : 'droid') + (dark ? ' fcw-dark' : '');
     const ct = CHAT_THEMES[selChatTheme.value] || CHAT_THEMES.default;
     phone.style.setProperty('--fcw-wall', ct.wall);
     phone.style.setProperty('--fcw-walld', ct.wallD);
     phone.style.setProperty('--fcw-out', ct.out);
     phone.style.setProperty('--fcw-outd', ct.outD);
+    if (selChatTheme.value === 'klasik') {
+      phone.style.setProperty('--fcw-di', DOODLE_L);
+      phone.style.setProperty('--fcw-did', DOODLE_D);
+    } else {
+      phone.style.setProperty('--fcw-di', 'none');
+      phone.style.setProperty('--fcw-did', 'none');
+    }
     phone.innerHTML = sbHtml + hdHtml + '<div class="fcw-chat">' + chatHtml + '</div>' + ibarHtml;
   }
 

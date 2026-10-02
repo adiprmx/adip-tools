@@ -14,47 +14,56 @@ export function render(root) {
   css.textContent =
     '.' + P + '-wrap{max-width:560px}' +
     '.' + P + '-stage{display:flex;justify-content:center;margin:14px 0}' +
-    '.' + P + '-phone{width:380px;max-width:100%;height:680px;border-radius:30px;overflow:hidden;position:relative;flex:none;font-family:-apple-system,BlinkMacSystemFont,Roboto,"Segoe UI",Arial,sans-serif;color:#fff;box-shadow:0 12px 40px rgba(0,0,0,.35)}' +
-    '.' + P + '-wall-a{background:linear-gradient(160deg,#3d4c5d 0%,#1d2632 55%,#10151d 100%)}' +
-    '.' + P + '-wall-i{background:linear-gradient(165deg,#5b5b8e 0%,#2c2c48 48%,#12121f 100%)}' +
+    '.' + P + '-phone{width:380px;max-width:100%;height:680px;border-radius:30px;overflow:hidden;position:relative;flex:none;color:#fff;box-shadow:0 12px 40px rgba(0,0,0,.35)}' +
+    '.' + P + '-wall-a{background:linear-gradient(160deg,#3d4c5d 0%,#1d2632 55%,#10151d 100%);font-family:Roboto,"Segoe UI",Arial,sans-serif}' +
+    '.' + P + '-wall-i{background:linear-gradient(165deg,#5b5b8e 0%,#2c2c48 48%,#12121f 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif}' +
     // status bar (isi via T.sysbar; island/punch absolute → container tetap relative)
     '.' + P + '-sba{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 0;font-size:14px;font-weight:500;position:relative;z-index:1}' +
     '.' + P + '-sbi{display:flex;align-items:center;justify-content:space-between;padding:17px 27px 0;font-size:15px;font-weight:600;position:relative;z-index:1}' +
     // bottom chrome
-    '.' + P + '-home{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:123px;height:4px;border-radius:3px;background:rgba(255,255,255,.88);z-index:2}' +
+    '.' + P + '-home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:130px;height:5px;border-radius:3px;background:rgba(255,255,255,.92);z-index:2}' +
     '.' + P + '-navpill{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:104px;height:4px;border-radius:3px;background:rgba(255,255,255,.55);z-index:2}' +
-    // android notification card (Material You)
-    '.' + P + '-acard{margin:12px 10px 0;background:#f7f8f7;border-radius:28px;padding:13px 16px 6px;box-shadow:0 6px 22px rgba(0,0,0,.28);position:relative;z-index:1}' +
-    '.' + P + '-acard.dk{background:#232327}' +
+    // ---- Android: kartu notifikasi Material You (stock Pixel, Android 12+) ----
+    // radius 28dp (M3 extra-large), margin samping 8dp, bg surface M3
+    '.' + P + '-acard{margin:10px 8px 0;background:#FDF8FD;border-radius:28px;padding:12px 16px 4px;box-shadow:0 6px 22px rgba(0,0,0,.28);position:relative;z-index:1}' +
+    '.' + P + '-acard.dk{background:#1D1B20}' +
     '.' + P + '-arow1{display:flex;align-items:center;gap:8px}' +
     '.' + P + '-smic{width:20px;height:20px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}' +
-    '.' + P + '-appname{font-size:13px;color:#5f6368;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-acard.dk .' + P + '-appname{color:#c4c7c5}' +
-    '.' + P + '-atime{font-size:12px;color:#5f6368;white-space:nowrap}' +
-    '.' + P + '-acard.dk .' + P + '-atime{color:#c4c7c5}' +
-    '.' + P + '-arow2{display:flex;gap:12px;margin-top:9px;align-items:flex-start}' +
+    '.' + P + '-appname{font-size:12px;color:#49454F;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.' + P + '-acard.dk .' + P + '-appname{color:#CAC4D0}' +
+    '.' + P + '-atime{font-size:12px;color:#49454F;white-space:nowrap}' +
+    '.' + P + '-acard.dk .' + P + '-atime{color:#CAC4D0}' +
+    '.' + P + '-achev{width:16px;height:16px;flex:none;color:#49454F;display:flex}' +
+    '.' + P + '-acard.dk .' + P + '-achev{color:#CAC4D0}' +
+    '.' + P + '-arow2{display:flex;gap:12px;margin-top:10px;align-items:flex-start}' +
     '.' + P + '-abody{flex:1;min-width:0}' +
-    '.' + P + '-atitle{font-size:15px;font-weight:500;color:#1f1f1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:break-word}' +
-    '.' + P + '-acard.dk .' + P + '-atitle{color:#e3e3e3}' +
-    '.' + P + '-atext{font-size:14px;color:#444746;line-height:1.42;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}' +
-    '.' + P + '-acard.dk .' + P + '-atext{color:#c4c7c5}' +
-    '.' + P + '-lgic{width:52px;height:52px;border-radius:50%;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:21px}' +
+    '.' + P + '-atitle{font-size:14px;font-weight:500;color:#1C1B1F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.' + P + '-acard.dk .' + P + '-atitle{color:#E6E0E9}' +
+    '.' + P + '-atext{font-size:14px;color:#49454F;line-height:1.42;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}' +
+    '.' + P + '-acard.dk .' + P + '-atext{color:#CAC4D0}' +
+    '.' + P + '-lgic{width:40px;height:40px;border-radius:50%;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:500;font-size:17px}' +
     '.' + P + '-lgic img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '.' + P + '-acts{display:flex;margin-top:4px}' +
+    '.' + P + '-adiv{height:1px;background:#CAC4D0;margin:8px -16px 0}' +
+    '.' + P + '-acard.dk .' + P + '-adiv{background:#49454F}' +
+    '.' + P + '-acts{display:flex}' +
     '.' + P + '-abtn{flex:1;text-align:center;font-size:14px;font-weight:500;padding:10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-asep{width:1px;background:rgba(127,127,127,.4);margin:9px 0}' +
-    // ios lock screen
-    '.' + P + '-lockclock{text-align:center;padding:44px 0 0;position:relative;z-index:1}' +
-    '.' + P + '-lockdate{font-size:14px;font-weight:500;color:rgba(255,255,255,.92)}' +
-    '.' + P + '-locktime{font-size:64px;font-weight:200;color:#fff;line-height:1.15;margin-top:2px}' +
-    '.' + P + '-ioscard{width:318px;max-width:calc(100% - 24px);margin:12px auto 0;background:rgba(250,250,252,.74);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border-radius:16px;padding:11px 14px;display:flex;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.16);position:relative;z-index:1}' +
-    '.' + P + '-sq{width:27px;height:27px;border-radius:7px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;margin-top:1px}' +
+    '.' + P + '-asep{width:1px;background:#CAC4D0;margin:8px 0}' +
+    '.' + P + '-acard.dk .' + P + '-asep{background:#49454F}' +
+    // ---- iOS: lock screen (iPhone) ----
+    // jam: SF Pro Display ~96pt semibold; tanggal 16pt medium — proporsional ke frame 380px (≈393pt)
+    '.' + P + '-lockclock{text-align:center;padding:52px 0 0;position:relative;z-index:1}' +
+    '.' + P + '-lockdate{font-size:16px;font-weight:500;color:#fff;letter-spacing:.1px}' +
+    '.' + P + '-locktime{font-size:93px;font-weight:600;color:#fff;line-height:1.08;margin-top:2px;letter-spacing:-1px}' +
+    // kartu notif: komponen banner Apple (Figma kit) — radius 18pt, ikon squircle 30pt,
+    // judul 13pt bold / isi 13pt regular / "now" 11pt, material kaca gelap (wallpaper gelap)
+    '.' + P + '-ioscard{margin:16px 15px 0;background:rgba(44,44,46,.62);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);border-radius:18px;padding:12px 12px 14px 15px;display:flex;gap:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);position:relative;z-index:1}' +
+    '.' + P + '-sq{width:29px;height:29px;border-radius:7px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}' +
     '.' + P + '-sq img{width:100%;height:100%;object-fit:cover;display:block}' +
     '.' + P + '-icol{flex:1;min-width:0}' +
     '.' + P + '-itrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}' +
-    '.' + P + '-ititle{font-size:12px;font-weight:700;color:#1c1c1e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-inow{font-size:10px;color:#6e6e73;white-space:nowrap}' +
-    '.' + P + '-ibody{font-size:12px;color:#1c1c1e;line-height:1.35;margin-top:1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}';
+    '.' + P + '-ititle{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.26px}' +
+    '.' + P + '-inow{font-size:11px;color:rgba(235,235,245,.6);white-space:nowrap}' +
+    '.' + P + '-ibody{font-size:13px;color:#fff;line-height:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;letter-spacing:-.1px}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -65,6 +74,10 @@ export function render(root) {
 
   function bellSvg(size) {
     return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#fff"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>';
+  }
+
+  function chevSvg() {
+    return '<span class="' + P + '-achev"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></span>';
   }
 
   function largeIcon() {
@@ -89,7 +102,7 @@ export function render(root) {
     if (S.platform === 'android') {
       const dark = S.tema === 'gelap';
       const acts = (S.aksi1.trim() || S.aksi2.trim())
-        ? '<div class="' + P + '-acts">' +
+        ? '<div class="' + P + '-adiv"></div><div class="' + P + '-acts">' +
           (S.aksi1.trim() ? '<div class="' + P + '-abtn" style="color:' + T.esc(S.warna) + '">' + T.esc(S.aksi1.trim()) + '</div>' : '') +
           ((S.aksi1.trim() && S.aksi2.trim()) ? '<div class="' + P + '-asep"></div>' : '') +
           (S.aksi2.trim() ? '<div class="' + P + '-abtn" style="color:' + T.esc(S.warna) + '">' + T.esc(S.aksi2.trim()) + '</div>' : '') +
@@ -102,6 +115,7 @@ export function render(root) {
             '<div class="' + P + '-smic" style="background:' + T.esc(S.warna) + '">' + bellSvg(12) + '</div>' +
             '<div class="' + P + '-appname">' + T.esc(S.app) + '</div>' +
             '<div class="' + P + '-atime">' + T.esc(S.waktu) + '</div>' +
+            chevSvg() +
           '</div>' +
           '<div class="' + P + '-arow2">' +
             '<div class="' + P + '-abody">' +
