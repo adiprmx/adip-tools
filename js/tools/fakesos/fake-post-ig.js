@@ -50,7 +50,7 @@ const FPI_CSS = `
 .fpi-sb{display:flex;align-items:center;justify-content:space-between;padding:12px 22px 4px;font-size:13.5px;font-weight:600}
 .fpi-sb .fpi-sic{display:inline-flex;align-items:center;gap:6px}
 .fpi-sb svg{width:17px;height:12px;display:block}
-.fpi-island{width:104px;height:27px;background:#000;border-radius:14px;flex:none}
+.fpi-island{width:104px;height:27px;background:#000;border-radius:14px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
 .fpi-punch{width:11px;height:11px;border-radius:50%;background:#0a0a0a;flex:none;box-shadow:inset 0 0 3px #274a6e}
 .fpi-scr.dk .fpi-punch{background:#000;box-shadow:inset 0 0 3px #2c4e78,0 0 0 1px #1e1e1e}
 .fpi-home{width:126px;height:5px;border-radius:3px;background:#111;margin:10px auto 8px}
@@ -166,7 +166,6 @@ export function render(root) {
     timeInp.value = '2 HOURS AGO';
     gradSel.value = 'sunset';
     likeSel.value = 'ya';
-    selPlatform.value = 'android';
     draw();
     T.toast('Contoh dimuat');
   }

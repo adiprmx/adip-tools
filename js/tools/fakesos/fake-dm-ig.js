@@ -23,7 +23,7 @@ const FDM_CSS = `
 .fdm-wrap.dark{background:#000;color:#f5f5f5;border-color:#2b2b2b}
 .fdm-status{display:flex;justify-content:space-between;align-items:center;padding:12px 18px 2px;font-size:12.5px;font-weight:600}
 .fdm-status.ios{padding:14px 22px 2px}
-.fdm-island{width:100px;height:25px;border-radius:13px;background:#000;flex:none}
+.fdm-island{width:100px;height:25px;border-radius:13px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
 .fdm-back svg{width:26px;height:26px;display:block}
 .fdm-home{display:flex;justify-content:center;padding:4px 0 10px}
 .fdm-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.3)}
@@ -154,7 +154,6 @@ export function render(root) {
   [userA, userB, platSel, themeSel, divInp, chatTa].forEach((elx) => { elx.addEventListener('input', draw); elx.addEventListener('change', draw); });
 
   function contoh() {
-    platSel.value = 'android';
     userA.value = 'rinaa.prm';
     userB.value = 'adip.rmx';
     divInp.value = 'Today';

@@ -45,7 +45,7 @@ export function render(root) {
     '.' + P + '-sb{position:absolute;top:0;left:0;right:0;height:30px;display:flex;align-items:center;justify-content:space-between;padding:8px 18px 0;font-size:12.5px;font-weight:600;color:#fff;z-index:6;background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,0));text-shadow:0 1px 3px rgba(0,0,0,.65)}' +
     '.' + P + '-sb .' + P + '-sic{display:inline-flex;align-items:center;gap:6px}' +
     '.' + P + '-sb svg{width:16px;height:11px;display:block}' +
-    '.' + P + '-island{width:92px;height:24px;background:#000;border-radius:13px;flex:none}' +
+    '.' + P + '-island{width:92px;height:24px;background:#000;border-radius:13px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}' +
     '.' + P + '-punch{width:10px;height:10px;border-radius:50%;background:rgba(0,0,0,.9);flex:none;box-shadow:inset 0 0 2px #1a3a5c}' +
     '.' + P + '-frame.plat-and .' + P + '-prog{top:28px}' +
     '.' + P + '-frame.plat-and .' + P + '-head{top:50px}' +
@@ -151,7 +151,6 @@ export function render(root) {
     inUser.value = S.username; inTime.value = S.time; inText.value = S.text;
     inSize.value = String(S.size); labSize.textContent = 'Ukuran teks (' + S.size + 'px)';
     inColor.value = S.color; selBg.value = S.bg; chkLink.checked = S.link;
-    selPlatform.value = 'android';
     draw();
   });
   const btnDl = T.btn('Unduh PNG', () => dlNodePng(frame, 'fake-story-ig.png'), true);

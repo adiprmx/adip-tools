@@ -45,7 +45,7 @@ const CSS = `
 .fpw-clock{font-size:14px;font-weight:700;letter-spacing:.3px}
 .fpw-sicons{display:flex;align-items:center;gap:6px}
 .fpw-sb.ios{height:40px;padding:0 22px 0 28px}
-.fpw-island{width:112px;height:28px;border-radius:15px;background:#000;flex:none}
+.fpw-island{width:112px;height:28px;border-radius:15px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
 .fpw-dark .fpw-island{background:#000}
 /* ===== INFO KONTAK — ANDROID ===== */
 .fpw-hd{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px 0 2px;background:#FFFFFF}

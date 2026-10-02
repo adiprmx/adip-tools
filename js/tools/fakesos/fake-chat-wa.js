@@ -31,7 +31,9 @@ function parseMsgs(text, defTicks) {
   String(text).split('\n').forEach((raw) => {
     const line = raw.trim();
     if (!line) return;
-    const ci = line.indexOf(':');
+    // Pisah header & pesan pada ':' pertama yang BUKAN bagian jam (jam = HH:MM mengandung ':').
+    // Cth: "B|09:13|blue: halo" -> header "B|09:13|blue", pesan "halo".
+    const ci = line.search(/:(?!\d)/);
     if (ci < 0) return;
     const pre = line.slice(0, ci).trim();
     const msg = line.slice(ci + 1).trim();
@@ -111,7 +113,7 @@ export function render(root) {
 .fcw-hint code{font-family:monospace;font-size:11.5px}
 .fcw-note{font-size:11.5px;color:#8696A0;margin-top:10px;line-height:1.5}
 .fcw-sb.ios{height:40px;padding:0 22px 0 28px}
-.fcw-island{width:112px;height:28px;border-radius:15px;background:#000;flex:none}
+.fcw-island{width:112px;height:28px;border-radius:15px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
 .fcw-bkios{background:none;border:0;padding:6px 4px 6px 10px;cursor:pointer;color:#3B4A54;font-size:32px;line-height:1;font-weight:300;display:flex;align-items:center}
 .fcw-dark .fcw-bkios{color:#AEBAC1}
 .fcw-plus{width:36px;height:36px;flex:none;border:0;background:none;color:#8696A0;font-size:32px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
@@ -160,7 +162,6 @@ export function render(root) {
     T.btn('🎲 Contoh', () => {
       inName.value = 'Rizky';
       inStatus.value = 'online';
-      selPlatform.value = 'android';
       selTheme.value = 'light';
       selTicks.value = 'blue';
       inChip.value = 'HARI INI';

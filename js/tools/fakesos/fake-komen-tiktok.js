@@ -62,7 +62,7 @@ export function render(root) {
     '.' + P + '-sb.ios{height:38px;padding:0 20px 0 24px}' +
     '.' + P + '-clock{font-size:13px;font-weight:700;letter-spacing:.3px}' +
     '.' + P + '-sicons{display:flex;align-items:center;gap:5px}' +
-    '.' + P + '-island{width:100px;height:26px;border-radius:14px;background:#000;flex:none}' +
+    '.' + P + '-island{width:100px;height:26px;border-radius:14px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}' +
     '.' + P + '-punch{width:12px;height:12px;border-radius:50%;background:#000;flex:none;box-shadow:0 0 0 2px rgba(128,128,128,.28)}' +
     '.' + P + '-homebar{display:flex;justify-content:center;padding:8px 0 7px}' +
     '.' + P + '-homebar span{width:134px;height:5px;border-radius:3px;background:var(--' + P + '-sub);opacity:.55}';
@@ -132,7 +132,6 @@ export function render(root) {
     S.count = '1.234';
     S.rows = 'adip.rmx|2h|1,2 rb|v|pin: Beatnya gila sih 🔥🔥\nbudi.santoso|45m|856: Kapan rilis fullnya bang?\nsiti.aja|1h|2,1 rb|v|creator: Ditunggu ya, minggu depan rilis!';
     inCount.value = S.count; taRows.value = S.rows;
-    selPlatform.value = 'android';
     draw();
   });
   const btnDl = T.btn('Unduh PNG', () => dlNodePng(panel, 'fake-komen-tiktok.png'), true);

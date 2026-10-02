@@ -45,7 +45,7 @@ export function render(root) {
     '.fi-phone[data-theme="gelap"]{--fi-bg:#000000;--fi-fg:#FFFFFF;--fi-inb:#26262B;--fi-inf:#FFFFFF;--fi-pill:#1C1C1E;--fi-hair:#38383A;--fi-tb:#3A3A3C;--fi-home:#FFFFFF}' +
     '.fi-status{display:flex;align-items:center;justify-content:space-between;padding:16px 24px 4px}' +
     '.fi-time{font-size:14px;font-weight:600;letter-spacing:-0.2px}' +
-    '.fi-island{width:100px;height:26px;background:#000;border-radius:14px}' +
+    '.fi-island{width:100px;height:26px;background:#000;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}' +
     '.fi-sicons{display:flex;align-items:center;gap:6px}' +
     '.fi-head{display:flex;align-items:center;min-height:44px;padding:4px 10px 6px;position:relative}' +
     '.fi-back{color:#0A84FF;font-size:30px;line-height:1;display:flex;align-items:center;gap:3px;font-weight:400}' +
@@ -57,7 +57,7 @@ export function render(root) {
     '.fi-msgs{padding:12px 12px 6px;display:flex;flex-direction:column;gap:5px;min-height:120px}' +
     '.fi-div{text-align:center;font-size:12px;color:#8E8E93;margin:8px 0}' +
     '.fi-row{display:flex}' +
-    '.fi-row.out{justify-content:flex-end}' +
+    '.fi-row.out{justify-content:flex-end;background:none;border:0;padding:0}' +
     '.fi-row.in{justify-content:flex-start}' +
     '.fi-bub{max-width:72%;padding:8px 13px;border-radius:18px;font-size:16px;line-height:1.35;position:relative;overflow-wrap:break-word}' +
     '.fi-row.out .fi-bub{background:#0A84FF;color:#fff}' +
@@ -103,7 +103,6 @@ export function render(root) {
     badgeI.value = '';
     statI.value = 'read';
     chatI.value = 'A: bro nanti jadi kan?\nB: jadi dong, jam 7 gue berangkat\nB|love: makasih ya udah dijemput\nA: aman, santai aja';
-    selPlatform.value = 'iphone';
     themeI.value = 'terang';
     draw();
   }));

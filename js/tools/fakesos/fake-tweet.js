@@ -65,7 +65,7 @@ export function render(root) {
     '.ft-sb.ios{height:38px;padding:0 20px 0 24px}' +
     '.ft-clock{font-size:13px;font-weight:700;letter-spacing:.3px}' +
     '.ft-sicons{display:flex;align-items:center;gap:5px}' +
-    '.ft-island{width:100px;height:26px;border-radius:14px;background:#000;flex:none}' +
+    '.ft-island{width:100px;height:26px;border-radius:14px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}' +
     '.ft-punch{width:12px;height:12px;border-radius:50%;background:#000;flex:none;box-shadow:0 0 0 2px rgba(128,128,128,.28)}' +
     '.ft-homebar{display:flex;justify-content:center;padding:8px 0 7px}' +
     '.ft-homebar span{width:134px;height:5px;border-radius:3px;background:var(--ft-muted);opacity:.55}' +
@@ -115,7 +115,7 @@ export function render(root) {
     timeI.value = '2 jam';
     textI.value = 'Akhirnya 300 tools selesai juga!\n\nCoba sendiri di tools.adipmusic.my.id #ADIPTools';
     repI.value = '128'; rtI.value = '45'; likeI.value = '2,1 rb'; viewI.value = '18 rb';
-    themeI.value = 'gelap'; platI.value = 'android'; draw();
+    themeI.value = 'gelap'; draw();
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(card, 'fake-tweet.png'), true));
   wrap.appendChild(btns);
