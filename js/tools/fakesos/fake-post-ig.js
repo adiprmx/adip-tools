@@ -226,6 +226,7 @@ export function render(root) {
     gradSel.value = 'sunset';
     likeSel.value = 'ya';
     draw();
+    T.scrollToPreview(preview);
     T.toast('Contoh dimuat');
   }
 

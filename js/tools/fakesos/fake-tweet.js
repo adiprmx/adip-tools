@@ -147,7 +147,7 @@ export function render(root) {
     timeI.value = '2 jam';
     textI.value = 'Akhirnya 300 tools selesai juga!\n\nCoba sendiri di tools.adipmusic.my.id #ADIPTools';
     repI.value = '128'; rtI.value = '45'; likeI.value = '2,1 rb'; viewI.value = '18 rb';
-    themeI.value = 'gelap'; draw();
+    themeI.value = 'gelap'; draw(); T.scrollToPreview(card);
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(card, 'fake-tweet.png'), true));
   wrap.appendChild(btns);

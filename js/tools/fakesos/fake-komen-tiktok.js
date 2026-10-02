@@ -51,7 +51,7 @@ export function render(root) {
     '.' + P + '-wrap{max-width:560px}' +
     '.' + P + '-stage{max-width:400px;margin:14px 0}' +
     /* frame HP: video gelap di atas, bottom sheet menempel di bawah */
-    '.' + P + '-phone{position:relative;width:380px;height:660px;border-radius:22px;overflow:hidden;background:#0a0a0c;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}' +
+    '.' + P + '-phone{position:relative;width:380px;max-width:100%;aspect-ratio:380/660;height:auto;border-radius:22px;overflow:hidden;background:#0a0a0c;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}' +
     '.' + P + '-backdrop{position:absolute;top:0;left:0;right:0;height:170px;background:radial-gradient(120% 90% at 50% 0%,#2a2a33 0%,#101014 60%,#060607 100%)}' +
     '.' + P + '-sb{position:absolute;top:0;left:0;right:0;z-index:20;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
     '.' + P + '-sbrow{display:flex;align-items:center;justify-content:space-between;padding:9px 18px 0}' +
@@ -172,6 +172,7 @@ export function render(root) {
     S.rows = 'adip.rmx|2h|1,2 rb|v|pin: Beatnya gila sih 🔥🔥\nbudi.santoso|45m|856: Kapan rilis fullnya bang?\nsiti.aja|1h|2,1 rb|v|creator: Ditunggu ya, minggu depan rilis!';
     inCount.value = S.count; taRows.value = S.rows;
     draw();
+    T.scrollToPreview(panel);
   });
   const btnDl = T.btn('⬇️ Unduh PNG', () => dlNodePng(panel, 'fake-komen-tiktok.png'), true);
 

@@ -88,7 +88,10 @@ export function render(root) {
     '.' + P + '-ctl .' + P + '-ic{width:22px;height:22px}' +
     '.' + P + '-endrow{display:flex;justify-content:center;margin-bottom:66px}' +
     '.' + P + '-endbtn{width:68px;height:68px;border-radius:50%;background:#ea0038;display:flex;align-items:center;justify-content:center;color:#fff}' +
-    '.' + P + '-endbtn .' + P + '-ic{width:30px;height:30px}';
+    '.' + P + '-endbtn .' + P + '-ic{width:30px;height:30px}' +
+    // FIX C (PNG export): html2canvas abaikan backdrop-filter — saat class png-export
+    // dipasang core.js/dlNodePng, island bar pakai solid gelap pekat (#202c33 = rgb(32,44,51) dari rgba(32,44,51,.85)).
+    '.png-export .' + P + '-islandbar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#202c33!important}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -180,7 +183,7 @@ export function render(root) {
   const bContoh = T.btn('🎲 Contoh', () => {
     selTipe.value = 'masuk'; selMedia.value = 'audio'; inNama.value = 'Mama';
     S.avatar = ''; fi.value = '';
-    pull(); draw(); T.toast('Contoh dimuat');
+    pull(); draw(); T.scrollToPreview(frame); T.toast('Contoh dimuat');
   });
   const bDl = T.btn('⬇️ Unduh PNG', () => { if (frame) dlNodePng(frame, 'fake-call.png'); }, true);
 

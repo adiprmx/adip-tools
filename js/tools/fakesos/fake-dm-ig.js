@@ -184,6 +184,7 @@ export function render(root) {
     divInp.value = 'Today';
     chatTa.value = 'A: woyy, jadi kan nongkrong nanti?\nB: jadi dong, jam 7 ya\nA|like: oke gas! gue bawa cemilan\nB|seen: wkwk parah 😂 bawa yang banyak';
     draw();
+    T.scrollToPreview(preview);
     T.toast('Contoh dimuat');
   }
 

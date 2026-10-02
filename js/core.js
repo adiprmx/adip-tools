@@ -195,6 +195,11 @@ const H2C_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas
 export async function dlNodePng(node, filename) {
   const ok = await loadScript(H2C_CDN);
   if (!ok || typeof window.html2canvas !== 'function') { toast('Gagal memuat pustaka export. Cek koneksi lalu coba lagi.'); return false; }
+  // html2canvas mengabaikan backdrop-filter: pakai class png-export agar CSS tool
+  // mengganti efek kaca jadi background solid selama capture; dihapus lagi di finally
+  // supaya preview DOM normal tidak terpengaruh (termasuk bila capture gagal).
+  const hasCls = !!(node && node.classList);
+  if (hasCls) { node.classList.add('png-export'); void node.offsetHeight; } // paksa reflow: override CSS harus terpasang sebelum capture
   try {
     const canvas = await window.html2canvas(node, { backgroundColor: null, scale: 2, useCORS: true, logging: false });
     const blob = await canvasToBlob(canvas, 'image/png');
@@ -202,6 +207,13 @@ export async function dlNodePng(node, filename) {
     dl(filename || 'fake.png', blob, 'image/png');
     return true;
   } catch (e) { toast('Gagal export: ' + (e && e.message ? e.message : e)); return false; }
+  finally { if (hasCls) node.classList.remove('png-export'); }
+}
+
+/* Scroll ke preview setelah tombol "Contoh" dimuat (di HP user langsung lihat hasil).
+   Guard: tidak error bila elemen preview belum ada / belum di-render. */
+export function scrollToPreview(elm) {
+  try { if (elm && typeof elm.scrollIntoView === 'function') elm.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
 }
 
 export function row(...children) {
@@ -259,7 +271,7 @@ export function loadScript(src) {
 export const h = {
   el, esc, btn, field, input, select, ta, out, show, hide,
   copy, copyBtn, dl, dlBtn, toast, row, grid2, onLeave,
-  fmt, rp, num, actx, beep, loadScript, sysbar,
+  fmt, rp, num, actx, beep, loadScript, sysbar, scrollToPreview,
 };
 
 /* ---- Status bar HP per platform & merk (dipakai tool fake sosmed) ----

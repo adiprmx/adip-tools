@@ -29,7 +29,7 @@ export function render(root) {
   css.textContent =
     '.' + P + '-wrap{max-width:560px}' +
     '.' + P + '-stage{display:flex;justify-content:center;margin:14px 0}' +
-    '.' + P + '-frame{width:300px;height:534px;border-radius:18px;overflow:hidden;position:relative;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}' +
+    '.' + P + '-frame{width:100%;max-width:430px;aspect-ratio:9/16;height:auto;border-radius:18px;overflow:hidden;position:relative;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}' +
     '.' + P + '-bg{position:absolute;inset:0}' +
     '.' + P + '-bg img{width:100%;height:100%;object-fit:cover;display:block}' +
     /* scrim atas & bawah untuk keterbacaan chrome */
@@ -170,6 +170,7 @@ export function render(root) {
     inSize.value = String(S.size); labSize.textContent = 'Ukuran teks (' + S.size + 'px)';
     inColor.value = S.color; selBg.value = S.bg; chkLink.checked = S.link;
     draw();
+    T.scrollToPreview(frame);
   });
   const btnDl = T.btn('⬇️ Unduh PNG', () => dlNodePng(frame, 'fake-story-ig.png'), true);
 

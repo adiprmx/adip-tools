@@ -130,6 +130,9 @@ const CSS = `
 .fii-nav{position:relative;display:flex;align-items:center;height:66px;padding:0 14px;background:transparent}
 .fii-glass{background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(18px) saturate(1.6);backdrop-filter:blur(18px) saturate(1.6);box-shadow:0 1px 8px rgba(0,0,0,.06)}
 .fpw-dark .fii-glass{background:rgba(38,38,40,.55);box-shadow:0 1px 8px rgba(0,0,0,.3)}
+/* FIX C (PNG export): html2canvas abaikan backdrop-filter — saat class png-export
+   dipasang core.js/dlNodePng, tombol nav Liquid Glass pakai background solid tanpa blur. */
+.png-export .fii-glass{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(28,28,32,.94)!important}
 .fii-back{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#111B21;z-index:1}
 .fpw-dark .fii-back{color:#fff}
 .fii-title{position:absolute;left:0;right:0;text-align:center;font-size:17px;font-weight:600;color:#000;pointer-events:none;letter-spacing:-.2px}
@@ -273,6 +276,7 @@ export function render(root) {
       }
       avatarUrl = null;
       draw();
+      T.scrollToPreview(phone);
       T.toast('Contoh dimuat');
     }),
     T.btn('⬇️ Unduh PNG', () => dlNodePng(phone, 'fake-profil-wa.png'), true)

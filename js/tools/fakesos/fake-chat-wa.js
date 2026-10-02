@@ -233,6 +233,7 @@ export function render(root) {
       taMsg.value = SAMPLE;
       avatarUrl = null;
       draw();
+      T.scrollToPreview(phone);
     }),
     T.btn('⬇️ Unduh PNG', () => dlNodePng(phone, 'fake-chat-wa.png'), true)
   );

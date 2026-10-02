@@ -140,6 +140,7 @@ export function render(root) {
     chatI.value = 'A: bro nanti jadi kan?\nB: jadi dong, jam 7 gue berangkat\nB|love: makasih ya udah dijemput\nA: aman, santai aja';
     themeI.value = 'terang';
     draw();
+    T.scrollToPreview(phone);
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(phone, 'fake-imessage.png'), true));
   wrap.appendChild(btns);

@@ -63,7 +63,10 @@ export function render(root) {
     '.' + P + '-itrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}' +
     '.' + P + '-ititle{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.26px}' +
     '.' + P + '-inow{font-size:11px;color:rgba(235,235,245,.6);white-space:nowrap}' +
-    '.' + P + '-ibody{font-size:13px;color:#fff;line-height:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;letter-spacing:-.1px}';
+    '.' + P + '-ibody{font-size:13px;color:#fff;line-height:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;letter-spacing:-.1px}' +
+    // FIX C (PNG export): html2canvas abaikan backdrop-filter — saat class png-export
+    // dipasang core.js/dlNodePng, kartu iOS pakai background solid abu frosted gelap.
+    '.png-export .' + P + '-ioscard{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#5e5e63!important}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -196,7 +199,7 @@ export function render(root) {
     selTema.value = 'terang'; inWarna.value = '#25D366';
     inAksi1.value = 'Balas'; inAksi2.value = 'Tandai dibaca';
     S.ikon = ''; fi.value = '';
-    pull(); syncVis(); draw(); T.toast('Contoh dimuat');
+    pull(); syncVis(); draw(); T.scrollToPreview(frame); T.toast('Contoh dimuat');
   });
   const bDl = T.btn('⬇️ Unduh PNG', () => { if (frame) dlNodePng(frame, 'fake-notif-hp.png'); }, true);
 
