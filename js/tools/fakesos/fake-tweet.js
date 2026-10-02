@@ -42,7 +42,9 @@ const ICO_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" ari
 // Escape dulu, lalu warnai hashtag & mention ala X, lalu jaga baris baru.
 function richText(src) {
   const e = T.esc(src);
-  const linked = e.replace(/(^|[\s>])((?:#|@)[A-Za-z0-9_]+)/g, '$1<span class="ft-link">$2</span>');
+  const linked = e
+    .replace(/(^|[\s>])(https?:\/\/[^\s<]+|(?:www\.|(?:[a-z0-9-]+\.)+[a-z]{2,})[^\s<]*)/gi, '$1<span class="ft-link">$2</span>')
+    .replace(/(^|[\s>])((?:#|@)[A-Za-z0-9_]+)/g, '$1<span class="ft-link">$2</span>');
   return linked.split('\n').join('<br>');
 }
 
@@ -73,7 +75,7 @@ export function render(root) {
     '.ft-eright{display:flex;align-items:center;justify-content:flex-end;gap:20px;color:var(--ft-muted);flex:1 1 0;min-width:0}' +
     '.ft-eright svg{display:block}' +
     '.ft-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
-    '.ft-sb{position:relative;display:flex;justify-content:space-between;align-items:center;padding:14px 24px 6px;color:var(--ft-fg)}' +
+    '.ft-sb{position:relative;display:flex;justify-content:space-between;align-items:center;padding:18px 24px 14px;color:var(--ft-fg)}' +
     '.ft-clock{font-size:14px;font-weight:600;letter-spacing:-.2px}' +
     '.ft-sicons{display:flex;align-items:center;gap:5px}' +
     '.ft-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;border-radius:18px;background:#000;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}' +

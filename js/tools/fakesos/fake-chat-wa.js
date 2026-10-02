@@ -70,7 +70,7 @@ export function render(root) {
 .fcw-phone{max-width:380px;margin:14px auto;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .fcw-dark{background:#0B1014!important;border-color:rgba(255,255,255,.12)}
 /* ---- status bar (system chrome) ---- */
-.fcw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:32px;padding:0 16px 0 22px;background:#F0F2F5;color:#111B21}
+.fcw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 16px 0 22px;background:#F0F2F5;color:#111B21}
 .fcw-dark .fcw-sb{background:#1F2C34;color:#E9EDEF}
 .fcw-punch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 2px 1px rgba(255,255,255,.18)}
 .fcw-clock{font-size:14px;font-weight:600;letter-spacing:.3px}
@@ -120,6 +120,11 @@ export function render(root) {
 .fcw-dark .fcw-out.fcw-tail::before{border-top-color:#005C4B}
 .fcw-meta{float:right;font-size:11px;color:#667781;margin:9px -1px 0 8px;line-height:1;white-space:nowrap}
 .fcw-dark .fcw-meta{color:#8696A0}
+.fcw-tdots{display:inline-flex;gap:5px;align-items:center;padding:5px 3px}
+.fcw-tdots i{width:7px;height:7px;border-radius:50%;background:#8696A0;animation:fcw-tb 1.1s infinite}
+.fcw-tdots i:nth-child(2){animation-delay:.18s}
+.fcw-tdots i:nth-child(3){animation-delay:.36s}
+@keyframes fcw-tb{0%,60%,100%{transform:none;opacity:.55}30%{transform:translateY(-3px);opacity:1}}
 .fcw-tk{letter-spacing:-1.5px;font-size:12.5px;margin-left:3px}
 /* ---- kolom input ---- */
 .fcw-ibar{display:flex;align-items:center;gap:6px;padding:6px 8px 8px;background:#F0F2F5}
@@ -220,11 +225,12 @@ export function render(root) {
       const first = m.side !== prevSide;
       prevSide = m.side;
       const cls = m.side === 'B' ? 'fcw-out' : 'fcw-in';
+      const typing = m.msg.trim() === '...';
       let metaHtml = '';
-      if (m.time) metaHtml += T.esc(m.time);
-      if (m.side === 'B' && m.tk !== '0') metaHtml += ticksHtml(m.tk);
+      if (!typing && m.time) metaHtml += T.esc(m.time);
+      if (!typing && m.side === 'B' && m.tk !== '0') metaHtml += ticksHtml(m.tk);
       chatHtml += '<div class="fcw-bub ' + cls + (first ? ' fcw-grp fcw-tail' : '') + '">' +
-        '<span>' + T.esc(m.msg) + '</span>' +
+        (typing ? '<span class="fcw-tdots"><i></i><i></i><i></i></span>' : '<span>' + T.esc(m.msg) + '</span>') +
         (metaHtml ? '<span class="fcw-meta">' + metaHtml + '</span>' : '') +
         '</div>';
     });

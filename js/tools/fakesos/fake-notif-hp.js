@@ -54,7 +54,7 @@ export function render(root) {
     '.' + P + '-abtn{flex:1;text-align:center;font-size:14px;font-weight:500;padding:10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
     '.' + P + '-asep{width:1px;background:rgba(127,127,127,.4);margin:9px 0}' +
     // ios lock screen
-    '.' + P + '-lockclock{text-align:center;padding:24px 0 0;position:relative;z-index:1}' +
+    '.' + P + '-lockclock{text-align:center;padding:44px 0 0;position:relative;z-index:1}' +
     '.' + P + '-lockdate{font-size:14px;font-weight:500;color:rgba(255,255,255,.92)}' +
     '.' + P + '-locktime{font-size:64px;font-weight:200;color:#fff;line-height:1.15;margin-top:2px}' +
     '.' + P + '-ioscard{width:318px;max-width:calc(100% - 24px);margin:12px auto 0;background:rgba(250,250,252,.74);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border-radius:16px;padding:11px 14px;display:flex;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.16);position:relative;z-index:1}' +

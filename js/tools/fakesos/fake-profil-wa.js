@@ -40,7 +40,7 @@ const CSS = `
 .fpw-phone{max-width:380px;margin:14px auto;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .fpw-dark{background:#0B141A!important;border-color:rgba(255,255,255,.12)}
 /* ---- status bar (system chrome) ---- */
-.fpw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:32px;padding:0 18px 0 22px;background:#FFFFFF;color:#111B21}
+.fpw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 18px 0 22px;background:#FFFFFF;color:#111B21}
 .fpw-dark .fpw-sb{background:#0B141A;color:#E9EDEF}
 .fpw-punch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 2px 1px rgba(255,255,255,.18)}
 .fpw-clock{font-size:14px;font-weight:600;letter-spacing:.3px}

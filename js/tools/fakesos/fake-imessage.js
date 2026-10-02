@@ -51,7 +51,7 @@ export function render(root) {
     '.fi-phone{width:100%;max-width:380px;background:var(--fi-bg);color:var(--fi-fg);overflow:hidden;text-align:left;' +
       '--fi-bg:#FFFFFF;--fi-fg:#000000;--fi-inb:#E9E9EB;--fi-inf:#000000;--fi-pill:#FFFFFF;--fi-hair:#C6C6C8;--fi-tb:#E9E9EB;--fi-home:#000000}' +
     '.fi-phone[data-theme="gelap"]{--fi-bg:#000000;--fi-fg:#FFFFFF;--fi-inb:#26262B;--fi-inf:#FFFFFF;--fi-pill:#1C1C1E;--fi-hair:#38383A;--fi-tb:#3A3A3C;--fi-home:#FFFFFF}' +
-    '.fi-status{position:relative;display:flex;align-items:center;justify-content:space-between;padding:14px 26px 6px}' +
+    '.fi-status{position:relative;display:flex;align-items:center;justify-content:space-between;padding:18px 26px 16px}' +
     '.fi-time{font-size:14px;font-weight:600;letter-spacing:-0.2px}' +
     '.fi-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;background:#000;border-radius:18px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}' +
     '.fi-punch{position:absolute;left:50%;top:17px;transform:translateX(-50%);width:12px;height:12px;background:#000;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.07)}' +
