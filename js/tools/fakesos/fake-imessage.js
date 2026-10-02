@@ -12,6 +12,9 @@ export const meta = {
 const SIG_SVG = '<svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="4.8" width="3" height="6.2" rx="1"/><rect x="9" y="2.4" width="3" height="8.6" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>';
 const WIFI_SVG = '<svg width="16" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 10.6 5.9 8.5a3 3 0 0 1 4.2 0zM3.9 6.5a5.8 5.8 0 0 1 8.2 0L10.7 7.9a3.9 3.9 0 0 0-5.4 0zM1.2 3.8a9.6 9.6 0 0 1 13.6 0l-1.4 1.4a7.6 7.6 0 0 0-10.8 0z"/></svg>';
 const BAT_SVG = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.4"/></svg>';
+const NAV_BACK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 4 8 12l9 8z"/></svg>';
+const NAV_HOME = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/></svg>';
+const NAV_RECENT = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg>';
 
 // Baris: "A: teks" = masuk (kiri), "B: teks" = keluar (kanan). "B|love: teks" = keluar + tapback ❤️.
 function parse(src) {
@@ -68,6 +71,9 @@ export function render(root) {
     '.fi-pill{flex:1;background:var(--fi-pill);border-radius:20px;padding:9px 14px;font-size:14px;color:#8E8E93}' +
     '.fi-send{width:30px;height:30px;border-radius:50%;background:#0A84FF;color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex:0 0 30px}' +
     '.fi-home{width:134px;height:5px;border-radius:3px;background:var(--fi-home);margin:6px auto 9px;opacity:.85}' +
+    '.fi-punch{width:13px;height:13px;background:#000;border-radius:50%}' +
+    '.fi-nav{display:flex;align-items:center;justify-content:space-evenly;padding:8px 30px 14px}' +
+    '.fi-navbtn{color:var(--fi-fg);display:inline-flex;opacity:.85}' +
     '.fi-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
     '</style>';
 
@@ -78,6 +84,7 @@ export function render(root) {
   const chatI = T.ta(7, 'A: teks (masuk)\nB: teks (keluar)\nB|love: teks + tapback ❤️',
     'A: bro nanti jadi kan?\nB: jadi dong, jam 7 gue berangkat\nB|love: makasih ya udah dijemput\nA: aman, santai aja');
   const themeI = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
+  const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'iphone');
 
   const ctl = T.el('<div class="fi-ctl"></div>');
   ctl.appendChild(T.field('Nama kontak', nameI));
@@ -85,6 +92,7 @@ export function render(root) {
   ctl.appendChild(T.field('Badge di tombol kembali (opsional)', badgeI));
   ctl.appendChild(T.field('Status kirim', statI, 'Muncul di bawah bubble keluar terakhir'));
   ctl.appendChild(T.field('Isi chat', chatI, 'Format: A: … = bubble kiri (masuk), B: … = bubble kanan (keluar). Tambah |love → tapback ❤️'));
+  ctl.appendChild(T.field('Platform', selPlatform));
   ctl.appendChild(T.field('Tema', themeI));
   wrap.appendChild(ctl);
 
@@ -95,6 +103,7 @@ export function render(root) {
     badgeI.value = '';
     statI.value = 'read';
     chatI.value = 'A: bro nanti jadi kan?\nB: jadi dong, jam 7 gue berangkat\nB|love: makasih ya udah dijemput\nA: aman, santai aja';
+    selPlatform.value = 'iphone';
     themeI.value = 'terang';
     draw();
   }));
@@ -114,6 +123,7 @@ export function render(root) {
 
   function draw() {
     phone.setAttribute('data-theme', themeI.value === 'gelap' ? 'gelap' : 'terang');
+    const isIPh = selPlatform.value === 'iphone';
     const cname = nameI.value.trim() || 'Kontak';
     const badgeN = parseInt(badgeI.value, 10);
     const badgeHtml = badgeN > 0 ? '<span class="fi-bcount">' + badgeN + '</span>' : '';
@@ -122,7 +132,7 @@ export function render(root) {
 
     let html = '<div class="fi-status">' +
       '<span class="fi-time">9:41</span>' +
-      '<span class="fi-island"></span>' +
+      (isIPh ? '<span class="fi-island"></span>' : '<span class="fi-punch"></span>') +
       '<span class="fi-sicons">' + SIG_SVG + WIFI_SVG + BAT_SVG + '</span></div>';
 
     html += '<div class="fi-head">' +
@@ -148,12 +158,19 @@ export function render(root) {
       '<span class="fi-plus">⊕</span>' +
       '<span class="fi-pill">iMessage</span>' +
       '<span class="fi-send">↑</span></div>';
-    html += '<div class="fi-home"></div>';
+    if (isIPh) {
+      html += '<div class="fi-home"></div>';
+    } else {
+      html += '<div class="fi-nav">' +
+        '<span class="fi-navbtn">' + NAV_BACK + '</span>' +
+        '<span class="fi-navbtn">' + NAV_HOME + '</span>' +
+        '<span class="fi-navbtn">' + NAV_RECENT + '</span></div>';
+    }
 
     phone.innerHTML = html;
   }
 
-  [nameI, divI, badgeI, statI, chatI, themeI].forEach((elx) => {
+  [nameI, divI, badgeI, statI, chatI, selPlatform, themeI].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

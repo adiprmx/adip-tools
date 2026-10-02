@@ -6,7 +6,7 @@ export const meta = {
   cat: 'fakesos',
   icon: '💬',
   desc: 'Bikin screenshot chat WhatsApp palsu + unduh PNG.',
-  keywords: 'whatsapp,chat,fake,palsu,screenshot,prank'
+  keywords: 'whatsapp,chat,fake,palsu,screenshot,prank,android,iphone'
 };
 
 const SAMPLE =
@@ -110,11 +110,22 @@ export function render(root) {
 .fcw-hint{font-size:12px;color:#8696A0;line-height:1.6;background:rgba(127,127,127,.08);border-radius:8px;padding:8px 10px}
 .fcw-hint code{font-family:monospace;font-size:11.5px}
 .fcw-note{font-size:11.5px;color:#8696A0;margin-top:10px;line-height:1.5}
+.fcw-sb.ios{height:40px;padding:0 22px 0 28px}
+.fcw-island{width:112px;height:28px;border-radius:15px;background:#000;flex:none}
+.fcw-bkios{background:none;border:0;padding:6px 4px 6px 10px;cursor:pointer;color:#3B4A54;font-size:32px;line-height:1;font-weight:300;display:flex;align-items:center}
+.fcw-dark .fcw-bkios{color:#AEBAC1}
+.fcw-plus{width:36px;height:36px;flex:none;border:0;background:none;color:#8696A0;font-size:32px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.fcw-cam{flex:none;display:flex;align-items:center;font-size:22px;color:#8696A0}
+.fcw-home{display:flex;justify-content:center;align-items:center;height:18px;background:#EFEAE2}
+.fcw-dark .fcw-home{background:#0B141A}
+.fcw-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
+.fcw-dark .fcw-home i{background:rgba(255,255,255,.4)}
 </style>`));
 
   const ctl = T.el('<div class="fcw-ctl"></div>');
   const inName = T.input('text', 'Nama kontak', 'Rizky');
   const inStatus = T.input('text', 'Status (online / last seen...)', 'online');
+  const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
   const selTicks = T.select([['blue', 'Dua biru (dibaca)'], ['2', 'Dua abu (terkirim)'], ['1', 'Satu abu'], ['0', 'Tanpa centang']], 'blue');
   const inChip = T.input('text', 'Teks chip tanggal', 'HARI INI');
@@ -135,6 +146,7 @@ export function render(root) {
 
   ctl.appendChild(T.field('Nama kontak', inName));
   ctl.appendChild(T.field('Status', inStatus));
+  ctl.appendChild(T.field('Platform', selPlatform));
   ctl.appendChild(T.field('Tema', selTheme));
   ctl.appendChild(T.field('Centang default (pesan keluar)', selTicks));
   ctl.appendChild(T.field('Teks chip tanggal', inChip));
@@ -148,6 +160,7 @@ export function render(root) {
     T.btn('🎲 Contoh', () => {
       inName.value = 'Rizky';
       inStatus.value = 'online';
+      selPlatform.value = 'android';
       selTheme.value = 'light';
       selTicks.value = 'blue';
       inChip.value = 'HARI INI';
@@ -164,6 +177,7 @@ export function render(root) {
 
   function draw() {
     const dark = selTheme.value === 'dark';
+    const isIPh = selPlatform.value === 'iphone';
     const name = inName.value.trim() || 'Kontak';
     const status = inStatus.value.trim() || 'online';
     const chipTxt = inChip.value.trim();
@@ -193,21 +207,36 @@ export function render(root) {
         '</div>';
     });
 
+    const sbHtml = isIPh
+      ? '<div class="fcw-sb ios"><span class="fcw-clock">9:41</span><span class="fcw-island"></span>' +
+        '<span class="fcw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>'
+      : '<div class="fcw-sb"><span class="fcw-clock">9:41</span>' +
+        '<span class="fcw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>';
+    const backHtml = isIPh
+      ? '<button class="fcw-bkios" type="button" tabindex="-1">‹</button>'
+      : '<button class="fcw-bk" type="button" tabindex="-1">' + SVG_BACK + '</button>';
+    const ibarHtml = isIPh
+      ? '<div class="fcw-ibar"><button class="fcw-plus" type="button" tabindex="-1">+</button>' +
+        '<div class="fcw-pill"><span class="fcw-ph">Message</span>' +
+        '<span class="fcw-pico"><span>😊</span></span></div>' +
+        '<span class="fcw-cam">📷</span><div class="fcw-mic">' + SVG_MIC + '</div></div>' +
+        '<div class="fcw-home"><i></i></div>'
+      : '<div class="fcw-ibar"><div class="fcw-pill"><span class="fcw-ph">Message</span>' +
+        '<span class="fcw-pico"><span>😊</span><span>📎</span><span>📷</span></span></div>' +
+        '<div class="fcw-mic">' + SVG_MIC + '</div></div>';
+
     phone.className = 'fcw-phone' + (dark ? ' fcw-dark' : '');
     phone.innerHTML =
-      '<div class="fcw-sb"><span class="fcw-clock">9:41</span>' +
-      '<span class="fcw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>' +
-      '<div class="fcw-hd"><button class="fcw-bk" type="button" tabindex="-1">' + SVG_BACK + '</button>' +
+      sbHtml +
+      '<div class="fcw-hd">' + backHtml +
       '<div class="fcw-av">' + avHtml + '</div>' +
       '<div class="fcw-nm"><b>' + T.esc(name) + '</b><span>' + T.esc(status) + '</span></div>' +
       '<div class="fcw-hic">' + SVG_VID + SVG_CALL + SVG_MORE + '</div></div>' +
       '<div class="fcw-chat">' + chatHtml + '</div>' +
-      '<div class="fcw-ibar"><div class="fcw-pill"><span class="fcw-ph">Message</span>' +
-      '<span class="fcw-pico"><span>😊</span><span>📎</span><span>📷</span></span></div>' +
-      '<div class="fcw-mic">' + SVG_MIC + '</div></div>';
+      ibarHtml;
   }
 
-  [inName, inStatus, selTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {
+  [inName, inStatus, selPlatform, selTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {
     el.addEventListener('input', draw);
     el.addEventListener('change', draw);
   });

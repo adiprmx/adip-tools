@@ -27,6 +27,10 @@ function avaColor(name) {
   return 'hsl(' + hsh + ',55%,45%)';
 }
 
+const ICO_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
+const ICO_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
+const ICO_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
+
 // Escape dulu, lalu warnai hashtag & mention ala X, lalu jaga baris baru.
 function richText(src) {
   const e = T.esc(src);
@@ -57,6 +61,14 @@ export function render(root) {
     '.ft-m{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ft-muted)}' +
     '.ft-ic{font-size:15px;line-height:1}' +
     '.ft-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
+    '.ft-sb{display:flex;justify-content:space-between;align-items:center;height:30px;padding:0 16px 0 20px;color:var(--ft-fg)}' +
+    '.ft-sb.ios{height:38px;padding:0 20px 0 24px}' +
+    '.ft-clock{font-size:13px;font-weight:700;letter-spacing:.3px}' +
+    '.ft-sicons{display:flex;align-items:center;gap:5px}' +
+    '.ft-island{width:100px;height:26px;border-radius:14px;background:#000;flex:none}' +
+    '.ft-punch{width:12px;height:12px;border-radius:50%;background:#000;flex:none;box-shadow:0 0 0 2px rgba(128,128,128,.28)}' +
+    '.ft-homebar{display:flex;justify-content:center;padding:8px 0 7px}' +
+    '.ft-homebar span{width:134px;height:5px;border-radius:3px;background:var(--ft-muted);opacity:.55}' +
     '</style>';
 
   const nameI = T.input('text', 'Nama tampilan', 'Adip RMX');
@@ -69,6 +81,7 @@ export function render(root) {
   const likeI = T.input('text', 'cth: 567 / 2,1 rb', '2,1 rb');
   const viewI = T.input('text', 'cth: 8,9 rb', '18 rb');
   const themeI = T.select([['terang', 'Terang'], ['redup', 'Redup'], ['gelap', 'Gelap']], 'gelap');
+  const platI = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
 
   const fi = fileInput('image/*');
   let imgUrl = null;
@@ -90,6 +103,7 @@ export function render(root) {
   mrow.appendChild(T.field('Suka ❤️', likeI));
   mrow.appendChild(T.field('Tayangan 📊', viewI));
   ctl.appendChild(mrow);
+  ctl.appendChild(T.field('Platform', platI));
   ctl.appendChild(T.field('Tema', themeI));
   wrap.appendChild(ctl);
 
@@ -101,7 +115,7 @@ export function render(root) {
     timeI.value = '2 jam';
     textI.value = 'Akhirnya 300 tools selesai juga!\n\nCoba sendiri di tools.adipmusic.my.id #ADIPTools';
     repI.value = '128'; rtI.value = '45'; likeI.value = '2,1 rb'; viewI.value = '18 rb';
-    themeI.value = 'gelap'; draw();
+    themeI.value = 'gelap'; platI.value = 'android'; draw();
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(card, 'fake-tweet.png'), true));
   wrap.appendChild(btns);
@@ -117,6 +131,11 @@ export function render(root) {
 
   function draw() {
     const th = THEMES[themeI.value] || THEMES.gelap;
+    const isIPh = platI.value === 'iphone';
+    const sbHtml = isIPh
+      ? '<div class="ft-sb ios"><span class="ft-clock">9:41</span><span class="ft-island"></span><span class="ft-sicons">' + ICO_SIG + ICO_WIFI + ICO_BAT + '</span></div>'
+      : '<div class="ft-sb"><span class="ft-clock">9:41</span><span class="ft-punch"></span><span class="ft-sicons">' + ICO_SIG + ICO_WIFI + ICO_BAT + '</span></div>';
+    const homeHtml = isIPh ? '<div class="ft-homebar"><span></span></div>' : '';
     const name = nameI.value.trim() || 'Nama';
     const handle = (handleI.value.trim() || 'handle').replace(/^@+/, '');
     const ver = verI.value;
@@ -130,6 +149,7 @@ export function render(root) {
     card.setAttribute('style',
       '--ft-bg:' + th.bg + ';--ft-fg:' + th.fg + ';--ft-muted:' + th.muted + ';--ft-imgb:' + th.imgb);
     card.innerHTML =
+      sbHtml +
       '<div class="ft-tweet">' +
         '<div class="ft-ava" style="background:' + avaColor(name) + '">' + initial + '</div>' +
         '<div class="ft-main">' +
@@ -146,10 +166,11 @@ export function render(root) {
             '<span class="ft-m"><span class="ft-ic">⤴️</span></span>' +
           '</div>' +
         '</div>' +
-      '</div>';
+      '</div>' +
+      homeHtml;
   }
 
-  [nameI, handleI, verI, timeI, textI, repI, rtI, likeI, viewI, themeI].forEach((elx) => {
+  [nameI, handleI, verI, timeI, textI, repI, rtI, likeI, viewI, themeI, platI].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

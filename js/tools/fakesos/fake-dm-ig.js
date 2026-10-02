@@ -1,6 +1,6 @@
 import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
 
-export const meta = {"id":"fake-dm-ig","name":"Fake DM Instagram","cat":"fakesos","icon":"📩","desc":"Bikin screenshot DM Instagram palsu + unduh PNG.","keywords":"instagram,dm,chat,fake,palsu,screenshot,prank"};
+export const meta = {"id":"fake-dm-ig","name":"Fake DM Instagram","cat":"fakesos","icon":"📩","desc":"Bikin screenshot DM Instagram palsu + unduh PNG.","keywords":"instagram,dm,chat,fake,palsu,screenshot,prank,android,iphone"};
 
 const FDM_FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
 const FDM_PERSON = '<svg viewBox="0 0 24 24" width="62%" height="62%" fill="#b5b5b5" aria-hidden="true"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"/></svg>';
@@ -11,6 +11,7 @@ const FDM_IC = {
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
   smile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
 };
+const FDM_BACK_AND = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
 const FDM_SB = {
   signal: '<svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.8"/><rect x="4.3" y="5.5" width="3" height="6.5" rx="0.8"/><rect x="8.6" y="3" width="3" height="9" rx="0.8"/><rect x="12.9" y="0.5" width="3" height="11.5" rx="0.8"/></svg>',
   wifi: '<svg width="15" height="11" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.5a10 10 0 0 1 13 0"/><path d="M4 7.2a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="10" r="1.3" fill="currentColor" stroke="none"/></svg>',
@@ -21,6 +22,12 @@ const FDM_CSS = `
 .fdm-wrap{max-width:380px;margin:12px auto;background:#fff;color:#111;border:1px solid #dbdbdb;border-radius:20px;overflow:hidden;font-family:${FDM_FONT};font-size:14px;line-height:1.4}
 .fdm-wrap.dark{background:#000;color:#f5f5f5;border-color:#2b2b2b}
 .fdm-status{display:flex;justify-content:space-between;align-items:center;padding:12px 18px 2px;font-size:12.5px;font-weight:600}
+.fdm-status.ios{padding:14px 22px 2px}
+.fdm-island{width:100px;height:25px;border-radius:13px;background:#000;flex:none}
+.fdm-back svg{width:26px;height:26px;display:block}
+.fdm-home{display:flex;justify-content:center;padding:4px 0 10px}
+.fdm-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.3)}
+.fdm-wrap.dark .fdm-home i{background:rgba(255,255,255,.35)}
 .fdm-sicons{display:flex;align-items:center;gap:6px}
 .fdm-head{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 10px;border-bottom:1px solid #efefef}
 .fdm-wrap.dark .fdm-head{border-bottom-color:#262626}
@@ -84,6 +91,7 @@ export function render(root) {
   const userB = T.input('text', 'cth: adip.rmx', '');
   const fiA = fileInput('image/*');
   const fiB = fileInput('image/*');
+  const platSel = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const themeSel = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
   const divInp = T.input('text', 'cth: Today', 'Today');
   const chatTa = T.ta(8, 'A: halo\nB|seen: halo juga', '');
@@ -94,15 +102,18 @@ export function render(root) {
 
   function draw() {
     const dark = themeSel.value === 'gelap';
+    const isIPh = platSel.value === 'iphone';
     const unameA = userA.value.trim() || 'username';
     const msgs = fdmParse(chatTa.value);
     let seenIdx = -1;
     msgs.forEach((m, i) => { if (m.who === 'B' && m.seen) seenIdx = i; });
 
     let h = '';
-    h += '<div class="fdm-status"><span>09:41</span><span class="fdm-sicons">' + FDM_SB.signal + FDM_SB.wifi + FDM_SB.batt + '</span></div>';
+    h += isIPh
+      ? '<div class="fdm-status ios"><span>09:41</span><span class="fdm-island"></span><span class="fdm-sicons">' + FDM_SB.signal + FDM_SB.wifi + FDM_SB.batt + '</span></div>'
+      : '<div class="fdm-status"><span>09:41</span><span class="fdm-sicons">' + FDM_SB.signal + FDM_SB.wifi + FDM_SB.batt + '</span></div>';
     h += '<div class="fdm-head">'
-      + '<span class="fdm-back">‹</span>'
+      + (isIPh ? '<span class="fdm-back">‹</span>' : '<span class="fdm-back">' + FDM_BACK_AND + '</span>')
       + fdmAva(avaA, 34)
       + '<span class="fdm-hmeta"><span class="fdm-hname">' + T.esc(unameA) + '</span><span class="fdm-hsub">Active now</span></span>'
       + '<span class="fdm-hicons"><span class="fdm-ic">' + FDM_IC.phone + '</span><span class="fdm-ic">' + FDM_IC.video + '</span></span>'
@@ -134,15 +145,16 @@ export function render(root) {
     }
     h += '</div>';
     h += '<div class="fdm-input"><div class="fdm-pill"><span class="fdm-ic sm">' + FDM_IC.image + '</span><span class="fdm-ph">Message...</span></div>'
-      + '<span class="fdm-ic">' + FDM_IC.mic + '</span><span class="fdm-ic">' + FDM_IC.smile + '</span></div>';
+      + '<span class="fdm-ic">' + FDM_IC.mic + '</span><span class="fdm-ic">' + FDM_IC.smile + '</span></div>'
+      + (isIPh ? '<div class="fdm-home"><i></i></div>' : '');
 
     preview.innerHTML = '<div class="fdm-wrap' + (dark ? ' dark' : '') + '">' + h + '</div>';
   }
 
-  [userA, userB, divInp, chatTa].forEach((elx) => elx.addEventListener('input', draw));
-  themeSel.addEventListener('change', draw);
+  [userA, userB, platSel, themeSel, divInp, chatTa].forEach((elx) => { elx.addEventListener('input', draw); elx.addEventListener('change', draw); });
 
   function contoh() {
+    platSel.value = 'android';
     userA.value = 'rinaa.prm';
     userB.value = 'adip.rmx';
     divInp.value = 'Today';
@@ -154,7 +166,8 @@ export function render(root) {
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
   root.appendChild(T.grid2(T.field('Username lawan', userA), T.field('Username sendiri', userB)));
   root.appendChild(T.grid2(T.field('Avatar lawan', fiA), T.field('Avatar sendiri', fiB)));
-  root.appendChild(T.grid2(T.field('Tema', themeSel), T.field('Teks pembatas tanggal', divInp)));
+  root.appendChild(T.grid2(T.field('Platform', platSel), T.field('Tema', themeSel)));
+  root.appendChild(T.field('Teks pembatas tanggal', divInp));
   root.appendChild(T.field('Percakapan', chatTa, 'Format: A: pesan (lawan, kiri) / B: pesan (sendiri, kanan). Tambah |like untuk ❤️, |seen di baris B terakhir untuk tanda dibaca.'));
   root.appendChild(T.row(
     T.btn('Contoh', contoh),

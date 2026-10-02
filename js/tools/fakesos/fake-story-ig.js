@@ -41,7 +41,17 @@ export function render(root) {
     '.' + P + '-fic{color:#fff;font-size:26px;line-height:1}' +
     '.' + P + '-link{position:absolute;left:0;right:0;bottom:74px;display:flex;justify-content:center}' +
     '.' + P + '-link b{background:#fff;color:#111;font-size:14px;font-weight:700;border-radius:999px;padding:9px 20px;box-shadow:0 4px 14px rgba(0,0,0,.35)}' +
-    '.' + P + '-note{font-size:12px;opacity:.65;margin-top:14px}';
+    '.' + P + '-note{font-size:12px;opacity:.65;margin-top:14px}' +
+    '.' + P + '-sb{position:absolute;top:0;left:0;right:0;height:30px;display:flex;align-items:center;justify-content:space-between;padding:8px 18px 0;font-size:12.5px;font-weight:600;color:#fff;z-index:6;background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,0));text-shadow:0 1px 3px rgba(0,0,0,.65)}' +
+    '.' + P + '-sb .' + P + '-sic{display:inline-flex;align-items:center;gap:6px}' +
+    '.' + P + '-sb svg{width:16px;height:11px;display:block}' +
+    '.' + P + '-island{width:92px;height:24px;background:#000;border-radius:13px;flex:none}' +
+    '.' + P + '-punch{width:10px;height:10px;border-radius:50%;background:rgba(0,0,0,.9);flex:none;box-shadow:inset 0 0 2px #1a3a5c}' +
+    '.' + P + '-frame.plat-and .' + P + '-prog{top:28px}' +
+    '.' + P + '-frame.plat-and .' + P + '-head{top:50px}' +
+    '.' + P + '-frame.plat-iph .' + P + '-prog{top:34px}' +
+    '.' + P + '-frame.plat-iph .' + P + '-head{top:56px}' +
+    '.' + P + '-home{position:absolute;left:50%;transform:translateX(-50%);bottom:7px;width:110px;height:5px;border-radius:3px;background:#fff;z-index:6;box-shadow:0 1px 3px rgba(0,0,0,.45)}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -50,14 +60,25 @@ export function render(root) {
 
   const initial = (u) => (u || '?').trim().charAt(0).toUpperCase();
 
+  const SB_SIG = '<svg viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>';
+  const SB_WIFI = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4.2 7a6.2 6.2 0 0 1 7.6 0"/><circle cx="8" cy="9.8" r="1.4" fill="currentColor" stroke="none"/></svg>';
+  const SB_BAT = '<svg viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="20" height="11" rx="3.2" stroke="currentColor" opacity=".55"/><rect x="2.4" y="2.4" width="14" height="7.2" rx="1.6" fill="currentColor"/><path d="M22.8 3.8v4.4a2.2 2.2 0 0 0 0-4.4z" fill="currentColor" opacity=".55"/></svg>';
+
   function draw() {
+    const plat = selPlatform.value;
+    const sbMid = plat === 'iphone'
+      ? '<span class="' + P + '-island"></span>'
+      : '<span class="' + P + '-punch"></span>';
+    const sbHtml = '<div class="' + P + '-sb"><span>9:41</span>' + sbMid +
+      '<span class="' + P + '-sic">' + SB_SIG + SB_WIFI + SB_BAT + '</span></div>';
     const bgHtml = S.photo
       ? '<div class="' + P + '-bg"><img src="' + S.photo + '" alt=""></div>'
       : '<div class="' + P + '-bg" style="background:' + GRADS[S.bg] + '"></div>';
     frame = T.el(
-      '<div class="' + P + '-frame">' +
+      '<div class="' + P + '-frame plat-' + plat + '">' +
         bgHtml +
         '<div class="' + P + '-shade"></div>' +
+        sbHtml +
         '<div class="' + P + '-prog">' +
           '<div class="' + P + '-seg"><i style="width:100%"></i></div>' +
           '<div class="' + P + '-seg"><i style="width:60%"></i></div>' +
@@ -76,6 +97,7 @@ export function render(root) {
           '<div class="' + P + '-fic">♡</div>' +
           '<div class="' + P + '-fic">➤</div>' +
         '</div>' +
+        (plat === 'iphone' ? '<div class="' + P + '-home"></div>' : '') +
       '</div>'
     );
     stage.innerHTML = '';
@@ -110,6 +132,9 @@ export function render(root) {
   chkLink.checked = S.link;
   chkLink.addEventListener('change', () => { S.link = chkLink.checked; draw(); });
 
+  const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
+  selPlatform.addEventListener('change', draw);
+
   const fi = fileInput('image/*');
   fi.onchange = () => {
     const f = fi.files && fi.files[0];
@@ -126,6 +151,7 @@ export function render(root) {
     inUser.value = S.username; inTime.value = S.time; inText.value = S.text;
     inSize.value = String(S.size); labSize.textContent = 'Ukuran teks (' + S.size + 'px)';
     inColor.value = S.color; selBg.value = S.bg; chkLink.checked = S.link;
+    selPlatform.value = 'android';
     draw();
   });
   const btnDl = T.btn('Unduh PNG', () => dlNodePng(frame, 'fake-story-ig.png'), true);
@@ -139,6 +165,7 @@ export function render(root) {
     T.field('Background gradient', selBg),
     T.field('Foto background', T.row(btnUp, btnGrad)),
     T.field('Stiker link', chkLink),
+    T.field('Platform', selPlatform),
     T.row(btnEx, btnDl),
     stage,
     T.el('<p class="' + P + '-note">' + T.esc(LOCAL_NOTE) + '</p>')
