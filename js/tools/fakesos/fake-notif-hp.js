@@ -55,19 +55,23 @@ export function render(root) {
     '.' + P + '-lockdate{font-size:16px;font-weight:500;color:#fff;letter-spacing:.1px}' +
     '.' + P + '-locktime{font-size:93px;font-weight:600;color:#fff;line-height:1.08;margin-top:2px;letter-spacing:-1px}' +
     // kartu notif: komponen banner Apple (Figma kit) — radius 18pt, ikon squircle 36pt,
-    // judul 13pt bold / isi 13pt regular / "now" 11pt, material kaca gelap (wallpaper gelap)
-    '.' + P + '-ioscard{margin:16px 15px 0;background:rgba(44,44,46,.62);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);border-radius:18px;padding:12px 12px 14px 15px;display:flex;gap:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);position:relative;z-index:1}' +
-    '.' + P + '-sq{width:36px;height:36px;border-radius:9px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px}' +
-    '.' + P + '-sq img{width:100%;height:100%;object-fit:cover;display:block}' +
+    // judul 13pt bold / isi 13pt regular / "now" 11pt. SOLID (bukan kaca blur:
+    // html2canvas tidak me-render backdrop-filter, jadi blur = kartu transparan rusak).
+    '.' + P + '-ioscard{margin:16px 15px 0;background:#5e5e63;border-radius:18px;padding:12px 12px 14px 13px;display:flex;gap:10px;align-items:center;box-shadow:0 4px 18px rgba(0,0,0,.25);position:relative;z-index:1}' +
+    // foto kontak lingkaran + badge kecil ikon WhatsApp menempel (khas notif iOS)
+    '.' + P + '-cphoto{position:relative;width:44px;height:44px;flex:none}' +
+    '.' + P + '-cava{width:44px;height:44px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:19px}' +
+    '.' + P + '-cava img{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.' + P + '-cbadge{position:absolute;right:-3px;bottom:-3px;width:22px;height:22px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.35)}' +
     '.' + P + '-icol{flex:1;min-width:0}' +
     '.' + P + '-ihead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}' +
-    '.' + P + '-iapp{font-size:12px;font-weight:600;color:rgba(255,255,255,.92);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
     '.' + P + '-inow{font-size:12px;color:rgba(235,235,245,.6);white-space:nowrap}' +
-    '.' + P + '-isender{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}' +
+    '.' + P + '-isender{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
     '.' + P + '-ibody{font-size:15px;color:#fff;line-height:19px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;letter-spacing:-.1px;margin-top:1px}' +
-    // FIX C (PNG export): html2canvas abaikan backdrop-filter — saat class png-export
-    // dipasang core.js/dlNodePng, kartu iOS pakai background solid abu frosted gelap.
-    '.png-export .' + P + '-ioscard{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#5e5e63!important}';
+    // chrome layar kunci iOS: gembok di atas jam + tombol senter/kamera di bawah
+    '.' + P + '-lock{display:flex;justify-content:center;margin-bottom:8px}' +
+    '.' + P + '-lbtns{position:absolute;left:0;right:0;bottom:38px;display:flex;justify-content:space-between;padding:0 36px;z-index:2}' +
+    '.' + P + '-lbtn{width:50px;height:50px;border-radius:50%;background:rgba(10,10,12,.38);display:flex;align-items:center;justify-content:center}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -92,17 +96,32 @@ export function render(root) {
     return '<div class="' + P + '-lgic"' + bg + '>' + inner + '</div>';
   }
 
-  // Logo WhatsApp resmi (glyph putih) — ikon default kartu iPhone, bukan tile huruf.
-  function waSvg() {
-    return '<svg width="22" height="22" viewBox="0 0 448 512" fill="#fff" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>';
+  // Logo WhatsApp resmi (glyph putih) — badge kecil kartu iPhone.
+  function waSvg(px) {
+    const s = px || 22;
+    return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 448 512" fill="#fff" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>';
   }
 
-  function squircleIcon() {
+  function lockSvg() {
+    return '<svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 1.8a5.2 5.2 0 0 0-5.2 5.2v3.1H6a2 2 0 0 0-2 2v8.1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.1a2 2 0 0 0-2-2h-.8V7a5.2 5.2 0 0 0-5.2-5.2zM8.8 10.1V7a3.2 3.2 0 1 1 6.4 0v3.1H8.8z"/></svg>';
+  }
+
+  function torchSvg() {
+    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M9.3 1.5h5.4v2.8H9.3zM8.4 4.3h7.2l1.3 3.4v1.5H7.1V7.7l1.3-3.4zM7.1 10.2h9.8v8.6a2.4 2.4 0 0 1-2.4 2.4H9.5a2.4 2.4 0 0 1-2.4-2.4v-8.6z"/></svg>';
+  }
+
+  function camSvg() {
+    return '<svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden="true" fill-rule="evenodd"><path d="M9.2 2.8 7.4 5H4.5A1.5 1.5 0 0 0 3 6.5v11A1.5 1.5 0 0 0 4.5 19h15a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 19.5 5h-2.9l-1.8-2.2H9.2zm2.8 4.5a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2.1a2.9 2.9 0 1 0 0 5.8 2.9 2.9 0 0 0 0-5.8z"/></svg>';
+  }
+
+  // Foto kontak lingkaran + badge kecil ikon WhatsApp menempel (khas notif iOS).
+  function contactPhoto() {
     const inner = S.ikon
       ? '<img src="' + T.esc(S.ikon) + '" alt="">'
-      : waSvg();
+      : T.esc(initial(S.judul));
     const bg = S.ikon ? '' : ' style="background:' + T.esc(S.warna) + '"';
-    return '<div class="' + P + '-sq"' + bg + '>' + inner + '</div>';
+    return '<div class="' + P + '-cphoto"><div class="' + P + '-cava"' + bg + '>' + inner + '</div>' +
+      '<div class="' + P + '-cbadge">' + waSvg(12) + '</div></div>';
   }
 
   function draw() {
@@ -140,20 +159,21 @@ export function render(root) {
       html = '<div class="' + P + '-phone ' + P + '-wall-i">' +
         '<div class="' + P + '-sbi">' + T.sysbar('iphone', null, true) + '</div>' +
         '<div class="' + P + '-lockclock">' +
-          '<div class="' + P + '-lockdate">Jumat, 2 Oktober</div>' +
+          '<div class="' + P + '-lock">' + lockSvg() + '</div>' +
           '<div class="' + P + '-locktime">11:13</div>' +
+          '<div class="' + P + '-lockdate">Jumat, 2 Oktober</div>' +
         '</div>' +
         '<div class="' + P + '-ioscard">' +
-          squircleIcon() +
+          contactPhoto() +
           '<div class="' + P + '-icol">' +
             '<div class="' + P + '-ihead">' +
-              '<div class="' + P + '-iapp">' + T.esc(S.app) + '</div>' +
+              '<div class="' + P + '-isender">' + T.esc(S.judul) + '</div>' +
               '<div class="' + P + '-inow">' + T.esc(S.waktu) + '</div>' +
             '</div>' +
-            '<div class="' + P + '-isender">' + T.esc(S.judul) + '</div>' +
             '<div class="' + P + '-ibody">' + T.esc(S.isi) + '</div>' +
           '</div>' +
         '</div>' +
+        '<div class="' + P + '-lbtns"><span class="' + P + '-lbtn">' + torchSvg() + '</span><span class="' + P + '-lbtn">' + camSvg() + '</span></div>' +
         '<div class="' + P + '-home"></div>' +
       '</div>';
     }
@@ -173,17 +193,21 @@ export function render(root) {
   const inAksi1 = T.input('text', 'cth: Balas', S.aksi1);
   const inAksi2 = T.input('text', 'cth: Tandai dibaca', S.aksi2);
   const fi = fileInput('image/*');
-  const fiField = T.field('Ikon / foto kontak (upload, opsional)', fi, 'iPhone: ikon aplikasi — default logo WhatsApp. Android: foto kontak — default huruf inisial + warna aksen.');
+  const fiField = T.field('Foto kontak (upload, opsional)', fi, 'iPhone: foto kontak lingkaran — default huruf inisial + badge WhatsApp. Android: ikon besar — default huruf inisial + warna aksen.');
 
   const temaField = T.field('Tema', selTema, 'Hanya berlaku untuk gaya Android.');
   const aksiField = T.el('<div></div>');
   aksiField.appendChild(T.field('Tombol aksi 1 (Android)', inAksi1));
   aksiField.appendChild(T.field('Tombol aksi 2 (Android)', inAksi2));
 
+  const appField = T.field('Nama aplikasi', inApp);
+
   function syncVis() {
     const and = selPlatform.value === 'android';
-    temaField.hidden = !and;
-    aksiField.hidden = !and;
+    // pakai style.display: atribut hidden kalah oleh CSS `.fld{display:flex}` (author > UA)
+    temaField.style.display = and ? '' : 'none';
+    aksiField.style.display = and ? '' : 'none';
+    appField.style.display = and ? '' : 'none'; // iPhone tidak menampilkan nama aplikasi
   }
 
   function pull() {
@@ -213,7 +237,7 @@ export function render(root) {
   wrap.appendChild(T.field('Platform', selPlatform));
   const brandField = T.field('Merk HP', selBrand);
   wrap.appendChild(brandField);
-  wrap.appendChild(T.field('Nama aplikasi', inApp));
+  wrap.appendChild(appField);
   wrap.appendChild(T.field('Judul', inJudul));
   wrap.appendChild(T.field('Isi pesan', inIsi));
   wrap.appendChild(T.field('Waktu', inWaktu));
@@ -224,7 +248,7 @@ export function render(root) {
   wrap.appendChild(T.row(bContoh, bDl));
   wrap.appendChild(stage);
   wrap.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  wrap.appendChild(T.el('<p class="hint">Tips: export PNG butuh koneksi internet sekali untuk memuat pustaka export. Di iPhone, efek kaca buram tampil di layar; hasil PNG memakai latar solid.</p>'));
+  wrap.appendChild(T.el('<p class="hint">Tips: export PNG butuh koneksi internet sekali untuk memuat pustaka export.</p>'));
   root.appendChild(wrap);
 
   pull(); syncVis(); draw();

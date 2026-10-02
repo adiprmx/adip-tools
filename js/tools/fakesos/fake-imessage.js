@@ -64,14 +64,14 @@ export function render(root) {
       '--fi-pill:#1C1C1E;--fi-pillb:rgba(255,255,255,0);--fi-ph:#8E8E93;' +
       '--fi-hair:#38383A;--fi-tb:#2C2C2E;--fi-tbb:rgba(255,255,255,.14);' +
       '--fi-plus:#2C2C2E;--fi-plusfg:#EBEBF5;--fi-home:#FFFFFF}' +
-    '.fi-status{position:relative;display:flex;align-items:center;justify-content:space-between;padding:18px 26px 16px}' +
+    '.fi-status{position:relative;display:flex;align-items:center;justify-content:space-between;padding:14px 26px 12px}' +
     '.fi-head{display:flex;align-items:center;justify-content:space-between;padding:4px 12px 8px;position:relative}' +
     '.fi-back{color:var(--fi-blue);display:flex;align-items:center;gap:2px;line-height:1}' +
     '.fi-bcount{min-width:20px;height:20px;border-radius:10px;background:var(--fi-blue);color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}' +
     '.fi-title{position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;max-width:52%}' +
-    '.fi-tava{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:15px;margin-bottom:2px}' +
-    '.fi-cname{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}' +
-    '.fi-namerow{display:flex;align-items:center;gap:2px;color:#8E8E93;max-width:100%}' +
+    '.fi-tava{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:18px;flex:none}' +
+    '.fi-cpill{display:inline-flex;align-items:center;gap:3px;background:#2b76c0;color:#fff;border-radius:999px;padding:6px 12px 6px 14px;margin-top:-11px;box-shadow:0 2px 8px rgba(0,0,0,.28);max-width:100%;position:relative}' +
+    '.fi-cname{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
     '.fi-hicons{display:flex;align-items:center;gap:20px;color:var(--fi-blue)}' +
     '.fi-hicons span{display:inline-flex}' +
     '.fi-hair{height:1px;background:var(--fi-hair)}' +
@@ -168,13 +168,20 @@ export function render(root) {
     const msgs = parse(chatI.value);
     const cinitial = T.esc(cname.trim().charAt(0).toUpperCase() || '?');
 
-    let html = '<div class="fi-status">' +
-      T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
+    let sbHtml = T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark);
+    if (isIPh) {
+      // Samakan proporsi Dynamic Island dgn ref iOS 26: lebih kecil & rapat ke atas.
+      // (sysbar milik core.js — tidak diubah; hanya override string di sini.)
+      sbHtml = sbHtml.split('top:11px').join('top:8px')
+        .split('width:122px;height:36px').join('width:100px;height:30px')
+        .split('border-radius:18px').join('border-radius:15px');
+    }
+    let html = '<div class="fi-status">' + sbHtml + '</div>';
 
     html += '<div class="fi-head">' +
       '<span class="fi-back">' + ICO_CHEV + badgeHtml + '</span>' +
       '<span class="fi-title"><span class="fi-tava" style="background:' + avaColor(cname) + '">' + cinitial + '</span>' +
-      '<span class="fi-namerow"><span class="fi-cname">' + T.esc(cname) + '</span>' + ICO_CHEVR + '</span></span>' +
+      '<span class="fi-cpill"><span class="fi-cname">' + T.esc(cname) + '</span>' + ICO_CHEVR + '</span></span>' +
       '<span class="fi-hicons"><span>' + ICO_FT + '</span><span>' + ICO_PHONE + '</span></span>' +
       '</div><div class="fi-hair"></div>';
 

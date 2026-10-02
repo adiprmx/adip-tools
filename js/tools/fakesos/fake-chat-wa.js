@@ -14,8 +14,7 @@ const SAMPLE =
   'B|09:13|blue: Jadi dong, jam 8 malem\n' +
   'A|09:14: Jangan telat lagi ya\n' +
   'B|09:15|2: Aman, gue berangkat dari sekarang\n' +
-  'A|09:15: Sekarang masih jam 9 pagi woy\n' +
-  'A|09:16: ...';
+  'A|09:15: Sekarang masih jam 9 pagi woy';
 
 // Tema obrolan ala WhatsApp: warna bubble keluar + wallpaper (terang/gelap).
 const CHAT_THEMES = {
@@ -188,9 +187,9 @@ export function render(root) {
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
-  const selChatTheme = T.select(Object.keys(CHAT_THEMES).map((k) => [k, CHAT_THEMES[k].label]), 'default');
+  const selChatTheme = T.select(Object.keys(CHAT_THEMES).map((k) => [k, CHAT_THEMES[k].label]), 'klasik');
   const selTicks = T.select([['blue', 'Dua biru (dibaca)'], ['2', 'Dua abu (diterima)'], ['1', 'Satu abu (terkirim)'], ['0', 'Tanpa centang']], 'blue');
-  const inChip = T.input('text', 'Teks chip tanggal', 'HARI INI');
+  const inChip = T.input('text', 'Teks chip tanggal', 'Hari ini');
   const selChip = T.select([['1', 'Tampilkan'], ['0', 'Sembunyikan']], '1');
   const selEnc = T.select([['1', 'Tampilkan'], ['0', 'Sembunyikan']], '1');
   const taMsg = T.ta(8, 'Satu baris = satu pesan. Format: A|10:30|blue: halo', SAMPLE);
@@ -227,7 +226,7 @@ export function render(root) {
       inStatus.value = 'online';
       selTheme.value = 'light';
       selTicks.value = 'blue';
-      inChip.value = 'HARI INI';
+      inChip.value = 'Hari ini';
       selChip.value = '1';
       selEnc.value = '1';
       taMsg.value = SAMPLE;

@@ -60,7 +60,7 @@ export function render(root) {
     '.' + P + '-sheet{position:absolute;left:0;right:0;bottom:0;height:75%;border-radius:12px 12px 0 0;background:var(--' + P + '-bg);color:var(--' + P + '-tx);display:flex;flex-direction:column;z-index:10}' +
     /* header 48pt: grabber 36x4, judul 17/600, X kanan */
     '.' + P + '-head{position:relative;height:48px;flex:none;display:flex;align-items:center;justify-content:center}' +
-    '.' + P + '-grab{position:absolute;top:7px;left:50%;transform:translateX(-50%);width:36px;height:4px;border-radius:2px;background:var(--' + P + '-grab)}' +
+    '.' + P + '-pinbadge{display:inline-flex;align-items:center;gap:3px;background:var(--' + P + '-fld);color:var(--' + P + '-sub);font-size:11px;font-weight:600;line-height:1;padding:4px 7px;border-radius:5px;margin-right:6px;vertical-align:2px;white-space:nowrap}' +
     '.' + P + '-title{font-size:17px;font-weight:600;color:var(--' + P + '-tx)}' +
     '.' + P + '-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);color:var(--' + P + '-sub);background:none;border:0;padding:8px;cursor:default;line-height:0;display:flex;align-items:center}' +
     /* daftar komentar */
@@ -68,7 +68,6 @@ export function render(root) {
     '.' + P + '-c{display:flex;gap:10px;padding:12px 16px;align-items:flex-start}' +
     '.' + P + '-av{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700}' +
     '.' + P + '-mid{flex:1;min-width:0}' +
-    '.' + P + '-pinrow{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--' + P + '-sub);font-weight:500;margin-bottom:3px}' +
     '.' + P + '-uname{font-size:14px;font-weight:700;display:flex;align-items:center;gap:5px;color:var(--' + P + '-tx)}' +
     '.' + P + '-vb{display:inline-flex;flex:none;line-height:0}' +
     '.' + P + '-txt{font-size:14px;line-height:1.45;margin-top:2px;word-break:break-word;font-weight:400;color:var(--' + P + '-tx)}' +
@@ -112,14 +111,13 @@ export function render(root) {
     const lines = S.rows.split('\n').map((l) => l.trim()).filter(Boolean).map(parseLine);
     const rowsHtml = lines.map((c) => {
       const badge = c.v ? '<span class="' + P + '-vb">' + IC.check + '</span>' : '';
-      const pin = c.pin ? '<div class="' + P + '-pinrow">' + IC.pin + '<span>Disematkan</span></div>' : '';
+      const pin = c.pin ? '<span class="' + P + '-pinbadge">' + IC.pin + '<span>Disematkan</span></span>' : '';
       const cr = c.creator ? '<div class="' + P + '-crlab">' + IC.heartSm + '<span>Disukai oleh kreator</span></div>' : '';
       return '<div class="' + P + '-c">' +
         '<div class="' + P + '-av" style="background:' + avColor(c.user) + '">' + T.esc(c.user.charAt(0).toUpperCase() || '?') + '</div>' +
         '<div class="' + P + '-mid">' +
-          pin +
           '<div class="' + P + '-uname"><span>' + T.esc(c.user) + '</span>' + badge + '</div>' +
-          '<div class="' + P + '-txt">' + T.esc(c.text) + '</div>' +
+          '<div class="' + P + '-txt">' + pin + T.esc(c.text) + '</div>' +
           '<div class="' + P + '-meta"><span>' + T.esc(c.time) + '</span><span>Balas</span></div>' +
           cr +
         '</div>' +
@@ -133,8 +131,8 @@ export function render(root) {
           '<div class="' + P + '-backdrop"></div>' +
           sbHtml +
           '<div class="' + P + '-sheet">' +
-            '<div class="' + P + '-head"><span class="' + P + '-grab"></span>' +
-              '<span class="' + P + '-title">' + T.esc(S.count) + '</span>' +
+            '<div class="' + P + '-head">' +
+              '<span class="' + P + '-title">' + T.esc(S.count) + ' komentar</span>' +
               '<button class="' + P + '-x" tabindex="-1">' + IC.x + '</button></div>' +
             '<div class="' + P + '-list">' +
               (rowsHtml || '<div class="' + P + '-c"><div class="' + P + '-mid" style="text-align:center;color:var(--' + P + '-sub);font-size:13px">Belum ada komentar</div></div>') +

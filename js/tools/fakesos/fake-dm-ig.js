@@ -12,7 +12,7 @@ const FDM_IC = {
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="18" x2="12" y2="21.5"/></svg>',
   sticker: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3.5h11.5a2 2 0 0 1 2 2V15l-4.2 5.5H5a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2z"/><path d="M18.5 15H15a1.5 1.5 0 0 0-1.5 1.5v3.2"/><circle cx="9.2" cy="10" r="1.15" fill="currentColor" stroke="none"/><circle cx="14.3" cy="10" r="1.15" fill="currentColor" stroke="none"/><path d="M8.8 13.6s1.6 1.7 3.7 1.7 3.2-1.7 3.2-1.7"/></svg>',
   heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21.2l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
-  cam: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
+  cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
 };
 const FDM_BACK_AND = '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>';
 const FDM_BACK_IOS = '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>';
@@ -28,19 +28,19 @@ const FDM_CSS = `
 .fdm-anav{display:flex;justify-content:center;padding:6px 0 8px}
 .fdm-anav i{display:block;width:120px;height:4px;border-radius:2px;background:#111}
 .fdm-wrap.dark .fdm-anav i{background:#f5f5f5}
-.fdm-head{display:flex;align-items:center;gap:12px;min-height:62px;padding:8px 12px;border-bottom:1px solid #efefef}
+.fdm-head{display:flex;align-items:center;gap:8px;min-height:62px;padding:8px 8px;border-bottom:1px solid #efefef}
 .fdm-wrap.dark .fdm-head{border-bottom-color:#262626}
-.fdm-back{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;flex:none;color:#262626}
+.fdm-back{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;flex:none;color:#262626}
 .fdm-wrap.dark .fdm-back{color:#f5f5f5}
 .fdm-hava{position:relative;flex:none}
 .fdm-dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#31a24c;border:2.5px solid #fff}
 .fdm-wrap.dark .fdm-dot{border-color:#000}
-.fdm-hmeta{display:flex;flex-direction:column;line-height:1.3;min-width:0}
-.fdm-hname{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fdm-hsub{font-size:12.5px;color:#8e8e8e}
+.fdm-hmeta{flex:1 1 0;display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.fdm-hname{display:block;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fdm-hsub{font-size:12.5px;color:#8e8e8e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fdm-wrap.dark .fdm-hsub{color:#a8a8a8}
-.fdm-hicons{margin-left:auto;display:flex;align-items:center;gap:22px;padding-right:4px}
-.fdm-ic{width:24px;height:24px;display:inline-flex;flex:none;color:#262626}
+.fdm-hicons{display:flex;align-items:center;gap:14px;padding-right:0}
+.fdm-ic{width:22px;height:22px;display:inline-flex;flex:none;color:#262626}
 .fdm-wrap.dark .fdm-ic{color:#f5f5f5}
 .fdm-ic svg{width:100%;height:100%}
 .fdm-ava{border-radius:50%;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;background:#efefef}
@@ -66,7 +66,8 @@ const FDM_CSS = `
 .fdm-input{display:flex;align-items:center;gap:10px;padding:8px 10px 12px}
 .fdm-pill{flex:1;display:flex;align-items:center;gap:11px;background:#efefef;border-radius:26px;padding:6px 13px 6px 6px;min-width:0}
 .fdm-wrap.dark .fdm-pill{background:#262626}
-.fdm-cam{width:32px;height:32px;border-radius:50%;background:linear-gradient(45deg,#FEDA75,#FA7E1E,#D62976,#962FBF);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.fdm-cam{width:32px;height:32px;border-radius:50%;background:none;border:2px solid currentColor;color:#262626;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.fdm-wrap.dark .fdm-cam{color:#f5f5f5}
 .fdm-cam svg{width:17px;height:17px;display:block}
 .fdm-ph{flex:1;font-size:15px;color:#8e8e8e;white-space:nowrap;overflow:hidden}
 .fdm-wrap.dark .fdm-ph{color:#a8a8a8}

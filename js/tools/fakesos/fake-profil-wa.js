@@ -139,6 +139,12 @@ const CSS = `
 .fpw-dark .fii-title{color:#fff}
 .fii-edit{margin-left:auto;z-index:1;font-size:15px;font-weight:500;color:#111B21;padding:10px 18px;border-radius:22px}
 .fpw-dark .fii-edit{color:#fff}
+/* iOS asli: tombol back & edit berupa teks biru (bukan pil/lingkaran) */
+.fii-backtx{background:none;border:0;margin:0;padding:10px 10px 10px 4px;display:flex;align-items:center;gap:1px;font-size:17px;font-weight:400;color:#007AFF;cursor:pointer;font-family:inherit;z-index:1}
+.fpw-dark .fii-backtx{color:#0A84FF}
+.fii-backtx svg{display:block}
+.fii-edittx{margin-left:auto;z-index:1;background:none;border:0;padding:10px 4px 10px 10px;font-size:17px;font-weight:400;color:#007AFF;cursor:pointer;font-family:inherit}
+.fpw-dark .fii-edittx{color:#0A84FF}
 .fii-hero{text-align:center;padding:8px 24px 2px}
 .fii-av{width:120px;height:120px;border-radius:50%;background:#8E8E93;color:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;margin:0 auto;overflow:hidden}
 .fii-av svg{width:74px;height:74px}
@@ -353,9 +359,9 @@ export function render(root) {
       (val ? '<span class="fii-val">' + val + '</span>' : '') +
       '<span class="fii-chev">' + chevR + '</span></div>';
     return '<div class="fii-wrap">' + sbIOS() +
-      '<div class="fii-nav"><span class="fii-back fii-glass">' + IC.chevL(22, 2.2) + '</span>' +
+      '<div class="fii-nav"><button class="fii-backtx" type="button" tabindex="-1">' + IC.chevL(17, 2.6) + '<span>Back</span></button>' +
       '<span class="fii-title">Info kontak</span>' +
-      '<span class="fii-edit fii-glass">Edit</span></div>' +
+      '<button class="fii-edittx" type="button" tabindex="-1">Edit</button></div>' +
       '<div class="fii-hero">' +
       '<div class="fii-av">' + d.av + '</div>' +
       '<div class="fii-name">' + d.name + '</div>' +

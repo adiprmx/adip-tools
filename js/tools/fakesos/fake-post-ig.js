@@ -98,7 +98,8 @@ const FPI_CSS = `
 .fpi-dev{max-width:430px;margin:14px auto;background:#0d0d0d;border-radius:42px;padding:11px;box-shadow:0 20px 55px rgba(0,0,0,.35),inset 0 0 0 2px #2b2b2b}
 .fpi-scr{border-radius:32px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
 .fpi-scr.dk{background:#000}
-.fpi-sb{position:relative;display:flex;align-items:center;justify-content:space-between;padding:11px 22px 4px;font-size:15px;font-weight:600;flex:none}
+.fpi-sb{position:relative;display:flex;align-items:center;justify-content:space-between;padding:11px 22px 4px;font-size:15px;font-weight:600;flex:none;color:#111}
+.fpi-scr.dk .fpi-sb{color:#f5f5f5}
 .fpi-home{width:134px;height:5px;border-radius:3px;background:#111;margin:10px auto 8px;flex:none}
 .fpi-scr.dk .fpi-home{background:#f5f5f5}
 .fpi-anav{display:flex;justify-content:center;padding:8px 0 10px;flex:none}
@@ -186,13 +187,15 @@ export function render(root) {
     h += '<div class="fpi-actions">'
       + '<span class="fpi-ic24">' + fpiHeart(liked) + '</span>'
       + '<span class="fpi-ic24">' + fpiIcon('comment') + '</span>'
-      + '<span class="fpi-ic24">' + fpiIcon('repost') + '</span>'
       + '<span class="fpi-ic24">' + fpiIcon('send') + '</span>'
       + '<span class="fpi-ic24 fpi-save">' + fpiIcon('bookmark') + '</span>'
       + '</div>';
     h += '<div class="fpi-body">';
-    if (nLikes > 0) h += '<div class="fpi-likes">Disukai oleh <b>' + T.esc(uname) + '</b> dan <b>' + T.esc(fpiFmt(nLikes)) + '</b> lainnya</div>';
-    if (cap.trim()) h += '<div class="fpi-cap"><b>' + T.esc(uname) + '</b> ' + T.esc(cap) + '</div>';
+    // Baris like + caption selalu dirender (seperti feed IG asli); fallback wajar bila input kosong.
+    h += '<div class="fpi-likes">' + (nLikes > 0
+      ? 'Disukai oleh <b>' + T.esc(uname) + '</b> dan <b>' + T.esc(fpiFmt(nLikes)) + '</b> lainnya'
+      : 'Disukai oleh <b>' + T.esc(uname) + '</b>') + '</div>';
+    h += '<div class="fpi-cap"><b>' + T.esc(uname) + '</b>' + (cap.trim() ? ' ' + T.esc(cap) : '') + '</div>';
     if (cCount > 0) h += '<div class="fpi-comments">Lihat semua ' + T.esc(fpiFmt(cCount)) + ' komentar</div>';
     h += '<div class="fpi-time">' + T.esc(timeT) + '</div>';
     h += '</div>';
