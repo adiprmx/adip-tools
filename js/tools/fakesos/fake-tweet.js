@@ -1,10 +1,14 @@
 import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
+/* Logo X resmi (path merek X, viewBox 24) — fill currentColor agar ikut
+   warna teks tema situs (putih di tema gelap, hitam di tema terang). */
+const X_LOGO_SVG = '<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>';
+
 export const meta = {
   id: 'fake-tweet',
   name: 'Fake Tweet X',
   cat: 'fakesos',
-  icon: '✖️',
+  icon: X_LOGO_SVG,
   desc: 'Bikin screenshot tweet X palsu + unduh PNG.',
   keywords: 'twitter,x,tweet,fake,palsu,screenshot,prank',
 };

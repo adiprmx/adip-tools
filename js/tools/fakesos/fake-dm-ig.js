@@ -172,7 +172,7 @@ export function render(root) {
       + '<span class="fdm-heartbtn">' + FDM_IC.heart + '</span></div>'
       + (isIPh ? '<div class="fdm-home"><i></i></div>' : '<div class="fdm-anav"><i></i></div>');
 
-    preview.innerHTML = '<div class="fdm-wrap' + (dark ? ' dark' : '') + '">' + h + '</div>';
+    T.show(preview, '<div class="fdm-wrap' + (dark ? ' dark' : '') + '">' + h + '</div>');
   }
 
   [userA, userB, statusInp, platSel, selBrand, themeSel, divInp, chatTa].forEach((elx) => { elx.addEventListener('input', draw); elx.addEventListener('change', draw); });

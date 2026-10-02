@@ -54,10 +54,10 @@ export function render(root) {
     '.' + P + '-lockclock{text-align:center;padding:52px 0 0;position:relative;z-index:1}' +
     '.' + P + '-lockdate{font-size:16px;font-weight:500;color:#fff;letter-spacing:.1px}' +
     '.' + P + '-locktime{font-size:93px;font-weight:600;color:#fff;line-height:1.08;margin-top:2px;letter-spacing:-1px}' +
-    // kartu notif: komponen banner Apple (Figma kit) — radius 18pt, ikon squircle 30pt,
+    // kartu notif: komponen banner Apple (Figma kit) — radius 18pt, ikon squircle 36pt,
     // judul 13pt bold / isi 13pt regular / "now" 11pt, material kaca gelap (wallpaper gelap)
     '.' + P + '-ioscard{margin:16px 15px 0;background:rgba(44,44,46,.62);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);border-radius:18px;padding:12px 12px 14px 15px;display:flex;gap:8px;box-shadow:0 4px 18px rgba(0,0,0,.25);position:relative;z-index:1}' +
-    '.' + P + '-sq{width:29px;height:29px;border-radius:7px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}' +
+    '.' + P + '-sq{width:36px;height:36px;border-radius:9px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px}' +
     '.' + P + '-sq img{width:100%;height:100%;object-fit:cover;display:block}' +
     '.' + P + '-icol{flex:1;min-width:0}' +
     '.' + P + '-itrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}' +
@@ -118,11 +118,11 @@ export function render(root) {
             chevSvg() +
           '</div>' +
           '<div class="' + P + '-arow2">' +
+            largeIcon() +
             '<div class="' + P + '-abody">' +
               '<div class="' + P + '-atitle">' + T.esc(S.judul) + '</div>' +
               '<div class="' + P + '-atext">' + T.esc(S.isi) + '</div>' +
             '</div>' +
-            largeIcon() +
           '</div>' + acts +
         '</div>' +
         '<div class="' + P + '-navpill"></div>' +

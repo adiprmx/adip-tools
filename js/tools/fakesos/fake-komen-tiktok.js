@@ -77,10 +77,10 @@ export function render(root) {
     '.' + P + '-like{display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:12px;flex:none;min-width:40px;color:var(--' + P + '-sub)}' +
     '.' + P + '-heart{line-height:0}' +
     '.' + P + '-n{font-size:12px;color:var(--' + P + '-sub)}' +
-    /* compose bar: avatar + field 44pt bg #2F2F2F radius 4 + @ + emoji + panah kirim abu */
+    /* compose bar: avatar + field 44pt bg #2F2F2F radius 18 + @ + emoji + panah kirim abu */
     '.' + P + '-compose{flex:none;display:flex;align-items:center;gap:10px;padding:8px 12px 16px}' +
     '.' + P + '-meav{width:36px;height:36px;border-radius:50%;flex:none;background:var(--' + P + '-fld);color:var(--' + P + '-sub);display:flex;align-items:center;justify-content:center}' +
-    '.' + P + '-field{flex:1;height:44px;background:var(--' + P + '-fld);border-radius:4px;display:flex;align-items:center;padding:0 14px;font-size:14px;color:var(--' + P + '-sub)}' +
+    '.' + P + '-field{flex:1;height:44px;background:var(--' + P + '-fld);border-radius:18px;display:flex;align-items:center;padding:0 14px;font-size:14px;color:var(--' + P + '-sub)}' +
     '.' + P + '-icobtn{flex:none;color:var(--' + P + '-sub);line-height:0;display:flex;align-items:center;justify-content:center}' +
     '.' + P + '-at{font-size:21px;font-weight:600;color:var(--' + P + '-sub);line-height:1;padding:0 2px}' +
     '.' + P + '-send{flex:none;color:var(--' + P + '-sub);line-height:0;display:flex;align-items:center;opacity:.85}' +
@@ -112,7 +112,7 @@ export function render(root) {
     const lines = S.rows.split('\n').map((l) => l.trim()).filter(Boolean).map(parseLine);
     const rowsHtml = lines.map((c) => {
       const badge = c.v ? '<span class="' + P + '-vb">' + IC.check + '</span>' : '';
-      const pin = c.pin ? '<div class="' + P + '-pinrow">' + IC.pin + '<span>Pinned</span></div>' : '';
+      const pin = c.pin ? '<div class="' + P + '-pinrow">' + IC.pin + '<span>Disematkan</span></div>' : '';
       const cr = c.creator ? '<div class="' + P + '-crlab">' + IC.heartSm + '<span>Disukai oleh kreator</span></div>' : '';
       return '<div class="' + P + '-c">' +
         '<div class="' + P + '-av" style="background:' + avColor(c.user) + '">' + T.esc(c.user.charAt(0).toUpperCase() || '?') + '</div>' +
@@ -134,14 +134,14 @@ export function render(root) {
           sbHtml +
           '<div class="' + P + '-sheet">' +
             '<div class="' + P + '-head"><span class="' + P + '-grab"></span>' +
-              '<span class="' + P + '-title">Comments (' + T.esc(S.count) + ')</span>' +
+              '<span class="' + P + '-title">' + T.esc(S.count) + '</span>' +
               '<button class="' + P + '-x" tabindex="-1">' + IC.x + '</button></div>' +
             '<div class="' + P + '-list">' +
               (rowsHtml || '<div class="' + P + '-c"><div class="' + P + '-mid" style="text-align:center;color:var(--' + P + '-sub);font-size:13px">Belum ada komentar</div></div>') +
             '</div>' +
             '<div class="' + P + '-compose">' +
               '<div class="' + P + '-meav">' + IC.person + '</div>' +
-              '<div class="' + P + '-field">Add comment...</div>' +
+              '<div class="' + P + '-field">Tambahkan komentar...</div>' +
               '<span class="' + P + '-at">@</span>' +
               '<span class="' + P + '-icobtn">' + IC.emoji + '</span>' +
               '<span class="' + P + '-send">' + IC.send + '</span>' +

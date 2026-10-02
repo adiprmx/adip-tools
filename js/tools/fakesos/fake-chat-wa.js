@@ -15,7 +15,7 @@ const SAMPLE =
   'A|09:14: Jangan telat lagi ya\n' +
   'B|09:15|2: Aman, gue berangkat dari sekarang\n' +
   'A|09:15: Sekarang masih jam 9 pagi woy\n' +
-  'B|09:16|blue: ...';
+  'A|09:16: ...';
 
 // Tema obrolan ala WhatsApp: warna bubble keluar + wallpaper (terang/gelap).
 const CHAT_THEMES = {
@@ -31,18 +31,22 @@ const CHAT_THEMES = {
   kuning: { label: 'Kuning', out: '#FFF0B8', outD: '#CA8A04', wall: 'linear-gradient(165deg,#fffbe8,#fdf0b8 60%,#fde68a)', wallD: 'linear-gradient(165deg,#3a2a05,#713f12)' },
 };
 
-// Pola doodle khas wallpaper default WhatsApp (rekreasi, tile 140px).
+// Pola doodle khas wallpaper default WhatsApp (rekreasi, tile 100px, ~2x lebih rapat).
 function doodleTile(stroke) {
-  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140">' +
-    '<g fill="none" stroke="' + stroke + '" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' +
-    '<rect x="16" y="14" width="28" height="19" rx="9.5"/><path d="M25 33l-5 8 10-8"/>' +
-    '<path d="M98 20l2.4 6 6 2.4-6 2.4-2.4 6-2.4-6-6-2.4 6-2.4z"/>' +
-    '<path d="M14 66c7-9 13 9 20 0s13 9 20 0"/>' +
-    '<circle cx="106" cy="68" r="10"/>' +
-    '<path d="M52 106c-5-7-15-3-11 5l11 9 11-9c4-8-6-12-11-5z"/>' +
-    '<path d="M116 100l5 12M124 98l-3 14"/>' +
-    '<circle cx="30" cy="112" r="4"/>' +
-    '<path d="M74 44h14M81 37v14"/>' +
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">' +
+    '<g fill="none" stroke="' + stroke + '" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="11" y="10" width="20" height="14" rx="7"/><path d="M18 24l-4 6 7-6"/>' +
+    '<path d="M70 14l1.7 4.3 4.3 1.7-4.3 1.7-1.7 4.3-1.7-4.3-4.3-1.7 4.3-1.7z"/>' +
+    '<path d="M10 47c5-6.5 9.3 6.5 14.3 0s9.3 6.5 14.3 0"/>' +
+    '<circle cx="76" cy="49" r="7"/>' +
+    '<path d="M37 76c-3.6-5-10.7-2.1-7.9 3.6l7.9 6.4 7.9-6.4c2.8-5.7-4.3-8.6-7.9-3.6z"/>' +
+    '<path d="M83 71l3.6 8.6M88.6 69.3l-2.1 10"/>' +
+    '<circle cx="21" cy="80" r="2.8"/>' +
+    '<path d="M48 31h10M53 26v10"/>' +
+    '<path d="M60 88l1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2 3-1.2z"/>' +
+    '<circle cx="8" cy="88" r="2.2"/>' +
+    '<path d="M52 60c3-4 6 4 9 0"/>' +
+    '<path d="M90 30c-2.5-3.5-7.5-1.5-5.5 2.5l5.5 4.5 5.5-4.5c2-4-3-6-5.5-2.5z"/>' +
     '</g></svg>';
   return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
 }
@@ -131,7 +135,7 @@ export function render(root) {
 .fcw-dark .fcw-chip{background:#182229;color:#8696A0}
 .fcw-enc{align-self:center;max-width:94%;background:#FDF3C6;color:#54656F;font-size:12.5px;line-height:1.5;padding:7px 12px;border-radius:8px;text-align:center;margin:0 0 8px}
 .fcw-dark .fcw-enc{background:#182229;color:#8696A0}
-/* bubble berekor klasik (stable 2025): ekor di sudut atas sisi pengirim */
+/* bubble: ekor di sudut atas sisi pengirim */
 .fcw-bub{position:relative;max-width:80%;padding:7px 9px 8px;border-radius:8px;font-size:16px;line-height:21px;margin-top:2px;overflow-wrap:break-word;box-shadow:0 1px 0.5px rgba(0,0,0,.08)}
 .fcw-ios .fcw-bub{font-size:17px;line-height:22px}
 .fcw-grp{margin-top:10px}
@@ -139,12 +143,13 @@ export function render(root) {
 .fcw-out{align-self:flex-end;background:var(--fcw-out,#D9FDD3);color:#111B21}
 .fcw-dark .fcw-in{background:#1F2C34;color:#E9EDEF}
 .fcw-dark .fcw-out{background:var(--fcw-outd,#005C4B);color:#E9EDEF}
+/* bubble berekor melengkung ala WhatsApp: ekor = mask SVG (bukan segitiga tajam) */
 .fcw-in.fcw-tail{border-top-left-radius:2px}
 .fcw-out.fcw-tail{border-top-right-radius:2px}
-.fcw-in.fcw-tail::before{content:"";position:absolute;left:-8px;top:0;width:0;height:0;border:9px solid transparent;border-top-color:#FFFFFF;border-left:0}
-.fcw-out.fcw-tail::before{content:"";position:absolute;right:-8px;top:0;width:0;height:0;border:9px solid transparent;border-top-color:var(--fcw-out,#D9FDD3);border-right:0}
-.fcw-dark .fcw-in.fcw-tail::before{border-top-color:#1F2C34}
-.fcw-dark .fcw-out.fcw-tail::before{border-top-color:var(--fcw-outd,#005C4B)}
+.fcw-in.fcw-tail::before{content:"";position:absolute;left:-8px;top:0;width:12px;height:16px;background:#FFFFFF;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'%3E%3Cpath d='M8 0H4C1.5 0 0 2 0 5C0 9.5 3.5 12.5 8 14Z'/%3E%3C/svg%3E") no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'%3E%3Cpath d='M8 0H4C1.5 0 0 2 0 5C0 9.5 3.5 12.5 8 14Z'/%3E%3C/svg%3E") no-repeat}
+.fcw-out.fcw-tail::before{content:"";position:absolute;right:-8px;top:0;width:12px;height:16px;background:var(--fcw-out,#D9FDD3);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'%3E%3Cpath d='M4 0H8C10.5 0 12 2 12 5C12 9.5 8.5 12.5 4 14Z'/%3E%3C/svg%3E") no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='16' viewBox='0 0 12 16'%3E%3Cpath d='M4 0H8C10.5 0 12 2 12 5C12 9.5 8.5 12.5 4 14Z'/%3E%3C/svg%3E") no-repeat}
+.fcw-dark .fcw-in.fcw-tail::before{background:#1F2C34}
+.fcw-dark .fcw-out.fcw-tail::before{background:var(--fcw-outd,#005C4B)}
 .fcw-meta{float:right;font-size:11px;color:#667781;margin:10px -1px 0 8px;line-height:1;white-space:nowrap}
 .fcw-dark .fcw-meta{color:#8696A0}
 .fcw-tk{vertical-align:-1px;margin-left:3px}
@@ -270,7 +275,16 @@ export function render(root) {
         '</div>';
     });
 
-    const sbHtml = '<div class="fcw-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
+    let sbHtml = T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark);
+    // core.js menggambar fill baterai dengan lebar hardcoded yang tidak pas 77% dari
+    // track dalamnya (77% terbaca ~56%). Koreksi di sini tanpa mengubah core.js:
+    // iPhone: track 17 -> 13.1 | pill: track 19 -> 14.6 | outline: track 17 -> 13.1 | samsung: track 18.2 -> 14
+    sbHtml = sbHtml
+      .replace('x="2.5" y="2.5" width="14" height="7" rx="1.5"', 'x="2.5" y="2.5" width="13.1" height="7" rx="1.5"')
+      .replace('x="2.5" y="2.5" width="14" height="7" rx="3.5"', 'x="2.5" y="2.5" width="14.6" height="7" rx="3.5"')
+      .replace('x="2.5" y="2.5" width="13" height="7" rx="1.2"', 'x="2.5" y="2.5" width="13.1" height="7" rx="1.2"')
+      .replace('x="3" y="3" width="13" height="7" rx="2"', 'x="3" y="3" width="14" height="7" rx="2"');
+    sbHtml = '<div class="fcw-sb">' + sbHtml + '</div>';
 
     const hdHtml = isIPh
       ? '<div class="fcw-hd fcw-hdios"><button class="fcw-bkios" type="button" tabindex="-1">' + SVG_CHEV + '</button>' +
@@ -284,12 +298,12 @@ export function render(root) {
 
     const ibarHtml = isIPh
       ? '<div class="fcw-ibar"><button class="fcw-plus" type="button" tabindex="-1">+</button>' +
-        '<div class="fcw-pill"><span class="fcw-ph">Message</span>' +
+        '<div class="fcw-pill"><span class="fcw-ph">Pesan</span>' +
         '<span class="fcw-pico">' + SVG_SMILEY + '</span></div>' +
         '<span class="fcw-cam">' + SVG_CAMIN + '</span><div class="fcw-mic">' + SVG_MIC + '</div></div>' +
         '<div class="fcw-home"><i></i></div>'
       : '<div class="fcw-ibar"><div class="fcw-pill"><span class="fcw-pico">' + SVG_SMILEY + '</span>' +
-        '<span class="fcw-ph">Message</span>' +
+        '<span class="fcw-ph">Pesan</span>' +
         '<span class="fcw-pico">' + SVG_CLIP + SVG_CAMIN + '</span></div>' +
         '<div class="fcw-mic">' + SVG_MIC + '</div></div>' +
         '<div class="fcw-nav"><i></i></div>';

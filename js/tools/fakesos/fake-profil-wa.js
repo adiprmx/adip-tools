@@ -72,8 +72,10 @@ const CSS = `
 .fpw-dark .fpw-hd{background:#0B141A}
 .fpw-bk{background:none;border:0;padding:10px;cursor:pointer;color:#3B4A54;display:flex;align-items:center}
 .fpw-dark .fpw-bk{color:#AEBAC1}
-.fpw-htitle{font-size:20px;font-weight:500;color:#111B21;margin-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.1px}
+.fpw-htitle{flex:1;font-size:20px;font-weight:500;color:#111B21;margin-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.1px}
 .fpw-dark .fpw-htitle{color:#E9EDEF}
+.fpw-hd .fpw-hact{flex:none;display:flex;align-items:center;justify-content:center;width:48px;height:48px;color:#3B4A54}
+.fpw-dark .fpw-hd .fpw-hact{color:#AEBAC1}
 .fpw-hero{text-align:center;padding:6px 24px 0}
 .fpw-av{width:150px;height:150px;border-radius:50%;background:#8696A0;color:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;margin:0 auto;overflow:hidden}
 .fpw-av svg{width:92px;height:92px}
@@ -228,7 +230,7 @@ export function render(root) {
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
   const inName = T.input('text', 'Nama', 'Budi Santoso');
   const inNum = T.input('text', 'Nomor telepon', '+62 812-3456-7890');
-  const inSeen = T.input('text', 'Last seen (khusus Info Kontak)', 'last seen today at 10:30');
+  const inSeen = T.input('text', 'Last seen (khusus Info Kontak)', 'terakhir dilihat hari ini pukul 10.30');
   const inAbout = T.input('text', 'About / Tentang', 'Hey there! I am using WhatsApp.');
   const inUser = T.input('text', 'Nama pengguna (khusus Profil Saya)', '');
 
@@ -265,7 +267,7 @@ export function render(root) {
       } else {
         inName.value = 'Budi Santoso';
         inNum.value = '+62 812-3456-7890';
-        inSeen.value = 'last seen today at 10:30';
+        inSeen.value = 'terakhir dilihat hari ini pukul 10.30';
         inAbout.value = 'Hey there! I am using WhatsApp.';
         inUser.value = '';
       }
@@ -300,7 +302,9 @@ export function render(root) {
       '<div class="fpw-row"><div class="fpw-ric">' + icon + '</div>' +
       '<div class="fpw-rtx"><b>' + title + '</b>' + (sub ? '<span>' + sub + '</span>' : '') + '</div></div>';
     return sbAndroid() +
-      '<div class="fpw-hd">' + bkBtn + '<span class="fpw-htitle">Info kontak</span></div>' +
+      '<div class="fpw-hd">' + bkBtn + '<span class="fpw-htitle">Info kontak</span>' +
+      '<span class="fpw-hact">' + IC.phone(24) + '</span>' +
+      '<span class="fpw-hact">' + IC.video(24) + '</span></div>' +
       '<div class="fpw-hero">' +
       '<div class="fpw-av">' + d.av + '</div>' +
       '<div class="fpw-name">' + d.name + '</div>' +
@@ -324,7 +328,7 @@ export function render(root) {
       '<div class="fpw-div"></div>' +
       row(IC.note(24), 'Notifikasi khusus', '') +
       '<div class="fpw-div"></div>' +
-      row(IC.image(24), 'Visibilitas media', 'Tampilkan media yang baru diunduh dari chat ini di galeri perangkatmu') +
+      row(IC.image(24), 'Visibilitas media', 'Tampilkan media yang baru diunduh dari chat ini di galeri perangkat Anda') +
       '<div class="fpw-div"></div>' +
       row(IC.timer(24), 'Pesan sementara', 'Mati') +
       '<div class="fpw-div"></div>' +

@@ -204,11 +204,11 @@ export function render(root) {
       + '<span class="fpi-tab"><span class="fpi-tabava">' + FPI_PERSON + '</span></span>'
       + '</div>';
 
-    preview.innerHTML = '<div class="fpi-dev"><div class="fpi-scr' + (dark ? ' dk' : '') + '">'
+    T.show(preview, '<div class="fpi-dev"><div class="fpi-scr' + (dark ? ' dk' : '') + '">'
       + '<div class="fpi-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>'
       + '<div class="fpi-app' + (dark ? ' dk' : '') + '">' + h + '</div>'
       + (isIPh ? '<div class="fpi-home"></div>' : '<div class="fpi-anav"><i></i></div>')
-      + '</div></div>';
+      + '</div></div>');
   }
 
   [userInp, locInp, capTa, likesInp, comInp, timeInp].forEach((elx) => elx.addEventListener('input', draw));

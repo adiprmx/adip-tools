@@ -66,9 +66,9 @@ export function render(root) {
     '.' + P + '-nm{font-size:24px;font-weight:600;color:#e9edef;margin-top:18px;word-break:break-word}' +
     '.' + P + '-callabel{font-size:15px;color:#8696a0;margin-top:8px}' +
     '.' + P + '-sp{flex:1}' +
-    '.' + P + '-inbtns{display:flex;gap:14px;margin:0 20px 70px}' +
-    '.' + P + '-pillbtn{flex:1;height:54px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600;color:#fff}' +
-    '.' + P + '-pillbtn .' + P + '-ic{width:22px;height:22px}' +
+    '.' + P + '-inbtns{display:flex;justify-content:space-between;align-items:center;margin:0 30px 70px}' +
+    '.' + P + '-roundbtn{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff}' +
+    '.' + P + '-roundbtn .' + P + '-ic{width:28px;height:28px}' +
     '.' + P + '-accept{background:#25d366}' +
     '.' + P + '-decline{background:#ea0038}' +
     // ongoing — header
@@ -125,8 +125,8 @@ export function render(root) {
           '</div>' +
           '<div class="' + P + '-sp"></div>' +
           '<div class="' + P + '-inbtns">' +
-            '<div class="' + P + '-pillbtn ' + P + '-decline">' + ic('phone', true) + '<span>Tolak</span></div>' +
-            '<div class="' + P + '-pillbtn ' + P + '-accept">' + ic('phone') + '<span>Jawab</span></div>' +
+            '<div class="' + P + '-roundbtn ' + P + '-decline" title="Tolak">' + ic('phone', true) + '</div>' +
+            '<div class="' + P + '-roundbtn ' + P + '-accept" title="Jawab">' + ic('phone') + '</div>' +
           '</div>' +
         '</div>' + bottomChrome() + '</div>';
     } else {
