@@ -10,15 +10,15 @@ export const meta = {
 };
 
 const THEMES = {
-  terang: { bg: '#FFFFFF', fg: '#0F1419', muted: '#536471', imgb: '#EFF3F4' },
+  terang: { bg: '#FFFFFF', fg: '#0F1419', muted: '#536471', imgb: '#CFD9DE' },
   redup: { bg: '#15202B', fg: '#FFFFFF', muted: '#8899A6', imgb: '#38444D' },
-  gelap: { bg: '#000000', fg: '#E7E9EA', muted: '#71767B', imgb: '#2F3336' },
+  gelap: { bg: '#000000', fg: '#E6E9EA', muted: '#71767B', imgb: '#2F3336' },
 };
 
-const VER = { blue: '#1D9BF0', gold: '#CBA135', gray: '#829AAB' };
+const VER = { blue: '#1D9BF0', gold: '#FFD400', gray: '#829AAB' };
 const VER_LABEL = { blue: 'Verified biru', gold: 'Verified emas', gray: 'Verified abu-abu' };
 
-const CHECK = '<svg viewBox="0 0 24 24" width="10" height="10" aria-hidden="true"><path fill="#fff" d="M9.55 15.9 6 12.35l1.4-1.4 2.15 2.15 5.1-5.1 1.4 1.4z"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true"><path fill="#fff" d="M9.55 15.9 6 12.35l1.4-1.4 2.15 2.15 5.1-5.1 1.4 1.4z"/></svg>';
 
 function avaColor(name) {
   let hsh = 0;
@@ -27,9 +27,17 @@ function avaColor(name) {
   return 'hsl(' + hsh + ',55%,45%)';
 }
 
-const ICO_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
-const ICO_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
-const ICO_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
+// Ikon engagement bar ala X (stroke, 18px)
+const ICO_REPLY = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+const ICO_RT = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
+const ICO_LIKE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+const ICO_VIEW = '<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><rect x="1" y="11" width="3" height="6" rx="0.8"/><rect x="5.5" y="7.5" width="3" height="9.5" rx="0.8"/><rect x="10" y="4" width="3" height="13" rx="0.8"/><rect x="14.5" y="1" width="3" height="16" rx="0.8"/></svg>';
+const ICO_BM = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+const ICO_SHARE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+
+const ICO_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
+const ICO_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
+const ICO_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
 
 // Escape dulu, lalu warnai hashtag & mention ala X, lalu jaga baris baru.
 function richText(src) {
@@ -45,30 +53,35 @@ export function render(root) {
     '.ft-ctl{display:grid;gap:10px;margin-bottom:14px}' +
     '.ft-btns{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 14px}' +
     '.ft-prevbox{display:flex;justify-content:center;padding:18px 10px;background:#101014;border:1px solid #ffffff14;border-radius:12px;margin-bottom:14px}' +
-    '.ft-card{width:100%;max-width:480px;padding:16px;background:var(--ft-bg);color:var(--ft-fg);text-align:left}' +
-    '.ft-tweet{display:flex;gap:12px}' +
-    '.ft-ava{width:46px;height:46px;border-radius:50%;flex:0 0 46px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;line-height:1}' +
+    '.ft-card{width:100%;max-width:480px;background:var(--ft-bg);color:var(--ft-fg);text-align:left}' +
+    '.ft-tweet{display:flex;gap:12px;padding:12px 16px}' +
+    '.ft-ava{width:40px;height:40px;border-radius:50%;flex:0 0 40px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px;line-height:1}' +
     '.ft-main{flex:1;min-width:0}' +
-    '.ft-namerow{display:flex;align-items:center;gap:4px;font-size:15px;line-height:1.3;flex-wrap:wrap}' +
-    '.ft-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}' +
-    '.ft-badge{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 16px}' +
-    '.ft-handle{color:var(--ft-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-    '.ft-text{font-size:16px;line-height:1.45;margin:4px 0 12px;overflow-wrap:break-word;white-space:normal}' +
+    '.ft-top{display:flex;align-items:flex-start}' +
+    '.ft-namerow{display:flex;align-items:center;gap:4px;font-size:15px;line-height:1.3;min-width:0;flex:1;overflow:hidden;white-space:nowrap}' +
+    '.ft-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+    '.ft-badge{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px}' +
+    '.ft-handle{color:var(--ft-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}' +
+    '.ft-more{color:var(--ft-muted);font-size:16px;letter-spacing:2px;line-height:1;padding-left:8px;flex:none}' +
+    '.ft-text{font-size:15px;line-height:20px;font-weight:400;margin:2px 0 12px;overflow-wrap:break-word;white-space:normal}' +
     '.ft-link{color:#1D9BF0}' +
     '.ft-img{margin:0 0 4px}' +
     '.ft-img img{width:100%;height:auto;display:block;border-radius:16px;border:1px solid var(--ft-imgb)}' +
-    '.ft-metrics{display:flex;gap:28px;margin-top:12px;flex-wrap:wrap}' +
-    '.ft-m{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ft-muted)}' +
-    '.ft-ic{font-size:15px;line-height:1}' +
+    '.ft-eng{display:flex;align-items:center;margin-top:12px}' +
+    '.ft-e{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;color:var(--ft-muted);flex:1 1 0;min-width:0}' +
+    '.ft-e svg{display:block;flex:none}' +
+    '.ft-eright{display:flex;align-items:center;justify-content:flex-end;gap:20px;color:var(--ft-muted);flex:1 1 0;min-width:0}' +
+    '.ft-eright svg{display:block}' +
     '.ft-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
-    '.ft-sb{display:flex;justify-content:space-between;align-items:center;height:30px;padding:0 16px 0 20px;color:var(--ft-fg)}' +
-    '.ft-sb.ios{height:38px;padding:0 20px 0 24px}' +
-    '.ft-clock{font-size:13px;font-weight:700;letter-spacing:.3px}' +
+    '.ft-sb{position:relative;display:flex;justify-content:space-between;align-items:center;padding:14px 24px 6px;color:var(--ft-fg)}' +
+    '.ft-clock{font-size:14px;font-weight:600;letter-spacing:-.2px}' +
     '.ft-sicons{display:flex;align-items:center;gap:5px}' +
-    '.ft-island{width:100px;height:26px;border-radius:14px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}' +
-    '.ft-punch{width:12px;height:12px;border-radius:50%;background:#000;flex:none;box-shadow:0 0 0 2px rgba(128,128,128,.28)}' +
-    '.ft-homebar{display:flex;justify-content:center;padding:8px 0 7px}' +
-    '.ft-homebar span{width:134px;height:5px;border-radius:3px;background:var(--ft-muted);opacity:.55}' +
+    '.ft-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;border-radius:18px;background:#000;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}' +
+    '.ft-punch{position:absolute;left:50%;top:17px;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:#000;box-shadow:0 0 0 2px rgba(255,255,255,.07)}' +
+    '.ft-homebar{display:flex;justify-content:center;padding:9px 0 8px}' +
+    '.ft-homebar span{width:134px;height:5px;border-radius:3px;background:var(--ft-fg);opacity:.85}' +
+    '.ft-navpill{display:flex;justify-content:center;padding:10px 0 8px}' +
+    '.ft-navpill span{width:108px;height:4px;border-radius:2px;background:var(--ft-fg);opacity:.85}' +
     '</style>';
 
   const nameI = T.input('text', 'Nama tampilan', 'Adip RMX');
@@ -98,10 +111,10 @@ export function render(root) {
   ctl.appendChild(T.field('Waktu', timeI, 'cth: 2 jam, Kemarin, 12 Agu 26'));
   ctl.appendChild(T.field('Isi tweet', textI));
   const mrow = T.el('<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>');
-  mrow.appendChild(T.field('Balasan 💬', repI));
-  mrow.appendChild(T.field('Repost 🔁', rtI));
-  mrow.appendChild(T.field('Suka ❤️', likeI));
-  mrow.appendChild(T.field('Tayangan 📊', viewI));
+  mrow.appendChild(T.field('Balasan', repI));
+  mrow.appendChild(T.field('Repost', rtI));
+  mrow.appendChild(T.field('Suka', likeI));
+  mrow.appendChild(T.field('Tayangan', viewI));
   ctl.appendChild(mrow);
   ctl.appendChild(T.field('Platform', platI));
   ctl.appendChild(T.field('Tema', themeI));
@@ -110,7 +123,7 @@ export function render(root) {
   const btns = T.el('<div class="ft-btns"></div>');
   btns.appendChild(T.btn('🖼️ Pilih gambar', () => fi.click()));
   btns.appendChild(T.btn('✕ Hapus gambar', () => { imgUrl = null; draw(); }));
-  btns.appendChild(T.btn('Contoh', () => {
+  btns.appendChild(T.btn('🎲 Contoh', () => {
     nameI.value = 'Adip RMX'; handleI.value = 'adiprmx'; verI.value = 'blue';
     timeI.value = '2 jam';
     textI.value = 'Akhirnya 300 tools selesai juga!\n\nCoba sendiri di tools.adipmusic.my.id #ADIPTools';
@@ -132,10 +145,13 @@ export function render(root) {
   function draw() {
     const th = THEMES[themeI.value] || THEMES.gelap;
     const isIPh = platI.value === 'iphone';
-    const sbHtml = isIPh
-      ? '<div class="ft-sb ios"><span class="ft-clock">9:41</span><span class="ft-island"></span><span class="ft-sicons">' + ICO_SIG + ICO_WIFI + ICO_BAT + '</span></div>'
-      : '<div class="ft-sb"><span class="ft-clock">9:41</span><span class="ft-punch"></span><span class="ft-sicons">' + ICO_SIG + ICO_WIFI + ICO_BAT + '</span></div>';
-    const homeHtml = isIPh ? '<div class="ft-homebar"><span></span></div>' : '';
+    const sbHtml =
+      '<div class="ft-sb"><span class="ft-clock">9:41</span>' +
+      (isIPh ? '<span class="ft-island"></span>' : '<span class="ft-punch"></span>') +
+      '<span class="ft-sicons">' + ICO_SIG + ICO_WIFI + ICO_BAT + '</span></div>';
+    const navHtml = isIPh
+      ? '<div class="ft-homebar"><span></span></div>'
+      : '<div class="ft-navpill"><span></span></div>';
     const name = nameI.value.trim() || 'Nama';
     const handle = (handleI.value.trim() || 'handle').replace(/^@+/, '');
     const ver = verI.value;
@@ -153,21 +169,21 @@ export function render(root) {
       '<div class="ft-tweet">' +
         '<div class="ft-ava" style="background:' + avaColor(name) + '">' + initial + '</div>' +
         '<div class="ft-main">' +
-          '<div class="ft-namerow"><span class="ft-name">' + T.esc(name) + '</span>' + badge +
+          '<div class="ft-top"><div class="ft-namerow"><span class="ft-name">' + T.esc(name) + '</span>' + badge +
           '<span class="ft-handle">@' + T.esc(handle) + ' · ' + T.esc(timeI.value.trim() || 'baru saja') + '</span></div>' +
+          '<span class="ft-more">···</span></div>' +
           '<div class="ft-text">' + richText(textI.value) + '</div>' +
           imgHtml +
-          '<div class="ft-metrics">' +
-            '<span class="ft-m"><span class="ft-ic">💬</span><span>' + T.esc(repI.value.trim() || '0') + '</span></span>' +
-            '<span class="ft-m"><span class="ft-ic">🔁</span><span>' + T.esc(rtI.value.trim() || '0') + '</span></span>' +
-            '<span class="ft-m"><span class="ft-ic">❤️</span><span>' + T.esc(likeI.value.trim() || '0') + '</span></span>' +
-            '<span class="ft-m"><span class="ft-ic">📊</span><span>' + T.esc(viewI.value.trim() || '0') + '</span></span>' +
-            '<span class="ft-m"><span class="ft-ic">🔖</span></span>' +
-            '<span class="ft-m"><span class="ft-ic">⤴️</span></span>' +
+          '<div class="ft-eng">' +
+            '<span class="ft-e">' + ICO_REPLY + '<span>' + T.esc(repI.value.trim() || '0') + '</span></span>' +
+            '<span class="ft-e">' + ICO_RT + '<span>' + T.esc(rtI.value.trim() || '0') + '</span></span>' +
+            '<span class="ft-e">' + ICO_LIKE + '<span>' + T.esc(likeI.value.trim() || '0') + '</span></span>' +
+            '<span class="ft-e">' + ICO_VIEW + '<span>' + T.esc(viewI.value.trim() || '0') + '</span></span>' +
+            '<span class="ft-eright">' + ICO_BM + ICO_SHARE + '</span>' +
           '</div>' +
         '</div>' +
       '</div>' +
-      homeHtml;
+      navHtml;
   }
 
   [nameI, handleI, verI, timeI, textI, repI, rtI, likeI, viewI, themeI, platI].forEach((elx) => {

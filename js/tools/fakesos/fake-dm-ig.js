@@ -9,7 +9,8 @@ const FDM_IC = {
   video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>',
   image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>',
   mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
-  smile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
+  smile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+  cam: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
 };
 const FDM_BACK_AND = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
 const FDM_SB = {
@@ -21,13 +22,18 @@ const FDM_SB = {
 const FDM_CSS = `
 .fdm-wrap{max-width:380px;margin:12px auto;background:#fff;color:#111;border:1px solid #dbdbdb;border-radius:20px;overflow:hidden;font-family:${FDM_FONT};font-size:14px;line-height:1.4}
 .fdm-wrap.dark{background:#000;color:#f5f5f5;border-color:#2b2b2b}
-.fdm-status{display:flex;justify-content:space-between;align-items:center;padding:12px 18px 2px;font-size:12.5px;font-weight:600}
-.fdm-status.ios{padding:14px 22px 2px}
-.fdm-island{width:100px;height:25px;border-radius:13px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
+.fdm-status{display:flex;justify-content:space-between;align-items:center;padding:12px 18px 2px;font-size:15px;font-weight:600}
+.fdm-status.ios{padding:11px 22px 2px}
+.fdm-island{width:118px;height:30px;border-radius:20px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.fdm-punch{width:11px;height:11px;border-radius:50%;background:#0a0a0a;flex:none;box-shadow:inset 0 0 3px #274a6e}
+.fdm-wrap.dark .fdm-punch{background:#000;box-shadow:inset 0 0 3px #2c4e78,0 0 0 1px #1e1e1e}
 .fdm-back svg{width:26px;height:26px;display:block}
-.fdm-home{display:flex;justify-content:center;padding:4px 0 10px}
-.fdm-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.3)}
-.fdm-wrap.dark .fdm-home i{background:rgba(255,255,255,.35)}
+.fdm-home{display:flex;justify-content:center;padding:6px 0 8px}
+.fdm-home i{display:block;width:134px;height:5px;border-radius:3px;background:#000}
+.fdm-wrap.dark .fdm-home i{background:#fff}
+.fdm-anav{display:flex;justify-content:center;padding:6px 0 8px}
+.fdm-anav i{display:block;width:120px;height:4px;border-radius:2px;background:#111}
+.fdm-wrap.dark .fdm-anav i{background:#f5f5f5}
 .fdm-sicons{display:flex;align-items:center;gap:6px}
 .fdm-head{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 10px;border-bottom:1px solid #efefef}
 .fdm-wrap.dark .fdm-head{border-bottom-color:#262626}
@@ -39,7 +45,6 @@ const FDM_CSS = `
 .fdm-ic{width:24px;height:24px;display:inline-flex;flex:none;color:#262626}
 .fdm-wrap.dark .fdm-ic{color:#f5f5f5}
 .fdm-ic svg{width:100%;height:100%}
-.fdm-ic.sm{width:20px;height:20px;color:#8e8e8e}
 .fdm-ava{border-radius:50%;overflow:hidden;flex:none;display:flex;align-items:center;justify-content:center;background:#efefef}
 .fdm-wrap.dark .fdm-ava{background:#262626}
 .fdm-ava img{width:100%;height:100%;object-fit:cover;display:block}
@@ -51,17 +56,19 @@ const FDM_CSS = `
 .fdm-row.b{justify-content:flex-end}
 .fdm-avasp{width:28px;height:28px;flex:none;margin-right:8px}
 .fdm-row.a .fdm-ava{margin-right:8px}
-.fdm-bub{position:relative;max-width:75%;padding:8px 14px;border-radius:20px;font-size:14.5px;line-height:1.42;word-break:break-word}
-.fdm-row.b .fdm-bub{background:#3797f0;color:#fff}
+.fdm-bub{position:relative;max-width:75%;padding:8px 14px;border-radius:22px;font-size:14.5px;line-height:1.42;word-break:break-word}
+.fdm-row.b .fdm-bub{background:linear-gradient(180deg,#B43BD6 0%,#7B3FE4 45%,#0098EA 100%);color:#fff}
 .fdm-row.a .fdm-bub{background:#efefef;color:#262626}
 .fdm-wrap.dark .fdm-row.a .fdm-bub{background:#262626;color:#f5f5f5}
 .fdm-like{position:absolute;bottom:-9px;right:2px;font-size:16px;line-height:1;background:#fff;border-radius:50%;padding:1px;box-shadow:0 1px 2px rgba(0,0,0,.18)}
 .fdm-wrap.dark .fdm-like{background:#1a1a1a}
-.fdm-seen{display:flex;justify-content:flex-end;margin:4px 0 2px}
-.fdm-input{display:flex;align-items:center;gap:12px;padding:8px 12px 20px}
-.fdm-pill{flex:1;display:flex;align-items:center;gap:8px;background:#efefef;border-radius:24px;padding:11px 14px}
+.fdm-seen{display:flex;justify-content:flex-end;margin:2px 2px 4px;font-size:12px;color:#8e8e8e}
+.fdm-input{display:flex;align-items:center;gap:10px;padding:8px 12px 14px}
+.fdm-pill{flex:1;display:flex;align-items:center;gap:10px;background:#efefef;border-radius:24px;padding:7px 14px 7px 7px;min-width:0}
 .fdm-wrap.dark .fdm-pill{background:#262626}
-.fdm-ph{font-size:14px;color:#8e8e8e}
+.fdm-cam{width:30px;height:30px;border-radius:50%;background:linear-gradient(45deg,#FEDA75,#FA7E1E,#D62976,#962FBF);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.fdm-cam svg{width:16px;height:16px;display:block}
+.fdm-ph{font-size:14px;color:#8e8e8e;white-space:nowrap;overflow:hidden}
 `;
 
 function fdmAva(url, size) {
@@ -109,9 +116,9 @@ export function render(root) {
     msgs.forEach((m, i) => { if (m.who === 'B' && m.seen) seenIdx = i; });
 
     let h = '';
-    h += isIPh
-      ? '<div class="fdm-status ios"><span>09:41</span><span class="fdm-island"></span><span class="fdm-sicons">' + FDM_SB.signal + FDM_SB.wifi + FDM_SB.batt + '</span></div>'
-      : '<div class="fdm-status"><span>09:41</span><span class="fdm-sicons">' + FDM_SB.signal + FDM_SB.wifi + FDM_SB.batt + '</span></div>';
+    h += '<div class="fdm-status' + (isIPh ? ' ios' : '') + '"><span>09:41</span>'
+      + (isIPh ? '<span class="fdm-island"></span>' : '<span class="fdm-punch"></span>')
+      + '<span class="fdm-sicons">' + FDM_SB.signal + FDM_SB.wifi + FDM_SB.batt + '</span></div>';
     h += '<div class="fdm-head">'
       + (isIPh ? '<span class="fdm-back">‹</span>' : '<span class="fdm-back">' + FDM_BACK_AND + '</span>')
       + fdmAva(avaA, 34)
@@ -139,14 +146,18 @@ export function render(root) {
       } else {
         const like = m.like ? '<span class="fdm-like">❤️</span>' : '';
         h += '<div class="fdm-row b"><div class="fdm-bub">' + T.esc(m.text) + like + '</div></div>';
-        if (i === seenIdx) h += '<div class="fdm-seen">' + fdmAva(avaA, 16) + '</div>';
+        if (i === seenIdx) h += '<div class="fdm-seen">Seen</div>';
         i++;
       }
     }
     h += '</div>';
-    h += '<div class="fdm-input"><div class="fdm-pill"><span class="fdm-ic sm">' + FDM_IC.image + '</span><span class="fdm-ph">Message...</span></div>'
-      + '<span class="fdm-ic">' + FDM_IC.mic + '</span><span class="fdm-ic">' + FDM_IC.smile + '</span></div>'
-      + (isIPh ? '<div class="fdm-home"><i></i></div>' : '');
+    h += '<div class="fdm-input"><div class="fdm-pill">'
+      + '<span class="fdm-cam">' + FDM_IC.cam + '</span>'
+      + '<span class="fdm-ph">Message...</span></div>'
+      + '<span class="fdm-ic">' + FDM_IC.mic + '</span>'
+      + '<span class="fdm-ic">' + FDM_IC.image + '</span>'
+      + '<span class="fdm-ic">' + FDM_IC.smile + '</span></div>'
+      + (isIPh ? '<div class="fdm-home"><i></i></div>' : '<div class="fdm-anav"><i></i></div>');
 
     preview.innerHTML = '<div class="fdm-wrap' + (dark ? ' dark' : '') + '">' + h + '</div>';
   }
@@ -169,8 +180,8 @@ export function render(root) {
   root.appendChild(T.field('Teks pembatas tanggal', divInp));
   root.appendChild(T.field('Percakapan', chatTa, 'Format: A: pesan (lawan, kiri) / B: pesan (sendiri, kanan). Tambah |like untuk ❤️, |seen di baris B terakhir untuk tanda dibaca.'));
   root.appendChild(T.row(
-    T.btn('Contoh', contoh),
-    T.btn('Unduh PNG', () => { dlNodePng(preview, 'fake-dm-ig.png'); }, true)
+    T.btn('🎲 Contoh', contoh),
+    T.btn('⬇️ Unduh PNG', () => { dlNodePng(preview, 'fake-dm-ig.png'); }, true)
   ));
   root.appendChild(preview);
   draw();

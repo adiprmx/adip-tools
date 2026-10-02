@@ -6,51 +6,65 @@ const P = 'fnhp';
 
 export function render(root) {
   const S = {
-    gaya: 'android', app: 'WhatsApp', judul: 'Mama', isi: 'Nak, pulang jam berapa?\nMama masak rendang nih',
+    platform: 'android', app: 'WhatsApp', judul: 'Mama', isi: 'Nak, pulang jam berapa?\nMama masak rendang nih',
     waktu: 'now', tema: 'terang', warna: '#25D366', aksi1: '', aksi2: '', ikon: ''
   };
 
   const css = document.createElement('style');
   css.textContent =
     '.' + P + '-wrap{max-width:560px}' +
-    '.' + P + '-stage{display:flex;justify-content:center;margin:14px 0;padding:22px 12px;background:#eef0f2;border-radius:14px}' +
-    '.' + P + '-stage.dk{background:#0a0a0c}' +
-    '.' + P + '-and{width:380px;max-width:100%;background:#ffffff;border-radius:28px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.20);font-family:-apple-system,BlinkMacSystemFont,Roboto,"Segoe UI",Arial,sans-serif}' +
-    '.' + P + '-and.dark{background:#1c1b1f;box-shadow:0 10px 30px rgba(0,0,0,.55)}' +
-    '.' + P + '-top{display:flex;gap:12px}' +
-    '.' + P + '-ico{width:44px;height:44px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;overflow:hidden}' +
-    '.' + P + '-ico img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '.' + P + '-mid{flex:1;min-width:0}' +
-    '.' + P + '-arow{display:flex;justify-content:space-between;align-items:baseline;gap:10px}' +
-    '.' + P + '-app{font-size:13px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-and.dark .' + P + '-app{color:#c4c7c5}' +
-    '.' + P + '-tm{font-size:12px;color:#5f6368;white-space:nowrap}' +
-    '.' + P + '-and.dark .' + P + '-tm{color:#c4c7c5}' +
-    '.' + P + '-ti{font-size:15px;font-weight:500;color:#1f1f1f;margin-top:3px;word-break:break-word}' +
-    '.' + P + '-and.dark .' + P + '-ti{color:#e3e3e3}' +
-    '.' + P + '-bd{font-size:14px;color:#444746;margin-top:3px;line-height:1.45;white-space:pre-wrap;word-break:break-word}' +
-    '.' + P + '-and.dark .' + P + '-bd{color:#c4c7c5}' +
-    '.' + P + '-acts{display:flex;align-items:center;margin-top:10px;padding-top:4px}' +
-    '.' + P + '-abtn{flex:1;text-align:center;color:#0b57d0;font-size:14px;font-weight:500;padding:8px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-asep{color:#c4c7c5;font-size:14px}' +
-    '.' + P + '-ipstage{width:380px;max-width:100%;border-radius:26px;overflow:hidden;background:linear-gradient(165deg,#4a4a6e 0%,#23232f 45%,#101018 100%);padding:8px 10px 30px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35)}' +
-    '.' + P + '-sb{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:8px 16px 10px;font-size:14px;font-weight:600}' +
-    '.' + P + '-island{width:112px;height:29px;background:#000;border-radius:17px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}' +
-    '.' + P + '-sbic{display:flex;align-items:center;gap:6px}' +
-    '.' + P + '-sig{display:inline-flex;align-items:flex-end;gap:2px;height:12px}' +
-    '.' + P + '-sig i{width:3px;background:#fff;border-radius:1px;display:block}' +
-    '.' + P + '-batt{width:24px;height:12px;border:1px solid rgba(255,255,255,.55);border-radius:3px;position:relative;display:inline-block}' +
-    '.' + P + '-batt i{position:absolute;inset:1.5px;background:#fff;border-radius:1.5px;display:block;width:70%}' +
-    '.' + P + '-batt:after{content:"";position:absolute;right:-4px;top:3px;width:2px;height:4px;background:rgba(255,255,255,.55);border-radius:0 2px 2px 0}' +
-    '.' + P + '-iosbanner{background:#f2f2f7;border-radius:22px;padding:12px 16px;display:flex;gap:12px}' +
-    '@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){' +
-      '.' + P + '-iosbanner{background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%)}' +
-    '}' +
-    '.' + P + '-ico2{width:40px;height:40px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;overflow:hidden}' +
-    '.' + P + '-ico2 img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '.' + P + '-iapp{font-size:12px;color:#6e6e73;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-ititle{font-size:14px;font-weight:600;color:#111;margin-top:2px;word-break:break-word}' +
-    '.' + P + '-ibody{font-size:14px;color:#111;margin-top:2px;line-height:1.4;white-space:pre-wrap;word-break:break-word}';
+    '.' + P + '-stage{display:flex;justify-content:center;margin:14px 0}' +
+    '.' + P + '-phone{width:380px;max-width:100%;height:680px;border-radius:30px;overflow:hidden;position:relative;flex:none;font-family:-apple-system,BlinkMacSystemFont,Roboto,"Segoe UI",Arial,sans-serif;color:#fff;box-shadow:0 12px 40px rgba(0,0,0,.35)}' +
+    '.' + P + '-wall-a{background:linear-gradient(160deg,#3d4c5d 0%,#1d2632 55%,#10151d 100%)}' +
+    '.' + P + '-wall-i{background:linear-gradient(165deg,#5b5b8e 0%,#2c2c48 48%,#12121f 100%)}' +
+    // status bar android
+    '.' + P + '-sba{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 0;font-size:14px;font-weight:500;position:relative;z-index:1}' +
+    '.' + P + '-punch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 3px 1px rgba(70,70,95,.9);z-index:2}' +
+    // status bar iphone + dynamic island
+    '.' + P + '-sbi{display:flex;align-items:center;justify-content:space-between;padding:17px 27px 0;font-size:15px;font-weight:600;position:relative;z-index:1}' +
+    '.' + P + '-island{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:208px;height:28px;background:#000;border-radius:40px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.16);z-index:2}' +
+    '.' + P + '-sbic{display:flex;align-items:center;gap:7px}' +
+    '.' + P + '-sig{display:inline-flex;align-items:flex-end;gap:2.5px;height:12px}' +
+    '.' + P + '-sig i{width:3px;background:#fff;border-radius:1.5px;display:block}' +
+    '.' + P + '-wifi{display:inline-block;vertical-align:-1px}' +
+    '.' + P + '-batt{width:25px;height:12px;border:1px solid rgba(255,255,255,.5);border-radius:4px;position:relative;display:inline-block}' +
+    '.' + P + '-batt i{position:absolute;top:2px;left:2px;bottom:2px;background:#fff;border-radius:2px;display:block;width:70%}' +
+    '.' + P + '-batt:after{content:"";position:absolute;right:-4px;top:3.5px;width:2px;height:4px;background:rgba(255,255,255,.5);border-radius:0 2px 2px 0}' +
+    // bottom chrome
+    '.' + P + '-home{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:123px;height:4px;border-radius:3px;background:rgba(255,255,255,.88);z-index:2}' +
+    '.' + P + '-navpill{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:104px;height:4px;border-radius:3px;background:rgba(255,255,255,.55);z-index:2}' +
+    // android notification card (Material You)
+    '.' + P + '-acard{margin:12px 10px 0;background:#f7f8f7;border-radius:28px;padding:13px 16px 6px;box-shadow:0 6px 22px rgba(0,0,0,.28);position:relative;z-index:1}' +
+    '.' + P + '-acard.dk{background:#232327}' +
+    '.' + P + '-arow1{display:flex;align-items:center;gap:8px}' +
+    '.' + P + '-smic{width:20px;height:20px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}' +
+    '.' + P + '-appname{font-size:13px;color:#5f6368;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.' + P + '-acard.dk .' + P + '-appname{color:#c4c7c5}' +
+    '.' + P + '-atime{font-size:12px;color:#5f6368;white-space:nowrap}' +
+    '.' + P + '-acard.dk .' + P + '-atime{color:#c4c7c5}' +
+    '.' + P + '-arow2{display:flex;gap:12px;margin-top:9px;align-items:flex-start}' +
+    '.' + P + '-abody{flex:1;min-width:0}' +
+    '.' + P + '-atitle{font-size:15px;font-weight:500;color:#1f1f1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:break-word}' +
+    '.' + P + '-acard.dk .' + P + '-atitle{color:#e3e3e3}' +
+    '.' + P + '-atext{font-size:14px;color:#444746;line-height:1.42;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}' +
+    '.' + P + '-acard.dk .' + P + '-atext{color:#c4c7c5}' +
+    '.' + P + '-lgic{width:52px;height:52px;border-radius:50%;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:21px}' +
+    '.' + P + '-lgic img{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.' + P + '-acts{display:flex;margin-top:4px}' +
+    '.' + P + '-abtn{flex:1;text-align:center;font-size:14px;font-weight:500;padding:10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.' + P + '-asep{width:1px;background:rgba(127,127,127,.4);margin:9px 0}' +
+    // ios lock screen
+    '.' + P + '-lockclock{text-align:center;padding:24px 0 0;position:relative;z-index:1}' +
+    '.' + P + '-lockdate{font-size:14px;font-weight:500;color:rgba(255,255,255,.92)}' +
+    '.' + P + '-locktime{font-size:64px;font-weight:200;color:#fff;line-height:1.15;margin-top:2px}' +
+    '.' + P + '-ioscard{width:318px;max-width:calc(100% - 24px);margin:12px auto 0;background:rgba(250,250,252,.74);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border-radius:16px;padding:11px 14px;display:flex;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.16);position:relative;z-index:1}' +
+    '.' + P + '-sq{width:27px;height:27px;border-radius:7px;flex:none;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;margin-top:1px}' +
+    '.' + P + '-sq img{width:100%;height:100%;object-fit:cover;display:block}' +
+    '.' + P + '-icol{flex:1;min-width:0}' +
+    '.' + P + '-itrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}' +
+    '.' + P + '-ititle{font-size:12px;font-weight:700;color:#1c1c1e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.' + P + '-inow{font-size:10px;color:#6e6e73;white-space:nowrap}' +
+    '.' + P + '-ibody{font-size:12px;color:#1c1c1e;line-height:1.35;margin-top:1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -62,67 +76,96 @@ export function render(root) {
   function sbIcons() {
     return '<span class="' + P + '-sbic">' +
       '<span class="' + P + '-sig"><i style="height:4px"></i><i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i></span>' +
+      '<svg class="' + P + '-wifi" viewBox="0 0 16 13" width="16" height="13" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M1.8 4.6a9.2 9.2 0 0 1 12.4 0"/><path d="M4.4 7.4a5.6 5.6 0 0 1 7.2 0"/><circle cx="8" cy="10.4" r="1.15" fill="#fff" stroke="none"/></svg>' +
       '<span class="' + P + '-batt"><i></i></span>' +
     '</span>';
   }
 
-  function iconHtml(cls, size) {
-    if (S.ikon) return '<div class="' + cls + '"><img src="' + T.esc(S.ikon) + '" alt=""></div>';
-    return '<div class="' + cls + '" style="background:' + T.esc(S.warna) + '">' + T.esc(initial(S.app)) + '</div>';
+  function bellSvg(size) {
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="#fff"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>';
+  }
+
+  function largeIcon() {
+    const inner = S.ikon
+      ? '<img src="' + T.esc(S.ikon) + '" alt="">'
+      : T.esc(initial(S.judul));
+    const bg = S.ikon ? '' : ' style="background:' + T.esc(S.warna) + '"';
+    return '<div class="' + P + '-lgic"' + bg + '>' + inner + '</div>';
+  }
+
+  function squircleIcon() {
+    const inner = S.ikon
+      ? '<img src="' + T.esc(S.ikon) + '" alt="">'
+      : T.esc(initial(S.app));
+    const bg = S.ikon ? '' : ' style="background:' + T.esc(S.warna) + '"';
+    return '<div class="' + P + '-sq"' + bg + '>' + inner + '</div>';
   }
 
   function draw() {
     let html = '';
-    if (S.gaya === 'android') {
+    if (S.platform === 'android') {
       const dark = S.tema === 'gelap';
       const acts = (S.aksi1.trim() || S.aksi2.trim())
         ? '<div class="' + P + '-acts">' +
-          (S.aksi1.trim() ? '<div class="' + P + '-abtn">' + T.esc(S.aksi1.trim()) + '</div>' : '') +
-          ((S.aksi1.trim() && S.aksi2.trim()) ? '<div class="' + P + '-asep">|</div>' : '') +
-          (S.aksi2.trim() ? '<div class="' + P + '-abtn">' + T.esc(S.aksi2.trim()) + '</div>' : '') +
+          (S.aksi1.trim() ? '<div class="' + P + '-abtn" style="color:' + T.esc(S.warna) + '">' + T.esc(S.aksi1.trim()) + '</div>' : '') +
+          ((S.aksi1.trim() && S.aksi2.trim()) ? '<div class="' + P + '-asep"></div>' : '') +
+          (S.aksi2.trim() ? '<div class="' + P + '-abtn" style="color:' + T.esc(S.warna) + '">' + T.esc(S.aksi2.trim()) + '</div>' : '') +
           '</div>'
         : '';
-      html = '<div class="' + P + '-and' + (dark ? ' dark' : '') + '">' +
-        '<div class="' + P + '-top">' +
-          iconHtml(P + '-ico') +
-          '<div class="' + P + '-mid">' +
-            '<div class="' + P + '-arow"><div class="' + P + '-app">' + T.esc(S.app) + '</div><div class="' + P + '-tm">' + T.esc(S.waktu) + '</div></div>' +
-            '<div class="' + P + '-ti">' + T.esc(S.judul) + '</div>' +
-            '<div class="' + P + '-bd">' + T.esc(S.isi) + '</div>' +
+      html = '<div class="' + P + '-phone ' + P + '-wall-a">' +
+        '<div class="' + P + '-sba"><span>9:41</span>' + sbIcons() + '</div><div class="' + P + '-punch"></div>' +
+        '<div class="' + P + '-acard' + (dark ? ' dk' : '') + '">' +
+          '<div class="' + P + '-arow1">' +
+            '<div class="' + P + '-smic" style="background:' + T.esc(S.warna) + '">' + bellSvg(12) + '</div>' +
+            '<div class="' + P + '-appname">' + T.esc(S.app) + '</div>' +
+            '<div class="' + P + '-atime">' + T.esc(S.waktu) + '</div>' +
           '</div>' +
-        '</div>' + acts +
+          '<div class="' + P + '-arow2">' +
+            '<div class="' + P + '-abody">' +
+              '<div class="' + P + '-atitle">' + T.esc(S.judul) + '</div>' +
+              '<div class="' + P + '-atext">' + T.esc(S.isi) + '</div>' +
+            '</div>' +
+            largeIcon() +
+          '</div>' + acts +
+        '</div>' +
+        '<div class="' + P + '-navpill"></div>' +
       '</div>';
-      stage.classList.toggle('dk', dark);
     } else {
-      html = '<div class="' + P + '-ipstage">' +
-        '<div class="' + P + '-sb"><span>9:41</span><span class="' + P + '-island"></span>' + sbIcons() + '</div>' +
-        '<div class="' + P + '-iosbanner">' +
-          iconHtml(P + '-ico2') +
-          '<div class="' + P + '-mid">' +
-            '<div class="' + P + '-arow"><div class="' + P + '-iapp">' + T.esc(S.app.toUpperCase()) + '</div><div class="' + P + '-tm" style="font-size:12px;color:#6e6e73;white-space:nowrap">' + T.esc(S.waktu) + '</div></div>' +
-            '<div class="' + P + '-ititle">' + T.esc(S.judul) + '</div>' +
+      html = '<div class="' + P + '-phone ' + P + '-wall-i">' +
+        '<div class="' + P + '-sbi"><span>9:41</span>' + sbIcons() + '</div><div class="' + P + '-island"></div>' +
+        '<div class="' + P + '-lockclock">' +
+          '<div class="' + P + '-lockdate">Jumat, 2 Oktober</div>' +
+          '<div class="' + P + '-locktime">11:13</div>' +
+        '</div>' +
+        '<div class="' + P + '-ioscard">' +
+          squircleIcon() +
+          '<div class="' + P + '-icol">' +
+            '<div class="' + P + '-itrow">' +
+              '<div class="' + P + '-ititle">' + T.esc(S.judul) + '</div>' +
+              '<div class="' + P + '-inow">' + T.esc(S.waktu) + '</div>' +
+            '</div>' +
             '<div class="' + P + '-ibody">' + T.esc(S.isi) + '</div>' +
           '</div>' +
         '</div>' +
+        '<div class="' + P + '-home"></div>' +
       '</div>';
-      stage.classList.remove('dk');
     }
     frame = T.el(html);
     stage.innerHTML = '';
     stage.appendChild(frame);
   }
 
-  const selGaya = T.select([['android', 'Android'], ['iphone', 'iPhone']], S.gaya);
+  const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], S.platform);
   const inApp = T.input('text', 'Nama aplikasi', S.app);
   const inJudul = T.input('text', 'Judul notifikasi', S.judul);
   const inIsi = T.ta(3, 'Isi pesan', S.isi);
   const inWaktu = T.input('text', 'now', S.waktu);
   const selTema = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], S.tema);
   const inWarna = T.input('color', '', S.warna);
-  const inAksi1 = T.input('text', 'Tombol aksi 1 (opsional)', S.aksi1);
-  const inAksi2 = T.input('text', 'Tombol aksi 2 (opsional)', S.aksi2);
+  const inAksi1 = T.input('text', 'cth: Balas', S.aksi1);
+  const inAksi2 = T.input('text', 'cth: Tandai dibaca', S.aksi2);
   const fi = fileInput('image/*');
-  const fiField = T.field('Ikon aplikasi (upload, opsional)', fi, 'Kalau kosong, dipakai huruf inisial + warna di bawah.');
+  const fiField = T.field('Ikon / foto kontak (upload, opsional)', fi, 'Kalau kosong, dipakai huruf inisial + warna aksen.');
 
   const temaField = T.field('Tema', selTema, 'Hanya berlaku untuk gaya Android.');
   const aksiField = T.el('<div></div>');
@@ -130,42 +173,43 @@ export function render(root) {
   aksiField.appendChild(T.field('Tombol aksi 2 (Android)', inAksi2));
 
   function syncVis() {
-    const and = selGaya.value === 'android';
+    const and = selPlatform.value === 'android';
     temaField.hidden = !and;
     aksiField.hidden = !and;
   }
 
   function pull() {
-    S.gaya = selGaya.value; S.app = inApp.value; S.judul = inJudul.value;
+    S.platform = selPlatform.value; S.app = inApp.value; S.judul = inJudul.value;
     S.isi = inIsi.value; S.waktu = inWaktu.value || 'now'; S.tema = selTema.value;
     S.warna = inWarna.value; S.aksi1 = inAksi1.value; S.aksi2 = inAksi2.value;
   }
 
-  [selGaya, inApp, inJudul, inIsi, inWaktu, selTema, inWarna, inAksi1, inAksi2].forEach((elm) => {
+  [selPlatform, inApp, inJudul, inIsi, inWaktu, selTema, inWarna, inAksi1, inAksi2].forEach((elm) => {
     elm.addEventListener('input', () => { pull(); syncVis(); draw(); });
+    elm.addEventListener('change', () => { pull(); syncVis(); draw(); });
   });
   fi.addEventListener('change', () => {
     if (fi.files && fi.files[0]) { S.ikon = URL.createObjectURL(fi.files[0]); draw(); }
   });
 
-  const bContoh = T.btn('Contoh', () => {
-    selGaya.value = 'android'; inApp.value = 'WhatsApp'; inJudul.value = 'Mama';
+  const bContoh = T.btn('🎲 Contoh', () => {
+    inApp.value = 'WhatsApp'; inJudul.value = 'Mama';
     inIsi.value = 'Nak, pulang jam berapa?\nMama masak rendang nih'; inWaktu.value = 'now';
     selTema.value = 'terang'; inWarna.value = '#25D366';
     inAksi1.value = 'Balas'; inAksi2.value = 'Tandai dibaca';
     S.ikon = ''; fi.value = '';
     pull(); syncVis(); draw(); T.toast('Contoh dimuat');
   });
-  const bDl = T.btn('Unduh PNG', () => { if (frame) dlNodePng(frame, 'fake-notif-hp.png'); }, true);
+  const bDl = T.btn('⬇️ Unduh PNG', () => { if (frame) dlNodePng(frame, 'fake-notif-hp.png'); }, true);
 
-  wrap.appendChild(T.field('Gaya notifikasi', selGaya));
+  wrap.appendChild(T.field('Platform', selPlatform));
   wrap.appendChild(T.field('Nama aplikasi', inApp));
   wrap.appendChild(T.field('Judul', inJudul));
   wrap.appendChild(T.field('Isi pesan', inIsi));
   wrap.appendChild(T.field('Waktu', inWaktu));
   wrap.appendChild(temaField);
   wrap.appendChild(fiField);
-  wrap.appendChild(T.field('Warna inisial (kalau tanpa upload ikon)', inWarna));
+  wrap.appendChild(T.field('Warna aksen (inisial ikon & tombol aksi)', inWarna));
   wrap.appendChild(aksiField);
   wrap.appendChild(T.row(bContoh, bDl));
   wrap.appendChild(stage);

@@ -25,6 +25,9 @@ const SVG_MIC = '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><pa
 const SVG_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
 const SVG_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
 const SVG_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
+const SVG_SMILEY = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M8.2 14.2s1.4 2.1 3.8 2.1 3.8-2.1 3.8-2.1"/><line x1="9.2" y1="9.4" x2="9.2" y2="9.4"/><line x1="14.8" y1="9.4" x2="14.8" y2="9.4"/></svg>';
+const SVG_CLIP = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
+const SVG_CAMIN = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.6"/></svg>';
 
 function parseMsgs(text, defTicks) {
   const out = [];
@@ -64,64 +67,82 @@ function ticksHtml(tk) {
 export function render(root) {
   root.appendChild(T.el(`<style>
 .fcw-ctl{display:grid;gap:10px;margin-bottom:12px}
-.fcw-phone{max-width:380px;margin:14px auto;border-radius:20px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
-.fcw-dark{background:#0B141A!important;border-color:rgba(255,255,255,.12)}
-.fcw-sb{display:flex;justify-content:space-between;align-items:center;height:30px;padding:0 18px 0 22px;background:#FFFFFF;color:#111B21}
+.fcw-phone{max-width:380px;margin:14px auto;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.fcw-dark{background:#0B1014!important;border-color:rgba(255,255,255,.12)}
+/* ---- status bar (system chrome) ---- */
+.fcw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:32px;padding:0 16px 0 22px;background:#F0F2F5;color:#111B21}
 .fcw-dark .fcw-sb{background:#1F2C34;color:#E9EDEF}
-.fcw-clock{font-size:14px;font-weight:700;letter-spacing:.3px}
+.fcw-punch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 2px 1px rgba(255,255,255,.18)}
+.fcw-clock{font-size:14px;font-weight:600;letter-spacing:.3px}
 .fcw-sicons{display:flex;align-items:center;gap:6px}
-.fcw-hd{display:flex;align-items:center;height:62px;padding:0 10px 0 2px;background:#FFFFFF}
+.fcw-sb.fcw-sbios{height:46px;padding:0 24px 0 30px}
+.fcw-sb.fcw-sbios .fcw-clock{font-size:15px;font-weight:600}
+.fcw-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:118px;height:30px;border-radius:16px;background:#000;flex:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.14)}
+/* ---- header ---- */
+.fcw-hd{display:flex;align-items:center;height:60px;padding:0 8px 0 0;background:#F0F2F5}
 .fcw-dark .fcw-hd{background:#1F2C34}
-.fcw-bk{background:none;border:0;padding:8px;cursor:pointer;color:#3B4A54;display:flex;align-items:center}
+.fcw-bk{background:none;border:0;padding:8px 6px 8px 8px;cursor:pointer;color:#3B4A54;display:flex;align-items:center}
 .fcw-dark .fcw-bk{color:#AEBAC1}
-.fcw-av{width:42px;height:42px;border-radius:50%;background:#8696A0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;overflow:hidden;flex:none}
+.fcw-av{width:40px;height:40px;border-radius:50%;background:#8696A0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;overflow:hidden;flex:none}
 .fcw-av img{width:100%;height:100%;object-fit:cover;display:block}
-.fcw-nm{flex:1;min-width:0;margin-left:9px}
-.fcw-nm b{display:block;font-size:16px;font-weight:600;color:#111B21;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcw-nm{flex:1;min-width:0;margin-left:8px}
+.fcw-nm b{display:block;font-size:16.5px;font-weight:600;color:#111B21;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fcw-dark .fcw-nm b{color:#E9EDEF}
 .fcw-nm span{display:block;font-size:12.5px;color:#667781;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fcw-dark .fcw-nm span{color:#8696A0}
-.fcw-hic{display:flex;align-items:center;gap:20px;padding-right:8px;color:#3B4A54;flex:none}
+.fcw-hic{display:flex;align-items:center;gap:22px;padding-right:10px;color:#3B4A54;flex:none}
 .fcw-dark .fcw-hic{color:#AEBAC1}
-.fcw-chat{display:flex;flex-direction:column;padding:10px 10px 12px;background:#EFEAE2;min-height:320px}
-.fcw-dark .fcw-chat{background:#0B141A}
-.fcw-chip{align-self:center;background:#F0F2F5;color:#54656F;font-size:12px;padding:6px 12px;border-radius:8px;margin:4px 0 8px}
+/* header iPhone: identitas di tengah */
+.fcw-hdios .fcw-bkios{background:none;border:0;padding:6px 2px 6px 10px;cursor:pointer;color:#3B4A54;font-size:34px;line-height:1;font-weight:300;display:flex;align-items:center;flex:none}
+.fcw-dark .fcw-hdios .fcw-bkios{color:#AEBAC1}
+.fcw-idctr{display:flex;align-items:center;gap:8px;margin:0 auto;min-width:0}
+.fcw-hdios .fcw-nm{margin-left:0;flex:none;max-width:180px}
+.fcw-hdios .fcw-hic{gap:20px}
+/* ---- area chat ---- */
+.fcw-chat{display:flex;flex-direction:column;padding:8px 12px 12px;background:#EFEAE2;min-height:340px}
+.fcw-dark .fcw-chat{background:#0B1014}
+.fcw-chip{align-self:center;background:#F0F2F5;color:#54656F;font-size:11.5px;font-weight:500;letter-spacing:.4px;padding:6px 12px;border-radius:8px;margin:6px 0 10px}
 .fcw-dark .fcw-chip{background:#182229;color:#8696A0}
 .fcw-enc{align-self:center;max-width:94%;background:#FDF3C6;color:#54656F;font-size:12px;line-height:1.45;padding:7px 12px;border-radius:8px;text-align:center;margin:0 0 8px}
 .fcw-dark .fcw-enc{background:#182229;color:#8696A0}
-.fcw-bub{position:relative;max-width:78%;padding:7px 9px 8px;border-radius:8px;font-size:14.5px;line-height:1.4;margin-top:2px;overflow-wrap:break-word}
-.fcw-grp{margin-top:9px}
-.fcw-in{align-self:flex-start;background:#FFFFFF;color:#111B21;box-shadow:0 1px 1px rgba(0,0,0,.08)}
-.fcw-out{align-self:flex-end;background:#D9FDD3;color:#111B21;box-shadow:0 1px 1px rgba(0,0,0,.08)}
-.fcw-dark .fcw-in{background:#1F2C34;color:#E9EDEF}
+/* bubble berekor klasik (stable 2025) */
+.fcw-bub{position:relative;max-width:78%;padding:7px 8px 7px 9px;border-radius:9px;font-size:14.5px;line-height:19px;margin-top:2px;overflow-wrap:break-word;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.fcw-grp{margin-top:10px}
+.fcw-in{align-self:flex-start;background:#FFFFFF;color:#111B21}
+.fcw-out{align-self:flex-end;background:#D9FDD3;color:#111B21}
+.fcw-dark .fcw-in{background:#182229;color:#E9EDEF}
 .fcw-dark .fcw-out{background:#005C4B;color:#E9EDEF}
-.fcw-in.fcw-tail::before{content:"";position:absolute;left:-7px;top:0;border:8px solid transparent;border-top-color:#FFFFFF;border-left:0}
-.fcw-out.fcw-tail::before{content:"";position:absolute;right:-7px;top:0;border:8px solid transparent;border-top-color:#D9FDD3;border-right:0}
-.fcw-dark .fcw-in.fcw-tail::before{border-top-color:#1F2C34}
+.fcw-in.fcw-tail{border-top-left-radius:2px}
+.fcw-out.fcw-tail{border-top-right-radius:2px}
+.fcw-in.fcw-tail::before{content:"";position:absolute;left:-7px;top:0;width:0;height:0;border:8px solid transparent;border-top-color:#FFFFFF;border-left:0}
+.fcw-out.fcw-tail::before{content:"";position:absolute;right:-7px;top:0;width:0;height:0;border:8px solid transparent;border-top-color:#D9FDD3;border-right:0}
+.fcw-dark .fcw-in.fcw-tail::before{border-top-color:#182229}
 .fcw-dark .fcw-out.fcw-tail::before{border-top-color:#005C4B}
-.fcw-meta{float:right;font-size:11px;color:#667781;margin:10px 0 0 10px;line-height:1;white-space:nowrap}
+.fcw-meta{float:right;font-size:11px;color:#667781;margin:9px -1px 0 8px;line-height:1;white-space:nowrap}
 .fcw-dark .fcw-meta{color:#8696A0}
-.fcw-tk{letter-spacing:-2px;font-size:13px}
-.fcw-ibar{display:flex;align-items:center;gap:6px;padding:6px 8px 12px;background:#EFEAE2}
-.fcw-dark .fcw-ibar{background:#0B141A}
-.fcw-pill{flex:1;display:flex;align-items:center;background:#FFFFFF;border-radius:24px;padding:11px 6px 11px 16px;box-shadow:0 1px 1px rgba(0,0,0,.06)}
-.fcw-dark .fcw-pill{background:#1F2C34}
-.fcw-ph{flex:1;font-size:16px;color:#8696A0}
-.fcw-pico{display:flex;gap:16px;padding-right:10px;font-size:20px;color:#8696A0;align-items:center}
+.fcw-tk{letter-spacing:-1.5px;font-size:12.5px;margin-left:3px}
+/* ---- kolom input ---- */
+.fcw-ibar{display:flex;align-items:center;gap:6px;padding:6px 8px 8px;background:#F0F2F5}
+.fcw-dark .fcw-ibar{background:#1F2C34}
+.fcw-pill{flex:1;display:flex;align-items:center;background:#FFFFFF;border-radius:24px;min-height:50px;padding:0 10px 0 12px}
+.fcw-dark .fcw-pill{background:#2A3942}
+.fcw-ph{flex:1;font-size:16.5px;color:#8696A0;margin:0 6px;white-space:nowrap;overflow:hidden}
+.fcw-pico{display:flex;align-items:center;gap:14px;color:#8696A0;flex:none}
 .fcw-mic{width:48px;height:48px;flex:none;border-radius:50%;background:#00A884;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.fcw-plus{width:34px;height:34px;flex:none;border:0;background:none;color:#8696A0;font-size:32px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.fcw-cam{flex:none;display:flex;align-items:center;color:#8696A0;padding:0 2px}
+/* nav bawah: Android pill gesture / iPhone home indicator */
+.fcw-nav{display:flex;justify-content:center;padding:4px 0 9px;background:#F0F2F5}
+.fcw-dark .fcw-nav{background:#1F2C34}
+.fcw-nav i{display:block;width:112px;height:4px;border-radius:2px;background:rgba(0,0,0,.3)}
+.fcw-dark .fcw-nav i{background:rgba(255,255,255,.4)}
+.fcw-home{display:flex;justify-content:center;align-items:center;height:20px;background:#F0F2F5}
+.fcw-dark .fcw-home{background:#1F2C34}
+.fcw-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
+.fcw-dark .fcw-home i{background:rgba(255,255,255,.4)}
 .fcw-hint{font-size:12px;color:#8696A0;line-height:1.6;background:rgba(127,127,127,.08);border-radius:8px;padding:8px 10px}
 .fcw-hint code{font-family:monospace;font-size:11.5px}
 .fcw-note{font-size:11.5px;color:#8696A0;margin-top:10px;line-height:1.5}
-.fcw-sb.ios{height:40px;padding:0 22px 0 28px}
-.fcw-island{width:112px;height:28px;border-radius:15px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
-.fcw-bkios{background:none;border:0;padding:6px 4px 6px 10px;cursor:pointer;color:#3B4A54;font-size:32px;line-height:1;font-weight:300;display:flex;align-items:center}
-.fcw-dark .fcw-bkios{color:#AEBAC1}
-.fcw-plus{width:36px;height:36px;flex:none;border:0;background:none;color:#8696A0;font-size:32px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
-.fcw-cam{flex:none;display:flex;align-items:center;font-size:22px;color:#8696A0}
-.fcw-home{display:flex;justify-content:center;align-items:center;height:18px;background:#EFEAE2}
-.fcw-dark .fcw-home{background:#0B141A}
-.fcw-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
-.fcw-dark .fcw-home i{background:rgba(255,255,255,.4)}
 </style>`));
 
   const ctl = T.el('<div class="fcw-ctl"></div>');
@@ -129,7 +150,7 @@ export function render(root) {
   const inStatus = T.input('text', 'Status (online / last seen...)', 'online');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
-  const selTicks = T.select([['blue', 'Dua biru (dibaca)'], ['2', 'Dua abu (terkirim)'], ['1', 'Satu abu'], ['0', 'Tanpa centang']], 'blue');
+  const selTicks = T.select([['blue', 'Dua biru (dibaca)'], ['2', 'Dua abu (diterima)'], ['1', 'Satu abu (terkirim)'], ['0', 'Tanpa centang']], 'blue');
   const inChip = T.input('text', 'Teks chip tanggal', 'HARI INI');
   const selChip = T.select([['1', 'Tampilkan'], ['0', 'Sembunyikan']], '1');
   const selEnc = T.select([['1', 'Tampilkan'], ['0', 'Sembunyikan']], '1');
@@ -156,7 +177,7 @@ export function render(root) {
   ctl.appendChild(T.field('Notifikasi enkripsi', selEnc));
   ctl.appendChild(btnAvatar);
   ctl.appendChild(T.field('Pesan (satu baris = satu pesan)', taMsg));
-  ctl.appendChild(T.el('<div class="fcw-hint">Format: <code>A|10:30|blue: halo</code> — <b>A</b>=masuk (kiri), <b>B</b>=keluar (kanan). Segmen opsional: jam <code>HH:MM</code>, centang <code>1</code>/satu, <code>2</code>/abu, <code>blue</code>/biru. Contoh: <code>B|10:31|blue: juga baik!</code></div>'));
+  ctl.appendChild(T.el('<div class="fcw-hint">Format: <code>A|10:30|blue: halo</code> — <b>A</b>=masuk (kiri), <b>B</b>=keluar (kanan). Segmen opsional: jam <code>HH:MM</code>, centang <code>1</code>/satu (terkirim), <code>2</code>/abu (diterima), <code>blue</code>/biru (dibaca). Contoh: <code>B|10:31|blue: juga baik!</code></div>'));
 
   const btnRow = T.row(
     T.btn('🎲 Contoh', () => {
@@ -201,7 +222,7 @@ export function render(root) {
       const cls = m.side === 'B' ? 'fcw-out' : 'fcw-in';
       let metaHtml = '';
       if (m.time) metaHtml += T.esc(m.time);
-      if (m.side === 'B' && m.tk !== '0') metaHtml += ' ' + ticksHtml(m.tk);
+      if (m.side === 'B' && m.tk !== '0') metaHtml += ticksHtml(m.tk);
       chatHtml += '<div class="fcw-bub ' + cls + (first ? ' fcw-grp fcw-tail' : '') + '">' +
         '<span>' + T.esc(m.msg) + '</span>' +
         (metaHtml ? '<span class="fcw-meta">' + metaHtml + '</span>' : '') +
@@ -209,32 +230,35 @@ export function render(root) {
     });
 
     const sbHtml = isIPh
-      ? '<div class="fcw-sb ios"><span class="fcw-clock">9:41</span><span class="fcw-island"></span>' +
+      ? '<div class="fcw-sb fcw-sbios"><span class="fcw-clock">9:41</span><span class="fcw-island"></span>' +
         '<span class="fcw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>'
-      : '<div class="fcw-sb"><span class="fcw-clock">9:41</span>' +
+      : '<div class="fcw-sb"><span class="fcw-punch"></span><span class="fcw-clock">9:41</span>' +
         '<span class="fcw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>';
-    const backHtml = isIPh
-      ? '<button class="fcw-bkios" type="button" tabindex="-1">‹</button>'
-      : '<button class="fcw-bk" type="button" tabindex="-1">' + SVG_BACK + '</button>';
+
+    const hdHtml = isIPh
+      ? '<div class="fcw-hd fcw-hdios"><button class="fcw-bkios" type="button" tabindex="-1">‹</button>' +
+        '<div class="fcw-idctr"><div class="fcw-av">' + avHtml + '</div>' +
+        '<div class="fcw-nm"><b>' + T.esc(name) + '</b><span>' + T.esc(status) + '</span></div></div>' +
+        '<div class="fcw-hic">' + SVG_VID + SVG_CALL + '</div></div>'
+      : '<div class="fcw-hd"><button class="fcw-bk" type="button" tabindex="-1">' + SVG_BACK + '</button>' +
+        '<div class="fcw-av">' + avHtml + '</div>' +
+        '<div class="fcw-nm"><b>' + T.esc(name) + '</b><span>' + T.esc(status) + '</span></div>' +
+        '<div class="fcw-hic">' + SVG_VID + SVG_CALL + SVG_MORE + '</div></div>';
+
     const ibarHtml = isIPh
       ? '<div class="fcw-ibar"><button class="fcw-plus" type="button" tabindex="-1">+</button>' +
         '<div class="fcw-pill"><span class="fcw-ph">Message</span>' +
-        '<span class="fcw-pico"><span>😊</span></span></div>' +
-        '<span class="fcw-cam">📷</span><div class="fcw-mic">' + SVG_MIC + '</div></div>' +
+        '<span class="fcw-pico">' + SVG_SMILEY + '</span></div>' +
+        '<span class="fcw-cam">' + SVG_CAMIN + '</span><div class="fcw-mic">' + SVG_MIC + '</div></div>' +
         '<div class="fcw-home"><i></i></div>'
-      : '<div class="fcw-ibar"><div class="fcw-pill"><span class="fcw-ph">Message</span>' +
-        '<span class="fcw-pico"><span>😊</span><span>📎</span><span>📷</span></span></div>' +
-        '<div class="fcw-mic">' + SVG_MIC + '</div></div>';
+      : '<div class="fcw-ibar"><div class="fcw-pill"><span class="fcw-pico">' + SVG_SMILEY + '</span>' +
+        '<span class="fcw-ph">Message</span>' +
+        '<span class="fcw-pico">' + SVG_CLIP + SVG_CAMIN + '</span></div>' +
+        '<div class="fcw-mic">' + SVG_MIC + '</div></div>' +
+        '<div class="fcw-nav"><i></i></div>';
 
     phone.className = 'fcw-phone' + (dark ? ' fcw-dark' : '');
-    phone.innerHTML =
-      sbHtml +
-      '<div class="fcw-hd">' + backHtml +
-      '<div class="fcw-av">' + avHtml + '</div>' +
-      '<div class="fcw-nm"><b>' + T.esc(name) + '</b><span>' + T.esc(status) + '</span></div>' +
-      '<div class="fcw-hic">' + SVG_VID + SVG_CALL + SVG_MORE + '</div></div>' +
-      '<div class="fcw-chat">' + chatHtml + '</div>' +
-      ibarHtml;
+    phone.innerHTML = sbHtml + hdHtml + '<div class="fcw-chat">' + chatHtml + '</div>' + ibarHtml;
   }
 
   [inName, inStatus, selPlatform, selTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {

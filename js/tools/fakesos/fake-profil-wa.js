@@ -37,27 +37,37 @@ const THUMB_GRADS = [
 
 const CSS = `
 .fpw-ctl{display:grid;gap:10px;margin-bottom:12px}
-.fpw-phone{max-width:380px;margin:14px auto;border-radius:20px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.fpw-phone{max-width:380px;margin:14px auto;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#FFFFFF;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .fpw-dark{background:#0B141A!important;border-color:rgba(255,255,255,.12)}
-/* status bar */
-.fpw-sb{display:flex;justify-content:space-between;align-items:center;height:30px;padding:0 18px 0 22px;background:#FFFFFF;color:#111B21}
+/* ---- status bar (system chrome) ---- */
+.fpw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:32px;padding:0 18px 0 22px;background:#FFFFFF;color:#111B21}
 .fpw-dark .fpw-sb{background:#0B141A;color:#E9EDEF}
-.fpw-clock{font-size:14px;font-weight:700;letter-spacing:.3px}
+.fpw-punch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 2px 1px rgba(255,255,255,.18)}
+.fpw-clock{font-size:14px;font-weight:600;letter-spacing:.3px}
 .fpw-sicons{display:flex;align-items:center;gap:6px}
-.fpw-sb.ios{height:40px;padding:0 22px 0 28px}
-.fpw-island{width:112px;height:28px;border-radius:15px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
-.fpw-dark .fpw-island{background:#000}
+.fpw-sb.fpw-sbios{height:46px;padding:0 24px 0 30px}
+.fpw-sb.fpw-sbios .fpw-clock{font-size:15px;font-weight:600}
+.fpw-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:118px;height:30px;border-radius:16px;background:#000;flex:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.14)}
+/* nav bawah: Android pill gesture / iPhone home indicator */
+.fpw-navb{display:flex;justify-content:center;padding:6px 0 10px;background:#FFFFFF}
+.fpw-dark .fpw-navb{background:#0B141A}
+.fpw-navb i{display:block;width:112px;height:4px;border-radius:2px;background:rgba(0,0,0,.3)}
+.fpw-dark .fpw-navb i{background:rgba(255,255,255,.4)}
+.fpw-home{display:flex;justify-content:center;align-items:center;height:22px;background:#F2F2F7}
+.fpw-dark .fpw-home{background:#000000}
+.fpw-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
+.fpw-dark .fpw-home i{background:rgba(255,255,255,.4)}
 /* ===== INFO KONTAK — ANDROID ===== */
-.fpw-hd{display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 12px 0 2px;background:#FFFFFF}
+.fpw-hd{display:flex;align-items:center;height:58px;padding:0 12px 0 2px;background:#FFFFFF}
 .fpw-dark .fpw-hd{background:#0B141A}
 .fpw-bk{background:none;border:0;padding:8px;cursor:pointer;color:#3B4A54;display:flex;align-items:center}
 .fpw-dark .fpw-bk{color:#AEBAC1}
-.fpw-hic{display:flex;align-items:center;gap:24px;color:#3B4A54}
-.fpw-dark .fpw-hic{color:#AEBAC1}
-.fpw-hero{text-align:center;padding:6px 20px 4px}
+.fpw-htitle{font-size:18px;font-weight:600;color:#111B21;margin-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpw-dark .fpw-htitle{color:#E9EDEF}
+.fpw-hero{text-align:center;padding:4px 20px 4px}
 .fpw-av{width:140px;height:140px;border-radius:50%;background:#8696A0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:500;margin:0 auto;overflow:hidden}
 .fpw-av img{width:100%;height:100%;object-fit:cover;display:block}
-.fpw-name{font-size:22px;font-weight:500;color:#111B21;margin:12px 0 0}
+.fpw-name{font-size:22px;font-weight:700;color:#111B21;margin:12px 0 0}
 .fpw-dark .fpw-name{color:#E9EDEF}
 .fpw-num{font-size:15px;color:#667781;margin:5px 0 0}
 .fpw-dark .fpw-num{color:#8696A0}
@@ -98,8 +108,11 @@ const CSS = `
 /* ===== INFO KONTAK — iPhone ===== */
 .fii-wrap{background:#F2F2F7}
 .fpw-dark .fii-wrap{background:#000000}
-.fii-nav{display:flex;align-items:center;height:48px;padding:0 10px;color:#007AFF;background:#FFFFFF}
-.fpw-dark .fii-nav{background:#1C1C1E}
+.fii-nav{position:relative;display:flex;align-items:center;height:52px;padding:0 10px;background:#F2F2F7}
+.fpw-dark .fii-nav{background:#000000}
+.fii-back{display:flex;align-items:center;color:#007AFF;padding-left:2px;z-index:1}
+.fii-title{position:absolute;left:0;right:0;text-align:center;font-size:17px;font-weight:600;color:#000;pointer-events:none}
+.fpw-dark .fii-title{color:#fff}
 .fii-hero{background:#FFFFFF;text-align:center;padding:10px 20px 6px}
 .fpw-dark .fii-hero{background:#1C1C1E}
 .fii-av{width:120px;height:120px;border-radius:50%;background:#8E8E93;color:#fff;display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:500;margin:0 auto;overflow:hidden}
@@ -129,7 +142,7 @@ const CSS = `
 .fii-red{color:#FF3B30!important}
 .fii-foot{height:22px}
 /* ===== PROFIL SAYA — ANDROID ===== */
-.fsa-head{display:flex;align-items:center;gap:22px;padding:12px 14px;background:#FFFFFF}
+.fsa-head{display:flex;align-items:center;gap:18px;padding:12px 14px;background:#FFFFFF}
 .fpw-dark .fsa-head{background:#0B141A}
 .fsa-head .fpw-bk{color:#3B4A54}
 .fpw-dark .fsa-head .fpw-bk{color:#AEBAC1}
@@ -169,7 +182,7 @@ const CSS = `
 .fsi-lab{font-size:12.5px;color:#8E8E93;margin-bottom:3px}
 .fsi-val{font-size:17px;color:#000}
 .fpw-dark .fsi-val{color:#fff}
-.fsi-val.ph{color:#8E8E93}
+.fsi-val.fsi-ph{color:#8E8E93}
 .fsi-chev{color:#C7C7CC;flex:none}
 .fsi-foot{height:26px}
 .fpw-note{font-size:11.5px;color:#8696A0;margin-top:10px;line-height:1.5}
@@ -233,10 +246,10 @@ export function render(root) {
   const phone = T.el('<div class="fpw-phone"></div>');
 
   const sbAndroid = () =>
-    '<div class="fpw-sb"><span class="fpw-clock">9:41</span>' +
+    '<div class="fpw-sb"><span class="fpw-punch"></span><span class="fpw-clock">9:41</span>' +
     '<span class="fpw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>';
   const sbIOS = () =>
-    '<div class="fpw-sb ios"><span class="fpw-clock">9:41</span>' +
+    '<div class="fpw-sb fpw-sbios"><span class="fpw-clock">9:41</span>' +
     '<span class="fpw-island"></span>' +
     '<span class="fpw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>';
 
@@ -248,7 +261,7 @@ export function render(root) {
     ).join('');
     return sbAndroid() +
       '<div class="fpw-hd"><button class="fpw-bk" type="button" tabindex="-1">' + SVG_BACK + '</button>' +
-      '<div class="fpw-hic">' + SVG_VID + SVG_CALL + '</div></div>' +
+      '<span class="fpw-htitle">Contact info</span></div>' +
       '<div class="fpw-hero">' +
       '<div class="fpw-av">' + d.av + '</div>' +
       '<div class="fpw-name">' + d.name + '</div>' +
@@ -273,13 +286,16 @@ export function render(root) {
       '<div class="fpw-row"><div class="fpw-ric">🖼️</div>' +
       '<div class="fpw-rtx"><b>Visibilitas media</b><span>Tampilkan media yang baru diunduh dari chat ini di galeri perangkatmu</span></div></div>' +
       '<div class="fpw-div"></div>' +
+      '<div class="fpw-row"><div class="fpw-ric">⏱️</div>' +
+      '<div class="fpw-rtx"><b>Pesan sementara</b><span>Mati</span></div></div>' +
+      '<div class="fpw-div"></div>' +
       '<div class="fpw-row"><div class="fpw-ric">🔒</div>' +
       '<div class="fpw-rtx"><b>Enkripsi</b><span>Pesan dan panggilan terenkripsi secara end-to-end. Ketuk untuk verifikasi.</span></div></div>' +
       '<div class="fpw-div"></div>' +
       '<div class="fpw-red"><div class="fpw-ric">🚫</div><span>Blokir ' + d.name + '</span></div>' +
       '<div class="fpw-div"></div>' +
       '<div class="fpw-red"><div class="fpw-ric">⚠️</div><span>Laporkan ' + d.name + '</span></div>' +
-      '<div style="height:18px"></div>';
+      '<div class="fpw-navb"><i></i></div>';
   }
 
   function infoIPhone(d) {
@@ -293,7 +309,8 @@ export function render(root) {
       '<div class="fii-row"><div class="fii-ric">' + icon + '</div>' +
       '<div class="fii-tx"><b>' + title + '</b>' + (sub ? '<span>' + sub + '</span>' : '') + '</div></div>';
     return '<div class="fii-wrap">' + sbIOS() +
-      '<div class="fii-nav">' + IC.chevL + '</div>' +
+      '<div class="fii-nav"><span class="fii-back">' + IC.chevL + '</span>' +
+      '<span class="fii-title">Contact Info</span></div>' +
       '<div class="fii-hero">' +
       '<div class="fii-av">' + d.av + '</div>' +
       '<div class="fii-name">' + d.name + '</div>' +
@@ -303,7 +320,7 @@ export function render(root) {
       '<div class="fii-acts">' +
       '<div class="fii-act"><div class="fii-actc">' + SVG_CALL + '</div><span>Audio</span></div>' +
       '<div class="fii-act"><div class="fii-actc">' + SVG_VID + '</div><span>Video</span></div>' +
-      '<div class="fii-act"><div class="fii-actc">' + SVG_SEARCH + '</div><span>Cari</span></div>' +
+      '<div class="fii-act"><div class="fii-actc">' + SVG_SEARCH + '</div><span>Search</span></div>' +
       '</div>' +
       sec(row('', 'About', d.aboutRaw)) +
       sec('<div class="fii-row"><div class="fii-tx"><b>Media, Links, and Docs</b></div>' +
@@ -313,13 +330,14 @@ export function render(root) {
         '<div class="fii-row"><div class="fii-ric">🔕</div><div class="fii-tx"><b>Mute Notifications</b></div>' +
         '<div class="fii-sw" role="switch" aria-checked="true"></div></div>' +
         row('🖼️', 'Media Visibility', 'Show newly downloaded media from this chat in your device gallery') +
+        row('⏱️', 'Disappearing Messages', 'Off') +
         row('🔒', 'Encryption', 'Messages and calls are end-to-end encrypted. Tap to verify.')
       ) +
       sec(
         '<div class="fii-row"><div class="fii-tx"><b class="fii-red">Block ' + d.name + '</b></div></div>' +
         '<div class="fii-row"><div class="fii-tx"><b class="fii-red">Report ' + d.name + '</b></div></div>'
       ) +
-      '<div class="fii-foot"></div></div>';
+      '<div class="fii-foot"></div><div class="fpw-home"><i></i></div></div>';
   }
 
   function sayaAndroid(d) {
@@ -341,12 +359,13 @@ export function render(root) {
       rowSA(IC.at, 'Nama pengguna', d.userRaw || '', 'Pesan nama pengguna') +
       rowSA(IC.phone, 'Telepon', d.num, '') +
       rowSA(IC.link, 'Tautan', '', 'Tambah tautan') +
-      '</div>';
+      '</div>' +
+      '<div class="fpw-navb"><i></i></div>';
   }
 
   function sayaIPhone(d) {
     const rowSI = (label, value, placeholder) => {
-      const v = value ? '<div class="fsi-val">' + value + '</div>' : '<div class="fsi-val ph">' + placeholder + '</div>';
+      const v = value ? '<div class="fsi-val">' + value + '</div>' : '<div class="fsi-val fsi-ph">' + placeholder + '</div>';
       return '<div class="fsi-row"><div><div class="fsi-lab">' + label + '</div>' + v + '</div>' +
         '<span class="fsi-chev">' + IC.chevR + '</span></div>';
     };
@@ -360,7 +379,7 @@ export function render(root) {
       rowSI('About', d.aboutRaw || '', 'Set your about') +
       rowSI('Phone Number', d.num, '') +
       '</div>' +
-      '<div class="fsi-foot"></div></div>';
+      '<div class="fsi-foot"></div><div class="fpw-home"><i></i></div></div>';
   }
 
   function draw() {

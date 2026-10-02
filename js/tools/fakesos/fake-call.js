@@ -5,53 +5,59 @@ export const meta = {"id":"fake-call","name":"Fake Panggilan Masuk","cat":"fakes
 const P = 'fkcl';
 
 export function render(root) {
-  const S = { gaya: 'android', nama: 'Mama', nomor: '+62 812-3456-7890', avatar: '' };
+  const S = { platform: 'android', tipe: 'masuk', media: 'audio', nama: 'Mama', avatar: '' };
 
   const css = document.createElement('style');
   css.textContent =
     '.' + P + '-wrap{max-width:560px}' +
-    '.' + P + '-stage{display:flex;justify-content:center;margin:14px 0}' +
-    '.' + P + '-screen{width:360px;height:640px;max-width:100%;border-radius:18px;overflow:hidden;position:relative;font-family:-apple-system,BlinkMacSystemFont,Roboto,"Segoe UI",Arial,sans-serif;color:#fff;box-shadow:0 10px 34px rgba(0,0,0,.4)}' +
-    '.' + P + '-bg{position:absolute;inset:-34px;background-size:cover;background-position:center;filter:blur(38px) brightness(.5)}' +
-    '.' + P + '-dim{position:absolute;inset:0}' +
+    '.' + P + '-stage{display:flex;justify-content:center;margin:14px 0;padding:26px 12px;background:#101014;border-radius:14px}' +
+    '.' + P + '-screen{width:360px;height:640px;max-width:100%;border-radius:26px;overflow:hidden;position:relative;flex:none;font-family:-apple-system,BlinkMacSystemFont,Roboto,"Segoe UI",Arial,sans-serif;color:#fff;background:#0b141a;box-shadow:0 12px 40px rgba(0,0,0,.5)}' +
+    '.' + P + '-bg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(42px) brightness(.45)}' +
+    '.' + P + '-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,12,16,.22) 0%,rgba(8,12,16,.62) 100%)}' +
     '.' + P + '-ct{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}' +
-    '.' + P + '-sb{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 0;font-size:13px;font-weight:600}' +
-    '.' + P + '-sb .tm{letter-spacing:.3px}' +
-    '.' + P + '-sbic{display:flex;align-items:center;gap:6px}' +
-    '.' + P + '-sig{display:inline-flex;align-items:flex-end;gap:2px;height:12px}' +
-    '.' + P + '-sig i{width:3px;background:#fff;border-radius:1px;display:block}' +
-    '.' + P + '-batt{width:24px;height:12px;border:1px solid rgba(255,255,255,.6);border-radius:3px;position:relative;display:inline-block}' +
-    '.' + P + '-batt i{position:absolute;inset:1.5px;background:#fff;border-radius:1.5px;display:block;width:72%}' +
-    '.' + P + '-batt:after{content:"";position:absolute;right:-4px;top:3px;width:2px;height:4px;background:rgba(255,255,255,.6);border-radius:0 2px 2px 0}' +
-    '.' + P + '-island{width:104px;height:27px;background:#000;border-radius:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}' +
-    '.' + P + '-head{text-align:center;padding:34px 20px 0}' +
-    '.' + P + '-lbl{font-size:14px;color:rgba(255,255,255,.85)}' +
-    '.' + P + '-nm{font-size:28px;font-weight:500;margin-top:6px;word-break:break-word}' +
-    '.' + P + '-no{font-size:15px;color:rgba(255,255,255,.62);margin-top:5px}' +
-    '.' + P + '-avwrap{display:flex;justify-content:center;margin-top:30px}' +
-    '.' + P + '-av{width:100px;height:100px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);color:#fff;font-size:38px;font-weight:600;box-shadow:0 4px 18px rgba(0,0,0,.35)}' +
+    // status bar android
+    '.' + P + '-sba{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 0;font-size:14px;font-weight:500}' +
+    '.' + P + '-punch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 3px 1px rgba(70,70,95,.9);z-index:2}' +
+    // status bar iphone + dynamic island
+    '.' + P + '-sbi{display:flex;align-items:center;justify-content:space-between;padding:17px 27px 0;font-size:15px;font-weight:600}' +
+    '.' + P + '-island{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:208px;height:28px;background:#000;border-radius:40px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.16);z-index:2}' +
+    '.' + P + '-sbic{display:flex;align-items:center;gap:7px}' +
+    '.' + P + '-sig{display:inline-flex;align-items:flex-end;gap:2.5px;height:12px}' +
+    '.' + P + '-sig i{width:3px;background:#fff;border-radius:1.5px;display:block}' +
+    '.' + P + '-wifi{display:inline-block;vertical-align:-1px}' +
+    '.' + P + '-batt{width:25px;height:12px;border:1px solid rgba(255,255,255,.5);border-radius:4px;position:relative;display:inline-block}' +
+    '.' + P + '-batt i{position:absolute;top:2px;left:2px;bottom:2px;background:#fff;border-radius:2px;display:block;width:70%}' +
+    '.' + P + '-batt:after{content:"";position:absolute;right:-4px;top:3.5px;width:2px;height:4px;background:rgba(255,255,255,.5);border-radius:0 2px 2px 0}' +
+    // bottom chrome
+    '.' + P + '-home{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:123px;height:4px;border-radius:3px;background:rgba(255,255,255,.88);z-index:2}' +
+    '.' + P + '-navpill{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:104px;height:4px;border-radius:3px;background:rgba(255,255,255,.55);z-index:2}' +
+    // avatar
+    '.' + P + '-avwrap{display:flex;justify-content:center}' +
+    '.' + P + '-av{width:124px;height:124px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);color:#fff;font-size:46px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.4)}' +
     '.' + P + '-av img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '.' + P + '-av.big{width:110px;height:110px;font-size:42px}' +
+    '.' + P + '-av.lg{width:152px;height:152px;font-size:56px}' +
+    // incoming
+    '.' + P + '-inhead{text-align:center;padding:60px 24px 0}' +
+    '.' + P + '-inhead .' + P + '-avwrap{margin-bottom:4px}' +
+    '.' + P + '-nm{font-size:28px;font-weight:500;margin-top:20px;word-break:break-word}' +
+    '.' + P + '-callabel{font-size:15px;color:rgba(255,255,255,.72);margin-top:8px}' +
     '.' + P + '-sp{flex:1}' +
-    '.' + P + '-btns{display:flex;justify-content:center;gap:72px;padding:0 0 52px}' +
-    '.' + P + '-cbtn{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;border:0;cursor:default}' +
-    '.' + P + '-cbtn.sm{width:60px;height:60px}' +
-    '.' + P + '-no{background:#ff4b4b}' +
-    '.' + P + '-yes{background:#34c759}' +
-    '.' + P + '-and{background:linear-gradient(180deg,#1a1a2e 0%,#0b0b14 100%)}' +
-    '.' + P + '-and .' + P + '-dim{background:linear-gradient(180deg,rgba(11,11,20,.42) 0%,rgba(11,11,20,.66) 100%)}' +
-    '.' + P + '-wa{background:#0b141a}' +
-    '.' + P + '-wa .' + P + '-dim{background:linear-gradient(180deg,rgba(11,20,26,.30) 0%,rgba(11,20,26,.55) 100%)}' +
-    '.' + P + '-wa .' + P + '-lbl{font-size:13px;color:rgba(255,255,255,.6)}' +
-    '.' + P + '-wa .' + P + '-nm{font-size:24px}' +
-    '.' + P + '-wa .' + P + '-sub{font-size:14px;color:rgba(255,255,255,.62);margin-top:6px}' +
-    '.' + P + '-pill{align-self:center;background:rgba(255,255,255,.13);border-radius:999px;padding:11px 22px;font-size:14px;color:#fff;margin-bottom:26px;white-space:nowrap}' +
-    '.' + P + '-ios{background:#000}' +
-    '.' + P + '-ios .' + P + '-lbl{font-size:13px;color:#8e8e93}' +
-    '.' + P + '-ios .' + P + '-nm{font-size:34px;font-weight:600;margin-top:4px}' +
-    '.' + P + '-iosrow{display:flex;justify-content:space-between;padding:0 44px;margin-bottom:30px;font-size:13px;color:#fff}' +
-    '.' + P + '-iospill{align-self:center;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.16);border-radius:999px;padding:13px 26px;font-size:15px;color:#fff;margin-bottom:34px;white-space:nowrap}' +
-    '.' + P + '-iospill .ph{font-size:20px}';
+    '.' + P + '-inbtns{display:flex;justify-content:center;gap:52px;padding:0 0 66px}' +
+    '.' + P + '-pillbtn{min-width:104px;height:56px;padding:0 26px;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:16px;font-weight:600;color:#fff}' +
+    '.' + P + '-accept{background:#25d366;box-shadow:0 6px 22px rgba(37,211,102,.45)}' +
+    '.' + P + '-decline{background:#f04438;box-shadow:0 6px 22px rgba(240,68,56,.42)}' +
+    '.' + P + '-ph{font-size:24px;line-height:1}' +
+    '.' + P + '-ph.down{transform:rotate(135deg);display:inline-block}' +
+    '.' + P + '-phlg{font-size:32px}' +
+    // ongoing
+    '.' + P + '-onhead{text-align:center;padding:48px 24px 0}' +
+    '.' + P + '-onnm{font-size:24px;font-weight:600;word-break:break-word}' +
+    '.' + P + '-ontimer{font-size:14px;color:rgba(255,255,255,.66);margin-top:7px;letter-spacing:1.5px}' +
+    '.' + P + '-onhead + .' + P + '-avwrap{margin-top:36px}' +
+    '.' + P + '-islandbar{align-self:center;display:flex;align-items:center;gap:15px;background:rgba(22,26,33,.55);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:10px 18px;margin-top:38px}' +
+    '.' + P + '-ctl{width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(255,255,255,.42);display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff}' +
+    '.' + P + '-endrow{display:flex;justify-content:center;padding:28px 0 0}' +
+    '.' + P + '-endbtn{width:74px;height:74px;border-radius:50%;background:#ff3b30;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(255,59,48,.55)}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -63,21 +69,27 @@ export function render(root) {
   function sbIcons() {
     return '<span class="' + P + '-sbic">' +
       '<span class="' + P + '-sig"><i style="height:4px"></i><i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i></span>' +
+      '<svg class="' + P + '-wifi" viewBox="0 0 16 13" width="16" height="13" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M1.8 4.6a9.2 9.2 0 0 1 12.4 0"/><path d="M4.4 7.4a5.6 5.6 0 0 1 7.2 0"/><circle cx="8" cy="10.4" r="1.15" fill="#fff" stroke="none"/></svg>' +
       '<span class="' + P + '-batt"><i></i></span>' +
     '</span>';
   }
-  function sbAndroid() {
-    return '<div class="' + P + '-sb"><span class="tm">9:41</span>' + sbIcons() + '</div>';
+  function sb() {
+    if (S.platform === 'iphone') {
+      return '<div class="' + P + '-sbi"><span>9:41</span>' + sbIcons() + '</div><div class="' + P + '-island"></div>';
+    }
+    return '<div class="' + P + '-sba"><span>9:41</span>' + sbIcons() + '</div><div class="' + P + '-punch"></div>';
   }
-  function sbIos() {
-    return '<div class="' + P + '-sb"><span class="tm">9:41</span><span class="' + P + '-island"></span>' + sbIcons() + '</div>';
+  function bottomChrome() {
+    return S.platform === 'iphone'
+      ? '<div class="' + P + '-home"></div>'
+      : '<div class="' + P + '-navpill"></div>';
   }
 
-  function avHtml(big) {
+  function avHtml(size) {
     const inner = S.avatar
       ? '<img src="' + T.esc(S.avatar) + '" alt="">'
       : T.esc(initial(S.nama));
-    return '<div class="' + P + '-avwrap"><div class="' + P + '-av' + (big ? ' big' : '') + '">' + inner + '</div></div>';
+    return '<div class="' + P + '-avwrap"><div class="' + P + '-av' + (size ? ' ' + size : '') + '">' + inner + '</div></div>';
   }
 
   function bgBlur() {
@@ -87,84 +99,75 @@ export function render(root) {
 
   function draw() {
     let html = '';
-    if (S.gaya === 'android') {
-      html = '<div class="' + P + '-screen ' + P + '-and">' + bgBlur() +
+    if (S.tipe === 'masuk') {
+      const lbl = S.media === 'video' ? 'WhatsApp Video' : 'WhatsApp Audio';
+      html = '<div class="' + P + '-screen">' + bgBlur() +
         '<div class="' + P + '-dim"></div>' +
-        '<div class="' + P + '-ct">' + sbAndroid() +
-          '<div class="' + P + '-head">' +
-            '<div class="' + P + '-lbl">Panggilan masuk</div>' +
+        '<div class="' + P + '-ct">' + sb() +
+          '<div class="' + P + '-inhead">' + avHtml('') +
             '<div class="' + P + '-nm">' + T.esc(S.nama) + '</div>' +
-            '<div class="' + P + '-no">' + T.esc(S.nomor) + '</div>' +
-          '</div>' + avHtml(false) +
-          '<div class="' + P + '-sp"></div>' +
-          '<div class="' + P + '-btns">' +
-            '<div class="' + P + '-cbtn ' + P + '-no">✕</div>' +
-            '<div class="' + P + '-cbtn ' + P + '-yes">📞</div>' +
+            '<div class="' + P + '-callabel">' + lbl + '</div>' +
           '</div>' +
-        '</div></div>';
-    } else if (S.gaya === 'whatsapp') {
-      html = '<div class="' + P + '-screen ' + P + '-wa">' + bgBlur() +
-        '<div class="' + P + '-dim"></div>' +
-        '<div class="' + P + '-ct">' + sbAndroid() +
-          '<div class="' + P + '-head">' +
-            '<div class="' + P + '-lbl">🔒 WhatsApp</div>' +
-            '<div class="' + P + '-nm">' + T.esc(S.nama) + '</div>' +
-            '<div class="' + P + '-sub">Panggilan suara masuk</div>' +
-          '</div>' + avHtml(true) +
           '<div class="' + P + '-sp"></div>' +
-          '<div class="' + P + '-pill">Geser ke atas untuk menjawab</div>' +
-          '<div class="' + P + '-btns" style="gap:64px;padding-bottom:44px">' +
-            '<div class="' + P + '-cbtn sm ' + P + '-no">✕</div>' +
-            '<div class="' + P + '-cbtn sm ' + P + '-yes">📞</div>' +
+          '<div class="' + P + '-inbtns">' +
+            '<div class="' + P + '-pillbtn ' + P + '-decline"><span class="' + P + '-ph ' + P + '-down">✆</span><span>Tolak</span></div>' +
+            '<div class="' + P + '-pillbtn ' + P + '-accept"><span class="' + P + '-ph">✆</span><span>Jawab</span></div>' +
           '</div>' +
-        '</div></div>';
+        '</div>' + bottomChrome() + '</div>';
     } else {
-      html = '<div class="' + P + '-screen ' + P + '-ios">' +
-        '<div class="' + P + '-ct">' + sbIos() +
-          '<div class="' + P + '-head">' +
-            '<div class="' + P + '-lbl">seluler</div>' +
-            '<div class="' + P + '-nm">' + T.esc(S.nama) + '</div>' +
+      html = '<div class="' + P + '-screen">' + bgBlur() +
+        '<div class="' + P + '-dim"></div>' +
+        '<div class="' + P + '-ct">' + sb() +
+          '<div class="' + P + '-onhead">' +
+            '<div class="' + P + '-onnm">' + T.esc(S.nama) + '</div>' +
+            '<div class="' + P + '-ontimer">00:00</div>' +
+          '</div>' + avHtml('lg') +
+          '<div class="' + P + '-islandbar">' +
+            '<div class="' + P + '-ctl">🎤</div>' +
+            '<div class="' + P + '-ctl">📹</div>' +
+            '<div class="' + P + '-ctl">🔊</div>' +
+            '<div class="' + P + '-ctl">⤓</div>' +
+            '<div class="' + P + '-ctl">⋮</div>' +
           '</div>' +
+          '<div class="' + P + '-endrow"><div class="' + P + '-endbtn"><span class="' + P + '-ph ' + P + '-down ' + P + '-phlg">✆</span></div></div>' +
           '<div class="' + P + '-sp"></div>' +
-          '<div class="' + P + '-iosrow"><span>Ingatkan Saya</span><span>Pesan</span></div>' +
-          '<div class="' + P + '-iospill"><span class="ph">📞</span><span>geser untuk menjawab</span></div>' +
-          '<div class="' + P + '-btns">' +
-            '<div class="' + P + '-cbtn ' + P + '-no">✕</div>' +
-            '<div class="' + P + '-cbtn ' + P + '-yes">📞</div>' +
-          '</div>' +
-        '</div></div>';
+        '</div>' + bottomChrome() + '</div>';
     }
     frame = T.el(html);
     stage.innerHTML = '';
     stage.appendChild(frame);
   }
 
-  const selGaya = T.select([['android', 'Android'], ['whatsapp', 'WhatsApp'], ['iphone', 'iPhone']], S.gaya);
-  const inNama = T.input('text', 'Nama penelepon', S.nama);
-  const inNomor = T.input('text', 'Nomor / label', S.nomor);
+  const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], S.platform);
+  const selTipe = T.select([['masuk', 'Panggilan masuk'], ['berlangsung', 'Panggilan berlangsung']], S.tipe);
+  const selMedia = T.select([['audio', 'Audio'], ['video', 'Video']], S.media);
+  const inNama = T.input('text', 'Nama kontak', S.nama);
   const fi = fileInput('image/*');
-  const fiField = T.field('Foto avatar (upload, opsional)', fi, 'Android & WhatsApp: foto juga dipakai sebagai latar blur. iPhone menyembunyikan avatar seperti aslinya.');
+  const fiField = T.field('Foto avatar (upload, opsional)', fi, 'Foto juga dipakai sebagai latar blur di belakang layar panggilan.');
 
   function pull() {
-    S.gaya = selGaya.value; S.nama = inNama.value; S.nomor = inNomor.value;
+    S.platform = selPlatform.value; S.tipe = selTipe.value;
+    S.media = selMedia.value; S.nama = inNama.value;
   }
-  [selGaya, inNama, inNomor].forEach((elm) => {
+  [selPlatform, selTipe, selMedia, inNama].forEach((elm) => {
     elm.addEventListener('input', () => { pull(); draw(); });
+    elm.addEventListener('change', () => { pull(); draw(); });
   });
   fi.addEventListener('change', () => {
     if (fi.files && fi.files[0]) { S.avatar = URL.createObjectURL(fi.files[0]); draw(); }
   });
 
-  const bContoh = T.btn('Contoh', () => {
-    selGaya.value = 'android'; inNama.value = 'Mama'; inNomor.value = '+62 812-3456-7890';
+  const bContoh = T.btn('🎲 Contoh', () => {
+    selTipe.value = 'masuk'; selMedia.value = 'audio'; inNama.value = 'Mama';
     S.avatar = ''; fi.value = '';
     pull(); draw(); T.toast('Contoh dimuat');
   });
-  const bDl = T.btn('Unduh PNG', () => { if (frame) dlNodePng(frame, 'fake-call.png'); }, true);
+  const bDl = T.btn('⬇️ Unduh PNG', () => { if (frame) dlNodePng(frame, 'fake-call.png'); }, true);
 
-  wrap.appendChild(T.field('Gaya layar', selGaya));
-  wrap.appendChild(T.field('Nama penelepon', inNama));
-  wrap.appendChild(T.field('Nomor / label', inNomor));
+  wrap.appendChild(T.field('Platform', selPlatform));
+  wrap.appendChild(T.field('Tipe panggilan', selTipe));
+  wrap.appendChild(T.field('Audio / Video', selMedia));
+  wrap.appendChild(T.field('Nama kontak', inNama));
   wrap.appendChild(fiField);
   wrap.appendChild(T.row(bContoh, bDl));
   wrap.appendChild(stage);

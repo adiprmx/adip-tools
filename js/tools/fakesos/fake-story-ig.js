@@ -24,34 +24,43 @@ export function render(root) {
     '.' + P + '-frame{width:300px;height:534px;border-radius:18px;overflow:hidden;position:relative;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-shadow:0 8px 28px rgba(0,0,0,.45)}' +
     '.' + P + '-bg{position:absolute;inset:0}' +
     '.' + P + '-bg img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '.' + P + '-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.38) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 68%,rgba(0,0,0,.42) 100%)}' +
-    '.' + P + '-prog{position:absolute;top:0;left:0;right:0;display:flex;gap:5px;padding:12px 12px 0}' +
-    '.' + P + '-seg{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.38);overflow:hidden}' +
+    '.' + P + '-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 24%,rgba(0,0,0,0) 66%,rgba(0,0,0,.45) 100%)}' +
+    /* status bar */
+    '.' + P + '-sb{position:absolute;top:0;left:0;right:0;z-index:8;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
+    '.' + P + '-sbrow{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 0}' +
+    '.' + P + '-clock{font-size:13px;font-weight:600;letter-spacing:.2px}' +
+    '.' + P + '-sicons{display:inline-flex;align-items:center;gap:6px}' +
+    '.' + P + '-sicons svg{width:16px;height:11px;display:block}' +
+    '.' + P + '-island{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:175px;height:28px;background:#000;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}' +
+    '.' + P + '-punch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:rgba(0,0,0,.92);box-shadow:inset 0 0 2px #2a4a68}' +
+    /* progress bar segmen */
+    '.' + P + '-prog{position:absolute;left:0;right:0;display:flex;gap:5px;padding:0 10px;z-index:7}' +
+    '.' + P + '-seg{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35);overflow:hidden}' +
     '.' + P + '-seg i{display:block;height:100%;background:#fff;border-radius:2px}' +
-    '.' + P + '-head{position:absolute;top:22px;left:0;right:0;display:flex;align-items:center;gap:9px;padding:6px 12px}' +
-    '.' + P + '-av{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;background:linear-gradient(135deg,#feda75,#d62976,#962fbf)}' +
-    '.' + P + '-who{flex:1;min-width:0;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-who b{font-weight:700}' +
-    '.' + P + '-who span{color:rgba(255,255,255,.75);font-weight:400}' +
-    '.' + P + '-ic{color:#fff;font-size:20px;line-height:1;background:none;border:0;padding:2px;cursor:default}' +
-    '.' + P + '-txt{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:26px;text-align:center;pointer-events:none}' +
-    '.' + P + '-txt span{font-weight:800;text-shadow:0 2px 10px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.9);line-height:1.35;word-break:break-word}' +
-    '.' + P + '-foot{position:absolute;left:0;right:0;bottom:0;padding:12px;display:flex;align-items:center;gap:12px}' +
-    '.' + P + '-pill{flex:1;border:1px solid rgba(255,255,255,.92);border-radius:999px;background:rgba(0,0,0,.25);color:#fff;font-size:14px;padding:11px 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
-    '.' + P + '-fic{color:#fff;font-size:26px;line-height:1}' +
-    '.' + P + '-link{position:absolute;left:0;right:0;bottom:74px;display:flex;justify-content:center}' +
-    '.' + P + '-link b{background:#fff;color:#111;font-size:14px;font-weight:700;border-radius:999px;padding:9px 20px;box-shadow:0 4px 14px rgba(0,0,0,.35)}' +
-    '.' + P + '-note{font-size:12px;opacity:.65;margin-top:14px}' +
-    '.' + P + '-sb{position:absolute;top:0;left:0;right:0;height:30px;display:flex;align-items:center;justify-content:space-between;padding:8px 18px 0;font-size:12.5px;font-weight:600;color:#fff;z-index:6;background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,0));text-shadow:0 1px 3px rgba(0,0,0,.65)}' +
-    '.' + P + '-sb .' + P + '-sic{display:inline-flex;align-items:center;gap:6px}' +
-    '.' + P + '-sb svg{width:16px;height:11px;display:block}' +
-    '.' + P + '-island{width:92px;height:24px;background:#000;border-radius:13px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}' +
-    '.' + P + '-punch{width:10px;height:10px;border-radius:50%;background:rgba(0,0,0,.9);flex:none;box-shadow:inset 0 0 2px #1a3a5c}' +
-    '.' + P + '-frame.plat-and .' + P + '-prog{top:28px}' +
-    '.' + P + '-frame.plat-and .' + P + '-head{top:50px}' +
-    '.' + P + '-frame.plat-iph .' + P + '-prog{top:34px}' +
+    '.' + P + '-frame.plat-iph .' + P + '-prog{top:42px}' +
+    '.' + P + '-frame.plat-and .' + P + '-prog{top:32px}' +
+    /* header story */
+    '.' + P + '-head{position:absolute;left:0;right:0;display:flex;align-items:center;gap:9px;padding:6px 12px;z-index:7}' +
     '.' + P + '-frame.plat-iph .' + P + '-head{top:56px}' +
-    '.' + P + '-home{position:absolute;left:50%;transform:translateX(-50%);bottom:7px;width:110px;height:5px;border-radius:3px;background:#fff;z-index:6;box-shadow:0 1px 3px rgba(0,0,0,.45)}';
+    '.' + P + '-frame.plat-and .' + P + '-head{top:46px}' +
+    '.' + P + '-av{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;background:linear-gradient(135deg,#feda75,#d62976,#962fbf)}' +
+    '.' + P + '-who{flex:1;min-width:0;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
+    '.' + P + '-who b{font-weight:700}' +
+    '.' + P + '-who span{color:rgba(255,255,255,.78);font-weight:400}' +
+    '.' + P + '-x{color:#fff;font-size:22px;line-height:1;background:none;border:0;padding:2px 4px;cursor:default;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
+    /* konten teks overlay */
+    '.' + P + '-txt{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;padding:26px;text-align:center;pointer-events:none;z-index:5}' +
+    '.' + P + '-txt span{font-weight:800;text-shadow:0 2px 10px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.9);line-height:1.35;word-break:break-word}' +
+    /* footer */
+    '.' + P + '-foot{position:absolute;left:0;right:0;bottom:16px;padding:0 12px;display:flex;align-items:center;gap:14px;z-index:7}' +
+    '.' + P + '-pill{flex:1;border:1.5px solid rgba(255,255,255,.95);border-radius:999px;background:rgba(0,0,0,.18);color:#fff;font-size:14px;padding:11px 16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.' + P + '-fic{color:#fff;font-size:26px;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.6)}' +
+    '.' + P + '-link{position:absolute;left:0;right:0;bottom:82px;display:flex;justify-content:center;z-index:7}' +
+    '.' + P + '-link b{background:#fff;color:#111;font-size:14px;font-weight:700;border-radius:999px;padding:9px 20px;box-shadow:0 4px 14px rgba(0,0,0,.35)}' +
+    /* home indicator / nav pill */
+    '.' + P + '-home{position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:102px;height:4px;border-radius:2px;background:#fff;z-index:8;box-shadow:0 1px 3px rgba(0,0,0,.45)}' +
+    '.' + P + '-navpill{position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:100px;height:4px;border-radius:2px;background:rgba(255,255,255,.85);z-index:8}' +
+    '.' + P + '-note{font-size:12px;opacity:.65;margin-top:14px}';
   root.appendChild(css);
 
   const wrap = T.el('<div class="' + P + '-wrap"></div>');
@@ -66,11 +75,13 @@ export function render(root) {
 
   function draw() {
     const plat = selPlatform.value;
-    const sbMid = plat === 'iphone'
-      ? '<span class="' + P + '-island"></span>'
-      : '<span class="' + P + '-punch"></span>';
-    const sbHtml = '<div class="' + P + '-sb"><span>9:41</span>' + sbMid +
-      '<span class="' + P + '-sic">' + SB_SIG + SB_WIFI + SB_BAT + '</span></div>';
+    const isIph = plat === 'iphone';
+    const sbChrome = isIph ? '<span class="' + P + '-island"></span>' : '<span class="' + P + '-punch"></span>';
+    const sbHtml =
+      '<div class="' + P + '-sb">' + sbChrome +
+        '<div class="' + P + '-sbrow"><span class="' + P + '-clock">9:41</span>' +
+        '<span class="' + P + '-sicons">' + SB_SIG + SB_WIFI + SB_BAT + '</span></div>' +
+      '</div>';
     const bgHtml = S.photo
       ? '<div class="' + P + '-bg"><img src="' + S.photo + '" alt=""></div>'
       : '<div class="' + P + '-bg" style="background:' + GRADS[S.bg] + '"></div>';
@@ -87,17 +98,16 @@ export function render(root) {
         '<div class="' + P + '-head">' +
           '<div class="' + P + '-av">' + T.esc(initial(S.username)) + '</div>' +
           '<div class="' + P + '-who"><b>' + T.esc(S.username) + '</b> <span>' + T.esc(S.time) + '</span></div>' +
-          '<button class="' + P + '-ic" tabindex="-1">⋯</button>' +
-          '<button class="' + P + '-ic" tabindex="-1">✕</button>' +
+          '<button class="' + P + '-x" tabindex="-1">✕</button>' +
         '</div>' +
         '<div class="' + P + '-txt"><span style="font-size:' + S.size + 'px;color:' + T.esc(S.color) + '">' + T.esc(S.text) + '</span></div>' +
         (S.link ? '<div class="' + P + '-link"><b>🔗 Lihat selengkapnya</b></div>' : '') +
         '<div class="' + P + '-foot">' +
           '<div class="' + P + '-pill">Send message</div>' +
           '<div class="' + P + '-fic">♡</div>' +
-          '<div class="' + P + '-fic">➤</div>' +
+          '<div class="' + P + '-fic">✈</div>' +
         '</div>' +
-        (plat === 'iphone' ? '<div class="' + P + '-home"></div>' : '') +
+        (isIph ? '<div class="' + P + '-home"></div>' : '<div class="' + P + '-navpill"></div>') +
       '</div>'
     );
     stage.innerHTML = '';
@@ -145,7 +155,7 @@ export function render(root) {
   const btnUp = T.btn('Upload foto', () => fi.click());
   const btnGrad = T.btn('Pakai gradient', () => { S.photo = null; draw(); });
 
-  const btnEx = T.btn('Contoh', () => {
+  const btnEx = T.btn('🎲 Contoh', () => {
     S.username = 'adip.rmx'; S.time = '2h'; S.text = 'Baru rilis beat baru! 🔥';
     S.size = 26; S.color = '#ffffff'; S.bg = 'sunset'; S.photo = null; S.link = true;
     inUser.value = S.username; inTime.value = S.time; inText.value = S.text;
@@ -153,7 +163,7 @@ export function render(root) {
     inColor.value = S.color; selBg.value = S.bg; chkLink.checked = S.link;
     draw();
   });
-  const btnDl = T.btn('Unduh PNG', () => dlNodePng(frame, 'fake-story-ig.png'), true);
+  const btnDl = T.btn('⬇️ Unduh PNG', () => dlNodePng(frame, 'fake-story-ig.png'), true);
 
   wrap.append(
     T.field('Username', inUser),
