@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {"id":"fake-notif-hp","name":"Fake Notifikasi HP","cat":"fakesos","icon":"🔔","desc":"Bikin screenshot notifikasi HP palsu + unduh PNG.","keywords":"notifikasi,notification,fake,palsu,screenshot,prank"};
 
@@ -96,7 +96,7 @@ export function render(root) {
           '</div>'
         : '';
       html = '<div class="' + P + '-phone ' + P + '-wall-a">' +
-        '<div class="' + P + '-sba">' + T.sysbar('android', selBrand.value) + '</div>' +
+        '<div class="' + P + '-sba">' + T.sysbar('android', selBrand.value, dark) + '</div>' +
         '<div class="' + P + '-acard' + (dark ? ' dk' : '') + '">' +
           '<div class="' + P + '-arow1">' +
             '<div class="' + P + '-smic" style="background:' + T.esc(S.warna) + '">' + bellSvg(12) + '</div>' +
@@ -115,7 +115,7 @@ export function render(root) {
       '</div>';
     } else {
       html = '<div class="' + P + '-phone ' + P + '-wall-i">' +
-        '<div class="' + P + '-sbi">' + T.sysbar('iphone') + '</div>' +
+        '<div class="' + P + '-sbi">' + T.sysbar('iphone', null, true) + '</div>' +
         '<div class="' + P + '-lockclock">' +
           '<div class="' + P + '-lockdate">Jumat, 2 Oktober</div>' +
           '<div class="' + P + '-locktime">11:13</div>' +
@@ -139,7 +139,7 @@ export function render(root) {
   }
 
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], S.platform);
-  const selBrand = T.select([['xiaomi','Xiaomi'],['samsung','Samsung'],['vivo','Vivo'],['oppo','Oppo'],['pixel','Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi','Xiaomi'],['samsung','Samsung'],['oppo','Oppo'],['vivo','Vivo'],['realme','Realme'],['oneplus','OnePlus'],['infinix','Infinix'],['tecno','Tecno'],['motorola','Motorola'],['nothing','Nothing'],['pixel','Pixel'],['huawei','Huawei'],['honor','Honor']], 'xiaomi');
   const inApp = T.input('text', 'Nama aplikasi', S.app);
   const inJudul = T.input('text', 'Judul notifikasi', S.judul);
   const inIsi = T.ta(3, 'Isi pesan', S.isi);

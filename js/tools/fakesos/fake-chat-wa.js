@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {
   id: 'fake-chat-wa',
@@ -159,7 +159,7 @@ export function render(root) {
   const inName = T.input('text', 'Nama kontak', 'Rizky');
   const inStatus = T.input('text', 'Status (online / last seen...)', 'online');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
-  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
   const selChatTheme = T.select(Object.keys(CHAT_THEMES).map((k) => [k, CHAT_THEMES[k].label]), 'default');
   const selTicks = T.select([['blue', 'Dua biru (dibaca)'], ['2', 'Dua abu (diterima)'], ['1', 'Satu abu (terkirim)'], ['0', 'Tanpa centang']], 'blue');
@@ -246,7 +246,7 @@ export function render(root) {
         '</div>';
     });
 
-    const sbHtml = '<div class="fcw-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
+    const sbHtml = '<div class="fcw-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
 
     const hdHtml = isIPh
       ? '<div class="fcw-hd fcw-hdios"><button class="fcw-bkios" type="button" tabindex="-1">‹</button>' +

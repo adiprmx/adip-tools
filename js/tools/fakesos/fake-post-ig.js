@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {"id":"fake-post-ig","name":"Fake Postingan IG","cat":"fakesos","icon":"🖼️","desc":"Bikin screenshot postingan Instagram palsu + unduh PNG.","keywords":"instagram,postingan,feed,fake,palsu,screenshot,prank"};
 
@@ -95,7 +95,7 @@ export function render(root) {
   const likeSel = T.select([['ya', 'Ya'], ['tidak', 'Tidak']], 'tidak');
   const themeSel = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
-  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   const delPhoto = T.el('<button type="button" class="fpi-delphoto">Hapus foto sendiri</button>');
   delPhoto.style.display = 'none';
   const preview = T.out();
@@ -150,7 +150,7 @@ export function render(root) {
     h += '</div>';
 
     preview.innerHTML = '<div class="fpi-dev"><div class="fpi-scr' + (dark ? ' dk' : '') + '">'
-      + '<div class="fpi-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>'
+      + '<div class="fpi-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>'
       + '<div class="fpi-card' + (dark ? ' dark' : '') + '">' + h + '</div>'
       + (isIPh ? '<div class="fpi-home"></div>' : '<div class="fpi-anav"><i></i></div>')
       + '</div></div>';

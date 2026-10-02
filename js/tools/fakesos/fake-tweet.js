@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {
   id: 'fake-tweet',
@@ -89,7 +89,7 @@ export function render(root) {
   const viewI = T.input('text', 'cth: 8,9 rb', '18 rb');
   const themeI = T.select([['terang', 'Terang'], ['redup', 'Redup'], ['gelap', 'Gelap']], 'gelap');
   const platI = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
-  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
 
   const fi = fileInput('image/*');
   let imgUrl = null;
@@ -144,7 +144,7 @@ export function render(root) {
     const isIPh = platI.value === 'iphone';
     brandField.style.display = isIPh ? 'none' : '';
     const sbHtml =
-      '<div class="ft-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
+      '<div class="ft-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, themeI.value !== 'terang') + '</div>';
     const navHtml = isIPh
       ? '<div class="ft-homebar"><span></span></div>'
       : '<div class="ft-navpill"><span></span></div>';

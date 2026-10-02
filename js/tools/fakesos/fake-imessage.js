@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {
   id: 'fake-imessage',
@@ -102,7 +102,7 @@ export function render(root) {
     'A: bro nanti jadi kan?\nB: jadi dong, jam 7 gue berangkat\nB|love: makasih ya udah dijemput\nA: aman, santai aja');
   const themeI = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'iphone');
-  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
 
   const ctl = T.el('<div class="fi-ctl"></div>');
   ctl.appendChild(T.field('Nama kontak', nameI));
@@ -141,7 +141,8 @@ export function render(root) {
   const STAT_TXT = { delivered: 'Delivered', read: 'Read 10:30' };
 
   function draw() {
-    phone.setAttribute('data-theme', themeI.value === 'gelap' ? 'gelap' : 'terang');
+    const dark = themeI.value === 'gelap';
+    phone.setAttribute('data-theme', dark ? 'gelap' : 'terang');
     const isIPh = selPlatform.value === 'iphone';
     brandField.style.display = isIPh ? 'none' : '';
     const cname = nameI.value.trim() || 'Kontak';
@@ -152,7 +153,7 @@ export function render(root) {
     const cinitial = T.esc(cname.trim().charAt(0).toUpperCase() || '?');
 
     let html = '<div class="fi-status">' +
-      T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
+      T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
 
     html += '<div class="fi-head">' +
       '<span class="fi-back">‹' + badgeHtml + '</span>' +

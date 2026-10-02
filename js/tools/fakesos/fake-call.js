@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {"id":"fake-call","name":"Fake Panggilan Masuk","cat":"fakesos","icon":"📞","desc":"Bikin screenshot layar panggilan masuk palsu + unduh PNG.","keywords":"telepon,call,panggilan,fake,palsu,screenshot,prank"};
 
@@ -58,7 +58,7 @@ export function render(root) {
 
   function sb() {
     const isIPh = S.platform === 'iphone';
-    return '<div class="' + P + '-' + (isIPh ? 'sbi' : 'sba') + '">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
+    return '<div class="' + P + '-' + (isIPh ? 'sbi' : 'sba') + '">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, true) + '</div>';
   }
   function bottomChrome() {
     return S.platform === 'iphone'
@@ -121,7 +121,7 @@ export function render(root) {
   }
 
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], S.platform);
-  const selBrand = T.select([['xiaomi','Xiaomi'],['samsung','Samsung'],['vivo','Vivo'],['oppo','Oppo'],['pixel','Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi','Xiaomi'],['samsung','Samsung'],['oppo','Oppo'],['vivo','Vivo'],['realme','Realme'],['oneplus','OnePlus'],['infinix','Infinix'],['tecno','Tecno'],['motorola','Motorola'],['nothing','Nothing'],['pixel','Pixel'],['huawei','Huawei'],['honor','Honor']], 'xiaomi');
   const selTipe = T.select([['masuk', 'Panggilan masuk'], ['berlangsung', 'Panggilan berlangsung']], S.tipe);
   const selMedia = T.select([['audio', 'Audio'], ['video', 'Video']], S.media);
   const inNama = T.input('text', 'Nama kontak', S.nama);

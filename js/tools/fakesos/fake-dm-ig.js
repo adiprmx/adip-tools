@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {"id":"fake-dm-ig","name":"Fake DM Instagram","cat":"fakesos","icon":"📩","desc":"Bikin screenshot DM Instagram palsu + unduh PNG.","keywords":"instagram,dm,chat,fake,palsu,screenshot,prank,android,iphone"};
 
@@ -90,7 +90,7 @@ export function render(root) {
   const fiA = fileInput('image/*');
   const fiB = fileInput('image/*');
   const platSel = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
-  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   const themeSel = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
   const divInp = T.input('text', 'cth: Today', 'Today');
   const chatTa = T.ta(8, 'A: halo\nB|seen: halo juga', '');
@@ -109,7 +109,7 @@ export function render(root) {
     msgs.forEach((m, i) => { if (m.who === 'B' && m.seen) seenIdx = i; });
 
     let h = '';
-    h += '<div class="fdm-status' + (isIPh ? ' ios' : '') + '">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
+    h += '<div class="fdm-status' + (isIPh ? ' ios' : '') + '">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
     h += '<div class="fdm-head">'
       + (isIPh ? '<span class="fdm-back">‹</span>' : '<span class="fdm-back">' + FDM_BACK_AND + '</span>')
       + fdmAva(avaA, 34)

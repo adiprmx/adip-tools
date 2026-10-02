@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {
   id: 'fake-profil-wa',
@@ -185,7 +185,7 @@ export function render(root) {
   const ctl = T.el('<div class="fpw-ctl"></div>');
   const selTipe = T.select([['info', 'Info Kontak (layar info nomor orang)'], ['saya', 'Profil Saya (layar profil sendiri)']], 'info');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
-  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
   const inName = T.input('text', 'Nama', 'Budi Santoso');
   const inNum = T.input('text', 'Nomor telepon', '+62 812-3456-7890');
@@ -240,9 +240,9 @@ export function render(root) {
   const phone = T.el('<div class="fpw-phone"></div>');
 
   const sbAndroid = () =>
-    '<div class="fpw-sb">' + T.sysbar('android', selBrand.value) + '</div>';
+    '<div class="fpw-sb">' + T.sysbar('android', selBrand.value, selTheme.value === 'dark') + '</div>';
   const sbIOS = () =>
-    '<div class="fpw-sb">' + T.sysbar('iphone', selBrand.value) + '</div>';
+    '<div class="fpw-sb">' + T.sysbar('iphone', null, selTheme.value === 'dark') + '</div>';
 
   function infoAndroid(d) {
     const thumbs = THUMB_GRADS.map((g) =>

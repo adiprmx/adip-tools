@@ -268,61 +268,105 @@ const SYSBAR_FONTS = {
   iphone: '-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif',
   xiaomi: '"MiSans","Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif',
   samsung: '"One UI Sans","Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif',
-  vivo: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
   oppo: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  vivo: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  realme: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  oneplus: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  infinix: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  tecno: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  motorola: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  nothing: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
   pixel: 'Roboto,system-ui,"Segoe UI",Helvetica,Arial,sans-serif',
+  huawei: '"HarmonyOS Sans",system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  honor: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
 };
 
-const SYSBAR_ICO = {
-  iphone: {
-    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>',
-    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>',
-    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>',
-  },
-  pixel: {
-    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8.5" width="3" height="3.5" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>',
-    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 9.6a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zM8 5.4c1.8 0 3.4.7 4.6 1.9l-1.5 1.5A4.4 4.4 0 0 0 8 7.6c-1.2 0-2.3.5-3.1 1.2L3.4 7.3A6.4 6.4 0 0 1 8 5.4zM8 1c2.9 0 5.6 1.2 7.6 3.1l-1.5 1.5A8.6 8.6 0 0 0 8 3.2c-2.3 0-4.4.9-6.1 2.4L.4 4.1A11 11 0 0 1 8 1z" transform="translate(0,-1)"/></svg>',
-    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" opacity="0.5" stroke-width="1.2"/><rect x="2.5" y="2.5" width="13" height="7" rx="1" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
-  },
-  samsung: {
-    sig: '<svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3.4" height="5" rx="1.7"/><rect x="5" y="4.5" width="3.4" height="7.5" rx="1.7"/><rect x="10" y="2" width="3.4" height="10" rx="1.7"/><rect x="15" y="0" width="3.4" height="12" rx="1.7"/></svg>',
-    wifi: '<svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M1.8 4.5a10 10 0 0 1 13.4 0"/><path d="M4.5 7a6.4 6.4 0 0 1 8 0"/><circle cx="8.5" cy="9.8" r="1.5" fill="currentColor" stroke="none"/></svg>',
-    bat: '<svg width="28" height="13" viewBox="0 0 28 13" fill="none" aria-hidden="true"><rect x="0.6" y="0.6" width="23" height="11.8" rx="4" stroke="currentColor" opacity="0.6" stroke-width="1.6"/><rect x="3" y="3" width="13" height="7" rx="2" fill="currentColor"/><path d="M25.8 4.5v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.6"/></svg>',
-  },
-  xiaomi: {
-    tag: '<span style="font-size:10px;font-weight:700;letter-spacing:.4px;line-height:1">5G</span>',
-    sig: '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3.6" height="5" rx="0.8"/><rect x="4.9" y="4.5" width="3.6" height="7.5" rx="0.8"/><rect x="9.8" y="2" width="3.6" height="10" rx="0.8"/><rect x="14.7" y="0" width="3.3" height="12" rx="0.8"/></svg>',
-    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.5a10 10 0 0 1 13 0"/><path d="M4.2 7a6.2 6.2 0 0 1 7.6 0"/><circle cx="8" cy="9.7" r="1.35" fill="currentColor" stroke="none"/></svg>',
-    bat: '<svg width="27" height="12" viewBox="0 0 27 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="23" height="11" rx="5.5" fill="currentColor" opacity="0.28"/><rect x="2.5" y="2.5" width="14" height="7" rx="3.5" fill="currentColor"/><path d="M25.2 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" opacity="0.45"/></svg>',
-  },
-  vivo: {
-    sig: '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="2.2" height="4" rx="0.4"/><rect x="3.8" y="5.5" width="2.2" height="6.5" rx="0.4"/><rect x="7.6" y="3" width="2.2" height="9" rx="0.4"/><rect x="11.4" y="0.5" width="2.2" height="11.5" rx="0.4"/></svg>',
-    wifi: '<svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a9.5 9.5 0 0 1 12 0"/><path d="M4 6.8a6 6 0 0 1 7 0"/><circle cx="7.5" cy="9.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
-    bat: '<svg width="24" height="12" viewBox="0 0 24 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="20" height="11" rx="2" stroke="currentColor" opacity="0.5" stroke-width="1"/><rect x="2.2" y="2.2" width="12.5" height="7.6" rx="1" fill="currentColor"/><path d="M22.3 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
-  },
-  oppo: {
-    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8.2" width="3" height="3.8" rx="0.6"/><rect x="4.4" y="5.8" width="3" height="6.2" rx="0.6"/><rect x="8.8" y="3.2" width="3" height="8.8" rx="0.6"/><rect x="13.2" y="0.6" width="3" height="11.4" rx="0.6"/></svg>',
-    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M1.6 4.4a9.8 9.8 0 0 1 12.8 0"/><path d="M4.1 6.9a6.2 6.2 0 0 1 7.8 0"/><circle cx="8" cy="9.7" r="1.3" fill="currentColor" stroke="none"/></svg>',
-    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="2.8" stroke="currentColor" opacity="0.5" stroke-width="1.2"/><rect x="2.4" y="2.4" width="13" height="7.2" rx="1.2" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
-  },
-};
-
-const SYSBAR_PUNCH = { xiaomi: 10, samsung: 12, vivo: 11, oppo: 11, pixel: 12 };
-
-export function sysbar(platform, brand) {
-  const key = platform === 'iphone' ? 'iphone' : (SYSBAR_ICO[brand] ? brand : 'xiaomi');
-  const ic = SYSBAR_ICO[key];
-  const clock = '<span style="font-family:' + SYSBAR_FONTS[key] + ';font-weight:600;font-size:14px;letter-spacing:-.2px;line-height:1">9:41</span>';
-  const icons = '<span style="display:inline-flex;align-items:center;gap:5px;line-height:1">' + (ic.tag || '') + ic.sig + ic.wifi + ic.bat + '</span>';
-  if (platform === 'iphone') {
-    return clock +
-      '<span style="position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;background:#000;border-radius:18px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)"></span>' +
-      icons;
-  }
-  const pz = SYSBAR_PUNCH[key] || 12;
-  return '<span style="position:absolute;left:50%;top:15px;transform:translateX(-50%);width:' + pz + 'px;height:' + pz + 'px;background:#000;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.06)"></span>' +
-    clock + icons;
+/* --- pembangun ikon kecil --- */
+function sbBars(list, vbw) {
+  var r = '';
+  list.forEach(function(b) { r += '<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" rx="' + b[4] + '"/>'; });
+  return '<svg width="' + vbw + '" height="12" viewBox="0 0 ' + vbw + ' 12" fill="currentColor" aria-hidden="true">' + r + '</svg>';
 }
+var SB_SIG = {
+  chunky: function() { return sbBars([[0,7,3.6,5,.8],[4.9,4.5,3.6,7.5,.8],[9.8,2,3.6,10,.8],[14.7,0,3.3,12,.8]], 18); },
+  round: function() { return sbBars([[0,7,3.4,5,1.7],[5,4.5,3.4,7.5,1.7],[10,2,3.4,10,1.7],[15,0,3.4,12,1.7]], 19); },
+  sharp: function() { return sbBars([[0,8.5,3,3.5,.4],[4.5,6,3,6,.4],[9,3,3,9,.4],[13.5,0,3,12,.4]], 17); },
+  slim: function() { return sbBars([[0,8,2.2,4,.4],[3.8,5.5,2.2,6.5,.4],[7.6,3,2.2,9,.4],[11.4,.5,2.2,11.5,.4]], 16); },
+  med: function() { return sbBars([[0,8.2,3,3.8,.6],[4.4,5.8,3,6.2,.6],[8.8,3.2,3,8.8,.6],[13.2,.6,3,11.4,.6]], 17); },
+  std: function() { return sbBars([[0,8,3,4,.6],[4.4,5.5,3,6.5,.6],[8.8,3,3,9,.6],[13.2,.5,3,11.5,.6]], 17); },
+};
+var SB_WIFI = {
+  std: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.5a10 10 0 0 1 13 0"/><path d="M4.2 7a6.2 6.2 0 0 1 7.6 0"/><circle cx="8" cy="9.7" r="1.35" fill="currentColor" stroke="none"/></svg>',
+  bold: '<svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M1.8 4.5a10 10 0 0 1 13.4 0"/><path d="M4.5 7a6.4 6.4 0 0 1 8 0"/><circle cx="8.5" cy="9.8" r="1.5" fill="currentColor" stroke="none"/></svg>',
+  thin: '<svg width="15" height="12" viewBox="0 0 15 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a9.5 9.5 0 0 1 12 0"/><path d="M4 6.8a6 6 0 0 1 7 0"/><circle cx="7.5" cy="9.6" r="1.1" fill="currentColor" stroke="none"/></svg>',
+  aosp: '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 9.6a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zM8 5.4c1.8 0 3.4.7 4.6 1.9l-1.5 1.5A4.4 4.4 0 0 0 8 7.6c-1.2 0-2.3.5-3.1 1.2L3.4 7.3A6.4 6.4 0 0 1 8 5.4zM8 1c2.9 0 5.6 1.2 7.6 3.1l-1.5 1.5A8.6 8.6 0 0 0 8 3.2c-2.3 0-4.4.9-6.1 2.4L.4 4.1A11 11 0 0 1 8 1z" transform="translate(0,-1)"/></svg>',
+};
+function sbBatPill() {
+  return '<svg width="27" height="12" viewBox="0 0 27 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="23" height="11" rx="5.5" fill="currentColor" opacity="0.28"/><rect x="2.5" y="2.5" width="14" height="7" rx="3.5" fill="currentColor"/><path d="M25.2 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" opacity="0.45"/></svg>';
+}
+function sbBatOutline(rx, sw) {
+  return '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="' + rx + '" stroke="currentColor" opacity="0.5" stroke-width="' + sw + '"/><rect x="2.5" y="2.5" width="13" height="7" rx="1.2" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>';
+}
+function sbBatSamsung(dark) {
+  var tc = dark ? '#111B21' : '#FFFFFF';
+  return '<span style="position:relative;display:inline-flex;line-height:1">' +
+    '<svg width="28" height="13" viewBox="0 0 28 13" fill="none" aria-hidden="true"><rect x="0.6" y="0.6" width="23" height="11.8" rx="4" stroke="currentColor" opacity="0.6" stroke-width="1.6"/><rect x="3" y="3" width="13" height="7" rx="2" fill="currentColor"/><path d="M25.8 4.5v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.6"/></svg>' +
+    '<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:' + tc + ';line-height:1">77</span></span>';
+}
+var SB_DUALSIG = '<svg width="19" height="12" viewBox="0 0 19 12" fill="currentColor" aria-hidden="true"><rect x="0" y="6.5" width="2.2" height="2.5" rx="0.4"/><rect x="3" y="5" width="2.2" height="4" rx="0.4"/><rect x="6" y="3.5" width="2.2" height="5.5" rx="0.4"/><rect x="9.5" y="6.5" width="2.2" height="2.5" rx="0.4" opacity="0.4"/><rect x="12.5" y="5" width="2.2" height="4" rx="0.4" opacity="0.4"/><rect x="15.5" y="3.5" width="2.2" height="5.5" rx="0.4" opacity="0.4"/></svg>';
+function sbTag(t) { return '<span style="font-size:10px;font-weight:700;letter-spacing:.3px;line-height:1">' + t + '</span>'; }
+function sbPct() { return '<span style="font-size:11px;font-weight:600;line-height:1">77</span>'; }
+var SB_NOTIF_APPS = '<span style="display:inline-flex;gap:6px;align-items:center">' +
+  '<span style="width:15px;height:15px;border-radius:4px;background:#25D366;display:inline-flex;align-items:center;justify-content:center"><svg width="9" height="9" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/></svg></span>' +
+  '<span style="width:15px;height:15px;border-radius:4px;background:#1D9BF0;display:inline-flex;align-items:center;justify-content:center"><svg width="8" height="8" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg></span></span>';
+var SB_NOTIF_DOTS = '<span style="display:inline-flex;gap:5px;align-items:center"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85"></span><span style="width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5"></span></span>';
+
+/* --- definisi per merk: punch, kiri (notif), kanan (urutan ikon) --- */
+var SYSBAR_BRAND = {
+  xiaomi: { punch: 10, left: SB_NOTIF_APPS, right: function() { return [SB_SIG.chunky(), sbTag('5G'), sbTag('VoLTE'), SB_WIFI.std, sbPct(), sbBatPill()]; } },
+  samsung: { punch: 12, left: SB_NOTIF_DOTS, right: function(d) { return [SB_SIG.round(), sbTag('5G'), SB_WIFI.bold, sbBatSamsung(d)]; } },
+  oppo: { punch: 11, left: '', right: function() { return [SB_SIG.med(), sbTag('4G'), sbTag('HD'), SB_WIFI.std, sbPct(), sbBatOutline(2.8, 1.2)]; } },
+  vivo: { punch: 11, left: '', right: function() { return [SB_SIG.slim(), sbTag('5G'), sbTag('HD'), SB_WIFI.thin, sbPct(), sbBatOutline(2, 1)]; } },
+  realme: { punch: 11, left: '', right: function() { return [SB_SIG.med(), sbTag('4G'), sbTag('HD'), SB_WIFI.std, sbPct(), sbBatOutline(2.8, 1.2)]; } },
+  oneplus: { punch: 11, left: '', right: function() { return [SB_SIG.med(), sbTag('5G'), sbTag('HD'), SB_WIFI.std, sbPct(), sbBatOutline(2.8, 1.2)]; } },
+  infinix: { punch: 11, left: '', right: function() { return [SB_SIG.std(), sbTag('4G'), sbTag('HD'), SB_WIFI.std, sbBatOutline(2.5, 1.2), sbPct()]; } },
+  tecno: { punch: 11, left: '', right: function() { return [SB_SIG.std(), sbTag('5G'), sbTag('HD'), SB_WIFI.std, sbBatOutline(2.5, 1.2), sbPct()]; } },
+  motorola: { punch: 12, left: SB_NOTIF_APPS, right: function() { return [SB_SIG.std(), sbTag('5G'), SB_WIFI.std, sbBatOutline(2.5, 1.2), sbPct()]; } },
+  nothing: { punch: 12, left: '', right: function() { return [SB_SIG.std(), sbTag('5G'), SB_WIFI.std, sbBatOutline(2.5, 1.2), sbPct()]; } },
+  pixel: { punch: 12, left: '', right: function() { return [SB_WIFI.aosp, SB_SIG.sharp(), sbBatOutline(2.5, 1.2), sbPct()]; } },
+  huawei: { punch: 12, left: '', right: function() { return [SB_WIFI.std, SB_DUALSIG, sbBatPill(), sbPct()]; } },
+  honor: { punch: 'pill', left: '', right: function() { return [SB_SIG.med(), sbTag('5G'), sbTag('VoLTE'), SB_WIFI.std, sbBatPill(), sbPct()]; } },
+};
+
+var SYSBAR_IPHONE = {
+  sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>',
+  wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>',
+  bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>',
+};
+
+export function sysbar(platform, brand, dark) {
+  var fontI = SYSBAR_FONTS.iphone;
+  var clockI = '<span style="font-family:' + fontI + ';font-weight:600;font-size:14px;letter-spacing:-.2px;line-height:1">9:41</span>';
+  if (platform === 'iphone') {
+    var iconsI = '<span style="display:inline-flex;align-items:center;gap:5px;line-height:1">' + SYSBAR_IPHONE.sig + SYSBAR_IPHONE.wifi + SYSBAR_IPHONE.bat + '</span>';
+    return clockI +
+      '<span style="position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;background:#000;border-radius:18px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)"></span>' +
+      iconsI;
+  }
+  var b = SYSBAR_BRAND[brand] || SYSBAR_BRAND.xiaomi;
+  var key = SYSBAR_BRAND[brand] ? brand : 'xiaomi';
+  var leftHtml = b.left ? '<span style="display:inline-flex;align-items:center;gap:8px"><span style="font-family:' + SYSBAR_FONTS[key] + ';font-weight:600;font-size:14px;letter-spacing:-.2px;line-height:1">9:41</span>' + b.left + '</span>'
+    : '<span style="font-family:' + SYSBAR_FONTS[key] + ';font-weight:600;font-size:14px;letter-spacing:-.2px;line-height:1">9:41</span>';
+  var rightHtml = '<span style="display:inline-flex;align-items:center;gap:5px;line-height:1">' + b.right(!!dark).join('') + '</span>';
+  var punchHtml;
+  if (b.punch === 'pill') {
+    punchHtml = '<span style="position:absolute;left:50%;top:15px;transform:translateX(-50%);width:40px;height:12px;background:#000;border-radius:6px;box-shadow:0 0 0 2px rgba(255,255,255,.06)"></span>';
+  } else {
+    punchHtml = '<span style="position:absolute;left:50%;top:15px;transform:translateX(-50%);width:' + b.punch + 'px;height:' + b.punch + 'px;background:#000;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.06)"></span>';
+  }
+  return punchHtml + leftHtml + rightHtml;
+}
+
 
 /* ================= FASE 2: shared helpers (dipakai >1 tool) =================
    Dipindah otomatis dari tools-*.js oleh scripts/split-tools.py. Jangan edit manual;

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.3';
 
 export const meta = {"id":"fake-komen-tiktok","name":"Fake Komen TikTok","cat":"fakesos","icon":"🎶","desc":"Bikin screenshot komentar TikTok palsu + unduh PNG.","keywords":"tiktok,komentar,fake,palsu,screenshot,prank"};
 
@@ -94,7 +94,7 @@ export function render(root) {
     const isIPh = selPlatform.value === 'iphone';
     brandField.style.display = isIPh ? 'none' : '';
     const sbHtml = '<div class="' + P + '-sb">' +
-      '<div class="' + P + '-sbrow">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div></div>';
+      '<div class="' + P + '-sbrow">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, true) + '</div></div>';
     const lines = S.rows.split('\n').map((l) => l.trim()).filter(Boolean).map(parseLine);
     const rowsHtml = lines.map((c) => {
       const badge = c.v ? '<span class="' + P + '-vb">✓</span>' : '';
@@ -146,7 +146,7 @@ export function render(root) {
   selTheme.addEventListener('change', () => { S.theme = selTheme.value; draw(); });
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   selPlatform.addEventListener('change', () => { draw(); });
-  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   selBrand.addEventListener('change', () => { draw(); });
   const brandField = T.field('Merk HP', selBrand);
 
