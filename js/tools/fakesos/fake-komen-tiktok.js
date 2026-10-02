@@ -1,14 +1,10 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {"id":"fake-komen-tiktok","name":"Fake Komen TikTok","cat":"fakesos","icon":"🎶","desc":"Bikin screenshot komentar TikTok palsu + unduh PNG.","keywords":"tiktok,komentar,fake,palsu,screenshot,prank"};
 
 const P = 'fkt4';
 
 const AV_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6', '#a855f7', '#ec4899'];
-
-const ICO_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
-const ICO_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
-const ICO_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
 
 function parseLine(line) {
   const c = { user: 'user', time: '2h', likes: '0', v: false, pin: false, creator: false, text: '' };
@@ -47,10 +43,6 @@ export function render(root) {
     '.' + P + '-backdrop{position:absolute;top:0;left:0;right:0;height:170px;background:radial-gradient(120% 90% at 50% 0%,#2a2a33 0%,#101014 60%,#060607 100%)}' +
     '.' + P + '-sb{position:absolute;top:0;left:0;right:0;z-index:20;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
     '.' + P + '-sbrow{display:flex;align-items:center;justify-content:space-between;padding:9px 18px 0}' +
-    '.' + P + '-clock{font-size:13px;font-weight:600;letter-spacing:.2px}' +
-    '.' + P + '-sicons{display:inline-flex;align-items:center;gap:5px}' +
-    '.' + P + '-island{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:150px;height:26px;background:#000;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}' +
-    '.' + P + '-punch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:rgba(0,0,0,.92);box-shadow:inset 0 0 2px #2a4a68}' +
     '.' + P + '-navpill{position:absolute;left:50%;transform:translateX(-50%);bottom:5px;width:100px;height:4px;border-radius:2px;background:rgba(255,255,255,.7);z-index:20}' +
     /* bottom sheet 75% viewport, radius 12pt hanya sudut atas */
     '.' + P + '-sheet{position:absolute;left:0;right:0;bottom:0;height:75%;border-radius:12px 12px 0 0;background:var(--' + P + '-bg);color:var(--' + P + '-tx);display:flex;flex-direction:column;z-index:10}' +
@@ -100,10 +92,9 @@ export function render(root) {
   function draw() {
     const th = THEMES[S.theme] || THEMES.dark;
     const isIPh = selPlatform.value === 'iphone';
-    const chrome = isIPh ? '<span class="' + P + '-island"></span>' : '<span class="' + P + '-punch"></span>';
-    const sbHtml = '<div class="' + P + '-sb">' + chrome +
-      '<div class="' + P + '-sbrow"><span class="' + P + '-clock">9:41</span>' +
-      '<span class="' + P + '-sicons">' + ICO_SIG + ICO_WIFI + ICO_BAT + '</span></div></div>';
+    brandField.style.display = isIPh ? 'none' : '';
+    const sbHtml = '<div class="' + P + '-sb">' +
+      '<div class="' + P + '-sbrow">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div></div>';
     const lines = S.rows.split('\n').map((l) => l.trim()).filter(Boolean).map(parseLine);
     const rowsHtml = lines.map((c) => {
       const badge = c.v ? '<span class="' + P + '-vb">✓</span>' : '';
@@ -155,6 +146,9 @@ export function render(root) {
   selTheme.addEventListener('change', () => { S.theme = selTheme.value; draw(); });
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   selPlatform.addEventListener('change', () => { draw(); });
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  selBrand.addEventListener('change', () => { draw(); });
+  const brandField = T.field('Merk HP', selBrand);
 
   const btnEx = T.btn('🎲 Contoh', () => {
     S.count = '1.234';
@@ -169,6 +163,7 @@ export function render(root) {
     T.field('Komentar (satu baris satu komentar)', taRows,
       'Format: username|waktu|like|v|pin|creator: teks — contoh: adip.rmx|2h|1,2 rb|v|pin: Keren bang!'),
     T.field('Platform', selPlatform),
+    brandField,
     T.field('Tema', selTheme),
     T.row(btnEx, btnDl),
     stage,

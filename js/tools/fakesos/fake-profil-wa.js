@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {
   id: 'fake-profil-wa',
@@ -14,9 +14,6 @@ const SVG_BACK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" st
 const SVG_CALL = '<svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>';
 const SVG_VID = '<svg width="25" height="25" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
 const SVG_SEARCH = '<svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>';
-const SVG_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
-const SVG_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
-const SVG_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
 const SVG_CAM = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.2"/></svg>';
 const IC = {
   person: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>',
@@ -42,12 +39,6 @@ const CSS = `
 /* ---- status bar (system chrome) ---- */
 .fpw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 18px 0 22px;background:#FFFFFF;color:#111B21}
 .fpw-dark .fpw-sb{background:#0B141A;color:#E9EDEF}
-.fpw-punch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 2px 1px rgba(255,255,255,.18)}
-.fpw-clock{font-size:14px;font-weight:600;letter-spacing:.3px}
-.fpw-sicons{display:flex;align-items:center;gap:6px}
-.fpw-sb.fpw-sbios{height:46px;padding:0 24px 0 30px}
-.fpw-sb.fpw-sbios .fpw-clock{font-size:15px;font-weight:600}
-.fpw-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:118px;height:30px;border-radius:16px;background:#000;flex:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.14)}
 /* nav bawah: Android pill gesture / iPhone home indicator */
 .fpw-navb{display:flex;justify-content:center;padding:6px 0 10px;background:#FFFFFF}
 .fpw-dark .fpw-navb{background:#0B141A}
@@ -194,6 +185,7 @@ export function render(root) {
   const ctl = T.el('<div class="fpw-ctl"></div>');
   const selTipe = T.select([['info', 'Info Kontak (layar info nomor orang)'], ['saya', 'Profil Saya (layar profil sendiri)']], 'info');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
   const inName = T.input('text', 'Nama', 'Budi Santoso');
   const inNum = T.input('text', 'Nomor telepon', '+62 812-3456-7890');
@@ -214,6 +206,8 @@ export function render(root) {
 
   ctl.appendChild(T.field('Tipe layar', selTipe));
   ctl.appendChild(T.field('Platform', selPlatform));
+  const brandField = T.field('Merk HP', selBrand);
+  ctl.appendChild(brandField);
   ctl.appendChild(T.field('Tema', selTheme));
   ctl.appendChild(T.field('Nama', inName));
   ctl.appendChild(T.field('Nomor telepon', inNum));
@@ -246,12 +240,9 @@ export function render(root) {
   const phone = T.el('<div class="fpw-phone"></div>');
 
   const sbAndroid = () =>
-    '<div class="fpw-sb"><span class="fpw-punch"></span><span class="fpw-clock">9:41</span>' +
-    '<span class="fpw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>';
+    '<div class="fpw-sb">' + T.sysbar('android', selBrand.value) + '</div>';
   const sbIOS = () =>
-    '<div class="fpw-sb fpw-sbios"><span class="fpw-clock">9:41</span>' +
-    '<span class="fpw-island"></span>' +
-    '<span class="fpw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>';
+    '<div class="fpw-sb">' + T.sysbar('iphone', selBrand.value) + '</div>';
 
   function infoAndroid(d) {
     const thumbs = THUMB_GRADS.map((g) =>
@@ -386,6 +377,7 @@ export function render(root) {
     const tipe = selTipe.value;
     const plat = selPlatform.value;
     const dark = selTheme.value === 'dark';
+    brandField.style.display = plat === 'android' ? '' : 'none';
     const name = inName.value.trim() || 'Kontak';
     const num = inNum.value.trim() || '+62 812-3456-7890';
     const seen = inSeen.value.trim();
@@ -412,7 +404,7 @@ export function render(root) {
     });
   }
 
-  [selTipe, selPlatform, selTheme, inName, inNum, inSeen, inAbout, inUser].forEach((el) => {
+  [selTipe, selPlatform, selBrand, selTheme, inName, inNum, inSeen, inAbout, inUser].forEach((el) => {
     el.addEventListener('input', draw);
     el.addEventListener('change', draw);
   });

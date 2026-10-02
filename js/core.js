@@ -259,8 +259,69 @@ export function loadScript(src) {
 export const h = {
   el, esc, btn, field, input, select, ta, out, show, hide,
   copy, copyBtn, dl, dlBtn, toast, row, grid2, onLeave,
-  fmt, rp, num, actx, beep, loadScript,
+  fmt, rp, num, actx, beep, loadScript, sysbar,
 };
+
+/* ---- Status bar HP per platform & merk (dipakai tool fake sosmed) ----
+   iPhone = Dynamic Island; Android = punch-hole + ikon gaya tiap merk. */
+const SYSBAR_FONTS = {
+  iphone: '-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  xiaomi: '"MiSans","Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif',
+  samsung: '"One UI Sans","Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif',
+  vivo: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  oppo: 'system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
+  pixel: 'Roboto,system-ui,"Segoe UI",Helvetica,Arial,sans-serif',
+};
+
+const SYSBAR_ICO = {
+  iphone: {
+    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>',
+    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>',
+    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>',
+  },
+  pixel: {
+    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8.5" width="3" height="3.5" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5"/></svg>',
+    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 9.6a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2zM8 5.4c1.8 0 3.4.7 4.6 1.9l-1.5 1.5A4.4 4.4 0 0 0 8 7.6c-1.2 0-2.3.5-3.1 1.2L3.4 7.3A6.4 6.4 0 0 1 8 5.4zM8 1c2.9 0 5.6 1.2 7.6 3.1l-1.5 1.5A8.6 8.6 0 0 0 8 3.2c-2.3 0-4.4.9-6.1 2.4L.4 4.1A11 11 0 0 1 8 1z" transform="translate(0,-1)"/></svg>',
+    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor" opacity="0.5" stroke-width="1.2"/><rect x="2.5" y="2.5" width="13" height="7" rx="1" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
+  },
+  samsung: {
+    sig: '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7.5" width="3.2" height="4.5" rx="1.2"/><rect x="4.8" y="5" width="3.2" height="7" rx="1.2"/><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="1.2"/><rect x="14.4" y="0" width="3.2" height="12" rx="1.2"/></svg>',
+    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M1.8 4.5a9.5 9.5 0 0 1 12.4 0"/><path d="M4.3 7a6 6 0 0 1 7.4 0"/><circle cx="8" cy="9.8" r="1.4" fill="currentColor" stroke="none"/></svg>',
+    bat: '<svg width="26" height="12" viewBox="0 0 26 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="22" height="11" rx="3.5" stroke="currentColor" opacity="0.55" stroke-width="1.4"/><rect x="2.8" y="2.8" width="13" height="6.4" rx="1.8" fill="currentColor"/><path d="M24.3 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" opacity="0.55"/></svg>',
+  },
+  xiaomi: {
+    sig: '<svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3.6" height="5" rx="0.8"/><rect x="4.9" y="4.5" width="3.6" height="7.5" rx="0.8"/><rect x="9.8" y="2" width="3.6" height="10" rx="0.8"/><rect x="14.7" y="0" width="3.3" height="12" rx="0.8"/></svg>',
+    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.5a10 10 0 0 1 13 0"/><path d="M4.2 7a6.2 6.2 0 0 1 7.6 0"/><circle cx="8" cy="9.7" r="1.35" fill="currentColor" stroke="none"/></svg>',
+    bat: '<svg width="27" height="12" viewBox="0 0 27 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="23" height="11" rx="5.5" fill="currentColor" opacity="0.28"/><rect x="2.5" y="2.5" width="14" height="7" rx="3.5" fill="currentColor"/><path d="M25.2 4.2v3.6a2 2 0 0 0 0-3.6z" fill="currentColor" opacity="0.45"/></svg>',
+  },
+  vivo: {
+    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="2.6" height="4" rx="0.5"/><rect x="4.2" y="5.5" width="2.6" height="6.5" rx="0.5"/><rect x="8.4" y="3" width="2.6" height="9" rx="0.5"/><rect x="12.6" y="0.5" width="2.6" height="11.5" rx="0.5"/></svg>',
+    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.2" fill="currentColor" stroke="none"/></svg>',
+    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="2" stroke="currentColor" opacity="0.5" stroke-width="1.1"/><rect x="2.3" y="2.3" width="13.5" height="7.4" rx="1" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
+  },
+  oppo: {
+    sig: '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8.2" width="3" height="3.8" rx="0.6"/><rect x="4.4" y="5.8" width="3" height="6.2" rx="0.6"/><rect x="8.8" y="3.2" width="3" height="8.8" rx="0.6"/><rect x="13.2" y="0.6" width="3" height="11.4" rx="0.6"/></svg>',
+    wifi: '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M1.6 4.4a9.8 9.8 0 0 1 12.8 0"/><path d="M4.1 6.9a6.2 6.2 0 0 1 7.8 0"/><circle cx="8" cy="9.7" r="1.3" fill="currentColor" stroke="none"/></svg>',
+    bat: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="2.8" stroke="currentColor" opacity="0.5" stroke-width="1.2"/><rect x="2.4" y="2.4" width="13" height="7.2" rx="1.2" fill="currentColor"/><path d="M23.5 4v4a2 2 0 0 0 0-4z" fill="currentColor" opacity="0.5"/></svg>',
+  },
+};
+
+const SYSBAR_PUNCH = { xiaomi: 10, samsung: 12, vivo: 11, oppo: 11, pixel: 12 };
+
+export function sysbar(platform, brand) {
+  const key = platform === 'iphone' ? 'iphone' : (SYSBAR_ICO[brand] ? brand : 'xiaomi');
+  const ic = SYSBAR_ICO[key];
+  const clock = '<span style="font-family:' + SYSBAR_FONTS[key] + ';font-weight:600;font-size:14px;letter-spacing:-.2px;line-height:1">9:41</span>';
+  const icons = '<span style="display:inline-flex;align-items:center;gap:5px;line-height:1">' + ic.sig + ic.wifi + ic.bat + '</span>';
+  if (platform === 'iphone') {
+    return clock +
+      '<span style="position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;background:#000;border-radius:18px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)"></span>' +
+      icons;
+  }
+  const pz = SYSBAR_PUNCH[key] || 12;
+  return '<span style="position:absolute;left:50%;top:15px;transform:translateX(-50%);width:' + pz + 'px;height:' + pz + 'px;background:#000;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.06)"></span>' +
+    clock + icons;
+}
 
 /* ================= FASE 2: shared helpers (dipakai >1 tool) =================
    Dipindah otomatis dari tools-*.js oleh scripts/split-tools.py. Jangan edit manual;

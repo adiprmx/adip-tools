@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {"id":"fake-post-ig","name":"Fake Postingan IG","cat":"fakesos","icon":"🖼️","desc":"Bikin screenshot postingan Instagram palsu + unduh PNG.","keywords":"instagram,postingan,feed,fake,palsu,screenshot,prank"};
 
@@ -51,12 +51,7 @@ const FPI_CSS = `
 .fpi-dev{max-width:430px;margin:14px auto;background:#0d0d0d;border-radius:42px;padding:11px;box-shadow:0 20px 55px rgba(0,0,0,.35),inset 0 0 0 2px #2b2b2b}
 .fpi-scr{border-radius:32px;overflow:hidden;background:#fff;color:#111}
 .fpi-scr.dk{background:#000;color:#f5f5f5}
-.fpi-sb{display:flex;align-items:center;justify-content:space-between;padding:11px 22px 4px;font-size:15px;font-weight:600}
-.fpi-sb .fpi-sic{display:inline-flex;align-items:center;gap:6px}
-.fpi-sb svg{width:17px;height:12px;display:block}
-.fpi-island{width:122px;height:32px;background:#000;border-radius:22px;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
-.fpi-punch{width:11px;height:11px;border-radius:50%;background:#0a0a0a;flex:none;box-shadow:inset 0 0 3px #274a6e}
-.fpi-scr.dk .fpi-punch{background:#000;box-shadow:inset 0 0 3px #2c4e78,0 0 0 1px #1e1e1e}
+.fpi-sb{position:relative;display:flex;align-items:center;justify-content:space-between;padding:11px 22px 4px;font-size:15px;font-weight:600}
 .fpi-home{width:134px;height:5px;border-radius:3px;background:#111;margin:10px auto 8px}
 .fpi-scr.dk .fpi-home{background:#f5f5f5}
 .fpi-anav{display:flex;justify-content:center;padding:8px 0 10px}
@@ -81,17 +76,6 @@ function fpiHeart(liked) {
     ? '<svg viewBox="0 0 24 24" fill="#FF3040" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 }
-const FPI_SBICON = {
-  sig: '<svg viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>',
-  wifi: '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4.2 7a6.2 6.2 0 0 1 7.6 0"/><circle cx="8" cy="9.8" r="1.4" fill="currentColor" stroke="none"/></svg>',
-  bat: '<svg viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="20" height="11" rx="3.2" stroke="currentColor" opacity=".45"/><rect x="2.4" y="2.4" width="14" height="7.2" rx="1.6" fill="currentColor"/><path d="M22.8 3.8v4.4a2.2 2.2 0 0 0 0-4.4z" fill="currentColor" opacity=".45"/></svg>'
-};
-function fpiStatusBar(plat) {
-  const mid = plat === 'iphone' ? '<span class="fpi-island"></span>' : '<span class="fpi-punch"></span>';
-  return '<div class="fpi-sb"><span>9:41</span>' + mid +
-    '<span class="fpi-sic">' + FPI_SBICON.sig + FPI_SBICON.wifi + FPI_SBICON.bat + '</span></div>';
-}
-
 export function render(root) {
   const style = document.createElement('style');
   style.textContent = FPI_CSS;
@@ -111,6 +95,7 @@ export function render(root) {
   const likeSel = T.select([['ya', 'Ya'], ['tidak', 'Tidak']], 'tidak');
   const themeSel = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
   const delPhoto = T.el('<button type="button" class="fpi-delphoto">Hapus foto sendiri</button>');
   delPhoto.style.display = 'none';
   const preview = T.out();
@@ -126,6 +111,7 @@ export function render(root) {
     const dark = themeSel.value === 'gelap';
     const plat = selPlatform.value;
     const isIPh = plat === 'iphone';
+    brandField.style.display = (plat === 'android') ? '' : 'none';
     const uname = userInp.value.trim() || 'username';
     const loc = locInp.value.trim();
     const verified = verSel.value === 'ya';
@@ -164,14 +150,14 @@ export function render(root) {
     h += '</div>';
 
     preview.innerHTML = '<div class="fpi-dev"><div class="fpi-scr' + (dark ? ' dk' : '') + '">'
-      + fpiStatusBar(plat)
+      + '<div class="fpi-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>'
       + '<div class="fpi-card' + (dark ? ' dark' : '') + '">' + h + '</div>'
       + (isIPh ? '<div class="fpi-home"></div>' : '<div class="fpi-anav"><i></i></div>')
       + '</div></div>';
   }
 
   [userInp, locInp, capTa, likesInp, comInp, timeInp].forEach((elx) => elx.addEventListener('input', draw));
-  [verSel, gradSel, likeSel, themeSel, selPlatform].forEach((elx) => elx.addEventListener('change', draw));
+  [verSel, gradSel, likeSel, themeSel, selPlatform, selBrand].forEach((elx) => elx.addEventListener('change', draw));
 
   function contoh() {
     userInp.value = 'adip.rmx';
@@ -197,6 +183,8 @@ export function render(root) {
   root.appendChild(T.field('Caption', capTa));
   root.appendChild(T.grid2(T.field('Jumlah likes', likesInp), T.field('Jumlah komentar', comInp)));
   root.appendChild(T.grid2(T.field('Teks waktu', timeInp), T.field('Platform', selPlatform)));
+  const brandField = T.field('Merk HP', selBrand);
+  root.appendChild(brandField);
   root.appendChild(T.grid2(T.field('Tema', themeSel), T.field('Tampilkan sebagai disukai', likeSel)));
   root.appendChild(T.grid2(T.field('Upload foto sendiri', fiWrap), T.field('Atau pakai gradient', gradSel)));
   root.appendChild(T.row(

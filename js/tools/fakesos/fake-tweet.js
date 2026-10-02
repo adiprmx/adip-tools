@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {
   id: 'fake-tweet',
@@ -34,10 +34,6 @@ const ICO_LIKE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" st
 const ICO_VIEW = '<svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true"><rect x="1" y="11" width="3" height="6" rx="0.8"/><rect x="5.5" y="7.5" width="3" height="9.5" rx="0.8"/><rect x="10" y="4" width="3" height="13" rx="0.8"/><rect x="14.5" y="1" width="3" height="16" rx="0.8"/></svg>';
 const ICO_BM = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
 const ICO_SHARE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
-
-const ICO_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
-const ICO_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
-const ICO_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
 
 // Escape dulu, lalu warnai hashtag & mention ala X, lalu jaga baris baru.
 function richText(src) {
@@ -76,10 +72,6 @@ export function render(root) {
     '.ft-eright svg{display:block}' +
     '.ft-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
     '.ft-sb{position:relative;display:flex;justify-content:space-between;align-items:center;padding:18px 24px 14px;color:var(--ft-fg)}' +
-    '.ft-clock{font-size:14px;font-weight:600;letter-spacing:-.2px}' +
-    '.ft-sicons{display:flex;align-items:center;gap:5px}' +
-    '.ft-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;border-radius:18px;background:#000;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}' +
-    '.ft-punch{position:absolute;left:50%;top:17px;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:#000;box-shadow:0 0 0 2px rgba(255,255,255,.07)}' +
     '.ft-homebar{display:flex;justify-content:center;padding:9px 0 8px}' +
     '.ft-homebar span{width:134px;height:5px;border-radius:3px;background:var(--ft-fg);opacity:.85}' +
     '.ft-navpill{display:flex;justify-content:center;padding:10px 0 8px}' +
@@ -97,6 +89,7 @@ export function render(root) {
   const viewI = T.input('text', 'cth: 8,9 rb', '18 rb');
   const themeI = T.select([['terang', 'Terang'], ['redup', 'Redup'], ['gelap', 'Gelap']], 'gelap');
   const platI = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
 
   const fi = fileInput('image/*');
   let imgUrl = null;
@@ -119,6 +112,8 @@ export function render(root) {
   mrow.appendChild(T.field('Tayangan', viewI));
   ctl.appendChild(mrow);
   ctl.appendChild(T.field('Platform', platI));
+  const brandField = T.field('Merk HP', selBrand);
+  ctl.appendChild(brandField);
   ctl.appendChild(T.field('Tema', themeI));
   wrap.appendChild(ctl);
 
@@ -147,10 +142,9 @@ export function render(root) {
   function draw() {
     const th = THEMES[themeI.value] || THEMES.gelap;
     const isIPh = platI.value === 'iphone';
+    brandField.style.display = isIPh ? 'none' : '';
     const sbHtml =
-      '<div class="ft-sb"><span class="ft-clock">9:41</span>' +
-      (isIPh ? '<span class="ft-island"></span>' : '<span class="ft-punch"></span>') +
-      '<span class="ft-sicons">' + ICO_SIG + ICO_WIFI + ICO_BAT + '</span></div>';
+      '<div class="ft-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
     const navHtml = isIPh
       ? '<div class="ft-homebar"><span></span></div>'
       : '<div class="ft-navpill"><span></span></div>';
@@ -188,7 +182,7 @@ export function render(root) {
       navHtml;
   }
 
-  [nameI, handleI, verI, timeI, textI, repI, rtI, likeI, viewI, themeI, platI].forEach((elx) => {
+  [nameI, handleI, verI, timeI, textI, repI, rtI, likeI, viewI, themeI, platI, selBrand].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

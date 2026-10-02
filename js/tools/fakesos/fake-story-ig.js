@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {"id":"fake-story-ig","name":"Fake Story IG","cat":"fakesos","icon":"📱","desc":"Bikin screenshot Story Instagram palsu + unduh PNG.","keywords":"instagram,story,fake,palsu,screenshot,prank"};
 
@@ -28,11 +28,6 @@ export function render(root) {
     /* status bar */
     '.' + P + '-sb{position:absolute;top:0;left:0;right:0;z-index:8;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}' +
     '.' + P + '-sbrow{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 0}' +
-    '.' + P + '-clock{font-size:13px;font-weight:600;letter-spacing:.2px}' +
-    '.' + P + '-sicons{display:inline-flex;align-items:center;gap:6px}' +
-    '.' + P + '-sicons svg{width:16px;height:11px;display:block}' +
-    '.' + P + '-island{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:175px;height:28px;background:#000;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}' +
-    '.' + P + '-punch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:rgba(0,0,0,.92);box-shadow:inset 0 0 2px #2a4a68}' +
     /* progress bar segmen */
     '.' + P + '-prog{position:absolute;left:0;right:0;display:flex;gap:5px;padding:0 10px;z-index:7}' +
     '.' + P + '-seg{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35);overflow:hidden}' +
@@ -69,18 +64,13 @@ export function render(root) {
 
   const initial = (u) => (u || '?').trim().charAt(0).toUpperCase();
 
-  const SB_SIG = '<svg viewBox="0 0 18 12" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>';
-  const SB_WIFI = '<svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4.2 7a6.2 6.2 0 0 1 7.6 0"/><circle cx="8" cy="9.8" r="1.4" fill="currentColor" stroke="none"/></svg>';
-  const SB_BAT = '<svg viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="20" height="11" rx="3.2" stroke="currentColor" opacity=".55"/><rect x="2.4" y="2.4" width="14" height="7.2" rx="1.6" fill="currentColor"/><path d="M22.8 3.8v4.4a2.2 2.2 0 0 0 0-4.4z" fill="currentColor" opacity=".55"/></svg>';
-
   function draw() {
     const plat = selPlatform.value;
     const isIph = plat === 'iphone';
-    const sbChrome = isIph ? '<span class="' + P + '-island"></span>' : '<span class="' + P + '-punch"></span>';
+    brandField.style.display = plat === 'android' ? '' : 'none';
     const sbHtml =
-      '<div class="' + P + '-sb">' + sbChrome +
-        '<div class="' + P + '-sbrow"><span class="' + P + '-clock">9:41</span>' +
-        '<span class="' + P + '-sicons">' + SB_SIG + SB_WIFI + SB_BAT + '</span></div>' +
+      '<div class="' + P + '-sb">' +
+        '<div class="' + P + '-sbrow">' + T.sysbar(isIph ? 'iphone' : 'android', selBrand.value) + '</div>' +
       '</div>';
     const bgHtml = S.photo
       ? '<div class="' + P + '-bg"><img src="' + S.photo + '" alt=""></div>'
@@ -144,6 +134,9 @@ export function render(root) {
 
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   selPlatform.addEventListener('change', draw);
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
+  selBrand.addEventListener('change', draw);
+  const brandField = T.field('Merk HP', selBrand);
 
   const fi = fileInput('image/*');
   fi.onchange = () => {
@@ -175,6 +168,7 @@ export function render(root) {
     T.field('Foto background', T.row(btnUp, btnGrad)),
     T.field('Stiker link', chkLink),
     T.field('Platform', selPlatform),
+    brandField,
     T.row(btnEx, btnDl),
     stage,
     T.el('<p class="' + P + '-note">' + T.esc(LOCAL_NOTE) + '</p>')

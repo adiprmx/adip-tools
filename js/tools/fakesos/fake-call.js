@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {"id":"fake-call","name":"Fake Panggilan Masuk","cat":"fakesos","icon":"📞","desc":"Bikin screenshot layar panggilan masuk palsu + unduh PNG.","keywords":"telepon,call,panggilan,fake,palsu,screenshot,prank"};
 
@@ -15,19 +15,9 @@ export function render(root) {
     '.' + P + '-bg{position:absolute;inset:-40px;background-size:cover;background-position:center;filter:blur(42px) brightness(.45)}' +
     '.' + P + '-dim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,12,16,.22) 0%,rgba(8,12,16,.62) 100%)}' +
     '.' + P + '-ct{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}' +
-    // status bar android
-    '.' + P + '-sba{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 0;font-size:14px;font-weight:500}' +
-    '.' + P + '-punch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 3px 1px rgba(70,70,95,.9);z-index:2}' +
-    // status bar iphone + dynamic island
-    '.' + P + '-sbi{display:flex;align-items:center;justify-content:space-between;padding:17px 27px 0;font-size:15px;font-weight:600}' +
-    '.' + P + '-island{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:208px;height:28px;background:#000;border-radius:40px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.16);z-index:2}' +
-    '.' + P + '-sbic{display:flex;align-items:center;gap:7px}' +
-    '.' + P + '-sig{display:inline-flex;align-items:flex-end;gap:2.5px;height:12px}' +
-    '.' + P + '-sig i{width:3px;background:#fff;border-radius:1.5px;display:block}' +
-    '.' + P + '-wifi{display:inline-block;vertical-align:-1px}' +
-    '.' + P + '-batt{width:25px;height:12px;border:1px solid rgba(255,255,255,.5);border-radius:4px;position:relative;display:inline-block}' +
-    '.' + P + '-batt i{position:absolute;top:2px;left:2px;bottom:2px;background:#fff;border-radius:2px;display:block;width:70%}' +
-    '.' + P + '-batt:after{content:"";position:absolute;right:-4px;top:3.5px;width:2px;height:4px;background:rgba(255,255,255,.5);border-radius:0 2px 2px 0}' +
+    // status bar (isi via T.sysbar; island/punch absolute → container tetap relative)
+    '.' + P + '-sba{display:flex;align-items:center;justify-content:space-between;padding:14px 22px 0;font-size:14px;font-weight:500;position:relative;z-index:1}' +
+    '.' + P + '-sbi{display:flex;align-items:center;justify-content:space-between;padding:17px 27px 0;font-size:15px;font-weight:600;position:relative;z-index:1}' +
     // bottom chrome
     '.' + P + '-home{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:123px;height:4px;border-radius:3px;background:rgba(255,255,255,.88);z-index:2}' +
     '.' + P + '-navpill{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:104px;height:4px;border-radius:3px;background:rgba(255,255,255,.55);z-index:2}' +
@@ -66,18 +56,9 @@ export function render(root) {
 
   const initial = (s) => (s || '?').trim().charAt(0).toUpperCase();
 
-  function sbIcons() {
-    return '<span class="' + P + '-sbic">' +
-      '<span class="' + P + '-sig"><i style="height:4px"></i><i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i></span>' +
-      '<svg class="' + P + '-wifi" viewBox="0 0 16 13" width="16" height="13" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M1.8 4.6a9.2 9.2 0 0 1 12.4 0"/><path d="M4.4 7.4a5.6 5.6 0 0 1 7.2 0"/><circle cx="8" cy="10.4" r="1.15" fill="#fff" stroke="none"/></svg>' +
-      '<span class="' + P + '-batt"><i></i></span>' +
-    '</span>';
-  }
   function sb() {
-    if (S.platform === 'iphone') {
-      return '<div class="' + P + '-sbi"><span>9:41</span>' + sbIcons() + '</div><div class="' + P + '-island"></div>';
-    }
-    return '<div class="' + P + '-sba"><span>9:41</span>' + sbIcons() + '</div><div class="' + P + '-punch"></div>';
+    const isIPh = S.platform === 'iphone';
+    return '<div class="' + P + '-' + (isIPh ? 'sbi' : 'sba') + '">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
   }
   function bottomChrome() {
     return S.platform === 'iphone'
@@ -98,6 +79,7 @@ export function render(root) {
   }
 
   function draw() {
+    brandField.style.display = (S.platform === 'android') ? '' : 'none';
     let html = '';
     if (S.tipe === 'masuk') {
       const lbl = S.media === 'video' ? 'WhatsApp Video' : 'WhatsApp Audio';
@@ -139,6 +121,7 @@ export function render(root) {
   }
 
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], S.platform);
+  const selBrand = T.select([['xiaomi','Xiaomi'],['samsung','Samsung'],['vivo','Vivo'],['oppo','Oppo'],['pixel','Pixel / Stock']], 'xiaomi');
   const selTipe = T.select([['masuk', 'Panggilan masuk'], ['berlangsung', 'Panggilan berlangsung']], S.tipe);
   const selMedia = T.select([['audio', 'Audio'], ['video', 'Video']], S.media);
   const inNama = T.input('text', 'Nama kontak', S.nama);
@@ -149,7 +132,7 @@ export function render(root) {
     S.platform = selPlatform.value; S.tipe = selTipe.value;
     S.media = selMedia.value; S.nama = inNama.value;
   }
-  [selPlatform, selTipe, selMedia, inNama].forEach((elm) => {
+  [selPlatform, selBrand, selTipe, selMedia, inNama].forEach((elm) => {
     elm.addEventListener('input', () => { pull(); draw(); });
     elm.addEventListener('change', () => { pull(); draw(); });
   });
@@ -165,6 +148,8 @@ export function render(root) {
   const bDl = T.btn('⬇️ Unduh PNG', () => { if (frame) dlNodePng(frame, 'fake-call.png'); }, true);
 
   wrap.appendChild(T.field('Platform', selPlatform));
+  const brandField = T.field('Merk HP', selBrand);
+  wrap.appendChild(brandField);
   wrap.appendChild(T.field('Tipe panggilan', selTipe));
   wrap.appendChild(T.field('Audio / Video', selMedia));
   wrap.appendChild(T.field('Nama kontak', inNama));

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {
   id: 'fake-chat-wa',
@@ -36,9 +36,6 @@ const SVG_CALL = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentC
 const SVG_VID = '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>';
 const SVG_MORE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>';
 const SVG_MIC = '<svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>';
-const SVG_SIG = '<svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.7"/><rect x="4.5" y="5.5" width="3" height="6.5" rx="0.7"/><rect x="9" y="3" width="3" height="9" rx="0.7"/><rect x="13.5" y="0" width="3" height="12" rx="0.7"/></svg>';
-const SVG_WIFI = '<svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 13 0"/><path d="M4 6.8a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="9.6" r="1.3" fill="currentColor" stroke="none"/></svg>';
-const SVG_BAT = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.45"/><rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.45"/></svg>';
 const SVG_SMILEY = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9.2"/><path d="M8.2 14.2s1.4 2.1 3.8 2.1 3.8-2.1 3.8-2.1"/><line x1="9.2" y1="9.4" x2="9.2" y2="9.4"/><line x1="14.8" y1="9.4" x2="14.8" y2="9.4"/></svg>';
 const SVG_CLIP = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
 const SVG_CAMIN = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.6"/></svg>';
@@ -86,12 +83,6 @@ export function render(root) {
 /* ---- status bar (system chrome) ---- */
 .fcw-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 16px 0 22px;background:#F0F2F5;color:#111B21}
 .fcw-dark .fcw-sb{background:#1F2C34;color:#E9EDEF}
-.fcw-punch{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:#000;box-shadow:inset 0 0 2px 1px rgba(255,255,255,.18)}
-.fcw-clock{font-size:14px;font-weight:600;letter-spacing:.3px}
-.fcw-sicons{display:flex;align-items:center;gap:6px}
-.fcw-sb.fcw-sbios{height:46px;padding:0 24px 0 30px}
-.fcw-sb.fcw-sbios .fcw-clock{font-size:15px;font-weight:600}
-.fcw-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:118px;height:30px;border-radius:16px;background:#000;flex:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.14)}
 /* ---- header ---- */
 .fcw-hd{display:flex;align-items:center;height:60px;padding:0 8px 0 0;background:#F0F2F5}
 .fcw-dark .fcw-hd{background:#1F2C34}
@@ -168,6 +159,7 @@ export function render(root) {
   const inName = T.input('text', 'Nama kontak', 'Rizky');
   const inStatus = T.input('text', 'Status (online / last seen...)', 'online');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
   const selTheme = T.select([['light', 'Terang'], ['dark', 'Gelap']], 'light');
   const selChatTheme = T.select(Object.keys(CHAT_THEMES).map((k) => [k, CHAT_THEMES[k].label]), 'default');
   const selTicks = T.select([['blue', 'Dua biru (dibaca)'], ['2', 'Dua abu (diterima)'], ['1', 'Satu abu (terkirim)'], ['0', 'Tanpa centang']], 'blue');
@@ -190,6 +182,8 @@ export function render(root) {
   ctl.appendChild(T.field('Nama kontak', inName));
   ctl.appendChild(T.field('Status', inStatus));
   ctl.appendChild(T.field('Platform', selPlatform));
+  const brandField = T.field('Merk HP', selBrand);
+  ctl.appendChild(brandField);
   ctl.appendChild(T.field('Tema', selTheme));
   ctl.appendChild(T.field('Tema obrolan', selChatTheme));
   ctl.appendChild(T.field('Centang default (pesan keluar)', selTicks));
@@ -221,6 +215,7 @@ export function render(root) {
   function draw() {
     const dark = selTheme.value === 'dark';
     const isIPh = selPlatform.value === 'iphone';
+    brandField.style.display = isIPh ? 'none' : '';
     const name = inName.value.trim() || 'Kontak';
     const status = inStatus.value.trim() || 'online';
     const chipTxt = inChip.value.trim();
@@ -251,11 +246,7 @@ export function render(root) {
         '</div>';
     });
 
-    const sbHtml = isIPh
-      ? '<div class="fcw-sb fcw-sbios"><span class="fcw-clock">9:41</span><span class="fcw-island"></span>' +
-        '<span class="fcw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>'
-      : '<div class="fcw-sb"><span class="fcw-punch"></span><span class="fcw-clock">9:41</span>' +
-        '<span class="fcw-sicons">' + SVG_SIG + SVG_WIFI + SVG_BAT + '</span></div>';
+    const sbHtml = '<div class="fcw-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
 
     const hdHtml = isIPh
       ? '<div class="fcw-hd fcw-hdios"><button class="fcw-bkios" type="button" tabindex="-1">‹</button>' +
@@ -288,7 +279,7 @@ export function render(root) {
     phone.innerHTML = sbHtml + hdHtml + '<div class="fcw-chat">' + chatHtml + '</div>' + ibarHtml;
   }
 
-  [inName, inStatus, selPlatform, selTheme, selChatTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {
+  [inName, inStatus, selPlatform, selBrand, selTheme, selChatTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {
     el.addEventListener('input', draw);
     el.addEventListener('change', draw);
   });

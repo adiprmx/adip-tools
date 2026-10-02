@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {
   id: 'fake-imessage',
@@ -9,9 +9,6 @@ export const meta = {
   keywords: 'imessage,iphone,chat,fake,palsu,screenshot,prank',
 };
 
-const SIG_SVG = '<svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor" aria-hidden="true"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="4.8" width="3" height="6.2" rx="1"/><rect x="9" y="2.4" width="3" height="8.6" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>';
-const WIFI_SVG = '<svg width="16" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M8 10.6 5.9 8.5a3 3 0 0 1 4.2 0zM3.9 6.5a5.8 5.8 0 0 1 8.2 0L10.7 7.9a3.9 3.9 0 0 0-5.4 0zM1.2 3.8a9.6 9.6 0 0 1 13.6 0l-1.4 1.4a7.6 7.6 0 0 0-10.8 0z"/></svg>';
-const BAT_SVG = '<svg width="25" height="12" viewBox="0 0 25 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/><path d="M23.5 4v4a2.2 2.2 0 0 0 0-4z" fill="currentColor" opacity="0.4"/></svg>';
 const ICO_FT = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6.5" width="12.5" height="11" rx="3"/><path d="M14.5 10.5l7-3.5v10l-7-3.5"/></svg>';
 const ICO_PHONE = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
 const ICO_APP = '<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="13" fill="#0A84FF"/><path d="M14 7.5 18.5 21M14 7.5 9.5 21M11.2 16.2h5.6" stroke="#fff" stroke-width="2.1" stroke-linecap="round" fill="none"/></svg>';
@@ -52,10 +49,6 @@ export function render(root) {
       '--fi-bg:#FFFFFF;--fi-fg:#000000;--fi-inb:#E9E9EB;--fi-inf:#000000;--fi-pill:#FFFFFF;--fi-hair:#C6C6C8;--fi-tb:#E9E9EB;--fi-home:#000000}' +
     '.fi-phone[data-theme="gelap"]{--fi-bg:#000000;--fi-fg:#FFFFFF;--fi-inb:#26262B;--fi-inf:#FFFFFF;--fi-pill:#1C1C1E;--fi-hair:#38383A;--fi-tb:#3A3A3C;--fi-home:#FFFFFF}' +
     '.fi-status{position:relative;display:flex;align-items:center;justify-content:space-between;padding:18px 26px 16px}' +
-    '.fi-time{font-size:14px;font-weight:600;letter-spacing:-0.2px}' +
-    '.fi-island{position:absolute;left:50%;top:11px;transform:translateX(-50%);width:122px;height:36px;background:#000;border-radius:18px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12)}' +
-    '.fi-punch{position:absolute;left:50%;top:17px;transform:translateX(-50%);width:12px;height:12px;background:#000;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.07)}' +
-    '.fi-sicons{display:flex;align-items:center;gap:6px}' +
     '.fi-head{display:flex;align-items:center;justify-content:space-between;padding:4px 12px 8px;position:relative}' +
     '.fi-back{color:#0A84FF;font-size:30px;line-height:1;display:flex;align-items:center;gap:3px;font-weight:400}' +
     '.fi-bcount{min-width:20px;height:20px;border-radius:10px;background:#0A84FF;color:#fff;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}' +
@@ -109,6 +102,7 @@ export function render(root) {
     'A: bro nanti jadi kan?\nB: jadi dong, jam 7 gue berangkat\nB|love: makasih ya udah dijemput\nA: aman, santai aja');
   const themeI = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'iphone');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
 
   const ctl = T.el('<div class="fi-ctl"></div>');
   ctl.appendChild(T.field('Nama kontak', nameI));
@@ -117,6 +111,8 @@ export function render(root) {
   ctl.appendChild(T.field('Status kirim', statI, 'Muncul di bawah bubble keluar terakhir'));
   ctl.appendChild(T.field('Isi chat', chatI, 'Format: A: … = bubble kiri (masuk), B: … = bubble kanan (keluar). Tambah |love → tapback ❤️'));
   ctl.appendChild(T.field('Platform', selPlatform));
+  const brandField = T.field('Merk HP', selBrand);
+  ctl.appendChild(brandField);
   ctl.appendChild(T.field('Tema', themeI));
   wrap.appendChild(ctl);
 
@@ -147,6 +143,7 @@ export function render(root) {
   function draw() {
     phone.setAttribute('data-theme', themeI.value === 'gelap' ? 'gelap' : 'terang');
     const isIPh = selPlatform.value === 'iphone';
+    brandField.style.display = isIPh ? 'none' : '';
     const cname = nameI.value.trim() || 'Kontak';
     const badgeN = parseInt(badgeI.value, 10);
     const badgeHtml = badgeN > 0 ? '<span class="fi-bcount">' + badgeN + '</span>' : '';
@@ -155,9 +152,7 @@ export function render(root) {
     const cinitial = T.esc(cname.trim().charAt(0).toUpperCase() || '?');
 
     let html = '<div class="fi-status">' +
-      '<span class="fi-time">9:41</span>' +
-      (isIPh ? '<span class="fi-island"></span>' : '<span class="fi-punch"></span>') +
-      '<span class="fi-sicons">' + SIG_SVG + WIFI_SVG + BAT_SVG + '</span></div>';
+      T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
 
     html += '<div class="fi-head">' +
       '<span class="fi-back">‹' + badgeHtml + '</span>' +
@@ -202,7 +197,7 @@ export function render(root) {
     phone.innerHTML = html;
   }
 
-  [nameI, divI, badgeI, statI, chatI, selPlatform, themeI].forEach((elx) => {
+  [nameI, divI, badgeI, statI, chatI, selPlatform, selBrand, themeI].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

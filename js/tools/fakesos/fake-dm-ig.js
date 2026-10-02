@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.1';
 
 export const meta = {"id":"fake-dm-ig","name":"Fake DM Instagram","cat":"fakesos","icon":"📩","desc":"Bikin screenshot DM Instagram palsu + unduh PNG.","keywords":"instagram,dm,chat,fake,palsu,screenshot,prank,android,iphone"};
 
@@ -13,20 +13,12 @@ const FDM_IC = {
   cam: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
 };
 const FDM_BACK_AND = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
-const FDM_SB = {
-  signal: '<svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="0.8"/><rect x="4.3" y="5.5" width="3" height="6.5" rx="0.8"/><rect x="8.6" y="3" width="3" height="9" rx="0.8"/><rect x="12.9" y="0.5" width="3" height="11.5" rx="0.8"/></svg>',
-  wifi: '<svg width="15" height="11" viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M1.5 4.5a10 10 0 0 1 13 0"/><path d="M4 7.2a6.4 6.4 0 0 1 8 0"/><circle cx="8" cy="10" r="1.3" fill="currentColor" stroke="none"/></svg>',
-  batt: '<svg width="23" height="11" viewBox="0 0 24 12" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="currentColor" stroke-width="1.2" opacity="0.45"/><rect x="2.6" y="2.6" width="14" height="6.8" rx="1.2" fill="currentColor"/><rect x="22" y="3.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.45"/></svg>'
-};
 
 const FDM_CSS = `
 .fdm-wrap{max-width:380px;margin:12px auto;background:#fff;color:#111;border:1px solid #dbdbdb;border-radius:20px;overflow:hidden;font-family:${FDM_FONT};font-size:14px;line-height:1.4}
 .fdm-wrap.dark{background:#000;color:#f5f5f5;border-color:#2b2b2b}
-.fdm-status{display:flex;justify-content:space-between;align-items:center;padding:12px 18px 2px;font-size:15px;font-weight:600}
+.fdm-status{position:relative;display:flex;justify-content:space-between;align-items:center;padding:12px 18px 2px;font-size:15px;font-weight:600}
 .fdm-status.ios{padding:11px 22px 2px}
-.fdm-island{width:118px;height:30px;border-radius:20px;background:#000;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
-.fdm-punch{width:11px;height:11px;border-radius:50%;background:#0a0a0a;flex:none;box-shadow:inset 0 0 3px #274a6e}
-.fdm-wrap.dark .fdm-punch{background:#000;box-shadow:inset 0 0 3px #2c4e78,0 0 0 1px #1e1e1e}
 .fdm-back svg{width:26px;height:26px;display:block}
 .fdm-home{display:flex;justify-content:center;padding:6px 0 8px}
 .fdm-home i{display:block;width:134px;height:5px;border-radius:3px;background:#000}
@@ -34,7 +26,6 @@ const FDM_CSS = `
 .fdm-anav{display:flex;justify-content:center;padding:6px 0 8px}
 .fdm-anav i{display:block;width:120px;height:4px;border-radius:2px;background:#111}
 .fdm-wrap.dark .fdm-anav i{background:#f5f5f5}
-.fdm-sicons{display:flex;align-items:center;gap:6px}
 .fdm-head{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 10px;border-bottom:1px solid #efefef}
 .fdm-wrap.dark .fdm-head{border-bottom-color:#262626}
 .fdm-back{font-size:30px;line-height:1;font-weight:300;padding:0 2px}
@@ -99,6 +90,7 @@ export function render(root) {
   const fiA = fileInput('image/*');
   const fiB = fileInput('image/*');
   const platSel = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
+  const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['vivo', 'Vivo'], ['oppo', 'Oppo'], ['pixel', 'Pixel / Stock']], 'xiaomi');
   const themeSel = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
   const divInp = T.input('text', 'cth: Today', 'Today');
   const chatTa = T.ta(8, 'A: halo\nB|seen: halo juga', '');
@@ -110,15 +102,14 @@ export function render(root) {
   function draw() {
     const dark = themeSel.value === 'gelap';
     const isIPh = platSel.value === 'iphone';
+    brandField.style.display = (platSel.value === 'android') ? '' : 'none';
     const unameA = userA.value.trim() || 'username';
     const msgs = fdmParse(chatTa.value);
     let seenIdx = -1;
     msgs.forEach((m, i) => { if (m.who === 'B' && m.seen) seenIdx = i; });
 
     let h = '';
-    h += '<div class="fdm-status' + (isIPh ? ' ios' : '') + '"><span>09:41</span>'
-      + (isIPh ? '<span class="fdm-island"></span>' : '<span class="fdm-punch"></span>')
-      + '<span class="fdm-sicons">' + FDM_SB.signal + FDM_SB.wifi + FDM_SB.batt + '</span></div>';
+    h += '<div class="fdm-status' + (isIPh ? ' ios' : '') + '">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value) + '</div>';
     h += '<div class="fdm-head">'
       + (isIPh ? '<span class="fdm-back">‹</span>' : '<span class="fdm-back">' + FDM_BACK_AND + '</span>')
       + fdmAva(avaA, 34)
@@ -162,7 +153,7 @@ export function render(root) {
     preview.innerHTML = '<div class="fdm-wrap' + (dark ? ' dark' : '') + '">' + h + '</div>';
   }
 
-  [userA, userB, platSel, themeSel, divInp, chatTa].forEach((elx) => { elx.addEventListener('input', draw); elx.addEventListener('change', draw); });
+  [userA, userB, platSel, selBrand, themeSel, divInp, chatTa].forEach((elx) => { elx.addEventListener('input', draw); elx.addEventListener('change', draw); });
 
   function contoh() {
     userA.value = 'rinaa.prm';
@@ -177,6 +168,8 @@ export function render(root) {
   root.appendChild(T.grid2(T.field('Username lawan', userA), T.field('Username sendiri', userB)));
   root.appendChild(T.grid2(T.field('Avatar lawan', fiA), T.field('Avatar sendiri', fiB)));
   root.appendChild(T.grid2(T.field('Platform', platSel), T.field('Tema', themeSel)));
+  const brandField = T.field('Merk HP', selBrand);
+  root.appendChild(brandField);
   root.appendChild(T.field('Teks pembatas tanggal', divInp));
   root.appendChild(T.field('Percakapan', chatTa, 'Format: A: pesan (lawan, kiri) / B: pesan (sendiri, kanan). Tambah |like untuk ❤️, |seen di baris B terakhir untuk tanda dibaca.'));
   root.appendChild(T.row(
