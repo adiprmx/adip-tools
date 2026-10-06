@@ -18,7 +18,7 @@
    - Kontrak: tool = 1 file; tool dilarang import tool lain;
      fungsi bersama -> core.js; manifest.js generated (jangan edit manual).
    ============================================================ */
-import { manifest, VERSION } from './manifest.js?v=6.9.10';
+import { manifest, VERSION } from './manifest.js?v=6.9.11';
 import * as T from './core.js?v=6.9.5';
 
 const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';

@@ -1,8 +1,8 @@
-/* ADIP Tools v6.9.10 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.9.11 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.9.10';
+export const VERSION = '6.9.11';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"beli-vs-sewa","name":"Beli vs Sewa","cat":"bisnis","icon":"⚖️","desc":"Bandingkan total biaya beli vs sewa + titik impasnya.","keywords":"beli,sewa,break even,impas,perbandingan,biaya","file":"tools/bisnis/beli-vs-sewa.js"},
@@ -341,4 +341,12 @@ export const manifest = [
   {"id":"wa-formatter","name":"WA Text Formatter","cat":"teks","icon":"✍️","desc":"Teks biasa jadi format WhatsApp.","keywords":"whatsapp,wa,format,teks,bold","file":"tools/teks/wa-formatter.js"},
   {"id":"word-counter","name":"Penghitung Kata","cat":"teks","icon":"🔡","desc":"Kata, karakter, estimasi baca.","keywords":"kata,hitung,karakter,skripsi","file":"tools/teks/word-counter.js"},
   {"id":"zalgo","name":"Zalgo Text","cat":"teks","icon":"🌀","desc":"Teks rusak ala zalgo.","keywords":"zalgo,rusak,teks,lucu","file":"tools/teks/zalgo.js"},
+  {"id":"tebak-nama","name":"Tebak Profil Nama","cat":"liveapi","icon":"🔮","desc":"Tebak perkiraan usia, gender, dan asal negara dari sebuah nama.","keywords":"nama,tebak,umur,usia,gender,jenis kelamin,negara,asal","file":"tools/liveapi/tebak-nama.js"},
+  {"id":"info-makanan","name":"Info Makanan Kemasan","cat":"liveapi","icon":"🍫","desc":"Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.","keywords":"makanan,barcode,nutrisi,gizi,kalori,kemasan,openfoodfacts,skor","file":"tools/liveapi/info-makanan.js"},
+  {"id":"pokemon-viewer","name":"Pokemon Viewer","cat":"liveapi","icon":"⚡","desc":"Lihat sprite, tipe, dan kemampuan Pokemon dari PokeAPI.","keywords":"pokemon,pokeapi,sprite,pikachu,tipe,kemampuan,game","file":"tools/liveapi/pokemon-viewer.js"},
+  {"id":"galeri-seni","name":"Galeri Seni Dunia","cat":"liveapi","icon":"🖼️","desc":"Jelajahi karya seni acak dari Art Institute of Chicago.","keywords":"seni,galeri,lukisan,museum,art,acak,karya,chicago","file":"tools/liveapi/galeri-seni.js"},
+  {"id":"apod-harian","name":"Foto Antariksa Harian","cat":"liveapi","icon":"🪐","desc":"Foto astronomi harian resmi dari NASA (APOD).","keywords":"nasa,apod,antariksa,astronomi,foto,planet,luar angkasa","file":"tools/liveapi/apod-harian.js"},
+  {"id":"cari-buku","name":"Pencari Buku","cat":"liveapi","icon":"📚","desc":"Cari jutaan buku dari Open Library berdasarkan judul atau penulis.","keywords":"buku,cari,open library,judul,penulis,cover,isbn","file":"tools/liveapi/cari-buku.js"},
+  {"id":"fakta-kucing","name":"Fakta Kucing","cat":"liveapi","icon":"🐱","desc":"Fakta acak tentang kucing dalam bahasa Inggris asli.","keywords":"kucing,fakta,cat,fun,random","file":"tools/liveapi/fakta-kucing.js"},
+  {"id":"saran-random","name":"Saran Acak","cat":"liveapi","icon":"💡","desc":"Kata-kata bijak & saran acak dari Advice Slip.","keywords":"saran,nasehat,kata bijak,motivasi,advice,random","file":"tools/liveapi/saran-random.js"},
 ];
