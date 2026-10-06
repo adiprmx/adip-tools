@@ -1,8 +1,8 @@
-/* ADIP Tools v6.9.11 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.9.12 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.9.11';
+export const VERSION = '6.9.12';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"beli-vs-sewa","name":"Beli vs Sewa","cat":"bisnis","icon":"⚖️","desc":"Bandingkan total biaya beli vs sewa + titik impasnya.","keywords":"beli,sewa,break even,impas,perbandingan,biaya","file":"tools/bisnis/beli-vs-sewa.js"},
@@ -261,6 +261,13 @@ export const manifest = [
   {"id":"ukuran-file-audio","name":"Ukuran File Audio","cat":"musik","icon":"🎵","desc":"Bitrate × durasi jadi ukuran file, atau sebaliknya.","keywords":"ukuran file,audio,bitrate,mp3,wav,flac,mb,durasi,kbps","file":"tools/musik/ukuran-file-audio.js"},
   {"id":"waktu-delay-bpm","name":"Delay/Reverb Time dari BPM","cat":"musik","icon":"🎛️","desc":"Waktu delay & reverb yang nempel sama BPM.","keywords":"delay,reverb,bpm,waktu,ms,daw,tempo,musik,echo","file":"tools/musik/waktu-delay-bpm.js"},
   {"id":"white-noise","name":"White Noise","cat":"musik","icon":"🌧️","desc":"Suara fokus & tidur.","keywords":"noise,tidur,fokus,suara,hujan","file":"tools/musik/white-noise.js"},
+  {"id":"tuner-gitar","name":"Tuner Gitar","cat":"musik","icon":"🎸","desc":"Stem gitar via mic dengan deteksi nada real-time.","keywords":"tuner,gitar,stem,nada,mic,akord","file":"tools/musik/tuner-gitar.js"},
+  {"id":"diagram-chord","name":"Diagram Chord Gitar","cat":"musik","icon":"🎶","desc":"Lihat posisi jari tiap chord gitar + bunyikan.","keywords":"chord,gitar,diagram,kunci,jari,akord","file":"tools/musik/diagram-chord.js"},
+  {"id":"tebak-chord","name":"Tebak Chord dari Nada","cat":"musik","icon":"🔍","desc":"Masukkan nada → ketahui nama chord-nya.","keywords":"chord,nada,tebak,kunci,musik,not","file":"tools/musik/tebak-chord.js"},
+  {"id":"setlist-dj","name":"Perencana Setlist DJ","cat":"musik","icon":"🎧","desc":"Susun setlist dengan saran alur Camelot.","keywords":"setlist,dj,camelot,key,set,urutan","file":"tools/musik/setlist-dj.js"},
+  {"id":"kurva-energi","name":"Kurva Energi Set","cat":"musik","icon":"📈","desc":"Visualisasi alur energi set DJ-mu.","keywords":"energi,set,dj,kurva,flow,peak","file":"tools/musik/kurva-energi.js"},
+  {"id":"chop-sample","name":"Kalkulator Chop Sample","cat":"musik","icon":"✂️","desc":"Hitung durasi chop sample & konversi ke beat.","keywords":"chop,sample,produser,daw,beat,ms","file":"tools/musik/chop-sample.js"},
+  {"id":"ritme-euclidean","name":"Generator Ritme Euclidean","cat":"musik","icon":"🥁","desc":"Pola ritme algoritmik + preview suara.","keywords":"euclidean,ritme,pola,drum,algoritma,bjorklund","file":"tools/musik/ritme-euclidean.js"},
   {"id":"bangun-datar","name":"Rumus Bangun Datar & Ruang","cat":"pelajar","icon":"📐","desc":"Hitung luas, keliling & volume lengkap dengan rumusnya.","keywords":"bangun datar,bangun ruang,luas,keliling,volume,rumus,matematika,geometri,persegi,lingkaran,kubus","file":"tools/pelajar/bangun-datar.js"},
   {"id":"citation","name":"Citation Generator","cat":"pelajar","icon":"📚","desc":"Daftar pustaka APA & MLA.","keywords":"citation,sitasi,skripsi,daftar,pustaka","file":"tools/pelajar/citation.js"},
   {"id":"estimasi-skor-toefl","name":"Estimasi TOEFL","cat":"pelajar","icon":"🎓","desc":"Perkirakan skor TOEFL dari nilai latihan listening, structure, reading.","keywords":"toefl,skor,estimasi,itp,listening,structure,reading,tes bahasa inggris,latihan","file":"tools/pelajar/estimasi-skor-toefl.js"},
