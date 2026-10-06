@@ -1,8 +1,8 @@
-/* ADIP Tools v6.9.8 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.9.9 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.9.8';
+export const VERSION = '6.9.9';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -304,6 +304,14 @@ export const manifest = [
   {"id": "konversi-kecepatan-internet", "name": "Kecepatan Internet", "cat": "converter", "icon": "🌐", "desc": "Konversi Mbps ↔ MB/s dan satuan kecepatan internet.", "keywords": "internet,kecepatan,mbps,mb/s,bandwidth,download,konversi", "file": "tools/converter/konversi-kecepatan-internet.js"},
   {"id": "konversi-kecepatan", "name": "Konversi Kecepatan", "cat": "converter", "icon": "💨", "desc": "Konversi km/jam ↔ m/s ↔ mph ↔ knot.", "keywords": "kecepatan,km/jam,ms,mph,knot,konversi,lari,berkendara", "file": "tools/converter/konversi-kecepatan.js"},
   {"id": "info-hari-ini", "name": "Info Hari Ini", "cat": "liveapi", "icon": "📅", "desc": "Info tanggal hari ini — 100% dihitung lokal di HP-mu.", "keywords": "tanggal,hari ini,kalender,hari ke,lokal,offline,pekan", "file": "tools/liveapi/info-hari-ini.js"},
+  {"id":"ip-saya","name":"IP & Lokasi Saya","cat":"liveapi","icon":"🌐","desc":"Cek alamat IP publik & perkiraan lokasimu.","keywords":"ip,lokasi,saya,alamat,isp,internet","file":"tools/liveapi/ip-saya.js"},
+  {"id":"hari-libur","name":"Hari Libur Indonesia","cat":"liveapi","icon":"📅","desc":"Daftar hari libur nasional Indonesia per tahun.","keywords":"hari,libur,nasional,tanggal,merah,indonesia","file":"tools/liveapi/hari-libur.js"},
+  {"id":"github-profile","name":"Profil GitHub","cat":"liveapi","icon":"🐙","desc":"Lihat profil GitHub siapapun: avatar, bio, followers, repo.","keywords":"github,profil,username,avatar,followers,repo,developer","file":"tools/liveapi/github-profile.js"},
+  {"id":"quotes-random","name":"Quotes Acak","cat":"liveapi","icon":"💬","desc":"Dapatkan quotes inspiratif acak setiap kali dibuka.","keywords":"quotes,kutipan,acak,inspirasi,motivasi,random,quote","file":"tools/liveapi/quotes-random.js"},
+  {"id":"penerjemah","name":"Penerjemah","cat":"liveapi","icon":"🌏","desc":"Terjemahkan teks Indonesia↔Inggris secara instan.","keywords":"terjemah,translate,inggris,indonesia,bahasa","file":"tools/liveapi/penerjemah.js"},
+  {"id":"anjing-random","name":"Anjing Random","cat":"liveapi","icon":"🐶","desc":"Foto anjing acak dari seluruh dunia.","keywords":"anjing,dog,puppy,hewan,random,foto","file":"tools/liveapi/anjing-random.js"},
+  {"id":"kualitas-udara","name":"Kualitas Udara","cat":"liveapi","icon":"🌫️","desc":"Indeks kualitas udara (AQI), PM2.5 & PM10 kota pilihan.","keywords":"kualitas,udara,aqi,polusi,pm2.5,pm10,polutan,sehat,indeks","file":"tools/liveapi/kualitas-udara.js"},
+  {"id":"harga-crypto","name":"Harga Crypto","cat":"liveapi","icon":"🪙","desc":"Harga crypto live (IDR & USD) + perubahan 24 jam.","keywords":"crypto,harga,bitcoin,ethereum,solana,bnb,dogecoin,idr,usd","file":"tools/liveapi/harga-crypto.js"},
   {"id": "frekuensi-nada", "name": "Frekuensi Nada", "cat": "musik", "icon": "🎵", "desc": "Hitung frekuensi Hz dari nama nada + dengarkan.", "keywords": "frekuensi,nada,hz,audio,tuning,musik,oktaf,440", "file": "tools/musik/frekuensi-nada.js"},
   {"id": "kuis-phising", "name": "Kuis Phising", "cat": "keamanan", "icon": "🎣", "desc": "Uji kemampuanmu membedakan email asli vs phising.", "keywords": "phising,phishing,kuis,email,keamanan,edukasi", "file": "tools/keamanan/kuis-phising.js"},
   {"id": "fake-chat-wa", "name": "Fake Chat WA", "cat": "fakesos", "icon": "💬", "desc": "Bikin screenshot chat WhatsApp palsu + unduh PNG.", "keywords": "whatsapp,chat,fake,palsu,screenshot,prank", "file": "tools/fakesos/fake-chat-wa.js"},
