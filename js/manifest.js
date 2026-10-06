@@ -1,8 +1,8 @@
-/* ADIP Tools v6.9.7 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.9.8 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.9.7';
+export const VERSION = '6.9.8';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"cat-tembok","name":"Kalkulator Cat","cat":"bisnis","icon":"🪣","desc":"Kebutuhan cat dari luas ruangan.","keywords":"cat,tembok,dinding,ruangan,renovasi","file":"tools/bisnis/cat-tembok.js"},
@@ -316,4 +316,16 @@ export const manifest = [
   {"id": "fake-imessage", "name": "Fake iMessage", "cat": "fakesos", "icon": "💙", "desc": "Bikin screenshot chat iMessage palsu + unduh PNG.", "keywords": "imessage,iphone,chat,fake,palsu,screenshot,prank", "file": "tools/fakesos/fake-imessage.js"},
   {"id": "fake-notif-hp", "name": "Fake Notifikasi HP", "cat": "fakesos", "icon": "🔔", "desc": "Bikin screenshot notifikasi HP palsu + unduh PNG.", "keywords": "notifikasi,notification,fake,palsu,screenshot,prank", "file": "tools/fakesos/fake-notif-hp.js"},
   {"id": "fake-call", "name": "Fake Panggilan Masuk", "cat": "fakesos", "icon": "📞", "desc": "Bikin screenshot layar panggilan masuk palsu + unduh PNG.", "keywords": "telepon,call,panggilan,fake,palsu,screenshot,prank", "file": "tools/fakesos/fake-call.js"},
+  {"id": "mdr-qris", "name": "Kalkulator Biaya QRIS", "cat": "indonesia", "icon": "💳", "desc": "Hitung potongan MDR QRIS per jenis merchant.", "keywords": "qris,mdr,biaya,potongan,merchant", "file": "tools/indonesia/mdr-qris.js"},
+  {"id": "hitung-waris", "name": "Kalkulator Waris Islam", "cat": "indonesia", "icon": "🕌", "desc": "Simulasi pembagian waris (faraidh) sederhana.", "keywords": "waris,islam,faraidh,harta,ahli waris", "file": "tools/indonesia/hitung-waris.js"},
+  {"id": "hitung-lembur", "name": "Kalkulator Upah Lembur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur (aturan 1,5x & 2x).", "keywords": "lembur,upah,gaji,kerja,kemenaker", "file": "tools/indonesia/hitung-lembur.js"},
+  {"id": "packing-travel", "name": "Checklist Packing Traveling", "cat": "sehari", "icon": "🧳", "desc": "Daftar bawaan traveling, tersimpan otomatis.", "keywords": "packing,traveling,checklist,koper,liburan", "file": "tools/sehari/packing-travel.js"},
+  {"id": "prompt-ai", "name": "Generator Prompt AI", "cat": "developer", "icon": "🤖", "desc": "Susun prompt AI yang rapi dari template.", "keywords": "prompt,ai,chatgpt,template,generator", "file": "tools/developer/prompt-ai.js"},
+  {"id": "ucapan-generator", "name": "Generator Ucapan", "cat": "teks", "icon": "💌", "desc": "Bikin ucapan Lebaran, nikah, ultah, dan lainnya.", "keywords": "ucapan,lebaran,nikah,ultah,kartu,selamat", "file": "tools/teks/ucapan-generator.js"},
+  {"id": "nama-brand", "name": "Generator Nama Brand", "cat": "bisnis", "icon": "🏷️", "desc": "Racik kata jadi nama brand yang catchy.", "keywords": "brand,nama,bisnis,usaha,merk", "file": "tools/bisnis/nama-brand.js"},
+  {"id": "acak-grup", "name": "Pembagi Grup Acak", "cat": "fun", "icon": "👥", "desc": "Bagi daftar nama jadi beberapa grup acak.", "keywords": "grup,acak,kelompok,bagi,random", "file": "tools/fun/acak-grup.js"},
+  {"id": "denda-pajak", "name": "Kalkulator Denda Pajak", "cat": "bisnis", "icon": "🧾", "desc": "Estimasi denda telat lapor & bayar pajak.", "keywords": "pajak,denda,spt,telat", "file": "tools/bisnis/denda-pajak.js"},
+  {"id": "bep-umkm", "name": "Kalkulator BEP UMKM", "cat": "bisnis", "icon": "📊", "desc": "Hitung titik impas: berapa unit & rupiah.", "keywords": "bep,impas,umkm,usaha,modal", "file": "tools/bisnis/bep-umkm.js"},
+  {"id": "tes-buta-warna", "name": "Tes Buta Warna", "cat": "sehari", "icon": "👁️", "desc": "Tes Ishihara sederhana lewat gambar.", "keywords": "buta warna,ishihara,mata,tes", "file": "tools/sehari/tes-buta-warna.js"},
+  {"id": "jadwal-piket-harian", "name": "Generator Jadwal Piket", "cat": "produktivitas", "icon": "🗓️", "desc": "Susun jadwal piket harian otomatis.", "keywords": "piket,jadwal,giliran,kelas,kantor", "file": "tools/produktivitas/jadwal-piket-harian.js"},
 ];
