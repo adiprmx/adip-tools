@@ -499,6 +499,8 @@ async function fetchProxied(url, {timeout = 15000} = {}) {
     const r = await tFetch(PROXY_W(url), {timeout});
     const h = {};
     const blob = r.headers.get('cors-received-headers');
+    // Simpan mentah juga di key-nya sendiri — modul cookies butuh blob aslinya.
+    if (blob) h['cors-received-headers'] = blob;
     if (blob) { try { const j = JSON.parse(blob); for (const k in j) h[String(k).toLowerCase()] = String(j[k]); } catch (e) {} }
     for (const k of ['content-security-policy','strict-transport-security','x-frame-options','x-content-type-options','referrer-policy','permissions-policy','server','x-powered-by','content-type','location']) {
       if (!h[k]) { const v = r.headers.get(k); if (v) h[k] = v; }
