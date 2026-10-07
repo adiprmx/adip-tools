@@ -2,14 +2,14 @@
  * Cara kerja: homepage target diambil via proxy CORS (test.cors.workers.dev,
  * fallback allorigins), DNS/email via DoH dns.google, umur domain via RDAP,
  * subdomain + info sertifikat via crt.sh, arsip via web.archive.org.
- * 16 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
+ * 25 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
  * diakali dari browser (hsts-preload: API menolak CORS; TLS: browser tidak
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
 import { h as T, utils } from '../../core.js?v=6.9.5';
 
-export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 16 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
+export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
 const DOH = 'https://dns.google/resolve';
 const PROXY_W = (u) => 'https://test.cors.workers.dev/?' + encodeURIComponent(u);
@@ -204,6 +204,7 @@ export function headersFindings(h, isHttps) {
     remediation:'Tambahkan Strict-Transport-Security: max-age=31536000; includeSubDomains.', evidence:''});
   const csp = h['content-security-policy'] || '';
   if (has('content-security-policy')) {
+    f.push(...cspDeepFindings(csp));
     if (!/report-uri|report-to/i.test(csp)) f.push({module:'headers', severity:'info',
       title:'CSP tanpa pelaporan',
       description:'CSP aktif tapi tanpa report-uri/report-to — pelanggaran kebijakan tidak terpantau.',
@@ -215,6 +216,7 @@ export function headersFindings(h, isHttps) {
       impact:'Subresource via HTTP tetap bisa dimuat — membuka celah mixed content.',
       remediation:"Tambahkan directive 'upgrade-insecure-requests' ke CSP.", evidence:''});
   }
+  if (has('strict-transport-security')) f.push(...hstsDeepFindings(h['strict-transport-security']));
   if (!has('x-frame-options') && !/frame-ancestors/i.test(csp)) f.push({module:'headers', severity:'medium',
     title:'Proteksi clickjacking tidak ada',
     description:'Tidak ada X-Frame-Options maupun frame-ancestors di CSP — halaman bisa di-embed di iframe situs lain.',
@@ -277,6 +279,7 @@ export function cookiesFindings(setCookies, isHttps) {
     description:'Mengandalkan default browser.',
     impact:'Risiko CSRF kecil pada browser lama; browser modern default ke Lax.',
     remediation:'Set eksplisit SameSite=Lax.', evidence:noSameSite.join(', ')});
+  f.push(...cookiePrefixFindings(setCookies));
   return f;
 }
 
@@ -290,11 +293,19 @@ export function parseRobots(text) {
   return {disallows, sensitive};
 }
 export function findMixed(html) {
-  const out = new Set();
-  const re = /(?:src|href)\s*=\s*["'](http:\/\/[^"']+)["']/gi;
+  const out = new Map(); // url -> active(bool)
+  const re = /<(script|iframe|link|embed|object|img|audio|video|source|track)\b[^>]*>/gi;
   let m;
-  while ((m = re.exec(html || ''))) out.add(m[1].slice(0, 120));
-  return [...out].slice(0, 20);
+  while ((m = re.exec(html || ''))) {
+    const tag = m[0], name = m[1].toLowerCase();
+    const isLinkCss = name === 'link' && /rel\s*=\s*["']stylesheet["']/i.test(tag);
+    const active = name === 'script' || name === 'iframe' || name === 'embed' || name === 'object' || isLinkCss;
+    const am = /(?:src|href)\s*=\s*["'](http:\/\/[^"']+)["']/i.exec(tag);
+    if (!am) continue;
+    const url = am[1].slice(0, 120);
+    if (!out.has(url) || active) out.set(url, active);
+  }
+  return [...out.entries()].slice(0, 20).map(([url, active]) => ({url, active}));
 }
 const TECH_SIGS = [
   {name:'WordPress', res:[/wp-content\//i, /wp-includes\//i], ver:/\/wp-includes\/js\/[^"']*?(\d+\.\d+)/i},
@@ -303,7 +314,7 @@ const TECH_SIGS = [
   {name:'Django', res:[/csrftoken/i, /django/i]},
   {name:'React', res:[/react-dom/i, /data-reactroot/i]},
   {name:'Vue', res:[/vue\.js/i, /data-v-[a-f0-9]+/i]},
-  {name:'jQuery', res:[/jquery/i]},
+  {name:'jQuery', res:[/jquery/i], ver:/jquery[.-](\d+\.\d+\.\d+)/i},
   {name:'Cloudflare', res:[], header:'server', hres:/cloudflare/i},
 ];
 export function detectTech(html, headers) {
@@ -357,7 +368,7 @@ export function scanSecretsInText(text, fileLabel) {
  * null = temuan negatif/info-kosong (tidak perlu blok attacker).
  * Penjelasan konseptual saja — bukan tutorial eksploitasi.
  */
-const ATTACKER_NEG_RE = /^\s*tidak (ada|dapat|ditemukan|terdeteksi)/i;
+const ATTACKER_NEG_RE = /^\s*(tidak (ada|dapat|ditemukan|terdeteksi)|bukan )/i;
 // {mod, re, technique, tools, how} — re:null = fallback generik per module.
 const ATTACKER_TABLE = [
   {mod:'headers', re:/content-security-policy/i, technique:'XSS (cross-site scripting)', tools:['Burp Suite','OWASP ZAP','dalfox'], how:'Attacker menyuntikkan skrip jahat ke halaman; tanpa CSP, browser mengeksekusinya tanpa batasan.'},
@@ -399,13 +410,35 @@ const ATTACKER_TABLE = [
   {mod:'cert', re:null, technique:'Man-in-the-middle', tools:['mitmproxy'], how:'Sertifikat mati memicu peringatan browser; attacker menyela dengan sertifikat palsu.'},
   {mod:'wayback', re:null, technique:'Historical data mining', tools:[], how:'Arsip publik digali untuk file/data sensitif yang sudah dihapus dari server.'},
   {mod:'dirlist', re:null, technique:'Directory reconnaissance', tools:['gobuster','dirsearch'], how:'Listing direktori membocorkan struktur dan nama file sensitif.'},
+  {mod:'takeover', re:null, technique:'Subdomain takeover', tools:['subjack','SubOver'], how:'Subdomain yang CNAME-nya mengarah ke layanan mati didaftarkan ulang attacker lalu dipakai untuk phishing.'},
+  {mod:'wp', re:/user enumeration/i, technique:'WordPress user enumeration', tools:['wpscan'], how:'Daftar username dipanen dari REST API untuk mempercepat brute-force login.'},
+  {mod:'wp', re:/xmlrpc/i, technique:'XML-RPC abuse', tools:['wpscan'], how:'xmlrpc.php dipakai untuk brute-force terdistribusi dan serangan pingback DDoS.'},
+  {mod:'wp', re:/readme/i, technique:'WordPress version disclosure', tools:['wpscan','whatweb'], how:'Versi WordPress dicocokkan ke database CVE publik.'},
+  {mod:'wp', re:null, technique:'WordPress reconnaissance', tools:['wpscan'], how:'Endpoint khas WordPress dipetakan untuk memilih serangan yang cocok.'},
+  {mod:'sourcemap', re:null, technique:'Source code disclosure', tools:['Burp Suite'], how:'Source map membocorkan source asli termasuk komentar dan kadang secret.'},
+  {mod:'login', re:/via http/i, technique:'Credential interception', tools:['mitmproxy','Wireshark'], how:'Kredensial terkirim tanpa enkripsi dan disadap di jaringan.'},
+  {mod:'login', re:/csrf/i, technique:'CSRF (Cross-Site Request Forgery)', tools:['Burp Suite'], how:'Form tanpa token CSRF bisa di-submit paksa dari situs jahat.'},
+  {mod:'login', re:null, technique:'Login form analysis', tools:['Burp Suite'], how:'Form login dianalisa untuk serangan brute-force dan CSRF.'},
+  {mod:'supplychain', re:null, technique:'Supply-chain attack', tools:[], how:'Satu script pihak ketiga yang terkompromi = kode jahat terkirim ke semua pengunjung.'},
+  {mod:'openredirect', re:null, technique:'Open redirect → phishing', tools:['Burp Suite'], how:'Parameter redirect disalahgunakan: link resmi mengarah ke situs tiruan.'},
+  {mod:'graphql', re:null, technique:'GraphQL introspection abuse', tools:['Burp Suite','graphql-cop'], how:'Skema API dipetakan lengkap untuk mencari query/mutasi sensitif.'},
+  {mod:'apidocs', re:null, technique:'API reconnaissance', tools:['Burp Suite'], how:'Dokumentasi API membocorkan endpoint internal dan struktur data.'},
+  {mod:'httpmethods', re:/trace/i, technique:'Cross-Site Tracing (XST)', tools:['Burp Suite'], how:'TRACE dipakai mencuri header sensitif bila ada celah XSS.'},
+  {mod:'httpmethods', re:/put|delete/i, technique:'Unsafe HTTP methods', tools:['curl','Burp Suite'], how:'Metode tulis disalahgunakan untuk upload atau modifikasi konten.'},
+  {mod:'httpmethods', re:null, technique:'HTTP method enumeration', tools:['nmap','Nikto'], how:'Metode yang aktif dipetakan untuk mencari yang bisa disalahgunakan.'},
+  {mod:'cert', re:/398|validitas/i, technique:'Extended exposure window', tools:[], how:'Sertifikat berumur panjang = bila private key bocor, masa penyalahgunaan lebih lama.'},
+  {mod:'headers', re:/unsafe-inline|unsafe-eval/i, technique:'XSS via CSP bypass', tools:['Burp Suite','dalfox'], how:"'unsafe-inline'/'unsafe-eval' membuat CSP tidak mampu menahan injeksi skrip."},
+  {mod:'headers', re:/wildcard|longgar/i, technique:'Script injection via CSP longgar', tools:['Burp Suite'], how:'CSP wildcard = attacker tinggal memuat skrip dari domain mana pun.'},
+  {mod:'cookies', re:/__host__|__secure__/i, technique:'Cookie prefix bypass', tools:['Burp Suite'], how:'Prefix keamanan tanpa syarat yang benar = proteksi semu yang diabaikan browser.'},
+  {mod:'html', re:/mixed content aktif/i, technique:'MITM active content injection', tools:['mitmproxy'], how:'Skrip/iframe via HTTP dimodifikasi di tengah jalan menjadi kode jahat.'},
+  {mod:'cors', re:/credentials/i, technique:'Authenticated cross-origin theft', tools:['Burp Suite'], how:'Kombinasi ACAO * + credentials = situs lain membaca data login korban.'},
 ];
 const ATTACKER_GLOBAL = {technique:'Manual reconnaissance', tools:[], how:'Temuan ini menjadi bahan pemetaan awal sebelum serangan lanjutan.'};
 
 export function attackerFor(module, title) {
   if (!module || title == null) return null;
-  if (ATTACKER_NEG_RE.test(String(title))) return null;
   const t = String(title);
+  if (ATTACKER_NEG_RE.test(t) || /dilewati/i.test(t)) return null;
   for (const row of ATTACKER_TABLE) {
     if (row.mod !== module) continue;
     if (row.re && !row.re.test(t)) continue;
@@ -456,7 +489,7 @@ export function parseCtJson(json) {
 }
 
 // Ambil sertifikat dengan not_after paling baru dari JSON crt.sh.
-// Return {expiry_days, not_after, issuer_name} atau null bila tak ada data tanggal.
+// Return {expiry_days, not_after, not_before, issuer_name, name_value} atau null.
 // nowMs opsional (untuk unit test); default Date.now().
 export function certExpiry(json, nowMs) {
   const rows = Array.isArray(json) ? json : [];
@@ -465,11 +498,13 @@ export function certExpiry(json, nowMs) {
     if (!row || !row.not_after) continue;
     const ts = Date.parse(row.not_after);
     if (isNaN(ts)) continue;
-    if (!best || ts > best.ts) best = {ts, not_after: row.not_after, issuer_name: row.issuer_name || ''};
+    if (!best || ts > best.ts) best = {ts, not_after: row.not_after, not_before: row.not_before || null,
+      issuer_name: row.issuer_name || '', name_value: row.name_value || ''};
   }
   if (!best) return null;
   const now = nowMs != null ? nowMs : Date.now();
-  return {expiry_days: (best.ts - now) / 86400000, not_after: best.not_after, issuer_name: best.issuer_name};
+  return {expiry_days: (best.ts - now) / 86400000, not_after: best.not_after, not_before: best.not_before,
+    issuer_name: best.issuer_name, name_value: best.name_value};
 }
 
 // Pola URL sensitif yang dicari di arsip Wayback (lowercase, partial match).
@@ -487,6 +522,265 @@ export function parseWayback(json) {
   return {count: urls.length, sensitive, sample: urls.slice(0, 5)};
 }
 
+/* ============ RONDE 3: parser & analisa mendalam (murni) ============ */
+
+// Parse CSP menjadi {directive: [values]} (lowercase).
+export function parseCspDirectives(csp) {
+  const out = {};
+  for (const part of String(csp || '').split(';')) {
+    const t = part.trim();
+    if (!t) continue;
+    const sp = t.indexOf(' ');
+    const name = (sp < 0 ? t : t.slice(0, sp)).toLowerCase();
+    const vals = sp < 0 ? [] : t.slice(sp + 1).trim().split(/\s+/).map((v) => v.toLowerCase());
+    out[name] = vals;
+  }
+  return out;
+}
+// Analisa mendalam isi CSP → findings (module 'headers'). Read-only.
+export function cspDeepFindings(csp) {
+  const f = [];
+  const d = parseCspDirectives(csp);
+  const ss = d['script-src'] || [];
+  const has = (v) => ss.includes(v);
+  if (has("'unsafe-inline'")) f.push({module:'headers', severity:'high',
+    title:"CSP script-src memakai 'unsafe-inline'",
+    description:"Directive script-src mengizinkan 'unsafe-inline' — inline script & event handler boleh berjalan.",
+    impact:"'unsafe-inline' praktis melumpuhkan proteksi XSS dari CSP: skrip suntikan attacker tetap dieksekusi browser.",
+    remediation:"Hilangkan 'unsafe-inline'; pakai nonce atau hash untuk script inline yang sah.", evidence:"script-src: … 'unsafe-inline'"});
+  if (has("'unsafe-eval'")) f.push({module:'headers', severity:'high',
+    title:"CSP script-src memakai 'unsafe-eval'",
+    description:"Directive script-src mengizinkan 'unsafe-eval' (eval/new Function).",
+    impact:"Memudahkan attacker mengeksekusi string arbitrer sebagai kode bila ada celah injeksi.",
+    remediation:"Hilangkan 'unsafe-eval'; refactor kode yang memakai eval.", evidence:"script-src: … 'unsafe-eval'"});
+  if (ss.includes('*') || ss.some((v) => v === 'data:' || v === 'http:' || v === 'https:'))
+    f.push({module:'headers', severity:'high',
+      title:'CSP script-src terlalu longgar (wildcard/skema)',
+      description:'script-src mengizinkan * atau skema http:/https:/data: — script dari host mana pun boleh dimuat.',
+      impact:'Attacker cukup menyuntikkan <script src="https://evil…"> dan browser akan menjalankannya.',
+      remediation:"Ketatkan script-src ke 'self' + domain yang benar-benar dipakai.", evidence:'script-src: ' + ss.slice(0, 4).join(' ')});
+  if (!d['object-src']) f.push({module:'headers', severity:'medium',
+    title:'CSP tanpa object-src',
+    description:'Tidak ada pembatasan plugin/objek (<object>, <embed>).',
+    impact:'Konten plugin berbahaya bisa di-embed bila ada celah injeksi.',
+    remediation:"Tambahkan object-src 'none'.", evidence:''});
+  if (!d['base-uri']) f.push({module:'headers', severity:'low',
+    title:'CSP tanpa base-uri',
+    description:'Tag <base> tidak dibatasi.',
+    impact:'Attacker yang bisa injeksi <base> dapat membelokkan URL relatif ke domainnya.',
+    remediation:"Tambahkan base-uri 'self'.", evidence:''});
+  return f;
+}
+// Analisa mendalam HSTS → findings (module 'headers').
+export function hstsDeepFindings(hsts) {
+  const f = [];
+  const v = String(hsts || '');
+  const m = /max-age\s*=\s*(\d+)/i.exec(v);
+  const maxAge = m ? parseInt(m[1], 10) : 0;
+  if (maxAge > 0 && maxAge < 31536000) f.push({module:'headers', severity:'medium',
+    title:'HSTS max-age terlalu pendek (' + maxAge + ')',
+    description:'max-age=' + maxAge + ' detik — di bawah rekomendasi 31536000 (1 tahun).',
+    impact:'Proteksi HSTS kedaluwarsa cepat; jendela serangan SSL-stripping terbuka kembali.',
+    remediation:'Naikkan ke max-age=31536000; includeSubDomains.', evidence:'max-age=' + maxAge});
+  if (!/includeSubDomains/i.test(v)) f.push({module:'headers', severity:'low',
+    title:'HSTS tanpa includeSubDomains',
+    description:'HSTS hanya berlaku di domain utama, tidak di subdomain.',
+    impact:'Subdomain tetap bisa diserang downgrade ke HTTP.',
+    remediation:'Tambahkan includeSubDomains pada header HSTS.', evidence:v.slice(0, 80)});
+  if (!/\bpreload\b/i.test(v)) f.push({module:'headers', severity:'info',
+    title:'HSTS tanpa preload',
+    description:'Domain tidak terdaftar di HSTS preload list.',
+    impact:'Kunjungan pertama pengguna tetap rentan sebelum HSTS di-cache browser.',
+    remediation:'Daftarkan domain di hstspreload.org setelah HSTS stabil.', evidence:''});
+  return f;
+}
+// Cookie __Host- / __Secure- yang tak memenuhi syarat → findings (module 'cookies').
+export function cookiePrefixFindings(setCookies) {
+  const f = [];
+  for (const raw of setCookies || []) {
+    const parts = String(raw).split(';').map((s) => s.trim());
+    const name = (parts[0] || '').split('=')[0] || '';
+    const attrs = parts.slice(1).join('; ').toLowerCase();
+    const hasSecure = /(^|;\s*)secure(\s*;|$)/.test(attrs + ';');
+    const pathM = /path\s*=\s*([^;]+)/.exec(attrs);
+    const hasDomain = /(^|;\s*)domain\s*=/i.test(attrs + ';');
+    if (/^__host-/i.test(name)) {
+      const bad = [];
+      if (!hasSecure) bad.push('tanpa Secure');
+      if (pathM && pathM[1].trim() !== '/') bad.push('Path bukan /');
+      if (hasDomain) bad.push('memakai Domain');
+      if (bad.length) f.push({module:'cookies', severity:'medium',
+        title:'Cookie __Host- tidak memenuhi syarat: ' + name,
+        description:'__Host- ' + bad.join(', ') + ' — syarat: Secure + Path=/ + tanpa Domain.',
+        impact:'Prefix __Host- yang tak memenuhi syarat = proteksi semu; browser mengabaikan jaminannya.',
+        remediation:'Perbaiki: Secure; Path=/; tanpa atribut Domain.', evidence:name});
+    } else if (/^__secure-/i.test(name)) {
+      if (!hasSecure) f.push({module:'cookies', severity:'medium',
+        title:'Cookie __Secure- tanpa flag Secure: ' + name,
+        description:'__Secure- wajib memakai flag Secure.',
+        impact:'Cookie bisa terkirim via HTTP polos dan disadap.',
+        remediation:'Tambahkan flag Secure.', evidence:name});
+    }
+  }
+  return f;
+}
+// Analisa mendalam sertifikat dari data CT → findings (module 'cert').
+export function certDeepFindings(ctRows, nowMs) {
+  const f = [];
+  const rows = Array.isArray(ctRows) ? ctRows : [];
+  let best = null;
+  for (const row of rows) {
+    if (!row || !row.not_after || !row.not_before) continue;
+    const a = Date.parse(row.not_after), b = Date.parse(row.not_before);
+    if (isNaN(a) || isNaN(b)) continue;
+    if (!best || a > best.a) best = {a, b};
+  }
+  if (best) {
+    const days = Math.round((best.a - best.b) / 864e5);
+    if (days > 398) f.push({module:'cert', severity:'low',
+      title:'Masa berlaku sertifikat > 398 hari (' + days + ' hari)',
+      description:'Sertifikat berlaku ' + days + ' hari — melebihi batas industri 398 hari (CA/Browser Forum).',
+      impact:'Bila private key bocor, jendela penyalahgunaan lebih lama; beberapa browser/CA menolak sertifikat over-long.',
+      remediation:'Pakai sertifikat ≤ 398 hari (ideal 90 hari + auto-renew).', evidence:days + ' hari'});
+  }
+  if (rows.some((r) => /\*\./.test(String((r && r.name_value) || ''))))
+    f.push({module:'cert', severity:'info',
+      title:'Sertifikat wildcard terdeteksi',
+      description:'Sertifikat mencakup *.domain — satu sertifikat untuk semua subdomain.',
+      impact:'Kompromi satu private key = semua subdomain terdampak. Catat sebagai konteks risiko.',
+      remediation:'Pertimbangkan sertifikat per-subdomain untuk layanan kritis; simpan private key dengan aman.', evidence:'*.'});
+  return f;
+}
+
+// --- Subdomain takeover: fingerprint layanan known-vulnerable ---
+export const TAKEOVER_FPS = [
+  {service:'GitHub Pages', suffix:'.github.io', dead:/there isn't a github pages site here/i},
+  {service:'Heroku', suffix:'.herokuapp.com', dead:/no such app/i},
+  {service:'AWS S3', suffix:'.s3.amazonaws.com', dead:/NoSuchBucket/i},
+  {service:'Azure Web Apps', suffix:'.azurewebsites.net', dead:/404 web site not found/i},
+  {service:'Bitbucket', suffix:'.bitbucket.io', dead:/repository not found/i},
+  {service:'GitLab Pages', suffix:'.gitlab.io', dead:/project not found/i},
+  {service:'Statuspage', suffix:'.statuspage.io', dead:/this page does not exist/i},
+  {service:'Zendesk', suffix:'.zendesk.com', dead:/help center.*closed|no longer available/i},
+  {service:'Tumblr', suffix:'.tumblr.com', dead:/there's nothing here/i},
+  {service:'Shopify', suffix:'.myshopify.com', dead:/shop is currently unavailable/i},
+  {service:'Ghost', suffix:'.ghost.io', dead:/domain.*not (configured|claimed)/i},
+  {service:'Surge.sh', suffix:'.surge.sh', dead:/project not found/i},
+  {service:'Netlify', suffix:'.netlify.app', dead:/site not found/i},
+  {service:'Vercel', suffix:'.vercel.app', dead:/deployment not found/i},
+  {service:'Helpjuice', suffix:'.helpjuice.com', dead:/knowledge base not found/i},
+];
+export function matchTakeover(cname) {
+  const c = String(cname || '').toLowerCase().replace(/\.$/, '');
+  for (const fp of TAKEOVER_FPS) {
+    if (c === fp.suffix.slice(1) || c.endsWith(fp.suffix)) return fp;
+  }
+  return null;
+}
+
+// --- Form login: ekstrak form ber-password ---
+export function extractPasswordForms(html, origin) {
+  const out = [];
+  const re = /<form\b[^>]*>([\s\S]*?)<\/form>/gi;
+  let m;
+  while ((m = re.exec(html || ''))) {
+    const tag = m[0].slice(0, m[0].indexOf('>') + 1);
+    const body = m[1];
+    if (!/type\s*=\s*["']?password["']?/i.test(body)) continue;
+    const aM = /\saction\s*=\s*["']([^"']*)["']/i.exec(tag);
+    let action = aM ? aM[1].trim() : '';
+    try { action = new URL(action || '.', origin).href; } catch (e) { /* biarkan mentah */ }
+    const hasCsrf = /<input\b[^>]*type\s*=\s*["']hidden["'][^>]*>/i.test(body) &&
+      /csrf|_token|authenticity_token|__requestverification/i.test(body);
+    out.push({action, hasCsrf});
+  }
+  return out;
+}
+
+// --- Supply chain: kategorikan script eksternal ---
+const KNOWN_CDN = ['cdn.jsdelivr.net','unpkg.com','cdnjs.cloudflare.com','ajax.googleapis.com','code.jquery.com','stackpath.bootstrapcdn.com','maxcdn.bootstrapcdn.com','fonts.googleapis.com','fonts.gstatic.com'];
+const ANALYTICS_HOSTS = ['googletagmanager.com','google-analytics.com','connect.facebook.net','platform.twitter.com','snap.licdn.com','clarity.ms','hotjar.com'];
+export function categorizeScript(src) {
+  let host = '';
+  try { host = new URL(src).hostname.toLowerCase(); } catch (e) { return 'unknown'; }
+  if (KNOWN_CDN.some((d) => host === d || host.endsWith('.' + d))) return 'cdn';
+  if (ANALYTICS_HOSTS.some((d) => host === d || host.endsWith('.' + d))) return 'analytics';
+  return 'unknown';
+}
+
+// --- Open redirect: pola parameter redirect di link ---
+const REDIRECT_PARAMS = ['url','redirect','redirect_url','next','return','return_url','continue','dest','destination','r','u','target'];
+export function findRedirectParams(html) {
+  const found = new Set();
+  const re = /href\s*=\s*["']([^"']+)["']/gi;
+  let m;
+  while ((m = re.exec(html || ''))) {
+    const href = m[1];
+    for (const p of REDIRECT_PARAMS) {
+      if (new RegExp('[?&]' + p + '=', 'i').test(href)) found.add(p);
+    }
+  }
+  return [...found];
+}
+
+// --- HTTP methods: parse header Allow ---
+export function parseAllowHeader(allow) {
+  const v = String(allow || '').toUpperCase();
+  return {trace:/\bTRACE\b/.test(v), track:/\bTRACK\b/.test(v), put:/\bPUT\b/.test(v), del:/\bDELETE\b/.test(v)};
+}
+
+// --- GraphQL: deteksi introspection aktif dari respons ---
+export function parseGraphqlIntrospection(text) {
+  try {
+    const j = JSON.parse(String(text || ''));
+    return !!(j && j.data && j.data.__typename === 'Query');
+  } catch (e) { return false; }
+}
+
+// --- WAF/CDN detection dari header ---
+const WAF_SIGS = [
+  {name:'Cloudflare', res:[/cloudflare/i], hdrs:['cf-ray','cf-cache-status']},
+  {name:'Akamai', res:[/akamai/i], hdrs:['x-akamai-request-id','akamai-origin-hop']},
+  {name:'AWS CloudFront', res:[], hdrs:['x-amz-cf-id','x-amz-cf-pop']},
+  {name:'Sucuri', res:[/sucuri/i], hdrs:['x-sucuri-id','x-sucuri-cache']},
+  {name:'Imperva/Incapsula', res:[], hdrs:['x-iinfo','x-cdn']},
+  {name:'Fastly', res:[], hdrs:['x-served-by','x-fastly-request-id']},
+  {name:'Google Frontend', res:[/\bgws\b/i], hdrs:['x-cloud-trace-context']},
+];
+export function wafDetect(headers) {
+  const h = headers || {};
+  const out = [];
+  const srv = String(h['server'] || '');
+  for (const w of WAF_SIGS) {
+    if (w.res.some((re) => re.test(srv))) { out.push({name:w.name}); continue; }
+    if (w.hdrs.some((k) => h[k])) out.push({name:w.name});
+  }
+  return out;
+}
+
+// --- Ringkasan eksekutif & top prioritas (murni) ---
+const SEV_RANK = {critical:0, high:1, medium:2, low:3, info:4};
+export function topPriorities(findings) {
+  const cands = (findings || [])
+    .filter((f) => f.severity === 'critical' || f.severity === 'high' || f.severity === 'medium')
+    .sort((a, b) => (SEV_RANK[a.severity] - SEV_RANK[b.severity]));
+  return cands.slice(0, 3).map((f) => ({
+    title: f.title,
+    severity: f.severity,
+    firstStep: String(f.remediation || '').split(/\.\s/)[0].slice(0, 160),
+  }));
+}
+export function execSummary(res) {
+  const c = res.counts || {critical:0, high:0, medium:0, low:0, info:0};
+  const s1 = 'Hasil ' + MODULES.length + ' modul: grade ' + res.grade + ' (skor ' + res.score + '/100) — ' +
+    c.critical + ' critical, ' + c.high + ' high, ' + c.medium + ' medium, ' + c.low + ' low.';
+  const top = topPriorities(res.findings || []);
+  if (!top.length)
+    return s1 + ' Tidak ada temuan berarti — postur keamanan dasar situs ini baik. Pertahankan dengan scan berkala, terutama setelah perubahan konfigurasi.';
+  return s1 + ' Risiko terbesar: "' + top[0].title + '" [' + top[0].severity + '].' +
+    ' Prioritas perbaikan: ' + top.map((t, i) => (i + 1) + '. ' + t.title).join('; ') + '.';
+}
+
 /* ================= FETCH HELPERS ================= */
 function tFetch(url, {timeout = 15000, ...opts} = {}) {
   const c = new AbortController();
@@ -494,15 +788,16 @@ function tFetch(url, {timeout = 15000, ...opts} = {}) {
   return fetch(url, {...opts, signal: c.signal}).finally(() => clearTimeout(t));
 }
 // Ambil URL target via proxy. Return {ok, status, headers(map lowercase), text, via}
-async function fetchProxied(url, {timeout = 15000} = {}) {
+// method/body/headers opsional untuk probe read-only (OPTIONS, POST GraphQL).
+async function fetchProxied(url, {timeout = 15000, method = 'GET', body = null, headers = null} = {}) {
   try {
-    const r = await tFetch(PROXY_W(url), {timeout});
+    const r = await tFetch(PROXY_W(url), {timeout, method, body, headers: headers || undefined});
     const h = {};
     const blob = r.headers.get('cors-received-headers');
     // Simpan mentah juga di key-nya sendiri — modul cookies butuh blob aslinya.
     if (blob) h['cors-received-headers'] = blob;
     if (blob) { try { const j = JSON.parse(blob); for (const k in j) h[String(k).toLowerCase()] = String(j[k]); } catch (e) {} }
-    for (const k of ['content-security-policy','strict-transport-security','x-frame-options','x-content-type-options','referrer-policy','permissions-policy','server','x-powered-by','content-type','location']) {
+    for (const k of ['content-security-policy','strict-transport-security','x-frame-options','x-content-type-options','referrer-policy','permissions-policy','server','x-powered-by','content-type','location','access-control-allow-origin','access-control-allow-credentials','allow']) {
       if (!h[k]) { const v = r.headers.get(k); if (v) h[k] = v; }
     }
     const text = await r.text();
@@ -668,18 +963,35 @@ async function mCookies(ctx) {
   return cookiesFindings(raw, ctx.isHttps);
 }
 async function mCors(ctx) {
+  const f = [];
+  // cors-deep: analisa header ACAO/ACAC upstream via proxy (lebih presisi dari uji origin sendiri).
+  if (ctx.page) {
+    const h = ctx.page.headers || {};
+    const acao = (h['access-control-allow-origin'] || '').trim();
+    const acac = (h['access-control-allow-credentials'] || '').toLowerCase() === 'true';
+    if (acao === '*' && acac) f.push(mk('cors','critical','CORS: ACAO * + Allow-Credentials',
+      'Server mengirim Access-Control-Allow-Origin: * BERSAMA Access-Control-Allow-Credentials: true.',
+      'Situs jahat mana pun dapat membaca respons terautentikasi korban — kombinasi paling berbahaya.',
+      'Jangan pernah kombinasikan * dengan credentials; echo origin spesifik yang terdaftar.', 'ACAO: * + ACAC: true'));
+    else if (acao === '*') f.push(mk('cors','medium','CORS mengizinkan semua origin (*)',
+      'Server mengirim Access-Control-Allow-Origin: *.',
+      'API publik bisa dibaca situs mana pun — wajar untuk data publik, berbahaya bila ada endpoint sensitif.',
+      'Batasi ACAO ke origin yang benar-benar butuh untuk endpoint sensitif.', 'ACAO: *'));
+    else if (acao) f.push(mkInfo('cors','ACAO terbatas: ' + acao.slice(0, 60),'Hanya origin tertentu yang diizinkan — konfigurasi ketat.'));
+  }
   try {
     const r = await tFetch(ctx.origin + '/', {timeout: 8000});
-    if (r.type === 'opaque') return [mkInfo('cors','CORS tidak terbuka','Respons opaque — origin lain tidak bisa membaca.')];
+    if (r.type === 'opaque') { if (!f.length) f.push(mkInfo('cors','CORS tidak terbuka','Respons opaque — origin lain tidak bisa membaca.')); return f; }
     const hasSession = (ctx.cookieNames || []).length > 0;
-    return [mk('cors', hasSession ? 'medium' : 'low','CORS mengizinkan origin lain membaca respons',
-      'Server mengirim Access-Control-Allow-Origin yang mengizinkan https://tools.adipmusic.my.id membaca respons.',
+    f.push(mk('cors', hasSession ? 'medium' : 'low','Uji baca lintas-origin: respons terbaca',
+      'Server mengizinkan https://tools.adipmusic.my.id membaca respons.',
       hasSession ? 'Dengan cookie sesi aktif, situs lain yang diizinkan bisa membaca data terautentikasi (tergantung konfigurasi).'
                  : 'Risiko rendah bila hanya data publik, tapi tetap pola konfigurasi longgar.',
-      'Batasi ACAO ke origin yang benar-benar butuh, jangan pakai * untuk endpoint sensitif.', '')];
+      'Batasi ACAO ke origin yang benar-benar butuh, jangan pakai * untuk endpoint sensitif.', ''));
   } catch (e) {
-    return [mkInfo('cors','CORS tidak terbuka lebar','Browser menolak baca lintas-origin (aman).')];
+    if (!f.length) f.push(mkInfo('cors','CORS tidak terbuka lebar','Browser menolak baca lintas-origin (aman).'));
   }
+  return f;
 }
 async function mRedirect(ctx) {
   const r = await fetchProxied('http://' + ctx.host + '/');
@@ -727,10 +1039,15 @@ async function mHtml(ctx) {
     'Tambahkan integrity (SRI hash) + crossorigin="anonymous" pada script eksternal.', extNoSri.slice(0,3).map((s)=>s.src.slice(0,80)).join('\n')));
   if (ctx.isHttps) {
     const mixed = findMixed(html);
-    if (mixed.length) f.push(mk('html','medium','Mixed content: ' + mixed.length + ' resource via HTTP',
-      'Halaman HTTPS memuat subresource via http://.',
-      'Browser memblokir/menandai halaman "tidak aman"; resource HTTP bisa disadap & dimodifikasi.',
-      'Ganti semua URL http:// menjadi https:// atau protokol-relatif.', mixed.slice(0,3).join('\n')));
+    const active = mixed.filter((x) => x.active), passive = mixed.filter((x) => !x.active);
+    if (active.length) f.push(mk('html','high','Mixed content AKTIF: ' + active.length + ' resource via HTTP',
+      'Halaman HTTPS memuat script/iframe/stylesheet via http:// — konten AKTIF yang dieksekusi browser.',
+      'Resource aktif via HTTP bisa disadap & disuntik kode jahat di tengah jalan (MITM) — halaman "aman" jadi tidak aman.',
+      'Ganti semua URL http:// menjadi https:// — prioritaskan script & iframe.', active.slice(0,3).map((x)=>x.url).join('\n')));
+    if (passive.length) f.push(mk('html','medium','Mixed content pasif: ' + passive.length + ' resource via HTTP',
+      'Halaman HTTPS memuat gambar/media via http://.',
+      'Browser menandai halaman "tidak aman"; gambar bisa diganti/dimata-matai (privacy).',
+      'Ganti semua URL http:// menjadi https:// atau protokol-relatif.', passive.slice(0,3).map((x)=>x.url).join('\n')));
   }
   ctx.libs = extractLibs(scripts);
   if (!f.length) f.push(mkInfo('html','Struktur halaman aman','SRI terpasang / tidak ada mixed content.'));
@@ -926,11 +1243,19 @@ async function mPaths(ctx) {
 async function mFingerprint(ctx) {
   if (!ctx.page) return [mkInfo('fingerprint','Tidak dapat dicek','Halaman tidak bisa diambil.')];
   const techs = detectTech(ctx.page.text, ctx.page.headers);
-  if (!techs.length) return [mkInfo('fingerprint','Teknologi tidak teridentifikasi','Tidak ada pola umum terdeteksi.')];
-  return [mk('fingerprint','info','Teknologi terdeteksi: ' + techs.map((t) => t.name + (t.version ? ' ' + t.version : '')).join(', '),
+  ctx.techs = techs;
+  const f = [];
+  const wafs = wafDetect(ctx.page.headers);
+  if (wafs.length) f.push(mk('fingerprint','info','WAF/CDN terdeteksi: ' + wafs.map((w) => w.name).join(', '),
+    'Signature WAF/CDN ditemukan di header respons.',
+    'WAF menambah lapisan pertahanan (bukan jaminan aman); konfigurasi tetap harus benar.',
+    'Pastikan rule WAF aktif & mode blocking, bukan sekadar monitoring.', wafs.map((w) => w.name).join(', ')));
+  if (techs.length) f.push(mk('fingerprint','info','Teknologi terdeteksi: ' + techs.map((t) => t.name + (t.version ? ' ' + t.version : '')).join(', '),
     'Pola umum ditemukan di HTML/header.',
     'Informasi konteks untuk menilai temuan lain (mis. versi CMS lawas → cek CVE).',
-    'Sembunyikan versi spesifik bila memungkinkan.', techs.map((t)=>t.name).join(', '))];
+    'Sembunyikan versi spesifik bila memungkinkan.', techs.map((t)=>t.name).join(', ')));
+  if (!f.length) f.push(mkInfo('fingerprint','Teknologi tidak teridentifikasi','Tidak ada pola umum terdeteksi.'));
+  return f;
 }
 
 // Modul 13 — Subdomain via Certificate Transparency (100% client-side: crt.sh).
@@ -961,18 +1286,21 @@ async function mCert(ctx) {
     return [mkInfo('cert','Sertifikat tidak dapat dicek','Tidak ada data sertifikat (crt.sh tidak dapat dijangkau) — modul dianggap tidak dapat menilai.')];
   const c = certExpiry(ctx.ctRows);
   if (!c) return [mkInfo('cert','Sertifikat tidak dapat dicek','Data crt.sh tidak memuat tanggal kedaluwarsa.')];
+  const f = [];
   const dateStr = String(c.not_after).slice(0, 10);
   const issuer = c.issuer_name || 'tidak diketahui';
   const days = Math.floor(c.expiry_days);
-  if (c.expiry_days < 0) return [mk('cert','critical','Sertifikat kedaluwarsa',
+  if (c.expiry_days < 0) f.push(mk('cert','critical','Sertifikat kedaluwarsa',
     'Sertifikat domain ini kedaluwarsa pada ' + dateStr + ' (' + Math.abs(days) + ' hari lalu). Penerbit: ' + issuer + '.',
     'Pengunjung melihat peringatan browser "koneksi tidak aman" — lalu lintas bisa disadap tanpa terdeteksi.',
-    'Perbarui sertifikat SEGERA dan aktifkan auto-renew (mis. Let\'s Encrypt + certbot).', 'not_after: ' + c.not_after)];
-  if (c.expiry_days < 30) return [mk('cert','high','Sertifikat kedaluwarsa <30 hari',
+    'Perbarui sertifikat SEGERA dan aktifkan auto-renew (mis. Let\'s Encrypt + certbot).', 'not_after: ' + c.not_after));
+  else if (c.expiry_days < 30) f.push(mk('cert','high','Sertifikat kedaluwarsa <30 hari',
     'Sertifikat valid sampai ' + dateStr + ' (' + days + ' hari lagi). Penerbit: ' + issuer + '.',
     'Kedaluwarsa mendadak = situs menampilkan peringatan browser, pengunjung kabur dan trust jatuh.',
-    'Jadwalkan perpanjangan sekarang; pasang monitoring kedaluwarsa sertifikat.', 'not_after: ' + c.not_after)];
-  return [mkInfo('cert','Sertifikat valid s/d ' + dateStr, 'Berlaku ' + days + ' hari lagi. Penerbit: ' + issuer + '.')];
+    'Jadwalkan perpanjangan sekarang; pasang monitoring kedaluwarsa sertifikat.', 'not_after: ' + c.not_after));
+  else f.push(mkInfo('cert','Sertifikat valid s/d ' + dateStr, 'Berlaku ' + days + ' hari lagi. Penerbit: ' + issuer + '.'));
+  f.push(...certDeepFindings(ctx.ctRows));
+  return f;
 }
 
 // Modul 15 — Arsip Wayback Machine (100% client-side: CDX API web.archive.org).
@@ -1010,6 +1338,227 @@ async function mDirlist(ctx) {
   return f;
 }
 
+// Modul 17 — Subdomain Takeover (read-only: DoH CNAME + verifikasi NXDOMAIN/HTTP).
+async function mTakeover(ctx) {
+  const f = [];
+  if (!ctx.ctRows || !ctx.ctRows.length)
+    return [mkInfo('takeover','Takeover tidak dapat dicek','Butuh data subdomain dari Certificate Transparency (modul ct gagal).')];
+  const subs = parseCtJson(ctx.ctRows).filter((s) => s !== ctx.host).slice(0, 20);
+  if (!subs.length) return [mkInfo('takeover','Tidak ada subdomain untuk dicek','crt.sh tidak mencatat subdomain selain apex.')];
+  let checked = 0;
+  for (const sub of subs) {
+    let cname = null;
+    try {
+      const j = await doh(sub, 'CNAME');
+      const ans = (j.Answer || []).filter((a) => a.type === 5);
+      if (ans.length) cname = String(ans[0].data).replace(/\.$/, '');
+    } catch (e) { continue; }
+    checked++;
+    if (!cname) continue;
+    const fp = matchTakeover(cname);
+    if (!fp) continue;
+    // 1) verifikasi DNS: NXDOMAIN → takeover sangat mungkin
+    let dnsAlive = true;
+    try { const j2 = await doh(cname, 'A'); dnsAlive = j2.Status === 0 && !!((j2.Answer || []).length); }
+    catch (e) { dnsAlive = false; }
+    if (!dnsAlive) {
+      f.push(mk('takeover','high','Potensi subdomain takeover: ' + sub,
+        sub + ' CNAME ke ' + cname + ' (' + fp.service + ') yang tidak lagi resolve (NXDOMAIN).',
+        'Penyerang mendaftarkan "' + cname + '" di ' + fp.service + ' lalu mengklaim ' + sub + ' — phishing dari subdomain resmi korban.',
+        'Hapus record CNAME yang mengarah ke layanan tak terpakai, atau aktifkan kembali layanannya.', sub + ' → ' + cname));
+      continue;
+    }
+    // 2) verifikasi HTTP: fingerprint halaman "not found" khas layanan yang belum diklaim
+    try {
+      const r = await fetchProxied('http://' + sub + '/', {timeout: 10000});
+      if (r.ok && fp.dead.test(r.text || ''))
+        f.push(mk('takeover','high','Potensi subdomain takeover: ' + sub,
+          sub + ' CNAME ke ' + cname + ' (' + fp.service + ') menampilkan halaman "not found" khas slot yang belum diklaim.',
+          'Penyerang mengklaim slot "' + cname + '" di ' + fp.service + ' lalu mengambil alih ' + sub + '.',
+          'Klaim kembali slot di ' + fp.service + ' atau hapus record CNAME-nya.', sub + ' → ' + cname));
+    } catch (e) { /* abaikan */ }
+  }
+  if (!f.length) f.push(mkInfo('takeover','Tidak ada indikasi takeover','Dicek ' + checked + ' subdomain — tidak ada CNAME mati ke layanan known-vulnerable.'));
+  return f;
+}
+
+// Modul 18 — WordPress hardening (hanya bila fingerprint mendeteksi WP). Read-only GET.
+async function mWp(ctx) {
+  const techs = ctx.techs || [];
+  if (!techs.some((t) => t.name === 'WordPress'))
+    return [mkInfo('wp','Bukan WordPress','Fingerprint tidak mendeteksi WordPress — modul dilewati.')];
+  const f = [];
+  const get = (p) => fetchProxied(ctx.origin + p, {timeout: 10000});
+  let r = await get('/wp-json/wp/v2/users');
+  if (r.ok && r.status === 200 && /"slug"\s*:/.test(r.text || ''))
+    f.push(mk('wp','medium','WP user enumeration terbuka (/wp-json/wp/v2/users)',
+      'REST API WordPress menampilkan daftar username.',
+      'Username valid mempercepat brute-force login — attacker tinggal menebak password.',
+      'Batasi via plugin keamanan atau blokir endpoint users untuk pengunjung anonim.', '/wp-json/wp/v2/users → 200'));
+  r = await get('/xmlrpc.php');
+  if (r.ok && r.status === 200 && /xmlrpc/i.test(r.text || ''))
+    f.push(mk('wp','medium','xmlrpc.php aktif',
+      'Endpoint XML-RPC WordPress merespons (HTTP 200).',
+      'Disalahgunakan untuk brute-force terdistribusi dan pingback DDoS.',
+      'Nonaktifkan bila tak dipakai (plugin Disable XML-RPC) atau batasi di WAF.', '/xmlrpc.php → 200'));
+  r = await get('/readme.html');
+  if (r.ok && r.status === 200 && /wordpress/i.test(r.text || '')) {
+    const vm = /version\s+(\d+\.\d+(?:\.\d+)?)/i.exec(r.text || '');
+    f.push(mk('wp','low','readme.html WordPress terekspos' + (vm ? ' (versi ' + vm[1] + ')' : ''),
+      'readme.html menampilkan informasi WordPress' + (vm ? ' versi ' + vm[1] : '') + '.',
+      'Versi CMS dipakai attacker untuk mencari CVE yang cocok.',
+      'Hapus readme.html dari server produksi.', vm ? 'version ' + vm[1] : '/readme.html → 200'));
+  }
+  if (!f.length) f.push(mkInfo('wp','WordPress terkunci','Endpoint umum WP (REST users, xmlrpc, readme) tidak terekspos.'));
+  return f;
+}
+
+// Modul 19 — Source map terekspos (read-only GET .js.map).
+async function mSourcemap(ctx) {
+  const f = [];
+  const locals = (ctx.scripts || []).filter((s) => s.src.startsWith(ctx.origin) && /\.js(\?|$)/i.test(s.src)).slice(0, 10);
+  if (!locals.length) return [mkInfo('sourcemap','Tidak ada script lokal','Tidak ditemukan script JS dari domain sendiri.')];
+  let checked = 0;
+  for (const s of locals) {
+    const name = s.src.split('/').pop().split('?')[0];
+    const r = await fetchProxied(s.src + '.map', {timeout: 10000});
+    checked++;
+    if (r.ok && r.status === 200) {
+      const t = (r.text || '').trim();
+      if (t.startsWith('{') && /"sources"|"mappings"/.test(t))
+        f.push(mk('sourcemap','medium','Source map terekspos: ' + name,
+          'File ' + name + '.map dapat diunduh (HTTP 200) dan berisi JSON source map valid.',
+          'Source asli — termasuk komentar, struktur internal, dan kadang secret — bisa dibaca siapa pun.',
+          'Jangan deploy file .map ke produksi; hapus dari server.', name + '.map → 200'));
+    }
+  }
+  if (!f.length) f.push(mkInfo('sourcemap','Tidak ada source map terekspos','Dicek ' + checked + ' script lokal.'));
+  return f;
+}
+
+// Modul 20 — Analisa form login (pasif: parse HTML).
+async function mLogin(ctx) {
+  if (!ctx.page || !ctx.page.text) return [mkInfo('login','Tidak dapat dicek','Halaman tidak bisa diambil.')];
+  const forms = extractPasswordForms(ctx.page.text, ctx.origin);
+  if (!forms.length) return [mkInfo('login','Tidak ada form password','Tidak ditemukan <input type="password"> di halaman utama.')];
+  const f = [];
+  forms.forEach((fm, i) => {
+    const label = 'Form login #' + (i + 1);
+    if (fm.action.startsWith('http://'))
+      f.push(mk('login','high',label + ' mengirim kredensial via HTTP',
+        'Form login mengirim ke ' + fm.action.slice(0, 80) + ' (HTTP polos).',
+        'Username & password terkirim tanpa enkripsi — mudah disadap di jaringan publik.',
+        'Ganti action form ke HTTPS.', fm.action.slice(0, 100)));
+    if (!fm.hasCsrf)
+      f.push(mk('login','info',label + ': token CSRF tidak terlihat',
+        'Tidak ditemukan pola token CSRF umum (csrf/_token) di form.',
+        'Tanpa token CSRF, form state-changing rentan Cross-Site Request Forgery — perlu verifikasi manual di sisi server.',
+        'Pastikan setiap form state-changing memakai token CSRF dengan validasi server-side.', fm.action.slice(0, 100) || '(action kosong)'));
+  });
+  if (!f.length) f.push(mkInfo('login','Form login aman dasar','Action HTTPS & pola token CSRF terlihat.'));
+  return f;
+}
+
+// Modul 21 — Supply chain: kategorikan script pihak ketiga (pasif).
+async function mSupplychain(ctx) {
+  const scripts = ctx.scripts || [];
+  const ext = scripts.filter((s) => /^https?:\/\//i.test(s.src) && !s.src.startsWith(ctx.origin));
+  if (!ext.length) return [mkInfo('supplychain','Tidak ada script eksternal','Semua script berasal dari domain sendiri.')];
+  const f = [];
+  const unknown = ext.filter((s) => categorizeScript(s.src) === 'unknown');
+  const nCdn = ext.filter((s) => categorizeScript(s.src) === 'cdn').length;
+  const nAn = ext.filter((s) => categorizeScript(s.src) === 'analytics').length;
+  f.push(mkInfo('supplychain','Script eksternal: ' + ext.length,
+    'CDN umum: ' + nCdn + ', analytics/ads: ' + nAn + ', domain tak dikenal: ' + unknown.length + '.'));
+  if (unknown.length) {
+    const hosts = [...new Set(unknown.map((s) => { try { return new URL(s.src).hostname; } catch (e) { return s.src; } }))].slice(0, 5);
+    f.push(mk('supplychain','medium','Script dari domain tak dikenal: ' + unknown.length,
+      'Domain: ' + hosts.join(', '),
+      'Satu script pihak ketiga yang terkompromi = kode jahat terkirim ke semua pengunjung (supply-chain attack).',
+      'Audit manual tiap domain tak dikenal; pasang SRI + CSP ketat untuk membatasi dampak.', unknown.slice(0, 3).map((s) => s.src.slice(0, 80)).join('\n')));
+  }
+  return f;
+}
+
+// Modul 22 — Open redirect: pola parameter redirect (pasif, info).
+async function mOpenredirect(ctx) {
+  if (!ctx.page || !ctx.page.text) return [mkInfo('openredirect','Tidak dapat dicek','Halaman tidak bisa diambil.')];
+  const params = findRedirectParams(ctx.page.text);
+  if (!params.length) return [mkInfo('openredirect','Tidak ada pola redirect','Tidak ditemukan parameter redirect umum di link halaman.')];
+  return [mk('openredirect','info','Parameter redirect terdeteksi: ' + params.join(', '),
+    'Link memakai parameter seperti ?' + params[0] + '=… yang umum dipakai untuk redirect.',
+    'Bila nilai parameter tidak divalidasi server, attacker membuat link "situs-asli.com?' + params[0] + '=evil.com" untuk phishing (open redirect).',
+    'Validasi whitelist tujuan redirect di server; uji manual tiap parameter.', '?' + params.join('=, ?') + '=')];
+}
+
+// Modul 23 — GraphQL introspection (read-only: query {__typename}).
+async function mGraphql(ctx) {
+  const url = ctx.origin + '/graphql';
+  const body = JSON.stringify({query:'{__typename}'});
+  let text = null;
+  try {
+    const r = await fetchProxied(url, {timeout: 10000, method:'POST', body, headers:{'Content-Type':'application/json'}});
+    if (r.ok) text = r.text;
+  } catch (e) { /* coba GET */ }
+  if (text == null) {
+    try {
+      const r2 = await fetchProxied(url + '?query=' + encodeURIComponent('{__typename}'), {timeout: 10000});
+      if (r2.ok) text = r2.text;
+    } catch (e) { /* abaikan */ }
+  }
+  if (text == null) return [mkInfo('graphql','GraphQL tidak dapat dicek','Endpoint /graphql tidak merespons.')];
+  if (parseGraphqlIntrospection(text))
+    return [mk('graphql','medium','GraphQL introspection aktif di /graphql',
+      'Query {__typename} dijawab {"data":{"__typename":"Query"}} — introspection menyala.',
+      'Attacker memetakan seluruh skema API (query, mutasi, tipe data) untuk mencari celah.',
+      'Matikan introspection di produksi; batasi akses /graphql hanya untuk klien resmi.', '/graphql → introspection aktif')];
+  return [mkInfo('graphql','GraphQL tidak terdeteksi / introspection mati','Endpoint /graphql tidak menjawab introspection.')];
+}
+
+// Modul 24 — Dokumentasi API terekspos (read-only GET).
+const APIDOC_PATHS = ['/api/docs','/swagger.json','/openapi.json','/api/openapi.json','/swagger/v1/swagger.json'];
+async function mApidocs(ctx) {
+  const f = [];
+  for (const p of APIDOC_PATHS) {
+    const r = await fetchProxied(ctx.origin + p, {timeout: 10000});
+    if (r.ok && r.status === 200 && /swagger|openapi/i.test(r.text || '')) {
+      f.push(mk('apidocs','low','Dokumentasi API terekspos: ' + p,
+        p + ' dapat diakses publik dan tampak seperti definisi Swagger/OpenAPI.',
+        'Dokumentasi API membocorkan endpoint internal, parameter, dan struktur data — bahan reconnaissance.',
+        'Batasi akses dokumentasi API ke internal/staging.', p + ' → 200'));
+      break;
+    }
+  }
+  if (!f.length) f.push(mkInfo('apidocs','Tidak ada API docs terekspos','Path umum dokumentasi API tidak ditemukan.'));
+  return f;
+}
+
+// Modul 25 — HTTP methods (read-only: OPTIONS + baca header Allow).
+async function mHttpmethods(ctx) {
+  const f = [];
+  try {
+    const r = await fetchProxied(ctx.origin + '/', {timeout: 10000, method:'OPTIONS'});
+    if (!r.ok) return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak merespons via proxy.')];
+    const allow = r.headers['allow'] || '';
+    if (!allow) return [mkInfo('httpmethods','Header Allow tidak ada','Server tidak mengumumkan metode via OPTIONS.')];
+    const p = parseAllowHeader(allow);
+    if (p.trace || p.track)
+      f.push(mk('httpmethods','medium','Metode TRACE/TRACK aktif',
+        'Header Allow: ' + allow.slice(0, 100),
+        'TRACE memungkinkan Cross-Site Tracing (XST): mencuri header sensitif bila ada celah XSS.',
+        'Nonaktifkan TRACE/TRACK: TraceEnable Off (Apache) / hapus di nginx.', 'Allow: ' + allow.slice(0, 100)));
+    if (p.put || p.del)
+      f.push(mk('httpmethods','high','Metode PUT/DELETE aktif',
+        'Header Allow: ' + allow.slice(0, 100),
+        'Metode tulis yang aktif bisa disalahgunakan untuk meng-upload/memodifikasi konten bila autentikasi lemah.',
+        'Nonaktifkan PUT/DELETE kecuali benar-benar dibutuhkan API dengan auth kuat.', 'Allow: ' + allow.slice(0, 100)));
+    if (!f.length) f.push(mkInfo('httpmethods','Metode aman','Allow: ' + allow.slice(0, 80)));
+  } catch (e) {
+    return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak merespons via proxy.')];
+  }
+  return f;
+}
+
 // 2 limitasi yang memang tidak bisa diakali dari browser — ditandai jujur, bukan di-skip.
 const UNSUPPORTED = [
   {id:'hsts-preload', name:'Status HSTS Preload', reason:'API hstspreload.org menolak CORS — tidak dapat dicek dari browser.'},
@@ -1031,8 +1580,17 @@ const MODULES = [
   {id:'fingerprint', name:'Fingerprint Teknologi', run:mFingerprint},
   {id:'ct', name:'Subdomain (Certificate Transparency)', run:mCt},
   {id:'cert', name:'Info Sertifikat', run:mCert},
+  {id:'takeover', name:'Subdomain Takeover', run:mTakeover},
   {id:'wayback', name:'Arsip Wayback Machine', run:mWayback},
   {id:'dirlist', name:'Directory Listing', run:mDirlist},
+  {id:'wp', name:'WordPress Hardening', run:mWp},
+  {id:'sourcemap', name:'Source Map Terekspos', run:mSourcemap},
+  {id:'login', name:'Form Login', run:mLogin},
+  {id:'supplychain', name:'Supply Chain (Script Pihak Ketiga)', run:mSupplychain},
+  {id:'openredirect', name:'Open Redirect (Pola)', run:mOpenredirect},
+  {id:'graphql', name:'GraphQL Introspection', run:mGraphql},
+  {id:'apidocs', name:'Dokumentasi API', run:mApidocs},
+  {id:'httpmethods', name:'HTTP Methods', run:mHttpmethods},
 ];
 
 function mk(module, severity, title, description, impact, remediation, evidence) {
@@ -1043,7 +1601,7 @@ function mkInfo(module, title, description) {
 }
 
 async function runScan(target, onProg) {
-  const ctx = {host: target.host, origin: target.origin, isHttps: target.origin.startsWith('https'), page: null, libs: [], scripts: [], cookieNames: [], ctRows: null, findings: []};
+  const ctx = {host: target.host, origin: target.origin, isHttps: target.origin.startsWith('https'), page: null, libs: [], scripts: [], cookieNames: [], techs: [], ctRows: null, findings: []};
   onProg('fetch', 'run');
   const pg = await fetchProxied(target.origin + '/');
   if (pg.ok) ctx.page = pg;
@@ -1085,6 +1643,8 @@ function mdSummary(url, res) {
   L.push('');
   L.push(`**Grade: ${res.grade} (${res.score}/100)** — 🔴${res.counts.critical} 🟠${res.counts.high} 🟡${res.counts.medium} 🔵${res.counts.low} ⚪${res.counts.info}`);
   L.push('');
+  L.push('**Ringkasan:** ' + execSummary(res));
+  L.push('');
   for (const f of res.findings.filter((x) => x.severity !== 'info')) {
     L.push(`## [${f.severity.toUpperCase()}] ${f.title}`);
     L.push('**Temuan:** ' + f.description);
@@ -1095,7 +1655,7 @@ function mdSummary(url, res) {
     if (f.evidence) L.push('**Bukti:** `' + f.evidence.slice(0, 200) + '`');
     L.push('');
   }
-  L.push('_Dipindai via Website Security Scanner (adip-tools) — 100% client-side, 16 modul aktif + 2 limitasi ditandai jujur._');
+  L.push('_Dipindai via Website Security Scanner (adip-tools) — 100% client-side, 25 modul aktif + 2 limitasi ditandai jujur._');
   return L.join('\n');
 }
 
@@ -1105,13 +1665,13 @@ export function render(root) {
 
   // ---- header ----
   function footerInfoText() {
-    return '16 modul aktif • 2 limitasi ditandai jujur (HSTS preload, versi TLS & cipher) — tanpa fake pass';
+    return '25 modul aktif • 2 limitasi ditandai jujur (HSTS preload, versi TLS & cipher) — tanpa fake pass';
   }
   T.show(box,
     '<div style="margin-bottom:14px">' +
     '<div style="font-size:20px;font-weight:700;margin-bottom:4px">🛡️ Website Security Scanner</div>' +
     '<div class="dim" style="font-size:13px;line-height:1.6">Pindai keamanan website: security header, DNS/email, sertifikat, secrets & file terekspos. ' +
-    '16 modul jalan 100% di browser <span class="dim">(tanpa data dikirim ke server kami)</span>; 2 limitasi (HSTS preload, versi TLS & cipher) ditandai jujur.</div>' +
+    '25 modul jalan 100% di browser <span class="dim">(tanpa data dikirim ke server kami)</span>; 2 limitasi (HSTS preload, versi TLS & cipher) ditandai jujur.</div>' +
     '<div id="aqws-modinfo" style="margin-top:8px;font-size:11px" class="dim">' + footerInfoText() + '</div></div>');
 
   // ---- form ----
@@ -1229,6 +1789,19 @@ export function render(root) {
         '<span style="font-size:11px;border:1px solid ' + SEV_STYLE[s].c + '55;border-radius:20px;padding:3px 10px;color:' + SEV_STYLE[s].c + '">' +
         SEV_STYLE[s].label + ' ' + res.counts[s] + '</span>').join('') +
       '</div></div>';
+
+    // ringkasan eksekutif + top 3 prioritas
+    const summ = execSummary(res);
+    html += '<div style="font-size:12px;line-height:1.7;border:1px solid #38bdf840;background:rgba(56,189,248,.06);border-radius:10px;padding:10px 12px;margin-bottom:12px;text-align:left">' +
+      '<b>📝 Ringkasan eksekutif:</b> ' + T.esc(summ) + '</div>';
+    const tops = topPriorities(res.findings);
+    if (tops.length) {
+      html += '<div style="font-size:12px;line-height:1.7;border:1px solid #f9731650;background:rgba(249,115,22,.06);border-radius:10px;padding:10px 12px;margin-bottom:12px;text-align:left">' +
+        '<b>🎯 Top 3 prioritas perbaikan:</b><ol style="margin:6px 0 0;padding-left:18px">' +
+        tops.map((t) => '<li style="margin-bottom:4px"><b style="color:' + ((SEV_STYLE[t.severity] || {}).c || '#fff') + '">[' + t.severity.toUpperCase() + ']</b> ' + T.esc(t.title) +
+          (t.firstStep ? '<br><span class="dim">Langkah pertama: ' + T.esc(t.firstStep) + '</span>' : '') + '</li>').join('') +
+        '</ol></div>';
+    }
 
     // filter
     html += '<div class="dim" style="font-size:11px;margin-bottom:10px">ℹ️ Section 🎯 bersifat edukatif-defensif — untuk belajar bertahan, bukan menyerang.</div>';
