@@ -2,14 +2,14 @@
  * Cara kerja: homepage target diambil via proxy CORS (test.cors.workers.dev,
  * fallback allorigins), DNS/email via DoH dns.google, umur domain via RDAP,
  * subdomain + info sertifikat via crt.sh, arsip via web.archive.org.
- * 15 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
+ * 16 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
  * diakali dari browser (hsts-preload: API menolak CORS; TLS: browser tidak
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
 import { h as T, utils } from '../../core.js?v=6.9.5';
 
-export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 15 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
+export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 16 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
 const DOH = 'https://dns.google/resolve';
 const PROXY_W = (u) => 'https://test.cors.workers.dev/?' + encodeURIComponent(u);
@@ -104,9 +104,17 @@ export function parseDmarc(txts) {
   if (!rec) return {status:'missing', sev:'high', detail:'tidak ada record DMARC'};
   const p = /p=([a-z]+)/i.exec(rec);
   const pol = p ? p[1].toLowerCase() : '';
-  if (pol === 'none') return {status:'monitor', sev:'medium', detail:'DMARC p=none — hanya monitoring, email palsu tidak ditolak'};
-  if (pol === 'quarantine' || pol === 'reject') return {status:'ok', detail:'p=' + pol};
-  return {status:'unknown', sev:'low', detail:rec};
+  const hasRua = /rua=/i.test(rec);
+  if (pol === 'none') return {status:'monitor', sev:'medium', detail:'DMARC p=none — hanya monitoring, email palsu tidak ditolak', hasRua};
+  if (pol === 'quarantine' || pol === 'reject') return {status:'ok', detail:'p=' + pol, hasRua};
+  return {status:'unknown', sev:'low', detail:rec, hasRua};
+}
+
+// Hitung mekanisme SPF yang memicu DNS lookup (batas RFC 7208: 10).
+// "a" dikecualikan dari awalan "-all"/"+all" via (?!ll) agar tidak salah hitung.
+export function countSpfLookups(rec) {
+  const m = String(rec || '').match(/\b(include:[^\s]+|a(?!ll)(?::[^\s]+)?|mx(?::[^\s]+)?|ptr(?::[^\s]+)?|exists:[^\s]+|redirect=[^\s]+)/gi);
+  return m ? m.length : 0;
 }
 
 // --- Ekstraksi HTML (murni) ---
@@ -160,6 +168,9 @@ export const VULN_DB = [
   {lib:'lodash', max:'4.17.21', cve:'CVE-2021-23337', sev:'high', note:'command injection via template'},
   {lib:'moment', max:'2.29.2', cve:'CVE-2022-24785', sev:'high', note:'ReDoS / path traversal locale'},
   {lib:'axios', max:'0.21.1', cve:'CVE-2020-28168', sev:'medium', note:'credential leakage redirect'},
+  {lib:'lodash', max:'4.17.11', cve:'CVE-2019-10744', sev:'medium', note:'prototype pollution'},
+  {lib:'moment', max:'2.29.4', cve:'CVE-2022-31129', sev:'high', note:'ReDoS parsing tanggal'},
+  {lib:'axios', max:'1.6.0', cve:'CVE-2023-45857', sev:'high', note:'CSRF bypass via XSRF-TOKEN'},
 ];
 export function matchLibVulns(libs) {
   const out = [];
@@ -192,6 +203,18 @@ export function headersFindings(h, isHttps) {
     impact:'Pengunjung bisa dipaksa turun ke HTTP via serangan SSL-stripping di jaringan yang tidak aman.',
     remediation:'Tambahkan Strict-Transport-Security: max-age=31536000; includeSubDomains.', evidence:''});
   const csp = h['content-security-policy'] || '';
+  if (has('content-security-policy')) {
+    if (!/report-uri|report-to/i.test(csp)) f.push({module:'headers', severity:'info',
+      title:'CSP tanpa pelaporan',
+      description:'CSP aktif tapi tanpa report-uri/report-to — pelanggaran kebijakan tidak terpantau.',
+      impact:'Upaya injeksi script (mis. XSS) terjadi tanpa jejak; pemilik situs tidak tahu sedang diserang.',
+      remediation:'Tambahkan report-uri atau report-to ke endpoint monitoring CSP.', evidence:''});
+    if (!/upgrade-insecure-requests/i.test(csp)) f.push({module:'headers', severity:'low',
+      title:'CSP tanpa upgrade-insecure-requests',
+      description:'CSP aktif tapi tidak memaksa upgrade subresource HTTP ke HTTPS.',
+      impact:'Subresource via HTTP tetap bisa dimuat — membuka celah mixed content.',
+      remediation:"Tambahkan directive 'upgrade-insecure-requests' ke CSP.", evidence:''});
+  }
   if (!has('x-frame-options') && !/frame-ancestors/i.test(csp)) f.push({module:'headers', severity:'medium',
     title:'Proteksi clickjacking tidak ada',
     description:'Tidak ada X-Frame-Options maupun frame-ancestors di CSP — halaman bisa di-embed di iframe situs lain.',
@@ -219,6 +242,9 @@ export function headersFindings(h, isHttps) {
 export function cookiesFindings(setCookies, isHttps) {
   const f = [];
   const noSecure = [], noHttpOnly = [], badSameSite = [], noSameSite = [];
+  // Tandai cookie yang namanya mirip sesi — prioritas pembajakan lebih tinggi.
+  const SESS_LIKE = /sess|session|sid|token|auth|login/i;
+  const markSess = (n) => SESS_LIKE.test(n) ? n + ' 🎯(mirip sesi)' : n;
   for (const raw of setCookies || []) {
     const parts = String(raw).split(';').map((s) => s.trim());
     const name = (parts[0] || '').split('=')[0] || '(tanpa nama)';
@@ -237,15 +263,15 @@ export function cookiesFindings(setCookies, isHttps) {
     impact:'Sesi bisa bocor lintas situs; fungsionalitas login berpotensi rusak di Chrome/Safari.',
     remediation:'Ganti ke SameSite=Lax (default aman) atau pastikan Secure bila memang butuh None.', evidence:badSameSite.join(', ')});
   if (noSecure.length) f.push({module:'cookies', severity:'medium',
-    title:'Cookie tanpa flag Secure: ' + noSecure.join(', '),
+    title:'Cookie tanpa flag Secure: ' + noSecure.map(markSess).join(', '),
     description:'Cookie dikirim juga lewat HTTP polos.',
     impact:'Di jaringan tidak aman (WiFi publik), cookie sesi bisa disadap dan dibajak.',
-    remediation:'Tambahkan flag Secure pada semua cookie sesi.', evidence:noSecure.join(', ')});
+    remediation:'Tambahkan flag Secure pada semua cookie sesi.', evidence:noSecure.map(markSess).join(', ')});
   if (noHttpOnly.length) f.push({module:'cookies', severity:'medium',
-    title:'Cookie tanpa HttpOnly: ' + noHttpOnly.join(', '),
+    title:'Cookie tanpa HttpOnly: ' + noHttpOnly.map(markSess).join(', '),
     description:'Cookie bisa dibaca JavaScript.',
     impact:'Bila ada celah XSS, penyerang mencuri cookie sesi langsung via document.cookie.',
-    remediation:'Tambahkan flag HttpOnly pada cookie sesi.', evidence:noHttpOnly.join(', ')});
+    remediation:'Tambahkan flag HttpOnly pada cookie sesi.', evidence:noHttpOnly.map(markSess).join(', ')});
   if (noSameSite.length) f.push({module:'cookies', severity:'low',
     title:'Cookie tanpa atribut SameSite: ' + noSameSite.join(', '),
     description:'Mengandalkan default browser.',
@@ -304,6 +330,10 @@ export const SECRET_PATTERNS = [
   {re:/xox[bap]-[A-Za-z0-9\-]+/g, type:'Slack Token', sev:'high'},
   {re:/-----BEGIN (?:RSA )?PRIVATE KEY-----/g, type:'Private Key', sev:'critical'},
   {re:/['"](?:api[_-]?key|apikey|secret[_-]?key|client[_-]?secret)['"]\s*[:=]\s*['"]([A-Za-z0-9\-_]{16,})['"]/gi, type:'API key generik', sev:'medium'},
+  {re:/sk_live_[0-9A-Za-z]{24,}/g, type:'Stripe Secret Key (live)', sev:'critical'},
+  {re:/(?:ghp|gho)_[0-9A-Za-z]{36}/g, type:'GitHub Token', sev:'critical'},
+  {re:/discord\.com\/api\/webhooks\/\d+\/[A-Za-z0-9_-]+/g, type:'Discord Webhook', sev:'high'},
+  {re:/\b\d{6,12}:[A-Za-z0-9_-]{35}\b/g, type:'Telegram Bot Token', sev:'high'},
 ];
 export function scanSecretsInText(text, fileLabel) {
   const out = [];
@@ -322,6 +352,68 @@ export function scanSecretsInText(text, fileLabel) {
   }
   return out;
 }
+/* ============ BLOK "ATTACKER" (edukatif-defensif) ============
+ * attackerFor(module, title) → {technique, tools:[], how} atau null.
+ * null = temuan negatif/info-kosong (tidak perlu blok attacker).
+ * Penjelasan konseptual saja — bukan tutorial eksploitasi.
+ */
+const ATTACKER_NEG_RE = /^\s*tidak (ada|dapat|ditemukan|terdeteksi)/i;
+// {mod, re, technique, tools, how} — re:null = fallback generik per module.
+const ATTACKER_TABLE = [
+  {mod:'headers', re:/content-security-policy/i, technique:'XSS (cross-site scripting)', tools:['Burp Suite','OWASP ZAP','dalfox'], how:'Attacker menyuntikkan skrip jahat ke halaman; tanpa CSP, browser mengeksekusinya tanpa batasan.'},
+  {mod:'headers', re:/hsts/i, technique:'SSL stripping (downgrade attack)', tools:['mitmproxy','Bettercap'], how:'Di jaringan publik attacker memaksa koneksi turun ke HTTP lalu mengintip lalu lintas.'},
+  {mod:'headers', re:/clickjacking/i, technique:'Clickjacking / UI redressing', tools:['Burp Suite (Clickbandit)'], how:'Halaman asli dibingkai di situs jebakan; klik korban diarahkan ke tombol berbahaya.'},
+  {mod:'headers', re:/nosniff/i, technique:'MIME-sniffing attack', tools:['Burp Suite'], how:'File upload berisi skrip tersembunyi bisa dieksekusi karena browser menebak tipe konten.'},
+  {mod:'headers', re:/referrer-policy/i, technique:'Kebocoran data via Referer', tools:[], how:'URL berisi token/ID bocor ke pihak ketiga lewat header Referer.'},
+  {mod:'headers', re:null, technique:'Header reconnaissance', tools:['Nikto'], how:'Header dipindai untuk memetakan pertahanan situs sebelum serangan lanjutan.'},
+  {mod:'cookies', re:/samesite=none/i, technique:'Session hijacking lintas-situs', tools:['Burp Suite'], how:'Cookie sesi dikirim ke situs lain sehingga bisa dipanen lewat situs jebakan.'},
+  {mod:'cookies', re:/tanpa flag secure/i, technique:'Session hijacking (network sniffing)', tools:['Wireshark','mitmproxy'], how:'Cookie disadap di WiFi publik karena ikut terkirim lewat HTTP polos.'},
+  {mod:'cookies', re:/httponly/i, technique:'Pencurian sesi via XSS', tools:['BeEF','dalfox'], how:'Skrip jahat membaca document.cookie langsung bila ada celah XSS.'},
+  {mod:'cookies', re:/samesite/i, technique:'CSRF (Cross-Site Request Forgery)', tools:['Burp Suite'], how:'Browser otomatis mengirim cookie ke request palsu dari situs lain.'},
+  {mod:'cookies', re:null, technique:'Cookie analysis', tools:['Burp Suite'], how:'Cookie dianalisa untuk mencari sesi yang bisa dibajak.'},
+  {mod:'cors', re:null, technique:'Cross-origin data theft', tools:['Burp Suite'], how:'Situs jahat yang diizinkan dapat membaca respons API korban dari browser korban.'},
+  {mod:'redirect', re:null, technique:'SSL stripping', tools:['mitmproxy','sslstrip'], how:'Korban diarahkan ke versi HTTP situs; kredensial terlihat jelas.'},
+  {mod:'disclosure', re:null, technique:'Targeted CVE search', tools:['nmap -sV','whatweb','searchsploit'], how:'Versi server dicocokkan ke database CVE publik untuk serangan tertarget.'},
+  {mod:'dns', re:/\bspf\b/i, technique:'Email spoofing / phishing', tools:['GoPhish'], how:'Email palsu dikirim mengatasnamakan domain; penerima tak bisa membedakan.'},
+  {mod:'dns', re:/\bdmarc\b/i, technique:'Email spoofing / phishing', tools:['GoPhish'], how:'Tanpa DMARC, email spoofing yang lolos SPF/DKIM tetap masuk inbox.'},
+  {mod:'dns', re:/lookup/i, technique:'SPF permerror', tools:[], how:'SPF rusak = proteksi email gagal total (fail-open).'},
+  {mod:'dns', re:/\bdkim\b/i, technique:'Email spoofing', tools:['GoPhish'], how:'Tanpa tanda tangan DKIM, email mudah dipalsukan.'},
+  {mod:'dns', re:/\bcaa\b/i, technique:'Rogue certificate issuance', tools:[], how:'Sertifikat bisa diterbitkan dari CA yang kurang ketat.'},
+  {mod:'dns', re:/mta-sts/i, technique:'STARTTLS stripping', tools:['mitmproxy'], how:'Koneksi email dipaksa tanpa TLS lalu disadap.'},
+  {mod:'dns', re:/dnssec/i, technique:'DNS spoofing / cache poisoning', tools:[], how:'Respons DNS palsu mengarahkan korban ke server attacker.'},
+  {mod:'dns', re:null, technique:'Email & DNS reconnaissance', tools:['dig'], how:'Infrastruktur email/DNS dipetakan untuk serangan lanjutan.'},
+  {mod:'rdap', re:/baru/i, technique:'Phishing domain', tools:['GoPhish'], how:'Domain berumur hitungan hari dipakai untuk situs tipu-tipu sebelum diblokir.'},
+  {mod:'rdap', re:/kedaluwarsa/i, technique:'Domain takeover', tools:[], how:'Domain kedaluwarsa didaftarkan ulang lalu dipakai untuk phishing.'},
+  {mod:'rdap', re:null, technique:'OSINT domain', tools:[], how:'Data pendaftaran dipakai untuk profil target.'},
+  {mod:'html', re:/\bsri\b/i, technique:'Supply-chain attack via CDN', tools:[], how:'Bila CDN terkompromi, semua pengunjung dimuati kode jahat tanpa pemilik sadar.'},
+  {mod:'html', re:/mixed content/i, technique:'MITM content injection', tools:['mitmproxy'], how:'Resource HTTP disadap dan dimodifikasi di tengah jalan.'},
+  {mod:'jscve', re:null, technique:'Known-CVE exploitation', tools:['searchsploit','Metasploit'], how:'Versi lawas dicocokkan ke CVE publik lalu dieksploitasi dengan tool siap pakai.'},
+  {mod:'secrets', re:null, technique:'Secret scanning', tools:['trufflehog','gitleaks'], how:'File JS publik dipindai pola kredensial; yang ketemu langsung disalahgunakan.'},
+  {mod:'paths', re:/\.git/i, technique:'Repository reconstruction', tools:['GitHack','git-dumper'], how:'Objek git publik disalin lalu direkonstruksi menjadi source + history commit.'},
+  {mod:'paths', re:/\.env/i, technique:'Credential harvesting', tools:['Nuclei','Nikto'], how:'File environment dipanen untuk API key dan password database.'},
+  {mod:'paths', re:/backup/i, technique:'Backup file discovery', tools:['gobuster','feroxbuster'], how:'File backup berisi database/source lengkap.'},
+  {mod:'paths', re:/robots/i, technique:'Forced browsing', tools:['gobuster'], how:'Entri Disallow justru menjadi peta jalan.'},
+  {mod:'paths', re:null, technique:'Content discovery / forced browsing', tools:['gobuster','feroxbuster','dirb'], how:'Path tersembunyi ditebak sistematis dengan wordlist.'},
+  {mod:'fingerprint', re:null, technique:'Technology fingerprinting', tools:['whatweb','Wappalyzer'], how:'Stack teknologi dipetakan untuk memilih serangan yang cocok.'},
+  {mod:'ct', re:null, technique:'Attack surface mapping', tools:['subfinder','amass'], how:'Subdomain didaftar dari log CT publik; tiap subdomain potensi pintu masuk.'},
+  {mod:'cert', re:null, technique:'Man-in-the-middle', tools:['mitmproxy'], how:'Sertifikat mati memicu peringatan browser; attacker menyela dengan sertifikat palsu.'},
+  {mod:'wayback', re:null, technique:'Historical data mining', tools:[], how:'Arsip publik digali untuk file/data sensitif yang sudah dihapus dari server.'},
+  {mod:'dirlist', re:null, technique:'Directory reconnaissance', tools:['gobuster','dirsearch'], how:'Listing direktori membocorkan struktur dan nama file sensitif.'},
+];
+const ATTACKER_GLOBAL = {technique:'Manual reconnaissance', tools:[], how:'Temuan ini menjadi bahan pemetaan awal sebelum serangan lanjutan.'};
+
+export function attackerFor(module, title) {
+  if (!module || title == null) return null;
+  if (ATTACKER_NEG_RE.test(String(title))) return null;
+  const t = String(title);
+  for (const row of ATTACKER_TABLE) {
+    if (row.mod !== module) continue;
+    if (row.re && !row.re.test(t)) continue;
+    return {technique: row.technique, tools: row.tools.slice(), how: row.how};
+  }
+  return {technique: ATTACKER_GLOBAL.technique, tools: [], how: ATTACKER_GLOBAL.how};
+}
+
 // Parse event RDAP → {created, expires} (ISO string atau null)
 export function parseRdapEvents(rdap) {
   const ev = (rdap && rdap.events) || [];
@@ -467,6 +559,13 @@ async function mDnsEmail(ctx) {
     else if (p.status === 'weak') f.push(mk('dns','medium','SPF terlalu longgar', p.detail,
       'SPF yang longgar praktis tidak melindungi dari spoofing.',
       'Ketatkan SPF: daftarkan hanya IP/layanan pengirim yang sah, akhiri dengan -all.', p.detail.slice(0,120)));
+    else if (p.status === 'ok') {
+      const lookups = countSpfLookups(p.detail);
+      if (lookups > 10) f.push(mk('dns','medium','SPF melebihi 10 DNS lookup',
+        'Record SPF memakai ' + lookups + ' mekanisme yang memicu DNS lookup (batas RFC 7208: 10).',
+        'Melebihi batas → SPF error (permerror) dan proteksi email gagal total (fail-open).',
+        'Kurangi include/a/mx/ptr/redirect — gabungkan layanan pengirim atau pakai makro SPF.', 'lookup: ' + lookups));
+    }
   }
   // DMARC
   if (dmarc === null) f.push(mkInfo('dns', 'DMARC tidak dapat dicek', 'Query DNS gagal.'));
@@ -478,6 +577,10 @@ async function mDnsEmail(ctx) {
     else if (p.sev === 'medium') f.push(mk('dns','medium','DMARC hanya mode monitoring', p.detail,
       'Email palsu tetap terkirim — mode none tidak menolak apa pun.',
       'Naikkan bertahap ke p=quarantine lalu p=reject setelah monitoring.', p.detail.slice(0,120)));
+    if ((p.status === 'ok' || p.status === 'monitor') && !p.hasRua) f.push(mk('dns','low','DMARC tanpa rua',
+      'DMARC aktif tapi tanpa alamat pelaporan agregat (rua).',
+      'Tanpa laporan agregat, penyalahgunaan domain (spoofing) tidak terpantau.',
+      'Tambahkan rua=mailto:dmarc@' + H + ' di record DMARC.', ''));
   }
   // DKIM probe selector umum
   const sels = ['default','google','k1','selector1','selector2','s1','mail'];
@@ -654,36 +757,152 @@ async function mSecrets(ctx) {
   if (!f.length) f.push(mkInfo('secrets','Bersih','Dipindai ' + scanned + ' file JS — tidak ada pola secret umum.'));
   return f;
 }
+// Probe path sensitif: {path, sev, title, desc, impact, fix, sniff}.
+// sniff(text) → string bukti untuk ditampilkan, atau null bila tidak cocok.
+const PROBE = [
+  {path:'/.git/HEAD', sev:'critical', title:'Direktori /.git/ terekspos',
+   desc:'/.git/HEAD dapat diakses publik (HTTP 200).',
+   impact:'Penyerang mengunduh seluruh riwayat Git: source code + credential yang pernah ter-commit.',
+   fix:'Blokir di web server, mis. nginx: location ~ /\\.git { deny all; }',
+   sniff:(t) => /^ref:\s*refs\//m.test(t) ? t.slice(0, 60) : null},
+  {path:'/.git/config', sev:'critical', title:'File /.git/config terekspos',
+   desc:'/.git/config dapat diakses publik (HTTP 200).',
+   impact:'File config membocorkan URL remote & detail repo — konfirmasi /.git/ terekspos dan bisa direkonstruksi.',
+   fix:'Blokir di web server, mis. nginx: location ~ /\\.git { deny all; }',
+   sniff:(t) => /\[core\]/i.test(t) ? t.slice(0, 60) : null},
+  {path:'/.git/logs/HEAD', sev:'critical', title:'Git log /.git/logs/HEAD terekspos',
+   desc:'/.git/logs/HEAD dapat diakses publik (HTTP 200).',
+   impact:'Log Git membocorkan history commit + hash — mempercepat rekonstruksi repo.',
+   fix:'Blokir di web server, mis. nginx: location ~ /\\.git { deny all; }',
+   sniff:(t) => /[0-9a-f]{40}/i.test(t) ? t.slice(0, 60) : null},
+  {path:'/.env', sev:'critical', title:'File /.env dapat diakses publik',
+   desc:'/.env terbaca (HTTP 200) dan tampak seperti file environment.',
+   impact:'Berisi credential: API key, password database, secret aplikasi.',
+   fix:'Jangan pernah taruh .env di document root; blokir aksesnya.',
+   sniff:(t) => (/=/m.test(t) && !/<html/i.test(t)) ? 'terdeteksi pola KEY=VALUE' : null},
+  {path:'/.env.bak', sev:'critical', title:'File /.env.bak dapat diakses publik',
+   desc:'/.env.bak terbaca (HTTP 200) — salinan backup file environment.',
+   impact:'Sama berbahayanya dengan /.env: berisi credential aplikasi.',
+   fix:'Hapus file backup dari direktori publik; simpan di luar document root.',
+   sniff:(t) => (/=/m.test(t) && !/<html/i.test(t)) ? 'terdeteksi pola KEY=VALUE' : null},
+  {path:'/.env.old', sev:'critical', title:'File /.env.old dapat diakses publik',
+   desc:'/.env.old terbaca (HTTP 200) — salinan lama file environment.',
+   impact:'Sama berbahayanya dengan /.env: berisi credential aplikasi.',
+   fix:'Hapus file backup dari direktori publik; simpan di luar document root.',
+   sniff:(t) => (/=/m.test(t) && !/<html/i.test(t)) ? 'terdeteksi pola KEY=VALUE' : null},
+  {path:'/composer.json', sev:'medium', title:'composer.json terekspos',
+   desc:'composer.json dapat diakses publik (HTTP 200) — daftar dependency PHP.',
+   impact:'Versi dependency PHP dipetakan untuk mencari CVE yang cocok.',
+   fix:'Blokir akses composer.json dari publik.',
+   sniff:(t) => /"(name|require)"/i.test(t) ? 'composer.json valid terdeteksi' : null},
+  {path:'/package.json', sev:'medium', title:'package.json terekspos',
+   desc:'package.json dapat diakses publik (HTTP 200) — daftar dependency Node.',
+   impact:'Versi dependency Node dipetakan untuk mencari CVE yang cocok.',
+   fix:'Blokir akses package.json dari publik.',
+   sniff:(t) => /"(name|require)"/i.test(t) ? 'package.json valid terdeteksi' : null},
+  {path:'/.svn/entries', sev:'high', title:'Direktori /.svn/ terekspos',
+   desc:'/.svn/entries dapat diakses publik (HTTP 200).',
+   impact:'Metadata Subversion membocorkan struktur repo & URL source.',
+   fix:'Blokir /.svn di web server.',
+   sniff:(t) => t.length > 20 ? t.slice(0, 40) : null},
+  {path:'/.hg/hgrc', sev:'high', title:'Direktori /.hg/ terekspos',
+   desc:'/.hg/hgrc dapat diakses publik (HTTP 200).',
+   impact:'Metadata Mercurial membocorkan URL remote & struktur repo.',
+   fix:'Blokir /.hg di web server.',
+   sniff:(t) => /\[paths\]/i.test(t) ? t.slice(0, 40) : null},
+  {path:'/server-status', sev:'medium', title:'server-status Apache terekspos',
+   desc:'Halaman server-status Apache dapat diakses publik.',
+   impact:'Membocorkan request aktif, worker, dan path internal server.',
+   fix:'Batasi server-status ke IP internal (Require ip ...).',
+   sniff:(t) => /apache status/i.test(t) ? 'Apache server-status aktif' : null},
+  {path:'/server-info', sev:'medium', title:'server-info Apache terekspos',
+   desc:'Halaman server-info Apache dapat diakses publik.',
+   impact:'Membocorkan konfigurasi & modul server lengkap.',
+   fix:'Batasi server-info ke IP internal.',
+   sniff:(t) => /apache server information/i.test(t) ? 'Apache server-info aktif' : null},
+  {path:'/phpinfo.php', sev:'medium', title:'phpinfo() terekspos',
+   desc:'Halaman phpinfo() dapat diakses publik.',
+   impact:'Membocorkan versi PHP, ekstensi, path, dan konfigurasi server lengkap.',
+   fix:'Hapus file phpinfo.php dari server produksi.',
+   sniff:(t) => /php version|phpinfo\(\)/i.test(t) ? 'phpinfo terdeteksi' : null},
+  {path:'/web.config', sev:'low', title:'web.config terekspos',
+   desc:'web.config IIS dapat diakses publik.',
+   impact:'Membocorkan konfigurasi IIS; berpotensi mengungkap connection string.',
+   fix:'Blokir akses web.config dari publik.',
+   sniff:(t) => /<configuration/i.test(t) ? 'web.config IIS terdeteksi' : null},
+  {path:'/crossdomain.xml', sev:'low', title:'crossdomain.xml terekspos',
+   desc:'crossdomain.xml dapat diakses publik.',
+   impact:'Policy cross-domain yang longgar bisa mengizinkan akses lintas-domain tak diinginkan.',
+   fix:'Ketatkan policy atau hapus bila tidak dipakai.',
+   sniff:(t) => /cross-domain-policy/i.test(t) ? 'cross-domain-policy ditemukan' : null},
+  {path:'/dump.sql', sev:'high', title:'File backup terekspos: /dump.sql',
+   desc:'/dump.sql dapat diunduh (HTTP 200).',
+   impact:'Dump database berisi data lengkap — jackpot bagi penyerang.',
+   fix:'Hapus file dump dari direktori publik; simpan di luar document root.',
+   sniff:(t) => (t.length > 500 && !/<html/i.test(t)) ? t.length + ' bytes' : null},
+  {path:'/db.sqlite', sev:'high', title:'File backup terekspos: /db.sqlite',
+   desc:'/db.sqlite dapat diunduh (HTTP 200).',
+   impact:'File database SQLite berisi data aplikasi lengkap.',
+   fix:'Hapus file database dari direktori publik.',
+   sniff:(t) => /SQLite format 3/.test(t) ? 'header SQLite terdeteksi' : ((t.length > 500 && !/<html/i.test(t)) ? t.length + ' bytes' : null)},
+  {path:'/debug.log', sev:'medium', title:'debug.log terekspos',
+   desc:'/debug.log dapat diakses publik.',
+   impact:'Log debug membocorkan path internal, query, dan kadang credential.',
+   fix:'Hapus log dari direktori publik; matikan debug di produksi.',
+   sniff:(t) => (/debug|error|warning|exception|stack trace/i.test(t) && t.length > 100) ? 'pola log terdeteksi' : null},
+  {path:'/actuator', sev:'medium', title:'Spring Actuator terekspos: /actuator',
+   desc:'/actuator dapat diakses publik — endpoint manajemen Spring Boot.',
+   impact:'Actuator membocorkan health, env, dan konfigurasi aplikasi.',
+   fix:'Batasi akses actuator ke internal / nonaktifkan endpoint sensitif.',
+   sniff:(t) => /"status"|spring/i.test(t) ? 'actuator terdeteksi' : null},
+  {path:'/.DS_Store', sev:'low', title:'File /.DS_Store terekspos',
+   desc:'/.DS_Store dapat diakses publik.',
+   impact:'File metadata macOS membocorkan nama file di direktori.',
+   fix:'Hapus .DS_Store dari server; tambahkan ke .gitignore.',
+   sniff:(t) => t.length > 10 ? t.length + ' bytes' : null},
+  {path:'/backup.zip', sev:'high', title:'File backup terekspos: /backup.zip',
+   desc:'/backup.zip dapat diunduh (HTTP 200).',
+   impact:'Backup berisi database/source lengkap — jackpot bagi penyerang.',
+   fix:'Hapus file backup dari direktori publik; simpan di luar document root.',
+   sniff:(t) => t.length > 500 ? t.length + ' bytes' : null},
+  {path:'/db.sql', sev:'high', title:'File backup terekspos: /db.sql',
+   desc:'/db.sql dapat diunduh (HTTP 200).',
+   impact:'Backup berisi database/source lengkap — jackpot bagi penyerang.',
+   fix:'Hapus file backup dari direktori publik; simpan di luar document root.',
+   sniff:(t) => (t.length > 500 && !/<html/i.test(t)) ? t.length + ' bytes' : null},
+  {path:'/database.sql', sev:'high', title:'File backup terekspos: /database.sql',
+   desc:'/database.sql dapat diunduh (HTTP 200).',
+   impact:'Backup berisi database/source lengkap — jackpot bagi penyerang.',
+   fix:'Hapus file backup dari direktori publik; simpan di luar document root.',
+   sniff:(t) => (t.length > 500 && !/<html/i.test(t)) ? t.length + ' bytes' : null},
+  {path:'/backup.sql', sev:'high', title:'File backup terekspos: /backup.sql',
+   desc:'/backup.sql dapat diunduh (HTTP 200).',
+   impact:'Backup berisi database/source lengkap — jackpot bagi penyerang.',
+   fix:'Hapus file backup dari direktori publik; simpan di luar document root.',
+   sniff:(t) => (t.length > 500 && !/<html/i.test(t)) ? t.length + ' bytes' : null},
+  {path:'/wp-config.php.bak', sev:'high', title:'File backup terekspos: /wp-config.php.bak',
+   desc:'/wp-config.php.bak dapat diunduh (HTTP 200).',
+   impact:'Backup berisi database/source lengkap — jackpot bagi penyerang.',
+   fix:'Hapus file backup dari direktori publik; simpan di luar document root.',
+   sniff:(t) => (t.length > 500 && !/<html/i.test(t)) ? t.length + ' bytes' : null},
+];
 async function mPaths(ctx) {
   const f = [];
   const base = await fetchProxied(ctx.origin + '/aqws-probe-' + Math.random().toString(36).slice(2, 10) + '/');
   const baseLen = base.ok ? base.text.length : 0;
   const sameAs404 = (t) => base.ok && Math.abs(t.length - baseLen) < Math.max(200, baseLen * 0.1);
   const get = (p) => fetchProxied(ctx.origin + p, {timeout: 12000});
-  // /.git/HEAD
-  let r = await get('/.git/HEAD');
-  if (r.ok && r.status === 200 && /^ref:\s*refs\//m.test(r.text || ''))
-    f.push(mk('paths','critical','Direktori /.git/ terekspos','/.git/HEAD dapat diakses publik (HTTP 200).',
-      'Penyerang mengunduh seluruh riwayat Git: source code + credential yang pernah ter-commit.',
-      'Blokir di web server, mis. nginx: location ~ /\\.git { deny all; }', r.text.slice(0, 60)));
-  // /.env
-  r = await get('/.env');
-  if (r.ok && r.status === 200 && /=/m.test(r.text || '') && !/<html/i.test(r.text || '') && !sameAs404(r.text || ''))
-    f.push(mk('paths','critical','File /.env dapat diakses publik','/.env terbaca (HTTP 200) dan tampak seperti file environment.',
-      'Berisi credential: API key, password database, secret aplikasi.',
-      'Jangan pernah taruh .env di document root; blokir aksesnya.', 'terdeteksi pola KEY=VALUE'));
-  // backup files
-  for (const p of ['/backup.zip', '/db.sql', '/database.sql', '/backup.sql', '/wp-config.php.bak']) {
-    r = await get(p);
-    if (r.ok && r.status === 200 && (r.text || '').length > 500 && !sameAs404(r.text || '')) {
-      f.push(mk('paths','high','File backup terekspos: ' + p, p + ' dapat diunduh (HTTP 200, ' + r.text.length + ' bytes).',
-        'Backup berisi database/source lengkap — jackpot bagi penyerang.',
-        'Hapus file backup dari direktori publik; simpan di luar document root.', p));
-      break;
-    }
+  for (const pr of PROBE) {
+    const r = await get(pr.path);
+    if (!(r.ok && r.status === 200)) continue;
+    const text = r.text || '';
+    if (sameAs404(text)) continue;
+    const ev = pr.sniff(text);
+    if (ev == null) continue;
+    f.push(mk('paths', pr.sev, pr.title, pr.desc, pr.impact, pr.fix, pr.path + ' — ' + ev));
   }
   // robots.txt (+ deep dive)
-  r = await get('/robots.txt');
+  let r = await get('/robots.txt');
   if (r.ok && r.status === 200 && /disallow/i.test(r.text || '')) {
     const {disallows, sensitive} = parseRobots(r.text);
     f.push(mkInfo('paths','robots.txt ada (' + disallows.length + ' Disallow)','Dianalisa di bawah.'));
@@ -771,6 +990,24 @@ async function mWayback(ctx) {
   }
 }
 
+// Modul 16 — Directory listing (100% client-side via proxy).
+const DIRLIST_PATHS = ['/', '/images/', '/uploads/', '/assets/', '/backup/', '/files/'];
+async function mDirlist(ctx) {
+  const f = [];
+  for (const p of DIRLIST_PATHS) {
+    try {
+      const r = await fetchProxied(ctx.origin + p, {timeout: 10000});
+      if (r.ok && r.status === 200 && /<title>\s*Index of \//i.test(r.text || ''))
+        f.push(mk('dirlist','medium','Directory listing aktif di ' + p,
+          'Server menampilkan daftar isi direktori ' + p + ' ("Index of /").',
+          'Penyerang melihat struktur direktori & nama file sensitif tanpa perlu menebak.',
+          'Matikan directory listing: Options -Indexes (Apache) / autoindex off (nginx).', p));
+    } catch (e) { /* lanjut ke path berikutnya */ }
+  }
+  if (!f.length) f.push(mkInfo('dirlist','Tidak ada directory listing terdeteksi','6 path umum dicek — tidak ada yang menampilkan "Index of /".'));
+  return f;
+}
+
 // 2 limitasi yang memang tidak bisa diakali dari browser — ditandai jujur, bukan di-skip.
 const UNSUPPORTED = [
   {id:'hsts-preload', name:'Status HSTS Preload', reason:'API hstspreload.org menolak CORS — tidak dapat dicek dari browser.'},
@@ -793,6 +1030,7 @@ const MODULES = [
   {id:'ct', name:'Subdomain (Certificate Transparency)', run:mCt},
   {id:'cert', name:'Info Sertifikat', run:mCert},
   {id:'wayback', name:'Arsip Wayback Machine', run:mWayback},
+  {id:'dirlist', name:'Directory Listing', run:mDirlist},
 ];
 
 function mk(module, severity, title, description, impact, remediation, evidence) {
@@ -850,10 +1088,12 @@ function mdSummary(url, res) {
     L.push('**Temuan:** ' + f.description);
     L.push('**Skenario:** ' + f.impact);
     L.push('**Perbaikan:** ' + f.remediation);
+    const atk = attackerFor(f.module, f.title);
+    if (atk) L.push('**Teknik attacker:** ' + atk.technique + (atk.tools.length ? ' (tools umum: ' + atk.tools.join(', ') + ')' : ''));
     if (f.evidence) L.push('**Bukti:** `' + f.evidence.slice(0, 200) + '`');
     L.push('');
   }
-  L.push('_Dipindai via Website Security Scanner (adip-tools) — 100% client-side, 15 modul aktif + 2 limitasi ditandai jujur._');
+  L.push('_Dipindai via Website Security Scanner (adip-tools) — 100% client-side, 16 modul aktif + 2 limitasi ditandai jujur._');
   return L.join('\n');
 }
 
@@ -863,13 +1103,13 @@ export function render(root) {
 
   // ---- header ----
   function footerInfoText() {
-    return '15 modul aktif • 2 limitasi ditandai jujur (HSTS preload, versi TLS & cipher) — tanpa fake pass';
+    return '16 modul aktif • 2 limitasi ditandai jujur (HSTS preload, versi TLS & cipher) — tanpa fake pass';
   }
   T.show(box,
     '<div style="margin-bottom:14px">' +
     '<div style="font-size:20px;font-weight:700;margin-bottom:4px">🛡️ Website Security Scanner</div>' +
     '<div class="dim" style="font-size:13px;line-height:1.6">Pindai keamanan website: security header, DNS/email, sertifikat, secrets & file terekspos. ' +
-    '15 modul jalan 100% di browser <span class="dim">(tanpa data dikirim ke server kami)</span>; 2 limitasi (HSTS preload, versi TLS & cipher) ditandai jujur.</div>' +
+    '16 modul jalan 100% di browser <span class="dim">(tanpa data dikirim ke server kami)</span>; 2 limitasi (HSTS preload, versi TLS & cipher) ditandai jujur.</div>' +
     '<div id="aqws-modinfo" style="margin-top:8px;font-size:11px" class="dim">' + footerInfoText() + '</div></div>');
 
   // ---- form ----
@@ -989,6 +1229,7 @@ export function render(root) {
       '</div></div>';
 
     // filter
+    html += '<div class="dim" style="font-size:11px;margin-bottom:10px">ℹ️ Section 🎯 bersifat edukatif-defensif — untuk belajar bertahan, bukan menyerang.</div>';
     html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="aqws-filter">';
     html += ['all','critical','high','medium','low','info'].map((s) =>
       '<button data-f="' + s + '" style="font-size:11px;border-radius:16px;padding:4px 12px;cursor:pointer;border:1px solid ' +
@@ -1011,6 +1252,14 @@ export function render(root) {
       if (!items.length) { listEl.innerHTML = '<div class="dim" style="font-size:12px;padding:8px">Tidak ada temuan pada filter ini. 👌</div>'; return; }
       listEl.innerHTML = items.map((f, i) => {
         const st = SEV_STYLE[f.severity] || SEV_STYLE.info;
+        const atk = attackerFor(f.module, f.title);
+        let atkHtml = '';
+        if (atk) {
+          atkHtml = '<div style="margin-bottom:6px"><b>🎯 Cara Attacker Menyerang:</b> <span class="dim"><b>' +
+            T.esc(atk.technique) + '</b> — ' + T.esc(atk.how) + '</span>' +
+            (atk.tools.length ? '<br><span class="dim">🛠️ Tools yang umum dipakai: ' + T.esc(atk.tools.join(', ')) + '</span>' : '') +
+            '</div>';
+        }
         return '<details style="border:1px solid #ffffff15;border-radius:10px;margin-bottom:8px;background:#101013">' +
           '<summary style="padding:10px 12px;cursor:pointer;font-size:13px;list-style:none;display:flex;gap:8px;align-items:flex-start">' +
           '<span style="flex-shrink:0;margin-top:1px;width:8px;height:8px;border-radius:50%;background:' + st.c + '"></span>' +
@@ -1019,6 +1268,7 @@ export function render(root) {
           '<div style="margin-bottom:6px"><b>🔍 Temuan:</b> <span class="dim">' + T.esc(f.description) + '</span></div>' +
           (f.impact && f.impact !== '-' ? '<div style="margin-bottom:6px"><b>⚠️ Skenario penyalahgunaan:</b> <span class="dim">' + T.esc(f.impact) + '</span></div>' : '') +
           (f.remediation && f.remediation !== '-' ? '<div style="margin-bottom:6px"><b>🔧 Cara memperbaiki:</b> <span class="dim">' + T.esc(f.remediation) + '</span></div>' : '') +
+          atkHtml +
           (f.evidence ? '<div><b>🧾 Bukti:</b><br><code style="font-size:11px;word-break:break-all;color:#a1a1aa">' + T.esc(f.evidence) + '</code></div>' : '') +
           '</div></details>';
       }).join('');
