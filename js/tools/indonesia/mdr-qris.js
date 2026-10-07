@@ -4,11 +4,12 @@ export const meta = {"id": "mdr-qris", "name": "Kalkulator Biaya QRIS", "cat": "
 export function render(root) {
   const nominal = T.input('number', 'cth: 100000', '');
   const katSel = T.select([
-    ['mikro', 'Mikro — 0%'],
-    ['kecil', 'Kecil — 0,7%'],
-    ['menengah', 'Menengah — 0,7%'],
-    ['besar', 'Besar — 0,7%'],
-    ['khusus', 'Khusus/SPBU — 0,4%'],
+    ['mikro', 'Mikro (UMI) — 0%/0,3%'],
+    ['kecil', 'Kecil (UKE) — 0%/0,7%'],
+    ['menengah', 'Menengah (UME) — 0%/0,7%'],
+    ['besar', 'Besar (UBE) — 0%/0,7%'],
+    ['pendidikan', 'Pendidikan — 0,6%'],
+    ['khusus', 'SPBU — 0,4%'],
     ['kustom', 'Kustom — isi sendiri']
   ], 'kecil');
   const kustomWrap = T.el('<div></div>');
@@ -17,13 +18,35 @@ export function render(root) {
   kustomWrap.hidden = true;
   const box = T.out();
 
-  const RATE = { mikro: 0, kecil: 0.7, menengah: 0.7, besar: 0.7, khusus: 0.4 };
+  // Tarif BI efektif 1 Okt 2026. Batas bebas potongan dihitung PER TRANSAKSI.
+  // bebas = batas nominal MDR 0% (Rp), rate = tarif reguler di atas batas (%).
+  const TIER = {
+    mikro:      { bebas: 500000, rate: 0.3 },
+    kecil:      { bebas: 100000, rate: 0.7 },
+    menengah:   { bebas: 100000, rate: 0.7 },
+    besar:      { bebas: 100000, rate: 0.7 },
+    pendidikan: { bebas: 0, rate: 0.6 },
+    khusus:     { bebas: 0, rate: 0.4 }
+  };
 
   const hitung = () => {
     const n = T.num(nominal.value);
     if (!(n > 0)) { T.hide(box); return; }
-    let rate = katSel.value === 'kustom' ? T.num(kustomInp.value) : RATE[katSel.value];
-    if (isNaN(rate) || rate < 0) rate = 0;
+    let rate, tierNote;
+    if (katSel.value === 'kustom') {
+      rate = T.num(kustomInp.value);
+      if (isNaN(rate) || rate < 0) rate = 0;
+      tierNote = 'tarif kustom';
+    } else {
+      const t = TIER[katSel.value];
+      if (t.bebas > 0 && n <= t.bebas) {
+        rate = 0;
+        tierNote = 'bebas potongan (≤ ' + T.rp(t.bebas) + ' per transaksi, aturan BI 1 Okt 2026)';
+      } else {
+        rate = t.rate;
+        tierNote = t.bebas > 0 ? 'di atas batas bebas potongan ' + T.rp(t.bebas) : 'tarif tetap';
+      }
+    }
     const potongan = n * rate / 100;
     const diterima = n - potongan;
     const katLabel = katSel.options[katSel.selectedIndex].textContent;
@@ -32,9 +55,9 @@ export function render(root) {
       '<p class="center mut" style="font-size:13px">Dana diterima merchant</p>' +
       kv('Nominal transaksi', T.rp(n)) +
       kv('Kategori merchant', T.esc(katLabel)) +
-      kv('MDR', T.esc(String(rate).replace('.', ',')) + '%') +
+      kv('MDR', T.esc(String(rate).replace('.', ',')) + '% — ' + T.esc(tierNote)) +
       kv('Potongan MDR', '<span class="warn">−' + T.rp(potongan) + '</span>') +
-      '<p class="hint">Estimasi/penyederhanaan, bukan ketentuan resmi. Acuan umum MDR QRIS Bank Indonesia — tarif bisa beda per acquirer/penyedia layanan.</p>');
+      '<p class="hint">Acuan tarif BI efektif 1 Okt 2026: MDR 0% untuk transaksi ≤ Rp100.000 (semua kategori) dan ≤ Rp500.000 (usaha mikro); di atas itu 0,7% (kecil/menengah/besar), 0,3% (mikro), 0,6% (pendidikan), 0,4% (SPBU). Estimasi/penyederhanaan — tarif bisa beda per acquirer/penyedia layanan.</p>');
   };
 
   katSel.addEventListener('change', () => {

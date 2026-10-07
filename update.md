@@ -1,3 +1,16 @@
+# Update — 7 Okt 2026: Tarif MDR QRIS baru BI 1 Okt 2026 (v6.9.14 → v6.9.15)
+
+Kalkulator Biaya QRIS (`indonesia/mdr-qris`) disesuaikan ke kebijakan BI efektif
+1 Okt 2026 (perluasan MDR 0% — batas per transaksi):
+- Mikro (UMI): 0% untuk transaksi ≤ Rp500.000, 0,3% di atasnya
+- Kecil (UKE) / Menengah (UME) / Besar (UBE): 0% untuk transaksi ≤ Rp100.000, 0,7% di atasnya
+- Kategori baru: Pendidikan — 0,6% (tarif tetap)
+- SPBU — 0,4% (tetap), Kustom — isi sendiri (tetap)
+
+Hasil kini menunjukkan tarif yang dipakai + keterangannya (mis. "bebas potongan
+(≤ Rp100.000 per transaksi, aturan BI 1 Okt 2026)"). check-tools.js lolos
+376/376, logika tier diuji 7/7 kasus tepi. Belum push ke main (menunggu persetujuan).
+
 # Update — 1 Okt 2026: Smart Search & Visual-First (v5.1.0 → v5.2.0)
 
 Atas persetujuan owner via mockup: bikin user satset nemu tool tanpa buang waktu,
