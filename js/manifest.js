@@ -1,8 +1,8 @@
-/* ADIP Tools v6.9.13 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.9.14 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.9.13';
+export const VERSION = '6.9.14';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"beli-vs-sewa","name":"Beli vs Sewa","cat":"bisnis","icon":"⚖️","desc":"Bandingkan total biaya beli vs sewa + titik impasnya.","keywords":"beli,sewa,break even,impas,perbandingan,biaya","file":"tools/bisnis/beli-vs-sewa.js"},
@@ -46,6 +46,7 @@ export const manifest = [
   {"id":"konversi-suhu-oven","name":"Suhu Oven","cat":"converter","icon":"🔥","desc":"Konversi suhu oven °C/°F/Gas Mark.","keywords":"oven,suhu,gas mark,masak,resep","file":"tools/converter/konversi-suhu-oven.js"},
   {"id":"morse","name":"Sandi Morse","cat":"converter","icon":"📻","desc":"Teks ↔ sandi Morse + bunyi.","keywords":"morse,sandi,kode","file":"tools/converter/morse.js"},
   {"id":"number-converter","name":"Konverter Angka","cat":"converter","icon":"🔢","desc":"Biner, oktal, desimal, hex, dan romawi.","keywords":"angka,biner,hex,romawi,desimal,oktal","file":"tools/converter/number-converter.js"},
+  {"id":"qris-parser","name":"QRIS String Parser","cat":"converter","icon":"🧾","desc":"Bedah payload QRIS/EMVCo per field + cek CRC.","keywords":"qris,emvco,parser,crc,payload","file":"tools/converter/qris-parser.js"},
   {"id":"slug-generator","name":"Slug Generator","cat":"converter","icon":"🏷️","desc":"Judul jadi slug URL yang rapi.","keywords":"slug,url,judul,link","file":"tools/converter/slug-generator.js"},
   {"id":"terbilang","name":"Terbilang Indonesia","cat":"converter","icon":"💬","desc":"Angka jadi kata bahasa Indonesia.","keywords":"terbilang,angka,kata,rupiah","file":"tools/converter/terbilang.js"},
   {"id":"ukuran-baju","name":"Ukuran Baju","cat":"converter","icon":"👕","desc":"Konversi ukuran baju internasional.","keywords":"baju,ukuran,size,pakaian","file":"tools/converter/ukuran-baju.js"},
@@ -104,9 +105,11 @@ export const manifest = [
   {"id":"xml-formatter","name":"XML Formatter","cat":"developer","icon":"📰","desc":"Rapikan & validasi XML.","keywords":"xml,format","file":"tools/developer/xml-formatter.js"},
   {"id":"zerowidth","name":"Detektor Karakter Tak Terlihat","cat":"developer","icon":"👻","desc":"Temukan zero-width & karakter aneh di teks.","keywords":"zerowidth,karakter,tersembunyi,invisible","file":"tools/developer/zerowidth.js"},
   {"id":"fake-achievement","name":"Fake Achievement Unlock","cat":"fakesos","icon":"🏆","desc":"Notifikasi achievement palsu ala Xbox / Steam / PlayStation + unduh PNG.","keywords":"achievement,xbox,steam,playstation,ps,trophy,fake,palsu,prank,gamer,gamerscore","file":"tools/fakesos/fake-achievement.js"},
+  {"id":"fake-boarding-pass","name":"Fake Boarding Pass","cat":"fakesos","icon":"✈️","desc":"Bikin boarding pass pesawat palsu buat prank + unduh PNG.","keywords":"boarding pass,pesawat,tiket,bandara,airport,fake,palsu,prank","file":"tools/fakesos/fake-boarding-pass.js"},
   {"id":"fake-call","name":"Fake Panggilan Masuk","cat":"fakesos","icon":"📞","desc":"Bikin screenshot layar panggilan masuk palsu + unduh PNG.","keywords":"telepon,call,panggilan,fake,palsu,screenshot,prank","file":"tools/fakesos/fake-call.js"},
   {"id":"fake-chat-wa","name":"Fake Chat WA","cat":"fakesos","icon":"💬","desc":"Bikin screenshot chat WhatsApp palsu + unduh PNG.","keywords":"whatsapp,chat,fake,palsu,screenshot,prank,android,iphone","file":"tools/fakesos/fake-chat-wa.js"},
   {"id":"fake-dm-ig","name":"Fake DM Instagram","cat":"fakesos","icon":"📩","desc":"Bikin screenshot DM Instagram palsu + unduh PNG.","keywords":"instagram,dm,chat,fake,palsu,screenshot,prank,android,iphone","file":"tools/fakesos/fake-dm-ig.js"},
+  {"id":"fake-dm-tiktok","name":"Fake DM TikTok","cat":"fakesos","icon":"🎵","desc":"Bikin screenshot chat DM TikTok palsu + unduh PNG.","keywords":"tiktok,dm,chat,direct message,fake,palsu,screenshot,prank,android,iphone","file":"tools/fakesos/fake-dm-tiktok.js"},
   {"id":"fake-imessage","name":"Fake iMessage","cat":"fakesos","icon":"💙","desc":"Bikin screenshot chat iMessage palsu + unduh PNG.","keywords":"imessage,iphone,chat,fake,palsu,screenshot,prank","file":"tools/fakesos/fake-imessage.js"},
   {"id":"fake-komen-tiktok","name":"Fake Komen TikTok","cat":"fakesos","icon":"🎶","desc":"Bikin screenshot komentar TikTok palsu + unduh PNG.","keywords":"tiktok,komentar,fake,palsu,screenshot,prank","file":"tools/fakesos/fake-komen-tiktok.js"},
   {"id":"fake-komen-yt","name":"Fake Komen YouTube","cat":"fakesos","icon":"<svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z\"/></svg>","desc":"Bikin screenshot komentar YouTube palsu + unduh PNG.","keywords":"youtube,komen,komentar,fake,palsu,screenshot,prank","file":"tools/fakesos/fake-komen-yt.js"},
@@ -148,6 +151,8 @@ export const manifest = [
   {"id":"tod-indonesia","name":"Truth or Dare Indonesia","cat":"fun","icon":"😈","desc":"Main truth or dare bareng, 110 soal anti basi.","keywords":"truth or dare,tod,jujur,tantangan,game,main bareng,nongkrong","file":"tools/fun/tod-indonesia.js"},
   {"id":"zodiak-hari-ini","name":"Zodiak Hari Ini","cat":"fun","icon":"♈","desc":"Cek zodiakmu + ramalan receh hari ini. Cuma hiburan!","keywords":"zodiak,ramalan,horoskop,bintang,lahir","file":"tools/fun/zodiak-hari-ini.js"},
   {"id":"aspect-ratio","name":"Kalkulator Rasio","cat":"gambar","icon":"📐","desc":"Rasio aspek & resolusi.","keywords":"rasio,aspek,resolusi,ukuran","file":"tools/gambar/aspect-ratio.js"},
+  {"id":"bentuk-foto","name":"Crop Bentuk Foto","cat":"gambar","icon":"⭐","desc":"Crop foto jadi lingkaran, hati, bintang, atau sudut bulat.","keywords":"crop,bentuk,lingkaran,hati,bintang,rounded,foto profil,png","file":"tools/gambar/bentuk-foto.js"},
+  {"id":"bingkai-foto","name":"Bingkai Foto","cat":"gambar","icon":"🖼️","desc":"Tambah bingkai warna ke foto, atur tebal & sudutnya.","keywords":"bingkai,frame,border,foto,warna,tebal,sudut,png","file":"tools/gambar/bingkai-foto.js"},
   {"id":"blur-foto","name":"Blur Foto (Sensor)","cat":"gambar","icon":"🫣","desc":"Sensor area foto dengan blur pixel.","keywords":"blur,sensor,foto,pixel,privasi","file":"tools/gambar/blur-foto.js"},
   {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop foto sesuai rasio pas foto resmi.","keywords":"pas foto,crop,ktp,lamaran,rasio","file":"tools/gambar/crop-pas-foto.js"},
   {"id":"efek-cermin","name":"Efek Cermin","cat":"gambar","icon":"🪞","desc":"Bikin efek cermin/kaleidoskop sederhana dari foto.","keywords":"cermin,mirror,foto,efek,kaleidoskop","file":"tools/gambar/efek-cermin.js"},
@@ -165,6 +170,7 @@ export const manifest = [
   {"id":"palet-foto","name":"Palet Warna dari Foto","cat":"gambar","icon":"🎨","desc":"Ambil 6 warna dominan dari fotomu.","keywords":"palet,warna,foto,hex,dominan,swatch,desain","file":"tools/gambar/palet-foto.js"},
   {"id":"pixel-art","name":"Pixel Art","cat":"gambar","icon":"👾","desc":"Ubah foto jadi pixel art retro.","keywords":"pixel,pixelate,retro,foto,efek","file":"tools/gambar/pixel-art.js"},
   {"id":"split-grid-ig","name":"Split Grid Instagram","cat":"gambar","icon":"🔲","desc":"Potong foto jadi grid siap posting berurutan ke IG.","keywords":"instagram,grid,split,potong,foto,feed,puzzle","file":"tools/gambar/split-grid-ig.js"},
+  {"id":"stiker-wa","name":"Stiker WA Maker","cat":"gambar","icon":"💬","desc":"Ubah foto jadi stiker WhatsApp 512×512 siap pakai.","keywords":"stiker,whatsapp,wa,sticker,stiker wa,png,512","file":"tools/gambar/stiker-wa.js"},
   {"id":"teks-di-foto","name":"Teks di Foto","cat":"gambar","icon":"🔤","desc":"Tambahkan tulisan ke foto.","keywords":"teks,foto,caption,meme,tulisan","file":"tools/gambar/teks-di-foto.js"},
   {"id":"twibbon-maker","name":"Twibbon Maker","cat":"gambar","icon":"🖼️","desc":"Bikin twibbon: bingkai + pita teks buat fotomu.","keywords":"twibbon,bingkai,frame,foto,kampanye,pita,teks","file":"tools/gambar/twibbon-maker.js"},
   {"id":"watermark-foto","name":"Watermark Foto","cat":"gambar","icon":"©️","desc":"Tempel watermark teks ke foto, unduh PNG.","keywords":"watermark,foto,teks,tulisan,hak cipta,logo,png,download","file":"tools/gambar/watermark-foto.js"},
@@ -361,10 +367,12 @@ export const manifest = [
   {"id":"generator-hashtag","name":"Generator Hashtag","cat":"teks","icon":"#️⃣","desc":"Bikin 15 hashtag siap pakai dari satu topik.","keywords":"hashtag,tagar,instagram,tiktok,reels,caption","file":"tools/teks/generator-hashtag.js"},
   {"id":"hitung-suku-kata","name":"Hitung Suku Kata","cat":"teks","icon":"🗣️","desc":"Estimasi suku kata per kata Bahasa Indonesia.","keywords":"suku kata,puisi,pantun,bahasa indonesia,hitung","file":"tools/teks/hitung-suku-kata.js"},
   {"id":"lorem-ipsum","name":"Lorem Ipsum Generator","cat":"teks","icon":"📄","desc":"Generator teks dummy.","keywords":"lorem,dummy,teks","file":"tools/teks/lorem-ipsum.js"},
+  {"id":"pantun-generator","name":"Pantun Generator","cat":"teks","icon":"📜","desc":"Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.","keywords":"pantun,sampiran,isi,puisi,indonesia","file":"tools/teks/pantun-generator.js"},
   {"id":"pembuat-singkatan","name":"Pembuat Singkatan","cat":"teks","icon":"🔤","desc":"Bikin beberapa varian singkatan dari kalimat atau frasa.","keywords":"singkatan,akronim,initsial,abbreviation,frasa","file":"tools/teks/pembuat-singkatan.js"},
   {"id":"pengacak-kalimat","name":"Pengacak Kalimat","cat":"teks","icon":"🔀","desc":"Acak urutan kata dalam tiap kalimat.","keywords":"acak,kata,kalimat,shuffle,random,teks","file":"tools/teks/pengacak-kalimat.js"},
   {"id":"sandikan-teks","name":"Sandi Teks","cat":"teks","icon":"🔏","desc":"Enkripsi teks dengan sandi Caesar & Vigenère.","keywords":"sandi,caesar,vigenere,enkripsi,rahasia","file":"tools/teks/sandikan-teks.js"},
   {"id":"sensor-teks","name":"Sensor Teks","cat":"teks","icon":"🙈","desc":"Sensor kata/nomor otomatis.","keywords":"sensor,kata,kasar,privasi","file":"tools/teks/sensor-teks.js"},
+  {"id":"teks-alay","name":"Text Alay Generator","cat":"teks","icon":"🅰️","desc":"Ubah teks normal jadi gaya alay Indonesia.","keywords":"alay,gaya teks,gaul,leetspeak,4lay","file":"tools/teks/teks-alay.js"},
   {"id":"teks-mocking","name":"Teks Mocking","cat":"teks","icon":"🐔","desc":"Ubah teks jadi tEkS mOcKiNg ala SpongeBob.","keywords":"mocking,spongebob,teks,lucu,acak,besar kecil,ejekan","file":"tools/teks/teks-mocking.js"},
   {"id":"teks-pelangi","name":"Teks Pelangi","cat":"teks","icon":"🌈","desc":"Ubah teks jadi pelangi huruf per huruf, salin sebagai HTML.","keywords":"pelangi,rainbow,teks berwarna,html,warnai teks,gradient teks","file":"tools/teks/teks-pelangi.js"},
   {"id":"text-diff","name":"Pembanding Teks","cat":"teks","icon":"🔀","desc":"Bandingkan dua teks.","keywords":"diff,banding,teks","file":"tools/teks/text-diff.js"},
