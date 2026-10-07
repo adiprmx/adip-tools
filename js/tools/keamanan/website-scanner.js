@@ -1,13 +1,15 @@
-/* Website Security Scanner — 100% client-side (tanpa backend).
+/* Website Security Scanner — 100% client-side, tanpa backend.
  * Cara kerja: homepage target diambil via proxy CORS (test.cors.workers.dev,
- * fallback allorigins), DNS/email via DoH dns.google, umur domain via RDAP.
- * Modul yang TIDAK BISA jalan di browser ditandai jujur "tidak dapat dicek
- * dari browser" — tidak ada fake pass.
+ * fallback allorigins), DNS/email via DoH dns.google, umur domain via RDAP,
+ * subdomain + info sertifikat via crt.sh, arsip via web.archive.org.
+ * 15 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
+ * diakali dari browser (hsts-preload: API menolak CORS; TLS: browser tidak
+ * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
 import { h as T, utils } from '../../core.js?v=6.9.5';
 
-export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, secrets & exposure. 100% di browser.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
+export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 15 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
 const DOH = 'https://dns.google/resolve';
 const PROXY_W = (u) => 'https://test.cors.workers.dev/?' + encodeURIComponent(u);
@@ -327,6 +329,72 @@ export function parseRdapEvents(rdap) {
   return {created: get('registration'), expires: get('expiration')};
 }
 
+// fetch dengan retry + timeout per percobaan (AbortController) + backoff.
+// Tiap percobaan gagal → tunggu backoffBase*2^(n-1) ms; habis tries → throw error terakhir.
+export async function fetchRetry(url, {tries=3, timeout=12000, backoffBase=1500}={}) {
+  let lastErr = null;
+  for (let n = 1; n <= tries; n++) {
+    const c = new AbortController();
+    const t = setTimeout(() => c.abort(), timeout);
+    try {
+      const r = await fetch(url, {signal: c.signal});
+      clearTimeout(t);
+      return r;
+    } catch (e) {
+      clearTimeout(t);
+      lastErr = e;
+      if (n < tries) await new Promise((res) => setTimeout(res, backoffBase * 2 ** (n - 1)));
+    }
+  }
+  throw lastErr;
+}
+
+// Parse JSON crt.sh → daftar subdomain unik (buang prefix wildcard), maks 50.
+export function parseCtJson(json) {
+  const rows = Array.isArray(json) ? json : [];
+  const set = new Set();
+  for (const row of rows) {
+    const nv = String((row && row.name_value) || '');
+    for (const line of nv.split('\n')) {
+      const s = line.trim().toLowerCase().replace(/^\*\./, '');
+      if (s) set.add(s);
+    }
+  }
+  return [...set].slice(0, 50);
+}
+
+// Ambil sertifikat dengan not_after paling baru dari JSON crt.sh.
+// Return {expiry_days, not_after, issuer_name} atau null bila tak ada data tanggal.
+// nowMs opsional (untuk unit test); default Date.now().
+export function certExpiry(json, nowMs) {
+  const rows = Array.isArray(json) ? json : [];
+  let best = null;
+  for (const row of rows) {
+    if (!row || !row.not_after) continue;
+    const ts = Date.parse(row.not_after);
+    if (isNaN(ts)) continue;
+    if (!best || ts > best.ts) best = {ts, not_after: row.not_after, issuer_name: row.issuer_name || ''};
+  }
+  if (!best) return null;
+  const now = nowMs != null ? nowMs : Date.now();
+  return {expiry_days: (best.ts - now) / 86400000, not_after: best.not_after, issuer_name: best.issuer_name};
+}
+
+// Pola URL sensitif yang dicari di arsip Wayback (lowercase, partial match).
+export const WAYBACK_SENSITIVE = ['?password=', '/.env', '/backup', '/admin', '.sql', '.zip', '/.git'];
+// Parse JSON CDX web.archive.org → {count, sensitive[], sample[]}. Baris pertama (header) dilewati.
+export function parseWayback(json) {
+  const rows = Array.isArray(json) ? json : [];
+  const urls = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!Array.isArray(row) || !row[2]) continue;
+    urls.push(String(row[2]));
+  }
+  const sensitive = [...new Set(urls.filter((u) => WAYBACK_SENSITIVE.some((p) => u.toLowerCase().includes(p.toLowerCase()))))].slice(0, 10);
+  return {count: urls.length, sensitive, sample: urls.slice(0, 5)};
+}
+
 /* ================= FETCH HELPERS ================= */
 function tFetch(url, {timeout = 15000, ...opts} = {}) {
   const c = new AbortController();
@@ -644,12 +712,69 @@ async function mFingerprint(ctx) {
     'Sembunyikan versi spesifik bila memungkinkan.', techs.map((t)=>t.name).join(', '))];
 }
 
-// Modul yang JUJUR tidak bisa di browser
+// Modul 13 — Subdomain via Certificate Transparency (100% client-side: crt.sh).
+// Respons crt.sh disimpan di ctx.ctRows agar modul cert bisa pakai tanpa fetch 2x.
+const CT_FAIL_REASON = 'crt.sh tidak dapat dijangkau setelah 3x percobaan';
+async function mCt(ctx) {
+  try {
+    const r = await fetchRetry('https://crt.sh/?q=%25.' + encodeURIComponent(ctx.host) + '&output=json', {timeout: 12000});
+    if (!r.ok) throw new Error('crt.sh HTTP ' + r.status);
+    const rows = await r.json();
+    ctx.ctRows = Array.isArray(rows) ? rows : [];
+    const subs = parseCtJson(ctx.ctRows);
+    if (!subs.length) return [mkInfo('ct','Tidak ada subdomain di CT','crt.sh tidak mencatat subdomain untuk ' + ctx.host + '.')];
+    return [mk('ct','info','Subdomain terdaftar di Certificate Transparency: ' + subs.length,
+      'Ditemukan ' + subs.length + ' nama host unik dari log CT publik' + (subs.length === 50 ? ' (dibatasi 50)' : '') + '.',
+      'Subdomain yang terekspos memperluas permukaan serangan — tiap subdomain adalah potensi titik masuk.',
+      'Audit subdomain yang tak terpakai; nonaktifkan yang tidak perlu; pantau log CT untuk mendeteksi subdomain liar (subdomain takeover).',
+      subs.slice(0, 20).join('\n') + (subs.length > 20 ? '\n…' : ''))];
+  } catch (e) {
+    ctx.ctRows = null;
+    return [mkInfo('ct','Subdomain CT tidak dapat dicek', CT_FAIL_REASON + ' — modul dianggap tidak dapat menilai.')];
+  }
+}
+
+// Modul 14 — Info sertifikat dari data CT (reuse ctx.ctRows, tanpa fetch tambahan).
+async function mCert(ctx) {
+  if (!ctx.ctRows || !ctx.ctRows.length)
+    return [mkInfo('cert','Sertifikat tidak dapat dicek','Tidak ada data sertifikat (crt.sh tidak dapat dijangkau) — modul dianggap tidak dapat menilai.')];
+  const c = certExpiry(ctx.ctRows);
+  if (!c) return [mkInfo('cert','Sertifikat tidak dapat dicek','Data crt.sh tidak memuat tanggal kedaluwarsa.')];
+  const dateStr = String(c.not_after).slice(0, 10);
+  const issuer = c.issuer_name || 'tidak diketahui';
+  const days = Math.floor(c.expiry_days);
+  if (c.expiry_days < 0) return [mk('cert','critical','Sertifikat kedaluwarsa',
+    'Sertifikat domain ini kedaluwarsa pada ' + dateStr + ' (' + Math.abs(days) + ' hari lalu). Penerbit: ' + issuer + '.',
+    'Pengunjung melihat peringatan browser "koneksi tidak aman" — lalu lintas bisa disadap tanpa terdeteksi.',
+    'Perbarui sertifikat SEGERA dan aktifkan auto-renew (mis. Let\'s Encrypt + certbot).', 'not_after: ' + c.not_after)];
+  if (c.expiry_days < 30) return [mk('cert','high','Sertifikat kedaluwarsa <30 hari',
+    'Sertifikat valid sampai ' + dateStr + ' (' + days + ' hari lagi). Penerbit: ' + issuer + '.',
+    'Kedaluwarsa mendadak = situs menampilkan peringatan browser, pengunjung kabur dan trust jatuh.',
+    'Jadwalkan perpanjangan sekarang; pasang monitoring kedaluwarsa sertifikat.', 'not_after: ' + c.not_after)];
+  return [mkInfo('cert','Sertifikat valid s/d ' + dateStr, 'Berlaku ' + days + ' hari lagi. Penerbit: ' + issuer + '.')];
+}
+
+// Modul 15 — Arsip Wayback Machine (100% client-side: CDX API web.archive.org).
+const WAYBACK_FAIL_REASON = 'web.archive.org tidak dapat dijangkau setelah 3x percobaan';
+async function mWayback(ctx) {
+  try {
+    const r = await fetchRetry('http://web.archive.org/cdx/search/cdx?url=' + encodeURIComponent(ctx.host) + '/*&output=json&limit=50&collapse=urlkey&filter=statuscode:200', {timeout: 12000});
+    if (!r.ok) throw new Error('wayback HTTP ' + r.status);
+    const p = parseWayback(await r.json());
+    if (p.sensitive.length) return [mk('wayback','medium','Jejak sensitif di arsip publik (' + p.sensitive.length + ')',
+      'Ditemukan URL berpola sensitif di arsip Wayback Machine: ' + p.sensitive.map((u) => u.slice(0, 70)).join(', ') + '.',
+      'Arsip publik menyimpan salinan halaman/file yang mungkin sudah dihapus dari server — termasuk yang mengandung data sensitif.',
+      'Pastikan file sensitif tidak terekspos; ajukan penghapusan ke web.archive.org bila perlu.', p.sensitive.join('\n'))];
+    return [mkInfo('wayback','Arsip Wayback: ' + p.count + ' snapshot','Tidak ditemukan pola URL sensitif di arsip publik. (Contoh: ' + (p.sample[0] ? p.sample[0].slice(0, 60) : '-') + ')')];
+  } catch (e) {
+    return [mkInfo('wayback','Arsip Wayback tidak dapat dicek', WAYBACK_FAIL_REASON + ' — modul dianggap tidak dapat menilai.')];
+  }
+}
+
+// 2 limitasi yang memang tidak bisa diakali dari browser — ditandai jujur, bukan di-skip.
 const UNSUPPORTED = [
-  {id:'ct', name:'Subdomain (Certificate Transparency)', reason:'crt.sh tidak dapat dijangkau (502) — butuh backend untuk query CT log.'},
-  {id:'wayback', name:'Arsip Wayback Machine', reason:'API CDX arsip tidak stabil dari browser — butuh backend.'},
-  {id:'hsts-preload', name:'Status HSTS Preload', reason:'API hstspreload.org menolak CORS — butuh backend.'},
-  {id:'tls', name:'Detail TLS & Sertifikat', reason:'Browser tidak mengekspos cipher suite / chain sertifikat ke JavaScript — butuh backend.'},
+  {id:'hsts-preload', name:'Status HSTS Preload', reason:'API hstspreload.org menolak CORS — tidak dapat dicek dari browser.'},
+  {id:'tls', name:'Versi TLS & cipher suite', reason:'Browser tidak mengekspos versi TLS & cipher suite ke JavaScript.'},
 ];
 
 const MODULES = [
@@ -665,6 +790,9 @@ const MODULES = [
   {id:'secrets', name:'Secrets di JavaScript', run:mSecrets},
   {id:'paths', name:'Path & File Terekspos', run:mPaths},
   {id:'fingerprint', name:'Fingerprint Teknologi', run:mFingerprint},
+  {id:'ct', name:'Subdomain (Certificate Transparency)', run:mCt},
+  {id:'cert', name:'Info Sertifikat', run:mCert},
+  {id:'wayback', name:'Arsip Wayback Machine', run:mWayback},
 ];
 
 function mk(module, severity, title, description, impact, remediation, evidence) {
@@ -675,7 +803,7 @@ function mkInfo(module, title, description) {
 }
 
 async function runScan(target, onProg) {
-  const ctx = {host: target.host, origin: target.origin, isHttps: target.origin.startsWith('https'), page: null, libs: [], scripts: [], cookieNames: [], findings: []};
+  const ctx = {host: target.host, origin: target.origin, isHttps: target.origin.startsWith('https'), page: null, libs: [], scripts: [], cookieNames: [], ctRows: null, findings: []};
   onProg('fetch', 'run');
   const pg = await fetchProxied(target.origin + '/');
   if (pg.ok) ctx.page = pg;
@@ -725,7 +853,7 @@ function mdSummary(url, res) {
     if (f.evidence) L.push('**Bukti:** `' + f.evidence.slice(0, 200) + '`');
     L.push('');
   }
-  L.push('_Dipindai via Website Security Scanner (adip-tools) — 100% client-side._');
+  L.push('_Dipindai via Website Security Scanner (adip-tools) — 100% client-side, 15 modul aktif + 2 limitasi ditandai jujur._');
   return L.join('\n');
 }
 
@@ -734,12 +862,15 @@ export function render(root) {
   let lastCooldownUntil = 0, scanning = false, curFilter = 'all', lastRes = null, lastUrl = '';
 
   // ---- header ----
+  function footerInfoText() {
+    return '15 modul aktif • 2 limitasi ditandai jujur (HSTS preload, versi TLS & cipher) — tanpa fake pass';
+  }
   T.show(box,
     '<div style="margin-bottom:14px">' +
     '<div style="font-size:20px;font-weight:700;margin-bottom:4px">🛡️ Website Security Scanner</div>' +
-    '<div class="dim" style="font-size:13px;line-height:1.6">Pindai keamanan website: security header, DNS/email, secrets & file terekspos. ' +
-    '<b>100% jalan di browser</b> — tanpa backend, tanpa data dikirim ke server kami.</div>' +
-    '<div style="margin-top:8px;font-size:11px" class="dim">12 modul aktif • 4 modul ditandai "tidak dapat dicek dari browser" (jujur, tanpa fake pass)</div></div>');
+    '<div class="dim" style="font-size:13px;line-height:1.6">Pindai keamanan website: security header, DNS/email, sertifikat, secrets & file terekspos. ' +
+    '15 modul jalan 100% di browser <span class="dim">(tanpa data dikirim ke server kami)</span>; 2 limitasi (HSTS preload, versi TLS & cipher) ditandai jujur.</div>' +
+    '<div id="aqws-modinfo" style="margin-top:8px;font-size:11px" class="dim">' + footerInfoText() + '</div></div>');
 
   // ---- form ----
   const inp = T.input('https://contoh.com', 'URL website yang mau dipindai');
@@ -805,7 +936,10 @@ export function render(root) {
       return;
     }
     scanning = true; btnScan.disabled = true; btnScan.textContent = '⏳ Memindai…';
-    resBox.innerHTML = ''; buildProgress();
+    resBox.innerHTML = '';
+    const fi = box.querySelector('#aqws-modinfo');
+    if (fi) fi.textContent = footerInfoText();
+    buildProgress();
     try {
       const ctx = await runScan(target, setProg);
       const res = calcScore(ctx.findings);
@@ -862,7 +996,7 @@ export function render(root) {
       ';color:#e4e4e7">' + (s === 'all' ? 'Semua' : SEV_STYLE[s].label) + '</button>').join('');
     html += '</div><div id="aqws-list"></div>';
 
-    // keterbatasan jujur
+    // keterbatasan jujur: 2 limitasi yang memang tidak bisa diakali dari browser
     html += '<div style="margin-top:14px;font-size:12px;border:1px dashed #ffffff25;border-radius:10px;padding:10px 12px">' +
       '<div style="font-weight:700;margin-bottom:6px">🚫 Tidak dapat dicek dari browser (jujur, bukan di-skip diam-diam)</div>' +
       UNSUPPORTED.map((u) => '<div style="margin:3px 0" class="dim">• <b>' + T.esc(u.name) + ':</b> ' + T.esc(u.reason) + '</div>').join('') + '</div>';

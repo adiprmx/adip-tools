@@ -1,8 +1,8 @@
-/* ADIP Tools v6.9.15 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.9.16 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.9.15';
+export const VERSION = '6.9.16';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"beli-vs-sewa","name":"Beli vs Sewa","cat":"bisnis","icon":"⚖️","desc":"Bandingkan total biaya beli vs sewa + titik impasnya.","keywords":"beli,sewa,break even,impas,perbandingan,biaya","file":"tools/bisnis/beli-vs-sewa.js"},
@@ -237,7 +237,7 @@ export const manifest = [
   {"id":"tebak-url-palsu","name":"Tebak URL Palsu","cat":"keamanan","icon":"🔗","desc":"Kuis 8 soal: tebak URL asli atau palsu dari tampilannya.","keywords":"url,kuis,phising,typosquatting,edukasi,keamanan,link","file":"tools/keamanan/tebak-url-palsu.js"},
   {"id":"totp-generator","name":"OTP Authenticator","cat":"keamanan","icon":"⏱️","desc":"Kode OTP 30-detik dari secret (kayak Google Authenticator).","keywords":"otp,authenticator,2fa,kode","file":"tools/keamanan/totp-generator.js"},
   {"id":"uuid-generator","name":"UUID Generator","cat":"keamanan","icon":"🆔","desc":"Buat UUID v4 acak.","keywords":"uuid,acak,id","file":"tools/keamanan/uuid-generator.js"},
-  {"id":"website-scanner","name":"Website Security Scanner","cat":"keamanan","icon":"🛡️","desc":"Pindai keamanan website: header, DNS, email, secrets & exposure. 100% di browser.","keywords":"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan","file":"tools/keamanan/website-scanner.js"},
+  {"id":"website-scanner","name":"Website Security Scanner","cat":"keamanan","icon":"🛡️","desc":"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 15 modul browser + 2 ditandai jujur.","keywords":"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan","file":"tools/keamanan/website-scanner.js"},
   {"id":"wifi-qr","name":"WiFi QR Generator","cat":"keamanan","icon":"📶","desc":"QR WiFi siap scan — tamu konek tanpa ketik password.","keywords":"wifi,qr,ssid,password,scan,kode wifi,wireless,hotspot","file":"tools/keamanan/wifi-qr.js"},
   {"id":"anjing-random","name":"Anjing Random","cat":"liveapi","icon":"🐶","desc":"Foto anjing acak dari seluruh dunia.","keywords":"anjing,dog,puppy,hewan,random,foto","file":"tools/liveapi/anjing-random.js"},
   {"id":"apod-harian","name":"Foto Antariksa Harian","cat":"liveapi","icon":"🪐","desc":"Foto astronomi harian resmi dari NASA (APOD).","keywords":"nasa,apod,antariksa,astronomi,foto,planet,luar angkasa","file":"tools/liveapi/apod-harian.js"},
