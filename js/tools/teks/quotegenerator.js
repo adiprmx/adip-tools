@@ -79,9 +79,14 @@ function renderQuote(canvas, text, author) {
   lines.forEach((ln, li) => {
     const last = li === lines.length - 1;
     const sp = ctx.measureText(' ').width;
-    const gaps = ln.toks.length - 1;
-    const extra = (!last && gaps > 0) ? (maxW - ln.w) / gaps : 0;
+    const n = ln.toks.length;
+    const gaps = n - 1;
+    // Rata penuh: x maju Σkata + n·(sp+extra) dan harus pas = maxW
+    // → extra = (maxW − ln.w − sp) / n   (ln.w sudah termasuk (n−1)·sp)
+    const extra = (!last && gaps > 0) ? (maxW - ln.w - sp) / n : 0;
     let x = padX;
+    // baris non-terakhir berisi 1 kata: tengahkan (perilaku tool asli)
+    if (!last && n === 1) x = padX + (maxW - ln.w) / 2;
     // rata penuh: mulai dari kiri, spasi antar kata dilebarkan
     for (const tk of ln.toks) {
       ctx.font = size + 'px Georgia, "Times New Roman", serif';

@@ -2,13 +2,114 @@ import { h as T, errBox } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "nokiamsg", "name": "Nokia Message", "cat": "fun", "icon": "📱", "desc": "Bikin gambar SMS ala HP Nokia jadul.", "keywords": "nokia,sms,jadul,meme,pesan,gambar"};
 
+/* Aproksimasi gaya layar Nokia Symbian (status bar teal + judul pixel + navibar
+   hitam "Pilihan/Kembali") — digambar ulang sendiri, 100% client-side.
+   Bukan piksel-identik dengan render server aslinya. */
+
+/** Gambar layar Nokia ke ctx. mk(w,h) = pembuat kanvas (document / node-canvas).
+    Murni — bisa diuji headless. */
+// ==DRAW-START==
+const NOKIA_W = 900, NOKIA_H = 1200;
+const NOKIA_TEAL = '#107773', NOKIA_BODY = '#d3e0e9', NOKIA_INK = '#14181c';
+function nokiaWrap(measure, text, maxW) {
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  for (const w of words) {
+    const t = line ? line + ' ' + w : w;
+    if (measure(t) > maxW && line) { lines.push(line); line = w; }
+    else line = t;
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : [''];
+}
+export function drawScreen(ctx, mk, o) {
+  const W = NOKIA_W, H = NOKIA_H, TEAL = NOKIA_TEAL, BODY = NOKIA_BODY, INK = NOKIA_INK;
+  const pesan = String(o.pesan || ''), dari = String(o.dari || ''),
+    judul = String(o.judul || 'Pesan'), tgl = String(o.tgl || ''), jam = String(o.jam || '');
+
+  /** Teks pixel: render kecil lalu upscale nearest-neighbour. */
+  function pxText(text, x, y, px, color, align) {
+    const SC = 4;
+    const fs = Math.max(6, Math.round(px / SC));
+    const m = mk(8, 8).getContext('2d');
+    m.font = '700 ' + fs + 'px "Courier New", monospace';
+    const tw = Math.ceil(m.measureText(text).width) + 6;
+    const off = mk(tw, fs + 10), c2 = off.getContext('2d');
+    c2.font = '700 ' + fs + 'px "Courier New", monospace';
+    c2.textBaseline = 'top';
+    c2.fillStyle = color;
+    c2.fillText(text, 3, 3);
+    let dx = x;
+    if (align === 'center') dx = x - (tw * SC) / 2;
+    else if (align === 'right') dx = x - tw * SC;
+    const sm = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, Math.round(dx), Math.round(y), tw * SC, (fs + 10) * SC);
+    ctx.imageSmoothingEnabled = sm;
+  }
+  /** Ikon pixel sederhana dari matriks string. */
+  function pxIcon(rows, x, y, s, colors) {
+    rows.forEach((row, j) => {
+      [...row].forEach((ch, i) => {
+        if (ch === '.' || ch === ' ') return;
+        ctx.fillStyle = (colors && colors[ch]) || colors['#'] || '#fff';
+        ctx.fillRect(x + i * s, y + j * s, s, s);
+      });
+    });
+  }
+
+  // ---- status bar teal ----
+  ctx.fillStyle = TEAL; ctx.fillRect(0, 0, W, 84);
+  const S = 7; // ukuran piksel ikon
+  // sinyal (kiri)
+  pxIcon(['#..', '##.', '###', '####'], 26, 20, S, { '#': '#0b3d38' });
+  ctx.fillStyle = '#f5d90a'; ctx.fillRect(16, 12, 4 * S + 12, 4 * S + 12);
+  pxIcon(['#..', '##.', '###', '####'], 22, 18, S, { '#': '#0b3d38' });
+  // ikon "E" hijau
+  ctx.fillStyle = '#3fae5a'; ctx.fillRect(120, 14, 44, 44);
+  pxText('E', 142, 8, 44, '#0b3d38', 'center');
+  // jam kecil tengah-kiri
+  pxIcon(['.###.', '#.#.#', '.###.'], 200, 24, S, { '#': '#e8f4f2' });
+  // amplop
+  pxIcon(['#######', '#.....#', '##...##', '#.....#', '#######'], 280, 22, S, { '#': '#f2e3c0' });
+  // baterai (kanan)
+  ctx.fillStyle = '#0b3d38'; ctx.fillRect(W - 120, 18, 84, 40);
+  ctx.fillStyle = '#e8f4f2'; ctx.fillRect(W - 114, 24, 72, 28);
+  ctx.fillStyle = '#2b9fd8';
+  for (let i = 0; i < 4; i++) ctx.fillRect(W - 108 + i * 17, 28, 12, 20);
+  ctx.fillStyle = '#0b3d38'; ctx.fillRect(W - 34, 28, 8, 20);
+
+  // ---- baris judul (teal) ----
+  ctx.fillStyle = TEAL; ctx.fillRect(0, 84, W, 156);
+  // ikon gelembung "..." kiri
+  pxIcon(['.#####.', '#######', '##.#.##', '#######', '.#####.'], 40, 130, 9, { '#': '#eef6f5' });
+  // ikon "#" kanan
+  pxIcon(['..#..#..', '..#..#..', '########', '..#..#..', '..#..#..', '########', '..#..#..', '..#..#..'], W - 120, 128, 8, { '#': '#eef6f5' });
+  pxText(judul.slice(0, 14) || 'Pesan', W / 2, 118, 96, '#ffffff', 'center');
+
+  // ---- badan pesan ----
+  ctx.fillStyle = BODY; ctx.fillRect(0, 240, W, 850);
+  const meas = (t) => {
+    const m = mk(8, 8).getContext('2d');
+    m.font = '700 11px "Courier New", monospace';
+    return m.measureText(t).width * 4;
+  };
+  const lines = nokiaWrap(meas, pesan, W - 120).slice(0, 10);
+  lines.forEach((l, i) => pxText(l, 60, 300 + i * 52, 44, INK, 'left'));
+
+  // blok Dari / tanggal / jam (kiri bawah badan)
+  const info = ['Dari:', dari, tgl, jam].filter((s) => s !== '');
+  info.forEach((l, i) => pxText(l.slice(0, 26), 60, 830 + i * 50, 40, INK, 'left'));
+
+  // ---- navibar hitam ----
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 1090, W, 110);
+  pxText('Pilihan', 40, 1108, 62, '#ffffff', 'left');
+  pxText('Kembali', W - 40, 1108, 62, '#ffffff', 'right');
+}
+// ==DRAW-END==
+
 export function render(root) {
-
-  const W = 900, H = 1200;
-  const cv = document.createElement('canvas');
-  cv.width = W; cv.height = H;
-  const ctx = cv.getContext('2d');
-
   const now = new Date();
   const p2 = (n) => String(n).padStart(2, '0');
   const defDate = p2(now.getDate()) + '/' + p2(now.getMonth() + 1) + '/' + now.getFullYear();
@@ -25,123 +126,17 @@ export function render(root) {
   imgPrev.style.cssText = 'max-width:100%;height:auto;border-radius:12px;border:1px solid #ffffff20;display:none';
   preview.appendChild(imgPrev);
 
-  const LCD = '#a8b78f', LCD_D = '#8a9a72', INK = '#1c2416';
-
-  function rr(x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
-  function wrap(text, maxW, font) {
-    ctx.font = font;
-    const words = String(text).split(/\s+/).filter(Boolean);
-    const lines = [];
-    let line = '';
-    for (const w of words) {
-      const t = line ? line + ' ' + w : w;
-      if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; }
-      else line = t;
-    }
-    if (line) lines.push(line);
-    return lines.length ? lines : [''];
-  }
-
-  function draw(pesan, dari, judul, tgl, jam) {
-    // bodi HP
-    const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, '#2b3440'); bg.addColorStop(1, '#141a22');
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-    const px = 150, pw = W - 300;
-    ctx.fillStyle = 'rgba(0,0,0,.4)';
-    rr(px + 12, 40, pw, H - 80, 90); ctx.fill();
-    const body = ctx.createLinearGradient(px, 0, px + pw, 0);
-    body.addColorStop(0, '#3d4a5c'); body.addColorStop(0.5, '#2e3947'); body.addColorStop(1, '#232c38');
-    ctx.fillStyle = body;
-    rr(px, 30, pw, H - 60, 90); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 3;
-    rr(px, 30, pw, H - 60, 90); ctx.stroke();
-
-    // layar
-    const sx = px + 70, sw = pw - 140, sy = 120, sh = 560;
-    ctx.fillStyle = '#0c0f0a';
-    rr(sx - 14, sy - 14, sw + 28, sh + 28, 26); ctx.fill();
-    const scr = ctx.createLinearGradient(0, sy, 0, sy + sh);
-    scr.addColorStop(0, LCD); scr.addColorStop(1, LCD_D);
-    ctx.fillStyle = scr;
-    rr(sx, sy, sw, sh, 14); ctx.fill();
-
-    // header layar: judul kiri, jam kanan
-    ctx.fillStyle = INK;
-    ctx.fillRect(sx + 18, sy + 18, sw - 36, 4);
-    ctx.font = '700 34px "Courier New", monospace';
-    ctx.textBaseline = 'middle';
-    const jt = (judul || 'Pesan').slice(0, 18);
-    ctx.fillText(jt, sx + 24, sy + 62);
-    ctx.textAlign = 'right';
-    ctx.fillText((jam || '').slice(0, 5), sx + sw - 24, sy + 62);
-    ctx.textAlign = 'left';
-    ctx.fillRect(sx + 18, sy + 96, sw - 36, 4);
-
-    // isi pesan
-    const font = '700 32px "Courier New", monospace';
-    const lines = wrap(pesan, sw - 60, font).slice(0, 9);
-    ctx.font = font; ctx.fillStyle = INK;
-    lines.forEach((l, i) => ctx.fillText(l, sx + 30, sy + 150 + i * 42));
-
-    // footer layar: dari + tanggal
-    ctx.fillRect(sx + 18, sy + sh - 100, sw - 36, 4);
-    ctx.font = '700 30px "Courier New", monospace';
-    const dr = (dari ? 'Dari: ' + dari : '').slice(0, 24);
-    ctx.fillText(dr, sx + 24, sy + sh - 58);
-    ctx.textAlign = 'right';
-    ctx.fillText((tgl || '').slice(0, 10), sx + sw - 24, sy + sh - 58);
-    ctx.textAlign = 'left';
-
-    // scanlines
-    ctx.fillStyle = 'rgba(0,0,0,.06)';
-    for (let y = sy; y < sy + sh; y += 6) ctx.fillRect(sx, y, sw, 2);
-
-    // tombol Navi
-    const ny = sy + sh + 90;
-    ctx.fillStyle = '#1a2230';
-    ctx.beginPath(); ctx.ellipse(W / 2, ny, 130, 62, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = 3; ctx.stroke();
-    ctx.fillStyle = '#0e141d';
-    ctx.beginPath(); ctx.ellipse(W / 2, ny, 62, 34, 0, 0, Math.PI * 2); ctx.fill();
-    // tombol C dan -
-    ctx.fillStyle = '#1a2230';
-    rr(px + 110, ny - 34, 120, 68, 30); ctx.fill();
-    rr(px + pw - 230, ny - 34, 120, 68, 30); ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.35)';
-    ctx.font = '700 34px "Courier New", monospace'; ctx.textAlign = 'center';
-    ctx.fillText('C', px + 170, ny + 2);
-    ctx.fillText('–', px + pw - 170, ny + 2);
-    ctx.textAlign = 'left';
-    // keypad 3x4 (dekorasi)
-    ctx.font = '700 30px "Courier New", monospace';
-    const keys = [['1', '2abc', '3def'], ['4ghi', '5jkl', '6mno'], ['7pqrs', '8tuv', '9wxyz'], ['*', '0+', '#']];
-    const kx0 = W / 2 - 200, ky0 = ny + 130;
-    keys.forEach((rowK, r) => rowK.forEach((k, c) => {
-      const x = kx0 + c * 200, y = ky0 + r * 92;
-      ctx.fillStyle = '#1a2230'; rr(x - 78, y - 34, 156, 68, 30); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.4)'; ctx.textAlign = 'center';
-      ctx.fillText(k, x, y + 2);
-    }));
-    ctx.textAlign = 'left';
-    // speaker
-    ctx.fillStyle = 'rgba(0,0,0,.5)';
-    for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(W / 2 - 56 + i * 28, 78, 7, 0, Math.PI * 2); ctx.fill(); }
-  }
+  const cv = document.createElement('canvas');
+  cv.width = NOKIA_W; cv.height = NOKIA_H;
 
   const generate = () => {
     const pesan = fPesan.value.trim();
     if (!pesan) { alert('Isi pesan dulu!'); fPesan.focus(); return; }
-    draw(pesan, fDari.value.trim(), fJudul.value.trim(), fTgl.value.trim(), fJam.value.trim());
+    const ctx = cv.getContext('2d');
+    drawScreen(ctx, (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }, {
+      pesan, dari: fDari.value.trim(), judul: fJudul.value.trim(),
+      tgl: fTgl.value.trim(), jam: fJam.value.trim(),
+    });
     imgPrev.src = cv.toDataURL('image/png');
     imgPrev.style.display = 'block';
     T.hide(box);
@@ -158,7 +153,7 @@ export function render(root) {
     }, 'image/png');
   });
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bikin gambar SMS ala HP Nokia jadul — digambar langsung di perangkatmu, tanpa server.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bikin gambar SMS ala HP Nokia jadul (gaya layar Symbian pixel) — digambar langsung di perangkatmu, tanpa server.<br><span class="dim" style="font-size:12px">Aproksimasi gaya visual aslinya, bukan piksel-identik dengan render server.</span></p>'));
   root.appendChild(T.field('Pesan', fPesan));
   root.appendChild(T.grid2(T.field('Dari', fDari), T.field('Judul', fJudul)));
   root.appendChild(T.grid2(T.field('Tanggal', fTgl), T.field('Jam', fJam)));

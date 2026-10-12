@@ -35,6 +35,7 @@ function siapkanGambar(file) {
 
 export function render(root) {
   let worker = null, teksHasil = '', kataHasil = [];
+  let workerLang = null; // bahasa yang dipakai worker aktif (untuk deteksi ganti bahasa)
   let memproses = false;
 
   const dz = T.el('<div style="border:1.5px dashed #ffffff30;border-radius:12px;padding:26px 14px;text-align:center;cursor:pointer;background:#161311">' +
@@ -61,15 +62,23 @@ export function render(root) {
   }
 
   const pastWorker = async (onProg) => {
+    const lang = langSel.value;
+    if (worker && workerLang !== lang) {
+      // Pilihan bahasa berubah setelah worker dibuat → buat ulang worker.
+      // (Bug lama: worker lama dipakai terus sehingga ganti bahasa tidak berpengaruh.)
+      try { await worker.terminate(); } catch (e) {}
+      worker = null;
+    }
     if (worker) return worker;
     if (!window.Tesseract) {
       T.show(out, '<p class="dim">Mengunduh engine OCR (~3 MB, sekali saja)…</p>');
       await T.loadScript(TS_CDN);
       if (!window.Tesseract) throw new Error('Engine OCR gagal dimuat.');
     }
-    worker = await window.Tesseract.createWorker(langSel.value, window.Tesseract.OEM.LSTM, {
+    worker = await window.Tesseract.createWorker(lang, window.Tesseract.OEM.LSTM, {
       logger: (m) => { if (m.status === 'recognizing text' && onProg) onProg(m.progress); },
     });
+    workerLang = lang;
     return worker;
   };
 
@@ -88,7 +97,7 @@ export function render(root) {
         if (pe) pe.textContent = Math.round(p * 100);
         if (be) be.style.width = (p * 100) + '%';
       });
-      // ganti bahasa bila pilihan berubah
+      // worker sudah dibuat ulang bila bahasa berubah (lihat pastWorker)
       const { data } = await w.recognize(canvas);
       teksHasil = (data.text || '').trim();
       const detik = ((Date.now() - mulai) / 1000).toFixed(1);
@@ -156,7 +165,7 @@ export function render(root) {
   };
 
   // lepas worker saat tool ditutup (hemat memori)
-  const lepas = async () => { document.removeEventListener('paste', onPaste); if (worker) { try { await worker.terminate(); } catch (e) {} worker = null; } };
+  const lepas = async () => { document.removeEventListener('paste', onPaste); if (worker) { try { await worker.terminate(); } catch (e) {} worker = null; workerLang = null; } };
 
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Foto dokumen, struk, atau screenshot berisi teks? Ekstrak jadi teks yang bisa disalin — memakai Tesseract.js langsung di HP. Tanpa server, tanpa API key, file tidak keluar dari perangkat.</p>'));
   root.appendChild(dz);

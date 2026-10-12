@@ -133,6 +133,36 @@ export function render(root) {
     return '<?xml version="1.0" encoding="UTF-8"?>\n<autocut source="' + T.esc(st.fname) + '" width="' + st.srcW + '" height="' + st.srcH + '" layers="' + st.layers.length + '">\n' + rows + '\n</autocut>';
   }
 
+  /** XML project Alight Motion: tiap layer jadi shape media (format scene/shape). */
+  async function alightXml() {
+    const DUR = 3000;
+    const ex = (s) => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const blobs = [];
+    for (const l of st.layers) blobs.push(await layerPng(l));
+    const f6 = (n) => (+n).toFixed(6);
+    const media = blobs.map((b, i) => {
+      const l = st.layers[i], w = l.x1 - l.x0 + 1, h = l.y1 - l.y0 + 1;
+      return '  <media uri="' + ex(l.name) + '.png" filename="' + ex(l.name) + '.png" title="' + ex(l.name) +
+        '" type="image/png" size="' + b.size + '" orientation="0" infoUpdated="0" width="' + w + '" height="' + h + '" />';
+    }).join('\n');
+    const shapes = st.layers.map((l, i) => {
+      const w = l.x1 - l.x0 + 1, h = l.y1 - l.y0 + 1;
+      const cx = l.x0 + w / 2, cy = l.y0 + h / 2;
+      return '  <shape id="' + (i + 1) + '" label="' + ex(l.name) + '" startTime="0" endTime="' + DUR +
+        '" fillType="media" fillImage="' + ex(l.name) + '.png" mediaFillMode="fill" s=".rect">\n' +
+        '    <transform>\n      <location value="' + f6(cx) + ',' + f6(cy) + ',0.000000" />\n    </transform>\n' +
+        '    <property name="size" type="vec2" value="' + f6(w / 2) + ',' + f6(h / 2) + '" />\n  </shape>';
+    }).join('\n');
+    return {
+      xml: '<?xml version=\'1.0\' encoding=\'UTF-8\' ?>\n' +
+        '<scene title="' + ex(st.fname + ' Auto Cut') + '" width="' + st.srcW + '" height="' + st.srcH +
+        '" exportWidth="' + st.srcW + '" exportHeight="' + st.srcH + '" bgcolor="#00000000" totalTime="' + DUR +
+        '" fps="30" modifiedTime="' + Date.now() + '" amver="859" ffver="107" am="com.alightcreative.motion/6.2.53" amplatform="ios" precompose="dynamicResolution" retime="freeze">\n' +
+        '  <bookmark t="0"/>\n' + media + '\n' + shapes + '\n</scene>\n', blobs
+    };
+  }
+
   function drawResult() {
     const box = T.el('<div></div>');
     box.appendChild(T.el('<div style="font-weight:700;margin-bottom:4px">✅ ' + st.layers.length + ' layer terdeteksi <span class="dim" style="font-weight:400">(' + st.srcW + '×' + st.srcH + ')</span></div>'));
@@ -176,15 +206,27 @@ export function render(root) {
         const ok = await T.loadScript(JSZIP_CDN);
         if (!ok || !window.JSZip) { T.toast('Gagal memuat pustaka ZIP'); return; }
         const zip = new window.JSZip();
-        for (const l of st.layers) zip.file(l.name + '.png', await layerPng(l));
+        const alb = await alightXml().catch(() => null);
+        for (let i = 0; i < st.layers.length; i++) {
+          const l = st.layers[i];
+          zip.file(l.name + '.png', alb ? alb.blobs[i] : await layerPng(l));
+        }
         zip.file('manifest.xml', manifestXml());
+        if (alb) zip.file(st.fname + '-alight.xml', alb.xml);
         const blob = await zip.generateAsync({ type: 'blob' });
         T.dl(st.fname + '-autocut.zip', blob, 'application/zip');
       }, true),
       T.btn('⬇ Manifest XML', () => T.dl(st.fname + '-manifest.xml', manifestXml(), 'application/xml')),
+      T.btn('🎬 XML Alight Motion', async () => {
+        T.toast('Menyiapkan XML Alight Motion…');
+        try {
+          const r = await alightXml();
+          T.dl(st.fname + '-alight.xml', r.xml, 'text/xml');
+        } catch (e) { T.toast('Gagal membuat XML: ' + (e && e.message ? e.message : 'error')); }
+      }),
       T.btn('🔁 Gambar lain', () => { st.layers = []; T.hide(out); fileInp.click(); })
     ));
-    box.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">Manifest XML berisi daftar layer + posisi — format sederhana buatan tool ini (bukan XML project Alight Motion).</p>'));
+    box.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">Manifest XML berisi daftar layer + posisi (format sederhana buatan tool ini). <b>XML Alight Motion</b> berisi scene dengan shape media per layer — impor ke Alight Motion lalu tautkan file PNG layer-nya.</p>'));
     T.show(out, ''); out.innerHTML = ''; out.appendChild(box);
     T.scrollToPreview(out);
   }
