@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.5';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "chop-sample", "name": "Kalkulator Chop Sample", "cat": "musik", "icon": "✂️", "desc": "Bagi sample jadi chop: durasi per chop + konversi ke beat.", "keywords": "chop,sample,bpm,beat,time-stretch,produser,sampling,loop"};
 

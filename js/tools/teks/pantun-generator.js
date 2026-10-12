@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.5';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 const TEMA = {
   cinta: [

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.9.5';
+import { h as T, kv } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "hitung-lembur", "name": "Kalkulator Upah Lembur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur (aturan 1,5x & 2x).", "keywords": "lembur,upah,gaji,kerja,kemenaker", "file": "tools/indonesia/hitung-lembur.js"};
 export function render(root) {

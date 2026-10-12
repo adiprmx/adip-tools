@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, kvRows } from '../../core.js?v=6.8.0';
+import { h as T, utils, beep, actx, onLeave, kvRows } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "tabel-perkalian", "name": "Tabel Perkalian", "cat": "pelajar", "icon": "✖️", "desc": "Tabel perkalian 1–20 plus mode kuis 10 soal.", "keywords": "perkalian,tabel,matematika,kuis,latihan"};
 

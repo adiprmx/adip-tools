@@ -1,4 +1,4 @@
-import { h as T, utils, beep, onLeave } from '../../core.js?v=6.9.5';
+import { h as T, utils, beep, onLeave } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"simulasi-otp-scam","name":"Simulator Scam OTP","cat":"keamanan","icon":"💬","desc":"Simulasi chat: 'CS bank' minta kode OTP. Uji pilihanmu, aman tanpa risiko.","keywords":"otp,scam,simulasi,chat,edukasi,keamanan,bank,social engineering"};
 

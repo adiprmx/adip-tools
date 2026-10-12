@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.5';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "ritme-euclidean", "name": "Generator Ritme Euclidean", "cat": "musik", "icon": "🥁", "desc": "Pola ritme algoritmik E(k,n) ala Bjorklund + preview.", "keywords": "euclidean,ritme,bjorklund,pola,algoritma,drum,generator"};
 

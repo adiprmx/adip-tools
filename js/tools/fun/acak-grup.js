@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.5';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "acak-grup", "name": "Pembagi Grup Acak", "cat": "fun", "icon": "👥", "desc": "Bagi daftar nama jadi beberapa grup acak.", "keywords": "grup,acak,kelompok,bagi,random", "file": "tools/fun/acak-grup.js"};
 export function render(root) {

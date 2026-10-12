@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.9.5';
+import { h as T, kv } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "mdr-qris", "name": "Kalkulator Biaya QRIS", "cat": "indonesia", "icon": "💳", "desc": "Hitung potongan MDR QRIS per jenis merchant.", "keywords": "qris,mdr,biaya,potongan,merchant", "file": "tools/indonesia/mdr-qris.js"};
 export function render(root) {

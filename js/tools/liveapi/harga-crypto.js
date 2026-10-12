@@ -1,4 +1,4 @@
-import { h as T, esc, onLeave } from '../../core.js?v=6.9.5';
+import { h as T, esc, onLeave } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "harga-crypto", "name": "Harga Crypto", "cat": "liveapi", "icon": "🪙", "desc": "Harga crypto live (IDR & USD) + perubahan 24 jam.", "keywords": "crypto,harga,bitcoin,ethereum,solana,bnb,dogecoin,idr,usd"};
 

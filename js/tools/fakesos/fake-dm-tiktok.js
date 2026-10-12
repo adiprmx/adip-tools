@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.9.5';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"fake-dm-tiktok","name":"Fake DM TikTok","cat":"fakesos","icon":"🎵","desc":"Bikin screenshot chat DM TikTok palsu + unduh PNG.","keywords":"tiktok,dm,chat,direct message,fake,palsu,screenshot,prank,android,iphone"};
 

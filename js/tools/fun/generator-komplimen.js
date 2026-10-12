@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.8.0';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "generator-komplimen", "name": "Generator Komplimen", "cat": "fun", "icon": "💛", "desc": "Komplimen hangat acak buat cerahkan harimu.", "keywords": "komplimen,pujian,acak,semangat,motivasi"};
 

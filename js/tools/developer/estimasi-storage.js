@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.8.0';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "estimasi-storage", "name": "Estimasi Storage", "cat": "developer", "icon": "💽", "desc": "Hitung kebutuhan penyimpanan file.", "keywords": "storage,gb,mb,penyimpanan,ukuran"};
 export function render(root) {

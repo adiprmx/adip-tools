@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.9.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "bingkai-foto", "name": "Bingkai Foto", "cat": "gambar", "icon": "🖼️", "desc": "Tambah bingkai warna ke foto, atur tebal & sudutnya.", "keywords": "bingkai,frame,border,foto,warna,tebal,sudut,png"};
 export function render(root) {

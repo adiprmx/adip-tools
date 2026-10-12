@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.5';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "nama-brand", "name": "Generator Nama Brand", "cat": "bisnis", "icon": "🏷️", "desc": "Racik kata jadi nama brand yang catchy.", "keywords": "brand,nama,bisnis,usaha,merk", "file": "tools/bisnis/nama-brand.js"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.5';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "tes-buta-warna", "name": "Tes Buta Warna", "cat": "sehari", "icon": "👁️", "desc": "Tes Ishihara sederhana lewat gambar.", "keywords": "buta warna,ishihara,mata,tes", "file": "tools/sehari/tes-buta-warna.js"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.8.0';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"css-grid-generator","name":"CSS Grid Generator","cat":"desain","icon":"🔳","desc":"Rancang layout grid, salin CSS-nya.","keywords":"grid,css,layout,kolom,baris,gap"};
 

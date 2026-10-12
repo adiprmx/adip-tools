@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.8.0';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "kuis-phising", "name": "Kuis Phising", "cat": "keamanan", "icon": "🎣", "desc": "Uji kemampuanmu membedakan email asli vs phising.", "keywords": "phising,phishing,kuis,email,keamanan,edukasi"};
 

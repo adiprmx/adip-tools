@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.9.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "stiker-wa", "name": "Stiker WA Maker", "cat": "gambar", "icon": "💬", "desc": "Ubah foto jadi stiker WhatsApp 512×512 siap pakai.", "keywords": "stiker,whatsapp,wa,sticker,stiker wa,png,512"};
 export function render(root) {

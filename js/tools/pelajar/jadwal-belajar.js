@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.5';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"jadwal-belajar","name":"Jadwal Belajar","cat":"pelajar","icon":"🗓️","desc":"Susun jadwal belajar mingguan otomatis dari daftar mapelmu.","keywords":"jadwal,belajar,rencana,mingguan,mapel,waktu,rutin"};
 

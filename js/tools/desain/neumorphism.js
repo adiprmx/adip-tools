@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=6.9.5';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "neumorphism", "name": "Neumorphism Generator", "cat": "desain", "icon": "🫧", "desc": "Bayangan lembut ala neumorphism + kode CSS.", "keywords": "neumorphism,soft ui,bayangan,shadow,css,elegan"};
 export function render(root) {

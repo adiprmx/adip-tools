@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.5';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"kuis-maker","name":"Kuis Maker","cat":"pelajar","icon":"📝","desc":"Bikin kuis pilihan ganda, simpan, lalu kerjakan dengan nilai otomatis.","keywords":"kuis,soal,pilihan ganda,ujian,latihan,tes,nilai"};
 

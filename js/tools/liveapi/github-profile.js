@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.9.5';
+import { h as T, utils, esc } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "github-profile", "name": "Profil GitHub", "cat": "liveapi", "icon": "🐙", "desc": "Lihat profil GitHub siapapun: avatar, bio, followers, repo.", "keywords": "github,profil,username,avatar,followers,repo,developer"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.9.5';
+import { h as T, kv } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "hitung-waris", "name": "Kalkulator Waris Islam", "cat": "indonesia", "icon": "🕌", "desc": "Simulasi pembagian waris (faraidh) sederhana.", "keywords": "waris,islam,faraidh,harta,ahli waris", "file": "tools/indonesia/hitung-waris.js"};
 export function render(root) {

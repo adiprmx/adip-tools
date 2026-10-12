@@ -1,4 +1,4 @@
-import { h as T, utils, beep } from '../../core.js?v=6.9.5';
+import { h as T, utils, beep } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "kuis-soceng", "name": "Kuis Rekayasa Sosial", "cat": "keamanan", "icon": "🎭", "desc": "Uji kewaspadaanmu: kenali 8 trik rekayasa sosial di telepon, SMS, chat & QR.", "keywords": "rekayasa sosial,social engineering,kuis,penipuan,telepon,sms,whatsapp,keamanan,edukasi"};
 

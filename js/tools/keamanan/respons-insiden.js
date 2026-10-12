@@ -1,4 +1,4 @@
-import { h as T, utils, beep } from '../../core.js?v=6.9.5';
+import { h as T, utils, beep } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "respons-insiden", "name": "Respons Insiden", "cat": "keamanan", "icon": "🚨", "desc": "Panduan langkah demi langkah saat akun sosmed, email, atau e-wallet diretas.", "keywords": "akun diretas,hack,respons insiden,keamanan,2fa,password,panduan"};
 

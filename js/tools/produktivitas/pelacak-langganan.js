@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.5';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"pelacak-langganan","name":"Pelacak Langganan","cat":"produktivitas","icon":"💳","desc":"Catat semua langganan bulananmu, lihat total per bulan & tahun, dan tahu mana yang paling menguras.","keywords":"langganan,subscription,biaya,bulanan,hemat,pengeluaran,streaming"};
 

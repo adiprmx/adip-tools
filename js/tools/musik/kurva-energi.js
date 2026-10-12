@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.5';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "kurva-energi", "name": "Kurva Energi Set", "cat": "musik", "icon": "📈", "desc": "Visualisasi alur energi set DJ: bar chart + statistik peak, valley, rata-rata.", "keywords": "kurva,energi,energy,set,dj,alur,peak,valley,chart"};
 

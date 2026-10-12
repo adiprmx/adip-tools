@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.9.5';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"fake-boarding-pass","name":"Fake Boarding Pass","cat":"fakesos","icon":"✈️","desc":"Bikin boarding pass pesawat palsu buat prank + unduh PNG.","keywords":"boarding pass,pesawat,tiket,bandara,airport,fake,palsu,prank"};
 

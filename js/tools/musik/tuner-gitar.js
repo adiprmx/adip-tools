@@ -1,4 +1,4 @@
-import { h as T, errBox, onLeave } from '../../core.js?v=6.9.5';
+import { h as T, errBox, onLeave } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "tuner-gitar", "name": "Tuner Gitar", "cat": "musik", "icon": "🎸", "desc": "Stem gitar pakai mikrofon, deteksi nada otomatis.", "keywords": "tuner,gitar,stem,nada,mic,mikrofon"};
 export function render(root) {

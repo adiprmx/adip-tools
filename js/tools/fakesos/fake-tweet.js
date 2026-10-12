@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.5';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.9.20';
 
 /* Logo X resmi (path merek X, viewBox 24) — fill currentColor agar ikut
    warna teks tema situs (putih di tema gelap, hitam di tema terang). */

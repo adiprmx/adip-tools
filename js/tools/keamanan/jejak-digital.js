@@ -1,4 +1,4 @@
-import { h as T, utils, beep } from '../../core.js?v=6.9.5';
+import { h as T, utils, beep } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "jejak-digital", "name": "Jejak Digital", "cat": "keamanan", "icon": "🔍", "desc": "Lihat apa yang bisa disimpulkan penjahat dari info pribadimu yang tersebar publik.", "keywords": "jejak digital,doxing,privasi,identitas,keamanan,edukasi,osint"};
 

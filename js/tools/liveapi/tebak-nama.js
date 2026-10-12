@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.9.5';
+import { h as T, esc } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"tebak-nama","name":"Tebak Profil Nama","cat":"liveapi","icon":"🔮","desc":"Tebak perkiraan usia, gender, dan asal negara dari sebuah nama.","keywords":"nama,tebak,umur,usia,gender,jenis kelamin,negara,asal"};
 

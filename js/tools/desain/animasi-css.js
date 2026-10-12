@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=6.9.5';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "animasi-css", "name": "Animasi CSS Generator", "cat": "desain", "icon": "🎞️", "desc": "Bikin @keyframes CSS (gerak, putar, skala, fade) + preview.", "keywords": "animasi,animation,keyframes,css,gerakan,transition"};
 export function render(root) {

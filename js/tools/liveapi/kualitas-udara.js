@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.9.5';
+import { h as T, esc } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "kualitas-udara", "name": "Kualitas Udara", "cat": "liveapi", "icon": "🌫️", "desc": "Indeks kualitas udara (AQI), PM2.5 & PM10 kota pilihan.", "keywords": "kualitas,udara,aqi,polusi,pm2.5,pm10,polutan,sehat,indeks"};
 

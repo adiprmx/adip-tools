@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.8.0';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"favicon-generator","name":"Favicon Generator","cat":"desain","icon":"⭐","desc":"Bikin favicon PNG dari emoji atau huruf.","keywords":"favicon,icon,emoji,png,apple-touch,logo,website"};
 

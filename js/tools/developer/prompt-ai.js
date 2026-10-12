@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.5';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "prompt-ai", "name": "Generator Prompt AI", "cat": "developer", "icon": "🤖", "desc": "Susun prompt AI yang rapi dari template.", "keywords": "prompt,ai,chatgpt,template,generator", "file": "tools/developer/prompt-ai.js"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, _NI } from '../../core.js?v=6.9.5';
+import { h as T, _NI } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "tebak-chord", "name": "Tebak Chord dari Nada", "cat": "musik", "icon": "🔍", "desc": "Ketik nada-nada, tebak nama chordnya.", "keywords": "chord,nada,tebak,nama chord,identifikasi,interval"};
 export function render(root) {

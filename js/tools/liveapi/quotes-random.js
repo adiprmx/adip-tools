@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.9.5';
+import { h as T, utils, esc } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "quotes-random", "name": "Quotes Acak", "cat": "liveapi", "icon": "💬", "desc": "Dapatkan quotes inspiratif acak setiap kali dibuka.", "keywords": "quotes,kutipan,acak,inspirasi,motivasi,random,quote"};
 

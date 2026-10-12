@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, errBox } from '../../core.js?v=6.8.0';
+import { h as T, utils, beep, actx, onLeave, errBox } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "pilih-satu", "name": "Pilih Satu", "cat": "fun", "icon": "🎯", "desc": "Bingung milih? Biar acak yang menentukan.", "keywords": "pilih,acak,random,keputusan,opsi"};
 

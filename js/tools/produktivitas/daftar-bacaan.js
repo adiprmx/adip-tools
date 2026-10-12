@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.5';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"daftar-bacaan","name":"Daftar Bacaan","cat":"produktivitas","icon":"📚","desc":"Kumpulkan buku & artikel yang mau dibaca, lacak statusnya sampai selesai.","keywords":"bacaan,buku,artikel,reading list,read later,antrean baca,literasi"};
 

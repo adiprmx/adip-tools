@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, errBox } from '../../core.js?v=6.8.0';
+import { h as T, utils, beep, actx, onLeave, errBox } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "bola-ramalan", "name": "Bola Ramalan", "cat": "fun", "icon": "🔮", "desc": "Tanya ya/tidak, biar bola ajaib yang jawab.", "keywords": "ramalan,magic 8 ball,tanya,ya tidak,hiburan"};
 

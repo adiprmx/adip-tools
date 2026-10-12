@@ -1,4 +1,4 @@
-import { h as T, utils, beep, onLeave } from '../../core.js?v=6.9.5';
+import { h as T, utils, beep, onLeave } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"kamus-penipuan","name":"Kamus Modus Penipuan","cat":"keamanan","icon":"📖","desc":"Kenali 8 modus penipuan populer di Indonesia: ciri-ciri & cara menghindarnya.","keywords":"penipuan,scam,modus,edukasi,keamanan,phising,otp,apk,pinjol"};
 

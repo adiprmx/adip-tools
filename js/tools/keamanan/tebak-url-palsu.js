@@ -1,4 +1,4 @@
-import { h as T, utils, beep, onLeave } from '../../core.js?v=6.9.5';
+import { h as T, utils, beep, onLeave } from '../../core.js?v=6.9.20';
 
 export const meta = {"id":"tebak-url-palsu","name":"Tebak URL Palsu","cat":"keamanan","icon":"🔗","desc":"Kuis 8 soal: tebak URL asli atau palsu dari tampilannya.","keywords":"url,kuis,phising,typosquatting,edukasi,keamanan,link"};
 

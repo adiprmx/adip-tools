@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.8.0';
+import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "konversi-kecepatan-internet", "name": "Kecepatan Internet", "cat": "converter", "icon": "🌐", "desc": "Konversi Mbps ↔ MB/s dan satuan kecepatan internet.", "keywords": "internet,kecepatan,mbps,mb/s,bandwidth,download,konversi"};
 

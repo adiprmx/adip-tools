@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.8.0';
+import { h as T, utils } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "kalkulator-capo", "name": "Kalkulator Capo", "cat": "musik", "icon": "🎸", "desc": "Bentuk jari + capo = nada apa yang terdengar?", "keywords": "capo,gitar,akor,chord,transpose,fret"};
 

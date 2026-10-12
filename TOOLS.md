@@ -1,4 +1,4 @@
-# Daftar Tools (377)
+# Daftar 100 Tools
 
 ## 🔐 Keamanan (7)
 1. Password generator

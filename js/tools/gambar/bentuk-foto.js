@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.9.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "bentuk-foto", "name": "Crop Bentuk Foto", "cat": "gambar", "icon": "⭐", "desc": "Crop foto jadi lingkaran, hati, bintang, atau sudut bulat.", "keywords": "crop,bentuk,lingkaran,hati,bintang,rounded,foto profil,png"};
 export function render(root) {
