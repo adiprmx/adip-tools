@@ -474,19 +474,24 @@ function drawBackground(ctx, W, H, style) {
     ctx.restore();
     return;
   }
-  // bokeh biru-ungu seperti wallpaper referensi
+  // style 1: blur biru halus di tepi seperti referensi asli (wmp1 API 1123x1401,
+  // sampling piksel: tanpa pink/ungu — hanya periwinkle → putih → biru medium)
   const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#3c5fb8');
-  bg.addColorStop(0.45, '#5a6fc4');
-  bg.addColorStop(1, '#8d8fc9');
+  bg.addColorStop(0, '#b7c2e2');
+  bg.addColorStop(0.05, '#cac9ce');
+  bg.addColorStop(0.08, '#dadae2');
+  bg.addColorStop(0.5, '#f7f8fb');
+  bg.addColorStop(0.9, '#abb6d4');
+  bg.addColorStop(0.96, '#7d8fbd');
+  bg.addColorStop(1, '#b9c4da');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
+  // sentuhan blur sangat halus (hanya biru, alpha rendah)
   const blobs = [
-    [0.12, 0.1, 130, 'rgba(150,170,255,0.5)'], [0.35, 0.06, 90, 'rgba(200,150,255,0.45)'],
-    [0.62, 0.12, 150, 'rgba(120,150,255,0.5)'], [0.88, 0.08, 100, 'rgba(255,170,220,0.4)'],
-    [0.2, 0.85, 140, 'rgba(140,160,255,0.45)'], [0.55, 0.92, 110, 'rgba(180,150,255,0.4)'],
-    [0.85, 0.88, 150, 'rgba(130,160,255,0.5)'], [0.45, 0.5, 200, 'rgba(255,255,255,0.12)'],
-    [0.75, 0.35, 80, 'rgba(255,200,230,0.35)'], [0.08, 0.45, 90, 'rgba(160,200,255,0.4)']
+    [0.2, 0.04, 150, 'rgba(140,160,210,0.25)'],
+    [0.7, 0.05, 170, 'rgba(150,170,215,0.22)'],
+    [0.3, 0.95, 160, 'rgba(110,130,180,0.25)'],
+    [0.75, 0.96, 150, 'rgba(120,140,185,0.22)'],
   ];
   for (const [fx, fy, r, col] of blobs) {
     const g = ctx.createRadialGradient(W * fx, H * fy, 4, W * fx, H * fy, r);
@@ -495,12 +500,6 @@ function drawBackground(ctx, W, H, style) {
     ctx.fillStyle = g;
     ctx.fillRect(W * fx - r, H * fy - r, r * 2, r * 2);
   }
-  // semburat cahaya atas
-  const gl = ctx.createRadialGradient(W / 2, -80, 20, W / 2, -80, 620);
-  gl.addColorStop(0, 'rgba(255,255,255,0.5)');
-  gl.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = gl;
-  ctx.fillRect(0, 0, W, 500);
 }
 
 /* ============ RENDERER UTAMA ============ */
