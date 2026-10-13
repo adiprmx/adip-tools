@@ -5,13 +5,31 @@ export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas
 const API = 'https://api.guerrillamail.com/ajax.php';
 const AGENT = 'adip-tools-tempmail';
 const EXPIRY_MS = 60 * 60 * 1000; // alamat GuerrillaMail kedaluwarsa ±60 menit
+const REQ_TIMEOUT = 14000; // timeout tiap request, mengikuti acuan alur asli
 
 const q = (p) => Object.entries(p).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
 
-async function api(params, signal) {
-  const r = await fetch(API + '?' + q(params), { signal });
-  if (!r.ok) throw new Error('http ' + r.status);
-  return r.json();
+let ctl = null;
+
+// API call dengan AbortController + timeout 14 detik.
+// AbortError karena timeout dilempar sebagai Error biasa agar bisa ditampilkan;
+// AbortError lain (pindah tool / request baru) tetap silent di caller.
+async function api(params) {
+  if (ctl) ctl.abort();
+  ctl = new AbortController();
+  const my = ctl;
+  let timedOut = false;
+  const t = setTimeout(() => { timedOut = true; my.abort(); }, REQ_TIMEOUT);
+  try {
+    const r = await fetch(API + '?' + q(params), { signal: my.signal });
+    if (!r.ok) throw new Error('http ' + r.status);
+    return await r.json();
+  } catch (e) {
+    if (e.name === 'AbortError' && timedOut) throw new Error('timeout 14 detik — server tidak merespons, coba lagi');
+    throw e;
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 // Sanitasi HTML email: buang script/style/iframe/form + event handler,
@@ -51,10 +69,7 @@ const waktu = (ts) => {
 
 export function render(root) {
   let sid = null, email = null, bornAt = 0;
-  let ctl = null;
   onLeave(() => { if (ctl) ctl.abort(); });
-
-  const abort = () => { if (ctl) ctl.abort(); ctl = new AbortController(); return ctl.signal; };
 
   // ---- Tab 1: Email baru ----
   const pNew = T.el('<div></div>');
@@ -72,8 +87,8 @@ export function render(root) {
       '<div class="dim" style="font-size:12px">Alamat email aktif ' + (sisa > 0 ? '(±' + sisa + ' mnt lagi)' : '(segera kedaluwarsa)') + '</div>' +
       '<div style="font-family:monospace;font-size:17px;word-break:break-all;margin:8px 0">' + T.esc(email) + '</div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-      '<button class="btn" data-a="copy">📋 Salin Email</button>' +
-      '<button class="btn primary" data-a="inbox">📥 Buka Inbox</button>' +
+      '<button class="btn" data-a="copy">Salin Email</button>' +
+      '<button class="btn primary" data-a="inbox">Buka Inbox</button>' +
       '</div></div>');
     addrBox.querySelector('[data-a=copy]').onclick = () => T.copy(email);
     addrBox.querySelector('[data-a=inbox]').onclick = () => { setTab(1); muatInbox(); };
@@ -83,17 +98,16 @@ export function render(root) {
     const nama = userInp.value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '');
     if (userInp.value.trim() && !nama) { T.show(outNew, errBox('Nama email hanya boleh huruf, angka, titik, strip, underscore.')); return; }
     if (nama.length > 64) { T.show(outNew, errBox('Nama email maksimal 64 karakter.')); return; }
-    const sig = abort();
     T.show(outNew, '<p class="dim">Membuat alamat email…</p>');
     try {
       if (nama) {
         // alamat acak dulu untuk dapat sid_token, lalu set nama custom
-        const s0 = await api({ f: 'get_email_address', ip: '127.0.0.1', agent: AGENT, lang: 'en' }, sig);
-        const s1 = await api({ f: 'set_email_user', email_user: nama, lang: 'en', sid_token: s0.sid_token }, sig);
+        const s0 = await api({ f: 'get_email_address', ip: '127.0.0.1', agent: AGENT, lang: 'en' });
+        const s1 = await api({ f: 'set_email_user', email_user: nama, lang: 'en', sid_token: s0.sid_token });
         if (s1.alias_error) throw new Error('Nama "' + nama + '" tidak bisa dipakai. Coba nama lain.');
         sid = s1.sid_token; email = s1.email_addr;
       } else {
-        const s0 = await api({ f: 'get_email_address', ip: '127.0.0.1', agent: AGENT, lang: 'en' }, sig);
+        const s0 = await api({ f: 'get_email_address', ip: '127.0.0.1', agent: AGENT, lang: 'en' });
         sid = s0.sid_token; email = s0.email_addr;
       }
       bornAt = Date.now();
@@ -108,7 +122,7 @@ export function render(root) {
 
   pNew.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Butuh email sekali pakai buat daftar/OTP tanpa mengumbar email utama? Buat di sini — gratis, tanpa daftar, kedaluwarsa ±60 menit. Email ini <b>hanya bisa menerima</b>, tidak bisa mengirim.</p>'));
   pNew.appendChild(T.field('Nama email (opsional — kosong = acak)', userInp));
-  pNew.appendChild(T.row(T.btn('✨ Buat Email', buat, true)));
+  pNew.appendChild(T.row(T.btn('Buat Email', buat, true)));
   pNew.appendChild(outNew);
   pNew.appendChild(addrBox);
 
@@ -124,11 +138,10 @@ export function render(root) {
     const now = Date.now();
     if (now - lastCd < 5000) { T.toast('Tunggu sebentar sebelum refresh lagi'); return; }
     lastCd = now;
-    const sig = abort();
     T.show(listBox, '<p class="dim">Memeriksa inbox…</p>');
     T.hide(readBox);
     try {
-      const j = await api({ f: 'get_email_list', seq: 0, offset: 0, sid_token: sid }, sig);
+      const j = await api({ f: 'get_email_list', seq: 0, offset: 0, sid_token: sid });
       const list = (j && j.list) || [];
       setTabLabel(list.length);
       if (!list.length) {
@@ -149,12 +162,11 @@ export function render(root) {
   };
 
   const bacaPesan = async (mid) => {
-    const sig = abort();
     T.show(readBox, '<p class="dim">Membuka pesan…</p>');
     try {
-      let j = await api({ f: 'fetch_email', email_id: mid, sid_token: sid }, sig);
+      let j = await api({ f: 'fetch_email', email_id: mid, sid_token: sid });
       if (!j || j === false) {
-        const l = await api({ f: 'get_email_list', seq: 0, offset: 0, sid_token: sid }, sig);
+        const l = await api({ f: 'get_email_list', seq: 0, offset: 0, sid_token: sid });
         j = (l.list || []).find((m) => String(m.mail_id) === String(mid)) || {};
       }
       const subj = j.mail_subject || '(tanpa subjek)';
@@ -174,7 +186,7 @@ export function render(root) {
         '<div style="font-size:14px"><b>' + T.esc(subj) + '</b></div>' +
         kv('Dari', T.esc(j.mail_from || '-')) + kv('Waktu', T.esc(waktu(j.mail_timestamp))) +
         '<div style="margin-top:10px;border-top:1px dashed #ffffff20;padding-top:10px;font-size:13px;line-height:1.7;overflow-wrap:anywhere">' + isiHtml + '</div>' +
-        (links.length ? '<div style="margin-top:10px"><b>🔗 Link dalam email:</b><ul style="margin:6px 0 0;padding-left:20px;font-size:12.5px;word-break:break-all">' +
+        (links.length ? '<div style="margin-top:10px"><b>Link dalam email:</b><ul style="margin:6px 0 0;padding-left:20px;font-size:12.5px;word-break:break-all">' +
           links.map((l) => '<li><a href="' + T.esc(l) + '" target="_blank" rel="noopener" style="color:#8ab8ff">' + T.esc(l.length > 70 ? l.slice(0, 70) + '…' : l) + '</a></li>').join('') + '</ul></div>' : '') +
         '</div>');
       readBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -184,11 +196,11 @@ export function render(root) {
     }
   };
 
-  const tabBar = tabs([['✨ Email Baru', 0], ['📥 Inbox', 1]], [pNew, pIn]);
+  const tabBar = tabs([['Email Baru', 0], ['Inbox', 1]], [pNew, pIn]);
   const setTab = (i) => tabBar.querySelectorAll('button')[i].click();
-  const setTabLabel = (n) => { tabBar.querySelectorAll('button')[1].textContent = n ? '📥 Inbox (' + n + ')' : '📥 Inbox'; };
+  const setTabLabel = (n) => { tabBar.querySelectorAll('button')[1].textContent = n ? 'Inbox (' + n + ')' : 'Inbox'; };
 
-  pIn.appendChild(T.row(T.btn('🔄 Refresh Inbox', muatInbox, true)));
+  pIn.appendChild(T.row(T.btn('Refresh Inbox', muatInbox, true)));
   pIn.appendChild(outIn);
   pIn.appendChild(listBox);
   pIn.appendChild(readBox);

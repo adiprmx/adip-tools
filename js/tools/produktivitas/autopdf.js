@@ -4,7 +4,11 @@ export const meta = {"id": "autopdf", "name": "Auto PDF", "cat": "produktivitas"
 
 export function render(root) {
 
-  const JSPDF_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  const JSPDF_CDNS = [
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+    'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',
+    'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js',
+  ];
   const MAX_SEC = 5, MAX_TITLE = 180, MAX_BODY = 80000;
 
   const paperSel = T.select([['a5', 'A5'], ['a4', 'A4']], 'a5');
@@ -79,12 +83,19 @@ export function render(root) {
     if (libOk !== null) return Promise.resolve(libOk);
     if (libLoading) return new Promise((res) => { const t = setInterval(() => { if (libOk !== null) { clearInterval(t); res(libOk); } }, 300); });
     libLoading = true;
-    T.show(box, '<span class="dim">Memuat library PDF…</span>');
-    return T.loadScript(JSPDF_CDN).then((ok) => {
-      libOk = ok && !!(window.jspdf && window.jspdf.jsPDF);
-      if (!libOk) T.show(box, errBox('Gagal memuat library PDF dari CDN. Cek koneksi internet lalu coba lagi.'));
-      return libOk;
-    });
+    const coba = (i) => {
+      if (i >= JSPDF_CDNS.length) {
+        libOk = false;
+        T.show(box, errBox('Gagal memuat library PDF dari CDN. Cek koneksi internet lalu coba lagi.'));
+        return Promise.resolve(false);
+      }
+      T.show(box, '<span class="dim">Memuat library PDF…</span>');
+      return T.loadScript(JSPDF_CDNS[i]).then((ok) => {
+        if (ok && window.jspdf && window.jspdf.jsPDF) { libOk = true; return true; }
+        return coba(i + 1);
+      });
+    };
+    return coba(0);
   };
 
   const PAPER = { a4: [595.28, 841.89], a5: [419.53, 595.28] };

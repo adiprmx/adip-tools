@@ -12,7 +12,9 @@ export const meta = {
   keywords: 'logo,animasi,intro,bumper,alight motion,xml',
 };
 
-const DUR = 8330; // 8,33 detik
+const DUR = 8333; // 8,33 detik — sama persis dengan template acuan
+const CW = 1440, CH = 1080; // kanvas scene acuan (export 1920x1080)
+const CX = CW / 2, CY = CH / 2;
 const FONTS = [
   ['pjs', 'Plus Jakarta Sans SemiBold', 'Plus Jakarta Sans-600'],
   ['poppins', 'Poppins Regular', 'Poppins-400'],
@@ -37,10 +39,10 @@ export function generate(o) {
       AL.kf(DUR, '1.060000,1.060000', 'cubicBezier(0.33,0.00,0.67,1.00)'),
     ],
     location: [
-      AL.kf(0, '540.000000,500.000000,0.000000'),
-      AL.kf(2600, '540.000000,492.000000,0.000000', 'cubicBezier(0.37,0.00,0.63,1.00)'),
-      AL.kf(5000, '540.000000,508.000000,0.000000', 'cubicBezier(0.37,0.00,0.63,1.00)'),
-      AL.kf(DUR, '540.000000,500.000000,0.000000', 'cubicBezier(0.37,0.00,0.63,1.00)'),
+      AL.kf(0, AL.f6(CX) + ',' + AL.f6(CY - 40) + ',0.000000'),
+      AL.kf(2600, AL.f6(CX) + ',' + AL.f6(CY - 48) + ',0.000000', 'cubicBezier(0.37,0.00,0.63,1.00)'),
+      AL.kf(5000, AL.f6(CX) + ',' + AL.f6(CY - 32) + ',0.000000', 'cubicBezier(0.37,0.00,0.63,1.00)'),
+      AL.kf(DUR, AL.f6(CX) + ',' + AL.f6(CY - 40) + ',0.000000', 'cubicBezier(0.37,0.00,0.63,1.00)'),
     ],
     opacity: [AL.kf(0, '0.000000'), AL.kf(350, '1.000000')],
   });
@@ -51,8 +53,8 @@ export function generate(o) {
   if (withText) {
     const tx = AL.xform({
       location: [
-        AL.kf(600, '540.000000,880.000000,0.000000'),
-        AL.kf(2200, '540.000000,700.000000,0.000000', 'cubicBezier(0.00,0.00,0.16,1.00)'),
+        AL.kf(600, AL.f6(CX) + ',880.000000,0.000000'),
+        AL.kf(2200, AL.f6(CX) + ',700.000000,0.000000', 'cubicBezier(0.00,0.00,0.16,1.00)'),
       ],
       opacity: [AL.kf(600, '0.000000'), AL.kf(1100, '1.000000')],
       blur: [AL.kf(600, '0.100000'), AL.kf(1800, '0.000000')],
@@ -63,9 +65,9 @@ export function generate(o) {
       transform: tx, fillArgb: AL.argb(o.color),
     }));
   }
-  layers.push(AL.nullLayer({ id: 8, label: 'Logo Animate', startMs: 0, endMs: DUR, x: 540, y: 540, hidden: true }));
+  layers.push(AL.nullLayer({ id: 8, label: 'Logo Animate', startMs: 0, endMs: DUR, x: CX, y: CY, hidden: true }));
 
-  const xml = AL.buildScene({ title: AL.projectName(o.project, 'Animasi Logo'), totalMs: DUR, inner: layers.join('\n') });
+  const xml = AL.buildScene({ title: AL.projectName(o.project, 'Animasi Logo'), totalMs: DUR, width: CW, height: CH, inner: layers.join('\n') });
   const v = AL.validate(xml);
   if (!v.ok) throw new Error(v.error);
   return { xml, filename: AL.fileFor(o.filename, 'logo', o.text || o.project), totalMs: DUR, layers: layers.length };

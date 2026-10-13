@@ -11,13 +11,14 @@ export const meta = {
   keywords: 'trim path,animasi,garis,draw on,alight motion,xml,stroke',
 };
 
-/* 5 preset gerak layer (koreografi orisinal). off dalam px. */
+/* 5 preset gerak layer (koreografi orisinal). off dalam px.
+   ID preset disamakan dengan acuan: biasa/movein/moveinup/inupmove/movefromleft. */
 export const PRESETS = [
   { id: 'biasa', name: 'Biasa', dur: 0, loc: null },
   { id: 'movein', name: 'Move In', dur: 1200, loc: [{ t: 0, off: [-260, 0, 0] }, { t: 1, off: [0, 0, 0] }] },
   { id: 'moveinup', name: 'Move In Up', dur: 1200, loc: [{ t: 0, off: [-200, 180, 0] }, { t: 1, off: [0, 0, 0] }] },
   { id: 'inupmove', name: 'In Up Move', dur: 1400, loc: [{ t: 0, off: [0, 220, 0] }, { t: .6, off: [0, -28, 0] }, { t: 1, off: [0, 0, 0] }] },
-  { id: 'moveleft', name: 'Move From Left', dur: 1300, loc: [{ t: 0, off: [-560, 0, 0] }, { t: 1, off: [0, 0, 0] }] },
+  { id: 'movefromleft', name: 'Move From Left', dur: 1300, loc: [{ t: 0, off: [-560, 0, 0] }, { t: 1, off: [0, 0, 0] }] },
 ];
 const CURVES = [
   ['halus', 'Halus'], ['mulus', 'Mulus'], ['cepat', 'Cepat'], ['memantul', 'Memantul'],
@@ -42,33 +43,45 @@ export const STYLES = [
 ];
 const FONT = 'Plus Jakarta Sans';
 
+/* Kanvas landscape 1920x1080 — sama seperti acuan. */
+const CW = 1920, CH = 1080;
+
 export function generate(o) {
-  const text = String(o.text || '').replace(/\n/g, ' ').trim();
-  if (!text) throw new Error('Teks masih kosong — isi dulu teksnya.');
+  const raw = String(o.text || '').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, ' ');
+  const lines = raw.split('\n');
   if (typeof document === 'undefined') throw new Error('Trim path butuh browser (canvas).');
-  const chars = [...text].filter((c) => c !== ' ');
-  if (!chars.length) throw new Error('Teks masih kosong — isi dulu teksnya.');
   const size = Math.max(10, Math.min(120, +o.size || 64));
   const spacing = Math.max(-20, Math.min(120, +o.spacing || 12));
+  const lineGap = Math.max(60, Math.min(320, +o.lineGap || 140));
   const pad = 20;
   const fontCss = '600 ' + size + 'px "' + FONT + '", sans-serif';
-  const shear = o.italic ? 0.18 : 0;
+  const shear = o.italic ? 0.188496 : 0;
 
-  const widths = chars.map((c) => {
-    const r = AL.rasterizeChar(c, fontCss, size, 0);
-    return r ? r.advance : size * 0.62;
+  // Layout per baris (multi-baris didukung seperti acuan): tiap baris di-center
+  // horizontal sendiri; baris ke-i di y = tengah + (i - (nBaris-1)/2) * lineGap.
+  const vecs = [];
+  const nLines = lines.length;
+  lines.forEach((line, li) => {
+    const chars = [...line].filter((c) => c !== ' ');
+    if (!chars.length) return;
+    const widths = chars.map((c) => {
+      const r = AL.rasterizeChar(c, fontCss, size, 0);
+      return r ? r.advance : size * 0.62;
+    });
+    const totalW = widths.reduce((a, b) => a + b, 0) + spacing * Math.max(0, chars.length - 1);
+    let cx = CW / 2 - totalW / 2;
+    const by = CH / 2 + (li - (nLines - 1) / 2) * lineGap + size * 0.35;
+    chars.forEach((c, i) => {
+      const v = AL.vectorizeText(c, fontCss, size, pad, true, cx, by, shear);
+      vecs.push({ c, v, ux: cx, by });
+      cx += widths[i] + spacing;
+    });
   });
-  const totalW = widths.reduce((a, b) => a + b, 0) + spacing * Math.max(0, chars.length - 1);
-  let cx = 540 - totalW / 2;
-  const by = 540 + size * 0.35;
-  const vecs = chars.map((c, i) => {
-    const v = AL.vectorizeText(c, fontCss, size, pad, true, cx, by, shear);
-    const w = widths[i]; cx += w + spacing;
-    return { c, v };
-  });
+  if (!vecs.length) throw new Error('Teks masih kosong — isi dulu teksnya.');
 
   const preset = PRESETS.find((p) => p.id === o.presetId) || PRESETS[0];
-  const plan = AL.timingPlan(chars.length, o);
+  const n = vecs.length;
+  const plan = AL.timingPlan(n, o);
   const palette = o.colorState.activeColors();
   const style = STYLES.find((s) => s.id === o.styleId) || STYLES[0];
   const ease = CURVE_EASE[o.curve] || CURVE_EASE.mulus;
@@ -76,20 +89,19 @@ export function generate(o) {
   const layers = [];
   let id = 9; const parentId = 8;
 
-  vecs.forEach(({ c, v }, i) => {
+  vecs.forEach(({ c, v, ux, by }, i) => {
     if (!v || !v.d) return;
     const st = plan.starts[i], en = plan.ends[i];
     const drawMs = Math.max(300, Math.round((en - st) * 0.6));
     let col;
     if (style.colors) {
-      col = AL.lerpHex(style.colors[0], style.colors[1], chars.length > 1 ? i / (chars.length - 1) : 0);
+      col = AL.lerpHex(style.colors[0], style.colors[1], n > 1 ? i / (n - 1) : 0);
     } else if (o.colorMap) {
-      col = AL.colorFor(o.colorState.mode, palette, i, chars.length, o.colorState.repeatEvery);
+      col = AL.colorFor(o.colorState.mode, palette, i, n, o.colorState.repeatEvery);
     } else {
       col = palette[0];
     }
     // Posisi dasar unit (untuk keyframe gerak)
-    const ux = 540 - totalW / 2 + widths.slice(0, i).reduce((a, b) => a + b, 0) + spacing * i;
     const loc = preset.loc
       ? preset.loc.map((k, ki) => AL.kf(k.t * preset.dur,
           AL.f6(ux + (k.off ? k.off[0] : 0)) + ',' + AL.f6(by + (k.off ? k.off[1] : 0)) + ',0.000000',
@@ -107,12 +119,12 @@ export function generate(o) {
     }));
   });
   if (!layers.length) throw new Error('Tidak ada path yang berhasil dibuat — coba teks lain.');
-  layers.push(AL.nullLayer({ id: parentId, label: 'Trim Path', startMs: 0, endMs: plan.total, x: 540, y: 540, hidden: true }));
+  layers.push(AL.nullLayer({ id: parentId, label: 'Trim Path', startMs: 0, endMs: plan.total, x: CW / 2, y: CH / 2, hidden: true }));
 
-  const xml = AL.buildScene({ title: AL.projectName(o.project, 'Trim Path'), totalMs: plan.total, inner: layers.join('\n') });
+  const xml = AL.buildScene({ title: AL.projectName(o.project, 'Trim Path'), totalMs: plan.total, width: CW, height: CH, inner: layers.join('\n') });
   const chk = AL.validate(xml);
   if (!chk.ok) throw new Error(chk.error);
-  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" style="width:100%;background:#0d0b09;border-radius:10px;border:1px solid #ffffff18">' +
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + CW + ' ' + CH + '" style="width:100%;background:#0d0b09;border-radius:10px;border:1px solid #ffffff18">' +
     layers.filter((l) => l.indexOf('<path') === 0).map((l) => {
       const d = (l.match(/ d="([^"]*)"/) || [])[1] || '';
       const sw = (l.match(/strokeColor value="[^"]*" width="([^"]*)"/) || [])[1] || '4';
@@ -125,15 +137,15 @@ export function generate(o) {
 
 export function render(root) {
   const colorState = { mode: 'single', paletteIndex: 0, repeatEvery: 1, customId: null };
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Animasi <b>draw-on</b> — garis menggambar tiap huruf satu per satu — jadi <b>XML Alight Motion</b>. Path huruf di-trace otomatis di perangkatmu.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Animasi <b>draw-on</b> — garis menggambar tiap huruf satu per satu — jadi <b>XML Alight Motion</b> (kanvas 1920×1080). Path huruf di-trace otomatis di perangkatmu. Pisahkan baris dengan <b>Enter</b>.</p>'));
 
-  const inpText = T.ta(2, 'Tulis teks di sini…', 'Trim');
+  const inpText = T.ta(3, 'Tulis teks di sini… (Enter = baris baru)', 'Trim');
   const selPreset = T.select(PRESETS.map((p) => [p.id, p.name]), 'biasa');
   const selStyle = T.select(STYLES.map((s) => [s.id, s.name]), 'original');
   const selCurve = T.select(CURVES, 'mulus');
   const inpSize = T.input('number', '', '64'); inpSize.min = 10; inpSize.max = 120;
   const inpSpacing = T.input('number', '', '12'); inpSpacing.min = -20; inpSpacing.max = 120;
-  const inpLineGap = T.input('number', '', '120'); inpLineGap.min = 60; inpLineGap.max = 320;
+  const inpLineGap = T.input('number', '', '140'); inpLineGap.min = 60; inpLineGap.max = 320;
   const chkItalic = T.input('checkbox', '');
   const chkMap = T.input('checkbox', ''); chkMap.checked = true;
   const inpStagger = T.input('number', '', '90'); inpStagger.min = 0; inpStagger.max = 2000;
@@ -175,6 +187,7 @@ export function render(root) {
       text: inpText.value, presetId: selPreset.value, styleId: selStyle.value, curve: selCurve.value,
       size: Math.max(10, Math.min(120, +inpSize.value || 64)),
       spacing: Math.max(-20, Math.min(120, +inpSpacing.value || 0)),
+      lineGap: Math.max(60, Math.min(320, +inpLineGap.value || 140)),
       italic: chkItalic.checked, colorMap: chkMap.checked,
       stagger: Math.max(0, Math.min(2000, +inpStagger.value || 0)),
       endHold: Math.max(0, Math.min(2000, +inpHold.value || 0)),

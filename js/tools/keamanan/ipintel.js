@@ -35,8 +35,6 @@ async function lookupIpwho(ip) {
     asdomain: (j.connection && j.connection.domain) || '',
     country: [j.country, j.country_code].filter(Boolean).join(' · ') || '-',
     continent: [j.continent, j.continent_code].filter(Boolean).join(' · ') || '-',
-    region: [j.region, j.city].filter(Boolean).join(', ') || '-',
-    tz: (j.timezone && j.timezone.id) || '-',
     via: 'ipwho.is',
   };
 }
@@ -51,8 +49,7 @@ async function lookupIpapi(ip) {
     asn: j.asn || '-', asname: j.org || '-', asdomain: '',
     country: [j.country_name, j.country_code].filter(Boolean).join(' · ') || '-',
     continent: cc[j.continent_code] ? cc[j.continent_code] + ' · ' + j.continent_code : '-',
-    region: [j.region, j.city].filter(Boolean).join(', ') || '-',
-    tz: j.timezone || '-', via: 'ipapi.co',
+    via: 'ipapi.co',
   };
 }
 
@@ -71,21 +68,26 @@ export function render(root) {
   inp.inputMode = 'decimal';
   const out = T.out();
   const histBox = T.out();
+  const btnAnalisis = T.btn('Analisis IP', () => analisis(false), true);
+  const btnSaya = T.btn('IP Saya', () => analisis(true));
 
   const tampilHist = () => {
     const l = getHist();
     if (!l.length) { T.hide(histBox); return; }
-    T.show(histBox, '<p class="dim" style="font-size:12.5px;margin:14px 0 6px"><b>🕘 Riwayat:</b></p><div style="display:flex;gap:6px;flex-wrap:wrap">' +
-      l.map((h, i) => '<button class="btn" data-h="' + i + '" style="font-family:monospace;font-size:12px">' + T.esc(h.ip) + '</button>').join('') + '</div>');
+    T.show(histBox, '<p class="dim" style="font-size:12.5px;margin:14px 0 6px"><b>Riwayat:</b></p><div style="display:flex;gap:6px;flex-wrap:wrap">' +
+      l.map((h, i) => '<button class="btn" data-h="' + i + '" style="font-family:monospace;font-size:12px" title="' + T.esc(h.country || '') + '">' +
+        T.esc(h.ip) + (h.asn && h.asn !== '-' ? ' <span class="dim">' + T.esc(h.asn) + '</span>' : '') + '</button>').join('') + '</div>');
     histBox.querySelectorAll('[data-h]').forEach((b) => { b.onclick = () => { inp.value = getHist()[+b.getAttribute('data-h')].ip; analisis(); }; });
   };
 
   const analisis = async (self) => {
     let ip = inp.value.trim();
     if (self) ip = '';
-    if (!self && !ip) { T.show(out, errBox('Isi dulu alamat IP-nya.')); return; }
+    if (!self && !ip) { T.show(out, errBox('IP belum diisi.')); return; }
     if (ctl) ctl.abort();
     ctl = new AbortController();
+    btnAnalisis.disabled = true;
+    btnSaya.disabled = true;
     T.show(out, '<p class="dim">Menganalisis…</p>');
     try {
       let d;
@@ -101,7 +103,7 @@ export function render(root) {
         if (bogon) {
           T.show(out,
             '<div style="border:1px solid #fbbf24;border-radius:12px;padding:14px;background:#1a1410">' +
-            '<div class="big" style="color:#fbbf24">🛰️ BOGON · NON-ROUTABLE</div>' +
+            '<div class="big" style="color:#fbbf24">BOGON · NON-ROUTABLE</div>' +
             kv('IP', '<span style="font-family:monospace">' + T.esc(ip) + '</span>') +
             kv('Jenis', T.esc(String(bogon))) +
             '<p class="dim" style="font-size:12.5px;line-height:1.6">Alamat ini terdeteksi sebagai bogon / non-routable (rentang privat, loopback, atau reserved) — tidak ada di internet publik, jadi tidak ada data ASN-nya.</p></div>');
@@ -118,6 +120,7 @@ export function render(root) {
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">' +
         '<span style="font-size:12px;border:1px solid #ffffff30;border-radius:20px;padding:3px 10px">' + T.esc(d.ver) + '</span>' +
         '<span style="font-size:12px;border:1px solid #7ccf8f66;color:#7ccf8f;border-radius:20px;padding:3px 10px">● ROUTABLE</span>' +
+        '<span style="font-size:12px;border:1px solid #8ab8ff66;color:#8ab8ff;border-radius:20px;padding:3px 10px">LIVE</span>' +
         '<span class="dim" style="font-size:11px">via ' + T.esc(d.via) + '</span></div>' +
         kv('IP Address', '<span style="font-family:monospace">' + T.esc(d.ip) + '</span>') +
         kv('ASN', '<b style="font-family:monospace">' + T.esc(d.asn) + '</b>') +
@@ -125,19 +128,24 @@ export function render(root) {
         kv('Domain AS', asLink) +
         kv('Negara', T.esc(d.country)) +
         kv('Benua', T.esc(d.continent)) +
-        kv('Wilayah', T.esc(d.region)) +
-        kv('Zona waktu', T.esc(d.tz)) +
-        '<div style="margin-top:12px"><button class="btn" data-c="json">📋 Salin JSON</button></div></div>');
+        '<p class="dim" style="font-size:11.5px;line-height:1.6;margin:10px 0 0">Data paket Lite: hanya info ASN &amp; negara — tanpa klaim kota/koordinat/VPN/proxy.</p>' +
+        '<div style="margin-top:12px"><button class="btn" data-c="json">Salin JSON</button></div></div>');
       out.querySelector('[data-c=json]').onclick = () => T.copy(JSON.stringify(d, null, 2));
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(out, errBox('Gagal: ' + e.message + ' (kedua penyedia tidak merespons)'));
+      const msg = /429|rate limit/i.test(e.message)
+        ? 'Batas permintaan API tercapai (rate limit). Tunggu sebentar lalu coba lagi.'
+        : 'Gagal: ' + e.message + ' (kedua penyedia tidak merespons)';
+      T.show(out, errBox(msg));
+    } finally {
+      btnAnalisis.disabled = false;
+      btnSaya.disabled = false;
     }
   };
 
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Cek info jaringan sebuah IP: nomor ASN, organisasi, negara, dan benua. Data dari API publik ipwho.is (fallback ipapi.co) — langsung dari browser, tanpa server.</p>'));
   root.appendChild(T.field('Alamat IP', inp));
-  root.appendChild(T.row(T.btn('🔍 Analisis IP', () => analisis(false), true), T.btn('📍 IP Saya', () => analisis(true))));
+  root.appendChild(T.row(btnAnalisis, btnSaya));
   root.appendChild(out);
   root.appendChild(histBox);
   tampilHist();

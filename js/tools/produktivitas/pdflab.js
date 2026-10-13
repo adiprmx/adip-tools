@@ -241,7 +241,8 @@ export function render(root) {
   {
     const fi = fileInput('image/*'); fi.multiple = true; fi.style.margin = '6px 0';
     const sizeSel = T.select([['follow', 'Ikuti ukuran gambar'], ['a4', 'Kertas A4']], 'follow');
-    const mSel = T.select([['0', '0 mm'], ['5', '5 mm'], ['8', '8 mm'], ['15', '15 mm'], ['25', '25 mm'], ['50', '50 mm']], '8');
+    const mInp = T.input('number', '0–50', '8');
+    mInp.min = '0'; mInp.max = '50';
     const box = T.out();
     const bGo = T.btn('Buat PDF & Unduh', async () => {
       const files = [...(fi.files || [])];
@@ -250,7 +251,7 @@ export function render(root) {
       T.show(box, '<span class="dim">Menyusun ' + files.length + ' gambar…</span>');
       try {
         const out = await window.PDFLib.PDFDocument.create();
-        const mm = +mSel.value * 2.83465;
+        const mm = Math.min(50, Math.max(0, +mInp.value || 0)) * 2.83465;
         for (const f of files) {
           const bytes = new Uint8Array(await f.arrayBuffer());
           let img, dims;
@@ -272,7 +273,7 @@ export function render(root) {
     }, true);
     pImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah kumpulan gambar (PNG/JPG) jadi satu PDF.</p>'));
     pImg.appendChild(fi);
-    pImg.appendChild(T.grid2(T.field('Ukuran halaman', sizeSel), T.field('Margin', mSel)));
+    pImg.appendChild(T.grid2(T.field('Ukuran halaman', sizeSel), T.field('Margin (mm, 0–50)', mInp)));
     pImg.appendChild(T.row(bGo));
     pImg.appendChild(box);
   }
@@ -333,7 +334,13 @@ export function render(root) {
       ['tl', 'Kiri atas'], ['tc', 'Tengah atas'], ['tr', 'Kanan atas'],
       ['ml', 'Kiri tengah'], ['mc', 'Tengah'], ['mr', 'Kanan tengah'],
       ['bl', 'Kiri bawah'], ['bc', 'Tengah bawah'], ['br', 'Kanan bawah'],
+      ['free', 'Bebas (koordinat %)'],
     ], 'bc');
+    const xInp = T.input('number', '0–100', '10'); xInp.min = '0'; xInp.max = '100';
+    const yInp = T.input('number', '0–100', '10'); yInp.min = '0'; yInp.max = '100';
+    const xyRow = T.grid2(T.field('X % (dari kiri)', xInp), T.field('Y % (dari bawah)', yInp));
+    xyRow.hidden = true;
+    posSel.addEventListener('change', () => { xyRow.hidden = posSel.value !== 'free'; });
     const sSel = T.select([['12', '12'], ['18', '18'], ['24', '24'], ['36', '36'], ['48', '48']], '18');
     const cInp = T.el('<input type="color" value="#111111" style="width:100%;height:44px;border:1px solid #27272a;border-radius:8px;background:none;padding:4px;cursor:pointer">');
     const pgInp = T.input('text', 'semua, atau mis. 1,3', 'semua');
@@ -358,8 +365,15 @@ export function render(root) {
           const { width, height } = page.getSize();
           const tw = font.widthOfTextAtSize(tInp.value, size);
           const pos = posSel.value;
-          const x = pos[1] === 'l' ? m : pos[1] === 'c' ? (width - tw) / 2 : width - tw - m;
-          const y = pos[0] === 't' ? height - m - size : pos[0] === 'm' ? (height - size) / 2 : m;
+          let x, y;
+          if (pos === 'free') {
+            const xp = Math.min(100, Math.max(0, +xInp.value || 0));
+            const yp = Math.min(100, Math.max(0, +yInp.value || 0));
+            x = width * xp / 100; y = height * yp / 100;
+          } else {
+            x = pos[1] === 'l' ? m : pos[1] === 'c' ? (width - tw) / 2 : width - tw - m;
+            y = pos[0] === 't' ? height - m - size : pos[0] === 'm' ? (height - size) / 2 : m;
+          }
           page.drawText(tInp.value, { x, y, size, font, color: col });
         }
         dlPdf(await doc.save(), 'pdf-teks.pdf');
@@ -370,6 +384,7 @@ export function render(root) {
     pTx.appendChild(fi);
     pTx.appendChild(T.field('Teks', tInp));
     pTx.appendChild(T.grid2(T.field('Posisi', posSel), T.field('Ukuran', sSel)));
+    pTx.appendChild(xyRow);
     pTx.appendChild(T.grid2(T.field('Warna', cInp), T.field('Halaman target', pgInp)));
     pTx.appendChild(T.row(bGo));
     pTx.appendChild(box);
@@ -383,6 +398,10 @@ export function render(root) {
     const fA = T.input('text', 'Penulis', '');
     const fS = T.input('text', 'Subjek', '');
     const fK = T.input('text', 'Kata kunci (pisahkan koma)', '');
+    const clearChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#e07856;flex-shrink:0">');
+    const clearRow = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;margin:8px 0;cursor:pointer"></label>');
+    clearRow.appendChild(clearChk);
+    clearRow.appendChild(T.el('<span>Hapus semua metadata (judul, penulis, subjek, kata kunci)</span>'));
     const box = T.out();
     const bShow = T.btn('Lihat Metadata Saat Ini', async () => {
       const f = fi.files && fi.files[0];
@@ -404,19 +423,27 @@ export function render(root) {
       const ok = await needLib(); if (!ok) return;
       try {
         const doc = await window.PDFLib.PDFDocument.load(new Uint8Array(await f.arrayBuffer()), { ignoreEncryption: true });
-        if (fT.value.trim()) doc.setTitle(fT.value.trim());
-        if (fA.value.trim()) doc.setAuthor(fA.value.trim());
-        if (fS.value.trim()) doc.setSubject(fS.value.trim());
-        if (fK.value.trim()) doc.setKeywords(fK.value.split(',').map((s) => s.trim()).filter(Boolean));
-        doc.setProducer('Adip Tools PDF Lab');
+        if (clearChk.checked) {
+          try {
+            const PN = window.PDFLib.PDFName;
+            ['Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer'].forEach((k) => doc.catalog.delete(PN.of(k)));
+          } catch (e) {}
+        } else {
+          if (fT.value.trim()) doc.setTitle(fT.value.trim());
+          if (fA.value.trim()) doc.setAuthor(fA.value.trim());
+          if (fS.value.trim()) doc.setSubject(fS.value.trim());
+          if (fK.value.trim()) doc.setKeywords(fK.value.split(',').map((s) => s.trim()).filter(Boolean));
+          doc.setProducer('Adip Tools PDF Lab');
+        }
         dlPdf(await doc.save(), 'pdf-metadata.pdf');
-        T.show(box, '<span class="ok">Metadata tersimpan.</span>');
+        T.show(box, '<span class="ok">' + (clearChk.checked ? 'Metadata dihapus.' : 'Metadata tersimpan.') + '</span>');
       } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
     }, true);
     pMeta.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Lihat & ubah info dokumen PDF (judul, penulis, dsb).</p>'));
     pMeta.appendChild(fi);
     pMeta.appendChild(T.grid2(T.field('Judul', fT), T.field('Penulis', fA)));
     pMeta.appendChild(T.grid2(T.field('Subjek', fS), T.field('Kata kunci', fK)));
+    pMeta.appendChild(clearRow);
     pMeta.appendChild(T.row(bShow, bGo));
     pMeta.appendChild(box);
   }
@@ -440,17 +467,47 @@ export function render(root) {
         fields = form.getFields();
         formWrap.innerHTML = '';
         if (!fields.length) { T.show(box, '<span class="dim">PDF ini tidak punya form yang bisa diisi (AcroForm kosong).</span>'); return; }
-        const textFields = fields.filter((x) => x instanceof window.PDFLib.PDFTextField);
-        const others = fields.filter((x) => !(x instanceof window.PDFLib.PDFTextField));
-        T.show(box, '<span class="ok">' + fields.length + ' field ditemukan (' + textFields.length + ' isian teks).</span>');
-        textFields.forEach((tf) => {
-          const inp = T.input('text', 'Isi…', tf.getText() || '');
-          formWrap.appendChild(T.field(tf.getName(), inp));
-          tf._inp = inp;
+        const kindOf = (fd) => {
+          const nm = (fd.constructor && fd.constructor.name) || '';
+          if (/CheckBox/i.test(nm)) return 'checkbox';
+          if (/Dropdown|OptionList|Radio/i.test(nm)) return 'select';
+          return 'text';
+        };
+        let nT = 0, nC = 0, nS = 0;
+        fields.forEach((fd) => {
+          const kind = kindOf(fd);
+          fd._kind = kind;
+          const label = fd.getName() || '(tanpa nama)';
+          if (kind === 'checkbox') {
+            nC++;
+            const inp = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#e07856;flex-shrink:0">');
+            try { inp.checked = !!(fd.isChecked && fd.isChecked()); } catch (e) {}
+            const row = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer"></label>');
+            row.appendChild(inp);
+            row.appendChild(T.el('<span style="word-break:break-all">' + T.esc(label) + '</span>'));
+            formWrap.appendChild(row);
+            fd._inp = inp;
+          } else if (kind === 'select') {
+            nS++;
+            let opts = [];
+            try { opts = (typeof fd.getOptions === 'function' && fd.getOptions()) || []; } catch (e) {}
+            let cur = '';
+            try { const sel = fd.getSelected && fd.getSelected(); if (sel && sel.length) cur = sel[0]; } catch (e) {}
+            const selEl = T.select([['', '— pilih —']].concat(opts.map((o) => [o, o])), cur);
+            formWrap.appendChild(T.field(label, selEl));
+            fd._inp = selEl;
+          } else {
+            nT++;
+            let cur = '';
+            try { cur = fd.getText() || ''; } catch (e) {}
+            const inp = T.input('text', 'Isi…', cur);
+            formWrap.appendChild(T.field(label, inp));
+            fd._inp = inp;
+          }
         });
-        others.forEach((of) => {
-          formWrap.appendChild(T.el('<div class="dim" style="font-size:13px">Field "' + T.esc(of.getName()) + '" (' + of.constructor.name.replace('PDF', '') + ') — hanya isian teks yang didukung.</div>'));
-        });
+        const parts = [];
+        if (nT) parts.push(nT + ' teks'); if (nC) parts.push(nC + ' centang'); if (nS) parts.push(nS + ' pilihan');
+        T.show(box, '<span class="ok">' + fields.length + ' field ditemukan (' + parts.join(', ') + ').</span>');
         bGo.hidden = false;
       } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
     }, true);
@@ -459,7 +516,20 @@ export function render(root) {
       try {
         const form = doc.getForm();
         form.getFields().forEach((tf) => {
-          if (tf instanceof window.PDFLib.PDFTextField && tf._inp) tf.setText(tf._inp.value);
+          if (!tf._inp) return;
+          try {
+            if (tf._kind === 'checkbox') {
+              if (typeof tf.check === 'function' && typeof tf.uncheck === 'function') {
+                if (tf._inp.checked) tf.check(); else tf.uncheck();
+              }
+            } else if (tf._kind === 'select') {
+              const v = tf._inp.value;
+              if (v && typeof tf.select === 'function') tf.select(v);
+              else if (!v && typeof tf.clear === 'function') tf.clear();
+            } else if (tf instanceof window.PDFLib.PDFTextField) {
+              tf.setText(tf._inp.value);
+            }
+          } catch (e) { /* field bermasalah dilewati */ }
         });
         if (flatChk.checked) form.flatten();
         dlPdf(await doc.save(), 'pdf-form-terisi.pdf');
@@ -470,7 +540,7 @@ export function render(root) {
     const chkRow = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;margin:8px 0;cursor:pointer"></label>');
     chkRow.appendChild(flatChk);
     chkRow.appendChild(T.el('<span>Kunci form setelah diisi (flatten, tidak bisa diubah lagi)</span>'));
-    pForm.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Isi form PDF (AcroForm) langsung dari sini.</p>'));
+    pForm.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Isi form PDF (AcroForm): isian teks, kotak centang, dan pilihan (dropdown/radio).</p>'));
     pForm.appendChild(fi);
     pForm.appendChild(T.row(bLoad));
     pForm.appendChild(box);

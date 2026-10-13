@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "projection-mapping", "name": "Mockup Generator", "cat": "desain", "icon": "🧊", "desc": "Tempel gambarmu ke permukaan miring via warp perspektif.", "keywords": "mockup,warp,perspektif,mapping,desain"};
 
@@ -49,9 +49,9 @@ export function defaultNodes(x, y, w, h) {
 }
 
 export function render(root) {
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Upload gambar → seret <b>7 node</b> untuk me-warp gambar mengikuti permukaan miring (mockup layar, poster di dinding, dsb.). Tekan <b>SPASI</b> untuk clean view (sembunyikan node). Semua dihitung di kanvas HP-mu.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Upload gambar → seret <b>7 node</b> untuk me-warp gambar mengikuti permukaan miring (mockup layar, poster di dinding, dsb.). Tekan <b>SPASI</b> untuk tampilan bersih (sembunyikan node). Semua dihitung di kanvas HP-mu.</p>'));
 
-  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="font-size:30px">🖼️</div><div style="margin-top:6px;font-weight:700">Ketuk / seret gambar</div><div class="dim" style="font-size:12px;margin-top:4px">PNG · JPG · WebP</div></div>');
+  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="font-size:13px;font-weight:700;color:#c9bda9">[ gambar ]</div><div style="margin-top:6px;font-weight:700">Ketuk / seret gambar</div><div class="dim" style="font-size:12px;margin-top:4px">PNG · JPG · WebP</div></div>');
   const fileInp = T.el('<input type="file" accept="image/*" hidden>');
   dz.addEventListener('click', () => fileInp.click());
   dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInp.click(); });
@@ -94,16 +94,24 @@ export function render(root) {
     cv.width = W; cv.height = H;
     ctx = cv.getContext('2d');
     stage.appendChild(cv);
-    stage.appendChild(T.el('<p class="dim" style="font-size:12px;margin:6px 0">Seret node lingkaran untuk warp · <b>SPASI</b> = clean view · node tengah mengontrol lengkungan</p>'));
+    stage.appendChild(T.el('<p class="dim" style="font-size:12px;margin:6px 0">Seret node lingkaran untuk warp · <b>SPASI</b> = tampilan bersih · node tengah mengontrol lengkungan</p>'));
     const row = T.row(
-      T.btn('👁 Clean view', () => { st.clean = !st.clean; draw(); }),
-      T.btn('↺ Reset node', () => { st.nodes = defaultNodes(40, 40, st.cw, st.chh); draw(); }),
-      T.btn('⬇ Unduh PNG', () => {
+      T.btn('Tampilan bersih', () => { st.clean = !st.clean; draw(); }),
+      T.btn('Reset node', () => { st.nodes = defaultNodes(40, 40, st.cw, st.chh); draw(); }),
+      T.btn('Unduh PNG', () => {
         const was = st.clean; st.clean = true; draw();
         cv.toBlob((b) => { if (b) T.dl('mockup.png', b, 'image/png'); st.clean = was; draw(); }, 'image/png');
       }, true)
     );
     stage.appendChild(row);
+
+    // redraw di-throttle via rAF agar seret node tetap mulus (mesh 24x24 = 1152 sel)
+    let drawQueued = false;
+    const scheduleDraw = () => {
+      if (drawQueued) return;
+      drawQueued = true;
+      requestAnimationFrame(() => { drawQueued = false; draw(); });
+    };
 
     const pos = (e) => {
       const r = cv.getBoundingClientRect();
@@ -130,7 +138,7 @@ export function render(root) {
       const p = pos(e);
       st.nodes[st.drag].x = Math.max(0, Math.min(cv.width, p.x));
       st.nodes[st.drag].y = Math.max(0, Math.min(cv.height, p.y));
-      draw();
+      scheduleDraw();
     });
     const up = () => { st.drag = null; cv.style.cursor = 'grab'; };
     cv.addEventListener('pointerup', up);
@@ -141,7 +149,7 @@ export function render(root) {
     draw();
   }
   function onKey(e) {
-    if (e.code === 'Space' && st.img && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+    if (e.code === 'Space' && st.img && document.activeElement && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
       e.preventDefault();
       st.clean = !st.clean; draw();
     }

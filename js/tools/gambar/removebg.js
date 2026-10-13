@@ -53,17 +53,17 @@ export function render(root) {
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Hapus background foto secara otomatis — tanpa upload ke server, semua di HP-mu. Geser pembanding untuk melihat sebelum/sesudah, lalu unduh PNG/JPEG/WebP.<br><span class="dim" style="font-size:12px">Engine: @imgly/background-removal 1.7.0 (MIT). Bila AI gagal, tersedia mode chroma-key lokal.</span></p>'));
 
   const tabs = T.el('<div style="display:flex;gap:6px;margin-bottom:10px"></div>');
-  const tUp = T.btn('📤 Upload', null); tUp.classList.add('primary');
-  const tUrl = T.btn('🔗 Dari URL', null);
+  const tUp = T.btn('Upload', null); tUp.classList.add('primary');
+  const tUrl = T.btn('Dari URL', null);
   tabs.appendChild(tUp); tabs.appendChild(tUrl);
   root.appendChild(tabs);
 
-  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="font-size:30px">🖼️</div><div style="margin-top:6px;font-weight:700">Ketuk / seret gambar ke sini</div><div class="dim" style="font-size:12px;margin-top:4px">JPG · PNG · WebP — maks 12 MB</div></div>');
+  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="font-weight:700">Ketuk / seret gambar ke sini</div><div class="dim" style="font-size:12px;margin-top:4px">JPG · PNG · WebP — maks 12 MB</div></div>');
   const fileInp = T.el('<input type="file" accept="image/jpeg,image/png,image/webp" hidden>');
   const urlWrap = T.el('<div hidden></div>');
   const urlInp = T.input('url', 'https://contoh.com/foto.jpg');
   urlWrap.appendChild(T.field('URL gambar', urlInp));
-  urlWrap.appendChild(T.row(T.btn('⬇ Ambil gambar', () => fromUrl(), true)));
+  urlWrap.appendChild(T.row(T.btn('Ambil gambar', () => fromUrl(), true)));
   root.appendChild(dz); root.appendChild(fileInp); root.appendChild(urlWrap);
 
   let mode = 'up';
@@ -83,7 +83,7 @@ export function render(root) {
   async function fromUrl() {
     const u = urlInp.value.trim();
     if (!/^https?:\/\//i.test(u)) { T.show(out, '<span class="err">URL harus diawali http(s)://</span>'); return; }
-    T.show(out, '<span class="dim">⏳ Mengambil gambar…</span>');
+    T.show(out, '<span class="dim">Mengambil gambar…</span>');
     let blob = null;
     for (const cand of [u, ALLORIGINS + encodeURIComponent(u)]) {
       try {
@@ -104,23 +104,23 @@ export function render(root) {
     const head = new Uint8Array(await fileOrBlob.slice(0, 12).arrayBuffer());
     if (!magicType(head)) { T.show(out, '<span class="err">Format tidak dikenali (butuh JPG/PNG/WebP).</span>'); return; }
     if (fileOrBlob.name) st.fname = fileOrBlob.name.replace(/\.[^.]+$/, '') || 'hasil';
-    T.show(out, '<span class="dim">⏳ <b>Tahap 1/3</b> Menyiapkan engine AI…</span>');
+    T.show(out, '<span class="dim"><b>Tahap 1/3</b> Menyiapkan engine AI…</span>');
     try {
       const imgly = await imglyRemoval();
-      T.show(out, '<span class="dim">⏳ <b>Tahap 2/3</b> Memproses dengan AI lokal…</span>');
+      T.show(out, '<span class="dim"><b>Tahap 2/3</b> Memproses dengan AI lokal…</span>');
       await new Promise((r) => setTimeout(r, 30));
       const out2 = await withTimeout(imgly.removeBackground(fileOrBlob, {
         publicPath: 'https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/',
         output: { format: 'image/png', quality: 1 },
       }), 75000, 'AI terlalu lama');
       st.resultBlob = out2; st.engine = 'AI lokal';
-      T.show(out, '<span class="dim">⏳ <b>Tahap 3/3</b> Memvalidasi hasil…</span>');
+      T.show(out, '<span class="dim"><b>Tahap 3/3</b> Memvalidasi hasil…</span>');
       const hb = new Uint8Array(await out2.slice(0, 4).arrayBuffer());
       if (magicType(hb) !== 'png') throw new Error('hasil-tidak-valid');
       finish(objUrl || URL.createObjectURL(fileOrBlob));
     } catch (e) {
       // Fallback chroma-key lokal
-      T.show(out, '<span class="dim">⚠️ AI gagal (' + T.esc(e && e.message ? e.message : 'error') + ') — mencoba <b>mode chroma-key lokal</b>…</span>');
+      T.show(out, '<span class="dim">AI gagal (' + T.esc(e && e.message ? e.message : 'error') + ') — mencoba <b>mode chroma-key lokal</b>…</span>');
       try {
         const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = objUrl || URL.createObjectURL(fileOrBlob); });
         const c = document.createElement('canvas');
@@ -149,7 +149,7 @@ export function render(root) {
     const resUrl = URL.createObjectURL(st.resultBlob);
 
     const box = T.el('<div></div>');
-    box.appendChild(T.el('<div style="font-weight:700;margin-bottom:8px">✅ Selesai <span class="dim" style="font-weight:400">· ' + st.iw + '×' + st.ih + ' · engine: ' + T.esc(st.engine) + (lowPower ? ' · <span class="err">mode hemat memori aktif</span>' : '') + '</span></div>'));
+    box.appendChild(T.el('<div style="font-weight:700;margin-bottom:8px">Selesai <span class="dim" style="font-weight:400">· ' + st.iw + '×' + st.ih + ' · engine: ' + T.esc(st.engine) + (lowPower ? ' · <span class="err">mode hemat memori aktif</span>' : '') + '</span></div>'));
 
     // Compare slider ASLI vs HASIL
     const cmp = T.el('<div style="position:relative;border:1px solid #2e2823;border-radius:12px;overflow:hidden;user-select:none;touch-action:none"></div>');
@@ -183,10 +183,10 @@ export function render(root) {
     box.appendChild(bgRow);
 
     const dlRow = T.row(
-      T.btn('⬇ PNG', () => download('png', bgSel.value, bgCol.value), true),
-      T.btn('⬇ JPEG', () => download('jpeg', bgSel.value, bgCol.value)),
-      T.btn('⬇ WebP', () => download('webp', bgSel.value, bgCol.value)),
-      T.btn('🔁 Gambar lain', () => { T.hide(out); if (mode === 'up') fileInp.click(); })
+      T.btn('PNG', () => download('png', bgSel.value, bgCol.value), true),
+      T.btn('JPEG', () => download('jpeg', bgSel.value, bgCol.value)),
+      T.btn('WebP', () => download('webp', bgSel.value, bgCol.value)),
+      T.btn('Gambar lain', () => { T.hide(out); if (mode === 'up') fileInp.click(); })
     );
     box.appendChild(dlRow);
     T.show(out, ''); out.innerHTML = ''; out.appendChild(box);

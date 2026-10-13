@@ -204,13 +204,16 @@ export function render(root) {
   let tabelPerHalaman = []; // hasil deteksiTabel per halaman (bila mode tabel)
   let namaFileTerakhir = '';
   let pdfJsSiap = null, pdfLibSiap = null, utifSiap = null;
+  let halAktif = -1; // tab reader: -1 = semua halaman, >=0 = indeks halaman
 
+  const ACCEPT_OCR = 'image/jpeg,image/png,image/gif,image/bmp,image/webp,application/pdf,image/tiff,.pdf,.tif,.tiff';
   const dz = T.el('<div style="border:1.5px dashed #ffffff30;border-radius:12px;padding:26px 14px;text-align:center;cursor:pointer;background:#161311">' +
     '<div style="font-size:28px">🖼️</div><div style="font-size:13px;margin-top:6px"><b>Ketuk untuk pilih file</b></div>' +
-    '<div class="dim" style="font-size:12px;margin-top:4px">Gambar JPG/PNG/GIF/BMP/WEBP · PDF multi-halaman · TIFF · maks ' + MAX_MB + ' MB · atau tempel (paste) & seret file</div></div>');
+    '<div class="dim" style="font-size:12px;margin-top:4px">Gambar JPG/PNG/GIF/BMP/WEBP · PDF multi-halaman · TIFF · maks ' + MAX_MB + ' MB · atau tempel (paste) & seret file</div>' +
+    '<div style="margin-top:10px"><button type="button" class="btn" id="ocr-kamera">Kamera</button></div></div>');
   const fileInp = document.createElement('input');
   fileInp.type = 'file';
-  fileInp.accept = 'image/jpeg,image/png,image/gif,image/bmp,image/webp,application/pdf,image/tiff,.pdf,.tif,.tiff';
+  fileInp.accept = ACCEPT_OCR;
   fileInp.hidden = true;
   const langSel = T.select(BAHASA, 'eng+ind');
   const previewBox = T.out(); // pratinjau file sebelum scan
@@ -222,6 +225,14 @@ export function render(root) {
   const histBox = T.out();
 
   dz.onclick = () => fileInp.click();
+  const kamBtn = dz.querySelector('#ocr-kamera');
+  if (kamBtn) kamBtn.onclick = (e) => {
+    e.stopPropagation();
+    fileInp.accept = 'image/*';
+    fileInp.setAttribute('capture', 'environment');
+    fileInp.click();
+    setTimeout(() => { fileInp.accept = ACCEPT_OCR; fileInp.removeAttribute('capture'); }, 1500);
+  };
   dz.ondragover = (e) => { e.preventDefault(); dz.style.borderColor = '#ff7a59'; };
   dz.ondragleave = () => { dz.style.borderColor = '#ffffff30'; };
   dz.ondrop = (e) => { e.preventDefault(); dz.style.borderColor = '#ffffff30'; if (e.dataTransfer.files[0]) pilihFile(e.dataTransfer.files[0]); };
@@ -443,7 +454,7 @@ export function render(root) {
         kataHasil = teksHasil.split(/\s+/).filter(Boolean);
         hitungTabel();
         tampilHasil(namaFileTerakhir + infoHalaman, detik);
-        const l = [{ nama: namaFileTerakhir, kata: kataHasil.length, kar: teksHasil.length, t: Date.now() }, ...getHist()].slice(0, 5);
+        const l = [{ nama: namaFileTerakhir, kata: kataHasil.length, kar: teksHasil.length, halaman: hasilHalaman.length, bahasa: langSel.selectedOptions[0].textContent, t: Date.now() }, ...getHist()].slice(0, 5);
         try { localStorage.setItem(HIST_KEY, JSON.stringify(l)); } catch (e) {}
         tampilHist();
       }
@@ -482,11 +493,21 @@ export function render(root) {
     }
   };
 
+  // Teks sesuai tab aktif ("Semua" = gabungan semua halaman)
+  const teksTabAktif = () => (halAktif >= 0 && hasilHalaman[halAktif] ? hasilHalaman[halAktif].teks : teksHasil);
+
   const tampilHasil = (nama, detik) => {
     T.hide(out);
+    halAktif = -1;
     const kata = kataHasil.length, kar = teksHasil.length;
     const menitBaca = Math.max(1, Math.round(kata / 200));
     const kw = keywordsDari(teksHasil);
+    let tabHtml = '';
+    if (hasilHalaman.length > 1) {
+      tabHtml = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="ocr-tabbar">' +
+        '<button type="button" class="btn primary" data-hal="-1">Semua</button>' +
+        hasilHalaman.map((h, i) => '<button type="button" class="btn" data-hal="' + i + '">Halaman ' + h.no + '</button>').join('') + '</div>';
+    }
     const adaTabel = tabelPerHalaman.length && tabelPerHalaman.some((t) => t.kolom > 0);
     let tabelHtml = '';
     if (adaTabel) {
@@ -507,6 +528,7 @@ export function render(root) {
       (hasilHalaman.length > 1 ? kv('Halaman', '<b>' + hasilHalaman.length + '</b>') : '') +
       kv('Waktu baca', '±' + menitBaca + ' mnt') + (detik ? kv('Proses', detik + ' dtk') : '') + '</div>' +
       '<div class="dim" style="font-size:12px;margin-bottom:4px">File: ' + T.esc(nama) + '</div>' +
+      tabHtml +
       '<pre id="ocr-teks" style="white-space:pre-wrap;word-break:break-word;background:#0d0b09;border:1px solid #ffffff14;border-radius:8px;padding:12px;font-size:13px;line-height:1.7;max-height:300px;overflow:auto;margin:0">' + T.esc(teksHasil) + '</pre>' +
       tabelHtml +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">' +
@@ -528,16 +550,26 @@ export function render(root) {
     const nHasil = hasilBox.querySelector('#ocr-nhasil');
     const sorot = () => {
       const q = cariInp.value.trim();
-      if (!q) { pre.innerHTML = T.esc(teksHasil); nHasil.textContent = ''; return; }
+      const sumber = teksTabAktif();
+      if (!q) { pre.textContent = sumber; nHasil.textContent = ''; return; }
       const rx = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
       let n = 0;
-      pre.innerHTML = T.esc(teksHasil).replace(rx, (m) => { n++; return n <= 200 ? '<mark style="background:#ff7a59;color:#000">' + m + '</mark>' : m; });
+      pre.innerHTML = T.esc(sumber).replace(rx, (m) => { n++; return n <= 200 ? '<mark style="background:#ff7a59;color:#000">' + m + '</mark>' : m; });
       nHasil.textContent = n ? n + ' hasil' : 'tidak ketemu';
     };
     cariInp.oninput = sorot;
+    const tabbar = hasilBox.querySelector('#ocr-tabbar');
+    if (tabbar) tabbar.querySelectorAll('[data-hal]').forEach((b) => {
+      b.onclick = () => {
+        halAktif = parseInt(b.getAttribute('data-hal'), 10);
+        tabbar.querySelectorAll('[data-hal]').forEach((x) => x.classList.toggle('primary', x === b));
+        pre.textContent = teksTabAktif();
+        cariInp.value = ''; nHasil.textContent = '';
+      };
+    });
     hasilBox.querySelectorAll('[data-kw]').forEach((b) => { b.onclick = () => { cariInp.value = b.getAttribute('data-kw'); sorot(); }; });
-    hasilBox.querySelector('[data-o=copy]').onclick = () => T.copy(teksHasil);
-    hasilBox.querySelector('[data-o=txt]').onclick = () => T.dl('ocr-' + Date.now() + '.txt', teksHasil, 'text/plain');
+    hasilBox.querySelector('[data-o=copy]').onclick = () => T.copy(teksTabAktif());
+    hasilBox.querySelector('[data-o=txt]').onclick = () => T.dl('ocr-' + Date.now() + '.txt', teksTabAktif(), 'text/plain');
     hasilBox.querySelector('[data-o=json]').onclick = () => T.dl('ocr-' + Date.now() + '.json',
       JSON.stringify({ teks: teksHasil, kata, karakter: kar, halaman: hasilHalaman.length, keywords: kw.map(([w, n]) => ({ kata: w, muncul: n })) }, null, 2), 'application/json');
     hasilBox.querySelector('[data-o=pdf]').onclick = unduhPdfSearchable;
@@ -550,13 +582,17 @@ export function render(root) {
 
   const tampilHist = () => {
     const l = getHist();
-    if (!l.length) { T.hide(histBox); return; }
+    if (!l.length) {
+      T.show(histBox, '<p class="dim" style="font-size:12.5px;margin:14px 0 6px"><b>Terakhir diproses</b></p>' +
+        '<p class="dim" style="font-size:12.5px">Belum ada dokumen yang diproses.</p>');
+      return;
+    }
     T.show(histBox, '<div style="display:flex;align-items:center;justify-content:space-between;margin:14px 0 6px">' +
-      '<p class="dim" style="font-size:12.5px;margin:0"><b>🕘 Terakhir diproses:</b></p>' +
-      '<button class="btn" id="ocr-hapus-hist" style="font-size:12px">🗑️ Hapus riwayat</button></div>' +
+      '<p class="dim" style="font-size:12.5px;margin:0"><b>Terakhir diproses</b></p>' +
+      '<button class="btn" id="ocr-hapus-hist" style="font-size:12px">Hapus riwayat</button></div>' +
       '<div style="display:grid;gap:6px">' +
       l.map((h) => '<div class="dim" style="font-size:12.5px;border:1px solid #ffffff12;border-radius:8px;padding:8px 10px">' +
-        T.esc(h.nama) + ' · ' + h.kata + ' kata · ' + h.kar + ' karakter</div>').join('') + '</div>');
+        T.esc(h.nama) + ' · ' + h.kata + ' kata · ' + (h.halaman || 1) + ' halaman' + (h.bahasa ? ' · ' + T.esc(h.bahasa) : '') + '</div>').join('') + '</div>');
     histBox.querySelector('#ocr-hapus-hist').onclick = () => {
       try { localStorage.removeItem(HIST_KEY); } catch (e) {}
       T.hide(histBox);

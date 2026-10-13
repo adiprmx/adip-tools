@@ -4,13 +4,17 @@ export const meta = {"id": "nokiamsg", "name": "Nokia Message", "cat": "fun", "i
 
 /* Aproksimasi gaya layar Nokia Symbian (status bar teal + judul pixel + navibar
    hitam "Pilihan/Kembali") — digambar ulang sendiri, 100% client-side.
+   Parameter diselaraskan dari sampel render server aslinya (diukur via PIL):
+   kanvas 3:4, teal #068881, body #d2e3eb, posisi teks & ikon mengikuti aslinya.
    Bukan piksel-identik dengan render server aslinya. */
 
 /** Gambar layar Nokia ke ctx. mk(w,h) = pembuat kanvas (document / node-canvas).
     Murni — bisa diuji headless. */
 // ==DRAW-START==
 const NOKIA_W = 900, NOKIA_H = 1200;
-const NOKIA_TEAL = '#107773', NOKIA_BODY = '#d3e0e9', NOKIA_INK = '#14181c';
+const NOKIA_TEAL = '#068881', NOKIA_BODY = '#d2e3eb', NOKIA_INK = '#000000';
+/* Font pixel Nokia proporsinya ramping: condense horizontal teks monospace. */
+const NOKIA_XS = 0.62;
 function nokiaWrap(measure, text, maxW) {
   const words = String(text).split(/\s+/).filter(Boolean);
   const lines = [];
@@ -28,7 +32,7 @@ export function drawScreen(ctx, mk, o) {
   const pesan = String(o.pesan || ''), dari = String(o.dari || ''),
     judul = String(o.judul || 'Pesan'), tgl = String(o.tgl || ''), jam = String(o.jam || '');
 
-  /** Teks pixel: render kecil lalu upscale nearest-neighbour. */
+  /** Teks pixel: render kecil lalu upscale nearest-neighbour + condense. */
   function pxText(text, x, y, px, color, align) {
     const SC = 4;
     const fs = Math.max(6, Math.round(px / SC));
@@ -40,72 +44,143 @@ export function drawScreen(ctx, mk, o) {
     c2.textBaseline = 'top';
     c2.fillStyle = color;
     c2.fillText(text, 3, 3);
+    const wdt = tw * SC * NOKIA_XS, hgt = (fs + 10) * SC;
     let dx = x;
-    if (align === 'center') dx = x - (tw * SC) / 2;
-    else if (align === 'right') dx = x - tw * SC;
+    if (align === 'center') dx = x - wdt / 2;
+    else if (align === 'right') dx = x - wdt;
     const sm = ctx.imageSmoothingEnabled;
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(off, Math.round(dx), Math.round(y), tw * SC, (fs + 10) * SC);
+    ctx.drawImage(off, Math.round(dx), Math.round(y), wdt, hgt);
     ctx.imageSmoothingEnabled = sm;
   }
-  /** Ikon pixel sederhana dari matriks string. */
-  function pxIcon(rows, x, y, s, colors) {
-    rows.forEach((row, j) => {
-      [...row].forEach((ch, i) => {
-        if (ch === '.' || ch === ' ') return;
-        ctx.fillStyle = (colors && colors[ch]) || colors['#'] || '#fff';
-        ctx.fillRect(x + i * s, y + j * s, s, s);
+  /** Ikon pixel dari matriks string; halo = outline putih 1 sel. */
+  function pxIcon(rows, x, y, s, colors, halo) {
+    const paint = (ox, oy, col) => {
+      rows.forEach((row, j) => {
+        [...row].forEach((ch, i) => {
+          if (ch === '.' || ch === ' ') return;
+          ctx.fillStyle = col || ((colors && colors[ch]) || (colors && colors['#']) || '#fff');
+          ctx.fillRect(x + ox + i * s, y + oy + j * s, s, s);
+        });
       });
+    };
+    if (halo) {
+      paint(-s, 0, halo); paint(s, 0, halo);
+      paint(0, -s, halo); paint(0, s, halo);
+    }
+    paint(0, 0);
+  }
+  function rrect(x, y, w, h, r) {
+    const q = Math.max(0, Math.min(r, w / 2, h / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + q, y);
+    ctx.arcTo(x + w, y, x + w, y + h, q);
+    ctx.arcTo(x + w, y + h, x, y + h, q);
+    ctx.arcTo(x, y + h, x, y, q);
+    ctx.arcTo(x, y, x + w, y, q);
+    ctx.closePath();
+  }
+  /* Grup sinyal: chip warna + 5 bar menanjak (bar pertama abu-abu). */
+  function sigGroup(x, chipFill, chipInner, glyph) {
+    rrect(x - 6, 11, 61, 65, 12); ctx.fillStyle = '#ffffff'; ctx.fill();
+    rrect(x, 17, 49, 53, 10); ctx.fillStyle = chipFill; ctx.fill();
+    rrect(x + 6, 23, 37, 41, 7); ctx.fillStyle = chipInner; ctx.fill();
+    pxIcon(glyph, x + 14, 28, 4, { '#': '#ffffff' });
+    const bh = [16, 26, 36, 46, 56], bw = 13, gap = 5;
+    bh.forEach((h, i) => {
+      const bx = x + 58 + i * (bw + gap), by = 70 - h;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(bx - 3, by - 3, bw + 6, h + 6);
+      ctx.fillStyle = i === 0 ? '#8a8f94' : INK;
+      ctx.fillRect(bx, by, bw, h);
     });
   }
+  const GLYPH_1 = ['.##..', '..#..', '..#..', '..#..', '..#..', '..#..', '.###.'];
+  const GLYPH_2 = ['.###.', '#...#', '....#', '...#.', '..#..', '.#...', '#####'];
+  const ASTERISK = ['#..#..#', '.#.#.#.', '..###..', '#######', '..###..', '.#.#.#.', '#..#..#'];
+  const HASH = ['..#...#..', '..#...#..', '..#...#..', '##########', '..#...#..', '..#...#..', '##########', '..#...#..', '..#...#..'];
+  const BUTTERFLY = [
+    '...###.###...',
+    '..#########..',
+    '.###########.',
+    '#############',
+    '.###########.',
+    '..####.####..',
+    '...###.###...',
+    '....##.##....',
+    '....##.##....',
+    '...###.###...',
+    '...###.###...',
+    '....##.##....',
+  ];
 
-  // ---- status bar teal ----
-  ctx.fillStyle = TEAL; ctx.fillRect(0, 0, W, 84);
-  const S = 7; // ukuran piksel ikon
-  // sinyal (kiri)
-  pxIcon(['#..', '##.', '###', '####'], 26, 20, S, { '#': '#0b3d38' });
-  ctx.fillStyle = '#f5d90a'; ctx.fillRect(16, 12, 4 * S + 12, 4 * S + 12);
-  pxIcon(['#..', '##.', '###', '####'], 22, 18, S, { '#': '#0b3d38' });
-  // ikon "E" hijau
-  ctx.fillStyle = '#3fae5a'; ctx.fillRect(120, 14, 44, 44);
-  pxText('E', 142, 8, 44, '#0b3d38', 'center');
-  // jam kecil tengah-kiri
-  pxIcon(['.###.', '#.#.#', '.###.'], 200, 24, S, { '#': '#e8f4f2' });
+  // ---- status bar teal (satu blok menyatu dengan baris judul) ----
+  ctx.fillStyle = TEAL; ctx.fillRect(0, 0, W, 234);
+  // kotak kuning di belakang grup sinyal pertama
+  rrect(8, 8, 166, 75, 10); ctx.fillStyle = '#f0e10b'; ctx.fill();
+  sigGroup(21, '#1f66c4', '#4da3e8', GLYPH_1);
+  sigGroup(182, '#5e9e2e', '#9ccc3c', GLYPH_2);
+  // jam
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(431, 52, 33, 0, 7); ctx.fill();
+  ctx.fillStyle = TEAL;
+  ctx.beginPath(); ctx.arc(431, 52, 24, 0, 7); ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(431, 52, 20, 0, 7); ctx.fill();
+  [[431, 35, '#3fae5a'], [448, 52, '#f5a623'], [431, 69, '#f5a623'], [414, 52, '#f5a623']]
+    .forEach(([dx, dy, c]) => { ctx.fillStyle = c; ctx.fillRect(dx - 4, dy - 4, 8, 8); });
+  ctx.fillStyle = INK;
+  ctx.beginPath(); ctx.arc(431, 52, 4, 0, 7); ctx.fill();
   // amplop
-  pxIcon(['#######', '#.....#', '##...##', '#.....#', '#######'], 280, 22, S, { '#': '#f2e3c0' });
-  // baterai (kanan)
-  ctx.fillStyle = '#0b3d38'; ctx.fillRect(W - 120, 18, 84, 40);
-  ctx.fillStyle = '#e8f4f2'; ctx.fillRect(W - 114, 24, 72, 28);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(511, 17, 97, 76);
+  ctx.fillStyle = '#8b5a1e'; ctx.fillRect(514, 20, 91, 70);
+  ctx.fillStyle = '#6e4517';
+  ctx.beginPath(); ctx.moveTo(514, 20); ctx.lineTo(560, 55); ctx.lineTo(514, 55); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(605, 20); ctx.lineTo(560, 55); ctx.lineTo(605, 55); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#f2d98c'; ctx.fillRect(522, 55, 75, 27);
+  // ikon ungu (kupu-kupu)
+  pxIcon(BUTTERFLY, 638, 15, 5, { '#': '#9b5de5' }, '#ffffff');
+  // baterai (nub di kiri)
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(768, 14, 126, 76);
+  ctx.fillStyle = INK; ctx.fillRect(771, 17, 120, 70);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(777, 23, 108, 58);
   ctx.fillStyle = '#2b9fd8';
-  for (let i = 0; i < 4; i++) ctx.fillRect(W - 108 + i * 17, 28, 12, 20);
-  ctx.fillStyle = '#0b3d38'; ctx.fillRect(W - 34, 28, 8, 20);
+  for (let i = 0; i < 4; i++) ctx.fillRect(783 + i * 26, 29, 18, 46);
+  ctx.fillStyle = INK; ctx.fillRect(761, 38, 10, 28);
 
-  // ---- baris judul (teal) ----
-  ctx.fillStyle = TEAL; ctx.fillRect(0, 84, W, 156);
-  // ikon gelembung "..." kiri
-  pxIcon(['.#####.', '#######', '##.#.##', '#######', '.#####.'], 40, 130, 9, { '#': '#eef6f5' });
-  // ikon "#" kanan
-  pxIcon(['..#..#..', '..#..#..', '########', '..#..#..', '..#..#..', '########', '..#..#..', '..#..#..'], W - 120, 128, 8, { '#': '#eef6f5' });
-  pxText(judul.slice(0, 14) || 'Pesan', W / 2, 118, 96, '#ffffff', 'center');
+  // ---- baris judul: tag kiri, judul tengah, '#' kanan ----
+  const tgx = 17, tgy = 108, tgw = 82, tgh = 95;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(tgx + 24, tgy);
+  ctx.lineTo(tgx + tgw, tgy);
+  ctx.lineTo(tgx + tgw, tgy + tgh);
+  ctx.lineTo(tgx + 24, tgy + tgh);
+  ctx.lineTo(tgx, tgy + tgh / 2);
+  ctx.closePath(); ctx.fill();
+  pxIcon(ASTERISK, tgx + 38, tgy + 30, 5, { '#': TEAL });
+  pxText(judul.slice(0, 14) || 'Pesan', W / 2, 101, 146, '#eef4f8', 'center');
+  rrect(807, 108, 91, 108, 14); ctx.fillStyle = '#ffffff'; ctx.fill();
+  pxIcon(HASH, 827, 135, 6, { '#': TEAL });
 
   // ---- badan pesan ----
-  ctx.fillStyle = BODY; ctx.fillRect(0, 240, W, 850);
+  ctx.fillStyle = BODY; ctx.fillRect(0, 234, W, 845);
   const meas = (t) => {
     const m = mk(8, 8).getContext('2d');
-    m.font = '700 11px "Courier New", monospace';
-    return m.measureText(t).width * 4;
+    m.font = '700 16px "Courier New", monospace';
+    return m.measureText(t).width * 4 * NOKIA_XS;
   };
-  const lines = nokiaWrap(meas, pesan, W - 120).slice(0, 10);
-  lines.forEach((l, i) => pxText(l, 60, 300 + i * 52, 44, INK, 'left'));
+  const lines = nokiaWrap(meas, pesan, W - 100).slice(0, 10);
+  lines.forEach((l, i) => pxText(l, 50, 249 + i * 66, 64, INK, 'left'));
 
   // blok Dari / tanggal / jam (kiri bawah badan)
   const info = ['Dari:', dari, tgl, jam].filter((s) => s !== '');
-  info.forEach((l, i) => pxText(l.slice(0, 26), 60, 830 + i * 50, 40, INK, 'left'));
+  info.forEach((l, i) => pxText(l.slice(0, 26), 50, 809 + i * 66, 58, INK, 'left'));
 
   // ---- navibar hitam ----
-  ctx.fillStyle = '#000'; ctx.fillRect(0, 1090, W, 110);
-  pxText('Pilihan', 40, 1108, 62, '#ffffff', 'left');
-  pxText('Kembali', W - 40, 1108, 62, '#ffffff', 'right');
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 1079, W, 121);
+  pxText('Pilihan', 15, 1074, 108, '#e1eaf2', 'left');
+  pxText('Kembali', 885, 1074, 108, '#e1eaf2', 'right');
 }
 // ==DRAW-END==
 

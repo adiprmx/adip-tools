@@ -105,6 +105,7 @@ export function render(root) {
     if (!html) { T.show(box, errBox('Source HTML masih kosong.')); srcTa.focus(); return; }
     if (pass.length < 4) { T.show(box, errBox('Password minimal 4 karakter.')); passInp.focus(); return; }
     if (!window.crypto || !crypto.subtle) { T.show(box, errBox('Browser ini belum mendukung Web Crypto API.')); return; }
+    bEnc.disabled = true;
     T.show(box, '<span class="dim">Membuat kunci dan mengenkripsi…</span>');
     try {
       if (compactChk.checked) html = compactHtml(html);
@@ -122,7 +123,10 @@ export function render(root) {
       T.show(box, '<span class="ok">Enkripsi berhasil. Uji file hasil dengan password sebelum dipublikasikan.</span>');
       resWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } catch (e) { T.show(box, errBox('Enkripsi gagal: ' + (e && e.message ? e.message : 'kesalahan browser'))); }
+    finally { bEnc.disabled = false; }
   };
+
+  const bEnc = T.btn('Enkripsi HTML', generate, true);
 
   const slug = (s) => (s || 'protected-page').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'protected-page';
   const bDl = T.btn('Unduh HTML', () => {
@@ -146,7 +150,7 @@ export function render(root) {
   root.appendChild(T.field('Source HTML', srcTa));
   root.appendChild(T.grid2(T.field('Judul halaman', titleInp), T.field('Password', T.row(passInp, bShow))));
   root.appendChild(chkRow);
-  root.appendChild(T.row(T.btn('Enkripsi HTML', generate, true)));
+  root.appendChild(T.row(bEnc));
   root.appendChild(box);
   resWrap.appendChild(T.el('<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b>File terenkripsi siap</b></div>'));
   resWrap.appendChild(sizeLbl);

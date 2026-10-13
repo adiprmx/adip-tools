@@ -7,7 +7,11 @@ const FONT_STACK = '"Segoe UI", system-ui, "Noto Sans", sans-serif';
 /* ============================================================
  * Replika visual jendela Windows Media Player (XP) — 100% digambar
  * via canvas, tanpa aset eksternal / API server.
- * Diekspor agar bisa diuji via node (@napi-rs/canvas).
+ *
+ * Parameter diukur dari output piksel-asli server referensi
+ * (wmp1/wmp2, dianalisis via PIL: dimensi, bounding box tiap area,
+ * sampling warna gradien, tinggi huruf, posisi figur & kontrol).
+ * Diekspor agar bisa diuji via node.
  * ============================================================ */
 
 function rrPath(ctx, x, y, w, h, r) {
@@ -19,6 +23,12 @@ function rrPath(ctx, x, y, w, h, r) {
   ctx.arcTo(x, y + h, x, y, q);
   ctx.arcTo(x, y, x + w, y, q);
   ctx.closePath();
+}
+
+function vgrad(ctx, y0, h, stops) {
+  const g = ctx.createLinearGradient(0, y0, 0, y0 + h);
+  for (const [o, c] of stops) g.addColorStop(o, c);
+  return g;
 }
 
 // Pecah segmen `|` jadi baris dengan word-wrap BERDASARKAN LEBAR PIXEL.
@@ -39,7 +49,7 @@ function wrapSegments(ctx, segments, maxW, font) {
   return out.length ? out : [''];
 }
 
-// Lengan/tungkai kapsul meruncing dengan shading 3D sederhana.
+// Kapsul meruncing dengan shading 3D (putih ke abu).
 function limb(ctx, x1, y1, x2, y2, w1, w2) {
   const ang = Math.atan2(y2 - y1, x2 - x1);
   const len = Math.hypot(x2 - x1, y2 - y1);
@@ -49,8 +59,8 @@ function limb(ctx, x1, y1, x2, y2, w1, w2) {
   ctx.rotate(ang);
   const g = ctx.createLinearGradient(0, -mw / 2, 0, mw / 2);
   g.addColorStop(0, '#ffffff');
-  g.addColorStop(0.55, '#f0f0f4');
-  g.addColorStop(1, '#c2c2cc');
+  g.addColorStop(0.45, '#f2f2f6');
+  g.addColorStop(1, '#c9c9d4');
   ctx.beginPath();
   ctx.moveTo(0, -w1 / 2);
   ctx.lineTo(len, -w2 / 2);
@@ -60,496 +70,696 @@ function limb(ctx, x1, y1, x2, y2, w1, w2) {
   ctx.closePath();
   ctx.fillStyle = g;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(100,100,112,0.5)';
+  ctx.strokeStyle = 'rgba(110,110,125,0.45)';
   ctx.lineWidth = 2;
   ctx.stroke();
   ctx.restore();
 }
 
-// Bola (kepala) dengan highlight radial.
+// Bola (kepala) dengan highlight radial khas render 3D.
 function ball(ctx, cx, cy, r) {
-  const g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.42, r * 0.08, cx, cy, r);
+  const g = ctx.createRadialGradient(cx - r * 0.38, cy - r * 0.42, r * 0.1, cx, cy, r * 1.05);
   g.addColorStop(0, '#ffffff');
-  g.addColorStop(0.6, '#f3f3f6');
-  g.addColorStop(1, '#c0c0ca');
+  g.addColorStop(0.55, '#f1f1f5');
+  g.addColorStop(1, '#c3c3cf');
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fillStyle = g;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(100,100,112,0.45)';
+  ctx.strokeStyle = 'rgba(110,110,125,0.4)';
   ctx.lineWidth = 2;
   ctx.stroke();
+  // kilau atas-kiri
   ctx.save();
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = 0.55;
   ctx.beginPath();
-  ctx.ellipse(cx - r * 0.32, cy - r * 0.4, r * 0.32, r * 0.2, -0.5, 0, Math.PI * 2);
+  ctx.ellipse(cx - r * 0.34, cy - r * 0.42, r * 0.3, r * 0.18, -0.5, 0, Math.PI * 2);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
   ctx.restore();
 }
 
-// Figur 3D putih stilasi. pose: 'shrug' (tangan ke samping, telapak ke atas)
-// atau 'up' (tangan ke atas, selebrasi). targetH = tinggi total kepala..kaki.
-function drawFigure(ctx, cx, feetY, targetH, pose) {
-  const s = targetH / 334; // skala dari tinggi natural
+// Telapak tangan terbuka menghadap ke atas (pose shrug).
+// (wx, wy) = pergelangan; dir = -1 kiri / +1 kanan.
+function openPalm(ctx, wx, wy, dir, s) {
+  ctx.save();
+  ctx.translate(wx, wy);
+  ctx.scale(dir * s, s);
+  ctx.rotate(-0.18); // telapak sedikit menengadah
+  // telapak: gumpalan membulat
+  const pg = ctx.createLinearGradient(0, -22, 0, 22);
+  pg.addColorStop(0, '#ffffff');
+  pg.addColorStop(0.6, '#f0f0f4');
+  pg.addColorStop(1, '#cfcfda');
+  ctx.beginPath();
+  ctx.ellipse(30, 2, 34, 21, 0, 0, Math.PI * 2);
+  ctx.fillStyle = pg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(110,110,125,0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // 4 jari: kapsul pendek mengipas ke luar, sedikit melengkung ke atas
+  for (let i = 0; i < 4; i++) {
+    const fy = -11 + i * 7.5;
+    limb(ctx, 52, fy, 82, fy - 6, 12.5, 10);
+  }
+  // jempol tegak di sisi dalam atas
+  limb(ctx, 10, -14, 0, -40, 15, 12);
+  ctx.restore();
+}
+
+// Kepalan tangan + jempol ke atas (pose selebrasi).
+function fistUp(ctx, fx, fy, s) {
+  ctx.save();
+  ctx.translate(fx, fy);
+  ctx.scale(s, s);
+  const hg = ctx.createLinearGradient(0, -24, 0, 24);
+  hg.addColorStop(0, '#ffffff');
+  hg.addColorStop(0.6, '#f1f1f5');
+  hg.addColorStop(1, '#c9c9d4');
+  rrPath(ctx, -21, -24, 42, 50, 15);
+  ctx.fillStyle = hg;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(110,110,125,0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // jempol tegak (pendek)
+  limb(ctx, 4, -22, 8, -42, 15, 12);
+  ctx.restore();
+}
+
+/* Figur 3D putih stilasi, digambar ulang dari observasi render asli.
+ * (cx, feetY) = tengah kaki di tanah; H = tinggi total. */
+function drawFigure(ctx, cx, feetY, H, pose) {
+  const s = H / (pose === 'up' ? 367 : 553);
   ctx.save();
   ctx.translate(cx, feetY);
   ctx.scale(s, s);
-  ctx.translate(-cx, -feetY);
 
-  // bayangan lembut di bawah kaki
-  const sh = ctx.createRadialGradient(cx, feetY + 8, 8, cx, feetY + 8, 130);
-  sh.addColorStop(0, 'rgba(20,20,40,0.2)');
-  sh.addColorStop(1, 'rgba(20,20,40,0)');
+  // bayangan lembut
+  const shR = pose === 'up' ? 80 : 135;
+  const sh = ctx.createRadialGradient(0, 8, 6, 0, 8, shR);
+  sh.addColorStop(0, 'rgba(25,25,50,0.22)');
+  sh.addColorStop(1, 'rgba(25,25,50,0)');
   ctx.fillStyle = sh;
   ctx.beginPath();
-  ctx.ellipse(cx, feetY + 8, 130, 18, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 8, shR, 15, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  const hipY = feetY - 96;
-  const shY = hipY - 100;
-
-  // kaki
-  limb(ctx, cx - 32, hipY, cx - 42, feetY - 16, 52, 44);
-  limb(ctx, cx + 32, hipY, cx + 42, feetY - 16, 52, 44);
-  // sepatu (elips membulat)
-  for (const q of [-1, 1]) {
-    ctx.save();
-    ctx.translate(cx + q * 56, feetY - 8);
-    ctx.rotate(q * 0.1);
-    const fg = ctx.createLinearGradient(0, -21, 0, 21);
-    fg.addColorStop(0, '#ffffff');
-    fg.addColorStop(1, '#c6c6d0');
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 44, 21, 0, 0, Math.PI * 2);
-    ctx.fillStyle = fg;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(100,100,112,0.5)';
+  const shoeG = () => {
+    const g = ctx.createLinearGradient(0, -26, 0, 26);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(1, '#c6c6d1');
+    return g;
+  };
+  const strokeFig = () => {
+    ctx.strokeStyle = 'rgba(110,110,125,0.5)';
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.restore();
-  }
+  };
 
-  // torso (membulat, bahu -> pinggang)
-  const tg = ctx.createLinearGradient(cx - 70, 0, cx + 70, 0);
-  tg.addColorStop(0, '#ffffff');
-  tg.addColorStop(0.55, '#f1f1f5');
-  tg.addColorStop(1, '#c4c4cf');
-  ctx.beginPath();
-  ctx.moveTo(cx - 68, shY + 4);
-  ctx.bezierCurveTo(cx - 76, shY + 44, cx - 62, shY + 74, cx - 54, hipY + 2);
-  ctx.quadraticCurveTo(cx, hipY + 12, cx + 54, hipY + 2);
-  ctx.bezierCurveTo(cx + 62, shY + 74, cx + 76, shY + 44, cx + 68, shY + 4);
-  ctx.quadraticCurveTo(cx, shY - 10, cx - 68, shY + 4);
-  ctx.closePath();
-  ctx.fillStyle = tg;
-  ctx.fill();
-  ctx.strokeStyle = 'rgba(100,100,112,0.5)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  // highlight dada kiri
-  ctx.save();
-  ctx.globalAlpha = 0.5;
-  ctx.beginPath();
-  ctx.ellipse(cx - 30, shY + 40, 17, 30, 0.25, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffffff';
-  ctx.fill();
-  ctx.restore();
-
-  // lengan
   if (pose === 'up') {
-    // selebrasi: lengan menekuk, tangan setinggi puncak kepala
+    // ---- selebrasi: tangan ke atas, jempol tegak ----
     for (const q of [-1, 1]) {
-      const sx = cx + q * 62, sy = shY + 16;
-      const ex = cx + q * 118, ey = sy - 44;
-      const wx = cx + q * 140, wy = sy - 98;
-      limb(ctx, sx, sy, ex, ey, 38, 32);
-      limb(ctx, ex, ey, wx, wy, 32, 27);
-      // kepalan tangan + jempol ke atas
-      ctx.save();
-      ctx.translate(wx, wy - 6);
-      ctx.rotate(q * -0.1);
-      const hg = ctx.createLinearGradient(0, -24, 0, 24);
-      hg.addColorStop(0, '#ffffff');
-      hg.addColorStop(1, '#c9c9d3');
-      rrPath(ctx, -20, -24, 40, 48, 16);
-      ctx.fillStyle = hg;
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(100,100,112,0.5)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      limb(ctx, q * 24, -72, q * 28, -30, 40, 34);            // kaki
       ctx.beginPath();
-      ctx.arc(q * 16, -30, 9, 0, Math.PI * 2);
-      ctx.fillStyle = '#f4f4f7';
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
+      ctx.ellipse(q * 32, -18, 34, 16, q * 0.08, 0, Math.PI * 2);
+      ctx.fillStyle = shoeG(); ctx.fill(); strokeFig();       // sepatu
     }
+    // torso
+    const tg = ctx.createLinearGradient(-50, 0, 50, 0);
+    tg.addColorStop(0, '#ffffff');
+    tg.addColorStop(0.55, '#f1f1f5');
+    tg.addColorStop(1, '#c4c4cf');
+    ctx.beginPath();
+    ctx.moveTo(-46, -192);
+    ctx.bezierCurveTo(-52, -155, -44, -110, -40, -74);
+    ctx.quadraticCurveTo(0, -64, 40, -74);
+    ctx.bezierCurveTo(44, -110, 52, -155, 46, -192);
+    ctx.quadraticCurveTo(0, -204, -46, -192);
+    ctx.closePath();
+    ctx.fillStyle = tg; ctx.fill(); strokeFig();
+    // lengan ke atas menyamping, siku menekuk, kepalan di sisi atas kepala
+    for (const q of [-1, 1]) {
+      limb(ctx, q * 42, -185, q * 85, -240, 38, 33);          // lengan atas
+      limb(ctx, q * 85, -240, q * 78, -292, 33, 29);          // lengan bawah
+      fistUp(ctx, q * 78, -312, 1);                            // kepalan + jempol
+    }
+    // leher + kepala
+    ctx.fillStyle = '#e9e9ef';
+    ctx.fillRect(-13, -218, 26, 30);
+    ball(ctx, 0, -260, 55);
   } else {
-    // shrug: lengan ke samping, telapak tangan pipih menghadap ke atas
-    // setinggi bahu
+    // ---- shrug: lengan menekuk ke bawah, telapak menghadap ke atas ----
     for (const q of [-1, 1]) {
-      const sx = cx + q * 62, sy = shY + 16;
-      const ex = cx + q * 118, ey = sy + 28;
-      const wx = cx + q * 172, wy = sy - 8;
-      limb(ctx, sx, sy, ex, ey, 38, 32);
-      limb(ctx, ex, ey, wx, wy, 32, 27);
-      // telapak: elips pipih horizontal, sisi atas lebih terang
-      ctx.save();
-      ctx.translate(wx + q * 12, wy);
-      ctx.rotate(q * 0.1);
-      const pg = ctx.createLinearGradient(0, -15, 0, 15);
-      pg.addColorStop(0, '#ffffff');
-      pg.addColorStop(1, '#cdccd5');
+      limb(ctx, q * 40, -190, q * 48, -50, 66, 56);            // kaki (tebal)
       ctx.beginPath();
-      ctx.ellipse(0, 0, 46, 14, 0, 0, Math.PI * 2);
-      ctx.fillStyle = pg;
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(100,100,112,0.55)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      // jempol kecil di sisi dalam
-      ctx.beginPath();
-      ctx.arc(q * -36, -6, 9, 0, Math.PI * 2);
-      ctx.fillStyle = '#f4f4f7';
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
+      ctx.ellipse(q * 55, -28, 58, 27, q * 0.06, 0, Math.PI * 2);
+      ctx.fillStyle = shoeG(); ctx.fill(); strokeFig();       // sepatu
     }
+    // torso (bahu lebar, gemuk)
+    const tg = ctx.createLinearGradient(-78, 0, 78, 0);
+    tg.addColorStop(0, '#ffffff');
+    tg.addColorStop(0.55, '#f1f1f5');
+    tg.addColorStop(1, '#c4c4cf');
+    ctx.beginPath();
+    ctx.moveTo(-75, -372);
+    ctx.bezierCurveTo(-84, -326, -72, -258, -65, -192);
+    ctx.quadraticCurveTo(0, -180, 65, -192);
+    ctx.bezierCurveTo(72, -258, 84, -326, 75, -372);
+    ctx.quadraticCurveTo(0, -388, -75, -372);
+    ctx.closePath();
+    ctx.fillStyle = tg; ctx.fill(); strokeFig();
+    // highlight dada
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.ellipse(-34, -298, 17, 32, 0.22, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.restore();
+    // lengan: bahu -> siku (turun) -> pergelangan, telapak terbuka ke atas
+    for (const q of [-1, 1]) {
+      limb(ctx, q * 70, -358, q * 125, -332, 60, 54);
+      limb(ctx, q * 125, -332, q * 158, -316, 54, 47);
+      openPalm(ctx, q * 160, -314, q, 0.92);
+    }
+    // leher pendek + kepala besar (hampir menempel bahu)
+    ctx.fillStyle = '#e9e9ef';
+    ctx.fillRect(-20, -408, 40, 30);
+    ball(ctx, 0, -462, 78);
   }
-
-  // leher + kepala besar
-  ctx.fillStyle = '#e8e8ee';
-  ctx.fillRect(cx - 18, shY - 40, 36, 32);
-  ball(ctx, cx, shY - 76, 58);
-
   ctx.restore();
 }
 
-export function drawWmpScene(ctx, segments, style, W, H) {
-  W = W || 1200; H = H || 630;
-  const WX = 70, WY = 30, WW = 1060, WH = 570, BD = 5;
-  const ix = WX + BD, iw = WW - BD * 2;            // area dalam border
-  const titleH = 58, menuH = 40, toolH = 36, ctrlH = 88;
-  const titleY = WY + BD;
-  const menuY = titleY + titleH;
-  const toolY = menuY + menuH;
-  const contY = toolY + toolH;
-  const ctrlY = WY + WH - BD - ctrlH;
-  const contH = ctrlY - contY;
-  const contX2 = ix + iw;
-
-  /* ---- background: wallpaper biru + highlight radial ---- */
-  let bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#6ea8e8');
-  bg.addColorStop(1, '#cfe6fb');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-  const glow = (gx, gy, r, a) => {
-    const g = ctx.createRadialGradient(gx, gy, 10, gx, gy, r);
-    g.addColorStop(0, 'rgba(255,255,255,' + a + ')');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(gx - r, gy - r, r * 2, r * 2);
-  };
-  glow(W / 2, -60, 520, 0.6);
-  glow(150, 110, 260, 0.35);
-  glow(1060, 220, 230, 0.3);
-  // semburat cahaya halus dari atas
-  ctx.save();
-  ctx.globalAlpha = 0.05;
-  ctx.fillStyle = '#ffffff';
-  for (let i = -2; i <= 2; i++) {
-    ctx.save();
-    ctx.translate(W / 2, -80);
-    ctx.rotate(i * 0.16);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-46, 700);
-    ctx.lineTo(46, 700);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-  ctx.restore();
-
-  /* ---- bayangan jendela ---- */
-  ctx.save();
-  ctx.shadowColor = 'rgba(0,20,80,0.45)';
-  ctx.shadowBlur = 30;
-  ctx.shadowOffsetY = 12;
-  ctx.fillStyle = '#ffffff';
-  rrPath(ctx, WX, WY, WW, WH, 14);
-  ctx.fill();
-  ctx.restore();
-
-  /* ---- isi jendela (clip rounded) ---- */
-  ctx.save();
-  rrPath(ctx, WX, WY, WW, WH, 14);
-  ctx.clip();
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(WX, WY, WW, WH);
-
-  /* ---- title bar ---- */
-  let tg = ctx.createLinearGradient(0, titleY, 0, titleY + titleH);
-  tg.addColorStop(0, '#5aa5ff');
-  tg.addColorStop(0.14, '#3a8cfd');
-  tg.addColorStop(0.55, '#0d5fe6');
-  tg.addColorStop(1, '#0a4fc4');
-  ctx.fillStyle = tg;
-  ctx.fillRect(ix, titleY, iw, titleH);
-  ctx.fillStyle = 'rgba(255,255,255,0.28)';
-  ctx.fillRect(ix, titleY, iw, 2);
-
-  // ikon WMP (lingkaran 3 segmen + segitiga play) — digambar sendiri
-  const icx = ix + 38, icy = titleY + titleH / 2, ir = 20;
-  ctx.beginPath(); ctx.arc(icx, icy, ir, 0, Math.PI * 2);
+// Ikon lingkaran WMP (3 segmen warna + segitiga play).
+function wmpIcon(ctx, cx, cy, r) {
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fillStyle = '#ffffff'; ctx.fill();
   const seg = (a0, a1, col) => {
-    ctx.beginPath(); ctx.moveTo(icx, icy);
-    ctx.arc(icx, icy, ir - 2, a0, a1); ctx.closePath();
+    ctx.beginPath(); ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r - 1.5, a0, a1); ctx.closePath();
     ctx.fillStyle = col; ctx.fill();
   };
   seg(-Math.PI / 2, Math.PI / 6, '#f7941e');
   seg(Math.PI / 6, Math.PI * 0.78, '#8dc63f');
   seg(Math.PI * 0.78, Math.PI * 1.5, '#1a5fd0');
+  const t = r * 0.42;
   ctx.beginPath();
-  ctx.moveTo(icx - 5, icy - 8); ctx.lineTo(icx - 5, icy + 8); ctx.lineTo(icx + 8, icy);
+  ctx.moveTo(cx - t * 0.55, cy - t); ctx.lineTo(cx - t * 0.55, cy + t); ctx.lineTo(cx + t * 0.75, cy);
   ctx.closePath(); ctx.fillStyle = '#ffffff'; ctx.fill();
-  ctx.beginPath(); ctx.arc(icx, icy, ir, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = Math.max(1.5, r * 0.06); ctx.stroke();
+}
 
-  // judul
-  ctx.font = '700 30px ' + FONT_STACK;
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = 'rgba(0,20,80,0.65)';
-  ctx.fillText('Windows Media Player', ix + 71, icy + 2);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText('Windows Media Player', ix + 70, icy);
+// Tombol caption glossy (min/max biru, close merah).
+function capButton(ctx, x, y, w, h, kind) {
+  const g = ctx.createLinearGradient(0, y, 0, y + h);
+  if (kind === 'close') {
+    g.addColorStop(0, '#f6a488'); g.addColorStop(0.5, '#e56a48'); g.addColorStop(1, '#c93a22');
+  } else {
+    g.addColorStop(0, '#7db4fa'); g.addColorStop(0.5, '#3f8bf2'); g.addColorStop(1, '#1663d8');
+  }
+  rrPath(ctx, x, y, w, h, Math.min(10, h * 0.18));
+  ctx.fillStyle = g; ctx.fill();
+  // kilau atas
+  rrPath(ctx, x + 3, y + 3, w - 6, h * 0.4, Math.min(7, h * 0.12));
+  ctx.fillStyle = 'rgba(255,255,255,0.32)'; ctx.fill();
+  // bingkai putih
+  rrPath(ctx, x, y, w, h, Math.min(10, h * 0.18));
+  ctx.strokeStyle = 'rgba(255,255,255,0.92)'; ctx.lineWidth = Math.max(2, w * 0.045); ctx.stroke();
 
-  // tombol caption: minimize / maximize / close
-  const capBtn = (x, kind) => {
-    const bw = 48, bh = 38, by = titleY + (titleH - bh) / 2;
-    let g = ctx.createLinearGradient(0, by, 0, by + bh);
-    if (kind === 'close') { g.addColorStop(0, '#f0957e'); g.addColorStop(1, '#d94f30'); }
-    else { g.addColorStop(0, '#4f9bf8'); g.addColorStop(1, '#1663d8'); }
-    rrPath(ctx, x, by, bw, bh, 8);
-    ctx.fillStyle = g; ctx.fill();
-    ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff'; ctx.stroke();
-    ctx.strokeStyle = '#ffffff'; ctx.fillStyle = '#ffffff'; ctx.lineCap = 'round';
-    if (kind === 'min') {
-      ctx.lineWidth = 6;
-      ctx.beginPath(); ctx.moveTo(x + 13, by + bh - 12); ctx.lineTo(x + 35, by + bh - 12); ctx.stroke();
-    } else if (kind === 'max') {
-      ctx.lineWidth = 4;
-      ctx.strokeRect(x + 13, by + 9, 22, 20);
-    } else {
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      ctx.moveTo(x + 14, by + 10); ctx.lineTo(x + 34, by + 28);
-      ctx.moveTo(x + 34, by + 10); ctx.lineTo(x + 14, by + 28);
-      ctx.stroke();
+  ctx.strokeStyle = '#ffffff'; ctx.fillStyle = '#ffffff';
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const cxp = x + w / 2, cyp = y + h / 2, u = Math.min(w, h);
+  if (kind === 'min') {
+    ctx.lineWidth = u * 0.13;
+    ctx.beginPath();
+    ctx.moveTo(x + w * 0.28, y + h * 0.72); ctx.lineTo(x + w * 0.72, y + h * 0.72);
+    ctx.stroke();
+  } else if (kind === 'max') {
+    ctx.lineWidth = u * 0.1;
+    ctx.strokeRect(x + w * 0.28, y + h * 0.3, w * 0.44, h * 0.4);
+  } else {
+    ctx.lineWidth = u * 0.14;
+    const o = u * 0.2;
+    ctx.beginPath();
+    ctx.moveTo(cxp - o, cyp - o); ctx.lineTo(cxp + o, cyp + o);
+    ctx.moveTo(cxp + o, cyp - o); ctx.lineTo(cxp - o, cyp + o);
+    ctx.stroke();
+  }
+}
+
+// Segitiga kecil untuk tombol/nav.
+function tri(ctx, cx, cy, s, flip, color) {
+  ctx.beginPath();
+  if (flip) {
+    ctx.moveTo(cx + s, cy - s * 0.72); ctx.lineTo(cx + s, cy + s * 0.72); ctx.lineTo(cx - s, cy);
+  } else {
+    ctx.moveTo(cx - s, cy - s * 0.72); ctx.lineTo(cx - s, cy + s * 0.72); ctx.lineTo(cx + s, cy);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color || '#1e3f8f';
+  ctx.fill();
+}
+
+// Tombol oval perak khas skin WMP.
+function silverBtn(ctx, cx, cy, w, h) {
+  const g = ctx.createLinearGradient(0, cy - h / 2, 0, cy + h / 2);
+  g.addColorStop(0, '#ffffff');
+  g.addColorStop(0.5, '#dde4f2');
+  g.addColorStop(1, '#a7b6d1');
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, w / 2, h / 2, 0, 0, Math.PI * 2);
+  ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = '#5b6f94'; ctx.lineWidth = 2; ctx.stroke();
+  // kilau atas
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - h * 0.22, w * 0.32, h * 0.16, 0, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff'; ctx.fill();
+  ctx.restore();
+}
+
+// Thumb slider kapsul putih berujung hijau (seek & volume).
+function greenThumb(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(0, x, w, 0);
+  g.addColorStop(0, '#f4f4f4'); g.addColorStop(0.5, '#ffffff'); g.addColorStop(1, '#e8e8e8');
+  rrPath(ctx, x, y, w, h, Math.min(w / 2 - 1, 8));
+  ctx.fillStyle = g; ctx.fill();
+  ctx.strokeStyle = '#9aa0ad'; ctx.lineWidth = 1.5; ctx.stroke();
+  // tutup hijau atas & bawah
+  const gh = Math.min(h * 0.24, 12);
+  const gg = ctx.createLinearGradient(0, 0, 0, gh);
+  gg.addColorStop(0, '#37d837'); gg.addColorStop(1, '#1d9e1d');
+  ctx.fillStyle = gg;
+  rrPath(ctx, x + 1.5, y + 1.5, w - 3, gh, gh / 2); ctx.fill();
+  rrPath(ctx, x + 1.5, y + h - gh - 1.5, w - 3, gh, gh / 2); ctx.fill();
+}
+
+/* ============ KONFIGURASI PER STYLE (diukur dari referensi) ============ */
+
+const CFG1 = {
+  W: 1123, H: 1401,
+  win: { x: 19, y: 140, w: 1084, h: 1112, border: 5, radius: 14 },
+  title: {
+    y: 141, h: 99,
+    stops: [[0, '#1447d8'], [0.03, '#4f9cff'], [0.09, '#0a69fb'], [0.21, '#0140e7'],
+            [0.55, '#003ee7'], [0.85, '#0050ff'], [1, '#012cc8']],
+    icon: { cx: 62, cy: 191, r: 30 },
+    textX: 115, textY: 192, font: '700 40px ' + FONT_STACK,
+    cap: { y: 160, w: 58, h: 67, gap: 8, xs: [900, 966, 1032] }
+  },
+  menu: { y: 245, h: 65, bg: '#f1f1f3', font: '400 34px ' + FONT_STACK, x0: 37, gap: 30 },
+  toolbar: {
+    y: 320, h: 30, splitX: 725,
+    leftStops: [[0, '#fefdfb'], [0.5, '#d7d9e4'], [1, '#7c81a3']],
+    rightStops: [[0, '#4a6fd6'], [0.35, '#3a5cc4'], [1, '#2b4a9e']],
+    icons: [
+      { cx: 833, kind: 'monitor' }, { cx: 935, kind: 'square' }, { cx: 1012, kind: 'windows' }
+    ],
+    iconSize: 26
+  },
+  content: { y: 353, h: 689 },
+  text: { x: 137, fontSize: 73, bold: false, pitch: 88, top: 456, maxWRatio: 0.46 },
+  figure: { cx: 830, feetY: 1000, h: 553, pose: 'shrug' },
+  ctrl: {
+    whiteTop: 35, // strip putih di atas bar biru
+    y: 1078, h: 158,
+    stops: [[0, '#98baff'], [0.14, '#456cd3'], [0.5, '#3f62c2'], [1, '#1e2f75']],
+    seek: {
+      arrowsL: { x0: 228, x1: 272, cy: 1122, s: 15 },
+      thumb: { x: 276, y: 1100, w: 22, h: 41 },
+      track: { x0: 302, x1: 998, y: 1119, h: 7 },
+      arrowsR: { x0: 1000, x1: 1044, cy: 1122, s: 15 }
+    },
+    play: { cx: 104, cy: 1145, r: 41 },
+    stop: { cx: 208, cy: 1155, w: 64, h: 70, sq: 21 },
+    prev: { cx: 320, cy: 1183, w: 80, h: 52 },
+    next: { cx: 400, cy: 1183, w: 80, h: 52 },
+    eject: { cx: 476, cy: 1183, w: 64, h: 52 },
+    vol: { x0: 545, x1: 642, cy: 1195, h0: 11, h1: 17, thumb: { x: 648, w: 12, y0: 1170, y1: 1218 } }
+  }
+};
+
+const CFG2 = {
+  W: 720, H: 1280,
+  win: { x: 0, y: 247, w: 720, h: 795, border: 4, radius: 10 },
+  title: {
+    y: 250, h: 64,
+    stops: [[0, '#328bff'], [0.1, '#0a6af0'], [0.25, '#0057e5'],
+            [0.55, '#0057e5'], [0.85, '#0166ff'], [1, '#004fc9']],
+    icon: { cx: 35, cy: 282, r: 20 },
+    textX: 70, textY: 283, font: '700 30px ' + FONT_STACK,
+    cap: { y: 259, w: 40, h: 47, gap: 8, xs: [556, 604, 652] }
+  },
+  menu: { y: 316, h: 44, bg: '#fbfaf6', font: '400 28px ' + FONT_STACK, x0: 16, gap: 24 },
+  toolbar: {
+    y: 368, h: 21, splitX: 465,
+    leftStops: [[0, '#fefdfb'], [0.5, '#d7d9e4'], [1, '#7c81a3']],
+    rightStops: [[0, '#4a6fd6'], [0.35, '#3a5cc4'], [1, '#2b4a9e']],
+    icons: [
+      { cx: 533, kind: 'monitor' }, { cx: 600, kind: 'square' }, { cx: 667, kind: 'windows' }
+    ],
+    iconSize: 16
+  },
+  content: { y: 390, h: 540 },
+  text: { x: 88, fontSize: 56, bold: true, pitch: 78, top: 431, maxWRatio: 0.55 },
+  figure: { cx: 545, feetY: 832, h: 367, pose: 'up' },
+  ctrl: {
+    whiteTop: 0,
+    y: 934, h: 100,
+    stops: [[0, '#98baff'], [0.14, '#456cd3'], [0.5, '#3f62c2'], [1, '#1e2f75']],
+    seek: {
+      arrowsL: { x0: 115, x1: 155, cy: 962, s: 11 },
+      thumb: { x: 159, y: 945, w: 15, h: 28 },
+      track: { x0: 185, x1: 640, y: 958, h: 6 },
+      arrowsR: { x0: 650, x1: 690, cy: 962, s: 11 }
+    },
+    play: { cx: 63, cy: 988, r: 29 },
+    stop: { cx: 130, cy: 988, w: 44, h: 46, sq: 15 },
+    prev: { cx: 196, cy: 1000, w: 64, h: 36 },
+    next: { cx: 290, cy: 1000, w: 64, h: 36 },
+    eject: { cx: 382, cy: 1000, w: 52, h: 36 },
+    vol: { x0: 440, x1: 540, cy: 992, h0: 8, h1: 13, thumb: { x: 540, w: 14, y0: 978, y1: 1016 } }
+  }
+};
+
+/* ============ BACKGROUND (prosedural, tanpa fetch) ============ */
+
+function drawBackground(ctx, W, H, style) {
+  if (style === '2') {
+    // putih dengan garis cahaya biru diagonal
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, '#f4f9ff');
+    bg.addColorStop(0.5, '#ffffff');
+    bg.addColorStop(1, '#eef4fc');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    for (let i = 0; i < 7; i++) {
+      const x0 = (i * 173) % (W + 200) - 100;
+      const g = ctx.createLinearGradient(x0, 0, x0 + 90, 0);
+      g.addColorStop(0, 'rgba(140,190,255,0)');
+      g.addColorStop(0.5, 'rgba(140,190,255,0.35)');
+      g.addColorStop(1, 'rgba(140,190,255,0)');
+      ctx.fillStyle = g;
+      ctx.save();
+      ctx.translate(x0, 0); ctx.rotate(0.35); ctx.translate(-x0, 0);
+      ctx.fillRect(x0, -100, 90, H + 200);
+      ctx.restore();
     }
-  };
-  const capR = ix + iw - 12;
-  capBtn(capR - 48, 'close');
-  capBtn(capR - 48 - 10 - 48, 'max');
-  capBtn(capR - 48 - 10 - 48 - 10 - 48, 'min');
+    ctx.restore();
+    return;
+  }
+  // bokeh biru-ungu seperti wallpaper referensi
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#3c5fb8');
+  bg.addColorStop(0.45, '#5a6fc4');
+  bg.addColorStop(1, '#8d8fc9');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  const blobs = [
+    [0.12, 0.1, 130, 'rgba(150,170,255,0.5)'], [0.35, 0.06, 90, 'rgba(200,150,255,0.45)'],
+    [0.62, 0.12, 150, 'rgba(120,150,255,0.5)'], [0.88, 0.08, 100, 'rgba(255,170,220,0.4)'],
+    [0.2, 0.85, 140, 'rgba(140,160,255,0.45)'], [0.55, 0.92, 110, 'rgba(180,150,255,0.4)'],
+    [0.85, 0.88, 150, 'rgba(130,160,255,0.5)'], [0.45, 0.5, 200, 'rgba(255,255,255,0.12)'],
+    [0.75, 0.35, 80, 'rgba(255,200,230,0.35)'], [0.08, 0.45, 90, 'rgba(160,200,255,0.4)']
+  ];
+  for (const [fx, fy, r, col] of blobs) {
+    const g = ctx.createRadialGradient(W * fx, H * fy, 4, W * fx, H * fy, r);
+    g.addColorStop(0, col);
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(W * fx - r, H * fy - r, r * 2, r * 2);
+  }
+  // semburat cahaya atas
+  const gl = ctx.createRadialGradient(W / 2, -80, 20, W / 2, -80, 620);
+  gl.addColorStop(0, 'rgba(255,255,255,0.5)');
+  gl.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gl;
+  ctx.fillRect(0, 0, W, 500);
+}
+
+/* ============ RENDERER UTAMA ============ */
+
+export function drawWmpScene(ctx, segments, style, W, H) {
+  const cfg = style === '2' ? CFG2 : CFG1;
+  W = cfg.W; H = cfg.H;
+  const wn = cfg.win;
+  const ix = wn.x + wn.border, iw = wn.w - wn.border * 2;
+
+  drawBackground(ctx, W, H, style);
+
+  // bayangan jendela
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,15,70,0.5)';
+  ctx.shadowBlur = 34;
+  ctx.shadowOffsetY = 14;
+  ctx.fillStyle = '#ffffff';
+  rrPath(ctx, wn.x, wn.y, wn.w, wn.h, wn.radius);
+  ctx.fill();
+  ctx.restore();
+
+  // isi jendela (clip)
+  ctx.save();
+  rrPath(ctx, wn.x, wn.y, wn.w, wn.h, wn.radius);
+  ctx.clip();
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(wn.x, wn.y, wn.w, wn.h);
+
+  /* ---- title bar ---- */
+  const tb = cfg.title;
+  ctx.fillStyle = vgrad(ctx, tb.y, tb.h, tb.stops);
+  ctx.fillRect(ix, tb.y, iw, tb.h);
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillRect(ix, tb.y, iw, 2);
+
+  wmpIcon(ctx, tb.icon.cx, tb.icon.cy, tb.icon.r);
+
+  ctx.font = tb.font;
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(0,25,90,0.6)';
+  ctx.fillText('Windows Media Player', tb.textX + 1, tb.textY + 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText('Windows Media Player', tb.textX, tb.textY);
+
+  const kinds = ['min', 'max', 'close'];
+  tb.cap.xs.forEach((bx, i) => capButton(ctx, bx, tb.cap.y, tb.cap.w, tb.cap.h, kinds[i]));
 
   /* ---- menu bar ---- */
-  ctx.fillStyle = '#f0efe6';
-  ctx.fillRect(ix, menuY, iw, menuH);
-  ctx.fillStyle = '#c9c4b4';
-  ctx.fillRect(ix, menuY + menuH - 1, iw, 1);
-  ctx.font = '400 26px ' + FONT_STACK;
-  ctx.fillStyle = '#111111';
+  const mn = cfg.menu;
+  ctx.fillStyle = mn.bg;
+  ctx.fillRect(ix, mn.y, iw, mn.h);
+  ctx.font = mn.font;
+  ctx.fillStyle = '#141414';
   ctx.textBaseline = 'middle';
   const items = ['File', 'View', 'Play', 'Tools', 'Help'];
-  let mx = ix + 28;
-  const myy = menuY + menuH / 2 + 1;
+  let mx = ix + mn.x0;
+  const myy = mn.y + mn.h / 2 + 1;
   for (const it of items) {
     ctx.fillText(it, mx, myy);
     const w0 = ctx.measureText(it[0]).width;
-    ctx.fillRect(mx, myy + 14, w0, 2);   // underline mnemonik F/V/P/T/H
-    mx += ctx.measureText(it).width + 44;
+    ctx.fillRect(mx, myy + mn.h * 0.22, w0, 2); // garis bawah mnemonik
+    mx += ctx.measureText(it).width + mn.gap;
   }
+  // garis pemisah bawah menu
+  ctx.fillStyle = '#b9b4a6';
+  ctx.fillRect(ix, mn.y + mn.h - 1, iw, 1);
 
   /* ---- toolbar strip ---- */
-  let sbg = ctx.createLinearGradient(0, toolY, 0, toolY + toolH);
-  sbg.addColorStop(0, '#ffffff');
-  sbg.addColorStop(0.45, '#e9e9e9');
-  sbg.addColorStop(0.55, '#cdcdcd');
-  sbg.addColorStop(1, '#e4e4e4');
-  ctx.fillStyle = sbg;
-  ctx.fillRect(ix, toolY, iw, toolH);
-  // grip vertikal kecil di kiri
-  ctx.fillStyle = '#a8a8a8'; ctx.fillRect(ix + 262, toolY + 7, 3, toolH - 14);
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(ix + 267, toolY + 7, 3, toolH - 14);
-  // segmen biru kanan + 3 ikon kecil
-  const segX = ix + iw - 400;
-  let bbg = ctx.createLinearGradient(0, toolY, 0, toolY + toolH);
-  bbg.addColorStop(0, '#5b8def');
-  bbg.addColorStop(1, '#2a5fd0');
-  ctx.fillStyle = bbg;
-  ctx.fillRect(segX, toolY, 400, toolH);
-  for (let i = 0; i < 3; i++) {
-    const qx = segX + 70 + i * 115, qy = toolY + toolH / 2;
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3;
-    rrPath(ctx, qx - 15, qy - 12, 30, 24, 3); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(qx - 15, qy + 2); ctx.lineTo(qx + 15, qy + 2); ctx.stroke();
+  const ts = cfg.toolbar;
+  ctx.fillStyle = vgrad(ctx, ts.y, ts.h, ts.leftStops);
+  ctx.fillRect(ix, ts.y, ts.splitX - ix, ts.h);
+  ctx.fillStyle = vgrad(ctx, ts.y, ts.h, ts.rightStops);
+  ctx.fillRect(ts.splitX, ts.y, ix + iw - ts.splitX, ts.h);
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fillRect(ix, ts.y, iw, 2);
+  ctx.fillStyle = 'rgba(0,0,60,0.35)';
+  ctx.fillRect(ix, ts.y + ts.h - 1, iw, 1);
+  // garis vertikal pemisah segmen
+  ctx.fillStyle = 'rgba(0,0,60,0.4)';
+  ctx.fillRect(ts.splitX - 1, ts.y + 3, 2, ts.h - 6);
+  // 3 ikon garis putih
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = Math.max(2, ts.iconSize * 0.11);
+  ctx.lineCap = 'round';
+  const icy = ts.y + ts.h / 2, isz = ts.iconSize / 2;
+  for (const ic of ts.icons) {
+    if (ic.kind === 'monitor') {
+      ctx.strokeRect(ic.cx - isz, icy - isz * 0.85, isz * 2, isz * 1.7);
+      ctx.strokeRect(ic.cx - isz * 0.55, icy - isz * 0.45, isz * 1.1, isz * 0.9);
+    } else if (ic.kind === 'square') {
+      ctx.strokeRect(ic.cx - isz * 0.6, icy - isz * 0.6, isz * 1.2, isz * 1.2);
+    } else {
+      ctx.strokeRect(ic.cx - isz * 0.9, icy - isz * 0.7, isz * 1.1, isz * 1.15);
+      ctx.strokeRect(ic.cx - isz * 0.2, icy - isz * 0.45, isz * 1.1, isz * 1.15);
+    }
   }
 
   /* ---- area konten ---- */
+  const ct = cfg.content;
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(ix, contY, iw, contH);
-  // border inset
-  ctx.strokeStyle = '#7f9db9'; ctx.lineWidth = 2;
-  ctx.strokeRect(ix + 1, contY + 1, iw - 2, contH - 2);
-  ctx.fillStyle = 'rgba(0,0,0,0.07)';
-  ctx.fillRect(ix + 2, contY + 2, iw - 4, 3);
+  ctx.fillRect(ix, ct.y, iw, ct.h);
+  ctx.strokeStyle = '#7f9db9';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(ix + 1, ct.y + 1, iw - 2, ct.h - 2);
 
-  /* ---- teks quote: wrap by pixel, auto-fit bila overflow ---- */
-  const isBold = style === '2';
-  let fs = isBold ? 46 : 44;
-  const weight = isBold ? '700' : '400';
-  let qlines, lh;
+  /* ---- teks quote ---- */
+  const tx = cfg.text;
+  const weight = tx.bold ? '700' : '400';
+  let fs = tx.fontSize, qlines, lh;
+  const maxW = iw * tx.maxWRatio;
   for (;;) {
     const font = weight + ' ' + fs + 'px ' + FONT_STACK;
-    lh = fs * 1.28;
-    qlines = wrapSegments(ctx, segments, fs * 5.2, font);
-    const blockH = (qlines.length - 1) * lh + fs * 1.02;
-    if (56 + blockH <= contH - 14 || fs <= 20) break;
-    fs -= 1;
+    lh = fs * 1.21;
+    qlines = wrapSegments(ctx, segments, maxW, font);
+    const blockH = (qlines.length - 1) * lh + fs;
+    if (tx.top + blockH <= ct.y + ct.h - 20 || fs <= 24) break;
+    fs -= 2;
   }
   ctx.font = weight + ' ' + fs + 'px ' + FONT_STACK;
   ctx.fillStyle = '#000000';
   ctx.textBaseline = 'alphabetic';
-  const tx = ix + 70;
-  let ty = contY + 56 + fs * 0.82;
+  let ty = tx.top + fs * 0.78;
   for (const ln of qlines) {
-    ctx.fillText(ln || ' ', tx, ty);
+    ctx.fillText(ln || ' ', tx.x, ty);
     ty += lh;
   }
 
   /* ---- figur 3D ---- */
-  drawFigure(ctx, ix + iw * 0.76, contY + contH - 16, style === '2' ? 285 : 292, style === '2' ? 'up' : 'shrug');
+  const fg = cfg.figure;
+  drawFigure(ctx, fg.cx, fg.feetY, fg.h, fg.pose);
 
-  /* ---- control bar bawah ---- */
-  let cbg = ctx.createLinearGradient(0, ctrlY, 0, ctrlY + ctrlH);
-  cbg.addColorStop(0, '#2e6be4');
-  cbg.addColorStop(1, '#17479e');
-  ctx.fillStyle = cbg;
-  ctx.fillRect(ix, ctrlY, iw, ctrlH);
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.fillRect(ix, ctrlY, iw, 2);
+  /* ---- control bar ---- */
+  const cb = cfg.ctrl;
+  const ctrlY = ct.y + ct.h;
+  if (cb.whiteTop > 0) {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(ix, ctrlY, iw, cb.whiteTop);
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fillRect(ix, ctrlY, iw, 2);
+  }
+  const barY = ctrlY + cb.whiteTop;
+  ctx.fillStyle = vgrad(ctx, barY, cb.h, cb.stops);
+  ctx.fillRect(ix, barY, iw, cb.h);
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillRect(ix, barY, iw, 2);
+  ctx.fillStyle = 'rgba(0,0,60,0.35)';
+  ctx.fillRect(ix, barY + cb.h - 2, iw, 2);
 
-  const silver = (x, y, w, h, r) => {
-    const g = ctx.createLinearGradient(0, y, 0, y + h);
-    g.addColorStop(0, '#ffffff');
-    g.addColorStop(0.5, '#dbe2ef');
-    g.addColorStop(1, '#a9b8d2');
-    rrPath(ctx, x, y, w, h, r);
-    ctx.fillStyle = g; ctx.fill();
-    ctx.strokeStyle = '#5f7396'; ctx.lineWidth = 2; ctx.stroke();
-  };
-  const navyTri = (cxp, cyp, s, flip) => {
+  // seek bar
+  const sk = cb.seek;
+  const triC = '#22377e';
+  // panah kiri (outline putih + isi navy)
+  for (const [ax, flip] of [[sk.arrowsL.x0 + sk.s, true], [sk.arrowsL.x0 + sk.s * 2.6, true]]) {
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
     ctx.beginPath();
-    if (flip) { ctx.moveTo(cxp + s, cyp - s * 0.7); ctx.lineTo(cxp + s, cyp + s * 0.7); ctx.lineTo(cxp - s, cyp); }
-    else { ctx.moveTo(cxp - s, cyp - s * 0.7); ctx.lineTo(cxp - s, cyp + s * 0.7); ctx.lineTo(cxp + s, cyp); }
-    ctx.closePath(); ctx.fillStyle = '#1e3f8f'; ctx.fill();
-  };
-  const ccy = ctrlY + ctrlH / 2 + 14;
-
-  // seek bar (baris atas, di atas tombol-tombol)
-  const seekY = ctrlY + 13;
-  ctx.fillStyle = 'rgba(220,235,255,0.9)';
-  navyTri(ix + 232, seekY + 5, 7, true); navyTri(ix + 246, seekY + 5, 7, true);
-  navyTri(contX2 - 96, seekY + 5, 7, false); navyTri(contX2 - 82, seekY + 5, 7, false);
-  const skX = ix + 266, skW = contX2 - ix - 266 - 120;
-  const skg = ctx.createLinearGradient(0, seekY, 0, seekY + 10);
-  skg.addColorStop(0, '#dfe7f4'); skg.addColorStop(1, '#9fb0c8');
-  rrPath(ctx, skX, seekY, skW, 10, 5);
-  ctx.fillStyle = skg; ctx.fill();
-  ctx.strokeStyle = '#5f7396'; ctx.lineWidth = 1.5; ctx.stroke();
-  // thumb hijau-putih di ~18%
-  const thX = skX + skW * 0.18;
-  const thg = ctx.createLinearGradient(0, 0, 16, 0);
-  thg.addColorStop(0, '#ffffff'); thg.addColorStop(1, '#2fc72f');
-  rrPath(ctx, thX - 8, seekY - 9, 16, 28, 6);
-  ctx.fillStyle = thg; ctx.fill();
-  ctx.strokeStyle = '#1a8a1a'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.moveTo(ax + sk.s, sk.arrowsL.cy - sk.s * 0.85);
+    ctx.lineTo(ax + sk.s, sk.arrowsL.cy + sk.s * 0.85);
+    ctx.lineTo(ax - sk.s, sk.arrowsL.cy);
+    ctx.closePath(); ctx.stroke();
+    tri(ctx, ax, sk.arrowsL.cy, sk.s * 0.72, flip, triC);
+  }
+  for (const [ax, flip] of [[sk.arrowsR.x1 - sk.s * 2.6, false], [sk.arrowsR.x1 - sk.s, false]]) {
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(ax - sk.s, sk.arrowsR.cy - sk.s * 0.85);
+    ctx.lineTo(ax - sk.s, sk.arrowsR.cy + sk.s * 0.85);
+    ctx.lineTo(ax + sk.s, sk.arrowsR.cy);
+    ctx.closePath(); ctx.stroke();
+    tri(ctx, ax, sk.arrowsR.cy, sk.s * 0.72, flip, triC);
+  }
+  // track
+  const trg = ctx.createLinearGradient(0, sk.track.y, 0, sk.track.y + sk.track.h);
+  trg.addColorStop(0, '#c9d8f8'); trg.addColorStop(0.5, '#e8efff'); trg.addColorStop(1, '#a9bde8');
+  rrPath(ctx, sk.track.x0, sk.track.y, sk.track.x1 - sk.track.x0, sk.track.h, sk.track.h / 2);
+  ctx.fillStyle = trg; ctx.fill();
+  ctx.strokeStyle = 'rgba(40,60,130,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+  // thumb
+  greenThumb(ctx, sk.thumb.x, sk.thumb.y, sk.thumb.w, sk.thumb.h);
 
   // tombol play (lingkaran besar)
-  const pg = ctx.createRadialGradient(ix + 74, ccy - 12, 6, ix + 80, ccy, 36);
-  pg.addColorStop(0, '#ffffff'); pg.addColorStop(0.7, '#dbe2ef'); pg.addColorStop(1, '#a9b8d2');
-  ctx.beginPath(); ctx.arc(ix + 80, ccy, 34, 0, Math.PI * 2);
+  const pg = ctx.createRadialGradient(cb.play.cx - 10, cb.play.cy - 12, 4, cb.play.cx, cb.play.cy, cb.play.r);
+  pg.addColorStop(0, '#ffffff'); pg.addColorStop(0.65, '#dde4f2'); pg.addColorStop(1, '#a7b6d1');
+  ctx.beginPath(); ctx.arc(cb.play.cx, cb.play.cy, cb.play.r, 0, Math.PI * 2);
   ctx.fillStyle = pg; ctx.fill();
-  ctx.strokeStyle = '#5f7396'; ctx.lineWidth = 2.5; ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(ix + 70, ccy - 13); ctx.lineTo(ix + 70, ccy + 13); ctx.lineTo(ix + 94, ccy);
-  ctx.closePath(); ctx.fillStyle = '#1e4fae'; ctx.fill();
+  ctx.strokeStyle = '#5b6f94'; ctx.lineWidth = 2.5; ctx.stroke();
+  tri(ctx, cb.play.cx + cb.play.r * 0.08, cb.play.cy, cb.play.r * 0.42, false, '#1e4fae');
 
-  // stop (oval + kotak navy)
-  silver(ix + 128, ccy - 26, 46, 52, 23);
+  // stop (oval vertikal + kotak navy)
+  silverBtn(ctx, cb.stop.cx, cb.stop.cy, cb.stop.w, cb.stop.h);
   ctx.fillStyle = '#1e3f8f';
-  rrPath(ctx, ix + 142, ccy - 11, 18, 22, 3); ctx.fill();
+  const sq = cb.stop.sq;
+  rrPath(ctx, cb.stop.cx - sq / 2, cb.stop.cy - sq / 2, sq, sq * 1.15, 3);
+  ctx.fill();
 
-  // prev / next (oval + panah ganda)
-  silver(ix + 186, ccy - 22, 62, 44, 22);
-  navyTri(ix + 208, ccy, 8, true); navyTri(ix + 222, ccy, 8, true);
-  silver(ix + 258, ccy - 22, 62, 44, 22);
-  navyTri(ix + 280, ccy, 8, false); navyTri(ix + 294, ccy, 8, false);
+  // prev / next
+  silverBtn(ctx, cb.prev.cx, cb.prev.cy, cb.prev.w, cb.prev.h);
+  const ps = cb.prev.h * 0.28;
+  ctx.fillStyle = triC;
+  ctx.fillRect(cb.prev.cx - cb.prev.w * 0.32, cb.prev.cy - ps, 4, ps * 2);
+  tri(ctx, cb.prev.cx - ps * 0.4, cb.prev.cy, ps * 0.75, true);
+  tri(ctx, cb.prev.cx + ps * 0.75, cb.prev.cy, ps * 0.75, true);
+  silverBtn(ctx, cb.next.cx, cb.next.cy, cb.next.w, cb.next.h);
+  tri(ctx, cb.next.cx - ps * 0.75, cb.next.cy, ps * 0.75, false);
+  tri(ctx, cb.next.cx + ps * 0.4, cb.next.cy, ps * 0.75, false);
+  ctx.fillRect(cb.next.cx + cb.next.w * 0.32 - 4, cb.next.cy - ps, 4, ps * 2);
 
-  // tombol oval ke-5 (eject) — ada jeda seperti di referensi
-  silver(ix + 463, ccy - 22, 62, 44, 22);
-  ctx.fillStyle = '#1e3f8f';
+  // eject
+  silverBtn(ctx, cb.eject.cx, cb.eject.cy, cb.eject.w, cb.eject.h);
+  const es = cb.eject.h * 0.3;
+  tri(ctx, cb.eject.cx - es * 0.3, cb.eject.cy - es * 0.25, es * 0.7, true);
+  ctx.fillStyle = triC;
   ctx.beginPath();
-  ctx.moveTo(ix + 494, ccy - 10); ctx.lineTo(ix + 480, ccy + 6); ctx.lineTo(ix + 508, ccy + 6);
+  ctx.moveTo(cb.eject.cx - es * 0.7, cb.eject.cy + es * 0.55);
+  ctx.lineTo(cb.eject.cx + es * 0.7, cb.eject.cy + es * 0.55);
+  ctx.lineTo(cb.eject.cx, cb.eject.cy - es * 0.35);
   ctx.closePath(); ctx.fill();
-  ctx.fillRect(ix + 480, ccy + 9, 28, 5);
+  ctx.fillRect(cb.eject.cx - es * 0.7, cb.eject.cy + es * 0.7, es * 1.4, 3);
 
-  // volume: wedge hijau + thumb
-  const vx = ix + 572;
-  const vg = ctx.createLinearGradient(vx, 0, vx + 100, 0);
-  vg.addColorStop(0, '#7ce87c'); vg.addColorStop(1, '#1fae1f');
+  // volume: wedge hijau meruncing + thumb
+  const vv = cb.vol;
+  const vg = ctx.createLinearGradient(vv.x0, 0, vv.x1, 0);
+  vg.addColorStop(0, '#4fe04f'); vg.addColorStop(1, '#1da31d');
   ctx.beginPath();
-  ctx.moveTo(vx, ccy + 16);
-  ctx.lineTo(vx + 100, ccy - 8);
-  ctx.lineTo(vx + 100, ccy + 20);
+  ctx.moveTo(vv.x0, vv.cy + vv.h0 / 2);
+  ctx.lineTo(vv.x1, vv.cy + vv.h1 / 2);
+  ctx.lineTo(vv.x1, vv.cy - vv.h1 / 2);
+  ctx.lineTo(vv.x0, vv.cy - vv.h0 / 2);
   ctx.closePath();
   ctx.fillStyle = vg; ctx.fill();
-  const vtg = ctx.createLinearGradient(0, 0, 18, 0);
-  vtg.addColorStop(0, '#ffffff'); vtg.addColorStop(1, '#2fc72f');
-  rrPath(ctx, vx + 46, ccy - 20, 18, 44, 7);
-  ctx.fillStyle = vtg; ctx.fill();
-  ctx.strokeStyle = '#1a8a1a'; ctx.lineWidth = 1.5; ctx.stroke();
+  greenThumb(ctx, vv.thumb.x, vv.thumb.y0, vv.thumb.w, vv.thumb.y1 - vv.thumb.y0);
 
   ctx.restore(); // lepas clip jendela
 
   /* ---- border jendela ---- */
-  rrPath(ctx, WX, WY, WW, WH, 14);
-  ctx.strokeStyle = '#0d3aa8';
-  ctx.lineWidth = BD;
+  rrPath(ctx, wn.x, wn.y, wn.w, wn.h, wn.radius);
+  ctx.strokeStyle = '#0d2f9e';
+  ctx.lineWidth = wn.border;
   ctx.stroke();
 }
 
 function drawStyle1(lines) {
   const cv = drawStyle1._cv;
+  cv.width = CFG1.W; cv.height = CFG1.H;
   drawWmpScene(cv.getContext('2d'), lines, '1', cv.width, cv.height);
 }
 
 function drawStyle2(lines) {
   const cv = drawStyle2._cv;
+  cv.width = CFG2.W; cv.height = CFG2.H;
   drawWmpScene(cv.getContext('2d'), lines, '2', cv.width, cv.height);
 }
 
 export function render(root) {
 
-  const W = 1200, H = 630;
   let style = '1';
 
   const cv = document.createElement('canvas');
-  cv.width = W; cv.height = H;
   drawStyle1._cv = cv;
   drawStyle2._cv = cv;
 

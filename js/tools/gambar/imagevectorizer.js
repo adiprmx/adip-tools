@@ -8,6 +8,22 @@ const MAX_SIDE = 1400;      // batas sisi terpanjang sebelum trace (hemat memori
 const MAX_FILE = 12 * 1024 * 1024;
 const OK_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
+// Opsi potrace yang dipakai (selaras default pustaka):
+// turnpolicy 'minority', optcurve true, alphamax 1, opttolerance 0.2.
+// threshold: -1 (THRESHOLD_AUTO) = Otsu otomatis.
+// invert: HANYA dikirim bila user memilih eksplisit — bila 'auto'/tidak dikirim,
+// pustaka memakai blackOnWhite=true (hitam jadi foreground). MENGIRIM string
+// 'auto' akan dibaca sebagai truthy dan MEMBALIK hasil (bug yang pernah ada).
+export function potraceOpts(turd, threshold, invertSel) {
+  const o = {
+    threshold, turnpolicy: 'minority', turdsize: turd,
+    optcurve: true, alphamax: 1, opttolerance: 0.2,
+  };
+  if (invertSel === 'true') o.invert = true;
+  else if (invertSel === 'false') o.invert = false;
+  return o;
+}
+
 /** Sanitasi SVG hasil trace: hanya tag & atribut aman (tanpa DOM). */
 export function sanitizeSvg(svg) {
   let s = String(svg || '');
@@ -28,7 +44,7 @@ export function svgSizeLabel(svg) {
   return n < 1024 ? n + ' B' : (n / 1024).toFixed(1) + ' KB';
 }
 /** Median-cut kuantisasi -> N warna dominan (tanpa DOM — bisa diuji).
-    px: Uint8ClampedArray RGBA, n: jumlah pixel. Return ['#rrggbb', ...]. */
+    px: Uint8ClampedArray RGBA, n: jumlah pixel. Return [[r,g,b], ...]. */
 export function medianCut(px, n, count) {
   const pix = [];
   const step = Math.max(1, Math.floor(n / 20000));
@@ -37,7 +53,7 @@ export function medianCut(px, n, count) {
     if (a < 128) continue;
     pix.push([px[i * 4], px[i * 4 + 1], px[i * 4 + 2]]);
   }
-  if (!pix.length) return ['#000000'];
+  if (!pix.length) return [[0, 0, 0]];
   let boxes = [pix];
   while (boxes.length < count) {
     let bi = -1, br = -1;
@@ -68,8 +84,8 @@ export function medianCut(px, n, count) {
     const s = [0, 0, 0];
     for (const p of b) { s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; }
     const k = Math.max(1, b.length);
-    return '#' + s.map((v) => Math.round(v / k).toString(16).padStart(2, '0')).join('');
-  }).map((hx) => [parseInt(hx.slice(1, 3), 16), parseInt(hx.slice(3, 5), 16), parseInt(hx.slice(5, 7), 16)]);
+    return [Math.round(s[0] / k), Math.round(s[1] / k), Math.round(s[2] / k)];
+  });
 }
 /** K-means++ seeding: pilih seed berjauhan secara probabilistik (tanpa DOM). */
 export function kmeansPlusPlus(px, n, count, rand) {
@@ -195,7 +211,7 @@ function downscaleDataUrl(dataUrl, maxSide) {
 export function render(root) {
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Trace PNG/JPG/WebP jadi <b>SVG vektor</b> — mode hitam-putih (logo, stempel, sketsa) atau mode <b>warna</b> (poster, ilustrasi). Semua diproses di HP-mu, tidak ada yang di-upload.<br><span class="dim" style="font-size:12px">Engine: algoritma potrace via pustaka publik (browser ESM).</span></p>'));
 
-  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="font-size:30px">🖼️</div><div style="margin-top:6px;font-weight:700">Ketuk / seret gambar ke sini</div><div class="dim" style="font-size:12px;margin-top:4px">PNG · JPG · WebP — maks 12 MB</div></div>');
+  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="margin-top:6px;font-weight:700">Ketuk / seret gambar ke sini</div><div class="dim" style="font-size:12px;margin-top:4px">PNG · JPG · WebP — maks 12 MB</div></div>');
   const fileInp = T.el('<input type="file" accept="image/png,image/jpeg,image/webp" hidden>');
   dz.addEventListener('click', () => fileInp.click());
   dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInp.click(); });
@@ -236,18 +252,18 @@ export function render(root) {
       T.show(out, '<span class="err">Gunakan PNG, JPG, atau WEBP.</span>'); return;
     }
     if (file.size > MAX_FILE) { T.show(out, '<span class="err">File melebihi 12 MB.</span>'); return; }
-    T.show(out, '<span class="dim">⏳ Memuat engine trace…</span>');
+    T.show(out, '<span class="dim">Memuat engine trace…</span>');
     let lib;
     try { lib = await import(/* @vite-ignore */ POTRACE_ESM); }
     catch (e) { T.show(out, '<span class="err">Gagal memuat engine trace. Cek koneksi lalu coba lagi.</span>'); return; }
-    T.show(out, '<span class="dim">⏳ Menyiapkan gambar…</span>');
+    T.show(out, '<span class="dim">Menyiapkan gambar…</span>');
     try {
       const raw = await readFileAsDataUrl(file);
       const isColor = modeSel.value === 'color';
       const maxSide = isColor ? 800 : MAX_SIDE;
       const { dataUrl, w, h } = await downscaleDataUrl(raw, maxSide);
       const turd = Number(isColor ? detSelColor.value : detSel.value);
-      T.show(out, '<span class="dim">⏳ Tracing ' + w + '×' + h + ' px… (bisa beberapa detik)</span>');
+      T.show(out, '<span class="dim">Tracing ' + w + '×' + h + ' px… (bisa beberapa detik)</span>');
       // beri napas ke UI sebelum komputasi berat
       await new Promise((r) => setTimeout(r, 30));
       let svg;
@@ -255,14 +271,13 @@ export function render(root) {
         svg = await traceColor(lib, dataUrl, w, h, Number(ncolSel.value), turd);
       } else {
         const thr = thrSel.value === 'auto' ? (lib.THRESHOLD_AUTO != null ? lib.THRESHOLD_AUTO : -1) : Number(thrSel.value);
-        const inv = invSel.value === 'auto' ? 'auto' : invSel.value === 'true';
-        const paths = lib.traceDataUrl(dataUrl, {
-          threshold: thr, invert: inv,
-          turnpolicy: 'minority',
-          turdsize: turd,
-          optcurve: true, alphamax: 1, opttolerance: 0.2,
-        });
-        svg = lib.getSVG(paths, 1);
+        let one = lib.getSVG(lib.traceDataUrl(dataUrl, potraceOpts(turd, thr, invSel.value)), 1);
+        // getSVG selalu menulis fill="black" per path — buang supaya warna
+        // pilihan user (dibungkus <g fill>) benar-benar berlaku.
+        // fill-rule="evenodd" dipertahankan (untuk lubang/hole).
+        one = one.replace(/\sfill="black"/g, '').replace(/\sstroke="none"/g, '');
+        if (!/<path[^>]*\sd="[^"]*\d/.test(one)) throw new Error('svg-invalid');
+        svg = one;
       }
       svg = sanitizeSvg(svg);
       if (!/^<svg[\s>]/.test(svg.trim())) throw new Error('svg-invalid');
@@ -273,7 +288,9 @@ export function render(root) {
     }
   }
 
-  /** Trace warna: kuantisasi median-cut lalu potrace per lapisan warna. */
+  /** Trace warna: kuantisasi k-means lalu potrace per lapisan warna.
+      Lapisan diurut dari cakupan terluas (background dulu) supaya tumpukan
+      opaque ter-render benar. */
   async function traceColor(lib, dataUrl, w, h, nColors, turd) {
     const im = await loadImage(dataUrl);
     const c = document.createElement('canvas'); c.width = w; c.height = h;
@@ -288,7 +305,7 @@ export function render(root) {
       const mc = document.createElement('canvas'); mc.width = w; mc.height = h;
       const mx = mc.getContext('2d');
       const out = mx.createImageData(w, h);
-      const [rr, gg, bb] = prgb[li];
+      let count = 0;
       for (let i = 0; i < w * h; i++) {
         let best = 0, bd = 1e18;
         for (let k = 0; k < prgb.length; k++) {
@@ -297,20 +314,18 @@ export function render(root) {
           if (d < bd) { bd = d; best = k; }
         }
         const on = best === li;
+        if (on) count++;
         out.data[i * 4] = on ? 0 : 255; out.data[i * 4 + 1] = on ? 0 : 255; out.data[i * 4 + 2] = on ? 0 : 255;
         out.data[i * 4 + 3] = 255;
       }
       mx.putImageData(out, 0, 0);
-      const paths = lib.traceDataUrl(mc.toDataURL('image/png'), {
-        threshold: 128, invert: false, turnpolicy: 'minority',
-        turdsize: turd, optcurve: true, alphamax: 1, opttolerance: 0.2,
-      });
+      const paths = lib.traceDataUrl(mc.toDataURL('image/png'), potraceOpts(turd, 128, 'false'));
       const one = lib.getSVG(paths, 1);
-      const ds = [...one.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
-      if (ds.length) groups.push({ color: hexes[li], ds });
+      const ds = [...one.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]).filter((d) => /\d/.test(d));
+      if (ds.length) groups.push({ color: hexes[li], ds, count });
     }
     if (!groups.length) throw new Error('svg-invalid');
-    // latar: warna paling dominan sebagai rect dasar
+    groups.sort((a, b) => b.count - a.count); // background (terluas) dulu
     const vb = '0 0 ' + w + ' ' + h;
     let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="' + vb + '">';
     groups.forEach((g) => {
@@ -326,7 +341,6 @@ export function render(root) {
     const fg = colInp.value || '#1a1a1a';
     // mode bw: terapkan warna — bungkus path dalam <g fill>
     const colored = mode === 'color' ? svg : svg.replace(/(<svg[^>]*>)/, '$1<g fill="' + fg + '">') + '</g>';
-    const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(colored);
     const box = T.el('<div></div>');
     const modes = T.el('<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap"></div>');
     let bgMode = 'checker';
@@ -344,19 +358,19 @@ export function render(root) {
     };
     let current = colored;
     paintPreview(current);
-    [['checker', '⬜ Kotak'], ['dark', '🌑 Gelap'], ['light', '🌕 Terang']].forEach(([v, l]) => {
+    [['checker', 'Kotak-kotak'], ['dark', 'Gelap'], ['light', 'Terang']].forEach(([v, l]) => {
       const b = T.btn(l, () => { bgMode = v; paintBg(); });
       if (v === bgMode) b.classList.add('primary');
       modes.appendChild(b);
     });
-    box.appendChild(T.el('<div style="font-weight:700;margin-bottom:8px">✅ Trace selesai — ' + w + '×' + h + ' px → ' + T.esc(svgSizeLabel(current)) + '</div>'));
+    box.appendChild(T.el('<div style="font-weight:700;margin-bottom:8px">Trace selesai — ' + w + '×' + h + ' px → ' + T.esc(svgSizeLabel(current)) + '</div>'));
     box.appendChild(modes);
     box.appendChild(prev);
     box.appendChild(T.el('<p class="dim" style="font-size:12px;margin:8px 0">SVG vektor: bisa diperbesar tanpa pecah.' + (mode === 'color' ? ' Mode warna: tiap warna jadi grup path sendiri.' : ' Cocok untuk logo satu warna & stempel.') + '</p>'));
     const row = T.row(
-      T.btn('⬇ Unduh SVG', () => T.dl(name, current, 'image/svg+xml'), true),
+      T.btn('Unduh SVG', () => T.dl(name, current, 'image/svg+xml'), true),
       T.copyBtn(() => current, 'Salin SVG'),
-      T.btn('🧩 Ungroup', () => {
+      T.btn('Ungroup', () => {
         try {
           const flat = ungroupSvg(current);
           current = flat;
@@ -364,7 +378,7 @@ export function render(root) {
           T.toast('Ungroup: grup dipecah jadi path satuan.');
         } catch (e) { T.toast('Ungroup gagal.'); }
       }),
-      T.btn('🔁 Gambar lain', () => { cur = null; T.hide(out); fileInp.click(); })
+      T.btn('Gambar lain', () => { cur = null; T.hide(out); fileInp.click(); })
     );
     box.appendChild(row);
     T.show(out, '');

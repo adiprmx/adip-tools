@@ -3,7 +3,6 @@ import { h as T, utils, imglyRemoval } from '../../core.js?v=6.9.20';
 export const meta = {"id": "nexoraautocut", "name": "Auto Cut", "cat": "gambar", "icon": "🧩", "desc": "Hapus background lalu pecah jadi layer PNG per objek.", "keywords": "cutout,layer,hapus background,autocut,alight,zip"};
 
 const MAX_FILE = 12 * 1024 * 1024;
-const JSZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
 
 /** Label komponen terhubung pada mask biner (tanpa DOM — bisa diuji).
     alpha: Uint8Array, threshold: nilai alpha minimum dianggap foreground.
@@ -31,16 +30,159 @@ export function connectedComponents(alpha, w, h, threshold) {
   }
   return comps.sort((a, b) => b.n - a.n);
 }
-/** Saring komponen di bawah ambang persen luas gambar (tanpa DOM). */
+/** Saring komponen di bawah ambang persen luas gambar (min 8 px, tanpa DOM). */
 export function filterMinCut(comps, w, h, pct) {
-  const min = (w * h * pct) / 100;
+  const min = Math.max(8, (w * h * pct) / 100);
   return comps.filter((c) => c.n >= min);
 }
+/** Batas jumlah layer: tiru format asli (maks 48 cut terbesar). */
+export const MAX_CUTS = 48;
+/** Ambang alpha foreground ala format asli. */
+export const ALPHA_FLOOR = 16;
 export function magicOk(bytes) {
   if (bytes[0] === 0x89 && bytes[1] === 0x50) return 'png';
   if (bytes[0] === 0xFF && bytes[1] === 0xD8) return 'jpg';
   if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[6] === 0x57 && bytes[7] === 0x45) return 'webp';
   return null;
+}
+/** Escape XML lengkap (& < > " ') — tanpa DOM, bisa diuji. */
+export function escapeXml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+/** Nama file aman: karakter aneh jadi '-', pangkas '-' di ujung, maks 64 (tanpa DOM). */
+export function safeName(value, fallback) {
+  const name = String(value || fallback || 'cut').replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64);
+  return name || 'cut';
+}
+
+let _crcTable = null;
+function crcTable() {
+  if (_crcTable) return _crcTable;
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return (_crcTable = t);
+}
+/** CRC-32 (IEEE) — tanpa DOM, bisa diuji. */
+export function crc32(bytes) {
+  const table = crcTable();
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) crc = table[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+function _le16(v) { return new Uint8Array([v & 255, (v >>> 8) & 255]); }
+function _le32(v) { return new Uint8Array([v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]); }
+function _concat(parts) {
+  let size = 0;
+  for (const p of parts) size += p.length;
+  const out = new Uint8Array(size);
+  let off = 0;
+  for (const p of parts) { out.set(p, off); off += p.length; }
+  return out;
+}
+/** Bangun arsip ZIP (metode store = tanpa kompresi) murni di JS — tanpa pustaka luar.
+    files: [{name: string, data: Uint8Array}]. Tanpa DOM, bisa diuji. */
+export function buildZip(files) {
+  const enc = new TextEncoder();
+  const locals = [], centrals = [];
+  let offset = 0;
+  for (const f of files) {
+    const nameB = enc.encode(f.name);
+    const data = f.data;
+    const crc = crc32(data);
+    const lh = _concat([
+      _le32(0x04034b50), _le16(20), _le16(0x0800), _le16(0), _le16(0), _le16(0),
+      _le32(crc), _le32(data.length), _le32(data.length), _le16(nameB.length), _le16(0),
+    ]);
+    locals.push(lh, nameB, data);
+    centrals.push({ nameB, crc, size: data.length, offset });
+    offset += lh.length + nameB.length + data.length;
+  }
+  const cdStart = offset;
+  const cdParts = [];
+  let cdSize = 0;
+  for (const c of centrals) {
+    const h = _concat([
+      _le32(0x02014b50), _le16(20), _le16(20), _le16(0x0800), _le16(0), _le16(0), _le16(0),
+      _le32(c.crc), _le32(c.size), _le32(c.size), _le16(c.nameB.length),
+      _le16(0), _le16(0), _le16(0), _le16(0), _le32(0), _le32(c.offset),
+    ]);
+    cdParts.push(h, c.nameB);
+    cdSize += h.length + c.nameB.length;
+  }
+  const cd = _concat(cdParts);
+  const end = _concat([
+    _le32(0x06054b50), _le16(0), _le16(0), _le16(centrals.length), _le16(centrals.length),
+    _le32(cdSize), _le32(cdStart), _le16(0),
+  ]);
+  return _concat([...locals, cd, end]);
+}
+
+/** Geometri scene Alight Motion ala format asli (tanpa template):
+    scene 1080x1920, 30 fps, durasi 2000 ms; gambar di-fit (contain) ke scene.
+    Tanpa DOM, bisa diuji. */
+export function alightScene(srcW, srcH) {
+  const W = 1080, H = 1920, FPS = 30, DUR = 2000;
+  let fitHW = W / 2, fitHH = fitHW * (srcH / srcW);
+  if (fitHH * 2 > H) { fitHH = H / 2; fitHW = fitHH * (srcW / srcH); }
+  return {
+    W, H, FPS, DUR,
+    scaleX: (fitHW * 2) / srcW, scaleY: (fitHH * 2) / srcH,
+    locX: W / 2, locY: H / 2,
+  };
+}
+/** XML project Alight Motion: scene 1080x1920 berisi SATU group, di dalamnya
+    scene bersarang berisi satu shape media per layer (posisi dihitung dari
+    bbox layer yang di-fit ke scene). Tanpa DOM, bisa diuji.
+    layers: [{name, x0,y0,x1,y1, pngW, pngH, size}] (size = byte PNG). */
+export function alightXml(srcW, srcH, layers, seed) {
+  if (!Number.isFinite(srcW) || !Number.isFinite(srcH) || srcW <= 0 || srcH <= 0) throw new Error('dimensi sumber tidak valid');
+  if (!layers || !layers.length) throw new Error('Tidak ada cut untuk diekspor.');
+  const sc = alightScene(srcW, srcH);
+  const f6 = (n) => (+n).toFixed(6);
+  let idc = 0;
+  const base = Math.max(1, Math.floor(Number(seed) || Date.now()) % 9000000000000);
+  const nid = () => String(base + (++idc));
+  const sceneAttrs = 'title="NEXORA Auto Cut" width="' + sc.W + '" height="' + sc.H +
+    '" exportWidth="' + sc.W + '" exportHeight="' + sc.H + '" bgcolor="#00000000' +
+    '" totalTime="' + sc.DUR + '" fps="' + sc.FPS + '" modifiedTime="0" retime="off" retimeAdaptFPS="false"';
+  const innerAttrs = 'width="' + sc.W + '" height="' + sc.H +
+    '" exportWidth="' + sc.W + '" exportHeight="' + sc.H + '" bgcolor="#00000000' +
+    '" totalTime="' + sc.DUR + '" fps="' + sc.FPS + '" modifiedTime="0" retime="off" retimeAdaptFPS="false"';
+  const media = layers.map((l) =>
+    '<media uri="' + escapeXml(l.name) + '.png" filename="' + escapeXml(l.name) + '.png" title="' + escapeXml(l.name) +
+    '" type="image/png" size="' + l.size + '" orientation="0" infoUpdated="0" width="' + l.pngW + '" height="' + l.pngH + '"/>'
+  ).join('\n');
+  const gid = nid();
+  const shapes = layers.map((l) => {
+    const w = l.x1 - l.x0 + 1, h = l.y1 - l.y0 + 1;
+    const cx = l.x0 + w / 2, cy = l.y0 + h / 2;
+    const amX = sc.locX + (cx - srcW / 2) * sc.scaleX;
+    const amY = sc.locY + (cy - srcH / 2) * sc.scaleY;
+    const halfW = (w * sc.scaleX) / 2, halfH = (h * sc.scaleY) / 2;
+    return '<shape id="' + nid() + '" label="' + escapeXml(l.name) + '" startTime="0" endTime="' + sc.DUR +
+      '" fillType="media" fillImage="' + escapeXml(l.name) + '.png" mediaFillMode="fill" s=".rect">\n' +
+      '<transform>\n<location value="' + f6(amX) + ',' + f6(amY) + ',0.000000"/>\n</transform>\n' +
+      '<property name="size" type="vec2" value="' + f6(halfW) + ',' + f6(halfH) + '"/>\n</shape>';
+  }).join('\n');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<scene ' + sceneAttrs + '>\n' +
+    '<bookmark t="0"/>\n' +
+    media + '\n' +
+    ' <group id="' + gid + '" label="NEXORA Auto Cut" startTime="0" endTime="' + sc.DUR + '">\n' +
+    ' <transform>\n <location value="' + f6(sc.locX) + ',' + f6(sc.locY) + ',0.000000"/>\n </transform>\n' +
+    ' <embedScene>\n' +
+    ' <scene ' + innerAttrs + '>\n' +
+    shapes + '\n' +
+    ' </scene>\n' +
+    ' </embedScene>\n' +
+    ' </group>\n' +
+    '</scene>\n';
 }
 
 function blobToImage(blob) {
@@ -111,7 +253,7 @@ export function render(root) {
     const data = st.fgCanvas.getContext('2d').getImageData(0, 0, w, h).data;
     const alpha = new Uint8Array(w * h);
     for (let i = 0; i < alpha.length; i++) alpha[i] = data[i * 4 + 3];
-    const comps = filterMinCut(connectedComponents(alpha, w, h, 10), w, h, Number(minRange.value));
+    const comps = filterMinCut(connectedComponents(alpha, w, h, ALPHA_FLOOR), w, h, Number(minRange.value)).slice(0, MAX_CUTS);
     st.layers = comps.map((c, i) => ({ ...c, name: 'layer-' + (i + 1) }));
     drawResult();
   }
@@ -133,34 +275,19 @@ export function render(root) {
     return '<?xml version="1.0" encoding="UTF-8"?>\n<autocut source="' + T.esc(st.fname) + '" width="' + st.srcW + '" height="' + st.srcH + '" layers="' + st.layers.length + '">\n' + rows + '\n</autocut>';
   }
 
-  /** XML project Alight Motion: tiap layer jadi shape media (format scene/shape). */
-  async function alightXml() {
-    const DUR = 3000;
-    const ex = (s) => String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    const blobs = [];
-    for (const l of st.layers) blobs.push(await layerPng(l));
-    const f6 = (n) => (+n).toFixed(6);
-    const media = blobs.map((b, i) => {
-      const l = st.layers[i], w = l.x1 - l.x0 + 1, h = l.y1 - l.y0 + 1;
-      return '  <media uri="' + ex(l.name) + '.png" filename="' + ex(l.name) + '.png" title="' + ex(l.name) +
-        '" type="image/png" size="' + b.size + '" orientation="0" infoUpdated="0" width="' + w + '" height="' + h + '" />';
-    }).join('\n');
-    const shapes = st.layers.map((l, i) => {
-      const w = l.x1 - l.x0 + 1, h = l.y1 - l.y0 + 1;
-      const cx = l.x0 + w / 2, cy = l.y0 + h / 2;
-      return '  <shape id="' + (i + 1) + '" label="' + ex(l.name) + '" startTime="0" endTime="' + DUR +
-        '" fillType="media" fillImage="' + ex(l.name) + '.png" mediaFillMode="fill" s=".rect">\n' +
-        '    <transform>\n      <location value="' + f6(cx) + ',' + f6(cy) + ',0.000000" />\n    </transform>\n' +
-        '    <property name="size" type="vec2" value="' + f6(w / 2) + ',' + f6(h / 2) + '" />\n  </shape>';
-    }).join('\n');
-    return {
-      xml: '<?xml version=\'1.0\' encoding=\'UTF-8\' ?>\n' +
-        '<scene title="' + ex(st.fname + ' Auto Cut') + '" width="' + st.srcW + '" height="' + st.srcH +
-        '" exportWidth="' + st.srcW + '" exportHeight="' + st.srcH + '" bgcolor="#00000000" totalTime="' + DUR +
-        '" fps="30" modifiedTime="' + Date.now() + '" amver="859" ffver="107" am="com.alightcreative.motion/6.2.53" amplatform="ios" precompose="dynamicResolution" retime="freeze">\n' +
-        '  <bookmark t="0"/>\n' + media + '\n' + shapes + '\n</scene>\n', blobs
-    };
+  /** Kumpulkan entri layer + blob PNG untuk ekspor XML/ZIP. */
+  async function layerEntries() {
+    const entries = [];
+    for (const l of st.layers) {
+      const blob = await layerPng(l);
+      entries.push({
+        name: safeName(l.name, l.name),
+        x0: l.x0, y0: l.y0, x1: l.x1, y1: l.y1,
+        pngW: l.x1 - l.x0 + 1, pngH: l.y1 - l.y0 + 1,
+        size: blob.size, blob,
+      });
+    }
+    return entries;
   }
 
   function drawResult() {
@@ -188,7 +315,7 @@ export function render(root) {
       card.appendChild(tc);
       const nm = T.input('text', 'nama layer', l.name);
       nm.style.cssText = 'width:100%;border:none;border-top:1px solid #2e2823;border-radius:0;font-size:12px';
-      nm.addEventListener('input', () => { l.name = nm.value.replace(/[^\w\- ]+/g, '').slice(0, 40) || ('layer-' + (i + 1)); });
+      nm.addEventListener('input', () => { l.name = safeName(nm.value, 'layer-' + (i + 1)); });
       card.appendChild(nm);
       const dl1 = T.btn('⬇ PNG', async () => {
         const b = await layerPng(l);
@@ -203,30 +330,28 @@ export function render(root) {
     box.appendChild(T.row(
       T.btn('⬇ Unduh ZIP semua layer', async () => {
         T.toast('Menyiapkan ZIP…');
-        const ok = await T.loadScript(JSZIP_CDN);
-        if (!ok || !window.JSZip) { T.toast('Gagal memuat pustaka ZIP'); return; }
-        const zip = new window.JSZip();
-        const alb = await alightXml().catch(() => null);
-        for (let i = 0; i < st.layers.length; i++) {
-          const l = st.layers[i];
-          zip.file(l.name + '.png', alb ? alb.blobs[i] : await layerPng(l));
-        }
-        zip.file('manifest.xml', manifestXml());
-        if (alb) zip.file(st.fname + '-alight.xml', alb.xml);
-        const blob = await zip.generateAsync({ type: 'blob' });
-        T.dl(st.fname + '-autocut.zip', blob, 'application/zip');
+        try {
+          const entries = await layerEntries();
+          const te = new TextEncoder();
+          const zname = safeName(st.fname, 'cut');
+          const files = [];
+          for (const e of entries) files.push({ name: e.name + '.png', data: new Uint8Array(await e.blob.arrayBuffer()) });
+          files.push({ name: 'manifest.xml', data: te.encode(manifestXml()) });
+          files.push({ name: zname + '-alight.xml', data: te.encode(alightXml(st.srcW, st.srcH, entries)) });
+          T.dl(zname + '-autocut.zip', new Blob([buildZip(files)], { type: 'application/zip' }), 'application/zip');
+        } catch (e) { T.toast('Gagal membuat ZIP: ' + (e && e.message ? e.message : 'error')); }
       }, true),
-      T.btn('⬇ Manifest XML', () => T.dl(st.fname + '-manifest.xml', manifestXml(), 'application/xml')),
+      T.btn('⬇ Manifest XML', () => T.dl(safeName(st.fname, 'cut') + '-manifest.xml', manifestXml(), 'application/xml')),
       T.btn('🎬 XML Alight Motion', async () => {
         T.toast('Menyiapkan XML Alight Motion…');
         try {
-          const r = await alightXml();
-          T.dl(st.fname + '-alight.xml', r.xml, 'text/xml');
+          const entries = await layerEntries();
+          T.dl(safeName(st.fname, 'cut') + '-alight.xml', alightXml(st.srcW, st.srcH, entries), 'text/xml');
         } catch (e) { T.toast('Gagal membuat XML: ' + (e && e.message ? e.message : 'error')); }
       }),
       T.btn('🔁 Gambar lain', () => { st.layers = []; T.hide(out); fileInp.click(); })
     ));
-    box.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">Manifest XML berisi daftar layer + posisi (format sederhana buatan tool ini). <b>XML Alight Motion</b> berisi scene dengan shape media per layer — impor ke Alight Motion lalu tautkan file PNG layer-nya.</p>'));
+    box.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">Manifest XML berisi daftar layer + posisi (format sederhana buatan tool ini). <b>XML Alight Motion</b> berisi scene 1080×1920 dengan satu group berisi shape media per layer — impor ke Alight Motion lalu tautkan file PNG layer-nya.</p>'));
     T.show(out, ''); out.innerHTML = ''; out.appendChild(box);
     T.scrollToPreview(out);
   }

@@ -105,6 +105,9 @@ export function render(root) {
       });
       if (s.length > 200) temuan.push({ judul: 'URL sangat panjang (' + s.length + ' karakter)', jelas: 'URL panjang dipakai untuk menyembunyikan bagian mencurigakan di luar layar.', w: 10 });
       if (u.port && !['80', '443', ''].includes(u.port)) temuan.push({ judul: 'Port tidak umum (:' + u.port + ')', jelas: 'Situs normal jarang memakai port eksplisit.', w: 10 });
+      const jmlEncode = (s.match(/%[0-9a-f]{2}/gi) || []).length;
+      if (jmlEncode >= 6) temuan.push({ judul: 'Banyak karakter ter-encode (' + jmlEncode + ')', jelas: 'Encoding berlebih dipakai untuk menyamarkan bagian URL dari mata dan filter.', w: 10 });
+      if (/\.(exe|msi|bat|cmd|scr|apk|dmg|pkg|ps1|vbs|jar|com|pif)(\?|#|$)/i.test(u.pathname)) temuan.push({ judul: 'Link unduhan langsung', jelas: 'URL ini langsung mengunduh file program. Pastikan kamu memang berniat mengunduhnya.', w: 15 });
       const skor = Math.min(100, temuan.reduce((a, t) => a + t.w, 0));
       T.show(box, hasilHTML('Skor risiko URL', skor, temuan, info));
       last = { jenis: 'URL', target: s, skor, temuan, info };
@@ -165,6 +168,7 @@ export function render(root) {
         info.push(['Ukuran', fmtBytes(file.size)]);
         info.push(['SHA-256', hash]);
         info.push(['Tipe (magic bytes)', tipe]);
+        info.push(['MIME (browser)', file.type || '(tidak dilaporkan)']);
         info.push(['Entropi', ent.toFixed(2) + ' / 8']);
         const ext = (file.name.split('.').pop() || '').toLowerCase();
         const parts = file.name.split('.');
@@ -178,6 +182,18 @@ export function render(root) {
           temuan.push({ judul: 'Tipe file tidak dikenali', jelas: 'Header file tidak cocok dengan format umum. Waspada bila file datang dari sumber asing.', w: 10 });
         if (ent > 7.5)
           temuan.push({ judul: 'Entropi sangat tinggi', jelas: 'Isi terkompresi/terenkripsi — umum pada installer resmi, tapi juga pada malware yang dikemas (packed).', w: 15 });
+        const teksAwal = new TextDecoder('latin1').decode(buf.slice(0, 65536));
+        const POLA_SCRIPT = [
+          [/\beval\s*\(/, 'Fungsi eval()', 15],
+          [/<script[\s>]/i, 'Tag <script> di dalam file', 15],
+          [/powershell|invoke-expression/i, 'Perintah PowerShell', 20],
+          [/\bcmd\.exe\b|wscript|cscript|\bmshta\b|regsvr32|certutil|bitsadmin/i, 'Tool Windows yang sering disalahgunakan', 20],
+          [/ActiveXObject|WScript\.Shell/i, 'Akses sistem via ActiveX/WSH', 20],
+          [/document\.write|fromCharCode|\batob\s*\(/i, 'Teknik obfuskasi kode', 10],
+        ];
+        for (const [re, judul, w] of POLA_SCRIPT) {
+          if (re.test(teksAwal)) temuan.push({ judul: 'Pola skrip mencurigakan: ' + judul, jelas: 'Pola ini umum dipakai skrip berbahaya untuk menyembunyikan aksi aslinya.', w });
+        }
         const skor = Math.min(100, temuan.reduce((a, t) => a + t.w, 0));
         T.show(box, hasilHTML('Skor risiko file', skor, temuan, info));
         last = { jenis: 'File', target: file.name + ' (' + hash.slice(0, 16) + '…)', skor, temuan, info };
@@ -303,11 +319,15 @@ export function render(root) {
     };
     const bSaya = T.btn('IP Saya', async () => {
       T.show(box, '<span class="dim">Mendeteksi IP publik…</span>');
+      const ctl = new AbortController();
+      const to = setTimeout(() => ctl.abort(), 10000);
       try {
-        const r = await fetch('https://api.ipify.org?format=json');
-        const j = await r.json();
+        const r = await fetch('https://api.ipify.org?format=json', { signal: ctl.signal });
+        const j = await Promise.race([r.json(), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 10000))]);
+        if (!j || !j.ip) throw new Error('respons kosong');
         inp.value = j.ip; cek();
       } catch (e) { T.show(box, errBox('Gagal mendeteksi IP. Cek koneksi lalu coba lagi.')); }
+      finally { clearTimeout(to); }
     });
     pIp.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Validasi alamat IP dan kenali apakah itu IP publik, privat, atau cadangan.</p>'));
     pIp.appendChild(T.field('Alamat IP', inp));

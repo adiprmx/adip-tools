@@ -18,6 +18,15 @@ export function inferSize(nw, nh, deviceMemory) {
 }
 /** Batas resolusi output: 32 MP normal, 12 MP mode hemat (tanpa DOM). */
 export function outCap(lowMem) { return lowMem ? 12e6 : 32e6; }
+/** Pilih indeks mask terbaik dari quality scores model (tanpa DOM — bisa diuji).
+    Model bisa mengembalikan beberapa kandidat mask; yang skor kualitasnya
+    tertinggi yang dipakai. */
+export function bestMaskIndex(scores) {
+  if (!scores || !scores.length) return 0;
+  let index = 0;
+  for (let i = 1; i < scores.length; i++) if (Number(scores[i]) > Number(scores[index])) index = i;
+  return index;
+}
 
 function readFileAsDataUrl(file) {
   return new Promise((res, rej) => {
@@ -202,21 +211,23 @@ export function render(root) {
         ? { keypoint: { x: st.points[0].x, y: st.points[0].y } }
         : { scribble: st.points.map((p) => ({ x: p.x, y: p.y })) };
       const res = st.seg.segment(ic, roi);
+      const best = bestMaskIndex(res.qualityScores);
       const cm = res.categoryMask;
       const mw = cm.width, mh = cm.height;
       const raw = cm.getAsUint8Array();
-      const conf = res.confidenceMasks && res.confidenceMasks[0] ? res.confidenceMasks[0].getAsFloat32Array() : null;
+      // pakai confidence mask kandidat terbaik (bukan selalu kandidat pertama)
+      const conf = res.confidenceMasks && res.confidenceMasks[best] ? res.confidenceMasks[best].getAsFloat32Array() : null;
       const mask = new Uint8Array(mw * mh);
       let fg = 0, csum = 0;
       for (let i = 0; i < mask.length; i++) {
-        const v = raw[i] > 0;
+        const v = conf ? conf[i] > 0.5 : raw[i] > 0;
         mask[i] = v ? 255 : 0;
         if (v) { fg++; if (conf) csum += conf[i]; }
       }
       st.mask = mask; st.maskW = mw; st.maskH = mh;
       drawView();
       const cov = (fg / mask.length * 100).toFixed(1);
-      const q = res.qualityScores && res.qualityScores[0] != null ? Math.round(res.qualityScores[0] * 100) : (conf && fg ? Math.round(csum / fg * 100) : null);
+      const q = res.qualityScores && res.qualityScores[best] != null ? Math.round(res.qualityScores[best] * 100) : (conf && fg ? Math.round(csum / fg * 100) : null);
       setStatus('✅ Mask siap · ' + cov + '% area' + (q != null ? ' · confidence ' + q + '%' : '') + ' — tambah titik untuk memperhalus, atau tekan Potong.');
       if (!fg) setStatus('<span class="err">Tidak ada objek terdeteksi di titik itu — coba ketuk bagian lain.</span>');
     } catch (e) {

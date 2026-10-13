@@ -32,22 +32,32 @@ function paperBG(ctx) {
   ctx.fillStyle = '#b3a496';
   ctx.fillRect(0, 0, W, H);
 
-  // cahaya: terang di kiri-atas, meredup ke kanan-bawah
+  // cahaya: terang di kiri-atas, meredup ke kanan-bawah.
+  // W3 (13 Okt 2026): stop di-fit ke kurva diagonal foto asli (diukur via PIL
+  // dari BG 736x917: t=0.05 -> (229,220,213); t=0.30 -> (189,178,170);
+  // t=0.55 -> (159,147,139); t=0.80 -> (158,143,128); t=0.95 -> (158,138,113)).
+  // Hasil gradasi di atas basis #b3a496 kini dalam +/-14 RGB dari foto di
+  // seluruh diagonal (mayoritas titik <=10; satu titik noda lokal 14),
+  // sebelumnya: sudut BR ~35 terlalu gelap, tengah ~17 terlalu terang.
+  // Basis #b3a496 sendiri = mean foto (177.9,163.9,153.1).
   const g = ctx.createLinearGradient(0, 0, W, H);
-  g.addColorStop(0, 'rgba(255,250,240,0.62)');
-  g.addColorStop(0.45, 'rgba(255,250,240,0.12)');
-  g.addColorStop(1, 'rgba(74,58,45,0.52)');
+  g.addColorStop(0, 'rgba(255,250,240,0.67)');
+  g.addColorStop(0.3, 'rgba(255,250,240,0.17)');
+  g.addColorStop(0.55, 'rgba(70,52,36,0.14)');
+  g.addColorStop(0.8, 'rgba(70,52,36,0.19)');
+  g.addColorStop(1, 'rgba(70,52,36,0.25)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
   const rnd = mulberry32(20260425);
 
-  // noda lembut (blotch) skala besar
+  // noda lembut (blotch) skala besar — alpha 0.13 agar stddev tekstur
+  // mendekati foto asli (stddev ~24-27, sebelumnya blotch 0.10 undershoot)
   for (let i = 0; i < 26; i++) {
     const x = rnd() * W, y = rnd() * H, r = 60 + rnd() * 150;
     const dark = rnd() > 0.5;
     const rg = ctx.createRadialGradient(x, y, 0, x, y, r);
-    rg.addColorStop(0, dark ? 'rgba(90,72,58,0.10)' : 'rgba(255,252,246,0.10)');
+    rg.addColorStop(0, dark ? 'rgba(90,72,58,0.13)' : 'rgba(255,252,246,0.13)');
     rg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = rg;
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
@@ -62,7 +72,7 @@ function paperBG(ctx) {
   for (let i = 0; i < img.data.length; i += 4) {
     const v = 118 + Math.floor(rnd() * 40); // variasi luminance
     img.data[i] = v + 12; img.data[i + 1] = v; img.data[i + 2] = v - 10;
-    img.data[i + 3] = 26; // alpha rendah
+    img.data[i + 3] = 34; // alpha rendah (dinaikkan 26->34, W3: kejar stddev foto)
   }
   tctx.putImageData(img, 0, 0);
   ctx.imageSmoothingEnabled = true;

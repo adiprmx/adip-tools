@@ -2,13 +2,9 @@ import { h as T, fileInput, errBox } from '../../core.js?v=6.9.20';
 
 export const meta = {"id": "svgalight", "name": "SVG ke Alight XML", "cat": "desain", "icon": "🎬", "desc": "Konversi SVG jadi project XML Alight Motion.", "keywords": "svg,alight motion,xml,vector,konversi,animasi"};
 
-export function render(root) {
-
-const MAX_FILE = 2 * 1024 * 1024;
-
-/* ================= SVG -> path engine ================= */
+/* ================= SVG -> path engine (tanpa DOM kecuali parse) ================= */
 const NAMED = { black: '#000000', white: '#ffffff', red: '#ff0000', green: '#008000', blue: '#0000ff', yellow: '#ffff00', gray: '#808080', grey: '#808080', orange: '#ffa500', purple: '#800080', pink: '#ffc0cb', transparent: 'none' };
-function parseColor(s) {
+export function parseColor(s) {
   s = String(s || '').trim().toLowerCase();
   if (!s || s === 'none') return null;
   if (NAMED[s]) return parseColor(NAMED[s]);
@@ -23,7 +19,7 @@ function parseColor(s) {
   }
   return null;
 }
-function withAlpha(col, alpha) {
+export function withAlpha(col, alpha) {
   const c = parseColor(col);
   if (!c) return null;
   const hex = typeof c === 'string' ? c : c.hex;
@@ -33,7 +29,7 @@ function withAlpha(col, alpha) {
 }
 
 const IDENT = [1, 0, 0, 1, 0, 0];
-function mul(m1, m2) {
+export function mul(m1, m2) {
   return [
     m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1],
     m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3],
@@ -42,7 +38,7 @@ function mul(m1, m2) {
 }
 const applyM = (m, x, y) => [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
 
-function parseTransform(str) {
+export function parseTransform(str) {
   let m = IDENT.slice();
   const re = /(\w+)\s*\(([^)]*)\)/g;
   let t;
@@ -141,7 +137,7 @@ function shapeToD(el) {
 }
 
 // normalisasi path -> hanya M,L,C,Q,Z absolut
-function normalizePath(d) {
+export function normalizePath(d) {
   const toks = String(d).match(/[a-zA-Z]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?/g) || [];
   const ARG = { M: 2, L: 2, H: 1, V: 1, C: 6, S: 4, Q: 4, T: 2, A: 7, Z: 0 };
   const segs = [];
@@ -203,7 +199,7 @@ function normalizePath(d) {
   function r(n) { return (+n.toFixed(3)).toString(); }
 }
 
-function transformPath(d, m) {
+export function transformPath(d, m) {
   const toks = String(d).match(/[MLCQZ]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?/g) || [];
   const out = [];
   let i = 0;
@@ -220,7 +216,7 @@ function transformPath(d, m) {
   function r6(n) { return (+n.toFixed(3)).toString(); }
 }
 
-function pathBBox(d) {
+export function pathBBox(d) {
   const nums = String(d).match(/[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?/g) || [];
   let x0 = 1e18, y0 = 1e18, x1 = -1e18, y1 = -1e18;
   for (let i = 0; i + 1 < nums.length; i += 2) {
@@ -231,78 +227,40 @@ function pathBBox(d) {
   if (x0 > x1) return null;
   return { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
 }
-// geser path agar bbox center di (0,0); kembalikan d + center lama
-function centerPath(d, bb) {
+
+// recenter: geser path sejauh (cx,cy) — dipakai untuk local-coords di sekitar location
+export function recenter(d, bb, cx, cy) {
   const toks = String(d).match(/[MLCQZ]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?/g) || [];
   const out = [];
   let i = 0;
+  const trim3 = (n) => {
+    const s = (+n).toFixed(3);
+    return s.indexOf('.') >= 0 ? s.replace(/\.?0+$/, '') : s;
+  };
   while (i < toks.length) {
     const t = toks[i++];
     if (t === 'Z') { out.push('Z'); continue; }
-    const cmd = t;
-    const n = cmd === 'M' || cmd === 'L' ? 1 : cmd === 'C' ? 3 : 2;
+    const n = t === 'M' || t === 'L' ? 1 : t === 'C' ? 3 : 2;
     const pts = [];
-    for (let k = 0; k < n; k++) pts.push(r3(+toks[i++] - bb.cx) + ',' + r3(+toks[i++] - bb.cy));
-    out.push(cmd + pts.join(' '));
+    for (let k = 0; k < n; k++) pts.push(trim3(+toks[i++] - cx) + ',' + trim3(+toks[i++] - cy));
+    out.push(t + pts.join(' '));
   }
   return out.join('');
-  function r3(n) { return (+n.toFixed(3)).toString(); }
 }
 
-/* ================= UI ================= */
-const fi = fileInput('.svg,image/svg+xml'); fi.style.margin = '6px 0';
-const modeSel = T.select([
-  ['fidelity', 'Maximum Fidelity — struktur & urutan dipertahankan'],
-  ['groups', 'Color Groups — shape sewarna digabung per layer'],
-  ['cleanup', 'Small Patch Cleanup — buang serpihan kecil'],
-], 'fidelity');
-const cwInp = T.input('number', 'Otomatis dari SVG', '');
-const chInp = T.input('number', 'Otomatis dari SVG', '');
-const projInp = T.input('text', 'Nama project', 'SVG Import');
-// GAP-1: timeline selectable (fps 24/30/60/120 default 30; durasi detik default 2)
-const fpsSel = T.select([['24', '24 fps'], ['30', '30 fps'], ['60', '60 fps'], ['120', '120 fps']], '30');
-const durInp = T.input('number', 'Durasi (detik)', '2');
-durInp.min = '0.1'; durInp.max = '600'; durInp.step = '0.1';
-// GAP-6: ambang cleanup selaras asli — patchAreaPercent (0–0.25, default 0.01)
-// + protectThinPercent (0–100, default 2.0) untuk detail tipis
-const patchInp = T.input('number', '0,01', '0.01');
-patchInp.min = '0'; patchInp.max = '0.25'; patchInp.step = '0.001';
-const thinInp = T.input('number', '2,0', '2.0');
-thinInp.min = '0'; thinInp.max = '100'; thinInp.step = '0.1';
-// GAP-10: preset rasio kanvas
-const ratioSel = T.select([['asli', 'Asli (dari SVG)'], ['1:1', '1 : 1'], ['16:9', '16 : 9'], ['9:16', '9 : 16'], ['4:5', '4 : 5'], ['4:3', '4 : 3'], ['custom', 'Custom — isi W×H manual']], 'asli');
-// GAP-3: struktur export — Nested Groups (EmbedScene, default aktif mengikuti
-// tool asli) vs Flat. Hanya berlaku untuk mode fidelity & cleanup; mode Color
-// Groups selalu flat (di tool asli opsi grouping tidak dikirim untuk color-groups).
-const structSel = T.select([
-  ['nested', 'Nested Groups (EmbedScene) — hierarki grup dipertahankan'],
-  ['flat', 'Flat — semua shape sejajar'],
-], 'nested');
-const structNote = T.el('<div class="dim" style="font-size:12px;margin:2px 0 8px">Mode Color Groups selalu memakai struktur Flat (opsi grouping tidak dipakai di mode ini).</div>');
-structNote.hidden = true;
-// GAP-9: nama file download bisa diedit (max 80 char)
-const fnameInp = T.input('text', 'nama-file', 'svg-alight');
-fnameInp.maxLength = 80;
-// GAP-4: toggle deteksi primitive (default ON, seperti aslinya)
-const primRow = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer;margin:8px 0"></label>');
-const primChk = T.el('<input type="checkbox" checked style="width:16px;height:16px;accent-color:#e07856">');
-primRow.appendChild(primChk);
-primRow.appendChild(T.el('<span>Deteksi primitive <span class="dim">(rect/circle kompatibel → primitif native AM)</span></span>'));
-const box = T.out();
-const layerWrap = T.el('<div style="display:grid;gap:6px;margin:12px 0;max-height:260px;overflow:auto"></div>');
-const layerSec = T.el('<div hidden></div>');
-const prevTa = T.ta(10, 'Preview XML…', '');
-prevTa.style.fontFamily = 'monospace'; prevTa.style.fontSize = '11px'; prevTa.readOnly = true;
-const prevSec = T.el('<div hidden></div>');
-const noteBox = T.out();
+export const escXml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-let shapes = []; // {label, d, paint:{kind:'color',argb}|{kind:'gradient',...}, bbox, tag}
-let shapeTree = null; // GAP-3: pohon grup {kind:'root'|'g', el, op, kids:[{kind:'s',shape}|frame]}
-let svgW = 1080, svgH = 1080, fileBase = 'svg-alight';
+/** Parse teks SVG -> Document. Throw bila bukan SVG valid. */
+export function parseSvgDocument(text) {
+  const doc = new DOMParser().parseFromString(String(text), 'image/svg+xml');
+  if (doc.querySelector('parsererror') || !/^svg$/i.test(doc.documentElement.localName)) throw new Error('svg-invalid');
+  return doc;
+}
 
-const escXml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-function collectShapes(svgDoc) {
+/** Kumpulkan shape drawable dari Document SVG.
+    Return { list:[{label,d,paint,bbox,gnote,tag,prim,gops}], notes:[], tree }.
+    tree = pohon grup untuk mode Nested Groups. */
+export function collectShapes(svgDoc) {
   const out = [], notes = [];
   const grads = {};
   svgDoc.querySelectorAll('linearGradient').forEach((g) => {
@@ -316,10 +274,10 @@ function collectShapes(svgDoc) {
     const oA = node.getAttribute('opacity');
     return oA == null ? 1 : Math.max(0, Math.min(1, parseFloat(oA) || 0));
   };
-  // GAP-3: apakah <g> ini "bermakna" sehingga jadi <embedScene>? Syarat: punya
-  // >=1 shape drawable turunan DAN (>=2 anak elemen ATAU punya atribut
-  // transform/opacity/clip-path/id/data-name/aria-label). Grup wrapper
-  // transparan beranak-satu tanpa atribut di-flatten (anak naik ke induk).
+  // Syarat <g> "bermakna" -> jadi <embedScene>: punya >=1 shape drawable
+  // turunan DAN (>=2 anak elemen ATAU punya atribut transform/opacity/
+  // clip-path/id/data-name/aria-label). Grup wrapper transparan beranak-satu
+  // tanpa atribut di-flatten (anak naik ke induk).
   const hasDrawableDesc = (el, seen) => {
     if (seen.has(el)) return false;
     seen.add(el);
@@ -428,11 +386,11 @@ function collectShapes(svgDoc) {
           }
         }
         if (!parg) { skipped++; return; }
-        // GAP-2: rantai penamaan asli — id -> data-name -> aria-label,
+        // Rantai penamaan: id -> data-name -> aria-label,
         // fallback "Shape_001" (underscore + 3-digit zero-padded), max 80 char
         const rawName = node.getAttribute('id') || node.getAttribute('data-name') || node.getAttribute('aria-label');
         const label = (rawName && rawName.trim() ? rawName.trim().slice(0, 80) : 'Shape_' + String(out.length + 1).padStart(3, '0'));
-        // GAP-4: deteksi primitive — rect tanpa rounding & tanpa rotasi/skew,
+        // Deteksi primitive — rect tanpa rounding & tanpa rotasi/skew,
         // circle dengan skala uniform, paint warna solid. Geometri SVG-space
         // + matriks node disimpan untuk encoding native AM (s=".rect"/".circle").
         let prim = null;
@@ -454,7 +412,7 @@ function collectShapes(svgDoc) {
       return;
     }
     if (tag === 'g') {
-      // GAP-3: grup bermakna -> frame EmbedScene (opasitasnya TIDAK di-bake,
+      // Grup bermakna -> frame EmbedScene (opasitasnya TIDAK di-bake,
       // ditulis di layer grup); grup wrapper -> flatten (opasitas di-bake)
       if (gQualifies(node)) {
         const fr = { kind: 'g', el: node, op: oOwn, kids: [] };
@@ -480,6 +438,311 @@ function collectShapes(svgDoc) {
   return { list: out, notes, tree: rootFrame };
 }
 
+// Petakan primitive ke ruang kanvas akhir. Primitif native AM berunit
+// 100x100 berpusat di location. Kembalikan null bila hasil akhir tidak
+// axis-aligned / tidak uniform.
+export function primFinal(p, t2m) {
+  const m = mul(t2m, p.m);
+  if (Math.abs(m[1]) > 1e-9 || Math.abs(m[2]) > 1e-9) return null;
+  if (p.kind === 'rect') {
+    const cs = [[p.x, p.y], [p.x + p.w, p.y], [p.x, p.y + p.h], [p.x + p.w, p.y + p.h]]
+      .map(([x, y]) => applyM(m, x, y));
+    const xs = cs.map((q) => q[0]), ys = cs.map((q) => q[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const w = x1 - x0, h = y1 - y0;
+    if (!(w > 0 && h > 0)) return null;
+    return { s: 'rect', cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, sx: w / 100, sy: h / 100 };
+  }
+  if (Math.abs(Math.abs(m[0]) - Math.abs(m[3])) > 1e-9) return null; // circle: wajib uniform
+  const [ccx, ccy] = applyM(m, p.cx, p.cy);
+  const r = Math.abs(p.r * m[0]);
+  if (!(r > 0)) return null;
+  return { s: 'circle', cx: ccx, cy: ccy, sx: (2 * r) / 100, sy: (2 * r) / 100 };
+}
+
+/** Hitung kanvas + matriks pemetaan SVG->kanvas.
+    ratio: 'asli' | 'custom' | '1:1' | '16:9' | ... Preset memakai skala
+    uniform xMidYMid meet; 'asli'/'custom' memakai skala independen per sumbu. */
+export function computeCanvas(svgW, svgH, ratio, cw, ch) {
+  let W, H, t2m;
+  if (ratio !== 'asli' && ratio !== 'custom') {
+    const parts = String(ratio).split(':');
+    const rw = +parts[0] || 1, rh = +parts[1] || 1;
+    W = Math.min(8192, Math.max(1, Math.round(svgW)));
+    H = Math.min(8192, Math.max(1, Math.round(svgW * rh / rw)));
+    const sc = Math.min(W / svgW, H / svgH);
+    const ox = (W - svgW * sc) / 2, oy = (H - svgH * sc) / 2;
+    t2m = [sc, 0, 0, sc, ox, oy];
+  } else {
+    W = Math.min(8192, Math.max(1, Math.round(+cw) || Math.round(svgW)));
+    H = Math.min(8192, Math.max(1, Math.round(+ch) || Math.round(svgH)));
+    t2m = [W / svgW, 0, 0, H / svgH, 0, 0];
+  }
+  return { W, H, t2m, T: (d) => transformPath(d, t2m) };
+}
+
+// Profil versi scene mengikuti hasil reverse-engineering aplikasi
+// Alight Motion v5.0.273 (format project normal: ffver=106; 107 = preset).
+const AM = {
+  amver: '1028425', ffver: '106',
+  am: 'com.alightcreative.motion/5.0.273.1028425',
+  amplatform: 'ios',
+};
+
+/** Konversi penuh SVG -> XML project Alight Motion (murni, tanpa DOM UI).
+    o = { shapes, tree, W, H, t2m, fps, totalMs, mode:'fidelity'|'groups'|'cleanup',
+          nested:bool, patchPct, thinPct, primOn, title, modifiedTime }
+    Return { xml, notes, stats:{shapes,layers,groups,prims} }. */
+export function convertSvgToXml(o) {
+  const { shapes, tree, W, H, t2m, fps, totalMs, mode, primOn } = o;
+  const nested = !!o.nested && mode !== 'groups';
+  const title = (o.title || 'SVG Import').slice(0, 80);
+  const modifiedTime = o.modifiedTime != null ? o.modifiedTime : Date.now();
+  const T2 = (d) => transformPath(d, t2m);
+  const notes = [];
+  const sel = shapes.slice();
+
+  // cache geometri kanvas per shape (dipakai ulang emisi flat & nested)
+  sel.forEach((s) => { const d = T2(s.d); s._cd = d; s._cbb = pathBBox(d); });
+
+  // Kembalikan alpha yang berasal dari opasitas grup-grup EmbedScene leluhur
+  // (ditulis sekali di <opacity> layer grup — anti double-apply).
+  const unbakeArg = (argb, g) => {
+    if (!(g < 1)) return argb;
+    const a = parseInt(String(argb).slice(1, 3), 16);
+    const na = Math.max(0, Math.min(255, Math.round(a / g)));
+    return '#' + na.toString(16).padStart(2, '0') + String(argb).slice(3);
+  };
+  const unbakedPaint = (s) => {
+    const gops = s.gops || [];
+    const g = gops.reduce((a, b) => a * b, 1);
+    if (!(g < 1)) return s.paint;
+    if (s.paint.kind === 'gradient') {
+      const pa = s.paint.arg;
+      return { kind: 'gradient', arg: { start: unbakeArg(pa.start, g), end: unbakeArg(pa.end, g), sxy: pa.sxy, exy: pa.exy } };
+    }
+    return { kind: 'color', arg: unbakeArg(s.paint.arg, g) };
+  };
+  const paintFor = (s) => (nested ? unbakedPaint(s) : s.paint);
+
+  let layers = []; // {label, cx, cy, paths:[{d,paint}], srcItems:[{s,d,bb}]}
+  let workFinal = sel;
+  const makeLayer = (label, items) => {
+    // bbox gabungan utk location; tiap source shape TETAP terpisah (tanpa merge geometri)
+    let x0 = 1e18, y0 = 1e18, x1 = -1e18, y1 = -1e18;
+    items.forEach(({ bb }) => {
+      if (bb.x0 < x0) x0 = bb.x0; if (bb.y0 < y0) y0 = bb.y0;
+      if (bb.x1 > x1) x1 = bb.x1; if (bb.y1 > y1) y1 = bb.y1;
+    });
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    return {
+      label, cx, cy, srcItems: items,
+      paths: items.map(({ s, d, bb }) => ({ d: recenter(d, bb, cx, cy), paint: paintFor(s) })),
+    };
+  };
+  const pushLayer = (label, arr) => {
+    layers.push(makeLayer(label, arr.map((s) => ({ s, d: s._cd, bb: s._cbb }))));
+  };
+  if (mode === 'groups') {
+    // HANYA warna solid yang digroup (1 warna = 1 layer);
+    // shape ber-gradien masing-masing jadi 1 layer sendiri, geometri tidak dilebur
+    const cmap = new Map(), solo = [];
+    sel.forEach((s) => {
+      if (s.paint.kind === 'color') {
+        const key = s.paint.arg;
+        if (!cmap.has(key)) cmap.set(key, []);
+        cmap.get(key).push(s);
+      } else solo.push(s);
+    });
+    let li = 0;
+    for (const arr of cmap.values()) pushLayer('Warna ' + (++li), arr);
+    solo.forEach((s) => pushLayer(s.label, [s]));
+    // audit z-order/overlap — pasangan layer yang bbox-nya tumpang tindih
+    let overlapPairs = 0;
+    for (let a = 0; a < layers.length; a++) {
+      for (let b = a + 1; b < layers.length; b++) {
+        let hit = false;
+        for (const ia of layers[a].srcItems) {
+          for (const ib of layers[b].srcItems) {
+            if (ia.bb.x0 < ib.bb.x1 && ia.bb.x1 > ib.bb.x0 && ia.bb.y0 < ib.bb.y1 && ia.bb.y1 > ib.bb.y0) { hit = true; break; }
+          }
+          if (hit) break;
+        }
+        if (hit) overlapPairs++;
+      }
+    }
+    if (overlapPairs) notes.push('Audit z-order: ' + overlapPairs + ' pasangan layer saling tumpang tindih — urutan tumpuk bisa berubah setelah grouping warna.');
+    notes.push('Color Groups: ' + sel.length + ' shape → ' + layers.length + ' layer (hanya warna solid digroup; gradien 1 layer per shape; geometri tidak dilebur).');
+  } else {
+    let work = sel.slice();
+    if (mode === 'cleanup') {
+      // Semantik: patchAreaPercent thd LUAS KANVAS (default 0.01, 0–0.25)
+      // + proteksi detail tipis (default 2.0, 0–100)
+      let pPct = parseFloat(o.patchPct);
+      pPct = isNaN(pPct) ? 0.01 : Math.min(0.25, Math.max(0, pPct));
+      let tPct = parseFloat(o.thinPct);
+      tPct = isNaN(tPct) ? 2.0 : Math.min(100, Math.max(0, tPct));
+      const th = (W * H) * pPct / 100;
+      const items = work.map((s) => { const d = T2(s.d); const bb = pathBBox(d); return { s, d, bb, a: bb.w * bb.h }; });
+      const kept = items.filter((x) => {
+        if (x.a >= th) return true;
+        if (tPct > 0 && x.bb.w > 0 && x.bb.h > 0) {
+          const thinRatio = Math.min(x.bb.w, x.bb.h) / Math.max(x.bb.w, x.bb.h) * 100;
+          if (thinRatio < tPct) return true; // detail tipis dilindungi
+        }
+        return false;
+      });
+      notes.push('Small Patch Cleanup: ' + (items.length - kept.length) + ' serpihan dibuang (ambang ' + pPct + '% luas kanvas, proteksi detail tipis ' + tPct + '%).');
+      work = kept.map((x) => x.s);
+    }
+    layers = [];
+    if (!nested) work.forEach((s) => pushLayer(s.label, [s]));
+    workFinal = work;
+    if (mode === 'cleanup' && !notes.length) notes.push('Tidak ada serpihan yang dibuang.');
+  }
+  const strokeNotes = sel.filter((s) => s.gnote).length;
+  if (strokeNotes) notes.push(strokeNotes + ' shape memakai substitusi paint (lihat daftar layer).');
+
+  let id = 0, primEncoded = 0, groupCount = 0, groupOpCount = 0, statLayers = layers.length;
+  // Emisi shape mengikuti format project Alight Motion v5.0.273:
+  // shape impor (non-live) memakai <parameter><contour d="..."/></parameter>,
+  // BUKAN <path>; layer gradien memakai fillType="gradient".
+  const layerXml = (L, ind) => {
+    // Shape primitif kompatibel (1 shape per layer, paint solid) ->
+    // primitif native AM (s=".rect"/".circle", unit 100x100, tanpa contour)
+    const s0 = (L.srcItems.length === 1 && L.paths.length === 1) ? L.srcItems[0].s : null;
+    let pf = null;
+    if (primOn && s0 && s0.prim && s0.paint.kind === 'color') pf = primFinal(s0.prim, t2m);
+    if (pf) {
+      primEncoded++;
+      const parg = L.paths[0].paint;
+      const fc = parg.kind === 'color' ? parg.arg : s0.paint.arg;
+      return ind + '<shape id="' + (++id) + '" label="' + escXml(L.label) + '" startTime="0" endTime="' + totalMs + '" fillType="color" s=".' + pf.s + '">' +
+        '<transform><location value="' + pf.cx.toFixed(6) + ',' + pf.cy.toFixed(6) + ',0.000000"/><scale value="' + pf.sx.toFixed(6) + ',' + pf.sy.toFixed(6) + '"/></transform>' +
+        '<fillColor value="' + fc + '"/></shape>';
+    }
+    const contours = L.paths.map((p) => '<contour d="' + escXml(p.d) + '"/>').join('');
+    const head = L.paths.map((p) => {
+      if (p.paint.kind === 'gradient')
+        return { ft: 'gradient', inner: '<fillColor value="' + p.paint.arg.start + '"/><gradient type="linear" startColor="' + p.paint.arg.start + '" endColor="' + p.paint.arg.end + '" start="' + p.paint.arg.sxy + '" end="' + p.paint.arg.exy + '"/>' };
+      return { ft: 'color', inner: '<fillColor value="' + p.paint.arg + '"/>' };
+    });
+    // satu layer satu fillType: gradien bila ada path gradien, else color
+    const ft = head.some((h) => h.ft === 'gradient') ? 'gradient' : 'color';
+    const inner = head[0].inner;
+    return ind + '<shape id="' + (++id) + '" label="' + escXml(L.label) + '" startTime="0" endTime="' + totalMs + '" fillType="' + ft + '">' +
+      '<transform><location value="' + L.cx.toFixed(6) + ',' + L.cy.toFixed(6) + ',0.000000"/></transform>' + inner +
+      '<parameter>' + contours + '</parameter></shape>';
+  };
+  let body;
+  if (!nested) {
+    body = layers.map((L) => layerXml(L, '  ')).join('\n');
+    if (mode === 'groups') notes.push('Struktur Flat (mode Color Groups selalu flat).');
+  } else {
+    // Nested Groups — <g> bermakna -> <embedScene> berisi <scene> inline.
+    // Format kanonis aplikasi: tanpa fillType/fillColor di embedScene;
+    // transform location=pivot=pusat bbox isi grup (identitas: render =
+    // location + (P - pivot) = P, persis mode Flat). Inner <scene> memakai
+    // atribut kanonis (bgcolor transparan, tanpa modifiedTime/precompose/retime).
+    // id unik dialokasikan pre-order (dokumen = z-order).
+    const selSet = new Set(workFinal);
+    let gN = 0;
+    const glabel = (el) => {
+      const raw = el.getAttribute('id') || el.getAttribute('data-name') || el.getAttribute('aria-label');
+      return (raw && raw.trim() ? raw.trim().slice(0, 80) : 'Group_' + String(++gN).padStart(3, '0'));
+    };
+    // saring pohon sesuai shape terpilih/dibersihkan; grup yang anaknya
+    // habis ikut hilang (fallback implisit ke flat untuk grup itu)
+    const keepKids = (kids) => {
+      const outk = [];
+      kids.forEach((k) => {
+        if (k.kind === 's') { if (selSet.has(k.shape)) outk.push(k); }
+        else { const kk = keepKids(k.kids); if (kk.length) { k._kept = kk; outk.push(k); } }
+      });
+      return outk;
+    };
+    const unionBb = (kids) => {
+      let x0 = 1e18, y0 = 1e18, x1 = -1e18, y1 = -1e18, any = false;
+      const acc = (bb) => { any = true; if (bb.x0 < x0) x0 = bb.x0; if (bb.y0 < y0) y0 = bb.y0; if (bb.x1 > x1) x1 = bb.x1; if (bb.y1 > y1) y1 = bb.y1; };
+      kids.forEach((k) => { if (k.kind === 's') acc(k.shape._cbb); else if (k._bb) acc(k._bb); });
+      return any ? { x0, y0, x1, y1 } : null;
+    };
+    const innerOpen = '<scene title="" width="' + W + '" height="' + H + '" exportWidth="1920" exportHeight="1080" bgcolor="#00000000" totalTime="' + totalMs + '" fps="' + fps + '" ffver="' + AM.ffver + '" amver="' + AM.amver + '" am="' + AM.am + '" amplatform="' + AM.amplatform + '">';
+    const emitKids = (kids, ind) => kids.map((k) => {
+      if (k.kind === 's') return layerXml(makeLayer(k.shape.label, [{ s: k.shape, d: k.shape._cd, bb: k.shape._cbb }]), ind);
+      const inner = emitKids(k._kept, ind + '    ');
+      const bb = unionBb(k._kept);
+      const cx = (bb.x0 + bb.x1) / 2, cy = (bb.y0 + bb.y1) / 2;
+      k._bb = bb;
+      groupCount++;
+      if (k.op < 1) groupOpCount++;
+      return ind + '<embedScene id="' + (++id) + '" label="' + escXml(glabel(k.el)) + '" startTime="0" endTime="' + totalMs + '">\n' +
+        ind + '  <transform><location value="' + cx.toFixed(6) + ',' + cy.toFixed(6) + ',0.000000"/><pivot value="' + cx.toFixed(6) + ',' + cy.toFixed(6) + '"/>' +
+        (k.op < 1 ? '<opacity value="' + k.op.toFixed(6) + '"/>' : '') + '</transform>\n' +
+        ind + '  ' + innerOpen + '\n' + inner + '\n' +
+        ind + '  </scene>\n' +
+        ind + '</embedScene>';
+    }).join('\n');
+    const topKids = keepKids((tree && tree.kids) || []);
+    body = emitKids(topKids, '  ');
+    statLayers = topKids.length;
+    if (groupCount) notes.push('Struktur Nested Groups: ' + groupCount + ' grup <g> → ' + groupCount + ' EmbedScene (hierarki dipertahankan; transform grup di-bake ke path anak sehingga render identik dengan mode Flat).');
+    else notes.push('Tidak ada grup <g> yang memenuhi syarat — output setara mode Flat.');
+    if (groupOpCount) notes.push(groupOpCount + ' grup memakai opacity — dipetakan ke opacity layer EmbedScene (tidak di-bake ke shape).');
+  }
+  if (primOn && primEncoded) notes.push('Primitive native: ' + primEncoded + ' shape (rect/circle kompatibel) diekspor sebagai primitif AM (s=".rect"/".circle").');
+
+  const xml = '<?xml version=\'1.0\' encoding=\'UTF-8\' ?>\n' +
+    '<scene title="' + escXml(title) + '" width="' + W + '" height="' + H + '" exportWidth="1920" exportHeight="1080" bgcolor="#00000000" totalTime="' + totalMs + '" fps="' + fps + '" modifiedTime="' + modifiedTime + '" amver="' + AM.amver + '" ffver="' + AM.ffver + '" am="' + AM.am + '" amplatform="' + AM.amplatform + '" precompose="dynamicResolution" retime="off">\n' +
+    '  <bookmark t="0"/>\n' + body + '\n</scene>\n';
+  return { xml, notes, stats: { shapes: sel.length, layers: statLayers, groups: groupCount, prims: primEncoded } };
+}
+
+/* ================= UI ================= */
+export function render(root) {
+const MAX_FILE = 2 * 1024 * 1024;
+const fi = fileInput('.svg,image/svg+xml'); fi.style.margin = '6px 0';
+const modeSel = T.select([
+  ['fidelity', 'Maximum Fidelity — struktur & urutan dipertahankan'],
+  ['groups', 'Color Groups — shape sewarna digabung per layer'],
+  ['cleanup', 'Small Patch Cleanup — buang serpihan kecil'],
+], 'fidelity');
+const cwInp = T.input('number', 'Otomatis dari SVG', '');
+const chInp = T.input('number', 'Otomatis dari SVG', '');
+const projInp = T.input('text', 'Nama project', 'SVG Import');
+const fpsSel = T.select([['24', '24 fps'], ['30', '30 fps'], ['60', '60 fps'], ['120', '120 fps']], '30');
+const durInp = T.input('number', 'Durasi (detik)', '2');
+durInp.min = '0.1'; durInp.max = '600'; durInp.step = '0.1';
+const patchInp = T.input('number', '0,01', '0.01');
+patchInp.min = '0'; patchInp.max = '0.25'; patchInp.step = '0.001';
+const thinInp = T.input('number', '2,0', '2.0');
+thinInp.min = '0'; thinInp.max = '100'; thinInp.step = '0.1';
+const ratioSel = T.select([['asli', 'Asli (dari SVG)'], ['1:1', '1 : 1'], ['16:9', '16 : 9'], ['9:16', '9 : 16'], ['4:5', '4 : 5'], ['4:3', '4 : 3'], ['custom', 'Custom — isi W×H manual']], 'asli');
+const structSel = T.select([
+  ['nested', 'Nested Groups (EmbedScene) — hierarki grup dipertahankan'],
+  ['flat', 'Flat — semua shape sejajar'],
+], 'nested');
+const structNote = T.el('<div class="dim" style="font-size:12px;margin:2px 0 8px">Mode Color Groups selalu memakai struktur Flat (opsi grouping tidak dipakai di mode ini).</div>');
+structNote.hidden = true;
+const fnameInp = T.input('text', 'nama-file', 'svg-alight');
+fnameInp.maxLength = 80;
+const primRow = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer;margin:8px 0"></label>');
+const primChk = T.el('<input type="checkbox" checked style="width:16px;height:16px;accent-color:#e07856">');
+primRow.appendChild(primChk);
+primRow.appendChild(T.el('<span>Deteksi primitive <span class="dim">(rect/circle kompatibel → primitif native AM)</span></span>'));
+const box = T.out();
+const layerWrap = T.el('<div style="display:grid;gap:6px;margin:12px 0;max-height:260px;overflow:auto"></div>');
+const layerSec = T.el('<div hidden></div>');
+const prevTa = T.ta(10, 'Preview XML…', '');
+prevTa.style.fontFamily = 'monospace'; prevTa.style.fontSize = '11px'; prevTa.readOnly = true;
+const prevSec = T.el('<div hidden></div>');
+const noteBox = T.out();
+
+let shapes = []; // {label, d, paint, bbox, tag, ...}
+let shapeTree = null;
+let svgDoc = null;
+let svgW = 1080, svgH = 1080, fileBase = 'svg-alight';
+
 fi.addEventListener('change', async () => {
   const f = fi.files && fi.files[0];
   if (!f) return;
@@ -487,10 +750,7 @@ fi.addEventListener('change', async () => {
   T.show(box, '<span class="dim">Menganalisis SVG…</span>');
   try {
     const text = await f.text();
-    const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
-    if (doc.querySelector('parsererror') || !/^svg$/i.test(doc.documentElement.localName)) {
-      T.show(box, errBox('File bukan SVG yang valid.')); return;
-    }
+    const doc = parseSvgDocument(text);
     const vb = (doc.documentElement.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
     const wA = parseFloat(doc.documentElement.getAttribute('width')), hA = parseFloat(doc.documentElement.getAttribute('height'));
     if (vb.length === 4 && vb[2] > 0 && vb[3] > 0) { svgW = vb[2]; svgH = vb[3]; }
@@ -501,6 +761,7 @@ fi.addEventListener('change', async () => {
     const { list, notes, tree } = collectShapes(doc);
     shapes = list;
     shapeTree = tree;
+    svgDoc = doc;
     if (!shapes.length) { T.show(box, errBox('Tidak ada shape yang bisa dikonversi di SVG ini.')); return; }
     const colors = new Set(shapes.map((s) => s.paint.kind === 'color' ? s.paint.arg : 'gradient')).size;
     T.show(box, '<span class="ok">Ditemukan ' + shapes.length + ' shape · ' + colors + ' paint unik.</span>' +
@@ -540,233 +801,31 @@ const selectedShapes = () => {
   return sel.filter(Boolean);
 };
 
-let lastXml = ''; // XML penuh hasil konversi terakhir (untuk Salin/Unduh)
+let lastXml = '';
 const bGo = T.btn('Konversi ke XML', () => {
   const sel = selectedShapes();
   if (!sel.length) { T.show(noteBox, errBox('Pilih minimal 1 layer.')); return; }
   const mode = modeSel.value;
-  // GAP-1: timeline dari pilihan user — fps 24/30/60/120 (default 30),
-  // durasi detik 0.1–600 (default 2) -> totalTime ms
   const fps = [24, 30, 60, 120].indexOf(+fpsSel.value) >= 0 ? +fpsSel.value : 30;
   const durS = Math.min(600, Math.max(0.1, parseFloat(durInp.value) || 2));
   const totalMs = Math.round(durS * 1000);
-  const primOn = primChk.checked !== false;
-  // GAP-10: preset rasio kanvas; preset pakai skala uniform xMidYMid meet,
-  // "asli"/custom pakai perilaku lama (skala independen per sumbu)
-  let W2, H2, T2, T2m;
-  const ratio = ratioSel.value;
-  if (ratio !== 'asli' && ratio !== 'custom') {
-    const parts = ratio.split(':');
-    const rw = +parts[0] || 1, rh = +parts[1] || 1;
-    W2 = Math.min(8192, Math.max(1, Math.round(svgW)));
-    H2 = Math.min(8192, Math.max(1, Math.round(svgW * rh / rw)));
-    const sc = Math.min(W2 / svgW, H2 / svgH);
-    const ox = (W2 - svgW * sc) / 2, oy = (H2 - svgH * sc) / 2;
-    T2m = [sc, 0, 0, sc, ox, oy];
-    T2 = (d) => transformPath(d, T2m);
-  } else {
-    W2 = Math.min(8192, Math.max(1, Math.round(+cwInp.value) || Math.round(svgW)));
-    H2 = Math.min(8192, Math.max(1, Math.round(+chInp.value) || Math.round(svgH)));
-    T2m = [W2 / svgW, 0, 0, H2 / svgH, 0, 0];
-    T2 = (d) => transformPath(d, T2m);
-  }
-
-  // GAP-3: struktur Nested Groups hanya untuk fidelity & cleanup; mode Color
-  // Groups selalu flat (di tool asli opsi grouping tidak dikirim untuk color-groups)
+  const canvas = computeCanvas(svgW, svgH, ratioSel.value, cwInp.value, chInp.value);
+  const { W, H, t2m } = canvas;
   const nested = structSel.value === 'nested' && mode !== 'groups';
-  // cache geometri kanvas per shape (dipakai ulang emisi flat & nested)
-  sel.forEach((s) => { const d = T2(s.d); s._cd = d; s._cbb = pathBBox(d); });
-  // GAP-3: kembalikan alpha yang berasal dari opasitas grup-grup EmbedScene
-  // leluhur (ditulis sekali di <opacity> layer grup — anti double-apply).
-  const unbakeArg = (argb, g) => {
-    if (!(g < 1)) return argb;
-    const a = parseInt(String(argb).slice(1, 3), 16);
-    const na = Math.max(0, Math.min(255, Math.round(a / g)));
-    return '#' + na.toString(16).padStart(2, '0') + String(argb).slice(3);
-  };
-  const unbakedPaint = (s) => {
-    const gops = s.gops || [];
-    const g = gops.reduce((a, b) => a * b, 1);
-    if (!(g < 1)) return s.paint;
-    if (s.paint.kind === 'gradient') {
-      const pa = s.paint.arg;
-      return { kind: 'gradient', arg: { start: unbakeArg(pa.start, g), end: unbakeArg(pa.end, g), sxy: pa.sxy, exy: pa.exy } };
-    }
-    return { kind: 'color', arg: unbakeArg(s.paint.arg, g) };
-  };
-  const paintFor = (s) => (nested ? unbakedPaint(s) : s.paint);
-
-  let layers = []; // {label, cx, cy, paths:[{d,paint}], srcItems:[{s,d,bb}]}
-  const notes = [];
-  let workFinal = sel;
-  const makeLayer = (label, items) => {
-    // bbox gabungan utk location; tiap source shape TETAP terpisah (GAP-7)
-    let x0 = 1e18, y0 = 1e18, x1 = -1e18, y1 = -1e18;
-    items.forEach(({ bb }) => {
-      if (bb.x0 < x0) x0 = bb.x0; if (bb.y0 < y0) y0 = bb.y0;
-      if (bb.x1 > x1) x1 = bb.x1; if (bb.y1 > y1) y1 = bb.y1;
-    });
-    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-    return {
-      label, cx, cy, srcItems: items,
-      paths: items.map(({ s, d, bb }) => ({ d: recenter(d, bb, cx, cy), paint: paintFor(s) })),
-    };
-  };
-  const pushLayer = (label, arr) => {
-    layers.push(makeLayer(label, arr.map((s) => ({ s, d: s._cd, bb: s._cbb }))));
-  };
-  if (mode === 'groups') {
-    // GAP-7: HANYA warna solid yang digroup (1 warna = 1 layer);
-    // shape ber-gradien masing-masing jadi 1 layer sendiri, geometri tidak dilebur
-    const cmap = new Map(), solo = [];
-    sel.forEach((s) => {
-      if (s.paint.kind === 'color') {
-        const key = s.paint.arg;
-        if (!cmap.has(key)) cmap.set(key, []);
-        cmap.get(key).push(s);
-      } else solo.push(s);
-    });
-    let li = 0;
-    for (const arr of cmap.values()) pushLayer('Warna ' + (++li), arr);
-    solo.forEach((s) => pushLayer(s.label, [s]));
-    // GAP-7: audit z-order/overlap — pasangan layer yang bbox-nya tumpang tindih
-    let overlapPairs = 0;
-    for (let a = 0; a < layers.length; a++) {
-      for (let b = a + 1; b < layers.length; b++) {
-        let hit = false;
-        for (const ia of layers[a].srcItems) {
-          for (const ib of layers[b].srcItems) {
-            if (ia.bb.x0 < ib.bb.x1 && ia.bb.x1 > ib.bb.x0 && ia.bb.y0 < ib.bb.y1 && ia.bb.y1 > ib.bb.y0) { hit = true; break; }
-          }
-          if (hit) break;
-        }
-        if (hit) overlapPairs++;
-      }
-    }
-    if (overlapPairs) notes.push('Audit z-order: ' + overlapPairs + ' pasangan layer saling tumpang tindih — urutan tumpuk bisa berubah setelah grouping warna.');
-    notes.push('Color Groups: ' + sel.length + ' shape → ' + layers.length + ' layer (hanya warna solid digroup; gradien 1 layer per shape; geometri tidak dilebur).');
-  } else {
-    let work = sel.slice();
-    if (mode === 'cleanup') {
-      // GAP-6: semantik selaras asli — patchAreaPercent thd LUAS KANVAS
-      // (default 0.01, 0–0.25) + proteksi detail tipis (default 2.0, 0–100)
-      let pPct = parseFloat(patchInp.value);
-      pPct = isNaN(pPct) ? 0.01 : Math.min(0.25, Math.max(0, pPct));
-      let tPct = parseFloat(thinInp.value);
-      tPct = isNaN(tPct) ? 2.0 : Math.min(100, Math.max(0, tPct));
-      const th = (W2 * H2) * pPct / 100;
-      const items = work.map((s) => { const d = T2(s.d); const bb = pathBBox(d); return { s, d, bb, a: bb.w * bb.h }; });
-      const kept = items.filter((x) => {
-        if (x.a >= th) return true;
-        if (tPct > 0 && x.bb.w > 0 && x.bb.h > 0) {
-          const thinRatio = Math.min(x.bb.w, x.bb.h) / Math.max(x.bb.w, x.bb.h) * 100;
-          if (thinRatio < tPct) return true; // detail tipis dilindungi
-        }
-        return false;
-      });
-      notes.push('Small Patch Cleanup: ' + (items.length - kept.length) + ' serpihan dibuang (ambang ' + pPct + '% luas kanvas, proteksi detail tipis ' + tPct + '%).');
-      work = kept.map((x) => x.s);
-    }
-    layers = [];
-    if (!nested) work.forEach((s) => pushLayer(s.label, [s]));
-    workFinal = work;
-    if (mode === 'cleanup' && !notes.length) notes.push('Tidak ada serpihan yang dibuang.');
-  }
-  const strokeNotes = sel.filter((s) => s.gnote).length;
-  if (strokeNotes) notes.push(strokeNotes + ' shape memakai substitusi paint (lihat daftar layer).');
-
-  let id = 0, primEncoded = 0, groupCount = 0, groupOpCount = 0, statLayers = layers.length;
-  const layerXml = (L, ind) => {
-    // GAP-4: shape primitif kompatibel (1 shape per layer, paint solid) ->
-    // primitif native AM (s=".rect"/".circle", unit 100x100, tanpa <path>)
-    const s0 = (L.srcItems.length === 1 && L.paths.length === 1) ? L.srcItems[0].s : null;
-    let pf = null;
-    if (primOn && s0 && s0.prim && s0.paint.kind === 'color') pf = primFinal(s0.prim, T2m);
-    if (pf) {
-      primEncoded++;
-      // fillColor memakai paint layer (sudah di-unbake di mode nested)
-      const parg = L.paths[0].paint;
-      const fc = parg.kind === 'color' ? parg.arg : s0.paint.arg;
-      return ind + '<shape id="' + (++id) + '" label="' + escXml(L.label) + '" startTime="0" endTime="' + totalMs + '" fillType="color" s=".' + pf.s + '">' +
-        '<transform><location value="' + pf.cx.toFixed(6) + ',' + pf.cy.toFixed(6) + ',0.000000"/><scale value="' + pf.sx.toFixed(6) + ',' + pf.sy.toFixed(6) + '"/></transform>' +
-        '<fillColor value="' + fc + '"/></shape>';
-    }
-    const paths = L.paths.map((p) => {
-      let inner = '';
-      if (p.paint.kind === 'gradient') inner += '<fillColor value="' + p.paint.arg.start + '"/><gradient type="linear" startColor="' + p.paint.arg.start + '" endColor="' + p.paint.arg.end + '" start="' + p.paint.arg.sxy + '" end="' + p.paint.arg.exy + '"/>';
-      else inner += '<fillColor value="' + p.paint.arg + '"/>';
-      return inner + '<path d="' + escXml(p.d) + '"/>';
-    }).join('');
-    return ind + '<shape id="' + (++id) + '" label="' + escXml(L.label) + '" startTime="0" endTime="' + totalMs + '" fillType="color">' +
-      '<transform><location value="' + L.cx.toFixed(6) + ',' + L.cy.toFixed(6) + ',0.000000"/></transform>' + paths + '</shape>';
-  };
-  let body;
-  if (!nested) {
-    body = layers.map((L) => layerXml(L, '  ')).join('\n');
-    if (mode === 'groups') notes.push('Struktur Flat (mode Color Groups selalu flat).');
-  } else {
-    // GAP-3: Nested Groups — <g> bermakna -> <embedScene> berisi <scene> inline.
-    // Format mengikuti pola export asli Alight Motion: fillType="intrinsic",
-    // <fillColor> hitam, transform location=pivot=pusat bbox isi grup
-    // (identitas: render = location + (P - pivot) = P, persis mode Flat),
-    // inner <scene> mewarisi atribut root (bgcolor transparan, modifiedTime=0,
-    // retime=off). id unik dialokasikan pre-order (dokumen = z-order).
-    const selSet = new Set(workFinal);
-    let gN = 0;
-    const glabel = (el) => {
-      const raw = el.getAttribute('id') || el.getAttribute('data-name') || el.getAttribute('aria-label');
-      return (raw && raw.trim() ? raw.trim().slice(0, 80) : 'Group_' + String(++gN).padStart(3, '0'));
-    };
-    // saring pohon sesuai shape terpilih/dibersihkan; grup yang anaknya
-    // habis ikut hilang (fallback implisit ke flat untuk grup itu)
-    const keepKids = (kids) => {
-      const outk = [];
-      kids.forEach((k) => {
-        if (k.kind === 's') { if (selSet.has(k.shape)) outk.push(k); }
-        else { const kk = keepKids(k.kids); if (kk.length) { k._kept = kk; outk.push(k); } }
-      });
-      return outk;
-    };
-    const unionBb = (kids) => {
-      let x0 = 1e18, y0 = 1e18, x1 = -1e18, y1 = -1e18, any = false;
-      const acc = (bb) => { any = true; if (bb.x0 < x0) x0 = bb.x0; if (bb.y0 < y0) y0 = bb.y0; if (bb.x1 > x1) x1 = bb.x1; if (bb.y1 > y1) y1 = bb.y1; };
-      kids.forEach((k) => { if (k.kind === 's') acc(k.shape._cbb); else if (k._bb) acc(k._bb); });
-      return any ? { x0, y0, x1, y1 } : null;
-    };
-    const innerOpen = '<scene title="" width="' + W2 + '" height="' + H2 + '" exportWidth="1920" exportHeight="1080" bgcolor="#00000000" totalTime="' + totalMs + '" fps="' + fps + '" modifiedTime="0" amver="859" ffver="107" am="com.alightcreative.motion/5.0.273" amplatform="ios" precompose="dynamicResolution" retime="off">';
-    const emitKids = (kids, ind) => kids.map((k) => {
-      if (k.kind === 's') return layerXml(makeLayer(k.shape.label, [{ s: k.shape, d: k.shape._cd, bb: k.shape._cbb }]), ind);
-      const inner = emitKids(k._kept, ind + '    ');
-      const bb = unionBb(k._kept);
-      const cx = (bb.x0 + bb.x1) / 2, cy = (bb.y0 + bb.y1) / 2;
-      k._bb = bb;
-      groupCount++;
-      if (k.op < 1) groupOpCount++;
-      return ind + '<embedScene id="' + (++id) + '" label="' + escXml(glabel(k.el)) + '" startTime="0" endTime="' + totalMs + '" fillType="intrinsic" outTime="' + totalMs + '">\n' +
-        ind + '  <transform><location value="' + cx.toFixed(6) + ',' + cy.toFixed(6) + ',0.000000"/><pivot value="' + cx.toFixed(6) + ',' + cy.toFixed(6) + '"/>' +
-        (k.op < 1 ? '<opacity value="' + k.op.toFixed(6) + '"/>' : '') + '</transform>\n' +
-        ind + '  <fillColor value="#FF000000"/>\n' +
-        ind + '  ' + innerOpen + '\n' + inner + '\n' +
-        ind + '  </scene>\n' +
-        ind + '</embedScene>';
-    }).join('\n');
-    const topKids = keepKids((shapeTree && shapeTree.kids) || []);
-    body = emitKids(topKids, '  ');
-    statLayers = topKids.length;
-    if (groupCount) notes.push('Struktur Nested Groups: ' + groupCount + ' grup <g> → ' + groupCount + ' EmbedScene (hierarki dipertahankan; transform grup di-bake ke path anak sehingga render identik dengan mode Flat).');
-    else notes.push('Tidak ada grup <g> yang memenuhi syarat — output setara mode Flat.');
-    if (groupOpCount) notes.push(groupOpCount + ' grup memakai opacity — dipetakan ke opacity layer EmbedScene (tidak di-bake ke shape).');
-  }
-  if (primOn && primEncoded) notes.push('Primitive native: ' + primEncoded + ' shape (rect/circle kompatibel) diekspor sebagai primitif AM (s=".rect"/".circle").');
-
   const title = (projInp.value.trim() || 'SVG Import').slice(0, 80);
-  // GAP-8: string versi scene -> 5.0.273 (profil kompatibilitas asli)
-  const xml = '<?xml version=\'1.0\' encoding=\'UTF-8\' ?>\n' +
-    '<scene title="' + escXml(title) + '" width="' + W2 + '" height="' + H2 + '" exportWidth="1920" exportHeight="1080" bgcolor="#00000000" totalTime="' + totalMs + '" fps="' + fps + '" modifiedTime="' + Date.now() + '" amver="859" ffver="107" am="com.alightcreative.motion/5.0.273" amplatform="ios" precompose="dynamicResolution" retime="freeze">\n' +
-    '  <bookmark t="0"/>\n' + body + '\n</scene>\n';
+  let conv;
+  try {
+    conv = convertSvgToXml({
+      shapes: sel, tree: shapeTree, W, H, t2m, fps, totalMs, mode, nested,
+      patchPct: patchInp.value, thinPct: thinInp.value,
+      primOn: primChk.checked !== false, title, modifiedTime: Date.now(),
+    });
+  } catch (e) {
+    T.show(noteBox, errBox('Konversi gagal: ' + e.message)); return;
+  }
+  const xml = conv.xml;
   lastXml = xml;
 
-  // GAP-5: marker preview persis aslinya + toggle penuh/ringkas + tombol salin
   const MARK = '<!-- NEXORA: preview dipotong agar render tetap ringan -->';
   let fullPrev = false;
   const renderPreview = () => {
@@ -775,11 +834,11 @@ const bGo = T.btn('Konversi ke XML', () => {
   };
   renderPreview();
   prevSec.hidden = false;
-  T.show(noteBox, (notes.length ? notes.map((n) => '<div style="font-size:13px;margin-bottom:6px">' + T.esc(n) + '</div>').join('') : '') +
+  T.show(noteBox, (conv.notes.length ? conv.notes.map((n) => '<div style="font-size:13px;margin-bottom:6px">' + T.esc(n) + '</div>').join('') : '') +
     '<div class="kv"><span class="k">Timeline</span><span class="v">' + fps + ' fps · ' + durS + ' dtk</span></div>' +
-    '<div class="kv"><span class="k">Layer</span><span class="v">' + statLayers + '</span></div>' +
+    '<div class="kv"><span class="k">Layer</span><span class="v">' + conv.stats.layers + '</span></div>' +
     '<div class="kv"><span class="k">Ukuran XML</span><span class="v">' + (xml.length / 1024).toFixed(1) + ' KB</span></div>' +
-    '<div class="dim" style="font-size:12px;margin-top:8px">Struktur XML mengikuti format project Alight Motion (scene/shape/path). Impor file XML ini lewat Alight Motion. Hasil visual bisa berbeda untuk SVG kompleks — cek pratinjau di aplikasi.</div>');
+    '<div class="dim" style="font-size:12px;margin-top:8px">Struktur XML mengikuti format project Alight Motion (scene/shape/contour). Impor file XML ini lewat Alight Motion. Hasil visual bisa berbeda untuk SVG kompleks — cek pratinjau di aplikasi.</div>');
   const bFull = T.btn('Tampilkan penuh', () => {
     fullPrev = !fullPrev;
     bFull.textContent = fullPrev ? 'Ringkas preview' : 'Tampilkan penuh';
@@ -789,7 +848,6 @@ const bGo = T.btn('Konversi ke XML', () => {
   prevBtnRow.innerHTML = '';
   prevBtnRow.appendChild(bFull); prevBtnRow.appendChild(bCopy);
   const bDl = T.btn('Unduh XML', () => {
-    // GAP-9: nama file bisa diedit bebas (max 80 char)
     let fn = (fnameInp.value.trim() || fileBase || 'svg-alight').slice(0, 80);
     fn = fn.replace(/[\\\/:*?"<>|]/g, '').trim() || 'svg-alight';
     if (!/\.xml$/i.test(fn)) fn += '.xml';
@@ -804,49 +862,6 @@ const bGo = T.btn('Konversi ke XML', () => {
 }, true);
 bGo.hidden = true;
 
-
-// GAP-4: petakan primitive ke ruang kanvas akhir. Primitif native AM berunit
-// 100x100 berpusat di location — terverifikasi dari sampel export asli
-// (rect fullscreen 1920x1080 -> location 960,540 + scale 9.6,5.4).
-// Kembalikan null bila hasil akhir tidak axis-aligned / tidak uniform.
-function primFinal(p, t2m) {
-  const m = mul(t2m, p.m);
-  if (Math.abs(m[1]) > 1e-9 || Math.abs(m[2]) > 1e-9) return null;
-  if (p.kind === 'rect') {
-    const cs = [[p.x, p.y], [p.x + p.w, p.y], [p.x, p.y + p.h], [p.x + p.w, p.y + p.h]]
-      .map(([x, y]) => applyM(m, x, y));
-    const xs = cs.map((q) => q[0]), ys = cs.map((q) => q[1]);
-    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
-    const w = x1 - x0, h = y1 - y0;
-    if (!(w > 0 && h > 0)) return null;
-    return { s: 'rect', cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, sx: w / 100, sy: h / 100 };
-  }
-  if (Math.abs(Math.abs(m[0]) - Math.abs(m[3])) > 1e-9) return null; // circle: wajib uniform
-  const [ccx, ccy] = applyM(m, p.cx, p.cy);
-  const r = Math.abs(p.r * m[0]);
-  if (!(r > 0)) return null;
-  return { s: 'circle', cx: ccx, cy: ccy, sx: (2 * r) / 100, sy: (2 * r) / 100 };
-}
-
-function recenter(d, bb, cx, cy) {
-  const toks = String(d).match(/[MLCQZ]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?/g) || [];
-  const out = [];
-  let i = 0;
-  const trim3 = (n) => {
-    const s = (+n).toFixed(3);
-    return s.indexOf('.') >= 0 ? s.replace(/\.?0+$/, '') : s;
-  };
-  while (i < toks.length) {
-    const t = toks[i++];
-    if (t === 'Z') { out.push('Z'); continue; }
-    const n = t === 'M' || t === 'L' ? 1 : t === 'C' ? 3 : 2;
-    const pts = [];
-    for (let k = 0; k < n; k++) pts.push(trim3(+toks[i++] - cx) + ',' + trim3(+toks[i++] - cy));
-    out.push(t + pts.join(' '));
-  }
-  return out.join('');
-}
-
 const thRow = T.el('<div></div>');
 thRow.appendChild(T.grid2(
   T.field('Ambang serpihan (% luas kanvas)', patchInp, 'Default 0,01 — serpihan di bawah ambang ini dibuang'),
@@ -854,7 +869,6 @@ thRow.appendChild(T.grid2(
 ));
 modeSel.addEventListener('change', () => {
   thRow.hidden = modeSel.value !== 'cleanup';
-  // GAP-3: mode Color Groups selalu flat (opsi grouping tidak dipakai di mode ini)
   const gm = modeSel.value === 'groups';
   structSel.disabled = gm;
   structNote.hidden = !gm;

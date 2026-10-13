@@ -8,11 +8,15 @@ export const meta = {"id": "winrate-ml", "name": "Kalkulator Winrate ML", "cat":
    target: target WR dalam persen (0 < target <= 100)
    Return: { state:'need'|'done'|'impossible', needed, current, projected } */
 export function calcWinrate(total, current, target) {
+    total = Number(total); current = Number(current); target = Number(target);
+    if (!Number.isFinite(total)) throw new Error('Total match tidak valid.');
+    if (!Number.isFinite(current)) throw new Error('WR sekarang tidak valid.');
+    if (!Number.isFinite(target)) throw new Error('Target WR tidak valid.');
     if (!Number.isInteger(total) || total < 1 || total > 10000000)
         throw new Error('Total match harus bilangan bulat 1–10.000.000');
-    if (!isFinite(current) || current < 0 || current > 100)
+    if (current < 0 || current > 100)
         throw new Error('WR sekarang harus 0–100');
-    if (!isFinite(target) || target <= 0 || target > 100)
+    if (target <= 0 || target > 100)
         throw new Error('Target WR harus lebih dari 0 sampai 100');
     if (target <= current)
         return { state: 'done', needed: 0, current, projected: current };

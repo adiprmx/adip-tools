@@ -16,7 +16,7 @@ export function render(root) {
     lato: 'Lato,Arial,sans-serif', lora: 'Lora,Georgia,serif', montserrat: 'Montserrat,Arial,sans-serif',
     'noto-sans': 'Noto Sans,Arial,sans-serif', 'open-sans': 'Open Sans,Arial,sans-serif',
     oswald: 'Oswald,Arial,sans-serif', 'playfair-display': 'Playfair Display,Georgia,serif',
-    poppins: 'Poppins,Arial,sans-serif', 'pt-sans': 'PT Sans,Arial,sans-serif',
+    poppins: "'Poppins','Helvetica Neue',Arial,sans-serif", 'pt-sans': 'PT Sans,Arial,sans-serif',
     raleway: 'Raleway,Arial,sans-serif', roboto: 'Roboto,Arial,sans-serif',
     'source-sans-pro': 'Source Sans Pro,Arial,sans-serif',
   };
@@ -63,16 +63,24 @@ export function render(root) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\r?\n/g, '&#10;');
 
   function localSvg(w, h, text, bg, fg, font) {
-    // FASE 2 FIX (13 Okt 2026): geometri teks diselaraskan ke placeholderimage.co.
-    // Formula reverse-engineered dari 8 probe (ukuran & teks bervariasi) — 8/8 cocok:
-    //   fontSize = min(72, 0.11 * min(w,h), 0.825 * w / maxLineChars)
-    // line-height 1.35em; baseline pertama = tengah + 0.145*fontSize (optical
-    // centering via <tspan dy>, BUKAN dominant-baseline="middle").
-    // Perilaku berubah vs versi lama: font max(16px) floor & 260px cap dihapus,
-    // ukuran teks kini mengikuti aslinya (bisa <16px utk gambar mungil).
+    // FASE 2 FIX (13 Okt 2026, koreksi W3): geometri teks diselaraskan ke
+    // placeholderimage.co — layanan mem-print SVG sumbernya langsung, jadi
+    // verifikasi dilakukan byte-per-byte terhadap SVG asli (3 probe segar):
+    //   fontSize = round(min(72, 0.11 * min(w,h), 0.825 * w / maxLineChars))
+    // Bukti: 1080x1080 "PLACEHOLDER" -> 72 (cap) & dy=550.44 persis;
+    // 800x600 3-baris (26 char) -> 25 (0.825*800/26=25.38 DIBULATKAN, bukan
+    // 26.4 mentah — klaim lama tanpa round SALAH di suku lebar);
+    // 900x700 30 char -> 25 (round(24.75), bukan 24.375/24.0 — menyingkirkan
+    // hipotesis k=0.8125/k=0.8 maupun tanpa-pembulatan).
+    // line-height 1.35em (dy=33.75 utk fs=25, eksak); baseline pertama =
+    // h/2 - ((n-1)*lh)/2 + 0.145*fontSize (optical centering via <tspan dy>,
+    // BUKAN dominant-baseline="middle") — dy=269.875 & 353.625 cocok eksak.
+    // Catatan: round() diterapkan di hasil akhir min(); kasus pecahan di suku
+    // 0.11*min(w,h) bisa meleset <1px — belum terverifikasi (batas 2 sampel).
+    // Stack font poppins disamakan ke layanan: 'Poppins','Helvetica Neue',Arial.
     const lines = String(text || '').split(/\r?\n/).slice(0, 8);
     const maxChars = Math.max.apply(null, lines.map((l) => String(l || ' ').length).concat([1]));
-    const fontSize = Math.min(72, 0.11 * Math.min(w, h), (0.825 * w) / maxChars);
+    const fontSize = Math.round(Math.min(72, 0.11 * Math.min(w, h), (0.825 * w) / maxChars));
     const lh = fontSize * 1.35;
     const firstDy = h / 2 - ((lines.length - 1) * lh) / 2 + fontSize * 0.145;
     const bgRect = '<rect width="' + w + '" height="' + h + '" fill="' + bg + '"/>';

@@ -4,7 +4,8 @@ export const meta = {"id": "fotolink", "name": "Foto to Link", "cat": "gambar", 
 
 // API upload publik independen (tanpa key, tanpa daftar): catbox.moe
 export const CATBOX_API = 'https://catbox.moe/user/api.php';
-export const MAX_FILE = 20 * 1024 * 1024;
+// Batas 10 MB mengikuti tool aslinya (photo-to-link: "JPG · PNG · WEBP · GIF MAX 10 MB")
+export const MAX_FILE = 10 * 1024 * 1024;
 const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 /** Bangun FormData upload catbox (tanpa DOM — bisa diuji). */
@@ -18,7 +19,7 @@ export function buildCatboxForm(file) {
 export function validateImage(file) {
   if (!file) return 'Pilih gambar dulu.';
   if (!OK_TYPES.includes(file.type) && !/\.(jpe?g|png|webp|gif)$/i.test(file.name || '')) return 'Format tidak didukung. Pakai JPG/PNG/WebP/GIF.';
-  if (file.size > MAX_FILE) return 'File melebihi 20 MB.';
+  if (file.size > MAX_FILE) return 'File melebihi 10 MB.';
   if (file.size === 0) return 'File kosong.';
   return null;
 }
@@ -26,7 +27,7 @@ export function validateImage(file) {
 export function render(root) {
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Upload gambar → dapat <b>direct URL publik</b> yang bisa ditempel di mana saja. Bisa juga tempel (paste) screenshot langsung dari clipboard.<br><span class="dim" style="font-size:12px">Hosting via API publik catbox.moe (gratis, tanpa daftar). ⚠️ Link bersifat publik — jangan upload foto pribadi/rahasia.</span></p>'));
 
-  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="font-size:30px">📤</div><div style="margin-top:6px;font-weight:700">Ketuk / seret gambar · atau paste (Ctrl+V)</div><div class="dim" style="font-size:12px;margin-top:4px">JPG · PNG · WebP · GIF — maks 20 MB</div></div>');
+  const dz = T.el('<div class="drop" tabindex="0" role="button" style="border:1.5px dashed #ffffff30;border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;background:#14110d"><div style="font-size:30px">📤</div><div style="margin-top:6px;font-weight:700">Ketuk / seret gambar · atau paste (Ctrl+V)</div><div class="dim" style="font-size:12px;margin-top:4px">JPG · PNG · WebP · GIF — maks 10 MB</div></div>');
   const fileInp = T.el('<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>');
   dz.addEventListener('click', () => fileInp.click());
   dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInp.click(); });

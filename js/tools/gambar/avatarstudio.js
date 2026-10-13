@@ -10,18 +10,30 @@ const FALLBACK_LABEL = { adventurer: 'Adventurer', avataaars: 'Avataaars', bottt
 // Palet warna background default (26 warna, meniru palet editor asli).
 export const BG_PALETTE = ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf', '8d5524', 'e6e6e6', 'ffdbac', 'f1c27d', 'e0ac69', 'c68642', '8d5524', 'ff0000', '00ff00', '0000ff', 'ffff00', 'ff00ff', '00ffff', 'ffffff', '000000', 'f5a623', '4a90d9', '7ed321', 'bd10e0', '50e3c2', 'b8e986'];
 
-/** Bangun URL render DiceBear dari state (murni, tanpa DOM — bisa diuji). */
+/** Bangun URL render DiceBear dari state (murni, tanpa DOM — bisa diuji).
+    Menyamai perilaku editor aslinya: seed kosong -> "Nexora", key opsi terurut
+    alfabetis, nilai list dikirim sebagai param berulang, format raster selalu
+    bawa size (default 256 — tanpa size, DiceBear default raster hanya 128px). */
 export function buildAvatarUrl(style, format, opts) {
   const o = opts || {};
   const q = new URLSearchParams();
-  q.set('seed', o.seed && String(o.seed).trim() ? String(o.seed).trim() : randSeed());
-  if (o.backgroundColor) q.set('backgroundColor', Array.isArray(o.backgroundColor) ? o.backgroundColor.join(',') : o.backgroundColor);
-  if (o.flip && o.flip !== 'none') q.set('flip', o.flip);
-  if (o.rotate) q.set('rotate', String(o.rotate));
-  if (o.scale && o.scale !== 100) q.set('scale', String(o.scale));
+  q.set('seed', o.seed && String(o.seed).trim() ? String(o.seed).trim() : 'Nexora');
+  const all = {};
+  if (o.backgroundColor && o.backgroundColor.length) all.backgroundColor = o.backgroundColor;
+  if (o.flip && o.flip !== 'none') all.flip = o.flip;
+  if (o.rotate) all.rotate = o.rotate;
+  if (o.scale !== undefined && o.scale !== null && o.scale !== '') all.scale = o.scale;
   if (o.extra) for (const [k, v] of Object.entries(o.extra)) {
-    if (v == null || v === '' || v === false) continue;
-    q.set(k, Array.isArray(v) ? v.join(',') : String(v));
+    if (v == null || v === '' || v === false || (Array.isArray(v) && !v.length)) continue;
+    all[k] = v;
+  }
+  for (const k of Object.keys(all).sort()) {
+    const v = all[k];
+    if (Array.isArray(v)) { for (const x of v) q.append(k, String(x)); }
+    else q.set(k, String(v));
+  }
+  if (format !== 'svg' && format !== 'json') {
+    q.set('size', String(Math.max(1, Math.min(RASTER_MAX, Number(o.rasterSize) || RASTER_MAX))));
   }
   return API + '/' + encodeURIComponent(style) + '/' + format + '?' + q.toString();
 }
@@ -33,7 +45,7 @@ function saveJson(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); 
 
 export function render(root) {
   const LS_SAVED = 'adipAvatarStudioSavedV1', LS_RECENT = 'adipAvatarStudioRecentV1';
-  const state = { style: 'lorelei', seed: 'Nexora', format: 'svg', backgroundColor: [], flip: 'none', rotate: 0, scale: 100, extra: {} };
+  const state = { style: 'lorelei', seed: 'Nexora', format: 'svg', rasterSize: 256, backgroundColor: [], flip: 'none', rotate: 0, scale: '', extra: {} };
   let styles = FALLBACK_STYLES.slice();
   let apiDown = false;
 
@@ -41,12 +53,17 @@ export function render(root) {
 
   const styleSel = T.select([], state.style);
   const seedInp = T.input('text', 'Seed (nama unik)', state.seed);
-  const fmtSel = T.select([['svg', 'SVG (vektor, tanpa batas ukuran)'], ['png', 'PNG (maks 256px)'], ['jpg', 'JPG (maks 256px)'], ['webp', 'WebP (maks 256px)'], ['avif', 'AVIF (maks 256px)'], ['json', 'JSON (metadata)']], 'svg');
+  const fmtSel = T.select([['svg', 'SVG (vektor, tanpa batas ukuran)'], ['png', 'PNG'], ['jpg', 'JPG'], ['webp', 'WebP'], ['avif', 'AVIF'], ['json', 'JSON (metadata)']], 'svg');
+  const sizeSel = T.select([['64', '64px'], ['128', '128px'], ['256', '256px']], '256');
+  sizeSel.addEventListener('change', () => { state.rasterSize = Number(sizeSel.value) || 256; queue(); });
   root.appendChild(T.grid2(
     T.field('Style', styleSel),
-    T.field('Seed', T.row(seedInp, T.btn('🎲 Acak', () => { seedInp.value = randSeed(); queue(); })))
+    T.field('Seed', T.row(seedInp, T.btn('Acak', () => { seedInp.value = randSeed(); queue(); })))
   ));
-  root.appendChild(T.field('Format unduhan', fmtSel, 'Raster (PNG/JPG/WebP/AVIF) dibatasi 256px oleh API DiceBear.'));
+  root.appendChild(T.grid2(
+    T.field('Format unduhan', fmtSel),
+    T.field('Ukuran raster', sizeSel, 'Berlaku untuk PNG/JPG/WebP/AVIF.')
+  ));
 
   const optBox = T.el('<div style="margin-top:10px"></div>');
   root.appendChild(T.field('Opsi visual', optBox, 'Editor opsi per-style dimuat dari schema DiceBear bila tersedia.'));
@@ -56,9 +73,9 @@ export function render(root) {
 
   const actBox = T.out();
   root.appendChild(T.row(
-    T.btn('⬇ Unduh avatar', () => download(state), true),
+    T.btn('Unduh avatar', () => download(state), true),
     T.copyBtn(() => buildAvatarUrl(state.style, state.format, state), 'Salin URL'),
-    T.btn('💾 Simpan', () => {
+    T.btn('Simpan', () => {
       const saved = loadJson(LS_SAVED, []);
       const u = buildAvatarUrl(state.style, state.format, state);
       if (!saved.some((s) => s.u === u)) { saved.unshift({ u, style: state.style, seed: state.seed, t: Date.now() }); saveJson(LS_SAVED, saved.slice(0, 24)); }
@@ -118,15 +135,22 @@ export function render(root) {
     });
     core.appendChild(T.el('<div class="dim" style="font-size:12px;margin-bottom:2px">Warna background (bisa pilih beberapa)</div>'));
     core.appendChild(pal);
+    const flipS = T.select([['none', 'Tidak'], ['horizontal', 'Horizontal'], ['vertical', 'Vertikal'], ['both', 'Keduanya']], state.flip);
+    const rotS = T.select([['0', '0'], ['90', '90'], ['180', '180'], ['270', '270']], String(state.rotate));
+    const scaleInp = T.input('number', '0–10, kosong = default', state.scale === '' ? '' : String(state.scale));
+    scaleInp.min = '0'; scaleInp.max = '10'; scaleInp.step = 'any';
     core.appendChild(T.row(
-      T.field('Flip', T.select([['none', 'Tidak'], ['horizontal', 'Horizontal'], ['vertical', 'Vertikal'], ['both', 'Keduanya']], 'none')),
-      T.field('Rotate (°)', T.select([['0', '0'], ['90', '90'], ['180', '180'], ['270', '270']], '0')),
-      T.field('Scale (%)', T.select([['50', '50'], ['75', '75'], ['100', '100'], ['125', '125'], ['150', '150']], '100'))
+      T.field('Flip', flipS),
+      T.field('Rotate (°)', rotS),
+      T.field('Scale (0–10)', scaleInp, 'Skala DiceBear v10: 0–10. Kosong = default.')
     ));
-    const [flipS, rotS, scaleS] = core.querySelectorAll('select');
     flipS.addEventListener('change', () => { state.flip = flipS.value; queue(); });
     rotS.addEventListener('change', () => { state.rotate = Number(rotS.value); queue(); });
-    scaleS.addEventListener('change', () => { state.scale = Number(scaleS.value); queue(); });
+    scaleInp.addEventListener('change', () => {
+      const t = scaleInp.value.trim();
+      state.scale = t === '' ? '' : Math.max(0, Math.min(10, Number(t)));
+      queue();
+    });
     syncPal();
 
     // Opsi dinamis per style (enum + number saja, dibatasi 8 kontrol agar UI tetap ringkas)
@@ -157,11 +181,14 @@ export function render(root) {
 
   function refresh() {
     state.style = styleSel.value; state.seed = seedInp.value; state.format = fmtSel.value;
+    state.rasterSize = Number(sizeSel.value) || 256;
     const url = buildAvatarUrl(state.style, state.format, state);
     if (state.format === 'json') {
       prevBox.innerHTML = '<span class="dim" style="font-size:12px">Format JSON = metadata, bukan gambar. Tekan Unduh untuk melihat isinya.</span>';
     } else {
-      const img = T.el(`<img alt="preview avatar" style="width:min(240px,70%);height:auto;image-rendering:auto" src="${url.replace(/"/g, '&quot;')}">`);
+      // Preview selalu SVG (vektor, tajam di semua ukuran) seperti editor aslinya.
+      const purl = buildAvatarUrl(state.style, 'svg', state);
+      const img = T.el(`<img alt="preview avatar" style="width:min(240px,70%);height:auto;image-rendering:auto" src="${purl.replace(/"/g, '&quot;')}">`);
       img.onerror = () => { prevBox.innerHTML = '<span class="err" style="font-size:12px">Gagal memuat preview. Cek koneksi / API DiceBear.</span>'; };
       prevBox.innerHTML = '';
       prevBox.appendChild(img);
@@ -190,7 +217,7 @@ export function render(root) {
     const saved = loadJson(LS_SAVED, []);
     galBox.innerHTML = '';
     if (!saved.length) return;
-    galBox.appendChild(T.el('<div style="font-weight:700;margin-bottom:8px">💾 Tersimpan (' + saved.length + ')</div>'));
+    galBox.appendChild(T.el('<div style="font-weight:700;margin-bottom:8px">Tersimpan (' + saved.length + ')</div>'));
     const g = T.el('<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px"></div>');
     saved.forEach((s, i) => {
       const cell = T.el('<div style="border:1px solid #2e2823;border-radius:10px;overflow:hidden;background:#14110d;position:relative"></div>');
@@ -199,6 +226,7 @@ export function render(root) {
         if (styles.includes(s.style)) styleSel.value = s.style;
         seedInp.value = s.seed || ''; fmtSel.value = 'svg';
         state.backgroundColor = []; state.extra = {};
+        state.flip = 'none'; state.rotate = 0; state.scale = '';
         buildOptions(); refresh(); T.scrollToPreview(prevBox);
       });
       const x = T.el('<button type="button" style="position:absolute;top:2px;right:2px;background:#000a;border:none;color:#fff;border-radius:6px;cursor:pointer;font-size:11px;padding:2px 6px">×</button>');

@@ -20,7 +20,7 @@ export function render(root) {
   tagInp.maxLength = 200;
   tagInp.autocomplete = 'off';
   tagInp.style.fontFamily = 'monospace';
-  const modeSel = T.select([['safe', '🛡️ Mode Aman (SFW)'], ['nsfw', '🔞 Mode NSFW (18+)']], 'safe');
+  const modeSel = T.select([['safe', 'Mode Aman (SFW)'], ['nsfw', 'Mode NSFW (18+)']], 'safe');
   const out = T.out();
   const grid = T.out();
   const pager = T.out();
@@ -63,7 +63,7 @@ export function render(root) {
   const tampilGate = (lanjut) => {
     T.show(out,
       '<div style="border:1px solid #f87171;border-radius:12px;padding:16px;background:#1a1214">' +
-      '<b>🔞 Peringatan konten dewasa</b><p class="dim" style="font-size:13px;line-height:1.6">Mode NSFW menampilkan ilustrasi dewasa dari Danbooru. Hanya untuk 18 tahun ke atas.</p>' +
+      '<b>Peringatan konten dewasa</b><p class="dim" style="font-size:13px;line-height:1.6">Mode NSFW menampilkan ilustrasi dewasa dari Danbooru. Hanya untuk 18 tahun ke atas.</p>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-g="no">Batal</button>' +
       '<button class="btn primary" data-g="yes">Saya 18+ — Lanjutkan</button></div></div>');
     out.querySelector('[data-g=no]').onclick = () => { modeSel.value = 'safe'; T.hide(out); };
@@ -77,6 +77,7 @@ export function render(root) {
       T.show(grid, '<p class="dim">Tidak ada hasil untuk tag itu. Coba tag lain (format Danbooru: underscore, mis. <b>1girl</b>, <b>scenery</b>).</p>');
       return;
     }
+    T.toast(items.length + ' hasil ditemukan');
     T.show(grid,
       '<p class="dim" style="font-size:12.5px">Menampilkan ' + items.length + ' hasil · halaman ' + page + '</p>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px">' +
@@ -106,15 +107,15 @@ export function render(root) {
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">' +
       kv('Rating', ratingBadge(p.rating)) + kv('Ukuran', T.esc((p.image_width || '?') + '×' + (p.image_height || '?'))) +
       kv('Skor', T.esc(String(p.score || 0))) + kv('Favorit', T.esc(String(p.fav_count || 0))) + '</div>' +
-      (artist.length ? '<p style="font-size:13px;margin:10px 0 0"><b>🎨 Artist:</b> ' + artist.map((a) => T.esc(a)).join(', ') + '</p>' : '') +
+      (artist.length ? '<p style="font-size:13px;margin:10px 0 0"><b>Artist:</b> ' + artist.map((a) => T.esc(a)).join(', ') + '</p>' : '') +
       '<p class="dim" style="font-size:12px;margin:8px 0 4px"><b>Tag (' + tags.length + '):</b></p>' +
       '<div style="font-size:12px;font-family:monospace;max-height:110px;overflow:auto;border:1px solid #ffffff12;border-radius:8px;padding:8px;word-break:break-all">' +
       tags.map((t) => '<a href="#" data-tag="' + T.esc(t) + '" style="color:#8ab8ff">' + T.esc(t) + '</a>').join(' ') + '</div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
-      '<button class="btn" data-d="copy">📋 Salin URL Gambar</button>' +
-      '<button class="btn" data-d="dl">⬇️ Unduh</button>' +
-      (p.source ? '<a class="btn" href="' + T.esc(p.source) + '" target="_blank" rel="noopener" style="text-decoration:none">🔗 Sumber</a>' : '') +
-      '<button class="btn" data-d="x">✖ Tutup</button></div></div>');
+      '<button class="btn" data-d="copy">Salin URL Gambar</button>' +
+      '<button class="btn" data-d="dl">Unduh</button>' +
+      (p.source ? '<a class="btn" href="' + T.esc(p.source) + '" target="_blank" rel="noopener" style="text-decoration:none">Sumber</a>' : '') +
+      '<button class="btn" data-d="x">Tutup</button></div></div>');
     detail.querySelectorAll('[data-tag]').forEach((a) => {
       a.onclick = (e) => { e.preventDefault(); tagInp.value = a.getAttribute('data-tag'); cari(1); };
     });
@@ -138,7 +139,7 @@ export function render(root) {
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Cari ilustrasi anime dari Danbooru berdasarkan tag (mis. <b>hatsune_miku</b>, <b>scenery</b>, <b>1girl solo</b>). Klik thumbnail untuk detail & unduh. Sumber: danbooru.donmai.us (publik).</p>'));
   root.appendChild(T.field('Tag pencarian', tagInp, 'Pisahkan beberapa tag dengan spasi. Format Danbooru pakai underscore.'));
   root.appendChild(T.field('Mode', modeSel));
-  root.appendChild(T.row(T.btn('🔍 Cari', () => cari(1), true)));
+  root.appendChild(T.row(T.btn('Cari', () => cari(1), true)));
   root.appendChild(out);
   root.appendChild(grid);
   root.appendChild(pager);

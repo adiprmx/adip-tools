@@ -25,10 +25,11 @@ export const meta = {"id":"sertifikat","name":"Sertifikat Tolol","cat":"fun","ic
 
 const W = 800, H = 450;
 
-const NAVY = '#1a2330';
+const NAVY = '#272836';
 const WHITE = '#fefefe';
+const STRIPE = '#c22440';
 
-const FONT_NAME = '700 52px Arial,Helvetica,"DejaVu Sans",sans-serif';
+const FONT_NAME = '700 50px Arial,Helvetica,"DejaVu Sans",sans-serif';
 const FONT_LINE1 = (px) => `700 ${px}px "Arial Narrow","Roboto Condensed","Oswald",Impact,"DejaVu Sans",sans-serif`;
 const FONT_DRIP = (px) => `900 ${px}px "Arial Black","Archivo Black",Impact,Roboto,"DejaVu Sans",sans-serif`;
 const FONT_LOGO = '900 62px "Arial Black","Archivo Black",Impact,"DejaVu Sans",sans-serif';
@@ -53,48 +54,48 @@ function rr(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-/* ---------- latar: navy + stripe marun diagonal arah \ ---------- */
+/* ---------- latar: navy + stripe merah diagonal arah / ---------- */
 function drawBackground(ctx) {
   ctx.fillStyle = NAVY;
   ctx.fillRect(0, 0, W, H);
   ctx.save();
   ctx.translate(W / 2, H / 2);
-  ctx.rotate(0.42); // ~24° searah jarum jam -> garis condong '\'
-  const bands = [
-    [-640, -500, 'rgba(118,46,56,0.42)'],
-    [-280, -150, 'rgba(133,51,62,0.46)'],
-    [-40, 60, 'rgba(103,40,49,0.38)'],
-    [200, 330, 'rgba(133,51,62,0.42)'],
-    [480, 620, 'rgba(118,46,56,0.38)'],
-  ];
-  for (const [x0, x1, c] of bands) {
-    ctx.fillStyle = c;
-    ctx.fillRect(x0, -700, x1 - x0, 1400);
+  ctx.rotate(-0.45); // ~-26° -> garis condong '/'
+  // pasangan pita: marun gelap tipis + merah terang (seperti meme aslinya)
+  let k = 0;
+  for (let x0 = -680; x0 < 700; x0 += 170, k++) {
+    const wRed = k % 2 ? 70 : 40;
+    ctx.fillStyle = 'rgba(88,24,34,0.55)';
+    ctx.fillRect(x0 - 28, -700, 28, 1400);
+    ctx.fillStyle = STRIPE;
+    ctx.globalAlpha = 0.92;
+    ctx.fillRect(x0, -700, wRed, 1400);
+    ctx.globalAlpha = 1;
   }
   ctx.restore();
-  // vignette lembut di sudut
+  // vignette sangat lembut di sudut
   const g = ctx.createRadialGradient(W / 2, H / 2, 170, W / 2, H / 2, 560);
   g.addColorStop(0, 'rgba(0,0,0,0)');
-  g.addColorStop(1, 'rgba(0,0,0,0.38)');
+  g.addColorStop(1, 'rgba(0,0,0,0.22)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 }
 
 /* ---------- logo parodi "ToLoL" tengah-atas ---------- */
 function drawLogo(ctx) {
-  rr(ctx, 277, 13, 244, 106, 10);
+  rr(ctx, 277, 13, 244, 85, 10);
   ctx.fillStyle = '#000000';
   ctx.fill();
-  rr(ctx, 371, 22, 140, 92, 12);
+  rr(ctx, 371, 22, 140, 68, 12);
   ctx.fillStyle = '#ff9900';
   ctx.fill();
   ctx.font = FONT_LOGO;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('To', 324, 70);
+  ctx.fillText('To', 324, 68);
   ctx.fillStyle = '#000000';
-  ctx.fillText('LoL', 443, 70);
+  ctx.fillText('LoL', 443, 68);
 }
 
 /* ---------- daun runcing (laurel & hiasan) ---------- */
@@ -142,8 +143,8 @@ function branch(ctx, x0, y0, cx, cy, x1, y1, n, leafLen, fill, rib) {
 
 /* ---------- laurel emas kiri-atas (terpotong tepi) ---------- */
 function drawLaurel(ctx) {
-  branch(ctx, 38, 242, 2, 115, 14, 6, 12, 34, '#f5d90a', '#8a6d00');
-  branch(ctx, 12, 26, 62, 2, 122, 12, 8, 26, '#f0cf0e', '#8a6d00');
+  branch(ctx, 38, 242, 2, 115, 14, 6, 12, 34, '#f0e10b', '#8a6d00');
+  branch(ctx, 12, 26, 62, 2, 122, 12, 8, 26, '#ece00e', '#8a6d00');
 }
 
 /* ---------- karangan bunga putih-hijau sisi kanan ---------- */
@@ -170,8 +171,8 @@ function flower(ctx, x, y, r) {
 }
 
 function drawGarland(ctx) {
-  // kurva dari pojok kanan-atas melengkung turun ke tengah-kanan
-  const x0 = 792, y0 = -6, cx = 706, cy = 160, x1 = 648, y1 = 344;
+  // kurva dari pojok kanan-atas melengkung turun ke kanan-tengah (pendek)
+  const x0 = 792, y0 = -6, cx = 730, cy = 90, x1 = 690, y1 = 215;
   ctx.strokeStyle = '#2a7d46';
   ctx.lineWidth = 5;
   ctx.lineCap = 'round';
@@ -242,8 +243,8 @@ function dripping(ctx, text, cx, baseY, px, strokeW) {
   const n = Math.max(5, Math.floor(tw / 55));
   for (let i = 0; i < n; i++) {
     const x = cx - tw / 2 + (i + 0.2 + rnd() * 0.6) * (tw / n);
-    const long = rnd() < 0.10;
-    const len = px * (0.05 + rnd() * 0.22) * (long ? 1.5 : 1);
+    const long = rnd() < 0.12;
+    const len = px * (0.08 + rnd() * 0.28) * (long ? 1.5 : 1);
     const w = 3.5 + rnd() * 4;
     // batang tetesan
     ctx.beginPath();
@@ -271,22 +272,25 @@ function dripping(ctx, text, cx, baseY, px, strokeW) {
 
 /* ---------- lingkaran "no-brain" kiri-bawah ---------- */
 function drawNoBrain(ctx) {
-  const cx = 70, cy = 368, R = 72;
+  const cx = 75, cy = 380, R = 52, k = R / 72;
   ctx.save();
   ctx.beginPath();
   ctx.arc(cx, cy, R, 0, Math.PI * 2);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
-  // doodle otak abu-abu (garis)
+  // doodle otak abu-abu (garis), diskala mengikuti R
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(k, k);
   ctx.strokeStyle = '#9aa0a6';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 3 / k;
   ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.ellipse(cx, cy - 4, 44, 36, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, -4, 44, 36, 0, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(cx, cy - 40);
-  ctx.quadraticCurveTo(cx - 6, cy - 10, cx, cy + 32);
+  ctx.moveTo(0, -40);
+  ctx.quadraticCurveTo(-6, -10, 0, 32);
   ctx.stroke();
   const sq = [
     [-28, -18, -18, -6, -26, 6], [-30, 10, -20, 18, -28, 28],
@@ -295,17 +299,18 @@ function drawNoBrain(ctx) {
   ];
   for (const [x1, y1, x2, y2, x3, y3] of sq) {
     ctx.beginPath();
-    ctx.moveTo(cx + x1, cy + y1);
-    ctx.quadraticCurveTo(cx + x2, cy + y2, cx + x3, cy + y3);
+    ctx.moveTo(x1, y1);
+    ctx.quadraticCurveTo(x2, y2, x3, y3);
     ctx.stroke();
   }
+  ctx.restore();
   // tanda larangan merah
   ctx.strokeStyle = '#d40000';
-  ctx.lineWidth = 10;
+  ctx.lineWidth = 7;
   ctx.beginPath();
-  ctx.arc(cx, cy, R - 5, 0, Math.PI * 2);
+  ctx.arc(cx, cy, R - 4, 0, Math.PI * 2);
   ctx.stroke();
-  const a = Math.PI / 4, r = R - 5;
+  const a = Math.PI / 4, r = R - 4;
   ctx.beginPath();
   ctx.moveTo(cx - r * Math.cos(a), cy - r * Math.sin(a));
   ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a));
@@ -371,9 +376,9 @@ export function drawSertifikat(ctx, text) {
   drawLaurel(ctx);
   drawGarland(ctx);
 
-  // Baris 1 (fixed): putih + outline hitam tipis
+  // Baris 1 (fixed): putih POLOS tanpa outline (seperti aslinya)
   const px1 = fitPx(ctx, 'SERTIFIKAT INI MENYATAKAN BAHWA', FONT_LINE1, 527);
-  outlined(ctx, 'SERTIFIKAT INI MENYATAKAN BAHWA', 400, 172, FONT_LINE1(px1), WHITE, 2.5);
+  outlined(ctx, 'SERTIFIKAT INI MENYATAKAN BAHWA', 400, 179, FONT_LINE1(px1), WHITE, 0);
 
   // Slot nama user: putih bold POLOS tanpa outline; SATU BARIS —
   // tanpa wrap/shrink, overflow terpotong tepi kanvas (seperti aslinya).
@@ -382,14 +387,14 @@ export function drawSertifikat(ctx, text) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = WHITE;
-  ctx.fillText(String(text), 400, 232);
+  ctx.fillText(String(text), 400, 233);
   ctx.restore();
 
   // Baris hinaan (fixed): font dripping putih + outline hitam tebal
-  const pxT = fitPx(ctx, 'TERBUKTI TOLOL', FONT_DRIP, 478);
-  dripping(ctx, 'TERBUKTI TOLOL', 400, 322, pxT, 7);
-  const pxB = fitPx(ctx, 'DAN TAK BEROTAK', FONT_DRIP, 302);
-  dripping(ctx, 'DAN TAK BEROTAK', 400, 380, pxB, 4.5);
+  const pxT = fitPx(ctx, 'TERBUKTI TOLOL', FONT_DRIP, 453);
+  dripping(ctx, 'TERBUKTI TOLOL', 400, 345, pxT, 7);
+  const pxB = fitPx(ctx, 'DAN TAK BEROTAK', FONT_DRIP, 342);
+  dripping(ctx, 'DAN TAK BEROTAK', 400, 410, pxB, 4);
 
   // dekorasi depan
   drawNoBrain(ctx);

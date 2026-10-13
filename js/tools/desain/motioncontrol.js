@@ -15,7 +15,7 @@ export function render(root) {
     {
       name: 'Hedra', category: 'Character Animation', availability: 'available', featured: true,
       description: 'Animasi karakter: foto berbicara & bergerak mengikuti audio atau teks yang kamu berikan.',
-      badges: ['Talking head', 'Gratis terbatas'],
+      badges: ['Kepala bicara', 'Gratis terbatas'],
       url: 'https://www.hedra.com',
     },
     {
@@ -39,7 +39,7 @@ export function render(root) {
     {
       name: 'Pika', category: 'Character Replace', availability: 'available', featured: false,
       description: 'Edit & ganti elemen di dalam video dengan perintah teks (modify region).',
-      badges: ['Video edit', 'Gratis terbatas'],
+      badges: ['Edit video', 'Gratis terbatas'],
       url: 'https://pika.art',
     },
     {
@@ -64,22 +64,27 @@ export function render(root) {
     {
       name: 'D-ID', category: 'Character Animation', availability: 'available', featured: false,
       description: 'Ubah foto statis menjadi video talking-head dengan audio.',
-      badges: ['Talking head', 'Gratis terbatas'],
+      badges: ['Kepala bicara', 'Gratis terbatas'],
       url: 'https://www.d-id.com',
     },
   ];
 
   const FILTERS = [
     ['all', 'Semua'],
-    ['Motion Control', 'Motion'],
-    ['Character Animation', 'Animation'],
-    ['Character Replace', 'Replace'],
+    ['Motion Control', 'Kontrol Gerak'],
+    ['Character Animation', 'Animasi Karakter'],
+    ['Character Replace', 'Pengganti Karakter'],
   ];
+  const CAT_ID = {
+    'Motion Control': 'KONTROL GERAK',
+    'Character Animation': 'ANIMASI KARAKTER',
+    'Character Replace': 'PENGGANTI KARAKTER',
+  };
   const AVAIL = {
-    available: ['Available', '#22c55e'],
-    busy: ['Busy', '#eab308'],
-    offline: ['Offline', '#ef4444'],
-    unknown: ['Status unknown', '#8a8a8a'],
+    available: ['Tersedia', '#22c55e'],
+    busy: ['Sibuk', '#eab308'],
+    offline: ['Luring', '#ef4444'],
+    unknown: ['Tak diketahui', '#8a8a8a'],
   };
 
   const validHttps = (v) => {
@@ -99,19 +104,19 @@ export function render(root) {
     const [aLbl, aCol] = AVAIL[p.availability] || AVAIL.unknown;
     const art = T.el('<article style="border:1px solid #ffffff20;border-radius:12px;padding:14px;background:#141210' + (p.featured ? ';border-color:#e0785680' : '') + '"></article>');
     let h = '';
-    if (p.featured) h += '<div style="font-size:12px;font-weight:700;color:#e07856;margin-bottom:6px">RECOMMENDED</div>';
+    if (p.featured) h += '<div style="font-size:12px;font-weight:700;color:#e07856;margin-bottom:6px">DIREKOMENDASIKAN</div>';
     h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
-      '<div><div class="dim" style="font-size:11px;letter-spacing:.08em">' + T.esc(p.category.toUpperCase()) + '</div>' +
+      '<div><div class="dim" style="font-size:11px;letter-spacing:.08em">' + T.esc(CAT_ID[p.category] || p.category.toUpperCase()) + '</div>' +
       '<h3 style="margin:4px 0 0;font-size:17px">' + T.esc(p.name) + '</h3></div>' +
       '<span style="font-size:12px;font-weight:600;color:' + aCol + ';border:1px solid ' + aCol + '55;border-radius:20px;padding:3px 10px;white-space:nowrap">' + aLbl + '</span></div>' +
       '<p style="font-size:13px;line-height:1.6;color:#c9bda9;margin:10px 0">' + T.esc(p.description) + '</p>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' +
-      (p.badges || []).concat(['EXTERNAL TOOL']).map((b) =>
+      (p.badges || []).concat(['TOOL EKSTERNAL']).map((b) =>
         '<span style="font-size:11px;border:1px solid #ffffff20;border-radius:6px;padding:3px 8px;color:#c9bda9">' + T.esc(b) + '</span>'
       ).join('') + '</div>';
     if (p.note) h += '<p class="dim" style="font-size:12px;margin:0 0 10px">' + T.esc(p.note) + '</p>';
     const safe = validHttps(p.url);
-    if (safe) h += '<a href="' + T.esc(safe) + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:14px;font-weight:600;color:#e07856;text-decoration:none">Buka Tool ↗</a>';
+    if (safe) h += '<a href="' + T.esc(safe) + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:14px;font-weight:600;color:#e07856;text-decoration:none">Kunjungi Situs ↗</a>';
     art.innerHTML = h;
     return art;
   }
