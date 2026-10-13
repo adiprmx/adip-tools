@@ -1,8 +1,8 @@
-/* ADIP Tools v6.9.21 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.9.22 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.9.21';
+export const VERSION = '6.9.22';
 export const manifest = [
   {"id":"banding-harga","name":"Perbandingan Harga","cat":"bisnis","icon":"⚖️","desc":"Mana lebih hemat per unit?","keywords":"banding,harga,murah,hemat,unit,belanja","file":"tools/bisnis/banding-harga.js"},
   {"id":"beli-vs-sewa","name":"Beli vs Sewa","cat":"bisnis","icon":"⚖️","desc":"Bandingkan total biaya beli vs sewa + titik impasnya.","keywords":"beli,sewa,break even,impas,perbandingan,biaya","file":"tools/bisnis/beli-vs-sewa.js"},
@@ -155,6 +155,7 @@ export const manifest = [
   {"id":"nokiamsg","name":"Nokia Message","cat":"fun","icon":"📱","desc":"Bikin gambar SMS ala HP Nokia jadul.","keywords":"nokia,sms,jadul,meme,pesan,gambar","file":"tools/fun/nokiamsg.js"},
   {"id":"pilih-satu","name":"Pilih Satu","cat":"fun","icon":"🎯","desc":"Bingung milih? Biar acak yang menentukan.","keywords":"pilih,acak,random,keputusan,opsi","file":"tools/fun/pilih-satu.js"},
   {"id":"reaction","name":"Tes Refleks","cat":"fun","icon":"⚡","desc":"Ukur kecepatan refleks.","keywords":"refleks,reaksi,cepat,tes","file":"tools/fun/reaction.js"},
+  {"id":"sertifikat","name":"Sertifikat Tolol","cat":"fun","icon":"🏆","desc":"Sertifikat meme roast: namamu + TERBUKTI TOLOL DAN TAK BEROTAK. 100% digambar di perangkat, tanpa server.","keywords":"sertifikat,meme,tolol,roast,nama,gambar,lucu","file":"tools/fun/sertifikat.js"},
   {"id":"spinwheel","name":"Roda Putar","cat":"fun","icon":"🎡","desc":"Spin wheel visual.","keywords":"roda,putar,spin,acak,undian","file":"tools/fun/spinwheel.js"},
   {"id":"suit-jawa","name":"Suit Jawa","cat":"fun","icon":"✊","desc":"Gunting-batu-kertas lawan komputer. Suit...!","keywords":"suit,gunting,batu,kertas,game,jawa","file":"tools/fun/suit-jawa.js"},
   {"id":"tantangan-30-hari","name":"Tantangan 30 Hari","cat":"fun","icon":"🗓️","desc":"30 tantangan harian per tema + checklist progres yang kesimpan.","keywords":"tantangan,challenge,30 hari,habit,kebiasaan,olahraga,baca,hemat,produktif","file":"tools/fun/tantangan-30-hari.js"},
@@ -164,7 +165,7 @@ export const manifest = [
   {"id":"tebak-tebakan","name":"Tebak-tebakan Receh","cat":"fun","icon":"🤣","desc":"45 tebak-tebakan receh + mode kuis 10 soal.","keywords":"tebak-tebakan,teka-teki,lucu,receh,kuis,game,hiburan","file":"tools/fun/tebak-tebakan.js"},
   {"id":"tes-kepribadian","name":"Tes Kepribadian Receh","cat":"fun","icon":"🧠","desc":"10 pertanyaan, 4 tipe hasil yang nggak disangka-sangka.","keywords":"tes,kepribadian,kuis,receh,lucu,fun","file":"tools/fun/tes-kepribadian.js"},
   {"id":"tod-indonesia","name":"Truth or Dare Indonesia","cat":"fun","icon":"😈","desc":"Main truth or dare bareng, 110 soal anti basi.","keywords":"truth or dare,tod,jujur,tantangan,game,main bareng,nongkrong","file":"tools/fun/tod-indonesia.js"},
-  {"id":"winquotes","name":"Windows Quotes","cat":"fun","icon":"🪟","desc":"Bikin gambar quote ala notifikasi Windows.","keywords":"windows,quote,kutipan,meme,gambar","file":"tools/fun/winquotes.js"},
+  {"id":"winquotes","name":"Windows Quotes","cat":"fun","icon":"🪟","desc":"Bikin gambar quote ala Windows Media Player.","keywords":"windows,media player,quote,kutipan,meme,gambar","file":"tools/fun/winquotes.js"},
   {"id":"winrate-ff","name":"Kalkulator Winrate FF","cat":"fun","icon":"🎮","desc":"Berapa win beruntun biar WR Free Fire-mu nyentuh target?","keywords":"winrate,ff,free fire,wr,target,win beruntun,kalkulator","file":"tools/fun/winrate-ff.js"},
   {"id":"winrate-ml","name":"Kalkulator Winrate ML","cat":"fun","icon":"⚔️","desc":"Berapa win beruntun biar WR Mobile Legends-mu nyentuh target?","keywords":"winrate,ml,mobile legends,wr,target,win beruntun,kalkulator","file":"tools/fun/winrate-ml.js"},
   {"id":"zodiak-hari-ini","name":"Zodiak Hari Ini","cat":"fun","icon":"♈","desc":"Cek zodiakmu + ramalan receh hari ini. Cuma hiburan!","keywords":"zodiak,ramalan,horoskop,bintang,lahir","file":"tools/fun/zodiak-hari-ini.js"},
@@ -411,7 +412,7 @@ export const manifest = [
   {"id":"pantun-generator","name":"Pantun Generator","cat":"teks","icon":"📜","desc":"Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.","keywords":"pantun,sampiran,isi,puisi,indonesia","file":"tools/teks/pantun-generator.js"},
   {"id":"pembuat-singkatan","name":"Pembuat Singkatan","cat":"teks","icon":"🔤","desc":"Bikin beberapa varian singkatan dari kalimat atau frasa.","keywords":"singkatan,akronim,initsial,abbreviation,frasa","file":"tools/teks/pembuat-singkatan.js"},
   {"id":"pengacak-kalimat","name":"Pengacak Kalimat","cat":"teks","icon":"🔀","desc":"Acak urutan kata dalam tiap kalimat.","keywords":"acak,kata,kalimat,shuffle,random,teks","file":"tools/teks/pengacak-kalimat.js"},
-  {"id":"quotegenerator","name":"Quote Generator","cat":"teks","icon":"💬","desc":"Bikin gambar quote: teks justify + kata sorotan, render lokal.","keywords":"quote,kutipan,gambar,canvas,sorotan,highlight","file":"tools/teks/quotegenerator.js"},
+  {"id":"quotegenerator","name":"Quote Generator","cat":"teks","icon":"💬","desc":"Bikin gambar quote 736×917: teks justify + kata sorotan, render lokal.","keywords":"quote,kutipan,gambar,canvas,sorotan,highlight","file":"tools/teks/quotegenerator.js"},
   {"id":"sandikan-teks","name":"Sandi Teks","cat":"teks","icon":"🔏","desc":"Enkripsi teks dengan sandi Caesar & Vigenère.","keywords":"sandi,caesar,vigenere,enkripsi,rahasia","file":"tools/teks/sandikan-teks.js"},
   {"id":"sensor-teks","name":"Sensor Teks","cat":"teks","icon":"🙈","desc":"Sensor kata/nomor otomatis.","keywords":"sensor,kata,kasar,privasi","file":"tools/teks/sensor-teks.js"},
   {"id":"teks-alay","name":"Text Alay Generator","cat":"teks","icon":"🅰️","desc":"Ubah teks normal jadi gaya alay Indonesia.","keywords":"alay,gaya teks,gaul,leetspeak,4lay","file":"tools/teks/teks-alay.js"},

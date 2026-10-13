@@ -63,17 +63,26 @@ export function render(root) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\r?\n/g, '&#10;');
 
   function localSvg(w, h, text, bg, fg, font) {
-    const fontSize = Math.max(16, Math.min(w * 0.11, h * 0.28, 260));
+    // FASE 2 FIX (13 Okt 2026): geometri teks diselaraskan ke placeholderimage.co.
+    // Formula reverse-engineered dari 8 probe (ukuran & teks bervariasi) — 8/8 cocok:
+    //   fontSize = min(72, 0.11 * min(w,h), 0.825 * w / maxLineChars)
+    // line-height 1.35em; baseline pertama = tengah + 0.145*fontSize (optical
+    // centering via <tspan dy>, BUKAN dominant-baseline="middle").
+    // Perilaku berubah vs versi lama: font max(16px) floor & 260px cap dihapus,
+    // ukuran teks kini mengikuti aslinya (bisa <16px utk gambar mungil).
     const lines = String(text || '').split(/\r?\n/).slice(0, 8);
-    const lh = Math.round(fontSize * 1.16);
-    const firstY = h / 2 - ((lines.length - 1) * lh) / 2;
-    const bgRect = '<rect width="100%" height="100%" fill="' + bg + '"/>';
-    const texts = lines.map((line, i) =>
-      '<text x="' + (w / 2) + '" y="' + Math.round(firstY + i * lh) + '" dominant-baseline="middle">' + escSvg(line || ' ') + '</text>'
+    const maxChars = Math.max.apply(null, lines.map((l) => String(l || ' ').length).concat([1]));
+    const fontSize = Math.min(72, 0.11 * Math.min(w, h), (0.825 * w) / maxChars);
+    const lh = fontSize * 1.35;
+    const firstDy = h / 2 - ((lines.length - 1) * lh) / 2 + fontSize * 0.145;
+    const bgRect = '<rect width="' + w + '" height="' + h + '" fill="' + bg + '"/>';
+    const tspans = lines.map((line, i) =>
+      '<tspan x="' + (w / 2) + '" dy="' + (i === 0 ? firstDy : lh) + '">' + escSvg(line || ' ') + '</tspan>'
     ).join('');
     return '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">' +
-      bgRect + '<g fill="' + fg + '" font-family="' + escSvg(FONTS[font] || 'Arial,sans-serif') + '" font-size="' + fontSize + '" font-weight="700" text-anchor="middle">' +
-      texts + '</g></svg>';
+      bgRect + '<text x="' + (w / 2) + '" y="0" font-family="' + escSvg(FONTS[font] || 'Arial,sans-serif') + '" ' +
+      'font-size="' + fontSize + '" font-weight="bold" fill="' + fg + '" text-anchor="middle">' +
+      tspans + '</text></svg>';
   }
 
   const generate = () => {
