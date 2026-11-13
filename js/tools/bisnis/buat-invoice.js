@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.9.20';
+import { h as T, utils, kv } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "buat-invoice", "name": "Buat Invoice", "cat": "bisnis", "icon": "🧮", "desc": "Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.", "keywords": "invoice,buat invoice,nota,tagihan,ppn 11%,klien,cetak"};
 
@@ -32,6 +32,11 @@ export function render(root) {
     const klienI = T.input('text', 'Nama klien / pelanggan', '');
     const noI = T.input('text', 'No. invoice', 'INV-' + Date.now().toString().slice(-6));
     const ppnTgl = T.input('checkbox', '');
+    // Persen PPN bisa diubah user; default 11% = tarif efektif barang/jasa
+    // biasa (12% × DPP nilai lain 11/12, PMK 131/2024).
+    const ppnPersenI = T.input('text', '11', '11');
+    ppnPersenI.inputMode = 'decimal';
+    ppnPersenI.style.maxWidth = '70px';
     const box = T.out();
     const itemsBox = T.out();
     const previewBox = T.out();
@@ -71,7 +76,8 @@ export function render(root) {
     const hitung = () => {
       const valid = items.filter((r) => String(r.desc).trim() && (T.num(r.qty) || 0) > 0 && (T.num(r.harga) || 0) > 0);
       const sub = valid.reduce((a, r) => a + (T.num(r.qty) || 0) * (T.num(r.harga) || 0), 0);
-      const ppn = ppnTgl.checked ? sub * 0.11 : 0;
+      const ppnPersen = T.num(ppnPersenI.value) || 0;
+      const ppn = ppnTgl.checked ? sub * (ppnPersen / 100) : 0;
       const total = sub + ppn;
       const usaha = usahaI.value.trim() || '(nama usaha)';
       const alamat = alamatI.value.trim();
@@ -80,7 +86,7 @@ export function render(root) {
 
       T.show(box,
         kv('Subtotal', T.rp(sub)) +
-        kv('PPN 11%', ppnTgl.checked ? T.rp(ppn) : '— (tidak dipakai)') +
+        kv('PPN ' + T.esc(String(ppnPersen)) + '%', ppnTgl.checked ? T.rp(ppn) : '— (tidak dipakai)') +
         '<div class="kv total"><span class="k"><b>Grand total</b></span><span class="v"><b>' + T.rp(total) + '</b></span></div>');
 
       const itemRows = valid.map((r) => {
@@ -100,7 +106,7 @@ export function render(root) {
         itemRows +
         '</table>' +
         '<div class="tot">Subtotal: <b>' + T.rp(sub) + '</b><br/>' +
-        (ppnTgl.checked ? 'PPN 11%: <b>' + T.rp(ppn) + '</b><br/>' : '') +
+        (ppnTgl.checked ? 'PPN ' + T.esc(String(ppnPersen)) + '%: <b>' + T.rp(ppn) + '</b><br/>' : '') +
         '<span style="font-size:18px">Grand Total: <b>' + T.rp(total) + '</b></span></div>' +
         '<p style="margin-top:24px">Terima kasih atas kerja samanya 🙏</p>' +
         '</div>' +
@@ -110,11 +116,21 @@ export function render(root) {
 
     [usahaI, alamatI, klienI, noI].forEach((el) => el.addEventListener('input', hitung));
     ppnTgl.addEventListener('change', hitung);
+    ppnPersenI.addEventListener('input', hitung);
 
     const ppnRow = document.createElement('div');
     ppnRow.className = 'kv';
-    ppnRow.innerHTML = '<span class="k">Tambah PPN 11%</span>';
-    ppnRow.appendChild(ppnTgl);
+    ppnRow.innerHTML = '<span class="k">Tambah PPN</span>';
+    const ppnCtl = document.createElement('span');
+    ppnCtl.style.display = 'flex';
+    ppnCtl.style.gap = '8px';
+    ppnCtl.style.alignItems = 'center';
+    ppnCtl.appendChild(ppnTgl);
+    ppnCtl.appendChild(ppnPersenI);
+    const pctLabel = document.createElement('span');
+    pctLabel.textContent = '%';
+    ppnCtl.appendChild(pctLabel);
+    ppnRow.appendChild(ppnCtl);
 
     root.appendChild(T.el('<p class="note">Invoice rapi buat pelanggan: isi data usaha & klien, tambah item sesukamu, atur PPN 11% bila perlu — lalu cetak.</p>'));
     root.appendChild(T.field('Nama usaha', usahaI));
@@ -124,6 +140,7 @@ export function render(root) {
     root.appendChild(T.el('<p class="note" style="margin-top:12px"><b>Item:</b></p>'));
     root.appendChild(itemsBox);
     root.appendChild(ppnRow);
+    root.appendChild(T.el('<p class="hint">PPN 11% adalah tarif efektif untuk barang/jasa biasa — tarif nominalnya 12%, tapi dihitung dari DPP nilai lain 11/12 × harga (PMK 131/2024). Ubah angka % di atas bila barangmu kena tarif lain.</p>'));
     root.appendChild(box);
     root.appendChild(previewBox);
     renderItems();

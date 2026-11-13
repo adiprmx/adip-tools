@@ -1,18 +1,22 @@
 /* Website Security Scanner — 100% client-side, tanpa backend.
- * Cara kerja: homepage target diambil via proxy CORS (test.cors.workers.dev,
- * fallback allorigins), DNS/email via DoH dns.google, umur domain via RDAP,
+ * Cara kerja: homepage target diambil via proxy CORS (CorsAnyway utama,
+ * fallback AllOrigins), DNS/email via DoH dns.google, umur domain via RDAP,
  * subdomain + info sertifikat via crt.sh, arsip via web.archive.org.
  * 25 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
  * diakali dari browser (hsts-preload: API menolak CORS; TLS: browser tidak
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
 const DOH = 'https://dns.google/resolve';
-const PROXY_W = (u) => 'https://test.cors.workers.dev/?' + encodeURIComponent(u);
+// Rantai proxy: CorsAnyway utama (terverifikasi hidup, meneruskan isi mentah),
+// AllOrigins terakhir (flaky, 522 berulang). test.cors.workers.dev DIHAPUS —
+// mengembalikan 403 sejak probe 12 Nov 2026. Jina TIDAK dipakai di sini: ia
+// mengubah HTML jadi markdown sehingga modul analisa HTML tidak bisa jalan.
+const PROXY_CA = (u) => 'https://cors-anyway.huskymobile.com/?' + u;
 const PROXY_AO = (u) => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u);
 const IANA_RDAP = 'https://data.iana.org/rdap/dns.json';
 const HIST_KEY = 'aq_website_scanner_history';
@@ -787,11 +791,17 @@ function tFetch(url, {timeout = 15000, ...opts} = {}) {
   const t = setTimeout(() => c.abort(), timeout);
   return fetch(url, {...opts, signal: c.signal}).finally(() => clearTimeout(t));
 }
-// Ambil URL target via proxy. Return {ok, status, headers(map lowercase), text, via}
+// Ambil URL target via proxy. Return {ok, status, headers(map lowercase), headersOk, text, via, error}
+// headersOk = true hanya bila ada BUKTI proxy meneruskan header upstream
+// (blob cors-received-headers, atau setidaknya satu header keamanan target
+// terbaca). Tanpa bukti itu, modul header/CORS/disclosure/fingerprint TIDAK
+// BOLEH menuduh dari header yang kosong — itu false positive, bukan temuan.
 // method/body/headers opsional untuk probe read-only (OPTIONS, POST GraphQL).
+const HEADER_EVIDENCE = ['content-security-policy', 'strict-transport-security', 'x-frame-options', 'x-content-type-options', 'referrer-policy', 'permissions-policy'];
 async function fetchProxied(url, {timeout = 15000, method = 'GET', body = null, headers = null} = {}) {
+  let lastErr = '';
   try {
-    const r = await tFetch(PROXY_W(url), {timeout, method, body, headers: headers || undefined});
+    const r = await tFetch(PROXY_CA(url), {timeout, method, body, headers: headers || undefined});
     const h = {};
     const blob = r.headers.get('cors-received-headers');
     // Simpan mentah juga di key-nya sendiri — modul cookies butuh blob aslinya.
@@ -800,15 +810,19 @@ async function fetchProxied(url, {timeout = 15000, method = 'GET', body = null, 
     for (const k of ['content-security-policy','strict-transport-security','x-frame-options','x-content-type-options','referrer-policy','permissions-policy','server','x-powered-by','content-type','location','access-control-allow-origin','access-control-allow-credentials','allow']) {
       if (!h[k]) { const v = r.headers.get(k); if (v) h[k] = v; }
     }
+    const headersOk = !!blob || HEADER_EVIDENCE.some((k) => !!h[k]);
     const text = await r.text();
-    return {ok: true, status: r.status, headers: h, text, via: 'workers'};
+    return {ok: true, status: r.status, headers: h, headersOk, text, via: 'corsanyway'};
   } catch (e1) {
-    try { // fallback: allorigins /get (body + status, tanpa header)
-      const r = await tFetch(PROXY_AO(url), {timeout});
-      const j = await r.json();
-      if (!j || typeof j.contents !== 'string') throw new Error('proxy gagal');
-      return {ok: true, status: (j.status && j.status.http_code) || 200, headers: {}, text: j.contents, via: 'allorigins'};
-    } catch (e2) { return {ok: false, error: String((e1 && e1.message) || e1)}; }
+    lastErr = String((e1 && e1.message) || e1);
+  }
+  try { // fallback terakhir: allorigins /get (body + status, tanpa header)
+    const r = await tFetch(PROXY_AO(url), {timeout});
+    const j = await r.json();
+    if (!j || typeof j.contents !== 'string') throw new Error('proxy gagal');
+    return {ok: true, status: (j.status && j.status.http_code) || 200, headers: {}, headersOk: false, text: j.contents, via: 'allorigins'};
+  } catch (e2) {
+    return {ok: false, error: 'Semua proxy gagal mengambil halaman (CorsAnyway: ' + lastErr.slice(0, 60) + '; AllOrigins: ' + String((e2 && e2.message) || e2).slice(0, 60) + '). Proxy publik kadang sedang sibuk — coba lagi beberapa saat lagi.'};
   }
 }
 async function doh(name, type) {
@@ -945,6 +959,7 @@ async function mRdap(ctx) {
 
 async function mHeaders(ctx) {
   if (!ctx.page) return [mkInfo('headers','Header tidak dapat dicek','Halaman tidak bisa diambil via proxy.')];
+  if (!ctx.page.headersOk) return [mkInfo('headers','Header tidak dapat dicek','Proxy yang dipakai tidak meneruskan header situs target, jadi header tidak bisa dinilai — bukan berarti header tidak ada.')];
   return headersFindings(ctx.page.headers, ctx.isHttps);
 }
 async function mCookies(ctx) {
@@ -965,7 +980,9 @@ async function mCookies(ctx) {
 async function mCors(ctx) {
   const f = [];
   // cors-deep: analisa header ACAO/ACAC upstream via proxy (lebih presisi dari uji origin sendiri).
-  if (ctx.page) {
+  // Hanya bila header upstream terbukti diteruskan — kalau tidak, ACAO yang
+  // terbaca adalah milik proxy-nya sendiri (biasanya *) dan jadi false positive.
+  if (ctx.page && ctx.page.headersOk) {
     const h = ctx.page.headers || {};
     const acao = (h['access-control-allow-origin'] || '').trim();
     const acac = (h['access-control-allow-credentials'] || '').toLowerCase() === 'true';
@@ -1009,7 +1026,9 @@ async function mDisclosure(ctx) {
   const f = [];
   if (!ctx.page) return [mkInfo('disclosure','Tidak dapat dicek','Halaman tidak bisa diambil.')];
   const h = ctx.page.headers;
-  const srv = h['server'] || '', xpb = h['x-powered-by'] || '';
+  // Server/X-Powered-By hanya boleh dibaca bila header upstream terbukti
+  // diteruskan — kalau tidak, yang terbaca adalah header milik proxy.
+  const srv = ctx.page.headersOk ? (h['server'] || '') : '', xpb = ctx.page.headersOk ? (h['x-powered-by'] || '') : '';
   if (srv && /\/\d/.test(srv)) f.push(mk('disclosure','low','Server header membocorkan versi: ' + srv.slice(0,40),
     'Header Server menyebut versi spesifik.',
     'Penyerang memetakan versi → mencari CVE yang cocok (modul fingerprint).',
@@ -1023,7 +1042,9 @@ async function mDisclosure(ctx) {
     'Tag generator menyebut CMS + versi.',
     'Versi CMS lawas = target empuk pencari CVE.',
     'Hapus/samarkan meta generator atau pastikan CMS selalu update.', gm[1].slice(0,80)));
-  if (!f.length) f.push(mkInfo('disclosure','Tidak ada info versi terekspos','Server/X-Powered-By/generator bersih.'));
+  if (!f.length) f.push(ctx.page.headersOk
+    ? mkInfo('disclosure','Tidak ada info versi terekspos','Server/X-Powered-By/generator bersih.')
+    : mkInfo('disclosure','Versi dari header tidak dapat dicek','Proxy tidak meneruskan header; meta generator bersih.'));
   return f;
 }
 async function mHtml(ctx) {
@@ -1242,10 +1263,13 @@ async function mPaths(ctx) {
 }
 async function mFingerprint(ctx) {
   if (!ctx.page) return [mkInfo('fingerprint','Tidak dapat dicek','Halaman tidak bisa diambil.')];
-  const techs = detectTech(ctx.page.text, ctx.page.headers);
+  // Header hanya dipakai bila terbukti berasal dari target — kalau tidak,
+  // yang terdeteksi adalah teknologi/WAF milik proxy, bukan milik situs.
+  const hdrs = ctx.page.headersOk ? ctx.page.headers : {};
+  const techs = detectTech(ctx.page.text, hdrs);
   ctx.techs = techs;
   const f = [];
-  const wafs = wafDetect(ctx.page.headers);
+  const wafs = wafDetect(hdrs);
   if (wafs.length) f.push(mk('fingerprint','info','WAF/CDN terdeteksi: ' + wafs.map((w) => w.name).join(', '),
     'Signature WAF/CDN ditemukan di header respons.',
     'WAF menambah lapisan pertahanan (bukan jaminan aman); konfigurasi tetap harus benar.',
@@ -1605,6 +1629,7 @@ async function runScan(target, onProg) {
   onProg('fetch', 'run');
   const pg = await fetchProxied(target.origin + '/');
   if (pg.ok) ctx.page = pg;
+  else ctx.findings.push(mkInfo('fetch', 'Halaman utama tidak bisa diambil', (pg.error || 'Semua proxy gagal.') + ' Modul yang butuh halaman utama ditandai "tidak dapat dicek" — modul DNS, sertifikat, dan lainnya tetap jalan.'));
   onProg('fetch', 'done');
   for (const m of MODULES) {
     onProg(m.id, 'run');
@@ -1748,6 +1773,10 @@ export function render(root) {
       res.findings = ctx.findings;
       lastRes = res; lastUrl = target.origin;
       renderResult(target.origin, res);
+      if (!ctx.page) {
+        const warn = T.el('<div style="font-size:12.5px;line-height:1.7;border:1px solid #f59e0b55;background:rgba(245,158,11,.08);border-radius:10px;padding:10px 12px;margin-bottom:12px">⚠️ <b>Halaman utama tidak bisa diambil</b> — semua proxy gagal (kemungkinan proxy publik sedang sibuk atau target memblokirnya). Hasil di bawah ini hanya dari modul yang tidak butuh halaman (DNS, sertifikat, dsb.) — bukan hasil scan lengkap. Coba scan lagi beberapa saat lagi.</div>');
+        resBox.prepend(warn);
+      }
       // diff vs riwayat
       const prev = loadHist().find((e) => e.url === target.origin);
       saveHist({url: target.origin, date: new Date().toLocaleString('id-ID'), score: res.score, grade: res.grade,

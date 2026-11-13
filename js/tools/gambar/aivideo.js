@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"aivideo","name":"AI Video","cat":"gambar","icon":"🎬","desc":"Generate video AI (teks/gambar jadi video) pakai akun Puter milikmu.","keywords":"ai,video,generator,sora,veo,puter"};
 

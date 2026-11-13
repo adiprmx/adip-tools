@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {id:"qris-parser", name:"QRIS String Parser", cat:"converter", icon:"🧾", desc:"Bedah payload QRIS/EMVCo per field + cek CRC.", keywords:"qris,emvco,parser,crc,payload"};
 export function render(root) {
@@ -22,11 +22,11 @@ export function render(root) {
       let p = 0;
       while (p < str.length) {
         if (p + 4 > str.length) throw new Error(what + ' rusak di posisi ' + p + ': sisa string kurang dari 4 karakter (ID+Length).');
-        const id = str.substr(p, 2), ln = str.substr(p + 2, 2);
+        const id = str.substring(p, p + 2), ln = str.substring(p + 2, p + 4);
         if (!/^\d{2}$/.test(id)) throw new Error(what + ' rusak di posisi ' + p + ': ID "' + id + '" bukan 2 digit angka.');
         if (!/^\d{2}$/.test(ln)) throw new Error(what + ' rusak di posisi ' + p + ': Length "' + ln + '" bukan 2 digit angka.');
         const len = parseInt(ln, 10);
-        const val = str.substr(p + 4, len);
+        const val = str.substring(p + 4, p + 4 + len);
         if (val.length < len) throw new Error(what + ' rusak di posisi ' + p + ': field ' + id + ' klaim panjang ' + len + ' tapi sisa string hanya ' + val.length + ' karakter.');
         fields.push({ id: id, len: len, val: val });
         p += 4 + len;

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "imagevectorizer", "name": "Auto Trace", "cat": "gambar", "icon": "✒️", "desc": "Ubah foto/logo jadi vektor SVG, 100% di perangkat (potrace).", "keywords": "vektor,trace,svg,potrace,logo,outline"};
 
@@ -260,7 +260,7 @@ export function render(root) {
     try {
       const raw = await readFileAsDataUrl(file);
       const isColor = modeSel.value === 'color';
-      const maxSide = isColor ? 800 : MAX_SIDE;
+      const maxSide = isColor ? 1000 : MAX_SIDE;
       const { dataUrl, w, h } = await downscaleDataUrl(raw, maxSide);
       const turd = Number(isColor ? detSelColor.value : detSel.value);
       T.show(out, '<span class="dim">Tracing ' + w + '×' + h + ' px… (bisa beberapa detik)</span>');
@@ -290,7 +290,11 @@ export function render(root) {
 
   /** Trace warna: kuantisasi k-means lalu potrace per lapisan warna.
       Lapisan diurut dari cakupan terluas (background dulu) supaya tumpukan
-      opaque ter-render benar. */
+      opaque ter-render benar.
+      Performa: penetapan piksel→warna dihitung SEKALI ke Uint8Array indeks
+      (O(piksel × warna)), tiap lapisan tinggal membaca indeks itu — bukan
+      dihitung ulang per piksel per lapisan (O(piksel × warna × lapisan)).
+      Mask tiap lapisan identik dengan cara lama, jadi output SVG sama. */
   async function traceColor(lib, dataUrl, w, h, nColors, turd) {
     const im = await loadImage(dataUrl);
     const c = document.createElement('canvas'); c.width = w; c.height = h;
@@ -300,21 +304,28 @@ export function render(root) {
     const palette = extractPalette(id.data, w * h, nColors);
     const prgb = palette.length ? palette.map((hx) => [parseInt(hx.slice(1, 3), 16), parseInt(hx.slice(3, 5), 16), parseInt(hx.slice(5, 7), 16)]) : [[0, 0, 0]];
     const hexes = palette.length ? palette : ['#000000'];
+    const npix = w * h;
+    const assign = new Uint8Array(npix);
+    const counts = new Array(prgb.length).fill(0);
+    for (let i = 0; i < npix; i++) {
+      const r = id.data[i * 4], g = id.data[i * 4 + 1], b = id.data[i * 4 + 2];
+      let best = 0, bd = 1e18;
+      for (let k = 0; k < prgb.length; k++) {
+        const dr = r - prgb[k][0], dg = g - prgb[k][1], db = b - prgb[k][2];
+        const d = dr * dr + dg * dg + db * db;
+        if (d < bd) { bd = d; best = k; }
+      }
+      assign[i] = best;
+      counts[best]++;
+    }
     const groups = [];
     for (let li = 0; li < palette.length; li++) {
       const mc = document.createElement('canvas'); mc.width = w; mc.height = h;
       const mx = mc.getContext('2d');
       const out = mx.createImageData(w, h);
-      let count = 0;
-      for (let i = 0; i < w * h; i++) {
-        let best = 0, bd = 1e18;
-        for (let k = 0; k < prgb.length; k++) {
-          const dr = id.data[i * 4] - prgb[k][0], dg = id.data[i * 4 + 1] - prgb[k][1], db = id.data[i * 4 + 2] - prgb[k][2];
-          const d = dr * dr + dg * dg + db * db;
-          if (d < bd) { bd = d; best = k; }
-        }
-        const on = best === li;
-        if (on) count++;
+      const count = counts[li];
+      for (let i = 0; i < npix; i++) {
+        const on = assign[i] === li;
         out.data[i * 4] = on ? 0 : 255; out.data[i * 4 + 1] = on ? 0 : 255; out.data[i * 4 + 2] = on ? 0 : 255;
         out.data[i * 4 + 3] = 255;
       }

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "worldclassics", "name": "World Classics Reader", "cat": "pelajar", "icon": "📜", "desc": "Baca sastra klasik Tiongkok/Jepang/Korea (public domain) dari Wikisource + terjemahan Indonesia.", "keywords": "klasik,sastra,wenyan,baca,buku,tiongkok,jepang,korea,wikisource,terjemahan"};
 
@@ -90,7 +90,11 @@ async function terjemahBatch(lang, teksArr, onProg, signal) {
 }
 
 // Terjemahan AI (gaya Natural/Novel) via API publik; gagal -> jatuh ke mesin per paragraf
+// AI_RATE_LIMIT: true bila ada batch yang gagal karena rate limit Pollinations (402/429) —
+// dipakai terjemahBab untuk menampilkan pesan "terlalu sering" yang jelas (bukan diam-diam).
+let AI_RATE_LIMIT = false;
 async function terjemahAI(lang, teksArr, mode, onProg, signal) {
+  AI_RATE_LIMIT = false;
   const batch = [];
   let cur = [], curLen = 0;
   teksArr.forEach((t, i) => {
@@ -104,6 +108,7 @@ async function terjemahAI(lang, teksArr, mode, onProg, signal) {
     const to = AbortSignal.timeout(90000);
     const sig = signal ? AbortSignal.any([signal, to]) : to;
     let hasil = null;
+    let st = 0;
     try {
       const prompt = 'Terjemahkan setiap teks ' + (NAMA_BAHASA[lang] || lang) + ' berikut ke Bahasa Indonesia (' + GAYA[mode] + ').\n' +
         'Balas HANYA dengan JSON array berisi string terjemahan — jumlah elemen SAMA PERSIS (' + b.length + '), urutan sama, tanpa markdown, tanpa penjelasan.\n\n' +
@@ -112,13 +117,17 @@ async function terjemahAI(lang, teksArr, mode, onProg, signal) {
         method: 'POST', signal: sig, headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'openai', temperature: 0.4, messages: [{ role: 'user', content: prompt }] }),
       });
+      st = r.status;
       if (!r.ok) throw new Error('http ' + r.status);
       const j = await r.json();
       const isi = (((j.choices || [])[0] || {}).message || {}).content || '';
       const m = isi.match(/\[[\s\S]*\]/);
       const arr = m ? JSON.parse(m[0]) : null;
       if (Array.isArray(arr) && arr.length === b.length) hasil = arr.map(String);
-    } catch (e) { hasil = null; }
+    } catch (e) {
+      if (st === 402 || st === 429) AI_RATE_LIMIT = true;
+      hasil = null;
+    }
     if (!hasil) hasil = await terjemahBatch(lang, b.map((x) => x.t), () => {}, sig);
     b.forEach((x, k) => { out[x.i] = hasil[k]; });
     done += b.length; onProg(done, teksArr.length);
@@ -297,10 +306,13 @@ export function render(root) {
       cacheTeks.set(ck, wrap.innerHTML);
       cacheTeks.delete(lang + '|' + judul + '|' + ch.kind + ':' + ch.ref + '|id|' + mode);
       cacheTeks.delete(lang + '|' + judul + '|' + ch.kind + ':' + ch.ref + '|bi|' + mode);
-      T.show(statusBox, '<p class="dim">Terjemahan ' + mode + ' tersedia' + (mode === 'literal' ? ' (mesin)' : ' (AI)') + '.</p>');
       if (viewSel.value === 'orig') viewSel.value = 'bi';
       view = viewSel.value;
-      muatBab();
+      await muatBab(); // muatBab menyembunyikan statusBox saat fetch — pesan sukses ditampilkan sesudahnya
+      T.show(statusBox, '<p class="dim">Terjemahan ' + mode + ' tersedia' + (mode === 'literal' ? ' (mesin)' : ' (AI)') + '.' +
+        (AI_RATE_LIMIT && mode !== 'literal'
+          ? ' Sebagian paragraf memakai terjemahan mesin sebagai cadangan karena AI sedang dibatasi: <b>terlalu sering — tunggu sekitar 30 detik lalu coba lagi</b>.'
+          : '') + '</p>');
     } catch (e) {
       if (e.name === 'AbortError') return;
       T.show(statusBox, errBox('Terjemahan gagal: ' + e.message + ' Teks asli tetap dapat dibaca.'));

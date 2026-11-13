@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"documentai","name":"Document AI","cat":"produktivitas","icon":"📄","desc":"Analisis dokumen dengan LLM milikmu (OpenAI-compatible).","keywords":"ai,dokumen,llm,ringkasan,analisis,openai,pdf,gambar,vision,tabel"};
 
@@ -14,6 +14,12 @@ const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf
 const MAKS_PDF_MB = 3;    // dokumen teks/PDF
 const MAKS_FOTO_MB = 12;  // foto sebelum optimasi (hasil akhir tetap ≤3 MB)
 const MAKS_HALAMAN_PDF = 10;
+
+// Preset endpoint: Pollinations gratis tanpa key (model publik, rate limit ketat ~1 req/30 detik),
+// OpenAI default tetap tersedia untuk yang punya key sendiri.
+const PRESET_POLL = { base: 'https://text.pollinations.ai/openai', model: 'openai' };
+const PRESET_OPENAI = { base: 'https://api.openai.com/v1', model: 'gpt-4o-mini' };
+const isPollinations = (base) => String(base || '').includes('pollinations.ai');
 
 const INSTRUKSI = {
   ringkas: 'Buat RINGKASAN CERDAS dalam Bahasa Indonesia: "summary" = 1 paragraf inti lalu poin-poinnya; "keyPoints" = maks 8 fakta penting; "actions" = tindakan yang disarankan bila ada.',
@@ -158,7 +164,7 @@ export function render(root) {
     placeholder: 'Tempel API key LLM milikmu',
     docUrl: 'https://platform.openai.com/api-keys',
     docLabel: 'Dapatkan key di OpenAI (atau provider kompatibel lain)',
-    hint: 'Kompatibel OpenAI: OpenAI, dan provider lain yang menyediakan endpoint /v1/chat/completions. Key hanya dipakai untuk request langsung ke endpoint di bawah.',
+    hint: 'Kompatibel OpenAI: OpenAI, dan provider lain yang menyediakan endpoint /v1/chat/completions. Key hanya dipakai untuk request langsung ke endpoint di bawah. Bila pakai preset Pollinations (gratis) di bawah, key boleh kosong.',
   });
   root.appendChild(keyF.box);
 
@@ -166,13 +172,41 @@ export function render(root) {
   const modelInp = T.input('text', 'gpt-4o-mini', utils.byok.get('documentai_model') || 'gpt-4o-mini');
   baseInp.addEventListener('change', () => utils.byok.set('documentai_base', baseInp.value.trim().replace(/\/+$/, '')));
   modelInp.addEventListener('change', () => utils.byok.set('documentai_model', modelInp.value.trim()));
+
+  // Preset endpoint: Pollinations gratis (tanpa key) atau OpenAI/provider lain (pakai key).
+  // Pengguna lama yang sudah menyimpan endpoint non-Pollinations tetap di preset OpenAI.
+  const presetTersimpan = utils.byok.get('documentai_preset');
+  const presetAwal = presetTersimpan ||
+    (utils.byok.get('documentai_base') && !isPollinations(utils.byok.get('documentai_base')) ? 'openai' : 'pollinations');
+  const presetSel = T.select([
+    ['pollinations', 'Pollinations (gratis, tanpa key)'],
+    ['openai', 'OpenAI / provider lain (pakai key)'],
+  ], presetAwal);
+  const presetCat = T.el('<div class="dim" style="font-size:12.5px;line-height:1.6;margin-top:4px"></div>');
+  const terapkanPreset = (p) => {
+    utils.byok.set('documentai_preset', p);
+    if (p === 'pollinations') {
+      baseInp.value = PRESET_POLL.base;
+      modelInp.value = PRESET_POLL.model;
+      utils.byok.set('documentai_base', PRESET_POLL.base);
+      utils.byok.set('documentai_model', PRESET_POLL.model);
+    }
+    presetCat.textContent = p === 'pollinations'
+      ? 'Gratis tanpa API key — memakai model AI publik Pollinations. Batasnya ketat (sekitar 1 request per 30 detik); kalau muncul pesan "terlalu sering", tunggu sebentar lalu coba lagi.'
+      : 'Pakai API key LLM milikmu (OpenAI atau provider kompatibel lain) — isi key di atas dan atur endpoint/model di bawah.';
+  };
+  presetSel.addEventListener('change', () => terapkanPreset(presetSel.value));
+  const presetField = T.field('Preset endpoint', presetSel, 'Pollinations gratis tanpa key; OpenAI/provider lain butuh key sendiri.');
+  presetField.appendChild(presetCat);
+  root.appendChild(presetField);
+  terapkanPreset(presetAwal);
   root.appendChild(T.grid2(
     T.field('Endpoint (OpenAI-compatible)', baseInp, 'Tanpa garis miring di akhir.'),
     T.field('Model', modelInp, 'Contoh: gpt-4o-mini, gpt-4o. Untuk gambar butuh model vision.')
   ));
 
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Upload dokumen (PDF, foto/scan, TXT/MD/CSV) → AI meringkas, menganalisis, atau mengekstrak tabel. ' +
-    'Pakai <b>API key LLM milikmu</b> (endpoint kompatibel OpenAI). File hanya dikirim ke endpoint yang kamu konfigurasi — tidak lewat server mana pun.</p>'));
+    'Pilih preset <b>Pollinations (gratis, tanpa key)</b> untuk langsung mencoba, atau pakai <b>API key LLM milikmu</b> (endpoint kompatibel OpenAI). File hanya dikirim ke endpoint yang kamu konfigurasi — tidak lewat server mana pun.</p>'));
 
   const fileInp = document.createElement('input');
   fileInp.type = 'file';
@@ -280,23 +314,26 @@ export function render(root) {
 
   async function panggil(messages, timeoutMs) {
     const key = keyF.get();
-    if (!key) throw new Error('NO_KEY');
     const base = (baseInp.value.trim().replace(/\/+$/, '') || 'https://api.openai.com/v1');
     const model = modelInp.value.trim() || 'gpt-4o-mini';
+    const gratis = isPollinations(base);
+    if (!key && !gratis) throw new Error('NO_KEY');
     utils.byok.set('documentai_base', base);
     utils.byok.set('documentai_model', model);
     const c = new AbortController();
     const t = setTimeout(() => c.abort(), timeoutMs || 85000);
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (key) headers.Authorization = 'Bearer ' + key; // Pollinations gratis: tanpa header bila key kosong
       const r = await fetch(base + '/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+        headers,
         body: JSON.stringify({ model, messages, temperature: 0.3 }),
         signal: c.signal,
       });
       if (r.status === 401) throw new Error('API key ditolak (401). Cek key & endpoint.');
       if (r.status === 404) throw new Error('Endpoint/model tidak ditemukan (404). Cek base URL & nama model.');
-      if (r.status === 429) throw new Error('Rate limit / kuota habis (429).');
+      if (r.status === 402 || r.status === 429) throw new Error(gratis ? 'Terlalu sering — tunggu sekitar 30 detik lalu coba lagi.' : 'Rate limit / kuota habis (429).');
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const d = await r.json();
       const txt = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
@@ -455,7 +492,7 @@ export function render(root) {
     if (busy) return;
     const sumber = bangunSumber();
     if (!sumber) { T.show(out, '<span class="warn">Isi dulu dokumennya — via file atau tempel teks.</span>'); return; }
-    if (!keyF.has()) { T.show(out, '<span class="warn">Isi & simpan API key dulu.</span>'); return; }
+    if (!keyF.has() && !isPollinations(baseInp.value.trim())) { T.show(out, '<span class="warn">Isi & simpan API key dulu — atau pilih preset Pollinations (gratis, tanpa key) di atas.</span>'); return; }
     busy = true; segarkanTombol();
     history.length = 0;
     mulaiTahap();

@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.9.20';
+import { h as T, errBox } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "getcode", "name": "Get Code HTML", "cat": "developer", "icon": "💻", "desc": "Ambil & ekstrak source HTML dari URL mana pun.", "keywords": "html,source,kode,extract,view-source,scrape"};
 
@@ -8,11 +8,13 @@ export function render(root) {
   const readHist = () => { try { const l = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } };
   const pushHist = (rec) => { try { localStorage.setItem(HIST_KEY, JSON.stringify([rec].concat(readHist()).slice(0, 24))); } catch (e) {} };
 
+  // Rantai proxy: yang terverifikasi hidup didahulukan (Jina, CorsAnyway);
+  // AllOrigins terakhir karena flaky (522 berulang Sep–Okt 2026).
+  // CodeTabs DIHAPUS — shutdown 30 Jun 2026, mengembalikan 521/522.
   const ROUTES = [
-    { id: 'allorigins', label: 'AllOrigins', url: (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
     { id: 'jina', label: 'Jina Reader', url: (u) => 'https://r.jina.ai/' + u },
-    { id: 'codetabs', label: 'CodeTabs', url: (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u) },
     { id: 'corsanyway', label: 'CorsAnyway', url: (u) => 'https://cors-anyway.huskymobile.com/?' + u },
+    { id: 'allorigins', label: 'AllOrigins', url: (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
   ];
 
   /* ---- log ekstraksi ---- */

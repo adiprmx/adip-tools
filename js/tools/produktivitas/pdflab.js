@@ -1,6 +1,6 @@
-import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.9.20';
+import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.10.0';
 
-export const meta = {"id": "pdflab", "name": "PDF Lab", "cat": "produktivitas", "icon": "🧪", "desc": "Toolkit PDF lokal: gabung, pisah, watermark & lainnya.", "keywords": "pdf,merge,split,watermark,metadata,form,gabung"};
+export const meta = {"id": "pdflab", "name": "PDF Lab", "cat": "produktivitas", "icon": "🧪", "desc": "Toolkit PDF lokal: gabung, pisah, watermark & lainnya.", "keywords": "pdf,merge,split,watermark,metadata,form,gabung,kompres,compress"};
 
 export function render(root) {
 
@@ -549,10 +549,71 @@ export function render(root) {
     pForm.appendChild(T.row(bGo));
   }
 
-  const pages = [pOrg, pMerge, pSplit, pImg, pWm, pTx, pMeta, pForm];
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">8 operasi PDF langsung di perangkatmu — file tidak diupload ke mana pun.</p>'));
+  /* ============ TAB 9: Kompres ============ */
+  const pCompress = T.el('<div></div>');
+  {
+    const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
+    const qSel = T.select([['0.9', 'Hampir asli (0,9)'], ['0.8', 'Bagus (0,8)'], ['0.6', 'Sedang (0,6)'], ['0.5', 'Kecil (0,5)']], '0.6');
+    const sSel = T.select([['1', '72 dpi (kecil)'], ['1.5', '108 dpi (sedang)'], ['2', '144 dpi (tajam)']], '1.5');
+    const box = T.out();
+    const fmtSize = (n) => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(2) + ' MB';
+    const canvasToJpeg = (canvas, q) => new Promise((res, rej) => {
+      canvas.toBlob((b) => (b ? res(b) : rej(new Error('gagal encode JPEG'))), 'image/jpeg', q);
+    });
+    const bGo = T.btn('Kompres & Unduh', async () => {
+      const f = fi.files && fi.files[0];
+      if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
+      const ok = await needLib(); if (!ok) return;
+      const okJs = await ensurePdfJs();
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      T.show(box, '<span class="dim">Membaca PDF…</span>');
+      try {
+        const srcBytes = new Uint8Array(await f.arrayBuffer());
+        const src = await window.pdfjsLib.getDocument({ data: srcBytes.slice(0) }).promise;
+        const n = src.numPages;
+        // Kompres nyata = render ulang tiap halaman jadi JPEG lalu susun ulang.
+        // (pdf-lib saja tidak bisa mengompres — re-save tanpa render ulang
+        // tidak mengecilkan file secara berarti.)
+        const out = await window.PDFLib.PDFDocument.create();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const q = +qSel.value, scale = +sSel.value;
+        for (let i = 1; i <= n; i++) {
+          T.show(box, '<span class="dim">Memproses halaman ' + i + '/' + n + '…</span>');
+          const page = await src.getPage(i);
+          const vp1 = page.getViewport({ scale: 1 });
+          const vp = page.getViewport({ scale });
+          canvas.width = Math.max(1, Math.round(vp.width));
+          canvas.height = Math.max(1, Math.round(vp.height));
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          await page.render({ canvasContext: ctx, viewport: vp }).promise;
+          const blob = await canvasToJpeg(canvas, q);
+          const img = await out.embedJpg(new Uint8Array(await blob.arrayBuffer()));
+          const pg = out.addPage([vp1.width, vp1.height]);
+          pg.drawImage(img, { x: 0, y: 0, width: vp1.width, height: vp1.height });
+        }
+        const bytes = await out.save();
+        dlPdf(bytes, 'pdf-kompres.pdf');
+        const before = f.size, after = bytes.length;
+        const pct = Math.round((1 - after / before) * 100);
+        const msg = after < before
+          ? 'Berhasil: ' + fmtSize(before) + ' → ' + fmtSize(after) + ' (lebih kecil ' + pct + '%, ' + n + ' halaman).'
+          : 'Hasil ' + fmtSize(after) + ' vs asli ' + fmtSize(before) + ' — tidak lebih kecil (PDF aslinya sudah padat). File tetap terunduh; coba kualitas lebih rendah bila perlu.';
+        T.show(box, '<span class="ok">' + msg + '</span>');
+      } catch (e) { T.show(box, errBox('Gagal mengompres: ' + e.message)); }
+    }, true);
+    pCompress.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Perkecil ukuran PDF dengan me-render ulang tiap halaman jadi gambar JPEG lalu menyusunnya kembali. Teks tidak bisa dipilih lagi & kualitas turun sesuai pilihan — cocok untuk arsip/unggah, bukan untuk dokumen yang masih perlu diedit.</p>'));
+    pCompress.appendChild(fi);
+    pCompress.appendChild(T.grid2(T.field('Kualitas JPEG', qSel, 'Semakin kecil angkanya, semakin kecil file & semakin turun kualitasnya.'), T.field('Resolusi render', sSel, 'Resolusi lebih tinggi = teks lebih tajam, file lebih besar.')));
+    pCompress.appendChild(T.row(bGo));
+    pCompress.appendChild(box);
+  }
+
+  const pages = [pOrg, pMerge, pSplit, pImg, pWm, pTx, pMeta, pForm, pCompress];
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">9 operasi PDF langsung di perangkatmu — file tidak diupload ke mana pun.</p>'));
   root.appendChild(tabs(
-    [['Atur', 0], ['Gabung', 1], ['Pisah', 2], ['Gambar→PDF', 3], ['Watermark', 4], ['Teks', 5], ['Metadata', 6], ['Form', 7]],
+    [['Atur', 0], ['Gabung', 1], ['Pisah', 2], ['Gambar→PDF', 3], ['Watermark', 4], ['Teks', 5], ['Metadata', 6], ['Form', 7], ['Kompres', 8]],
     pages
   ));
   pages.forEach((p) => root.appendChild(p));

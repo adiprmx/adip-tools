@@ -1,8 +1,10 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"aiimage","name":"AI Image","cat":"gambar","icon":"🎨","desc":"Generate & edit gambar AI pakai akun Puter milikmu.","keywords":"ai,gambar,generator,edit foto,puter,image"};
 
 const PUTER_SDK_URL = 'https://js.puter.com/v2/';
+const POLL_IMG = 'https://image.pollinations.ai/prompt/';
+const POLL_DIM = { '1:1': [1024, 1024], '3:4': [768, 1024], '4:3': [1024, 768], '9:16': [576, 1024], '16:9': [1024, 576] };
 const RATIOS = ['1:1', '3:4', '4:3', '9:16', '16:9'];
 const RATIO_WH = { '1:1': [1, 1], '3:4': [3, 4], '4:3': [4, 3], '9:16': [9, 16], '16:9': [16, 9] };
 const MAX_PROMPT = 2000;
@@ -210,7 +212,7 @@ export function render(root) {
     document.removeEventListener('keydown', escClose);
   });
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Generate, edit, dan pakai gambar referensi — <b>pakai akun Puter milikmu</b> (login gratis). Kuota AI dipotong dari akunmu sendiri, tidak disimpan di mana pun.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Generate, edit, dan pakai gambar referensi — <b>pakai akun Puter milikmu</b> (login gratis). Kuota AI dipotong dari akunmu sendiri, tidak disimpan di mana pun. Belum punya akun? Mode Generate bisa dicoba <b>gratis tanpa login</b> (kualitas standar).</p>'));
 
   /* ---------- Mode ---------- */
   const MODES = [['generate', 'Generate'], ['edit', 'Edit'], ['reference', 'Referensi'], ['multi', 'Multi (2-4)']];
@@ -436,6 +438,16 @@ export function render(root) {
   const genBtn = T.btn(labelGen.generate, () => jalan(), true);
   root.appendChild(T.el('<div style="height:8px"></div>'));
   root.appendChild(T.row(genBtn));
+
+  /* ---------- Jalur gratis (Pollinations, tanpa login Puter) ---------- */
+  // Muncul hanya bila user menekan generate padahal belum login Puter, dan hanya untuk mode Generate.
+  const gratisWrap = T.el('<div style="display:none;margin-top:8px"></div>');
+  const gratisBtn = T.btn('Generate gratis (tanpa login)', () => jalanGratis());
+  const gratisNote = T.el('<div class="dim" style="font-size:12px;margin-top:6px;line-height:1.6">Jalur gratis memakai model AI publik (Pollinations, kualitas standar) — tanpa akun, tanpa kuota. Hasilnya tidak sebagus model Puter, dan hanya untuk mode Generate (tanpa gambar referensi).</div>');
+  gratisWrap.appendChild(gratisBtn);
+  gratisWrap.appendChild(gratisNote);
+  root.appendChild(gratisWrap);
+
   root.appendChild(pesanBox);
 
   /* ---------- Hasil ---------- */
@@ -476,6 +488,7 @@ export function render(root) {
   function setMode(m) {
     if (busy || mode === m) { gambarMode(); return; }
     mode = m; qualityTerpilih = '';
+    gratisWrap.style.display = 'none';
     gambarMode(); gambarModel(); gambarSumber(); gambarQuality();
     pesan(m === 'generate' ? 'Tulis ide untuk membuat gambar baru.'
       : m === 'edit' ? 'Tambahkan satu gambar lalu tulis perubahan yang diinginkan.'
@@ -574,6 +587,19 @@ export function render(root) {
     const manual = modelManual.value.trim();
     let model = manual ? (catalogModel(manual) || { id: manual, maxRef: 4, qualities: [], defaultQuality: '' }) : catalogModel(modelTerpilih);
     if (!model) { pesan('Pilih model dulu.', 'err'); return; }
+    // Belum login Puter? Tawarkan jalur gratis (mode Generate saja) — tanpa memaksa login.
+    const masuk = await puter.refresh();
+    if (!masuk) {
+      if (mode !== 'generate') {
+        gratisWrap.style.display = 'none';
+        pesan('Mode ini butuh akun Puter. Hubungkan akunmu di atas, atau pindah ke mode Generate untuk jalur gratis.', 'err');
+        return;
+      }
+      gratisWrap.style.display = '';
+      pesan('Kamu belum login Puter. Tekan "Generate gratis" di bawah untuk membuat gambar tanpa login — atau hubungkan akun Puter di atas untuk kualitas lebih baik.', '');
+      return;
+    }
+    gratisWrap.style.display = 'none';
     await puter.need(async () => {
       busy = true; updateAksi();
       const token = ++genToken;
@@ -616,6 +642,41 @@ export function render(root) {
         if (alive && token === genToken) { busy = false; updateAksi(); }
       }
     });
+  }
+
+  // Jalur gratis tanpa login: Pollinations Image (model flux, kualitas standar).
+  // Hasil ditampilkan lewat alur hasil yang sama seperti jalur Puter (tampilHasil).
+  async function jalanGratis() {
+    if (busy || !alive) return;
+    const p = prompt.value.trim();
+    if (p.length < 3) { pesan('Tulis prompt sedikitnya 3 huruf.', 'err'); prompt.focus(); return; }
+    if (mode !== 'generate') { pesan('Jalur gratis hanya untuk mode Generate.', 'err'); return; }
+    busy = true; updateAksi();
+    const token = ++genToken;
+    pesan('Membuat gambar gratis… model publik sedang merender (bisa 30–60 detik).', '');
+    try {
+      const [w, h] = POLL_DIM[ratioTerpilih] || [1024, 1024];
+      const url = POLL_IMG + encodeURIComponent(p) + '?width=' + w + '&height=' + h + '&model=flux&seed=' + Math.floor(Math.random() * 1000000);
+      const c = new AbortController();
+      const t = setTimeout(() => c.abort(), 120000);
+      let blob;
+      try {
+        const r = await fetch(url, { signal: c.signal });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        blob = await r.blob();
+      } finally { clearTimeout(t); }
+      if (!blob.type.startsWith('image/')) throw new Error('bukan gambar');
+      if (!alive || token !== genToken) return;
+      lastPrompt = p;
+      tampilHasil(URL.createObjectURL(blob), blob);
+      pesan('Gambar gratis selesai dibuat (Pollinations, kualitas standar). Login Puter untuk kualitas lebih baik.', 'ok');
+    } catch (e) {
+      if (alive && token === genToken) {
+        pesan(e.name === 'AbortError' ? 'Pembuatan gambar gratis timeout — coba lagi.' : 'Gambar gratis gagal dibuat. Coba lagi beberapa saat, atau hubungkan akun Puter.', 'err');
+      }
+    } finally {
+      if (alive && token === genToken) { busy = false; updateAksi(); }
+    }
   }
 
   setMode('generate');

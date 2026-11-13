@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.9.20';
+import { h as T, utils, kv } from '../../core.js?v=6.10.0';
 
 export const meta = {
   id: 'kalkulator-emas',
@@ -10,13 +10,13 @@ export const meta = {
 };
 
 export function render(root) {
-  let harga = 1400000;
+  let harga = 2518000;
   try {
     const s = localStorage.getItem('kalkulator-emas-harga');
     if (s != null && T.num(s) > 0) harga = T.num(s);
   } catch (e) { /* abaikan */ }
 
-  const hargaI = T.input('text', 'cth: 1400000', String(harga));
+  const hargaI = T.input('text', 'cth: 2518000', String(harga));
   hargaI.inputMode = 'decimal';
 
   const modeSel = T.select([
@@ -74,7 +74,7 @@ export function render(root) {
   };
 
   root.appendChild(T.el('<p class="note">Mau nabung emas? Hitung dulu di sini — dari berat ke harga, atau dari budget ke berat. Biar nggak kaget di depan etalase.</p>'));
-  root.appendChild(T.field('Harga emas per gram (Rp)', hargaI, 'Default Rp1.400.000 — ganti sesuai harga hari ini.'));
+  root.appendChild(T.field('Harga emas per gram (Rp)', hargaI, 'Harga Antam 12 Nov 2026: Rp2.518.000/gram — ganti sesuai harga hari ini.'));
   root.appendChild(T.field('Mode hitung', modeSel));
   root.appendChild(wrapBerat);
   root.appendChild(wrapBudget);

@@ -1,46 +1,48 @@
-import { h as T, utils, kv } from '../../core.js?v=6.9.20';
+import { h as T, utils, kv } from '../../core.js?v=6.10.0';
 
-// Data UMP TAHUN 2025 (38 provinsi), diringkas dari berbagai sumber media.
+// Data UMP TAHUN 2026 (38 provinsi), sumber: Satudata Kemnaker
+// ("Upah Minimum Provinsi (UMP) Tahun 2026"), berlaku 1 Jan 2026 per PP 49/2025.
+// Dicek 12 Nov 2026. Catatan: Papua Tengah tidak naik dari 2025 (Rp4.285.848).
 // DISCLAIMER: angka resmi bisa berubah — selalu cek Disnaker setempat.
 const UMP = [
-  ['Aceh', 3685616],
-  ['Sumatera Utara', 2992559],
-  ['Sumatera Barat', 2994193],
-  ['Riau', 3508776],
-  ['Jambi', 3234535],
-  ['Sumatera Selatan', 3681571],
-  ['Bengkulu', 2670039],
-  ['Lampung', 2893070],
-  ['Kep. Bangka Belitung', 3876600],
-  ['Kep. Riau', 3623654],
-  ['DKI Jakarta', 5396761],
-  ['Jawa Barat', 2191232],
-  ['Jawa Tengah', 2169349],
-  ['DI Yogyakarta', 2264081],
-  ['Jawa Timur', 2305985],
-  ['Banten', 2905120],
-  ['Bali', 2996561],
-  ['Nusa Tenggara Barat', 2602931],
-  ['Nusa Tenggara Timur', 2328970],
-  ['Kalimantan Barat', 2878286],
-  ['Kalimantan Tengah', 3473621],
-  ['Kalimantan Selatan', 3496195],
-  ['Kalimantan Timur', 3579314],
-  ['Kalimantan Utara', 3580160],
-  ['Sulawesi Utara', 3775425],
-  ['Sulawesi Tengah', 2915000],
-  ['Sulawesi Selatan', 3657527],
-  ['Sulawesi Tenggara', 3073552],
-  ['Gorontalo', 3221731],
-  ['Sulawesi Barat', 3104430],
-  ['Maluku', 3141700],
-  ['Maluku Utara', 3408000],
-  ['Papua Barat', 3615000],
-  ['Papua', 4285850],
-  ['Papua Tengah', 4285850],
-  ['Papua Pegunungan', 4285850],
-  ['Papua Selatan', 4285848],
-  ['Papua Barat Daya', 3614000],
+  ['Aceh', 3932552],
+  ['Sumatera Utara', 3228949],
+  ['Sumatera Barat', 3182955],
+  ['Riau', 3780495],
+  ['Jambi', 3471497],
+  ['Sumatera Selatan', 3942963],
+  ['Bengkulu', 2827250],
+  ['Lampung', 3047734],
+  ['Kep. Bangka Belitung', 4035000],
+  ['Kep. Riau', 3879520],
+  ['DKI Jakarta', 5729876],
+  ['Jawa Barat', 2317601],
+  ['Jawa Tengah', 2327386],
+  ['DI Yogyakarta', 2417495],
+  ['Jawa Timur', 2446880],
+  ['Banten', 3100881],
+  ['Bali', 3207459],
+  ['Nusa Tenggara Barat', 2673861],
+  ['Nusa Tenggara Timur', 2455898],
+  ['Kalimantan Barat', 3054552],
+  ['Kalimantan Tengah', 3686138],
+  ['Kalimantan Selatan', 3725000],
+  ['Kalimantan Timur', 3762431],
+  ['Kalimantan Utara', 3775243],
+  ['Sulawesi Utara', 4002630],
+  ['Sulawesi Tengah', 3179565],
+  ['Sulawesi Selatan', 3921088],
+  ['Sulawesi Tenggara', 3306496],
+  ['Gorontalo', 3405144],
+  ['Sulawesi Barat', 3315934],
+  ['Maluku', 3334490],
+  ['Maluku Utara', 3510240],
+  ['Papua Barat', 3841000],
+  ['Papua', 4436283],
+  ['Papua Tengah', 4285848],
+  ['Papua Pegunungan', 4508714],
+  ['Papua Selatan', 4508100],
+  ['Papua Barat Daya', 3766000],
 ];
 
 export const meta = {
@@ -48,14 +50,14 @@ export const meta = {
   name: 'UMP per Provinsi',
   cat: 'indonesia',
   icon: '💵',
-  desc: 'Daftar UMP 2025 38 provinsi + bandingkan gajimu dengan UMP daerahmu.',
-  keywords: 'ump,gaji,upah minimum,provinsi,2025,buruh,pekerja',
+  desc: 'Daftar UMP 2026 38 provinsi + bandingkan gajimu dengan UMP daerahmu.',
+  keywords: 'ump,gaji,upah minimum,provinsi,2026,buruh,pekerja',
 };
 
 export function render(root) {
   root.appendChild(T.el(
-    '<p class="note"><b>Data UMP tahun 2025.</b> Tertinggi: DKI Jakarta ' + T.rp(5396761) +
-    ' · Terendah: Jawa Tengah ' + T.rp(2169349) + '.</p>'
+    '<p class="note"><b>Data UMP tahun 2026.</b> Tertinggi: DKI Jakarta ' + T.rp(5729876) +
+    ' · Terendah: Jawa Barat ' + T.rp(2317601) + '.</p>'
   ));
 
   // --- tabel searchable ---
@@ -72,7 +74,7 @@ export function render(root) {
     }
     let html = '<table style="width:100%;border-collapse:collapse;font-size:13.5px">' +
       '<tr><th style="text-align:left;padding:8px;border-bottom:1px solid #ffffff20">Provinsi</th>' +
-      '<th style="text-align:right;padding:8px;border-bottom:1px solid #ffffff20">UMP 2025</th></tr>';
+      '<th style="text-align:right;padding:8px;border-bottom:1px solid #ffffff20">UMP 2026</th></tr>';
     rows.forEach(([nama, v]) => {
       html += '<tr><td style="padding:8px;border-bottom:1px solid #ffffff10">' + T.esc(nama) +
         '</td><td style="padding:8px;border-bottom:1px solid #ffffff10;text-align:right;white-space:nowrap">' +
@@ -103,7 +105,7 @@ export function render(root) {
       '<p class="center">' + (diAtas ? 'Gajimu di ATAS UMP ' : 'Gajimu di BAWAH UMP ') + T.esc(nama) +
       ' (' + absPct + '%)</p>' +
       kv('Gajimu', T.rp(gaji)) +
-      kv('UMP ' + nama + ' 2025', T.rp(ump)) +
+      kv('UMP ' + nama + ' 2026', T.rp(ump)) +
       kv('Selisih', (diAtas ? '+' : '−') + T.rp(absSel)) +
       '<p class="hint">UMP itu batas MINIMUM untuk pekerja baru (masa kerja < 1 tahun). ' +
       (diAtas ? 'Selamat, gajimu sudah di atas standar minimum — tapi tetap layak diperjuangkan naik tiap tahun.'
@@ -120,7 +122,7 @@ export function render(root) {
   ));
   root.appendChild(T.row(T.btn('Bandingkan', banding, true)));
   root.appendChild(bandingBox);
-  root.appendChild(T.el('<p class="hint" style="margin-top:16px">⚠️ Angka UMP tiap tahun ditetapkan gubernur dan bisa berubah. Cek Disnaker setempat untuk angka terbaru & resmi — data di atas khusus tahun 2025.</p>'));
+  root.appendChild(T.el('<p class="hint" style="margin-top:16px">⚠️ Angka UMP tiap tahun ditetapkan gubernur dan bisa berubah. Cek Disnaker setempat untuk angka terbaru & resmi — data di atas khusus tahun 2026 (sumber: Satudata Kemnaker, PP 49/2025).</p>'));
 
   cari.addEventListener('input', gambarTabel);
   [provSel, gajiI].forEach((i) => i.addEventListener('input', banding));

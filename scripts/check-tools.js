@@ -71,6 +71,29 @@ async function main() {
   await import('../js/core.js');
   console.log('core.js import OK');
 
+  // 6. Semua ?v= cache-buster harus sama dengan VERSION manifest (gap 6:
+  //    ?v= basi = cache basi + instans modul core.js ganda). Regex hanya
+  //    menangkap ?v= diikuti angka x.y.z, jadi pola dinamis '?v=' + VERSION
+  //    di app.js:626 dan teks 'watch?v=' otomatis dilewati.
+  const stale = new Map(); // versi basi -> {count, files:Set}
+  const scanV = (file) => {
+    const src = fs.readFileSync(file, 'utf8');
+    for (const m of src.matchAll(/\?v=(\d+\.\d+\.\d+)/g)) {
+      if (m[1] === VERSION) continue;
+      const e = stale.get(m[1]) || { count: 0, files: new Set() };
+      e.count++;
+      e.files.add(path.relative(path.join(JS, '..'), file).replace(/\\/g, '/'));
+      stale.set(m[1], e);
+    }
+  };
+  filesOnDisk.forEach(scanV);
+  scanV(path.join(JS, '..', 'index.html'));
+  scanV(path.join(JS, 'app.js'));
+  for (const [v, e] of [...stale.entries()].sort()) {
+    errors.push(`?v= basi: ?v=${v} (${e.count}x di ${e.files.size} file, cth: ${[...e.files].slice(0, 3).join(', ')}) — VERSION=${VERSION}`);
+  }
+  console.log(`cek ?v=: ${stale.size ? [...stale.keys()].join(', ') + ' (BASI)' : 'semua sama dengan VERSION'}`);
+
   if (errors.length) {
     console.log('\n❌ KEGAGALAN:');
     errors.forEach((e) => console.log(' - ' + e));

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 /* text3d — "Animasi Teks 3D": 7 preset teks 3D (extrude, long shadow, offset)
    -> XML Alight Motion. 100% client-side. Struktur XML diselaraskan dengan tool

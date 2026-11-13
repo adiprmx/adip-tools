@@ -1,4 +1,4 @@
-import { h as T, kv, rp, num, fmt } from '../../core.js?v=6.9.20';
+import { h as T, kv, rp, num, fmt } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "biaya-bbm", "name": "Biaya BBM", "cat": "sehari", "icon": "⛽", "desc": "Estimasi biaya bensin untuk jarak tempuhmu.", "keywords": "bbm,bensin,biaya perjalanan,pertalite,pertamax,harga bensin,konsumsi"};
 
@@ -8,7 +8,7 @@ export function render(root) {
     const load = () => { try { return JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) { return {}; } };
     const saved = load();
 
-    const PRESET = [['10000', 'Pertalite — Rp10.000'], ['12400', 'Pertamax — Rp12.400'], ['14400', 'Pertamax Turbo — Rp14.400'], ['14550', 'Dexlite — Rp14.550'], ['custom', 'Custom — ketik sendiri']];
+    const PRESET = [['10000', 'Pertalite — Rp10.000'], ['15950', 'Pertamax — Rp15.950'], ['19600', 'Pertamax Turbo — Rp19.600'], ['23700', 'Dexlite — Rp23.700'], ['25200', 'Pertamina Dex — Rp25.200'], ['custom', 'Custom — ketik sendiri']];
     const jarakI = T.input('text', 'cth: 120', saved.jarak || '');
     const konI = T.input('text', 'cth: 45 (km/liter)', saved.kon || '');
     const sel = T.select(PRESET, saved.preset || '10000');
@@ -37,7 +37,7 @@ export function render(root) {
         kv('Harga per liter', rp(harga)) +
         kv('Konsumsi kendaraan', fmt(Math.round(kon * 10) / 10) + ' km/liter') +
         kv('Pulang-pergi (2× jarak)', rp(pp)) +
-        '<p class="hint">Harga kira-kira per Oktober 2026 — bisa berubah, sesuaikan sama harga di SPBU yang kamu datengin ya.</p>');
+        '<p class="hint">Harga acuan wilayah Jawa per November 2026 (berlaku sejak 2 September 2026, sumber: Pertamina/MyPertamina) — bisa berubah dan beda tiap daerah, sesuaikan sama harga di SPBU yang kamu datengin ya. Harga per liter di atas bisa diubah bebas.</p>');
     };
 
     root.appendChild(T.el('<p class="note">Mau jalan jauh? <b>Hitung dulu bensinnya</b> biar dompet nggak kaget di tengah jalan.</p>'));

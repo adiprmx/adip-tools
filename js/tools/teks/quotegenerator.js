@@ -1,4 +1,4 @@
-import { h as T, utils, errBox } from '../../core.js?v=6.9.20';
+import { h as T, utils, errBox } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "quotegenerator", "name": "Quote Generator", "cat": "teks", "icon": "💬", "desc": "Bikin gambar quote 736×917: teks justify + kata sorotan, render lokal.", "keywords": "quote,kutipan,gambar,canvas,sorotan,highlight"};
 

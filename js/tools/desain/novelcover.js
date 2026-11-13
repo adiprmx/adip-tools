@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"novelcover","name":"Novel Cover","cat":"desain","icon":"📕","desc":"Buat cover novel AI dari sinopsis + overlay judul.","keywords":"novel,cover,sampul,buku,ai,desain,puter"};
 
@@ -32,6 +32,7 @@ const FONT_FAM = {
   'sans-display': '"Arial Black", system-ui, sans-serif',
 };
 const FALLBACK_MODELS = ['openai/gpt-image-2.5-flare', 'openai/gpt-image-2', 'google/gemini-3.1-flash-image'];
+const POLL_IMG = 'https://image.pollinations.ai/prompt/';
 const ZONA_Y = { atas: 0.09, tengah: 0.38, bawah: 0.66 };
 
 // Susun rencana art direction lokal dari genre + teks (tanpa request AI).
@@ -190,6 +191,16 @@ export function render(root) {
     if (!judul.value.trim()) { setStatus('Isi dulu judul novelnya.', 'err'); judul.focus(); return; }
     if (s.length < 20) { setStatus('Sinopsis minimal 20 karakter agar AI punya bahan.', 'err'); sinopsis.focus(); return; }
     const n = parseInt(variasi.value, 10) || 1;
+    // Belum login Puter? Tawarkan jalur artwork gratis — tanpa memaksa login.
+    const masuk = await puter.refresh();
+    if (!masuk) {
+      gratisBtn.style.display = '';
+      gratisNote.style.display = '';
+      setStatus('Kamu belum login Puter. Tekan "Buat artwork gratis" untuk membuat cover tanpa login — atau hubungkan akun Puter di atas untuk kualitas lebih baik.', '');
+      return;
+    }
+    gratisBtn.style.display = 'none';
+    gratisNote.style.display = 'none';
     await puter.need(async () => {
       busy = true; genBtn.disabled = true; genBtn.textContent = 'AI Director sedang bekerja…';
       artworks = [];
@@ -241,6 +252,46 @@ export function render(root) {
       }
     });
   }, true);
+
+  // Jalur artwork gratis tanpa login: Pollinations Image (model flux, kualitas standar).
+  // Perencanaan art-direction lokal (buatRencana) tetap dipakai; hanya artwork-nya yang gratis.
+  // Referensi karakter tidak dipakai di jalur ini (Pollinations GET tidak menerima gambar input).
+  const gratisBtn = T.btn('Buat artwork gratis (tanpa login)', () => jalanGratis());
+  gratisBtn.style.display = 'none';
+  const gratisNote = T.el('<div class="dim" style="font-size:12px;margin-top:4px;line-height:1.6;display:none">Jalur gratis memakai model AI publik (Pollinations, kualitas standar) — tanpa akun Puter. Referensi karakter tidak dipakai di jalur gratis.</div>');
+  async function jalanGratis() {
+    if (busy) return;
+    const s = sinopsis.value.trim();
+    if (!judul.value.trim()) { setStatus('Isi dulu judul novelnya.', 'err'); judul.focus(); return; }
+    if (s.length < 20) { setStatus('Sinopsis minimal 20 karakter agar AI punya bahan.', 'err'); sinopsis.focus(); return; }
+    const n = parseInt(variasi.value, 10) || 1;
+    busy = true; genBtn.disabled = true; gratisBtn.disabled = true;
+    artworks = [];
+    planAktif = arahAI || buatRencana(genre.value, s, karakter.value.trim());
+    try {
+      const prompt = promptArtwork(genre.value, s, karakter.value.trim(), planAktif, arahanTambahan.value.trim());
+      for (let i = 0; i < n; i++) {
+        setStatus('Menggambar gratis ' + (i + 1) + '/' + n + '… model publik sedang merender (bisa 30–60 detik).', '');
+        const url = POLL_IMG + encodeURIComponent(prompt) + '?width=768&height=1152&model=flux&seed=' + Math.floor(Math.random() * 1000000);
+        const c = new AbortController();
+        const t = setTimeout(() => c.abort(), 120000);
+        let blob;
+        try {
+          const r = await fetch(url, { signal: c.signal });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          blob = await r.blob();
+        } finally { clearTimeout(t); }
+        if (!blob.type.startsWith('image/')) throw new Error('bukan gambar');
+        artworks.push({ src: URL.createObjectURL(blob), model: 'Pollinations (gratis, kualitas standar)' });
+      }
+      setStatus('Artwork gratis siap. Typography dan hierarchy sudah dipasang otomatis.', 'ok');
+      paintHasil();
+    } catch (e) {
+      setStatus(e.name === 'AbortError' ? 'Pembuatan artwork gratis timeout — coba lagi.' : 'Artwork gratis gagal dibuat. Coba lagi beberapa saat, atau hubungkan akun Puter.', 'err');
+    } finally {
+      busy = false; genBtn.disabled = false; gratisBtn.disabled = false;
+    }
+  }
 
   // Pakai artwork sendiri (tanpa AI) — director tetap memasang tipografi.
   const artSendiri = document.createElement('input');
@@ -298,7 +349,8 @@ export function render(root) {
   root.appendChild(T.field('Referensi karakter (opsional)', refInp, 'JPG/PNG/WebP maks 4 MB — karakter di cover mengikuti referensi.'));
   root.appendChild(refInfo);
   root.appendChild(T.field('Arahan tambahan (opsional)', arahanTambahan));
-  root.appendChild(T.row(genBtn, artSendiriBtn));
+  root.appendChild(T.row(genBtn, gratisBtn, artSendiriBtn));
+  root.appendChild(gratisNote);
   root.appendChild(artSendiri);
   root.appendChild(statusBox);
   root.appendChild(hasilBox);

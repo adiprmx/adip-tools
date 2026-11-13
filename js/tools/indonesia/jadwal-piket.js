@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "jadwal-piket", "name": "Jadwal Piket", "cat": "indonesia", "icon": "🧹", "desc": "Rotasi piket harian: pilih hari aktif, tampilkan jadwal 2 minggu ke depan.", "keywords": "piket,jadwal,bersih,sekolah,kantor,giliran,rotasi,hari"};
 export function render(root) {

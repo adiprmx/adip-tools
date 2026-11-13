@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.9.20';
+import { h as T, utils, esc } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "decision", "name": "Pengacak Keputusan", "cat": "fun", "icon": "🔮", "desc": "Bantu ambil keputusan.", "keywords": "keputusan,acak,pilih,random"};
 export function render(root) {

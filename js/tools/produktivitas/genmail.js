@@ -1,8 +1,12 @@
-import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas", "icon": "📧", "desc": "Email sementara: buat alamat, terima & baca pesan tanpa daftar.", "keywords": "temp mail,email sementara,inbox,otp,spam,guerrillamail"};
 
 const API = 'https://api.guerrillamail.com/ajax.php';
+// Cadangan bila fetch langsung diblokir browser (CORS Guerrilla Mail
+// diperdebatkan — getfreeapis bilang tanpa header CORS, publicapis.io bilang
+// ada). CorsAnyway terverifikasi hidup; dipakai hanya bila langsung gagal.
+const PROXY_CA = 'https://cors-anyway.huskymobile.com/?';
 const AGENT = 'adip-tools-tempmail';
 const EXPIRY_MS = 60 * 60 * 1000; // alamat GuerrillaMail kedaluwarsa ±60 menit
 const REQ_TIMEOUT = 14000; // timeout tiap request, mengikuti acuan alur asli
@@ -11,7 +15,9 @@ const q = (p) => Object.entries(p).map(([k, v]) => encodeURIComponent(k) + '=' +
 
 let ctl = null;
 
-// API call dengan AbortController + timeout 14 detik.
+// API call dengan AbortController + timeout 14 detik (satu anggaran waktu
+// untuk kedua percobaan). Coba fetch langsung dulu; bila gagal karena
+// jaringan/CORS, coba sekali lagi lewat proxy CorsAnyway.
 // AbortError karena timeout dilempar sebagai Error biasa agar bisa ditampilkan;
 // AbortError lain (pindah tool / request baru) tetap silent di caller.
 async function api(params) {
@@ -20,13 +26,30 @@ async function api(params) {
   const my = ctl;
   let timedOut = false;
   const t = setTimeout(() => { timedOut = true; my.abort(); }, REQ_TIMEOUT);
-  try {
-    const r = await fetch(API + '?' + q(params), { signal: my.signal });
+  const target = API + '?' + q(params);
+  const sekali = async (url) => {
+    const r = await fetch(url, { signal: my.signal });
     if (!r.ok) throw new Error('http ' + r.status);
     return await r.json();
+  };
+  try {
+    return await sekali(target);
   } catch (e) {
-    if (e.name === 'AbortError' && timedOut) throw new Error('timeout 14 detik — server tidak merespons, coba lagi');
-    throw e;
+    if (e.name === 'AbortError') {
+      if (timedOut) throw new Error('timeout 14 detik — server tidak merespons, coba lagi');
+      throw e;
+    }
+    // Fetch langsung gagal (kemungkinan diblokir CORS oleh browser) —
+    // coba sekali lagi lewat proxy publik.
+    try {
+      return await sekali(PROXY_CA + target);
+    } catch (e2) {
+      if (e2.name === 'AbortError') {
+        if (timedOut) throw new Error('timeout 14 detik — server tidak merespons, coba lagi');
+        throw e2;
+      }
+      throw new Error('tidak bisa terhubung ke Guerrilla Mail — kemungkinan diblokir browser (CORS) dan proxy cadangan juga gagal. Coba buka guerrillamail.com langsung di tab baru');
+    }
   } finally {
     clearTimeout(t);
   }

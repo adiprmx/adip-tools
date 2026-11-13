@@ -1,8 +1,11 @@
-import { h as T, utils, imglyRemoval } from '../../core.js?v=6.9.20';
+import { h as T, utils, imglyRemoval } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "removebg", "name": "Remove BG", "cat": "gambar", "icon": "🪄", "desc": "Hapus background foto otomatis, 100% di perangkat.", "keywords": "hapus background,remove bg,transparan,foto,produk"};
 
 const MAX_FILE = 12 * 1024 * 1024;
+// Rantai ambil gambar dari URL: langsung → CorsAnyway → AllOrigins (terakhir,
+// flaky). Jina TIDAK dipakai: ia mengembalikan teks/markdown, bukan biner gambar.
+const PROXY_CA = 'https://cors-anyway.huskymobile.com/?';
 const ALLORIGINS = 'https://api.allorigins.win/raw?url=';
 
 /** Validasi magic byte (tanpa DOM — bisa diuji). Return 'png'|'jpg'|'webp'|null. */
@@ -85,7 +88,7 @@ export function render(root) {
     if (!/^https?:\/\//i.test(u)) { T.show(out, '<span class="err">URL harus diawali http(s)://</span>'); return; }
     T.show(out, '<span class="dim">Mengambil gambar…</span>');
     let blob = null;
-    for (const cand of [u, ALLORIGINS + encodeURIComponent(u)]) {
+    for (const cand of [u, PROXY_CA + u, ALLORIGINS + encodeURIComponent(u)]) {
       try {
         const r = await withTimeout(fetch(cand), 25000, 'timeout-url');
         if (!r.ok) continue;
@@ -94,7 +97,7 @@ export function render(root) {
         if (magicType(head)) { blob = b; break; }
       } catch (e) { /* coba berikutnya */ }
     }
-    if (!blob) { T.show(out, '<span class="err">Gagal mengambil gambar dari URL itu.</span>'); return; }
+    if (!blob) { T.show(out, '<span class="err">Gagal mengambil gambar dari URL itu — situsnya mungkin memblokir pengambilan dari luar, atau semua proxy sedang sibuk. Coba unduh gambarnya dulu lalu upload dari perangkat.</span>'); return; }
     st.fname = 'hasil-url';
     process(blob, URL.createObjectURL(blob));
   }

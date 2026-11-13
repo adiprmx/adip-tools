@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "animegallery", "name": "Anime Discover", "cat": "fun", "icon": "🖼️", "desc": "Jelajah ilustrasi & GIF reaksi anime SFW dari Waifu.im & NEKOSBEST.", "keywords": "anime,waifu,neko,ilustrasi,reaction,gif,sfw"};
 

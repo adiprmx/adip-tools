@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.9.20';
+import { h as T, utils, errBox, kv } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "jadwal-sholat", "name": "Jadwal Sholat", "cat": "liveapi", "icon": "🕌", "desc": "Jadwal sholat harian per kota + countdown ke waktu berikutnya.", "keywords": "jadwal,sholat,shalat,waktu,subuh,dzuhur,ashar,maghrib,isya,kota,adzan"};
 export function render(root) {

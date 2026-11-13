@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.20';
+import { h as T } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "denda-pajak", "name": "Kalkulator Denda Pajak", "cat": "bisnis", "icon": "🧾", "desc": "Estimasi denda telat lapor & bayar pajak.", "keywords": "pajak,denda,spt,telat", "file": "tools/bisnis/denda-pajak.js"};
 
@@ -11,9 +11,8 @@ export function render(root) {
   ], 'spt-op');
 
   const masaDenda = T.select([
-    ['100000', 'Rp100.000 (denda SPT Masa ringan)'],
-    ['200000', 'Rp200.000'],
-    ['500000', 'Rp500.000 (denda SPT Masa maks)']
+    ['100000', 'Rp100.000 (SPT Masa lainnya)'],
+    ['500000', 'Rp500.000 (SPT Masa PPN)']
   ], '100000');
 
   const pokok = T.input('text', 'cth: 5000000');
@@ -60,7 +59,8 @@ export function render(root) {
     }
     const p = T.num(pokok.value);
     const b = T.num(persen.value);
-    const m = T.num(bulan.value);
+    const mRaw = T.num(bulan.value);
+    const m = Math.min(mRaw, 24);
     if (p <= 0) { T.show(box, '<p class="warn">Isi pokok pajak dulu (angka > 0).</p>'); return; }
     if (b < 0) { T.show(box, '<p class="warn">Persen bunga tidak boleh negatif.</p>'); return; }
     if (m <= 0) { T.show(box, '<p class="warn">Isi jumlah bulan telat (angka > 0).</p>'); return; }
@@ -68,12 +68,13 @@ export function render(root) {
     const total = p + denda;
     T.show(box,
       '<p class="mut" style="font-size:13px">Jenis pelanggaran</p>' +
-      '<div class="big" style="font-size:15px">Telat bayar / setor — bunga ' + T.esc(bulan.value) + ' bulan × ' + T.esc(persen.value) + '%</div>' +
+      '<div class="big" style="font-size:15px">Telat bayar / setor — bunga ' + T.esc(String(m)) + ' bulan × ' + T.esc(persen.value) + '%</div>' +
       '<table style="width:100%;font-size:14px;margin-top:8px;border-collapse:collapse">' +
       '<tr><td style="padding:4px 0">Pokok pajak</td><td style="text-align:right">' + T.rp(p) + '</td></tr>' +
       '<tr><td style="padding:4px 0">Bunga (' + T.esc(String(b)) + '% × ' + T.esc(String(m)) + ' bulan)</td><td style="text-align:right">' + T.rp(denda) + '</td></tr>' +
       '<tr><td style="padding:4px 0;border-top:1px solid #ffffff20;font-weight:700">Total bayar</td><td style="text-align:right;font-weight:700">' + T.rp(total) + '</td></tr>' +
       '</table>' +
+      (mRaw > 24 ? '<p class="mut" style="font-size:12px;margin-top:8px">Bulan telat dibatasi 24 bulan — bunga sanksi pajak maksimal 24 bulan (UU KUP).</p>' : '') +
       '<p class="mut" style="font-size:12px;margin-top:8px">Estimasi, bukan ketentuan resmi.</p>');
   };
 
@@ -87,7 +88,7 @@ export function render(root) {
   wrapMasa.appendChild(T.field('Besaran denda SPT Masa', masaDenda));
   wrapBayar.appendChild(T.field('Pokok pajak (Rp)', pokok));
   wrapBayar.appendChild(T.field('Bunga per bulan (%)', persen));
-  wrapBayar.appendChild(T.field('Jumlah bulan telat', bulan));
+  wrapBayar.appendChild(T.field('Jumlah bulan telat', bulan, 'Maksimal 24 bulan.'));
 
   root.appendChild(T.field('Jenis pelanggaran', jenis, 'Denda telat lapor mengacu pada tarif UU KUP.'));
   root.appendChild(wrapMasa);

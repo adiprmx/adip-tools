@@ -1,11 +1,12 @@
-import { h as T, utils, kv } from '../../core.js?v=6.9.20';
+import { h as T, utils, kv } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "cek-operator", "name": "Cek Operator", "cat": "indonesia", "icon": "📱", "desc": "Masukkan nomor HP, langsung tahu operatornya dari prefix-nya.", "keywords": "operator,telkomsel,indosat,xl,tri,smartfren,prefix,nomor hp,cek operator"};
 
 const OPERATORS = [
-  { name: 'Telkomsel', color: '#ef4444', prefixes: ['0811','0812','0813','0821','0822','0823','0852','0853'] },
+  { name: 'Telkomsel', color: '#ef4444', prefixes: ['0811','0812','0813','0821','0822','0823','0851','0852','0853','0854'] },
   { name: 'Indosat', color: '#f59e0b', prefixes: ['0814','0815','0816','0855','0856','0857','0858'] },
   { name: 'XL', color: '#22c55e', prefixes: ['0817','0818','0819','0859','0877','0878'] },
+  { name: 'AXIS', color: '#ec4899', prefixes: ['0831','0832','0833','0838'] },
   { name: 'Tri', color: '#a855f7', prefixes: ['0895','0896','0897','0898','0899'] },
   { name: 'Smartfren', color: '#3b82f6', prefixes: ['0881','0882','0883','0884','0885','0886','0887','0888','0889'] },
 ];
@@ -39,9 +40,11 @@ export function render(root) {
       return d;
     };
     const detect = (d) => {
-      const p4 = d.slice(0, 4);
+      // norm() membuang angka 0 depan, jadi prefix 4 digit = '0' + 3 digit pertama
+      const p4 = '0' + d.slice(0, 3);
       return OPERATORS.find((o) => o.prefixes.includes(p4)) || null;
     };
+    const prefixOf = (d) => '0' + d.slice(0, 3);
     const cek = () => {
       const d = norm(inp.value);
       if (!d) { T.show(box, '<p class="warn">Nomornya kurang lengkap — formatnya kayak 0812xxxxxxx.</p>'); return; }
@@ -51,14 +54,14 @@ export function render(root) {
         T.show(box,
           kv('Nomor (ternormalisasi)', '<b>' + T.esc(f62) + '</b>') +
           kv('Operator', '<b>Operator tidak dikenal</b>') +
-          '<p class="hint">Prefix ' + T.esc(d.slice(0, 4)) + ' belum terdaftar di tabel kami. Bisa jadi nomor baru atau nomor khusus.</p>' +
+          '<p class="hint">Prefix ' + T.esc(prefixOf(d)) + ' belum terdaftar di tabel kami. Bisa jadi nomor baru atau nomor khusus.</p>' +
           '<div style="margin-top:8px">' + T.copyBtn(() => f62, 'Salin +62') + '</div>');
         return;
       }
       T.show(box,
         kv('Nomor (ternormalisasi)', '<b>' + T.esc(f62) + '</b>') +
         kv('Operator', '<b style="color:' + op.color + '">' + T.esc(op.name) + '</b>') +
-        kv('Prefix', T.esc(d.slice(0, 4))) +
+        kv('Prefix', T.esc(prefixOf(d))) +
         '<div style="margin-top:8px">' + T.row(T.copyBtn(() => f62, 'Salin +62'), saveBtn) + '</div>');
     };
     inp.addEventListener('input', cek);
@@ -72,7 +75,7 @@ export function render(root) {
         hist.map((x) => '<div class="kv"><span class="k">' + T.esc(x.no) + '</span><span class="v">' + T.esc(x.op) + '</span></div>').join(''));
     };
 
-    root.appendChild(T.el('<p class="note">Ngetik nomor, langsung kelihatan dia Telkomsel, Indosat, XL, Tri, atau Smartfren — dari prefix-nya.</p>'));
+    root.appendChild(T.el('<p class="note">Ngetik nomor, langsung kelihatan dia Telkomsel (termasuk by.U), Indosat, XL, AXIS, Tri, atau Smartfren — dari prefix-nya.</p>'));
     root.appendChild(T.field('Nomor HP', inp, 'Bisa 08xx, 62xx, atau +62xx'));
     root.appendChild(box);
     root.appendChild(histBox);

@@ -1,28 +1,153 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 /* textvector — "Text to Vector": teks -> path vektor -> XML Alight Motion + preview SVG.
-   100% lokal: trace dari glyph yang dirender browser (marching squares +
-   Chaikin smoothing), tanpa font file.
+   Dua mode:
+   - Presisi (default): parse data font via opentype.js -> kurva Bezier sejati
+     dari outline glyph (seperti rujukan). Butuh internet sekali untuk mengunduh
+     parser + file font (Fontsource, sumber yang sama dengan Google Fonts).
+     Subset Latin saja; karakter non-Latin kembali ke trace per item.
+   - Kompatibilitas: trace dari glyph yang dirender browser (marching squares +
+     Chaikin smoothing), 100% lokal tanpa unduhan. Dipakai bila mode presisi
+     gagal dimuat, atau bila user memilihnya.
    Setia pada rujukan (all-tools-nexora, izin Developer Dika) sebatas yang bisa
    dicapai clean-room: contourMode (AM Fix A/B/Original) menormalkan arah
    winding berdasar kedalaman nesting; lubang kontur jadi <contour
    exclude="true"/>; struktur <shape> + <path-stroke> ala XML Alight Motion;
    auto-fit teks ke kanvas 1080 dengan padding; multi-baris; urutan layer
-   dibalik; default parameter disamakan.
-   Gap jujur: rujukan memakai OpenType outlining (parse binary TTF via
-   opentype.js di Web Worker -> kurva Bezier sejati dari data font). Itu butuh
-   binary font + parser di luar satu file tool, jadi tidak bisa ditiru di sini;
-   hasil kita adalah aproksimasi trace dari raster glyph. */
+   dibalik; default parameter disamakan. */
 const AL = utils.alight;
 
 export const meta = {
   id: 'textvector', name: 'Teks ke Vektor', cat: 'desain', icon: '🔷',
-  desc: 'Ubah teks menjadi path vektor → XML Alight Motion (shape + contour, 100% lokal).',
+  desc: 'Ubah teks menjadi path vektor → XML Alight Motion (kurva Bézier presisi dari data font, atau trace lokal).',
   keywords: 'teks,vektor,path,alight motion,xml,trace,outline,contour',
 };
 
 const FONTS = ['Poppins', 'Inter', 'Exo', 'Lexend', 'Montserrat', 'Plus Jakarta Sans'];
 const WEIGHTS = [['300', 'Light'], ['400', 'Regular'], ['500', 'Medium'], ['600', 'Semi Bold'], ['700', 'Bold'], ['800', 'Extra Bold'], ['900', 'Black']];
+
+/* ---- Mode presisi: outline font via opentype.js (kurva Bezier sejati) ----
+   Parser: opentype.js 1.3.4 (pin; diverifikasi ada di jsDelivr 12 Nov 2026 —
+   1.3.5 adalah rilis prerelease 2.0.0 yang salah label, jadi dihindari).
+   Data font: paket Fontsource @5.3.0 (sumber yang sama dengan Google Fonts,
+   instance statis per weight) format WOFF v1 — opentype.js bisa parse WOFF,
+   tapi TIDAK bisa WOFF2, jadi file .woff yang dipakai, bukan .woff2.
+   URL TTF fonts.gstatic.com tidak bisa disusun langsung (hash acak di path;
+   API css2 mengembalikan WOFF2 ke browser) — Fontsource adalah jalur yang
+   terverifikasi untuk file statis per weight.
+   Plus Jakarta Sans hanya punya weight 200–800 (tidak ada 900) → 900 dipetakan
+   ke 800. Subset latin saja: karakter non-Latin kembali ke trace per item. */
+const OT_CDN = 'https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js';
+const FS_VER = '5.3.0';
+const FONT_PKG = { Poppins: 'poppins', Inter: 'inter', Exo: 'exo', Lexend: 'lexend', Montserrat: 'montserrat', 'Plus Jakarta Sans': 'plus-jakarta-sans' };
+const FONT_MAX_WEIGHT = { 'Plus Jakarta Sans': 800 };
+export function precisionFontUrl(font, weight) {
+  const slug = FONT_PKG[font];
+  if (!slug) return null;
+  const w = Math.max(100, Math.min(FONT_MAX_WEIGHT[font] || 900, +weight || 400));
+  return 'https://cdn.jsdelivr.net/npm/@fontsource/' + slug + '@' + FS_VER + '/files/' + slug + '-latin-' + w + '-normal.woff';
+}
+const _fontCache = new Map();
+let _otPromise = null;
+function ensureOpentype() {
+  if (typeof window !== 'undefined' && window.opentype) return Promise.resolve(window.opentype);
+  if (!_otPromise) {
+    _otPromise = T.loadScript(OT_CDN).then((ok) => {
+      if (!ok || typeof window === 'undefined' || !window.opentype) throw new Error('gagal memuat opentype.js');
+      return window.opentype;
+    }).catch((e) => { _otPromise = null; throw e; });
+  }
+  return _otPromise;
+}
+export async function loadPrecisionFont(font, weight) {
+  const url = precisionFontUrl(font, weight);
+  if (!url) throw new Error('font tidak tersedia di mode presisi');
+  if (_fontCache.has(url)) return _fontCache.get(url);
+  const ot = await ensureOpentype();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('font gagal diunduh (HTTP ' + res.status + ')');
+  const parsed = ot.parse(await res.arrayBuffer());
+  _fontCache.set(url, parsed);
+  return parsed;
+}
+function otHasGlyphs(font, text) {
+  for (const ch of text) {
+    let gi;
+    try { gi = typeof font.charToGlyphIndex === 'function' ? font.charToGlyphIndex(ch) : (font.charToGlyph(ch) || {}).index; }
+    catch (e) { return false; }
+    if (!gi) return false;
+  }
+  return true;
+}
+/* Pisah path opentype jadi subpath per kontur (tiap 'M' = kontur baru). */
+export function otSubpaths(font, text, fontSize) {
+  const path = font.getPath(text, 0, 0, fontSize);
+  const subs = [];
+  let cur = null;
+  for (const c of path.commands || []) {
+    if (c.type === 'M') { cur = [c]; subs.push(cur); }
+    else if (cur) cur.push(c);
+  }
+  return subs.filter((s) => s.length > 1);
+}
+/* Ratakan kurva jadi poligon (hanya untuk klasifikasi lubang & bbox —
+   output tetap memakai kurva aslinya). */
+export function otFlattenCmds(cmds, segs) {
+  const pts = [];
+  let cx = 0, cy = 0;
+  const n = Math.max(2, segs || 8);
+  for (const c of cmds) {
+    if (c.type === 'M' || c.type === 'L') { cx = c.x; cy = c.y; pts.push([cx, cy]); }
+    else if (c.type === 'Q') {
+      for (let i = 1; i <= n; i++) {
+        const t = i / n, u = 1 - t;
+        pts.push([u * u * cx + 2 * u * t * c.x1 + t * t * c.x, u * u * cy + 2 * u * t * c.y1 + t * t * c.y]);
+      }
+      cx = c.x; cy = c.y;
+    } else if (c.type === 'C') {
+      for (let i = 1; i <= n; i++) {
+        const t = i / n, u = 1 - t;
+        pts.push([u * u * u * cx + 3 * u * u * t * c.x1 + 3 * u * t * t * c.x2 + t * t * t * c.x,
+          u * u * u * cy + 3 * u * u * t * c.y1 + 3 * u * t * t * c.y2 + t * t * t * c.y]);
+      }
+      cx = c.x; cy = c.y;
+    }
+  }
+  return pts;
+}
+export function otCmdsToD(cmds, dx, dy) {
+  const f = (n) => (+n).toFixed(2);
+  let d = '';
+  for (const c of cmds) {
+    if (c.type === 'M') d += 'M' + f(c.x + dx) + ' ' + f(c.y + dy);
+    else if (c.type === 'L') d += 'L' + f(c.x + dx) + ' ' + f(c.y + dy);
+    else if (c.type === 'Q') d += 'Q' + f(c.x1 + dx) + ' ' + f(c.y1 + dy) + ' ' + f(c.x + dx) + ' ' + f(c.y + dy);
+    else if (c.type === 'C') d += 'C' + f(c.x1 + dx) + ' ' + f(c.y1 + dy) + ' ' + f(c.x2 + dx) + ' ' + f(c.y2 + dy) + ' ' + f(c.x + dx) + ' ' + f(c.y + dy);
+    else if (c.type === 'Z') d += 'Z';
+  }
+  return d;
+}
+/* Balik arah kontur Bezier (untuk normalisasi winding amFixA/B):
+   segmen dibalik urutannya, titik kontrol kubik ditukar. */
+export function otReverseCmds(cmds) {
+  const list = [];
+  let px = cmds[0].x, py = cmds[0].y;
+  for (let i = 1; i < cmds.length; i++) {
+    const c = cmds[i];
+    if (c.type === 'Z') continue;
+    list.push({ c, x0: px, y0: py });
+    px = c.x; py = c.y;
+  }
+  const out = [{ type: 'M', x: px, y: py }];
+  for (let i = list.length - 1; i >= 0; i--) {
+    const { c, x0, y0 } = list[i];
+    if (c.type === 'L') out.push({ type: 'L', x: x0, y: y0 });
+    else if (c.type === 'Q') out.push({ type: 'Q', x1: c.x1, y1: c.y1, x: x0, y: y0 });
+    else if (c.type === 'C') out.push({ type: 'C', x1: c.x2, y1: c.y2, x2: c.x1, y2: c.y1, x: x0, y: y0 });
+  }
+  out.push({ type: 'Z' });
+  return out;
+}
 
 /* ---- Geometri bantu (clean-room) ---- */
 function signedArea(p) {
@@ -55,12 +180,12 @@ function fixContours(polys, mode) {
     for (const s of info) { if (s !== r && Math.abs(s.area) > Math.abs(r.area) && pip(r.c, s.p)) d++; }
     return { ...r, hole: d % 2 === 1 };
   });
-  if (mode === 'original') return rows;
+  if (mode === 'original') return rows.map((r) => ({ ...r, reversed: false }));
   return rows.map((r) => {
     const wantPositive = mode === 'amFixB' ? r.hole : !r.hole;
-    if ((r.area > 0) === wantPositive) return r;
+    if ((r.area > 0) === wantPositive) return { ...r, reversed: false };
     const p = r.p.slice().reverse();
-    return { ...r, p, area: signedArea(p) };
+    return { ...r, p, area: signedArea(p), reversed: true };
   });
 }
 function polyToD(poly) {
@@ -87,7 +212,11 @@ function shapeLayer(o) {
     '\n  </shape>';
 }
 
-export function generate(o) {
+/* otFont (opsional): font opentype.js yang sudah di-parse. Bila ada, tiap item
+   dicoba jalur presisi dulu (outline font); item yang hurufnya tidak ada di
+   font, atau bila outline gagal, kembali ke trace raster per item. */
+export function generate(o, otFont) {
+  const ot = otFont || null;
   const text = String(o.text || '').replace(/\r/g, '').trim();
   if (!text) throw new Error('Teks masih kosong — isi dulu teksnya.');
   if (typeof document === 'undefined') throw new Error('Vektorisasi butuh browser (canvas).');
@@ -109,7 +238,10 @@ export function generate(o) {
     const parts = o.mode === 'word' ? String(ln).split(/(\s+)/).filter((p) => p && !/^\s+$/.test(p)) : [...ln];
     return parts.filter((s) => s.trim().length);
   });
-  const measured = lineItems.map((items) => items.map((s) => mctx.measureText(s).width));
+  const measured = lineItems.map((items) => items.map((s) => {
+    if (ot) { try { return ot.getAdvanceWidth(s, size); } catch (e) { /* jatuh ke canvas */ } }
+    return mctx.measureText(s).width;
+  }));
   const lineGap = size * 1.2;
   const widths = measured.map((ws) => ws.reduce((a, b) => a + b, 0) + spacing * Math.max(0, ws.length - 1));
   const blockW = Math.max(1, ...widths);
@@ -119,9 +251,52 @@ export function generate(o) {
   const fs = Math.max(8, size * fit);
   const gap = fs * 1.2;
 
-  // Pass 2: raster -> trace -> perbaiki kontur -> smooth -> posisikan.
+  // Pass 2: per item — presisi (outline font) bila memungkinkan, sisanya trace.
   const f2 = fontCss(fs);
   const shapes = [];
+  let nPrecise = 0, nTraced = 0;
+  const bboxOf = (rows) => {
+    let x1 = 1e9, y1 = 1e9, x2 = -1e9, y2 = -1e9;
+    rows.forEach((row) => row.p.forEach((p) => {
+      if (p[0] < x1) x1 = p[0]; if (p[1] < y1) y1 = p[1];
+      if (p[0] > x2) x2 = p[0]; if (p[1] > y2) y2 = p[1];
+    }));
+    return [(x1 + x2) / 2, (y1 + y2) / 2];
+  };
+  const traceItem = (s, itemCx, by) => {
+    const r = AL.rasterizeChar(s, f2, fs, rpad);
+    if (!r) return null;
+    const polys = AL.traceContours(r.mask, r.w, r.h, 128);
+    if (!polys.length) return null;
+    const dx = itemCx - rpad - 2, dy = by - (rpad + 2 + fs);
+    const fixed = fixContours(polys, contourMode);
+    const moved = fixed.map((row) => {
+      const pts = row.p.map((p) => [p[0] + dx, p[1] + dy]);
+      return { ...row, p: smooth ? AL.chaikin(pts) : pts };
+    });
+    const [ccx, ccy] = bboxOf(moved);
+    return {
+      x: ccx, y: ccy,
+      contours: moved.map((row) => ({ d: polyToD(row.p.map((p) => [p[0] - ccx, p[1] - ccy])), exclude: row.hole })),
+    };
+  };
+  const preciseItem = (s, itemCx, by) => {
+    const subs = otSubpaths(ot, s, fs);
+    if (!subs.length) return null;
+    // Klasifikasi lubang + winding memakai poligon hasil ratakan kurva;
+    // output memakai perintah Bezier aslinya (dibalik bila winding dibalik).
+    const polys = subs.map((cmds) => otFlattenCmds(cmds, 12).map((p) => [p[0] + itemCx, p[1] + by]));
+    const fixed = fixContours(polys, contourMode);
+    const [ccx, ccy] = bboxOf(fixed);
+    return {
+      x: ccx, y: ccy,
+      contours: fixed.map((row, i) => {
+        let cmds = subs[i];
+        if (row.reversed) cmds = otReverseCmds(cmds);
+        return { d: otCmdsToD(cmds, itemCx - ccx, by - ccy), exclude: row.hole };
+      }),
+    };
+  };
   lines.forEach((ln, li) => {
     const items = lineItems[li];
     const ws = measured[li].map((w) => w * fit);
@@ -130,32 +305,20 @@ export function generate(o) {
     const cyLine = 540 - (lines.length * gap) / 2 + gap * (li + 0.5);
     const by = cyLine + fs * 0.35; // baseline ~ tengah baris
     items.forEach((s, i) => {
-      const r = AL.rasterizeChar(s, f2, fs, rpad);
       const itemCx = cx;
       cx += ws[i] + spacing * fit;
-      if (!r) return;
-      const polys = AL.traceContours(r.mask, r.w, r.h, 128);
-      if (!polys.length) return;
-      const dx = itemCx - rpad - 2, dy = by - (rpad + 2 + fs);
-      const fixed = fixContours(polys, contourMode);
-      const moved = fixed.map((row) => {
-        const pts = row.p.map((p) => [p[0] + dx, p[1] + dy]);
-        return { ...row, p: smooth ? AL.chaikin(pts) : pts };
-      });
-      // bbox -> center; path relatif thd center, location di center (model rujukan)
-      let x1 = 1e9, y1 = 1e9, x2 = -1e9, y2 = -1e9;
-      moved.forEach((row) => row.p.forEach((p) => {
-        if (p[0] < x1) x1 = p[0]; if (p[1] < y1) y1 = p[1];
-        if (p[0] > x2) x2 = p[0]; if (p[1] > y2) y2 = p[1];
-      }));
-      const ccx = (x1 + x2) / 2, ccy = (y1 + y2) / 2;
-      shapes.push({
-        label: s.slice(0, 18), x: ccx, y: ccy,
-        contours: moved.map((row) => ({ d: polyToD(row.p.map((p) => [p[0] - ccx, p[1] - ccy])), exclude: row.hole })),
-      });
+      let sh = null;
+      if (ot && otHasGlyphs(ot, s)) {
+        try { sh = preciseItem(s, itemCx, by); } catch (e) { sh = null; }
+      }
+      if (sh) nPrecise++;
+      else { sh = traceItem(s, itemCx, by); if (sh) nTraced++; }
+      if (!sh) return;
+      shapes.push({ label: s.slice(0, 18), x: sh.x, y: sh.y, contours: sh.contours });
     });
   });
   if (!shapes.length) throw new Error('Tidak ada path yang berhasil dibuat — coba teks atau font lain.');
+  const genMode = nPrecise && nTraced ? 'campuran' : nPrecise ? 'presisi' : 'kompatibilitas';
 
   const totalMs = Math.max(200, Math.round((+o.durSec || 5) * 1000));
   const style = o.style; // both | fill | stroke
@@ -170,7 +333,10 @@ export function generate(o) {
   layers.push(AL.nullLayer({ id: 8, label: 'Vektor', startMs: 0, endMs: totalMs, x: 540, y: 540, hidden: true }));
 
   const scene = AL.buildScene({ title: AL.projectName(o.project, 'Teks Vektor'), totalMs, fps: o.fps, inner: layers.join('\n') });
-  const xml = scene.replace('?>\n', '?>\n<!-- Dibuat oleh Adip Tools - Teks ke Vektor (trace lokal, bukan outline font) -->\n');
+  const modeNote = genMode === 'presisi' ? 'outline font presisi (kurva Bezier asli)'
+    : genMode === 'campuran' ? 'campuran: outline font presisi + trace lokal (sebagian huruf tidak ada di font)'
+    : 'trace lokal (bukan outline font)';
+  const xml = scene.replace('?>\n', '?>\n<!-- Dibuat oleh Adip Tools - Teks ke Vektor (' + modeNote + ') -->\n');
   const v = AL.validate(xml);
   if (!v.ok) throw new Error(v.error);
 
@@ -180,11 +346,11 @@ export function generate(o) {
       AL.escXml(sh.contours.map((c) => c.d).join(' ')) + '" fill-rule="evenodd"' +
       (style !== 'stroke' ? ' fill="' + T.esc(o.fill) + '"' : ' fill="none"') +
       (style !== 'fill' ? ' stroke="' + T.esc(o.stroke) + '" stroke-width="' + (+o.strokeW || 1.5) + '"' : '') + '/></g>').join('') + '</svg>';
-  return { xml, svg, filename: AL.fileFor(o.filename, 'vector', o.text), totalMs, paths: shapes.length };
+  return { xml, svg, filename: AL.fileFor(o.filename, 'vector', o.text), totalMs, paths: shapes.length, mode: genMode };
 }
 
 export function render(root) {
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Trace teks menjadi <b>path vektor</b> langsung di perangkatmu — lalu export ke <b>XML Alight Motion</b>. Semua huruf yang bisa tampil di browser bisa divektorkan (tanpa batas data huruf).</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Trace teks menjadi <b>path vektor</b> langsung di perangkatmu — lalu export ke <b>XML Alight Motion</b>. Mode <b>presisi</b> memakai kurva Bézier asli dari data font (tajam, titik sedikit); bila font tidak bisa dimuat, otomatis kembali ke mode <b>kompatibilitas</b> (trace raster, tetap jalan offline).</p>'));
 
   const inpText = T.ta(2, 'Tulis teks di sini…', 'VEKTOR');
   const selFont = T.select(FONTS.map((f) => [f, f]), 'Poppins');
@@ -193,6 +359,7 @@ export function render(root) {
   const selStyle = T.select([['both', 'Fill + Stroke'], ['fill', 'Fill saja'], ['stroke', 'Stroke saja']], 'both');
   const selSmooth = T.select([['halus', 'Halus (smooth)'], ['tegas', 'Tegas (poligon)']], 'halus');
   const selContour = T.select([['amFixA', 'AM Fix A (disarankan)'], ['amFixB', 'AM Fix B'], ['original', 'Original (tanpa perbaikan)']], 'amFixA');
+  const selPrecision = T.select([['presisi', 'Presisi (kurva font asli)'], ['kompatibilitas', 'Kompatibilitas (trace, offline)']], 'presisi');
   const inpSize = T.input('number', '', '300'); inpSize.min = 8; inpSize.max = 900;
   const inpSpacing = T.input('number', '', '10'); inpSpacing.min = -20; inpSpacing.max = 400;
   const inpPad = T.input('number', '', '20'); inpPad.min = 0; inpPad.max = 400;
@@ -205,6 +372,7 @@ export function render(root) {
   const inpFile = T.input('text', 'Otomatis: teks#vector', '');
 
   root.appendChild(T.field('Teks (baris baru = baris baru)', inpText));
+  root.appendChild(T.field('Mode vektor', selPrecision, 'Presisi: kurva Bézier asli dari data font (butuh internet sekali untuk mengunduh font). Kompatibilitas: trace raster, selalu offline.'));
   root.appendChild(T.grid2(T.field('Font', selFont), T.field('Weight', selWeight)));
   root.appendChild(T.grid2(T.field('Mode', selMode), T.field('Style path', selStyle)));
   root.appendChild(T.grid2(T.field('Mode path', selSmooth), T.field('Contour', selContour)));
@@ -234,13 +402,22 @@ export function render(root) {
       project: inpProject.value, filename: inpFile.value,
     };
   }
-  function doGenerate() {
-    status.textContent = 'Me-render & men-trace teks…';
+  async function doGenerate() {
+    status.textContent = 'Menyiapkan…';
+    let font = null;
+    if (selPrecision.value === 'presisi') {
+      status.textContent = 'Mengunduh data font presisi…';
+      try { font = await loadPrecisionFont(selFont.value, selWeight.value); }
+      catch (e) { status.innerHTML = '<span class="dim">Font presisi tidak bisa dimuat — lanjut mode kompatibilitas.</span>'; }
+    }
     setTimeout(() => {
       try {
-        const r = generate(collect());
+        const r = generate(collect(), font);
         last = r; xmlOut.value = r.xml; prevBox.innerHTML = r.svg;
-        status.innerHTML = 'Siap — <b>' + T.esc(r.paths) + ' path</b> · durasi ' + r.totalMs + ' ms · <span class="dim">' + T.esc(r.filename) + '</span>';
+        const modeLabel = r.mode === 'presisi' ? 'Mode presisi (kurva Bézier asli)'
+          : r.mode === 'campuran' ? 'Mode campuran (sebagian huruf di-trace — tidak ada di font Latin)'
+          : 'Mode kompatibilitas (trace raster)';
+        status.innerHTML = 'Siap — <b>' + T.esc(r.paths) + ' path</b> · ' + modeLabel + ' · durasi ' + r.totalMs + ' ms · <span class="dim">' + T.esc(r.filename) + '</span>';
         AL.history.push('textvector', { filename: r.filename, project: inpProject.value, preset: 'Vector', xml: r.xml });
         hist.refresh();
       } catch (e) { status.innerHTML = '<span class="err">' + T.esc(e.message) + '</span>'; }
@@ -261,5 +438,5 @@ export function render(root) {
   ));
   root.appendChild(T.el('<div class="dim" style="font-size:13px;font-weight:700;margin:12px 0 4px">Riwayat</div>'));
   root.appendChild(hist);
-  root.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:10px">Hasil trace tergantung font yang terpasang di perangkat. Untuk hasil tajam, pakai ukuran besar (≥200) lalu kecilkan di Alight Motion.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:10px">Mode presisi memakai data font Latin (huruf, angka, tanda baca umum). Karakter di luar itu (mis. emoji) otomatis di-trace. Untuk hasil tajam di mode kompatibilitas, pakai ukuran besar (≥200) lalu kecilkan di Alight Motion.</p>'));
 }

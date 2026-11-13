@@ -1,11 +1,33 @@
-import { h as T, esc } from '../../core.js?v=6.9.20';
+import { h as T, esc, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"apod-harian","name":"Foto Antariksa Harian","cat":"liveapi","icon":"🪐","desc":"Foto astronomi harian resmi dari NASA (APOD).","keywords":"nasa,apod,antariksa,astronomi,foto,planet,luar angkasa"};
 
-const API = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY';
+const API_BASE = 'https://api.nasa.gov/planetary/apod?api_key=';
 
 export function render(root) {
-  const notice = T.el('<div class="hint" style="margin-bottom:10px">🛰️ Pakai API key demo publik (batas 30 req/jam per IP). Gagal? Coba lagi.</div>');
+  // API key NASA milik user — OPSIONAL. Tanpa key, tool memakai DEMO_KEY
+  // bersama (batas 30 req/jam, 50/hari per IP, dipakai semua orang).
+  const kf = utils.byok.field({
+    tool: 'apod-harian',
+    label: 'API key NASA (opsional)',
+    placeholder: 'API key NASA milikmu (opsional)',
+    hint: 'Gratis di api.nasa.gov — key disimpan hanya di browser ini. Tanpa key, tool memakai key demo bersama (batas 30x/jam, 50x/hari).',
+    docUrl: 'https://api.nasa.gov',
+    docLabel: 'Dapatkan API key NASA gratis',
+  });
+  // byok.field menganggap key wajib; di tool ini key opsional, jadi timpa
+  // teks statusnya. Listener dipasang setelah listener internal, jadi jalan
+  // belakangan dan menang (input mengetik & klik tombol simpan/hapus).
+  const paintStatus = () => {
+    const st = kf.box.querySelector('.dim');
+    if (!st) return;
+    st.innerHTML = kf.get()
+      ? '✅ <b>Key NASA milikmu tersimpan</b> — hanya di browser ini (localStorage). Batas pemakaian mengikuti key milikmu sendiri.'
+      : '🔑 <b>Opsional.</b> Tanpa key, tool memakai key demo bersama (batas 30x/jam, 50x/hari per IP). Isi key NASA gratis milikmu supaya tidak rebutan dengan pengguna lain.';
+  };
+  kf.box.addEventListener('input', paintStatus);
+  kf.box.addEventListener('click', paintStatus);
+  paintStatus();
   const box = T.out();
   const muat = async (retries) => {
     T.show(box, '<div class="dim center">Menghubungi NASA…</div>');
@@ -13,7 +35,7 @@ export function render(root) {
     const timer = setTimeout(() => ctrl.abort(), 15000);
     let status = 0;
     try {
-      const res = await fetch(API, { signal: ctrl.signal });
+      const res = await fetch(API_BASE + encodeURIComponent(kf.get() || 'DEMO_KEY'), { signal: ctrl.signal });
       clearTimeout(timer);
       status = res.status;
       if (status === 500 && retries > 0) {
@@ -44,7 +66,9 @@ export function render(root) {
       clearTimeout(timer);
       let msg;
       if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server NASA tidak merespons.';
-      else if (status === 429) msg = 'Batas demo tercapai (429). Key demo publik dibatasi 30 request/jam per IP — tunggu sebentar lalu coba lagi.';
+      else if (status === 429) msg = kf.get()
+        ? 'Batas key NASA milikmu tercapai (429). Tunggu sebentar lalu coba lagi.'
+        : 'Batas demo tercapai (429). Key demo publik dipakai bersama (30 request/jam, 50/hari per IP) — tunggu sebentar lalu coba lagi, atau isi API key NASA gratis milikmu di kolom atas supaya tidak rebutan.';
       else msg = 'Gagal memuat APOD. API NASA kadang sedang down — tunggu sebentar lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
       const wrap = T.el('<div style="margin-top:8px"></div>');
@@ -52,7 +76,7 @@ export function render(root) {
       box.appendChild(wrap);
     }
   };
-  root.appendChild(notice);
+  root.appendChild(kf.box);
   root.appendChild(T.row(T.btn('🔄 Muat ulang', () => muat(1), true)));
   root.appendChild(box);
   muat(1);

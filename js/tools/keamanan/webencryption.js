@@ -1,4 +1,4 @@
-import { h as T, fileInput, errBox } from '../../core.js?v=6.9.20';
+import { h as T, fileInput, errBox } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "webencryption", "name": "Web Encryption", "cat": "keamanan", "icon": "🔐", "desc": "Kunci HTML jadi file berpassword (AES-256).", "keywords": "enkripsi,aes,password,html,kunci,proteksi"};
 

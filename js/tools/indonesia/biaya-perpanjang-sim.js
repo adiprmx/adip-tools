@@ -1,15 +1,15 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "biaya-perpanjang-sim", "name": "Biaya Perpanjang SIM", "cat": "indonesia", "icon": "🪪", "desc": "Hitung total biaya perpanjangan SIM: PNBP + cek kesehatan + psikotes, bisa diedit.", "keywords": "sim,perpanjang,surat,izin,mengemudi,pnbp,biaya,kesehatan,psikotes"};
 export function render(root) {
   const PNBP_DEFAULT = { 'SIM A': 80000, 'SIM C': 75000, 'SIM B1': 80000, 'SIM B2': 80000 };
-  const KESEHATAN_DEFAULT = 25000;
-  const PSIKOTES_DEFAULT = 50000;
+  const KESEHATAN_DEFAULT = 35000;
+  const PSIKOTES_DEFAULT = 77500;
 
   const golI = T.select(Object.keys(PNBP_DEFAULT).map((g) => [g, g]), 'SIM A');
   const pnbpI = T.input('number', 'cth: 80000', String(PNBP_DEFAULT['SIM A'])); pnbpI.inputMode = 'numeric';
-  const sehatI = T.input('number', 'cth: 25000', String(KESEHATAN_DEFAULT)); sehatI.inputMode = 'numeric';
-  const psikoI = T.input('number', 'cth: 50000', String(PSIKOTES_DEFAULT)); psikoI.inputMode = 'numeric';
+  const sehatI = T.input('number', 'cth: 35000', String(KESEHATAN_DEFAULT)); sehatI.inputMode = 'numeric';
+  const psikoI = T.input('number', 'cth: 77500', String(PSIKOTES_DEFAULT)); psikoI.inputMode = 'numeric';
   const outBox = T.out();
 
   const kvTable = (pairs) => '<table style="width:100%;border-collapse:collapse;font-size:13.5px">' +
@@ -30,7 +30,7 @@ export function render(root) {
         ['Tes psikologi (psikotes)', T.rp(psiko)],
       ]) +
       '<p style="margin:12px 0 4px;font-size:17px">Total perkiraan: <b>' + T.rp(total) + '</b></p>' +
-      '<p class="mut" style="font-size:12px;line-height:1.6;margin-top:8px">Disclaimer: tarif dapat berubah mengikuti kebijakan terbaru. PNBP mengacu PP No. 60/2016 tentang PNBP Polri. Biaya cek kesehatan & psikotes bervariasi antar klinik/Satpas — angka di atas nilai umum 2026 dan bisa kamu edit sesuai daerahmu.</p>');
+      '<p class="mut" style="font-size:12px;line-height:1.6;margin-top:8px">Disclaimer: tarif dapat berubah mengikuti kebijakan terbaru. PNBP mengacu PP No. 76/2020 tentang PNBP Polri. Psikotes online (ePPsi) Rp77.500, onsite ±Rp100.000; cek kesehatan ±Rp35.000 — biaya cek kesehatan & psikotes bervariasi antar klinik/Satpas, angka di atas nilai umum 2026 dan bisa kamu edit sesuai daerahmu.</p>');
   };
 
   golI.addEventListener('change', () => {
@@ -43,8 +43,8 @@ export function render(root) {
   root.appendChild(T.grid2(
     T.field('Golongan SIM', golI),
     T.field('PNBP (Rp)', pnbpI),
-    T.field('Cek kesehatan (Rp)', sehatI),
-    T.field('Psikotes (Rp)', psikoI)
+    T.field('Cek kesehatan (Rp)', sehatI, 'Rata-rata 2026 ±Rp35.000, beda tiap klinik.'),
+    T.field('Psikotes (Rp)', psikoI, 'Online (ePPsi) Rp77.500; onsite ±Rp100.000.')
   ));
   root.appendChild(T.row(T.btn('Hitung total', hitung, true)));
   root.appendChild(outBox);

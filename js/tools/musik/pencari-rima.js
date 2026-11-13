@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.9.20';
+import { h as T } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"pencari-rima","name":"Pencari Rima","cat":"musik","icon":"🎤","desc":"Cari kata yang berima buat nulis lirik lagu.","keywords":"rima,sajak,lirik,lagu,puisi,kata,berima,rap"};
 

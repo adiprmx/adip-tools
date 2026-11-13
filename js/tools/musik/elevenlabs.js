@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"elevenlabs","name":"ElevenLabs Studio","cat":"musik","icon":"🎙️","desc":"Text-to-speech suara AI via API key ElevenLabs milikmu.","keywords":"elevenlabs,tts,suara,ai,voice,text to speech"};
 
@@ -107,6 +107,35 @@ export function render(root) {
   });
   root.appendChild(keyF.box);
 
+  // Sisa kuota karakter (GET /v1/user/subscription). Gagal = disembunyikan diam-diam, bukan error.
+  const kuotaBox = T.el('<div class="dim" style="font-size:12.5px;margin:-4px 0 10px;line-height:1.6;display:none"></div>');
+  root.appendChild(kuotaBox);
+  async function cekKuota() {
+    const key = keyF.get();
+    if (!key) { kuotaBox.style.display = 'none'; return; }
+    try {
+      const to = withTimeout(15000);
+      const r = await fetch(API + '/user/subscription', { headers: { 'xi-api-key': key }, signal: to.signal });
+      to.done();
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      const pakai = Number(d.character_count), batas = Number(d.character_limit);
+      if (!Number.isFinite(pakai) || !Number.isFinite(batas) || batas <= 0) throw new Error('format tak dikenal');
+      const sisa = Math.max(0, batas - pakai);
+      const fmt = (n) => n.toLocaleString('id-ID');
+      kuotaBox.innerHTML = 'Sisa kuota: <b>' + fmt(sisa) + ' / ' + fmt(batas) + ' karakter</b>' +
+        (d.tier ? ' · paket ' + T.esc(String(d.tier)) : '') +
+        (d.next_character_count_reset_unix ? ' · reset ' + new Date(d.next_character_count_reset_unix * 1000).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '') +
+        ' <button type="button" class="btn" data-k="refresh" style="font-size:11.5px;margin-left:6px">Perbarui</button>';
+      kuotaBox.style.display = '';
+      const b = kuotaBox.querySelector('[data-k=refresh]');
+      if (b) b.onclick = () => cekKuota();
+    } catch (e) {
+      kuotaBox.style.display = 'none';
+    }
+  }
+  keyF.input.addEventListener('change', () => cekKuota());
+
   const tabs = [
     ['tts', 'Text to Speech'],
     ['ubah', 'Ubah Suara'],
@@ -147,6 +176,7 @@ export function render(root) {
         });
       });
       T.show(out, '<div class="dim center">' + voices.length + ' voice dimuat.</div>');
+      cekKuota();
       return true;
     } catch (e) {
       to.done();
@@ -202,6 +232,7 @@ export function render(root) {
         ulang: generateTts,
         catatan: 'Karakter terpakai memotong kuota ElevenLabs milikmu.',
       });
+      cekKuota();
     } catch (e) {
       to.done();
       const m = e.name === 'AbortError' ? 'Timeout 60 detik — coba teks lebih pendek.' : (e.message || e);
@@ -265,6 +296,7 @@ export function render(root) {
         ulang: convertSuara,
         catatan: 'Delivery dipertahankan, karakter suara diubah. Durasi audio memotong kuota milikmu.',
       });
+      cekKuota();
     } catch (e) {
       to.done();
       const m = e.name === 'AbortError' ? 'Timeout 90 detik — coba file lebih pendek.' : (e.message || e);
@@ -360,6 +392,7 @@ export function render(root) {
       kartu.appendChild(rw);
       sOut.appendChild(kartu);
       sOut.appendChild(T.el('<div class="dim" style="font-size:12px;margin-top:6px">Durasi audio memotong kuota ElevenLabs milikmu.</div>'));
+      cekKuota();
     } catch (e) {
       to.done();
       const m = e.name === 'AbortError' ? 'Timeout 3 menit — coba file lebih pendek.' : (e.message || e);
@@ -413,6 +446,7 @@ export function render(root) {
         ulang: generateFx,
         catatan: 'Sound effect memotong kuota ElevenLabs milikmu.',
       });
+      cekKuota();
     } catch (e) {
       to.done();
       const m = e.name === 'AbortError' ? 'Timeout 60 detik.' : (e.message || e);
@@ -477,4 +511,5 @@ export function render(root) {
 
   tabs.forEach(([v]) => root.appendChild(pages[v]));
   setTab('tts');
+  cekKuota(); // tampilkan sisa kuota bila key sudah tersimpan; gagal = sembunyi diam-diam
 }

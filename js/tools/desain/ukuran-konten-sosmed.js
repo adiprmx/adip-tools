@@ -1,9 +1,11 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id":"ukuran-konten-sosmed","name":"Ukuran Sosmed","cat":"desain","icon":"📐","desc":"Panduan ukuran konten sosmed 2026 + kalkulator rasio.","keywords":"ukuran,sosmed,instagram,tiktok,youtube,rasio,dimensi,feed,story,reels,thumbnail"};
 
 const FORMATS = [
-  ['IG Feed', '1080 × 1080', 1080, 1080],
+  ['IG Feed (portrait, rekomendasi)', '1080 × 1350', 1080, 1350],
+  ['IG Feed (square)', '1080 × 1080', 1080, 1080],
+  ['IG Feed (3:4)', '1080 × 1440', 1080, 1440],
   ['IG Story', '1080 × 1920', 1080, 1920],
   ['IG Reels', '1080 × 1920', 1080, 1920],
   ['TikTok', '1080 × 1920', 1080, 1920],

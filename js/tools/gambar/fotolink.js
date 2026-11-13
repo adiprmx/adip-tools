@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "fotolink", "name": "Foto to Link", "cat": "gambar", "icon": "🔗", "desc": "Upload gambar → dapat URL publik langsung.", "keywords": "upload,link,url,gambar,hosting,catbox"};
 

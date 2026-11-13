@@ -1,6 +1,6 @@
-import { h as T, kv } from '../../core.js?v=6.9.20';
+import { h as T, kv } from '../../core.js?v=6.10.0';
 
-export const meta = {"id": "kalkulator-ppn", "name": "Kalkulator PPN 12%", "cat": "bisnis", "icon": "🧾", "desc": "Bedah harga jadi DPP + PPN, include maupun exclude.", "keywords": "ppn,pajak,dpp,12 persen,include,exclude,faktur"};
+export const meta = {"id": "kalkulator-ppn", "name": "Kalkulator PPN", "cat": "bisnis", "icon": "🧾", "desc": "Bedah harga jadi DPP + PPN, include maupun exclude.", "keywords": "ppn,pajak,dpp,11 persen,12 persen,include,exclude,faktur"};
 export function render(root) {
 
     const modeSel = T.select([
@@ -8,7 +8,14 @@ export function render(root) {
       ['exc', 'Harga belum termasuk PPN (exclude)']
     ], 'inc');
     const nominalI = T.input('text', 'Nominal, cth: 112000', '');
-    const tarifSel = T.select([['12', '12%'], ['11', '11%'], ['10', '10%']], '12');
+    // Tarif nominal PPN 12% sejak 1 Jan 2025, TAPI untuk barang/jasa biasa
+    // PPN dihitung dari DPP nilai lain (11/12 × harga) — jadi yang dibayar
+    // efektif 11% (PMK 131/2024, ditegaskan tetap berlaku 2026).
+    // Tarif 12% penuh hanya untuk barang mewah.
+    const tarifSel = T.select([
+      ['11', 'Barang/jasa biasa — efektif 11%'],
+      ['12', 'Barang mewah — 12%'],
+    ], '11');
     const box = T.out();
 
     const calc = () => {
@@ -31,7 +38,8 @@ export function render(root) {
         kv('Total bayar', T.rp(total)) +
         '<p class="hint">' + (modeSel.value === 'inc'
           ? 'Harga yang kamu masukkan sudah termasuk PPN — ini bedahannya jadi DPP + PPN.'
-          : 'PPN ditambahkan di atas harga — segini yang dibayar pembeli.') + '</p>');
+          : 'PPN ditambahkan di atas harga — segini yang dibayar pembeli.') +
+        ' Tarif PPN nominal 12% (sejak 1 Jan 2025), tapi barang/jasa biasa dihitung dari DPP nilai lain 11/12 × harga, jadi yang dibayar efektif 11% (PMK 131/2024). Tarif 12% penuh hanya untuk barang mewah.</p>');
     };
     modeSel.addEventListener('change', calc);
     tarifSel.addEventListener('change', calc);

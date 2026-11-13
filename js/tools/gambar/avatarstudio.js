@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "avatarstudio", "name": "Avatar Studio", "cat": "gambar", "icon": "🎭", "desc": "Avatar SVG unik puluhan style + editor visual (DiceBear).", "keywords": "avatar,profil,svg,dicebear,editor,seed"};
 
@@ -9,6 +9,61 @@ export const FALLBACK_STYLES = ['adventurer', 'avataaars', 'bottts', 'identicon'
 const FALLBACK_LABEL = { adventurer: 'Adventurer', avataaars: 'Avataaars', bottts: 'Bottts', identicon: 'Identicon', initials: 'Initials', lorelei: 'Lorelei', 'pixel-art': 'Pixel Art', shapes: 'Shapes' };
 // Palet warna background default (26 warna, meniru palet editor asli).
 export const BG_PALETTE = ['b6e3f4', 'c0aede', 'd1d4f9', 'ffd5dc', 'ffdfbf', '8d5524', 'e6e6e6', 'ffdbac', 'f1c27d', 'e0ac69', 'c68642', '8d5524', 'ff0000', '00ff00', '0000ff', 'ffff00', 'ff00ff', '00ffff', 'ffffff', '000000', 'f5a623', '4a90d9', '7ed321', 'bd10e0', '50e3c2', 'b8e986'];
+
+/* 6 preset gaya sekali ketuk (style dari daftar fallback agar selalu tersedia,
+   walau daftar style dari API gagal dimuat). Random dibuat dinamis. */
+export const AVATAR_PRESETS = {
+  clean: { label: 'Clean', style: 'avataaars', backgroundColor: ['ffffff'], flip: 'none', rotate: 0, scale: '', extra: {} },
+  cute: { label: 'Cute', style: 'lorelei', backgroundColor: ['ffd5dc', 'ffdfbf'], flip: 'none', rotate: 0, scale: '', extra: {} },
+  professional: { label: 'Professional', style: 'adventurer', backgroundColor: ['d1d4f9'], flip: 'none', rotate: 0, scale: '', extra: {} },
+  dark: { label: 'Dark', style: 'bottts', backgroundColor: ['000000'], flip: 'none', rotate: 0, scale: '', extra: {} },
+  pastel: { label: 'Pastel', style: 'lorelei', backgroundColor: ['b6e3f4', 'c0aede', 'ffd5dc'], flip: 'none', rotate: 0, scale: '', extra: {} },
+};
+export const AVATAR_PRESET_ORDER = ['clean', 'cute', 'professional', 'dark', 'pastel', 'random'];
+export function randomAvatarPreset() {
+  const style = FALLBACK_STYLES[Math.floor(Math.random() * FALLBACK_STYLES.length)];
+  const bg = BG_PALETTE[Math.floor(Math.random() * BG_PALETTE.length)];
+  return { label: 'Random', style, seed: randSeed(), backgroundColor: [bg], flip: 'none', rotate: 0, scale: '', extra: {} };
+}
+/* Terapkan preset ke state (murni, tanpa DOM — bisa diuji). Seed hanya berubah
+   bila preset membawanya (Random); preset lain mempertahankan seed user. */
+export function applyAvatarPreset(state, preset) {
+  state.style = preset.style;
+  if (preset.seed) state.seed = preset.seed;
+  state.backgroundColor = (preset.backgroundColor || []).slice();
+  state.flip = preset.flip || 'none';
+  state.rotate = preset.rotate || 0;
+  state.scale = preset.scale === undefined ? '' : preset.scale;
+  state.extra = { ...(preset.extra || {}) };
+  return state;
+}
+
+/* Share-URL config: config ter-encode di hash, dibaca saat tool dibuka.
+   Bentuk tautan mengikuti router hash aplikasi (#/t/<id>?...) — hash telanjang
+   '#avatar=...' akan dibaca router sebagai halaman beranda, jadi TIDAK dipakai.
+   Hash TIDAK ditulis saat user mengubah opsi (menulis hash memicu route() dan
+   me-render ulang tool); tautan hanya dibuat saat tombol "Salin tautan" ditekan. */
+export function encodeAvatarConfig(cfg) {
+  return encodeURIComponent(JSON.stringify({
+    style: cfg.style, seed: cfg.seed, format: cfg.format, rasterSize: cfg.rasterSize,
+    backgroundColor: cfg.backgroundColor, flip: cfg.flip, rotate: cfg.rotate,
+    scale: cfg.scale, extra: cfg.extra,
+  }));
+}
+export function decodeAvatarConfig(str) {
+  try {
+    const o = JSON.parse(decodeURIComponent(str));
+    if (!o || typeof o !== 'object' || typeof o.style !== 'string') return null;
+    return o;
+  } catch (e) { return null; }
+}
+export function avatarShareUrl(cfg, base) {
+  return base + '#/t/avatarstudio?avatar=' + encodeAvatarConfig(cfg);
+}
+export function avatarConfigFromHash(hash) {
+  const m = /[?&]avatar=([^&]*)/.exec(hash || '');
+  return m ? decodeAvatarConfig(m[1]) : null;
+}
 
 /** Bangun URL render DiceBear dari state (murni, tanpa DOM — bisa diuji).
     Menyamai perilaku editor aslinya: seed kosong -> "Nexora", key opsi terurut
@@ -48,6 +103,23 @@ export function render(root) {
   const state = { style: 'lorelei', seed: 'Nexora', format: 'svg', rasterSize: 256, backgroundColor: [], flip: 'none', rotate: 0, scale: '', extra: {} };
   let styles = FALLBACK_STYLES.slice();
   let apiDown = false;
+  // Config dari tautan berbagi (#/t/avatarstudio?avatar=...) diterapkan saat dibuka.
+  const hashCfg = avatarConfigFromHash(location.hash);
+  let pendingStyle = null;
+  if (hashCfg) {
+    if (typeof hashCfg.seed === 'string' && hashCfg.seed) state.seed = hashCfg.seed;
+    if (Array.isArray(hashCfg.backgroundColor)) state.backgroundColor = hashCfg.backgroundColor.filter((c) => typeof c === 'string');
+    if (typeof hashCfg.flip === 'string') state.flip = hashCfg.flip;
+    if (isFinite(+hashCfg.rotate)) state.rotate = +hashCfg.rotate;
+    if (hashCfg.scale !== undefined) state.scale = hashCfg.scale;
+    if (hashCfg.extra && typeof hashCfg.extra === 'object') state.extra = hashCfg.extra;
+    if (typeof hashCfg.format === 'string') state.format = hashCfg.format;
+    if (isFinite(+hashCfg.rasterSize)) state.rasterSize = +hashCfg.rasterSize;
+    if (typeof hashCfg.style === 'string') {
+      if (styles.includes(hashCfg.style)) state.style = hashCfg.style;
+      else pendingStyle = hashCfg.style; // style di luar fallback: tunggu daftar API
+    }
+  }
 
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bikin avatar SVG unik dari puluhan style, lalu atur warnanya. Seed yang sama + style yang sama = avatar yang sama persis (deterministik).<br><span class="dim" style="font-size:12px">Didukung API publik <b>DiceBear</b> — tiap style punya lisensinya sendiri, cek <a href="https://www.dicebear.com/licenses/" target="_blank" rel="noopener">dicebear.com/licenses</a>.</span></p>'));
 
@@ -64,6 +136,25 @@ export function render(root) {
     T.field('Format unduhan', fmtSel),
     T.field('Ukuran raster', sizeSel, 'Berlaku untuk PNG/JPG/WebP/AVIF.')
   ));
+  if (hashCfg) {
+    if (['svg', 'png', 'jpg', 'webp', 'avif', 'json'].includes(state.format)) fmtSel.value = state.format;
+    if ([64, 128, 256].includes(state.rasterSize)) sizeSel.value = String(state.rasterSize);
+  }
+
+  const presetBox = T.el('<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0"></div>');
+  AVATAR_PRESET_ORDER.forEach((key) => {
+    const p = key === 'random' ? { label: 'Random' } : AVATAR_PRESETS[key];
+    const b = T.btn(p.label, () => {
+      const preset = key === 'random' ? randomAvatarPreset() : AVATAR_PRESETS[key];
+      applyAvatarPreset(state, preset);
+      if (styles.includes(state.style)) styleSel.value = state.style;
+      if (preset.seed) seedInp.value = preset.seed;
+      buildOptions(); refresh();
+      T.toast('Preset ' + preset.label + ' diterapkan');
+    });
+    presetBox.appendChild(b);
+  });
+  root.appendChild(T.field('Preset gaya', presetBox, 'Sekali ketuk untuk gaya siap pakai. Random: style, seed, dan warna acak.'));
 
   const optBox = T.el('<div style="margin-top:10px"></div>');
   root.appendChild(T.field('Opsi visual', optBox, 'Editor opsi per-style dimuat dari schema DiceBear bila tersedia.'));
@@ -75,6 +166,7 @@ export function render(root) {
   root.appendChild(T.row(
     T.btn('Unduh avatar', () => download(state), true),
     T.copyBtn(() => buildAvatarUrl(state.style, state.format, state), 'Salin URL'),
+    T.copyBtn(() => avatarShareUrl(state, location.origin + location.pathname), 'Salin tautan'),
     T.btn('Simpan', () => {
       const saved = loadJson(LS_SAVED, []);
       const u = buildAvatarUrl(state.style, state.format, state);
@@ -108,6 +200,9 @@ export function render(root) {
       const j = await r.json();
       if (j && Array.isArray(j.styles) && j.styles.length) fillStyles(j.styles);
     } catch (e) { apiDown = true; }
+    if (pendingStyle && styles.includes(pendingStyle)) {
+      state.style = pendingStyle; styleSel.value = pendingStyle; pendingStyle = null;
+    }
     buildOptions(); refresh();
   }
 

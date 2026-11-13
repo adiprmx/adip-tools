@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.9.20';
+import { h as T, utils, errBox, kv } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "ocrintel", "name": "OCR", "cat": "produktivitas", "icon": "🔠", "desc": "Ekstrak teks dari gambar 100% lokal — tanpa upload, tanpa server.", "keywords": "ocr,teks,gambar,scan,ekstrak,tesseract,pdf,tabel,tiff"};
 

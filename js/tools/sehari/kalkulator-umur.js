@@ -1,4 +1,4 @@
-import { h as T, utils, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, onLeave } from '../../core.js?v=6.10.0';
 
 // Logika murni (bisa di-test di Node)
 utils.hitungUmur = function (tglStr, nowMs) {

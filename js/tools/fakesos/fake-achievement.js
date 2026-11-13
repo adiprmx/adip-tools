@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.9.20';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.10.0';
 
 export const meta = {
   id: 'fake-achievement',

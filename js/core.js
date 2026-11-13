@@ -90,12 +90,13 @@ const fmtN = new Intl.NumberFormat('id-ID');
 export function fmt(n) { return fmtN.format(n); }
 export function rp(n) { return 'Rp' + fmtN.format(Math.round(Number(n) || 0)); }
 
-// Parse angka ala Indonesia: "1.500.000,50" -> 1500000.5 ; "1500000" -> 1500000
+// Parse angka ala Indonesia: "1.500.000,50" -> 1500000.5 ; "1.500" -> 1500 ; "1.5" -> 1.5
 export function num(v) {
   if (typeof v === 'number') return v;
   let s = String(v == null ? '' : v).trim().replace(/\s/g, '');
   if (!s) return NaN;
   if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
   const n = Number(s);
   return n;
 }

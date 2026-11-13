@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.9.20';
+import { h as T, utils } from '../../core.js?v=6.10.0';
 
 /* text2d — "Animasi Teks 2D": 10 preset animasi teks 2D kinetik -> XML Alight Motion.
    100% client-side. Struktur XML diselaraskan dengan tool acuan (node <kf t/v/e>,
@@ -114,6 +114,79 @@ function randomInOutOpacity(dur, refDur) {
     { t: endAnchored(dur, refDur, 297, .45), v: '1.000000' },
     { t: endAnchored(dur, refDur, 40, .50), v: '0.000000' },
   ];
+}
+
+/* ---- Pratinjau animasi (aproksimasi visual, BUKAN piksel-akurat) ----
+   Keyframe AM di-sample ke stops absolut (ms dalam layer); render() memetakan
+   stops -> keyframe WAAPI di panggung DOM. Easing AM 'cubicBezier a b c d' ->
+   CSS cubic-bezier; 'local elastic' -> aproksimasi overshoot (bukan tiruan
+   persis fisika pegas Alight Motion). */
+export function amEasingToCss(e) {
+  if (!e || typeof e !== 'string') return 'linear';
+  const m = /^cubicBezier\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)/.exec(e);
+  if (m) return 'cubic-bezier(' + m[1] + ',' + m[2] + ',' + m[3] + ',' + m[4] + ')';
+  if (e.indexOf('elastic') >= 0) return 'cubic-bezier(0.34,1.56,0.64,1)';
+  return 'linear';
+}
+const _parsePair = (v, dflt) => {
+  const parts = String(v == null ? '' : v).split(',');
+  const x = parseFloat(parts[0]), y = parseFloat(parts[1]);
+  return [isFinite(x) ? x : dflt[0], isFinite(y) ? y : dflt[1]];
+};
+function _sampleTable(kfs, tMs, refDur, kind) {
+  if (!kfs || !kfs.length) return null;
+  const at = (k) => k.t * refDur;
+  const val = (k) => {
+    if (kind === 'loc') return k.off ? [k.off[0], k.off[1]] : [0, 0];
+    if (kind === 'pair') return _parsePair(k.v, [1, 1]);
+    return parseFloat(k.v);
+  };
+  if (tMs <= at(kfs[0])) return val(kfs[0]);
+  for (let i = 1; i < kfs.length; i++) {
+    if (tMs <= at(kfs[i])) {
+      const t0 = at(kfs[i - 1]), t1 = at(kfs[i]);
+      const f = t1 > t0 ? (tMs - t0) / (t1 - t0) : 1;
+      const a = val(kfs[i - 1]), b = val(kfs[i]);
+      if (Array.isArray(a)) return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+      return a + (b - a) * f;
+    }
+  }
+  return val(kfs[kfs.length - 1]);
+}
+/* tables: {location?, scale?, rotation?, opacity?, blur?} (t ternormalisasi thd
+   refDur). totalMs: durasi layer. -> stops [{tMs, x, y, sx, sy, rot, op, blur, e}] */
+export function sampleStops(tables, refDur, totalMs) {
+  const times = new Set([0, Math.max(0, totalMs)]);
+  const eAt = {};
+  ['location', 'scale', 'rotation', 'opacity', 'blur'].forEach((key) => {
+    (tables[key] || []).forEach((k) => {
+      const t = Math.max(0, Math.min(totalMs, k.t * refDur));
+      times.add(t);
+      if (k.e && !(t in eAt)) eAt[t] = k.e;
+    });
+  });
+  const sorted = [...times].sort((a, b) => a - b);
+  return sorted.map((tMs) => {
+    const loc = _sampleTable(tables.location, tMs, refDur, 'loc') || [0, 0];
+    const sc = _sampleTable(tables.scale, tMs, refDur, 'pair') || [1, 1];
+    const rot = _sampleTable(tables.rotation, tMs, refDur, 'num');
+    const op = _sampleTable(tables.opacity, tMs, refDur, 'num');
+    const bl = _sampleTable(tables.blur, tMs, refDur, 'num');
+    return {
+      tMs, x: loc[0], y: loc[1], sx: sc[0], sy: sc[1],
+      rot: rot == null ? 0 : rot, op: op == null ? 1 : op, blur: bl == null ? 0 : bl,
+      e: eAt[tMs] || null,
+    };
+  });
+}
+export function samplePreset(preset, index, layerDurMs) {
+  let loc = preset.location, op = preset.opacity;
+  if (preset.randomIn) loc = randomInLocation(index);
+  else if (preset.randomInOut) { loc = randomInOutLocation(index, layerDurMs, preset.dur); op = randomInOutOpacity(layerDurMs, preset.dur); }
+  const tables = { location: loc, opacity: op, rotation: preset.rotation, blur: preset.blur };
+  if (preset.scale) tables.scale = preset.scale;
+  else if (preset.scaleValue) tables.scale = [{ t: 0, v: preset.scaleValue }];
+  return sampleStops(tables, preset.dur, layerDurMs);
 }
 
 const FONTS = ['Lexend', 'Exo', 'Inter', 'Poppins', 'Montserrat', 'Manrope', 'Plus Jakarta Sans', 'Sora', 'DM Sans', 'Space Grotesk', 'Outfit', 'Urbanist', 'Rubik', 'Raleway', 'Oswald', 'Bebas Neue', 'Anton', 'Archivo Black', 'League Spartan', 'Orbitron', 'Nunito Sans'];
@@ -332,6 +405,85 @@ export function render(root) {
   let last = null;
   const hist = AL.historyUI('text2d', (xml) => { last = { xml }; xmlOut.value = xml; status.textContent = 'XML dari riwayat dimuat.'; });
 
+  // ---- Pratinjau animasi (aproksimasi visual via WAAPI) ----
+  const stage = T.el('<div style="position:relative;width:100%;max-width:440px;aspect-ratio:1;margin:8px auto;background:#0d0b09;border:1px solid #ffffff18;border-radius:10px;overflow:hidden"></div>');
+  const chkLoop = T.input('checkbox', ''); chkLoop.checked = true;
+  const loopWrap = T.el('<label class="dim" style="font-size:13px;display:flex;gap:8px;align-items:center"></label>');
+  loopWrap.appendChild(chkLoop); loopWrap.appendChild(document.createTextNode('Ulangi otomatis'));
+  let previewAnims = [];
+  function stopPreview() {
+    previewAnims.forEach((a) => { try { a.cancel(); } catch (e) {} });
+    previewAnims = [];
+  }
+  function playPreview() {
+    stopPreview();
+    const o = collect();
+    const text = String(o.text == null ? '' : o.text);
+    if (!text.trim()) { T.toast('Isi dulu teksnya'); return; }
+    const preset = PRESETS.find((p) => p.id === o.presetId) || PRESETS[0];
+    const units = layoutUnits(text, o.mode, o.spacing, o.lineHeight);
+    if (!units.length) return;
+    const plan = timingPlan(units.length, o);
+    const total = plan.total;
+    const stageW = stage.clientWidth || 360;
+    const sc = stageW / 1080;
+    const sizePx = o.size * sc;
+    stage.innerHTML = '';
+    const animOpts = { duration: total, fill: 'both', iterations: chkLoop.checked ? Infinity : 1 };
+    // Easing AM di keyframe ke-(i+1) berlaku untuk segmen menuju keyframe itu,
+    // jadi di WAAPI easing dipasang di keyframe ke-i.
+    const toKfs = (stops, startMs, nullOnly) => {
+      const kfs = [];
+      const push = (absMs, s, eNext) => {
+        const kf = {
+          offset: Math.max(0, Math.min(1, absMs / total)),
+          transform: nullOnly
+            ? 'translate(' + (s.x * sc).toFixed(1) + 'px,' + (s.y * sc).toFixed(1) + 'px)'
+            : 'translate(-50%,-50%) translate(' + (s.x * sc).toFixed(1) + 'px,' + (s.y * sc).toFixed(1) + 'px) scale(' + s.sx.toFixed(3) + ',' + s.sy.toFixed(3) + ') rotate(' + s.rot.toFixed(2) + 'deg)',
+          opacity: nullOnly ? 1 : s.op,
+          easing: amEasingToCss(eNext),
+        };
+        if (!nullOnly) kf.filter = s.blur > 0.0005 ? 'blur(' + (s.blur * 120 * sc).toFixed(1) + 'px)' : 'blur(0px)';
+        kfs.push(kf);
+      };
+      if (startMs > 0) push(0, stops[0], null);
+      stops.forEach((s, i) => push(startMs + s.tMs, s, i + 1 < stops.length ? stops[i + 1].e : null));
+      const lastAbs = startMs + stops[stops.length - 1].tMs;
+      if (lastAbs < total) push(total, stops[stops.length - 1], null);
+      return kfs;
+    };
+    const playUnit = (parent, u, i) => {
+      const sp = document.createElement('span');
+      sp.textContent = u.ch;
+      sp.style.cssText = 'position:absolute;left:' + (stageW / 2 + u.x * sc).toFixed(1) + 'px;top:' + (stageW / 2 + u.y * sc).toFixed(1) + 'px;' +
+        'font-size:' + sizePx.toFixed(1) + 'px;font-weight:' + (o.weight || '700') + ';' +
+        'font-family:"' + o.font + '",sans-serif;color:' + roleColor(i, units.length, o.colorState) + ';' +
+        'white-space:pre;line-height:1;will-change:transform,opacity;';
+      parent.appendChild(sp);
+      const stops = samplePreset(preset, i, plan.ends[i] - plan.starts[i]);
+      previewAnims.push(sp.animate(toKfs(stops, plan.starts[i], false), animOpts));
+    };
+    if (preset.wordNull) {
+      const groups = new Map();
+      units.forEach((u, i) => {
+        if (!groups.has(u.word)) groups.set(u.word, []);
+        groups.get(u.word).push(i);
+      });
+      groups.forEach((indices) => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;';
+        stage.appendChild(wrap);
+        const wStart = Math.min(...indices.map((i) => plan.starts[i]));
+        const wDur = Math.max(1, plan.total - wStart);
+        const nullStops = sampleStops({ location: preset.wordNull.location }, preset.wordNull.dur, wDur);
+        previewAnims.push(wrap.animate(toKfs(nullStops, wStart, true), animOpts));
+        indices.forEach((i) => playUnit(wrap, units[i], i));
+      });
+    } else {
+      units.forEach((u, i) => playUnit(stage, u, i));
+    }
+  }
+
   function collect() {
     return {
       text: inpText.value, presetId: selPreset.value, mode: selMode.value,
@@ -353,10 +505,15 @@ export function render(root) {
       status.innerHTML = '✅ XML siap — <b>' + T.esc(r.layers) + ' layer</b> · durasi ' + r.totalMs + ' ms · <span class="dim">' + T.esc(r.filename) + '</span>';
       AL.history.push('text2d', { filename: r.filename, project: inpProject.value, preset: (PRESETS.find((p) => p.id === selPreset.value) || {}).name, xml: r.xml });
       hist.refresh();
+      playPreview();
     } catch (e) { status.innerHTML = '<span class="err">❌ ' + T.esc(e.message) + '</span>'; }
   }
   root.appendChild(T.row(T.btn('⚙️ Generate XML', doGenerate, true)));
   root.appendChild(status);
+  root.appendChild(T.el('<div class="dim" style="font-size:13px;font-weight:700;margin:12px 0 4px">Pratinjau animasi</div>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:12px;margin:0 0 6px">Pratinjau kasar — hasil akhir di Alight Motion bisa berbeda (easing & font tidak identik persis). Putar untuk melihat gerakannya sebelum export.</p>'));
+  root.appendChild(stage);
+  root.appendChild(T.row(T.btn('▶ Putar pratinjau', playPreview, true), loopWrap));
   root.appendChild(T.field('Lihat XML hasil', xmlOut));
   root.appendChild(T.row(
     T.btn('⬇️ Unduh XML', () => {
@@ -369,4 +526,5 @@ export function render(root) {
   root.appendChild(T.el('<div class="dim" style="font-size:13px;font-weight:700;margin:12px 0 4px">🕘 Riwayat</div>'));
   root.appendChild(hist);
   root.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:10px">💡 Import: buka Alight Motion → buat project → menu ⋮ → <i>Import</i> → pilih file .xml ini. Font di HP-mu harus terpasang agar tampil sesuai.</p>'));
+  T.onLeave(stopPreview);
 }

@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.10.0';
 
 // Logika murni (bisa di-test di Node)
 utils.paceBaca = function (o) {

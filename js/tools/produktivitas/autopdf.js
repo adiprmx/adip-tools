@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.9.20';
+import { h as T, errBox } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "autopdf", "name": "Auto PDF", "cat": "produktivitas", "icon": "📄", "desc": "Ubah teks panjang jadi dokumen PDF rapi.", "keywords": "pdf,teks,dokumen,naskah,cetak"};
 

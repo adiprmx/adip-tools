@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.9.20';
+import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "pengacak-kalimat", "name": "Pengacak Kalimat", "cat": "teks", "icon": "🔀", "desc": "Acak urutan kata dalam tiap kalimat.", "keywords": "acak,kata,kalimat,shuffle,random,teks"};
 

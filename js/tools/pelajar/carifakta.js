@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.9.20';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.10.0';
 
 export const meta = {"id": "carifakta", "name": "CariFakta", "cat": "pelajar", "icon": "🕵️", "desc": "Analisis klaim & forward-an dengan AI: verdict hoaks/valid, klaim, dan panduan verifikasi.", "keywords": "hoaks,fakta,cek fakta,forward,whatsapp,berita,verifikasi,ai"};
 
@@ -33,8 +33,9 @@ const SYS_PROMPT = [
   '4. Jangan mengarang nama media, lembaga fact-checking, atau URL yang tidak yakin benar ada.',
   '5. Konsisten logis: verdict, confidence, dan analysis harus saling mendukung.',
   'Field "analysis" WAJIB 4-6 kalimat konkret: (1) entitas spesifik yang disebut dan apa yang benar-benar diketahui/tidak diketahui, (2) pola hoaks umum mana yang cocok, (3) bagian mana yang bisa/tidak bisa diverifikasi dan kenapa, (4) langkah verifikasi konkret (cek akun resmi instansi, cari kata kunci di mesin pencari, cek turnbackhoax.id / cekfakta.com).',
+  'Field "entities": 1-3 nama tokoh/tempat/organisasi/peristiwa penting yang disebut klaim (untuk dicarikan konteks latar di Wikipedia). Bila tidak ada entitas jelas, isi [].',
   'Balas HANYA JSON valid (tanpa markdown, tanpa teks lain):',
-  '{"verdict":"hoax|valid|uncertain","confidence":0-100,"summary":"ringkasan satu kalimat yang menyebut entitas utama","analysis":"analisis detail 4-6 kalimat","misleading_elements":["elemen menyesatkan spesifik"],"claims":["klaim spesifik yang ditemukan"],"topics":["tag topik"],"context":"konteks latar / langkah verifikasi konkret"}',
+  '{"verdict":"hoax|valid|uncertain","confidence":0-100,"summary":"ringkasan satu kalimat yang menyebut entitas utama","analysis":"analisis detail 4-6 kalimat","misleading_elements":["elemen menyesatkan spesifik"],"claims":["klaim spesifik yang ditemukan"],"topics":["tag topik"],"context":"konteks latar / langkah verifikasi konkret","entities":["nama entitas 1","nama entitas 2"]}',
 ].join('\n');
 
 function ekstrakJSON(teks) {
@@ -48,10 +49,11 @@ async function analisisAI(teks, signal) {
   const body = { model: 'openai', temperature: 0.3, messages: [{ role: 'system', content: SYS_PROMPT }, { role: 'user', content: 'INPUT:\n' + teks }] };
   const to = AbortSignal.timeout(90000);
   const sig = signal ? AbortSignal.any([signal, to]) : to;
+  const errStatus = (st) => { const e = new Error('http ' + st); e.status = st; return e; };
   let terakhir = null;
   try {
     const r = await fetch(AI_URL, { method: 'POST', signal: sig, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (!r.ok) throw new Error('http ' + r.status);
+    if (!r.ok) throw errStatus(r.status);
     const j = await r.json();
     const isi = (((j.choices || [])[0] || {}).message || {}).content || '';
     return ekstrakJSON(isi);
@@ -59,10 +61,32 @@ async function analisisAI(teks, signal) {
   // cadangan: GET sederhana
   try {
     const r = await fetch(AI_GET + encodeURIComponent(SYS_PROMPT + '\n\nINPUT:\n' + teks).slice(0, 6000), { signal: sig });
-    if (!r.ok) throw new Error('http ' + r.status);
+    if (!r.ok) throw errStatus(r.status);
     return ekstrakJSON(await r.text());
   } catch (e) { terakhir = e; }
   throw terakhir || new Error('AI tidak merespons');
+}
+
+// ---- Konteks latar dari Wikipedia (gratis, tanpa key) ----
+// Dipakai sebagai KONTEKS LATAR saja, bukan vonis. Gagal/tidak ada artikel = null (disembunyikan diam-diam).
+const WIKI_API = 'https://id.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&origin=*&titles=';
+async function cariWikipedia(entitas) {
+  try {
+    const r = await fetch(WIKI_API + encodeURIComponent(entitas), { signal: AbortSignal.timeout(15000) });
+    if (!r.ok) return null;
+    const j = await r.json();
+    const pages = (j.query && j.query.pages) || {};
+    const pg = Object.values(pages)[0];
+    if (!pg || pg.missing || !pg.extract) return null;
+    const teks = String(pg.extract).replace(/\s+/g, ' ').trim();
+    if (!teks) return null;
+    const kalimat = teks.match(/[^.!?]+[.!?]+/g) || [teks];
+    return {
+      judul: pg.title,
+      ringkas: kalimat.slice(0, 2).join(' ').trim().slice(0, 400),
+      url: 'https://id.wikipedia.org/wiki/' + encodeURIComponent(String(pg.title).replace(/ /g, '_')),
+    };
+  } catch (e) { return null; }
 }
 
 // ---- Heuristik cadangan (dipakai hanya bila AI gagal; diberi label jujur) ----
@@ -164,12 +188,15 @@ export function render(root) {
     const klaim = Array.isArray(r.claims) ? r.claims.filter(Boolean) : [];
     const topik = Array.isArray(r.topics) ? r.topics.filter(Boolean) : [];
     const sesat = Array.isArray(r.misleading_elements) ? r.misleading_elements.filter(Boolean) : [];
+    const entitas = Array.isArray(r.entities) ? r.entities.filter(Boolean).slice(0, 2) : [];
+    const kataKunci = ((klaim[0] || r.summary || teks || '').replace(/\s+/g, ' ').trim().slice(0, 80));
     T.show(resBox,
       '<div style="border:1px solid #ffffff20;border-radius:14px;padding:18px;margin-bottom:12px;background:#161311;box-shadow:0 0 34px -14px ' + warna + '55">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px">' +
       '<div style="font-size:16.5px;color:' + warna + '"><b>' + judul + '</b></div>' +
       '<div style="font-size:13px;border:1px solid #ffffff20;border-radius:99px;padding:5px 12px;white-space:nowrap">' + conf + '%</div></div>' +
-      '<p style="font-size:13.5px;color:#d8d2c4;line-height:1.55;margin:0">' + T.esc(r.summary || '—') + '</p></div>' +
+      '<p style="font-size:13.5px;color:#d8d2c4;line-height:1.55;margin:0">' + T.esc(r.summary || '—') + '</p>' +
+      '<p class="dim" style="font-size:11px;margin:10px 0 0">Dianalisis model AI publik (Pollinations) — pengetahuan model bisa kedaluwarsa.</p></div>' +
       kartu('Tingkat Keyakinan AI',
         '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span class="dim" style="font-size:11.5px">Keyakinan model</span><b style="font-size:19px">' + conf + '%</b></div>' +
         '<div style="height:7px;border-radius:99px;background:#2a251f;overflow:hidden;margin-bottom:6px"><i style="display:block;height:100%;width:' + conf + '%;background:#f5f2ea"></i></div>' +
@@ -179,15 +206,39 @@ export function render(root) {
         (sesat.length ? '<div style="border:1px solid #ffffff18;border-radius:11px;padding:12px 14px;background:#12100d;margin-top:12px">' +
           '<div style="font-size:11.5px;margin-bottom:8px"><b>Elemen Menyesatkan</b></div><ul style="margin:0;padding-left:16px;font-size:12.5px;color:#c9bda9;line-height:1.6">' +
           sesat.map((m) => '<li>' + T.esc(m) + '</li>').join('') + '</ul></div>' : '')) +
+      '<div data-w="wiki" style="display:none"></div>' +
       kartu('Klaim yang Ditemukan',
         klaim.length ? klaim.map((c) => '<div style="font-size:13.5px;color:#d8d2c4;padding:9px 0;border-bottom:1px solid #ffffff14;display:flex;gap:10px"><span style="color:#8d8574">•</span><span>' + T.esc(c) + '</span></div>').join('')
           : '<div class="dim" style="font-size:13px">Tidak ada klaim spesifik terdeteksi.</div>') +
       (topik.length ? kartu('Topik Terkait', '<div style="display:flex;flex-wrap:wrap;gap:8px">' + topik.map((t) => '<span style="font-size:11.5px;padding:6px 12px;border-radius:99px;border:1px solid #ffffff18;color:#c9bda9">' + T.esc(t) + '</span>').join('') + '</div>') : '') +
       kartu('Konteks', '<p style="font-size:13px;color:#c9bda9;line-height:1.65;margin:0;border-left:2px solid #8d8574;padding-left:12px">' + T.esc(r.context || '—') + '</p>') +
+      kartu('Cek sendiri ke situs cek fakta',
+        '<p class="dim" style="font-size:12.5px;line-height:1.6;margin:0 0 10px">Klaim ini belum dicek ke situs cek fakta — tombol di bawah membuka pencarian dengan kata kunci klaim, supaya kamu bisa cek sendiri.</p>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<a class="btn" href="https://turnbackhoax.id/?s=' + encodeURIComponent(kataKunci) + '" target="_blank" rel="noopener">Cari klaim ini di TurnBackHoax ↗</a>' +
+        '<a class="btn" href="https://www.google.com/search?q=site%3Acekfakta.com+' + encodeURIComponent(kataKunci) + '" target="_blank" rel="noopener">Cari di CekFakta ↗</a></div>') +
       '<button class="btn" data-r="reset" style="display:block;margin:4px auto 0;font-size:12.5px">Cek klaim lain</button>');
     resBox.querySelector('[data-r=reset]').onclick = () => { ta.value = ''; hitung(); T.hide(resBox); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    if (entitas.length) isiWikipedia(resBox, entitas);
     resBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return v;
+  };
+
+  // Isi kotak konteks Wikipedia (async, setelah kartu hasil tampil). Gagal = kotak hilang diam-diam.
+  const isiWikipedia = async (box, entitas) => {
+    const wadah = box.querySelector('[data-w=wiki]');
+    if (!wadah) return;
+    for (const e of entitas) {
+      const w = await cariWikipedia(e);
+      if (!w) continue;
+      wadah.style.display = '';
+      wadah.innerHTML = kartu('Konteks latar dari Wikipedia',
+        '<p style="font-size:13px;line-height:1.65;color:#d8d2c4;margin:0 0 8px">' + T.esc(w.ringkas) + '</p>' +
+        '<a href="' + T.esc(w.url) + '" target="_blank" rel="noopener" style="font-size:12.5px;color:#8ab8ff">Baca di Wikipedia: ' + T.esc(w.judul) + ' ↗</a>' +
+        '<p class="dim" style="font-size:11px;margin:8px 0 0">Ini konteks latar, bukan vonis — ringkasan Wikipedia membantu memahami entitasnya, bukan membuktikan klaim benar atau salah.</p>');
+      return;
+    }
+    wadah.remove();
   };
 
   const tampilHasilHeuristik = (s, h) => {
@@ -264,10 +315,15 @@ export function render(root) {
     } catch (e) {
       if (e && e.name === 'AbortError') return;
       selesaiLoading();
+      const kenaLimit = e && (e.status === 402 || e.status === 429);
+      if (kenaLimit) {
+        T.show(out, errBox('Terlalu sering — tunggu sekitar 30 detik lalu coba lagi. Sementara itu, hasil di bawah memakai mode cadangan (bukan analisis AI).'));
+        T.toast('AI sedang dibatasi — tunggu sekitar 30 detik');
+      }
       const h = analisisHeuristik(s);
       const v = tampilHasilHeuristik(s, h);
       catat(s, v, '');
-      T.toast('AI tidak merespons — memakai mode cadangan');
+      if (!kenaLimit) T.toast('AI tidak merespons — memakai mode cadangan');
     }
   };
 
