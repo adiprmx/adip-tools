@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 // Rumus one-rep max (1RM) dari beban + repetisi:
 // - Brzycki (1993): W / (1.0278 - 0.0278 x R)
@@ -20,7 +20,7 @@ export function render(root) {
       const w = T.num(beban.value);
       const r = T.num(reps.value);
       if (!(w > 0) || !(r > 0) || !Number.isInteger(r)) {
-        T.show(box, '<span class="err">Isi beban dengan angka dan repetisi dengan bilangan bulat yang valid.</span>');
+        T.show(box, '<span class="err">Isi beban dengan angka dan repetisi dengan angka bulat.</span>');
         return;
       }
       if (r > 10) {

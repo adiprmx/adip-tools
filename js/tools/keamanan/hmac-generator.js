@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "hmac-generator", "name": "HMAC Generator", "cat": "keamanan", "icon": "🔏", "desc": "Buat HMAC-SHA256/SHA-512 dari teks + secret key.", "keywords": "hmac,sha,secret,api"};
 export function render(root) {
@@ -23,7 +23,7 @@ export function render(root) {
           '<div class="kv"><span class="k">Hex</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(hex) + '</span></div>' +
           '<div class="kv"><span class="k">Base64</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(b64) + '</span></div>');
         out.appendChild(T.row(T.btn('Salin Hex', () => T.copy(hex)), T.btn('Salin Base64', () => T.copy(b64))));
-      } catch (e) { T.show(out, '<span class="err">Gagal: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(out, '<span class="err">Tidak bisa: ' + T.esc(e.message) + '</span>'); }
     };
     root.appendChild(T.field('Teks / pesan', txt));
     root.appendChild(T.field('Secret key', key, 'Kunci rahasia hanya dipakai di browser ini.'));

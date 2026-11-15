@@ -59,9 +59,17 @@ export async function fetchFileLokal(data) {
       for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
       return out;
     }
-    return new Uint8Array(await (await fetch(data)).arrayBuffer());
+    // Cek res.ok: tanpa ini, URL 404/500 diam-diam menghasilkan byte halaman
+    // error sebagai "file media" dan ffmpeg gagal dengan pesan membingungkan.
+    const res = await fetch(data);
+    if (!res.ok) throw new Error('Gagal mengunduh ' + data.slice(0, 80) + ' (HTTP ' + res.status + ')');
+    return new Uint8Array(await res.arrayBuffer());
   }
-  if (data instanceof URL) return new Uint8Array(await (await fetch(data)).arrayBuffer());
+  if (data instanceof URL) {
+    const res = await fetch(data);
+    if (!res.ok) throw new Error('Gagal mengunduh ' + String(data).slice(0, 80) + ' (HTTP ' + res.status + ')');
+    return new Uint8Array(await res.arrayBuffer());
+  }
   if (data instanceof File || data instanceof Blob) {
     return new Uint8Array(await new Promise((resolve, reject) => {
       const r = new FileReader();
@@ -79,10 +87,11 @@ export const CORE_SIZE_LABEL = 'sekitar 31 MB';
 
 let instance = null;      // instance FFmpeg yang sedang hidup
 let loadPromise = null;   // janji load yang sedang berjalan (anti dobel)
+let loadSeq = 0;          // nomor urut load (penjaga finally, lihat loadFFmpeg)
 let ffmpegClass = null;   // kelas FFmpeg hasil dynamic import ESM (di-cache)
 let coreBlobs = null;     // { coreURL, wasmURL } blob URL, dipertahankan antar load
 let loadAbort = null;     // AbortController untuk fase unduh
-let runCancel = null;     // penolak janji run yang sedang berjalan
+let runCancels = new Set(); // penolak janji run yang sedang berjalan (bisa >1)
 let lastLogLine = '';     // baris log terakhir, untuk pesan error yang jelas
 
 export function cancelledError() {
@@ -158,12 +167,19 @@ export function loadFFmpeg(onStage) {
   if (instance) return Promise.resolve({ ffmpeg: instance, fetchFile: fetchFileLokal });
   if (loadPromise) return loadPromise;
   const report = (stage, pct, label) => { if (onStage) { try { onStage({ stage, pct, label }); } catch (e) {} } };
-  loadPromise = (async () => {
-    const sup = supportsFFmpeg();
-    if (!sup.ok) throw new Error(sup.reason);
+  // Nomor urut load ini. finally di bawah hanya boleh membersihkan state
+  // bila TIDAK ADA load yang lebih baru (bug race, ditemukan 15 Nov 2026:
+  // cancel lalu load ulang — finally load lama menimpa loadPromise/loadAbort
+  // milik load baru, sehingga load baru jadi yatim: tidak bisa dibatalkan
+  // lagi dan load berikutnya memulai unduhan paralel kedua).
+  const mySeq = ++loadSeq;
+  const p = (async () => {
     loadAbort = new AbortController();
-    const signal = loadAbort.signal;
+    const myAbort = loadAbort;
+    const signal = myAbort.signal;
     try {
+      const sup = supportsFFmpeg();
+      if (!sup.ok) throw new Error(sup.reason);
       report('mesin', 0, 'Menyiapkan mesin…');
       if (!ffmpegClass) {
         const mod = await importModule(URL_FFMPEG_ESM, 30000);
@@ -175,16 +191,25 @@ export function loadFFmpeg(onStage) {
         // toBlobURL). Core ESM wajib: module worker memuat core via
         // import(), dan hanya build ESM yang punya `export default`.
         report('unduh', 0, 'Mengunduh mesin (' + CORE_SIZE_LABEL + ')…');
-        const coreURL = await fetchBlobURL(URL_CORE_JS, 'text/javascript', null, signal);
-        const wasmURL = await fetchBlobURL(URL_CORE_WASM, 'application/wasm', (loaded, total) => {
-          // content-length CDN adalah ukuran TERKOMPRESI (~7 MB) sementara
-          // loaded menghitung byte hasil dekompresi (~31 MB) — persen bisa
-          // tembus 100% bila tidak dibatasi, jadi dibatasi di 100.
-          const pct = total ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
-          report('unduh', pct, total && loaded <= total
-            ? 'Mengunduh mesin ' + pct + '% (' + (loaded / 1048576).toFixed(1) + ' dari ' + (total / 1048576).toFixed(1) + ' MB)…'
-            : 'Mengunduh mesin (' + (loaded / 1048576).toFixed(1) + ' MB)…');
-        }, signal);
+        let coreURL = null, wasmURL = null;
+        try {
+          coreURL = await fetchBlobURL(URL_CORE_JS, 'text/javascript', null, signal);
+          wasmURL = await fetchBlobURL(URL_CORE_WASM, 'application/wasm', (loaded, total) => {
+            // content-length CDN adalah ukuran TERKOMPRESI (~7 MB) sementara
+            // loaded menghitung byte hasil dekompresi (~31 MB) — persen bisa
+            // tembus 100% bila tidak dibatasi, jadi dibatasi di 100.
+            const pct = total ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+            report('unduh', pct, total && loaded <= total
+              ? 'Mengunduh mesin ' + pct + '% (' + (loaded / 1048576).toFixed(1) + ' dari ' + (total / 1048576).toFixed(1) + ' MB)…'
+              : 'Mengunduh mesin (' + (loaded / 1048576).toFixed(1) + ' MB)…');
+          }, signal);
+        } catch (e) {
+          // Unduhan gagal di tengah jalan: bebaskan blob yang sudah jadi
+          // supaya tidak bocor (coreBlobs hanya diisi bila keduanya sukses).
+          if (coreURL) URL.revokeObjectURL(coreURL);
+          if (wasmURL) URL.revokeObjectURL(wasmURL);
+          throw e;
+        }
         coreBlobs = { coreURL, wasmURL };
       }
       report('siap', 0, 'Memuat mesin ke memori…');
@@ -193,19 +218,32 @@ export function loadFFmpeg(onStage) {
       // Worker ESM same-origin yang di-vendor (URL absolut hasil resolve
       // terhadap import.meta.url — lihat catatan WORKER_URL di atas).
       const loaded = ffmpeg.load({ classWorkerURL: WORKER_URL, coreURL: coreBlobs.coreURL, wasmURL: coreBlobs.wasmURL });
-      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Mesin lama dimuat. Coba muat ulang halaman ini, atau pakai Chrome versi terbaru.')), 90000));
-      await Promise.race([loaded, timeout]);
+      // Timer 90 detik WAJIB dibersihkan bila load berhasil/gagal cepat,
+      // kalau tidak ia menggantung sampai 90 detik setiap kali load.
+      let loadTimer = null;
+      try {
+        const timeout = new Promise((_, reject) => { loadTimer = setTimeout(() => reject(new Error('Mesin lama dimuat. Coba muat ulang halaman ini, atau pakai Chrome versi terbaru.')), 90000); });
+        await Promise.race([loaded, timeout]);
+      } finally {
+        if (loadTimer) clearTimeout(loadTimer);
+      }
       instance = ffmpeg;
       return { ffmpeg, fetchFile: fetchFileLokal };
     } catch (e) {
       if (isCancelled(e) || (signal && signal.aborted)) throw cancelledError();
       throw e;
     } finally {
-      loadAbort = null;
-      loadPromise = null;
+      // Hanya bersihkan bila state ini masih milik load ini — load yang
+      // lebih baru (setelah cancel + load ulang) tidak boleh ditimpa.
+      if (loadAbort === myAbort) loadAbort = null;
+      if (loadSeq === mySeq) loadPromise = null;
     }
   })();
-  return loadPromise;
+  loadPromise = p;
+  // Bila IIFE gagal SINKRON (mis. browser tidak didukung), finally-nya jalan
+  // sebelum assignment di atas sehingga tidak bisa membersihkan — sapu di sini.
+  p.catch(() => { if (loadPromise === p) loadPromise = null; });
+  return p;
 }
 
 // Jalankan satu perintah ffmpeg. onProgress menerima 0-1 (bisa tetap 0 bila
@@ -225,11 +263,14 @@ export function runFFmpeg(ffmpeg, args, onProgress) {
       if (done) return;
       done = true;
       try { ffmpeg.off('progress', onP); } catch (e) {}
-      if (runCancel === cancelMe) runCancel = null;
+      runCancels.delete(cancelMe);
       fn(val);
     };
     const cancelMe = () => finish(reject, cancelledError());
-    runCancel = cancelMe;
+    // Set, bukan slot tunggal: dua run bersamaan (mis. dua tool ffmpeg atau
+    // klik ganda) masing-masing harus bisa dibatalkan; slot tunggal membuat
+    // run pertama tidak bisa dibatalkan lagi (penolaknya tertimpa).
+    runCancels.add(cancelMe);
     ffmpeg.exec(args).then((code) => {
       if (code === 0) finish(resolve, code);
       else finish(reject, new Error('Proses gagal (kode ' + code + ')' + (lastLogLine ? ': ' + lastLogLine : '')));
@@ -242,7 +283,11 @@ export function runFFmpeg(ffmpeg, args, onProgress) {
 // dipertahankan, jadi tidak mengunduh ulang ~31 MB).
 export function cancelFFmpeg() {
   if (loadAbort) { try { loadAbort.abort(); } catch (e) {} }
-  if (runCancel) { const c = runCancel; runCancel = null; c(); }
+  if (runCancels.size) {
+    const all = [...runCancels];
+    runCancels.clear();
+    for (const c of all) { try { c(); } catch (e) {} }
+  }
   if (instance) { try { instance.terminate(); } catch (e) {} instance = null; }
   loadPromise = null;
 }

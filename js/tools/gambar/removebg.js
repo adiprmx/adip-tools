@@ -1,4 +1,4 @@
-import { h as T, utils, imglyRemoval } from '../../core.js?v=6.11.5';
+import { h as T, utils, imglyRemoval } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "removebg", "name": "Remove BG", "cat": "gambar", "icon": "🪄", "desc": "Hapus background foto otomatis, 100% di perangkat.", "keywords": "hapus background,remove bg,transparan,foto,produk"};
 
@@ -53,7 +53,7 @@ export function withTimeout(p, ms, msg) {
 }
 
 export function render(root) {
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Hapus background foto secara otomatis — tanpa upload ke server, semua di HP-mu. Geser pembanding untuk melihat sebelum/sesudah, lalu unduh PNG/JPEG/WebP.<br><span class="dim" style="font-size:12px">Engine: @imgly/background-removal 1.7.0 (MIT). Bila AI gagal, tersedia mode chroma-key lokal.</span></p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Hapus background foto secara otomatis — tanpa upload ke server, semua di HP-mu. Geser pembanding untuk melihat sebelum/sesudah, lalu unduh PNG/JPEG/WebP.<br><span class="dim" style="font-size:12px">Engine: @imgly/background-removal 1.7.0 (AGPL-3.0). Bila AI gagal, tersedia mode chroma-key lokal.</span></p>'));
 
   const tabs = T.el('<div style="display:flex;gap:6px;margin-bottom:10px"></div>');
   const tUp = T.btn('Upload', null); tUp.classList.add('primary');
@@ -65,7 +65,7 @@ export function render(root) {
   const fileInp = T.el('<input type="file" accept="image/jpeg,image/png,image/webp" hidden>');
   const urlWrap = T.el('<div hidden></div>');
   const urlInp = T.input('url', 'https://contoh.com/foto.jpg');
-  urlWrap.appendChild(T.field('URL gambar', urlInp));
+  urlWrap.appendChild(T.field('URL gambar', urlInp, 'Gambar diambil lewat layanan perantara publik agar bisa dibaca browser — jangan pakai URL berisi foto pribadi atau rahasia.'));
   urlWrap.appendChild(T.row(T.btn('Ambil gambar', () => fromUrl(), true)));
   root.appendChild(dz); root.appendChild(fileInp); root.appendChild(urlWrap);
 

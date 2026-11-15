@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {
   id: 'simulasi-deposito',
@@ -24,7 +24,7 @@ export function render(root) {
     const bunga = T.num(bungaI.value);
     if (!(pokok > 0)) { T.show(box, '<p class="warn">Isi dulu pokok depositonya (Rp).</p>'); return; }
     if (!(tenor > 0)) { T.show(box, '<p class="warn">Tenor minimal 1 bulan.</p>'); return; }
-    if (!(bunga >= 0)) { T.show(box, '<p class="warn">Bunga tahunannya belum valid.</p>'); return; }
+    if (!(bunga >= 0)) { T.show(box, '<p class="warn">Bunga tahunannya belum benar.</p>'); return; }
 
     const bruto = pokok * (bunga / 100) * (tenor / 12); // bunga sederhana (flat)
     const pajak = bruto * 0.20;                        // PPh bunga deposito 20%
@@ -41,7 +41,7 @@ export function render(root) {
       kv('Bunga bersih', '<b>+' + T.rp(bersih) + '</b>') +
       kv('Estimasi / bulan', T.rp(perBulan)) +
       '<p class="hint">Dihitung dengan bunga sederhana (flat), belum termasuk biaya admin/pinalti kalau dicairkan sebelum jatuh tempo. ' +
-      'Bunga tiap bank beda-beda — angka di atas pakai yang kamu input sendiri.</p>');
+      'Bunga tiap bank beda-beda — angka di atas pakai yang kamu isi sendiri.</p>');
   };
 
   root.appendChild(T.el('<p class="note">Deposito itu "uang kerja diam-diam": taruh, tunggu, panen bunga. Tapi ingat, bunganya dipotong pajak 20% — yang masuk kantongmu itu yang bersih.</p>'));

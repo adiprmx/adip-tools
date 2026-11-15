@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, loadImage, fileInput, canvasToBlob, LOCAL_NOTE, errBox } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave, loadImage, fileInput, canvasToBlob, LOCAL_NOTE, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "efek-komik", "name": "Efek Komik", "cat": "gambar", "icon": "💥", "desc": "Ubah foto jadi gaya komik: kontras tegas + halftone + outline.", "keywords": "komik,halftone,foto,efek,posterize"};
 
@@ -53,7 +53,7 @@ export function render(root) {
     const f = fi.files[0];
     if (!f) { T.toast('Pilih gambar dulu'); return; }
     let img;
-    try { img = await loadImage(f); } catch (e) { T.show(box, errBox('File bukan gambar yang valid.')); return; }
+    try { img = await loadImage(f); } catch (e) { T.show(box, errBox('File itu bukan gambar. Pilih file gambar.')); return; }
     const s = Math.min(1, 1100 / Math.max(img.naturalWidth, img.naturalHeight));
     canvas.width = Math.max(1, Math.round(img.naturalWidth * s));
     canvas.height = Math.max(1, Math.round(img.naturalHeight * s));
@@ -69,7 +69,7 @@ export function render(root) {
   }
 
   root.append(
-    T.el('<p class="dim" style="font-size:13px">Upload foto → diproses jadi gaya komik ala cetakan: warna posterize, titik halftone, dan garis outline tebal.</p>'),
+    T.el('<p class="dim" style="font-size:13px">Pilih foto → diubah jadi gaya komik ala cetakan: warna poster, titik halftone, dan garis tepi tebal.</p>'),
     T.row(pilihBtn, prosesBtn, dlBtn),
     box,
     T.el('<p class="dim" style="font-size:12px;margin-top:10px">🔒 ' + T.esc(LOCAL_NOTE) + '</p>')

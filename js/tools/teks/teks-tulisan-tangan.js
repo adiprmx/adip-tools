@@ -1,4 +1,4 @@
-import { h as T, utils, canvasToBlob } from '../../core.js?v=6.11.5';
+import { h as T, utils, canvasToBlob } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node): bagi teks jadi baris sesuai lebar.
 utils.bungkusTeks = function (teks, maksKarakter) {
@@ -88,7 +88,7 @@ export function render(root) {
     T.btn('Unduh gambar', async () => {
       if (!kanvas.width) { T.toast('Buat dulu tulisannya'); return; }
       const blob = await canvasToBlob(kanvas, 'image/jpeg', 0.92);
-      if (!blob) { T.toast('Gagal membuat gambar'); return; }
+      if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
       T.dl('tulisan-tangan.jpg', blob, 'image/jpeg');
       T.toast('Gambar berhasil diunduh');
     })

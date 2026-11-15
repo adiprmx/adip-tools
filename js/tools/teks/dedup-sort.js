@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 utils.dedupSort = function (text, opts) {
     opts = opts || {};
@@ -16,7 +16,7 @@ utils.dedupSort = function (text, opts) {
     return { text: lines.join('\n'), before, after: lines.length, removed: before - lines.length };
   };
 
-export const meta = {"id": "dedup-sort", "name": "Dedup & Urutkan", "cat": "teks", "icon": "🧲", "desc": "Hapus duplikat & urutkan baris.", "keywords": "duplikat,urut,baris,sort"};
+export const meta = {"id": "dedup-sort", "name": "Hapus Duplikat & Urutkan", "cat": "teks", "icon": "🧲", "desc": "Hapus duplikat & urutkan baris.", "keywords": "duplikat,urut,baris,sort"};
 export function render(root) {
 
       const taIn = T.ta(8, 'Tempel daftar baris di sini…');
@@ -34,7 +34,7 @@ export function render(root) {
         return { el: l, box: c };
       }
       const oDedup = chk('Hapus duplikat', true);
-      const oTrim = chk('Trim spasi tiap baris', true);
+      const oTrim = chk('Hapus spasi di ujung baris', true);
       const oEmpty = chk('Hapus baris kosong', true);
       const sortSel = T.select([['none', 'Tanpa urut'], ['az', 'A → Z'], ['za', 'Z → A']], 'none');
 

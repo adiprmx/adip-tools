@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -6,7 +6,7 @@ const addDays = (d, n) => new Date(d.getTime() + n * 86400000);
 const fmtTgl = (d) => HARI[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + BULAN[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
 const fmtTglShort = (d) => d.getUTCDate() + ' ' + BULAN[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
 
-export const meta = {"id": "siklus-haid", "name": "Siklus Haid & Masa Subur", "cat": "sehari", "icon": "🌸", "desc": "Prediksi haid berikut & jendela masa subur dari HPHT.", "keywords": "haid,mens,masa subur,ovulasi,hpht,siklus,kehamilan"};
+export const meta = {"id": "siklus-haid", "name": "Siklus Haid & Masa Subur", "cat": "sehari", "icon": "🌸", "desc": "Prediksi haid berikut & masa subur dari hari pertama haid terakhir.", "keywords": "haid,mens,masa subur,ovulasi,hpht,siklus,kehamilan"};
 export function render(root) {
 
     const tgl = T.input('date');
@@ -14,12 +14,12 @@ export function render(root) {
     const box = T.out();
 
     const calc = () => {
-      if (!tgl.value) { T.toast('Pilih tanggal HPHT dulu'); return; }
+      if (!tgl.value) { T.toast('Pilih dulu tanggal hari pertama haid terakhir'); return; }
       const [y, mo, d] = tgl.value.split('-').map(Number);
       const hpht = new Date(Date.UTC(y, mo - 1, d));
       const siklus = T.num(siklusI.value);
       if (isNaN(hpht.getTime()) || !isFinite(siklus) || siklus < 15 || siklus > 45) {
-        T.toast('Tanggal HPHT / panjang siklus nggak valid (siklus 15–45 hari)'); return;
+        T.toast('Tanggal atau panjang siklusnya tidak benar (siklus 15–45 hari)'); return;
       }
       const haidBerikut = addDays(hpht, siklus);
       const ovulasi = addDays(haidBerikut, -14);
@@ -30,7 +30,7 @@ export function render(root) {
         '<p class="center">prediksi haid berikut (' + HARI[haidBerikut.getUTCDay()] + ')</p>' +
         kv('HPHT', fmtTgl(hpht)) +
         kv('Ovulasi (perkiraan)', fmtTgl(ovulasi)) +
-        kv('Jendela masa subur', fmtTgl(suburAwal) + ' — ' + fmtTgl(suburAkhir)) +
+        kv('Masa subur', fmtTgl(suburAwal) + ' — ' + fmtTgl(suburAkhir)) +
         '<p class="warn"><b>Penting:</b> ini cuma prediksi kalender, <b>BUKAN alat kontrasepsi</b> — jangan dipakai buat nentuin "aman" atau nggaknya. Siklus tiap orang bisa berubah-ubah. Kalau butuh yang akurat, konsultasi ke dokter atau bidan ya.</p>');
     };
     tgl.addEventListener('change', calc);

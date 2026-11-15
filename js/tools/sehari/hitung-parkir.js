@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node)
 utils.biayaParkir = function (o) {
@@ -30,7 +30,7 @@ export function render(root) {
   inap.type = 'checkbox';
   const box = T.out();
 
-  const fldFlat = T.field('Tarif flat per 24 jam (Rp)', flat);
+  const fldFlat = T.field('Tarif tetap per 24 jam (Rp)', flat);
   T.hide(fldFlat);
   const fldNext = T.field('Tarif per jam berikutnya (Rp)', next);
 
@@ -56,7 +56,7 @@ export function render(root) {
     if (T.num(hours.value) <= 0) { T.show(box, '<div class="hint">⚠️ Isi durasi parkir dulu.</div>'); return; }
     let rincian;
     if (r.inap) {
-      rincian = `<div class="kv"><span>Blok 24 jam</span><b>${r.blocks} × ${T.rp(T.num(flat.value))}</b></div>`;
+      rincian = `<div class="kv"><span>Periode 24 jam</span><b>${r.blocks} × ${T.rp(T.num(flat.value))}</b></div>`;
     } else {
       const h = T.num(hours.value);
       rincian = h <= 1
@@ -67,14 +67,14 @@ export function render(root) {
     T.show(box,
       rincian +
       `<div class="kv"><span><b>Total biaya parkir</b></span><b style="color:#fff">${T.rp(r.total)}</b></div>` +
-      `<div class="hint">${inap.checked ? 'Mode inap: tiap kelipatan 24 jam dihitung 1 tarif flat.' : 'Jam berikutnya dibulatkan ke atas per jam penuh.'}</div>`
+      `<div class="hint">${inap.checked ? 'Mode inap: tiap kelipatan 24 jam dihitung 1 tarif tetap.' : 'Jam berikutnya dibulatkan ke atas per jam penuh.'}</div>`
     );
   }
 
   const inapRow = T.el('<label style="display:flex;align-items:center;gap:8px;font-size:14px;margin:8px 0"></label>');
   inap.style.cssText = 'width:18px;height:18px;accent-color:#fff';
   inapRow.appendChild(inap);
-  inapRow.appendChild(T.el('<span>Parkir inap (tarif flat per 24 jam)</span>'));
+  inapRow.appendChild(T.el('<span>Parkir inap (tarif tetap per 24 jam)</span>'));
 
   root.appendChild(T.field('Jenis kendaraan', kendaraan));
   root.appendChild(T.field('Durasi parkir (jam)', hours));

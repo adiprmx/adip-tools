@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "ucapan-generator", "name": "Generator Ucapan", "cat": "teks", "icon": "💌", "desc": "Bikin ucapan Lebaran, nikah, ultah, dan lainnya.", "keywords": "ucapan,lebaran,nikah,ultah,kartu,selamat", "file": "tools/teks/ucapan-generator.js"};
 export function render(root) {
@@ -8,7 +8,7 @@ export function render(root) {
       label: 'Idul Fitri',
       formal: [
         'Selamat Hari Raya Idul Fitri, {nama}. Taqabbalallahu minna wa minkum. Kami sekeluarga mohon maaf lahir dan batin atas segala kekhilafan. — {dari}',
-        'Taqabbalallahu minna wa minkum, shiyamana wa shiyamakum. Selamat Idul Fitri untuk {nama} dan keluarga. Semoga kita kembali ke fitrah dan senantiasa dalam keberkahan. Mohon maaf lahir dan batin. — {dari}',
+        'Taqabbalallahu minna wa minkum, shiyamana wa shiyamakum. Selamat Idul Fitri untuk {nama} dan keluarga. Semoga kita kembali ke fitrah dan selalu dalam keberkahan. Mohon maaf lahir dan batin. — {dari}',
         'Di hari yang suci ini, kami mengucapkan Selamat Hari Raya Idul Fitri kepada {nama}. Minal aidin wal faizin, mohon maaf lahir dan batin. — {dari}'
       ],
       hangat: [

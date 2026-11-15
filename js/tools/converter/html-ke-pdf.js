@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.11.5';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"html-ke-pdf","name":"HTML ke PDF","cat":"converter","icon":"📄","desc":"Ubah kode HTML jadi file PDF ukuran A4.","keywords":"html,pdf,konversi,dokumen,cetak,a4","since":"6.11.0"};
 
@@ -41,11 +41,11 @@ export function render(root) {
       return false;
     };
     return (async () => {
-      T.show(box, '<span class="dim">Memuat pustaka PDF…</span>');
+      T.show(box, '<span class="dim">Menyiapkan alat PDF…</span>');
       const h2c = await coba(H2C_CDNS, () => typeof window.html2canvas === 'function');
       const pdf = h2c && await coba(JSPDF_CDNS, () => !!(window.jspdf && window.jspdf.jsPDF));
       libsOk = !!(h2c && pdf);
-      if (!libsOk) T.show(box, errBox('Gagal memuat pustaka PDF dari internet. Periksa koneksi, lalu coba lagi.'));
+      if (!libsOk) T.show(box, errBox('Alat PDF tidak bisa dimuat dari internet. Periksa koneksi, lalu coba lagi.'));
       return libsOk;
     })();
   };
@@ -104,13 +104,13 @@ export function render(root) {
       }, true)));
       T.toast('PDF jadi, ' + pages + ' halaman');
     } catch (e) {
-      T.show(box, errBox('Gagal membuat PDF. Kemungkinan ada gambar dari situs lain yang diblokir browser, atau HTML-nya terlalu rumit. Coba sederhanakan isinya.'));
+      T.show(box, errBox('PDF tidak bisa dibuat. Kemungkinan ada gambar dari situs lain yang diblokir browser, atau HTML-nya terlalu rumit. Coba sederhanakan isinya.'));
     } finally {
       stage.remove();
     }
   };
 
-  root.appendChild(T.el('<p class="note">Diproses di browser. Pustaka PDF dimuat sekali dari internet saat tombol ditekan.</p>'));
+  root.appendChild(T.el('<p class="note">Diproses di browser. Alat PDF dimuat sekali dari internet saat tombol ditekan.</p>'));
   root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Tempel kode HTML, lihat pratinjaunya, lalu buat PDF ukuran A4. Cocok untuk dokumen sederhana seperti laporan, daftar, atau surat. Gambar dari situs lain kadang tidak muncul karena aturan situs tersebut.</p>'));
   root.appendChild(T.field('Kode HTML', ta));
   root.appendChild(T.row(contohBtn));

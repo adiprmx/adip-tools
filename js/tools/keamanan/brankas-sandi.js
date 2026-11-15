@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 /* Enkripsi AES-GCM via WebCrypto — pendekatan meniru catatan-terkunci.js.
  * Satu vault terenkripsi menyimpan {cek, entri[]}; password tidak pernah
@@ -89,7 +89,7 @@ export function render(root) {
             master = a;
             draw();
             T.toast('Brankas jadi! Master password-nya dicatat ya.');
-          } catch (e) { T.show(msg, '<span class="err">Gagal: ' + T.esc(e.message || e) + '</span>'); }
+          } catch (e) { T.show(msg, '<span class="err">Tidak bisa: ' + T.esc(e.message || e) + '</span>'); }
         }, 30);
       }, true)));
       b.appendChild(msg);
@@ -238,7 +238,7 @@ export function render(root) {
           master = a;
           n1.value = ''; n2.value = '';
           T.show(msg2, '<span class="ok">✅ Master password diganti, brankas di-enkripsi ulang.</span>');
-        } catch (e) { T.show(msg2, '<span class="err">Gagal: ' + T.esc(e.message || e) + '</span>'); }
+        } catch (e) { T.show(msg2, '<span class="err">Tidak bisa: ' + T.esc(e.message || e) + '</span>'); }
       })));
       b.appendChild(msg2);
 

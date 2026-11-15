@@ -1,4 +1,4 @@
-import { h as T, kv, canvasToBlob, errBox } from '../../core.js?v=6.11.5';
+import { h as T, kv, canvasToBlob, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"chart-maker","name":"Chart Maker","cat":"desain","icon":"📊","desc":"Ubah tabel angka jadi grafik batang, garis, atau pie.","keywords":"grafik,chart,batang,pie,garis,data,tabel","since":"6.11.0"};
 
@@ -233,7 +233,7 @@ export function render(root) {
       T.btn('Unduh PNG', async () => {
         const blob = await canvasToBlob(canvas, 'image/png');
         if (blob) T.dl('grafik.png', blob, 'image/png');
-        else T.toast('Gagal membuat PNG');
+        else T.toast('PNG tidak bisa dibuat');
       }, true),
       T.btn('Unduh SVG', () => {
         T.dl('grafik.svg', buildSvg(curRows, curType, judulInp.value.trim()), 'image/svg+xml;charset=utf-8');

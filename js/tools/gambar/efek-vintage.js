@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "efek-vintage", "name": "Efek Vintage", "cat": "gambar", "icon": "📷", "desc": "Ubah foto jadi nuansa vintage: sepia, vignette, grain.", "keywords": "vintage,foto,filter,sepia,vignette,grain,foto jadul"};
 export function render(root) {
@@ -79,7 +79,7 @@ export function render(root) {
       T.btn('Unduh PNG', () => {
         canvas.toBlob((blob) => {
           if (blob) T.dl('efek-vintage.png', blob, 'image/png');
-          else T.toast('Gagal membuat file, coba lagi');
+          else T.toast('Filenya tidak bisa dibuat, coba lagi');
         }, 'image/png');
       }, true)
     ));
@@ -106,7 +106,7 @@ export function render(root) {
       showResult();
       T.toast('Foto siap, geser slider buat atur efeknya');
     }).catch(() => {
-      T.show(box, '<div style="color:#ef4444;font-size:13px">File-nya bukan gambar yang valid nih, coba foto lain.</div>');
+      T.show(box, '<div style="color:#ef4444;font-size:13px">File-nya bukan gambar nih, coba foto lain.</div>');
     });
     file.value = '';
   });

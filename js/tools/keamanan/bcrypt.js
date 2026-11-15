@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "bcrypt", "name": "Bcrypt Hasher", "cat": "keamanan", "icon": "🔐", "desc": "Hash password ala bcrypt + verifikasi.", "keywords": "bcrypt,hash,password"};
 export function render(root) {
@@ -28,9 +28,9 @@ export function render(root) {
             T.show(hashOut,
               '<div class="kv"><span class="k">Hash</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(h) + '</span></div>');
             hashOut.appendChild(T.row(T.btn('Salin Hash', () => T.copy(h))));
-          } catch (e) { T.show(hashOut, '<span class="err">Gagal: ' + T.esc(e.message) + '</span>'); }
+          } catch (e) { T.show(hashOut, '<span class="err">Tidak bisa: ' + T.esc(e.message) + '</span>'); }
         }, 30);
-      } catch (e) { T.show(hashOut, '<span class="err">Gagal: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(hashOut, '<span class="err">Tidak bisa: ' + T.esc(e.message) + '</span>'); }
     };
     const goVerify = () => {
       const pw = vPw.value, h = vHash.value.trim();
@@ -40,19 +40,19 @@ export function render(root) {
         T.show(vOut, ok
           ? '<span class="ok">✅ Cocok! Password sesuai dengan hash ini.</span>'
           : '<span class="err">❌ Tidak cocok. Password tidak sesuai dengan hash ini.</span>');
-      } catch (e) { T.show(vOut, '<span class="err">Hash tidak valid: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(vOut, '<span class="err">Hash-nya tidak benar: ' + T.esc(e.message) + '</span>'); }
     };
 
-    T.show(status, '<span class="dim">⏳ Memuat library bcrypt…</span>');
+    T.show(status, '<span class="dim">⏳ Menyiapkan alat bcrypt…</span>');
     root.appendChild(status);
     root.appendChild(wrap);
     T.hide(wrap);
 
     T.loadScript(CDN).then((ok) => {
       if (!ok || !B()) {
-        status.innerHTML = '<span class="err">⚠️ CDN tidak bisa dimuat, cek koneksi internet kamu.</span>';
+        status.innerHTML = '<span class="err">⚠️ Alat bcrypt tidak bisa dimuat, cek koneksi internet kamu.</span>';
         const retry = T.btn('🔄 Coba Lagi', () => {
-          status.innerHTML = '<span class="dim">⏳ Memuat library bcrypt…</span>';
+          status.innerHTML = '<span class="dim">⏳ Menyiapkan alat bcrypt…</span>';
           T.loadScript(CDN).then((ok2) => {
             if (!ok2 || !B()) {
               status.innerHTML = '<span class="err">⚠️ Masih gagal. Coba lagi nanti.</span>';

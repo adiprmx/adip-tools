@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node)
 utils.gajiFreelance = function (o) {
@@ -83,14 +83,17 @@ export function render(root) {
   const fldHari = T.field('Hari kerja yang dijalani', hariI);
   const fldPotongan = T.grid2(
     T.field('Potongan platform (%)', platform),
-    T.field('Pajak (%)', tax)
+    T.field('Pajak (%)', tax, 'Freelancer UMKM omzet di bawah Rp4,8 M/tahun bisa pakai PPh final 0,5% (PP 23/2018).')
   );
+  const presetPajak = T.btn('Pakai 0,5% (PPh final UMKM)', () => { tax.value = '0.5'; calc(); T.toast('Pajak disetel 0,5%'); });
+  const presetRow = T.row(presetPajak);
 
   const aturTampil = () => {
     const m = mode.value;
     fldRate.hidden = true; fldHours.hidden = true; fldProjects.hidden = true; fldHpp.hidden = true;
     fldTarget.hidden = true; fldJamProduktif.hidden = true; fldSistem.hidden = true; fldHari.hidden = true;
     fldPotongan.hidden = true;
+    presetRow.hidden = m === 'prorata';
     if (m === 'jam') {
       fldRate.hidden = false; fldHours.hidden = false; fldPotongan.hidden = false;
       fldRate.querySelector('label').textContent = 'Rate per jam (Rp)';
@@ -122,6 +125,7 @@ export function render(root) {
         `<div class="kv"><span>Potongan platform</span><b>− ${T.rp(r.potPlatform)}</b></div>` +
         `<div class="kv"><span>Potongan pajak</span><b>− ${T.rp(r.potPajak)}</b></div>` +
         `<div class="kv"><span><b>Gaji bersih / bulan</b></span><b style="color:#fff">${T.rp(Math.round(r.net))}</b></div>` +
+        `<div class="kv"><span>Gaji bersih / tahun</span><b>${T.rp(Math.round(r.net * 12))}</b></div>` +
         `<p class="hint">Hitungan balik: tarif = target dibagi jam produktif setelah memperhitungkan potongan platform dan pajak. Kalau tarifnya terasa kemahalan untuk pasar, tambah jam produktif atau turunkan targetnya.</p>`
       );
       return;
@@ -155,6 +159,7 @@ export function render(root) {
       `<div class="kv"><span>Potongan platform</span><b>− ${T.rp(r.potPlatform)}</b></div>` +
       `<div class="kv"><span>Potongan pajak</span><b>− ${T.rp(r.potPajak)}</b></div>` +
       `<div class="kv"><span><b>Gaji bersih / bulan</b></span><b style="color:#fff">${T.rp(r.net)}</b></div>` +
+      `<div class="kv"><span>Gaji bersih / tahun</span><b>${T.rp(Math.round(r.net * 12))}</b></div>` +
       `<div class="kv"><span>Total jam kerja</span><b>${T.fmt(r.hours)} jam</b></div>` +
       `<div class="kv"><span>Tarif efektif per jam</span><b>${T.rp(r.effective)}</b></div>`
     );
@@ -170,6 +175,7 @@ export function render(root) {
   root.appendChild(fldSistem);
   root.appendChild(fldHari);
   root.appendChild(fldPotongan);
+  root.appendChild(presetRow);
   root.appendChild(T.btn('Hitung gaji', calc, true));
   root.appendChild(box);
   aturTampil();

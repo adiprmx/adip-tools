@@ -1,4 +1,4 @@
-import { h as T, utils, fileInput } from '../../core.js?v=6.11.5';
+import { h as T, utils, fileInput } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "tanda-tangan", "name": "Tanda Tangan Digital", "cat": "produktivitas", "icon": "✍️", "desc": "Tanda tangan di layar pakai jari atau stylus, unduh sebagai gambar transparan untuk ditempel di dokumen.", "keywords": "tanda tangan,signature,ttd,canvas,transparan,dokumen"};
 
@@ -175,12 +175,12 @@ export function render(root) {
     ambang.addEventListener('input', olahFoto);
     const fotoUnduh = () => {
       if (!fotoImg) { T.toast('Pilih dulu foto tanda tangan'); return; }
-      unduhCanvas(fotoCanvas, 'tanda-tangan-foto.png');
+      unduhCanvas(potongTransparan(fotoCanvas), 'tanda-tangan-foto.png');
       T.toast('Gambar tanda tangan terunduh');
     };
     const fotoSimpan = () => {
       if (!fotoImg) { T.toast('Pilih dulu foto tanda tangan'); return; }
-      if (simpanUntukPdf(fotoCanvas)) T.toast('Tersimpan, bisa dipakai di PDF Lab');
+      if (simpanUntukPdf(potongTransparan(fotoCanvas))) T.toast('Tersimpan, bisa dipakai di PDF Lab');
       else T.toast('Gagal menyimpan, memori browser penuh');
     };
 
@@ -196,12 +196,72 @@ export function render(root) {
     root.appendChild(fotoBox);
 
     /* ---- Dari nama yang diketik: gaya kaligrafi ---- */
+    // Potong area transparan di sekeliling isi kanvas (biar hasil unduhan rapat).
+    const potongTransparan = (src) => {
+      const w = src.width, h = src.height;
+      const cx = src.getContext('2d');
+      let d;
+      try { d = cx.getImageData(0, 0, w, h).data; } catch (e) { return src; }
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          if (d[(y * w + x) * 4 + 3] > 10) {
+            if (x < x0) x0 = x; if (x > x1) x1 = x;
+            if (y < y0) y0 = y; if (y > y1) y1 = y;
+          }
+        }
+      }
+      if (x1 < 0) return src;
+      const pad = 8;
+      x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad);
+      x1 = Math.min(w - 1, x1 + pad); y1 = Math.min(h - 1, y1 + pad);
+      const out = document.createElement('canvas');
+      out.width = x1 - x0 + 1; out.height = y1 - y0 + 1;
+      out.getContext('2d').drawImage(src, x0, y0, out.width, out.height, 0, 0, out.width, out.height);
+      return out;
+    };
+
     const namaInp = T.input('text', 'Nama lengkap, mis. Nadhif Aslam', '');
     const gayaSel = T.select([
       ['cursive', 'Tulis tangan (kursif)'],
       ['brush', 'Kuas (Brush Script)'],
       ['segoe', 'Tulis tangan rapi (Segoe Script)'],
+      ['vibes', 'Kaligrafi elegan (Great Vibes)'],
+      ['dancing', 'Tulis tangan santai (Dancing Script)'],
+      ['allura', 'Kaligrafi halus (Allura)'],
+      ['caveat', 'Tulisan tangan cepat (Caveat)'],
     ], 'cursive');
+    const warnaKalSel = T.select([['#111111', 'Hitam'], ['#1a3fd6', 'Biru']], '#111111');
+    // Huruf Google Fonts (gratis) dimuat sekali dari internet saat gaya itu dipilih.
+    const GFONTS = 'https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@700&family=Allura&family=Caveat:wght@700&display=swap';
+    const GAYA_FONT = {
+      cursive: { fam: 'cursive', berat: '' },
+      brush: { fam: '"Brush Script MT", "Segoe Script", cursive', berat: '' },
+      segoe: { fam: '"Segoe Script", "Brush Script MT", cursive', berat: '' },
+      vibes: { fam: '"Great Vibes", cursive', berat: '', gf: true },
+      dancing: { fam: '"Dancing Script", cursive', berat: '700 ', gf: true },
+      allura: { fam: '"Allura", cursive', berat: '', gf: true },
+      caveat: { fam: '"Caveat", cursive', berat: '700 ', gf: true },
+    };
+    let gfontJanji = null, gfontDicoba = false;
+    function pastGfont() {
+      if (!gfontJanji) gfontJanji = new Promise((res) => {
+        const l = document.createElement('link');
+        l.rel = 'stylesheet'; l.href = GFONTS;
+        l.onload = () => {
+          Promise.all([
+            document.fonts.load('72px "Great Vibes"'),
+            document.fonts.load('700 72px "Dancing Script"'),
+            document.fonts.load('72px "Allura"'),
+            document.fonts.load('700 72px "Caveat"'),
+          ]).then(() => res(true)).catch(() => res(false));
+        };
+        l.onerror = () => res(false);
+        document.head.appendChild(l);
+        setTimeout(() => res(false), 15000);
+      });
+      return gfontJanji;
+    }
     const kalCanvas = document.createElement('canvas');
     kalCanvas.width = 640; kalCanvas.height = 200;
     // Latar terang via CSS saja (tidak ikut terunduh) supaya tinta terlihat.
@@ -211,37 +271,42 @@ export function render(root) {
       kx.clearRect(0, 0, 640, 200);
       const nama = namaInp.value.trim();
       if (!nama) return;
-      const fam = gayaSel.value === 'brush' ? '"Brush Script MT", "Segoe Script", cursive' : gayaSel.value === 'segoe' ? '"Segoe Script", "Brush Script MT", cursive' : 'cursive';
+      const g = GAYA_FONT[gayaSel.value] || GAYA_FONT.cursive;
+      if (g.gf && !gfontDicoba) {
+        pastGfont().then(() => { gfontDicoba = true; gambarNama(); });
+      }
       let size = 72;
-      kx.font = 'italic ' + size + 'px ' + fam;
+      kx.font = 'italic ' + g.berat + size + 'px ' + g.fam;
       const w = kx.measureText(nama).width;
-      if (w > 600) { size = Math.max(28, Math.floor(size * 600 / w)); kx.font = 'italic ' + size + 'px ' + fam; }
-      kx.fillStyle = '#111111';
+      if (w > 600) { size = Math.max(28, Math.floor(size * 600 / w)); kx.font = 'italic ' + g.berat + size + 'px ' + g.fam; }
+      kx.fillStyle = warnaKalSel.value || '#111111';
       kx.textBaseline = 'middle';
       kx.fillText(nama, (640 - kx.measureText(nama).width) / 2, 105);
     };
     namaInp.addEventListener('input', gambarNama);
     gayaSel.addEventListener('change', gambarNama);
+    warnaKalSel.addEventListener('change', gambarNama);
     const kalUnduh = () => {
       if (!namaInp.value.trim()) { T.toast('Ketik dulu namanya'); return; }
-      unduhCanvas(kalCanvas, 'tanda-tangan-nama.png');
+      unduhCanvas(potongTransparan(kalCanvas), 'tanda-tangan-nama.png');
       T.toast('Gambar tanda tangan terunduh');
     };
     const kalSimpan = () => {
       if (!namaInp.value.trim()) { T.toast('Ketik dulu namanya'); return; }
-      if (simpanUntukPdf(kalCanvas)) T.toast('Tersimpan, bisa dipakai di PDF Lab');
+      if (simpanUntukPdf(potongTransparan(kalCanvas))) T.toast('Tersimpan, bisa dipakai di PDF Lab');
       else T.toast('Gagal menyimpan, memori browser penuh');
     };
     const kalTempel = () => {
       if (!namaInp.value.trim()) { T.toast('Ketik dulu namanya'); return; }
-      simpanUntukPdf(kalCanvas);
+      simpanUntukPdf(potongTransparan(kalCanvas));
       try { localStorage.setItem('adip-pdflab-tab', '11'); } catch (e) {}
       location.hash = '#/t/pdflab';
     };
 
     root.appendChild(T.el('<p style="font-weight:600;margin:24px 0 4px">Dari nama yang diketik</p>'));
-    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ketik nama, jadikan tanda tangan gaya kaligrafi. Bentuk hurufnya mengikuti huruf yang tersedia di perangkat ini.</p>'));
+    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ketik nama, jadikan tanda tangan gaya kaligrafi. Empat gaya terakhir memakai huruf Google Fonts (diunduh sekali dari internet); tiga gaya pertama memakai huruf yang tersedia di perangkat ini.</p>'));
     root.appendChild(T.grid2(T.field('Nama', namaInp), T.field('Gaya huruf', gayaSel)));
+    root.appendChild(T.field('Warna tinta', warnaKalSel));
     root.appendChild(kalCanvas);
     root.appendChild(T.row(
       T.btn('⬇️ Unduh PNG', kalUnduh, true),

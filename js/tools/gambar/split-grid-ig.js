@@ -1,11 +1,11 @@
-import { h as T, utils, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "split-grid-ig", "name": "Split Grid Instagram", "cat": "gambar", "icon": "🔲", "desc": "Potong foto jadi grid siap posting berurutan ke IG.", "keywords": "instagram,grid,split,potong,foto,feed,puzzle"};
 export function render(root) {
   const polaSel = T.select([
-    ['2x3', '3 × 2 (6 tile)'],
-    ['3x3', '3 × 3 (9 tile)'],
-    ['4x3', '3 × 4 (12 tile)'],
+    ['2x3', '3 × 2 (6 potongan)'],
+    ['3x3', '3 × 3 (9 potongan)'],
+    ['4x3', '3 × 4 (12 potongan)'],
   ], '3x3');
   const fileInp = document.createElement('input');
   fileInp.type = 'file';
@@ -49,7 +49,7 @@ export function render(root) {
         const cell = T.el('<div style="position:relative;cursor:pointer"></div>');
         const thumb = document.createElement('img');
         thumb.src = c.toDataURL('image/png');
-        thumb.alt = 'Tile ' + nomor;
+        thumb.alt = 'Potongan ' + nomor;
         thumb.style.cssText = 'width:100%;height:auto;border-radius:8px;border:1px solid #ffffff20;display:block';
         cell.appendChild(thumb);
         const badge = T.el('<div>' + nomor + '</div>');
@@ -62,14 +62,14 @@ export function render(root) {
       }
     }
     T.show(box,
-      '<p class="center mut">Klik tiap tile untuk download PNG-nya.</p>' +
-      '<p class="center hint">Upload ke IG mulai dari nomor <b>1</b> dulu supaya puzzlenya nyambung.</p>');
+      '<p class="center mut">Ketuk tiap potongan untuk mengunduh PNG-nya.</p>' +
+      '<p class="center hint">Unggah ke IG mulai dari nomor <b>1</b> dulu supaya puzzlenya nyambung.</p>');
     box.appendChild(grid);
   };
 
   fileInp.addEventListener('change', proses);
   polaSel.addEventListener('change', () => { if (fileInp.files && fileInp.files[0]) proses(); });
-  root.appendChild(T.field('Pilih gambar', fileInp, 'Semua diproses lokal di HP kamu, gambar tidak diupload ke mana-mana.'));
+  root.appendChild(T.field('Pilih gambar', fileInp, 'Semua diproses di HP kamu, gambar tidak diunggah ke mana-mana.'));
   root.appendChild(T.field('Pola grid', polaSel, 'Selalu 3 kolom — feed IG memang 3 kolom.'));
   root.appendChild(box);
 }

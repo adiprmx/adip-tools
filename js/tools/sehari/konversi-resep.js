@@ -1,6 +1,6 @@
-import { h as T, num, fmt } from '../../core.js?v=6.11.5';
+import { h as T, num, fmt } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "konversi-resep", "name": "Konversi Resep", "cat": "sehari", "icon": "🍳", "desc": "Skala bahan resep otomatis buat porsi yang beda.", "keywords": "resep,konversi,porsi,masak,bahan,skala"};
+export const meta = {"id": "konversi-resep", "name": "Konversi Resep", "cat": "sehari", "icon": "🍳", "desc": "Sesuaikan takaran bahan resep untuk porsi yang beda.", "keywords": "resep,konversi,porsi,masak,bahan,skala"};
 
 export function render(root) {
 
@@ -49,7 +49,7 @@ export function render(root) {
         '<p class="center">resep ' + fmtJ(dari) + ' porsi → ' + fmtJ(ke) + ' porsi (×' + fmtJ(ke / dari) + ')</p>' +
         '<div class="kv"><span class="k">Bahan lama</span><span class="v">Bahan baru</span></div>' +
         items.map((x) => '<div class="kv"><span class="k">' + T.esc(x.nama) + ' ' + fmtJ(x.jml) + ' ' + T.esc(x.sat) + '</span><span class="v"><b>' + fmtJ(x.baru) + ' ' + T.esc(x.sat) + '</b></span></div>').join('') +
-        '<p class="hint">Bumbu & rempah biasanya nggak perlu diskala penuh — cicipi aja sambil masak.</p>');
+        '<p class="hint">Bumbu & rempah biasanya nggak perlu ditambah penuh — cicipi aja sambil masak.</p>');
       return lines.join('\n');
     };
 

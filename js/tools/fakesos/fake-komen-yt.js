@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
 
 export const meta = {
   id: 'fake-komen-yt',
@@ -18,6 +18,7 @@ const THEMES = {
 const VER_BADGE = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="#aaa" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
 const ICO_LIKE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 10v12H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm2-7l6.5 6.5c.8.8.8 2 0 2.8L12 16H20a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 18.6 27H9V10z" transform="translate(0,-3)"/></svg>';
 const ICO_DISLIKE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 10v12H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm2-7l6.5 6.5c.8.8.8 2 0 2.8L12 16H20a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 18.6 27H9V10z" transform="translate(0,-3)"/></svg>';
+const ICO_PIN = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>';
 
 function avaColor(name) {
   let hsh = 0;
@@ -35,6 +36,8 @@ export function render(root) {
     '.fy-prevbox{display:flex;justify-content:center;padding:18px 10px;background:#101014;border:1px solid #ffffff14;border-radius:12px;margin-bottom:14px}' +
     '.fy-card{width:100%;max-width:480px;background:var(--fy-bg);color:var(--fy-fg);text-align:left}' +
     '.fy-cmt{display:flex;gap:14px;padding:16px}' +
+    '.fy-pin{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--fy-muted);margin-bottom:4px}' +
+    '.fy-pin svg{display:block;flex:none}' +
     '.fy-ava{width:40px;height:40px;border-radius:50%;flex:0 0 40px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px;overflow:hidden}' +
     '.fy-ava img{width:100%;height:100%;object-fit:cover;display:block}' +
     '.fy-main{flex:1;min-width:0}' +
@@ -62,6 +65,8 @@ export function render(root) {
   const likeI = T.input('text', 'cth: 1,2 rb', '1,2 rb');
   const repI = T.input('text', 'cth: 18', '18');
   const heartI = T.select([['ya', '❤️ Disukai kreator'], ['tidak', 'Tidak']], 'ya');
+  const pinI = T.select([['tidak', 'Tidak'], ['ya', '📌 Disematkan']], 'tidak');
+  const pinByI = T.input('text', 'Nama channel yang menyematkan', 'Adip RMX');
   const themeI = T.select([['gelap', 'Gelap'], ['terang', 'Terang']], 'gelap');
 
   const fi = fileInput('image/*');
@@ -82,6 +87,9 @@ export function render(root) {
   mrow.appendChild(T.field('Jumlah balasan', repI));
   ctl.appendChild(mrow);
   ctl.appendChild(T.field('Disukai oleh kreator', heartI));
+  ctl.appendChild(T.field('Disematkan', pinI));
+  const pinByField = T.field('Disematkan oleh channel', pinByI, 'Hanya tampil bila "Disematkan" dipilih.');
+  ctl.appendChild(pinByField);
   ctl.appendChild(T.field('Tema', themeI));
   wrap.appendChild(ctl);
 
@@ -93,7 +101,8 @@ export function render(root) {
   btns.appendChild(T.btn('🎲 Contoh', () => {
     nameI.value = 'Adip RMX'; verI.value = 'ya'; timeI.value = '2 jam yang lalu';
     textI.value = 'Akhirnya nemu channel yang ngebahas ini dengan jelas. Auto subscribe! 🔥';
-    likeI.value = '1,2 rb'; repI.value = '18'; heartI.value = 'ya'; themeI.value = 'gelap';
+    likeI.value = '1,2 rb'; repI.value = '18'; heartI.value = 'ya'; pinI.value = 'tidak';
+    pinByI.value = 'Adip RMX'; themeI.value = 'gelap';
     draw(); T.scrollToPreview(card);
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(card, 'fake-komen-yt.png'), true));
@@ -109,12 +118,16 @@ export function render(root) {
 
   function draw() {
     const th = THEMES[themeI.value] || THEMES.gelap;
+    pinByField.style.display = pinI.value === 'ya' ? '' : 'none';
     const name = nameI.value.trim() || 'Channel';
     const initial = T.esc(name.charAt(0).toUpperCase() || '?');
     const ava = imgUrl
       ? '<div class="fy-ava"><img src="' + T.esc(imgUrl) + '" alt="avatar"></div>'
       : '<div class="fy-ava" style="background:' + avaColor(name) + '">' + initial + '</div>';
     const badge = verI.value === 'ya' ? '<span class="fy-ver">' + VER_BADGE + '</span>' : '';
+    const pinHtml = pinI.value === 'ya'
+      ? '<div class="fy-pin">' + ICO_PIN + '<span>Disematkan oleh ' + T.esc(pinByI.value.trim() || 'kreator') + '</span></div>'
+      : '';
     const heart = heartI.value === 'ya'
       ? '<div class="fy-heart"><div class="fy-ava" style="background:#c00;color:#fff">♥</div><span>Disukai oleh kreator</span></div>'
       : '';
@@ -127,6 +140,7 @@ export function render(root) {
       '<div class="fy-cmt">' +
         ava +
         '<div class="fy-main">' +
+          pinHtml +
           '<div class="fy-top"><span class="fy-name">' + T.esc(name) + '</span>' + badge +
           '<span class="fy-time">' + T.esc(timeI.value.trim() || 'baru saja') + '</span></div>' +
           '<p class="fy-text">' + T.esc(textI.value) + '</p>' +
@@ -141,7 +155,7 @@ export function render(root) {
       repRow;
   }
 
-  [nameI, verI, timeI, textI, likeI, repI, heartI, themeI].forEach((elx) => {
+  [nameI, verI, timeI, textI, likeI, repI, heartI, pinI, pinByI, themeI].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

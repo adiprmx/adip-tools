@@ -1,4 +1,4 @@
-import { h as T, kv, rp, num, fmt } from '../../core.js?v=6.11.5';
+import { h as T, kv, rp, num, fmt } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "biaya-bbm", "name": "Biaya BBM", "cat": "sehari", "icon": "⛽", "desc": "Estimasi biaya bensin untuk jarak tempuhmu.", "keywords": "bbm,bensin,biaya perjalanan,pertalite,pertamax,harga bensin,konsumsi"};
 
@@ -8,7 +8,7 @@ export function render(root) {
     const load = () => { try { return JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) { return {}; } };
     const saved = load();
 
-    const PRESET = [['10000', 'Pertalite — Rp10.000'], ['15950', 'Pertamax — Rp15.950'], ['19600', 'Pertamax Turbo — Rp19.600'], ['23700', 'Dexlite — Rp23.700'], ['25200', 'Pertamina Dex — Rp25.200'], ['custom', 'Custom — ketik sendiri']];
+    const PRESET = [['10000', 'Pertalite — Rp10.000'], ['15950', 'Pertamax — Rp15.950'], ['19600', 'Pertamax Turbo — Rp19.600'], ['23700', 'Dexlite — Rp23.700'], ['25200', 'Pertamina Dex — Rp25.200'], ['custom', 'Lainnya — ketik sendiri']];
     const jarakI = T.input('text', 'cth: 120', saved.jarak || '');
     const konI = T.input('text', 'cth: 45 (km/liter)', saved.kon || '');
     const sel = T.select(PRESET, saved.preset || '10000');
@@ -43,7 +43,7 @@ export function render(root) {
     root.appendChild(T.el('<p class="note">Mau jalan jauh? <b>Hitung dulu bensinnya</b> biar dompet nggak kaget di tengah jalan.</p>'));
     root.appendChild(T.field('Jarak tempuh (km)', jarakI, 'Satu arah. Cek Google Maps buat angka pastinya.'));
     root.appendChild(T.field('Konsumsi kendaraan (km/liter)', konI, 'cth: motor bebek ~45, matic ~40, mobil ~12.'));
-    root.appendChild(T.field('Jenis BBM', sel, 'Pilih preset atau "Custom" buat isi sendiri.'));
+    root.appendChild(T.field('Jenis BBM', sel, 'Pilih jenis BBM atau "Lainnya" buat isi harga sendiri.'));
     root.appendChild(T.field('Harga per liter (Rp)', hargaI));
     root.appendChild(T.row(T.btn('Hitung Biaya', calc, true)));
     root.appendChild(box);

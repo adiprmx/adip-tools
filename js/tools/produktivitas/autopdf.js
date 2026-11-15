@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.11.5';
+import { h as T, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "autopdf", "name": "Auto PDF", "cat": "produktivitas", "icon": "📄", "desc": "Ubah teks panjang jadi dokumen PDF rapi.", "keywords": "pdf,teks,dokumen,naskah,cetak"};
 
@@ -86,10 +86,10 @@ export function render(root) {
     const coba = (i) => {
       if (i >= JSPDF_CDNS.length) {
         libOk = false;
-        T.show(box, errBox('Gagal memuat library PDF dari CDN. Cek koneksi internet lalu coba lagi.'));
+        T.show(box, errBox('Alat PDF tidak bisa dimuat dari internet. Cek koneksi internet lalu coba lagi.'));
         return Promise.resolve(false);
       }
-      T.show(box, '<span class="dim">Memuat library PDF…</span>');
+      T.show(box, '<span class="dim">Menyiapkan alat PDF…</span>');
       return T.loadScript(JSPDF_CDNS[i]).then((ok) => {
         if (ok && window.jspdf && window.jspdf.jsPDF) { libOk = true; return true; }
         return coba(i + 1);
@@ -155,7 +155,7 @@ export function render(root) {
       }, true);
       box.appendChild(T.row(bDl));
       frame.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } catch (e) { T.show(box, errBox('Gagal membuat PDF: ' + e.message)); }
+    } catch (e) { T.show(box, errBox('PDF tidak bisa dibuat: ' + e.message)); }
   };
 
   const bAdd = T.btn('+ Tambah Bagian', () => addSection('', ''));

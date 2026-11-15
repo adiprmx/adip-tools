@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "metronome", "name": "Metronom", "cat": "musik", "icon": "🥁", "desc": "Metronom dengan birama.", "keywords": "metronom,tempo,ketuk"};
 export function render(root) {
@@ -34,7 +34,8 @@ export function render(root) {
       } catch (e) { /* abaikan */ }
     };
     const scheduler = () => {
-      const c = T.actx();
+      let c;
+      try { c = T.actx(); } catch (e) { stop(); T.toast('Audio tidak tersedia di browser ini'); return; }
       while (nextTime < c.currentTime + 0.12) {
         const bpb = beatsPerBar();
         const cur = beat % bpb;
@@ -56,7 +57,8 @@ export function render(root) {
       T.show(box, '');
     };
     const start = () => {
-      const c = T.actx();
+      let c;
+      try { c = T.actx(); } catch (e) { T.toast('Audio tidak tersedia di browser ini'); return; }
       running = true;
       beat = 0;
       nextTime = c.currentTime + 0.06;

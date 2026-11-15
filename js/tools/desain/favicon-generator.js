@@ -1,8 +1,8 @@
-import { h as T, utils, tabs, fileInput, loadImage, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, utils, tabs, fileInput, loadImage, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"favicon-generator","name":"Favicon Generator","cat":"desain","icon":"⭐","desc":"Bikin favicon dari gambar atau emoji: multi-ukuran + ZIP + PWA.","keywords":"favicon,icon,emoji,png,apple-touch,logo,website,pwa,manifest"};
 
-const SIZES = [16, 32, 48, 64, 128, 180, 192, 256, 512];
+const SIZES = [16, 32, 48, 64, 128, 144, 180, 192, 256, 512];
 const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
 let zipSiap = null;
 function loadZip() {
@@ -61,6 +61,7 @@ export function render(root) {
   let imgUpload = null;
   let mode = 'gambar'; // 'gambar' | 'emoji'
   let kanvasPaket = []; // [{size, canvas}]
+  let kanvasMaskable = null; // canvas 512 maskable (zona aman 80%)
 
   function contrast(hex) {
     const n = parseInt(String(hex).slice(1), 16) || 0;
@@ -100,20 +101,78 @@ export function render(root) {
 
   const drawAktif = (size) => (mode === 'gambar' ? drawGambar(size) : drawEmoji(size));
 
+  // Ikon maskable Android: gambar di dalam zona aman 80% (sisanya boleh
+  // terpotong sistem), di atas warna tema penuh.
+  function drawMaskable() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 512;
+    const x = c.getContext('2d');
+    if (!x) return null;
+    x.fillStyle = temaWarna.value || '#141414';
+    x.fillRect(0, 0, 512, 512);
+    const zona = Math.round(512 * 0.8);
+    const off = Math.round((512 - zona) / 2);
+    if (mode === 'gambar') {
+      if (!imgUpload) return null;
+      const iw = imgUpload.naturalWidth, ih = imgUpload.naturalHeight;
+      const sc = Math.max(zona / iw, zona / ih);
+      const dw = iw * sc, dh = ih * sc;
+      x.drawImage(imgUpload, off + (zona - dw) / 2, off + (zona - dh) / 2, dw, dh);
+    } else {
+      const g = (glyph.value || '').trim() || '⭐';
+      x.fillStyle = contrast(temaWarna.value || '#141414');
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.font = Math.floor(zona * 0.62) + 'px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+      x.fillText(g, 256, 256 + zona * 0.04);
+    }
+    return c;
+  }
+
+  // SVG vektor asli untuk mode emoji/huruf (bentuk teks, bukan foto).
+  function svgEmoji() {
+    const g = ((glyph.value || '').trim() || '⭐').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const bgc = bg.value || '#141414';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="' + bgc + '"/><text x="256" y="276" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif" font-size="318" fill="' + contrast(bgc) + '" text-anchor="middle" dominant-baseline="middle">' + g + '</text></svg>';
+  }
+
+  // SVG untuk mode gambar: foto dibungkus di dalam SVG (bukan vektor).
+  async function svgGambar() {
+    const e512 = kanvasPaket.find((k) => k.size === 512);
+    if (!e512) return null;
+    const blob = await new Promise((res) => e512.canvas.toBlob((b) => res(b), 'image/png'));
+    if (!blob) return null;
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error('gagal membaca gambar'));
+      r.readAsDataURL(blob);
+    });
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><image width="512" height="512" href="' + dataUrl + '"/></svg>';
+  }
+
   function namaFile(size) {
     if (size === 180) return 'apple-touch-icon.png';
     return 'favicon-' + size + '.png';
   }
 
+  function browserconfigXml() {
+    const tema = temaWarna.value || '#141414';
+    return '<?xml version="1.0" encoding="utf-8"?>\n<browserconfig><msapplication><tile><square144x144logo src="favicon-144.png"/><TileColor>' + tema + '</TileColor></tile></msapplication></browserconfig>\n';
+  }
+
   function snippetHtml() {
     const tema = temaWarna.value || '#141414';
     return '<link rel="icon" type="image/x-icon" href="favicon.ico">\n' +
+      '<link rel="icon" type="image/svg+xml" href="favicon.svg">\n' +
       '<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">\n' +
       '<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">\n' +
       '<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">\n' +
       '<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">\n' +
       '<link rel="manifest" href="manifest.webmanifest">\n' +
-      '<meta name="theme-color" content="' + tema + '">';
+      '<meta name="theme-color" content="' + tema + '">\n' +
+      '<meta name="msapplication-TileColor" content="' + tema + '">\n' +
+      '<meta name="msapplication-config" content="browserconfig.xml">';
   }
 
   function manifestJson() {
@@ -127,7 +186,7 @@ export function render(root) {
       icons: [
         { src: 'favicon-192.png', sizes: '192x192', type: 'image/png' },
         { src: 'favicon-512.png', sizes: '512x512', type: 'image/png' },
-        { src: 'favicon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        { src: 'maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       ],
     }, null, 2);
   }
@@ -136,6 +195,7 @@ export function render(root) {
     T.hide(statusBox);
     if (mode === 'gambar' && !imgUpload) { T.toast('Pilih gambar dulu'); return; }
     kanvasPaket = [];
+    kanvasMaskable = null;
     let canvasOk = false;
     T.show(box, '<p class="center">Kurang lebih begini tampilannya di tab browser & layar HP.</p>');
     const prev = T.el('<div class="center" style="display:flex;gap:16px;justify-content:center;align-items:flex-end;flex-wrap:wrap;margin:8px 0 14px"></div>');
@@ -145,7 +205,7 @@ export function render(root) {
       if (!cv) return;
       canvasOk = true;
       kanvasPaket.push({ size, canvas: cv });
-      const label = size === 180 ? 'Apple Touch 180px' : size + 'px';
+      const label = size === 180 ? 'Apple Touch 180px' : size === 144 ? 'Windows Tile 144px' : size + 'px';
       const px = Math.min(size, 96);
       cv.style.cssText = 'width:' + px + 'px;height:' + px + 'px;border-radius:14px;border:1px solid var(--line)';
       const wrap = T.el('<div class="center"></div>');
@@ -161,6 +221,17 @@ export function render(root) {
         }));
       }
     });
+    // Ikon maskable Android (zona aman 80%)
+    const maskCv = drawMaskable();
+    if (maskCv) {
+      kanvasMaskable = maskCv;
+      canvasOk = true;
+      maskCv.style.cssText = 'width:96px;height:96px;border-radius:14px;border:1px solid var(--line)';
+      const wrap = T.el('<div class="center"></div>');
+      wrap.appendChild(maskCv);
+      wrap.appendChild(T.el('<p class="hint">Maskable 512px (Android)</p>'));
+      prev.appendChild(wrap);
+    }
     box.appendChild(prev);
     box.appendChild(row);
     if (!canvasOk) {
@@ -169,7 +240,7 @@ export function render(root) {
       return;
     }
     box.appendChild(T.row(T.btn('Unduh ZIP lengkap (semua ukuran + manifest)', unduhZip, true)));
-    box.appendChild(T.el('<p class="hint center" style="margin-top:14px">ZIP berisi: favicon.ico, PNG 16-512px, apple-touch-icon, manifest PWA, dan file snippet HTML. Tempel snippet ini di dalam &lt;head&gt; website kamu:</p>'));
+    box.appendChild(T.el('<p class="hint center" style="margin-top:14px">ZIP berisi: favicon.ico, favicon.svg, PNG 16-512px, apple-touch-icon, maskable Android, tile Windows + browserconfig, manifest PWA, dan file snippet HTML. Tempel snippet ini di dalam &lt;head&gt; website kamu:</p>'));
     const snippet = snippetHtml();
     const pre = T.el('<pre class="monoall" style="white-space:pre-wrap;word-break:break-word;background:var(--line-soft);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.6;overflow-x:auto"></pre>');
     pre.textContent = snippet;
@@ -197,6 +268,13 @@ export function render(root) {
         }
       }
       if (pngKecil.length) zip.file('favicon.ico', buatIco(pngKecil));
+      if (kanvasMaskable) {
+        const maskBlob = await new Promise((res) => kanvasMaskable.toBlob((b) => res(b), 'image/png'));
+        if (maskBlob) zip.file('maskable-512.png', maskBlob);
+      }
+      const svgIsi = mode === 'emoji' ? svgEmoji() : await svgGambar();
+      if (svgIsi) zip.file('favicon.svg', svgIsi);
+      zip.file('browserconfig.xml', browserconfigXml());
       zip.file('manifest.webmanifest', manifestJson());
       zip.file('snippet.html', snippetHtml());
       const blobZip = await zip.generateAsync({ type: 'blob' });
@@ -227,6 +305,7 @@ export function render(root) {
     mode = i === 0 ? 'gambar' : 'emoji';
     T.hide(box); T.hide(statusBox);
     kanvasPaket = [];
+    kanvasMaskable = null;
   }));
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));

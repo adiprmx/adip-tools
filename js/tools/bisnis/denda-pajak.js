@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "denda-pajak", "name": "Kalkulator Denda Pajak", "cat": "bisnis", "icon": "🧾", "desc": "Estimasi denda telat lapor & bayar pajak.", "keywords": "pajak,denda,spt,telat", "file": "tools/bisnis/denda-pajak.js"};
 

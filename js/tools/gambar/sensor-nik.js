@@ -1,4 +1,4 @@
-import { h as T, kv, fileInput, loadImage, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.11.5';
+import { h as T, kv, fileInput, loadImage, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"sensor-nik","name":"Sensor NIK di Foto","cat":"gambar","icon":"🫣","desc":"Tutup nomor identitas di foto dokumen dengan blur atau kotak hitam.","keywords":"sensor,nik,ktp,blur,privasi,dokumen,foto","since":"6.11.0"};
 
@@ -133,13 +133,13 @@ export function render(root) {
     const f = fi.files && fi.files[0];
     if (!f) return;
     try { img = await loadImage(f); }
-    catch (e) { T.show(box, errBox('File bukan gambar yang valid.')); return; }
+    catch (e) { T.show(box, errBox('File itu bukan gambar. Pilih file gambar.')); return; }
     rects = [];
     prevWrap.hidden = false;
     draw();
     refreshList();
     T.hide(box);
-    T.toast('Foto dimuat, seret area yang mau ditutup');
+    T.toast('Foto sudah dipilih, seret area yang mau ditutup');
   });
 
   const unduh = async () => {
@@ -150,11 +150,11 @@ export function render(root) {
     const out = document.createElement('canvas');
     out.width = img.naturalWidth; out.height = img.naturalHeight;
     const x = out.getContext('2d');
-    if (!x) { T.show(box, errBox('Browser ini tidak mendukung canvas.')); return; }
+    if (!x) { T.show(box, errBox('Browser ini tidak bisa membuat gambar.')); return; }
     x.drawImage(img, 0, 0);
     rects.forEach((r) => applyRect(x, img, r, modeSel.value, 1));
     const blob = await canvasToBlob(out, 'image/png');
-    if (!blob) { T.show(box, errBox('Gagal membuat gambar.')); return; }
+    if (!blob) { T.show(box, errBox('Gambarnya tidak bisa dibuat. Coba lagi.')); return; }
     const base = (fi.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-sensor.png', blob, 'image/png');
     T.show(box, kv('Area ditutup', rects.length + ' area') + kv('Ukuran hasil', out.width + ' × ' + out.height + ' px (' + fmtBytes(blob.size) + ')') +

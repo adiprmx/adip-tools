@@ -1,4 +1,4 @@
-import { h as T, utils, dlNodePng } from '../../core.js?v=6.11.5';
+import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node).
 utils.nomorSeri = function (awalan, mulai, jumlah) {
@@ -62,7 +62,7 @@ export function render(root) {
     T.btn('Unduh kartu pertama sebagai gambar', async () => {
       if (!wadah.children.length) { T.toast('Buat dulu kartunya'); return; }
       const ok = await dlNodePng(wadah.children[0], 'kartu-stempel.png');
-      T.toast(ok ? 'Gambar berhasil diunduh' : 'Gagal membuat gambar');
+      T.toast(ok ? 'Gambar berhasil diunduh' : 'Gambarnya tidak bisa dibuat. Coba lagi.');
     })
   ));
   root.appendChild(box);

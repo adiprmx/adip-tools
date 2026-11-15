@@ -1,4 +1,4 @@
-import { h as T, kv, fileInput, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.11.5';
+import { h as T, kv, fileInput, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"svg-ke-png","name":"SVG ke PNG","cat":"gambar","icon":"🖼️","desc":"Ubah gambar SVG jadi PNG, atur skala dan latarnya.","keywords":"svg,png,konversi,gambar,vektor,logo","since":"6.11.0"};
 
@@ -25,17 +25,17 @@ export function render(root) {
   fi.addEventListener('change', async () => {
     const f = fi.files && fi.files[0];
     if (!f) return;
-    try { ta.value = await f.text(); T.toast('File SVG dimuat'); }
+    try { ta.value = await f.text(); T.toast('File SVG sudah dipilih'); }
     catch (e) { T.show(box, errBox('File tidak bisa dibaca.')); }
   });
 
   const raster = (svgText) => {
     let src = String(svgText || '').trim();
-    if (!src) throw new Error('Tempel kode SVG atau unggah file .svg dulu.');
+    if (!src) throw new Error('Tempel kode SVG atau pilih file .svg dulu.');
     if (!/^<svg[\s>]/.test(src)) throw new Error('Kode ini bukan SVG. Pastikan diawali tag <svg>.');
     if (!/xmlns=/.test(src)) src = src.replace(/<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
     const doc = new DOMParser().parseFromString(src, 'image/svg+xml');
-    if (doc.querySelector('parsererror')) throw new Error('Kode SVG tidak valid (XML rusak). Periksa tag yang belum tertutup.');
+    if (doc.querySelector('parsererror')) throw new Error('Kode SVG-nya tidak benar (XML rusak). Periksa tag yang belum tertutup.');
     const el = doc.documentElement;
     const num = (v) => { const n = parseFloat(String(v || '').replace(/px$/i, '')); return isFinite(n) && n > 0 ? n : NaN; };
     let w = num(el.getAttribute('width')), h = num(el.getAttribute('height'));
@@ -65,17 +65,17 @@ export function render(root) {
       const img = await new Promise((res, rej) => {
         const im = new Image();
         im.onload = () => res(im);
-        im.onerror = () => rej(new Error('SVG tidak bisa digambar. Cek lagi isinya, mungkin ada referensi gambar luar yang diblokir browser.'));
+        im.onerror = () => rej(new Error('SVG tidak bisa digambar. Cek lagi isinya, mungkin ada gambar dari situs lain yang diblokir browser.'));
         im.src = url;
       });
       const c = document.createElement('canvas');
       c.width = outW; c.height = outH;
       const x = c.getContext('2d');
-      if (!x) throw new Error('Browser ini tidak mendukung canvas.');
+      if (!x) throw new Error('Browser ini tidak bisa membuat gambar.');
       if (latarSel.value === 'putih') { x.fillStyle = '#ffffff'; x.fillRect(0, 0, outW, outH); }
       x.drawImage(img, 0, 0, outW, outH);
       pngBlob = await canvasToBlob(c, 'image/png');
-      if (!pngBlob) throw new Error('Gagal membuat file PNG.');
+      if (!pngBlob) throw new Error('File PNG tidak bisa dibuat.');
       pngW = outW; pngH = outH;
       const prevUrl = URL.createObjectURL(pngBlob);
       T.show(box,
@@ -94,17 +94,17 @@ export function render(root) {
       }, true)));
       T.toast('PNG jadi');
     } catch (e) {
-      T.show(box, errBox(e.message || 'Gagal membuat PNG.'));
+      T.show(box, errBox(e.message || 'PNG tidak bisa dibuat.'));
     } finally {
       URL.revokeObjectURL(url);
     }
   };
 
   root.appendChild(T.el('<p class="note">Diproses di browser, file tidak diunggah ke mana-mana.</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Tempel kode SVG atau unggah file .svg, pilih skala dan latar, lalu unduh PNG-nya. Skala 2x cocok untuk gambar yang tetap tajam di layar HP.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Tempel kode SVG atau pilih file .svg, pilih skala dan latar, lalu unduh PNG-nya. Skala 2x cocok untuk gambar yang tetap tajam di layar HP.</p>'));
   root.appendChild(T.field('Kode SVG', ta));
   root.appendChild(T.row(contohBtn));
-  root.appendChild(T.field('Atau unggah file .svg', fi));
+  root.appendChild(T.field('Atau pilih file .svg', fi));
   root.appendChild(T.grid2(T.field('Skala', skalaSel), T.field('Latar', latarSel)));
   root.appendChild(T.row(T.btn('Buat PNG', buat, true)));
   root.appendChild(box);

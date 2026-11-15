@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 // Tarif Efektif Rata-rata (TER) bulanan, Lampiran PP 58/2023.
 // Tiap baris: [batas atas bruto sebulan, tarif %]. Batas atas termasuk di baris itu.
@@ -7,6 +7,10 @@ const TER_A = [[5400000,0],[5650000,0.25],[5950000,0.5],[6300000,0.75],[6750000,
 const TER_B = [[6200000,0],[6500000,0.25],[6850000,0.5],[7300000,0.75],[9200000,1],[10750000,1.5],[11250000,2],[11600000,2.5],[12600000,3],[13600000,4],[14950000,5],[16400000,6],[18450000,7],[21850000,8],[26000000,9],[27700000,10],[29350000,11],[31450000,12],[33950000,13],[37100000,14],[41100000,15],[45800000,16],[49500000,17],[53800000,18],[58500000,19],[64000000,20],[71000000,21],[80000000,22],[93000000,23],[109000000,24],[129000000,25],[163000000,26],[211000000,27],[374000000,28],[459000000,29],[555000000,30],[704000000,31],[957000000,32],[1405000000,33],[Infinity,34]];
 const TER_C = [[6600000,0],[6950000,0.25],[7350000,0.5],[7800000,0.75],[8850000,1],[9800000,1.25],[10950000,1.5],[11200000,1.75],[12050000,2],[12950000,3],[14150000,4],[15550000,5],[17050000,6],[19500000,7],[22700000,8],[26600000,9],[28100000,10],[30100000,11],[32600000,12],[35400000,13],[38900000,14],[43000000,15],[47400000,16],[51200000,17],[55800000,18],[60400000,19],[66700000,20],[74500000,21],[83200000,22],[95600000,23],[110000000,24],[134000000,25],[169000000,26],[221000000,27],[390000000,28],[463000000,29],[561000000,30],[709000000,31],[965000000,32],[1419000000,33],[Infinity,34]];
 const TER_KAT = { 'TK/0': 'A', 'TK/1': 'A', 'K/0': 'A', 'TK/2': 'B', 'TK/3': 'B', 'K/1': 'B', 'K/2': 'B', 'K/3': 'C' };
+// PTKP setahun (Rp): PMK 101/2016 — 54 jt + 4,5 jt per tanggungan,
+// + 4,5 jt bila kawin. Dipakai saat hitung ulang PPh 21 bulan Desember.
+const PTKP_NOMINAL = { 'TK/0': 54000000, 'TK/1': 58500000, 'TK/2': 63000000, 'TK/3': 67500000, 'K/0': 58500000, 'K/1': 63000000, 'K/2': 67500000, 'K/3': 72000000 };
+
 function terRate(bruto, status) {
   const kat = TER_KAT[status];
   if (!kat) return null;
@@ -152,6 +156,7 @@ export function render(root) {
       '<div class="kv"><span class="k">BPJS Kesehatan (' + T.esc(String(bp)) + '%)</span><span class="v">− ' + T.rp(bpjs) + '</span></div>' +
       '<div class="kv"><span class="k">JHT (' + T.esc(String(jp)) + '%)</span><span class="v">− ' + T.rp(jht) + '</span></div>' +
       (tr ? '<div class="kv"><span class="k">PPh 21 TER kategori ' + tr.kat + ' (' + T.esc(String(tr.tarif)) + '%)</span><span class="v">− ' + T.rp(pph) + '</span></div>' : '') +
+      (tr ? '<div class="kv"><span class="k">PTKP ' + T.esc(statusSel.value) + ' (setahun)</span><span class="v">' + T.rp(PTKP_NOMINAL[statusSel.value] || 54000000) + '</span></div>' : '') +
       baris(potLain, true) +
       '<div class="kv total"><span class="k"><b>Take-home pay</b></span><span class="v"><b>' + T.rp(thp) + '</b></span></div>' +
       '<div class="big center" style="margin-top:10px">' + T.rp(thp) + ' <span class="mut" style="font-size:14px">/ bulan</span></div>' +
@@ -159,7 +164,9 @@ export function render(root) {
       '<div class="kv"><span class="k">Per jam (' + T.esc(String(jamHari)) + ' jam/hari)</span><span class="v">' + T.rp(Math.round(thpMinggu / hariMinggu / jamHari)) + '</span></div>' +
       '<div class="kv"><span class="k">Per hari (' + T.esc(String(hariMinggu)) + ' hari/minggu)</span><span class="v">' + T.rp(Math.round(thpMinggu / hariMinggu)) + '</span></div>' +
       '<div class="kv"><span class="k">Per minggu</span><span class="v">' + T.rp(Math.round(thpMinggu)) + '</span></div>' +
-      '<div class="kv"><span class="k">Per tahun</span><span class="v">' + T.rp(Math.round(thp * 12)) + '</span></div>');
+      '<div class="kv"><span class="k">Per tahun</span><span class="v">' + T.rp(Math.round(thp * 12)) + '</span></div>' +
+      '<div class="kv"><span class="k">Per tahun + THR 1x gaji bruto</span><span class="v">' + T.rp(Math.round(thp * 12 + gross)) + '</span></div>' +
+      '<p class="hint">THR di atas masih kotor (sebelum dipotong pajak THR). Besaran THR umumnya 1x gaji sebulan bagi yang sudah kerja setahun, prorata bila kurang dari setahun.</p>');
   };
 
   const hitungGrossUp = () => {
@@ -213,7 +220,7 @@ export function render(root) {
   root.appendChild(T.field('Target gaji bersih / bulan (Rp)', targetI, 'Memakai persentase iuran dan pengaturan PPh 21 di atas'));
   root.appendChild(T.row(T.btn('Hitung gaji bruto yang dibutuhkan', hitungGrossUp, true)));
   root.appendChild(grossBox);
-  root.appendChild(T.el('<p class="hint">Iuran dihitung dari penghasilan bruto (pokok + tunjangan). Angka ilustrasi, potongan aktual bisa beda tergantung kebijakan perusahaan & batas upah BPJS. TER bulanan: PPh 21 = bruto sebulan x tarif TER sesuai kategori status PTKP, tanpa mengurangi biaya jabatan atau PTKP dulu.</p>'));
+  root.appendChild(T.el('<p class="hint">Iuran dihitung dari penghasilan bruto (pokok + tunjangan). Angka ilustrasi, potongan aktual bisa beda tergantung kebijakan perusahaan & batas upah BPJS. TER bulanan: PPh 21 = bruto sebulan x tarif TER sesuai kategori status PTKP, tanpa mengurangi biaya jabatan atau PTKP dulu. Di bulan Desember, PPh 21 dihitung ulang setahun penuh dengan tarif progresif dikurangi potongan Januari-November yang sudah dibayar, jadi potongan Desember bisa beda.</p>'));
   renderTunj();
   renderPot();
   hitung();

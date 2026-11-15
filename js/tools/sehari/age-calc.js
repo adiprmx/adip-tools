@@ -1,6 +1,6 @@
-import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=6.11.5';
+import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "age-calc", "name": "Kalkulator Umur", "cat": "sehari", "icon": "🎂", "desc": "Umur presisi tahun-bulan-hari.", "keywords": "umur,usia,lahir,tanggal"};
+export const meta = {"id": "age-calc", "name": "Kalkulator Umur", "cat": "sehari", "icon": "🎂", "desc": "Umur tepat: tahun, bulan, hari.", "keywords": "umur,usia,lahir,tanggal"};
 export function render(root) {
 
     const lahir = T.input('date', 'Tanggal lahir', '2000-01-01');
@@ -29,7 +29,7 @@ export function render(root) {
         '<div class="kv"><span class="k">Total minggu</span><span class="v">' + T.fmt(totalMinggu) + ' minggu</span></div>' +
         '<div class="kv"><span class="k">Ulang tahun ke-' + (r.tahun + 1) + '</span><span class="v">' + tglNext + ' (' + (sisa === 0 ? 'hari ini! 🎉' : sisa + ' hari lagi') + ')</span></div>');
     };
-    root.appendChild(T.grid2(T.field('Tanggal lahir', lahir), T.field('Tanggal acuan', ref)));
+    root.appendChild(T.grid2(T.field('Tanggal lahir', lahir), T.field('Tanggal hitung', ref)));
     root.appendChild(T.btn('Hitung', hitung, true));
     root.appendChild(box);
     hitung();

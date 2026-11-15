@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 /* 12 pasangan Google Fonts (judul + isi) siap pakai, lengkap dengan preview & salin CSS. */
 
@@ -54,25 +54,41 @@ export function render(root) {
   /* Pratinjau pasangan terpilih di contoh halaman nyata (navigasi, hero,
      paragraf, tombol, footer) supaya kelihatan rasanya di pemakaian asli. */
   let terpilih = PAIRS[0];
+  const teksJudul = T.input('text', 'Judul contoh…', 'Ngopi santai, cerita mengalir.');
+  const teksIsi = T.ta(2, 'Paragraf contoh…', 'Kedai kecil di ujung gang dengan biji kopi pilihan dari petani lokal. Duduklah sebentar, pesan satu cangkir, dan biarkan sore berjalan pelan.');
+  const temaContoh = T.select([['terang', 'Contoh halaman terang'], ['gelap', 'Contoh halaman gelap']], 'terang');
   const contoh = T.el('<div style="border:1px solid #27272a;border-radius:14px;overflow:hidden;margin:12px 0;background:#fafafa;color:#18181b"></div>');
   const contohLabel = T.el('<p class="hint" style="margin:12px 0 0"></p>');
   function gambarContoh() {
     const p = terpilih;
     const fj = "'" + p.h + "'," + p.hf;
     const fi = "'" + p.b + "'," + p.bf;
+    const gelap = temaContoh.value === 'gelap';
+    const bg = gelap ? '#18181b' : '#fafafa';
+    const tx = gelap ? '#fafafa' : '#18181b';
+    const tx2 = gelap ? '#d4d4d8' : '#3f3f46';
+    const tx3 = gelap ? '#a1a1aa' : '#52525b';
+    const tx4 = gelap ? '#71717a' : '#71717a';
+    const garis = gelap ? '#27272a' : '#e4e4e7';
+    const btnBg = gelap ? '#fafafa' : '#18181b';
+    const btnTx = gelap ? '#18181b' : '#fafafa';
+    const judul = T.esc(teksJudul.value.trim() || 'Judul contoh');
+    const isi = T.esc(teksIsi.value.trim() || 'Paragraf contoh.');
+    contoh.style.background = bg;
+    contoh.style.color = tx;
     contohLabel.textContent = 'Contoh halaman dengan ' + p.h + ' (judul) + ' + p.b + ' (isi)';
     contoh.innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #e4e4e7">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid ' + garis + '">' +
       '<span style="font-family:' + fj + ';font-weight:' + p.hw + ';font-size:17px">Kedai Kopi Senja</span>' +
-      '<span style="font-family:' + fi + ';font-size:12px;color:#52525b">Menu · Cerita · Lokasi</span></div>' +
+      '<span style="font-family:' + fi + ';font-size:12px;color:' + tx3 + '">Menu · Cerita · Lokasi</span></div>' +
       '<div style="padding:20px 16px 8px">' +
-      '<div style="font-family:' + fj + ';font-weight:' + p.hw + ';font-size:26px;line-height:1.2">Ngopi santai, cerita mengalir.</div>' +
-      '<p style="font-family:' + fi + ';font-weight:' + p.bw + ';font-size:14px;line-height:1.65;color:#3f3f46;margin:10px 0 0">Kedai kecil di ujung gang dengan biji kopi pilihan dari petani lokal. Duduklah sebentar, pesan satu cangkir, dan biarkan sore berjalan pelan.</p>' +
-      '<span style="display:inline-block;margin-top:14px;background:#18181b;color:#fafafa;font-family:' + fi + ';font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px">Lihat menu hari ini</span></div>' +
-      '<div style="display:flex;gap:12px;padding:16px;border-top:1px solid #e4e4e7;margin-top:16px">' +
-      '<div style="flex:1"><div style="font-family:' + fj + ';font-weight:' + p.hw + ';font-size:14px">Biji pilihan</div><div style="font-family:' + fi + ';font-size:12px;color:#52525b;line-height:1.5;margin-top:3px">Dipanggang tiap minggu, diseduh per cangkir.</div></div>' +
-      '<div style="flex:1"><div style="font-family:' + fj + ';font-weight:' + p.hw + ';font-size:14px">Tempat nyaman</div><div style="font-family:' + fi + ';font-size:12px;color:#52525b;line-height:1.5;margin-top:3px">Sofa empuk, colokan banyak, wifi kencang.</div></div></div>' +
-      '<div style="padding:10px 16px;border-top:1px solid #e4e4e7;font-family:' + fi + ';font-size:11px;color:#71717a">Jl. Melati No. 8 · Buka tiap hari 08.00-22.00</div>';
+      '<div style="font-family:' + fj + ';font-weight:' + p.hw + ';font-size:26px;line-height:1.2">' + judul + '</div>' +
+      '<p style="font-family:' + fi + ';font-weight:' + p.bw + ';font-size:14px;line-height:1.65;color:' + tx2 + ';margin:10px 0 0">' + isi + '</p>' +
+      '<span style="display:inline-block;margin-top:14px;background:' + btnBg + ';color:' + btnTx + ';font-family:' + fi + ';font-size:13px;font-weight:600;padding:9px 16px;border-radius:8px">Lihat menu hari ini</span></div>' +
+      '<div style="display:flex;gap:12px;padding:16px;border-top:1px solid ' + garis + ';margin-top:16px">' +
+      '<div style="flex:1"><div style="font-family:' + fj + ';font-weight:' + p.hw + ';font-size:14px">Biji pilihan</div><div style="font-family:' + fi + ';font-size:12px;color:' + tx3 + ';line-height:1.5;margin-top:3px">Dipanggang tiap minggu, diseduh per cangkir.</div></div>' +
+      '<div style="flex:1"><div style="font-family:' + fj + ';font-weight:' + p.hw + ';font-size:14px">Tempat nyaman</div><div style="font-family:' + fi + ';font-size:12px;color:' + tx3 + ';line-height:1.5;margin-top:3px">Sofa empuk, colokan banyak, wifi kencang.</div></div></div>' +
+      '<div style="padding:10px 16px;border-top:1px solid ' + garis + ';font-family:' + fi + ';font-size:11px;color:' + tx4 + '">Jl. Melati No. 8 · Buka tiap hari 08.00-22.00</div>';
   }
 
   function card(p) {
@@ -119,11 +135,17 @@ export function render(root) {
 
   function onSearch() { paint(); }
   search.addEventListener('input', onSearch);
+  teksJudul.addEventListener('input', gambarContoh);
+  teksIsi.addEventListener('input', gambarContoh);
+  temaContoh.addEventListener('change', gambarContoh);
   T.onLeave(() => search.removeEventListener('input', onSearch));
 
   root.appendChild(T.field('Cari pasangan', search, PAIRS.length + ' pasangan terkurasi: klik Salin CSS buat langsung pakai.'));
   root.appendChild(contohLabel);
   root.appendChild(contoh);
+  root.appendChild(T.field('Judul di contoh halaman (bisa diganti)', teksJudul, 'Tulis judulmu sendiri untuk melihat rasanya dengan font ini.'));
+  root.appendChild(T.field('Paragraf di contoh halaman (bisa diganti)', teksIsi));
+  root.appendChild(T.field('Warna contoh halaman', temaContoh));
   root.appendChild(list);
   gambarContoh();
   paint();

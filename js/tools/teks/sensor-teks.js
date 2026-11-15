@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 utils.sensorText = function (text, words, mask, autoPhone, autoEmail) {
     let s = String(text == null ? '' : text);
@@ -55,7 +55,7 @@ export function render(root) {
       const opts = T.el('<div class="opts"></div>');
       opts.appendChild(oPhone.el); opts.appendChild(oEmail.el);
       root.appendChild(T.field('Teks', taIn));
-      root.appendChild(T.field('Daftar kata sensitif', taWords, 'Satu kata/frasa per baris. Tidak case-sensitive.'));
+      root.appendChild(T.field('Daftar kata sensitif', taWords, 'Satu kata per baris. Huruf besar/kecil tidak masalah.'));
       root.appendChild(T.grid2(T.field('Gaya sensor', maskSel), T.field('Sensor otomatis', opts)));
       root.appendChild(T.row(
         T.btn('Sensor', process, true),

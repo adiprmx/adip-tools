@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
 
 export const meta = {
   id: 'fake-notif-tele',
@@ -15,15 +15,6 @@ const WALLS = {
   laut: 'linear-gradient(165deg,#004e92 0%,#000428 100%)',
   hutan: 'linear-gradient(165deg,#134e5e 0%,#71b280 100%)',
 };
-const WALL_LABEL = { malam: 'Malam biru', senja: 'Senja', laut: 'Laut gelap', hutan: 'Hutan' };
-
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',60%,42%)';
-}
-
 export function render(root) {
   const wrap = T.el('<div class="fnt-wrap"></div>');
   wrap.innerHTML = '<style>' +
@@ -38,7 +29,8 @@ export function render(root) {
     '.fnt-clock .d{font-size:14px;font-weight:500;margin-top:4px;opacity:.95}' +
     '.fnt-notifwrap{flex:1;padding:10px 12px 0;display:flex;flex-direction:column;gap:10px}' +
     '.fnt-notif{background:rgba(30,30,34,.82);border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 6px 24px rgba(0,0,0,.4)}' +
-    '.fnt-app{width:44px;height:44px;border-radius:12px;flex:0 0 44px;background:#229ED9;display:flex;align-items:center;justify-content:center;color:#fff}' +
+    '.fnt-app{width:44px;height:44px;border-radius:12px;flex:0 0 44px;background:#229ED9;display:flex;align-items:center;justify-content:center;color:#fff;overflow:hidden}' +
+    '.fnt-app img{width:100%;height:100%;object-fit:cover;display:block}' +
     '.fnt-main{flex:1;min-width:0}' +
     '.fnt-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}' +
     '.fnt-appname{font-size:13px;font-weight:600;opacity:.85}' +
@@ -61,6 +53,15 @@ export function render(root) {
   const platI = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
 
+  // Notifikasi Telegram di iPhone menampilkan foto pengirim sebagai ikon.
+  const fi = fileInput('image/*');
+  let avUrl = null;
+  fi.onchange = () => {
+    const f = fi.files && fi.files[0];
+    if (f) { avUrl = URL.createObjectURL(f); draw(); }
+    fi.value = '';
+  };
+
   const ctl = T.el('<div class="fnt-ctl"></div>');
   ctl.appendChild(T.field('Nama pengirim', senderI));
   ctl.appendChild(T.field('Isi pesan', msgI));
@@ -77,10 +78,12 @@ export function render(root) {
   const btns = T.el('<div class="fnt-btns"></div>');
   const screen = T.el('<div class="fnt-screen"></div>');
 
+  btns.appendChild(T.btn('📷 Foto pengirim', () => fi.click()));
+  btns.appendChild(T.btn('✕ Hapus foto', () => { avUrl = null; draw(); }));
   btns.appendChild(T.btn('🎲 Contoh', () => {
     senderI.value = 'Mama'; msgI.value = 'Nak, pulang sekarang! Ada kejutan buat kamu 🎁';
     whenI.value = 'sekarang'; dateI.value = 'Rabu, 7 Oktober'; wallI.value = 'malam';
-    platI.value = 'android'; draw(); T.scrollToPreview(screen);
+    platI.value = 'android'; avUrl = null; draw(); T.scrollToPreview(screen);
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(screen, 'fake-notif-tele.png'), true));
   wrap.appendChild(btns);
@@ -97,14 +100,16 @@ export function render(root) {
     const isIPh = platI.value === 'iphone';
     brandField.style.display = isIPh ? 'none' : '';
     const sender = senderI.value.trim() || 'Telegram';
-    const initial = T.esc(sender.charAt(0).toUpperCase() || 'T');
+    const appIcon = avUrl
+      ? '<img src="' + T.esc(avUrl) + '" alt="foto pengirim">'
+      : '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>';
     screen.setAttribute('style', 'background:' + (WALLS[wallI.value] || WALLS.malam));
     screen.innerHTML =
       '<div class="fnt-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, true) + '</div>' +
       '<div class="fnt-clock"><div class="t">9:41</div><div class="d">' + T.esc(dateI.value.trim() || 'Hari ini') + '</div></div>' +
       '<div class="fnt-notifwrap">' +
         '<div class="fnt-notif">' +
-          '<div class="fnt-app"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></div>' +
+          '<div class="fnt-app">' + appIcon + '</div>' +
           '<div class="fnt-main">' +
             '<div class="fnt-head"><span class="fnt-appname">Telegram</span><span class="fnt-when">' + T.esc(whenI.value.trim() || 'sekarang') + '</span></div>' +
             '<p class="fnt-sender">' + T.esc(sender) + '</p>' +

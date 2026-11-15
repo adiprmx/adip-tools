@@ -1,4 +1,4 @@
-import { h as T, utils, esc, p2 } from '../../core.js?v=6.11.5';
+import { h as T, utils, esc, p2 } from '../../core.js?v=6.12.0';
 
 function fmtHM(min) {
     min = ((Math.round(min) % 1440) + 1440) % 1440;

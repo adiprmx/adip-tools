@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "eja-nato", "name": "Eja dengan Alfabet NATO", "cat": "teks", "icon": "📞", "desc": "Ubah huruf jadi ejaan Alfa-Bravo-Charlie supaya tidak salah dengar saat mengeja lewat telepon.", "keywords": "nato,eja,alfabet,alfa,bravo,telepon,kode,ejaan"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"aiimage","name":"AI Image","cat":"gambar","icon":"🎨","desc":"Generate & edit gambar AI pakai akun Puter milikmu.","keywords":"ai,gambar,generator,edit foto,puter,image"};
 
@@ -102,6 +102,7 @@ function errPesan(e) {
   if (/unsupported capability|input image.*not supported|reference.*not supported/.test(raw)) return 'Model ini tidak mendukung mode gambar yang dipilih.';
   if (/model not found|unknown model|model.*unavailable|unsupported model|no provider|excluded route/.test(raw)) return 'Model ini sedang tidak tersedia.';
   if (/network|failed to fetch|offline|connection/.test(raw)) return 'Koneksi ke Puter terputus.';
+  if (/timeout|waktu habis/.test(raw)) return 'AI tidak merespons dalam 90 detik. Coba lagi.';
   if (d.status >= 500 || /upstream|provider|internal_error|unknown_error|service_unavailable|something went wrong|temporar/.test(raw)) return 'Provider model sedang bermasalah.';
   return 'Puter belum bisa memproses gambar. Coba lagi beberapa saat.';
 }
@@ -537,7 +538,7 @@ export function render(root) {
     try {
       let blob = resultBlob;
       if (!blob) {
-        const r = await fetch(resultUrl);
+        const r = await fetch(resultUrl, { signal: AbortSignal.timeout(30000) });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         blob = await r.blob();
       }
@@ -558,7 +559,7 @@ export function render(root) {
       let du;
       if (resultUrl.startsWith('data:image/')) du = resultUrl;
       else {
-        const r = await fetch(resultUrl);
+        const r = await fetch(resultUrl, { signal: AbortSignal.timeout(30000) });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         du = await blobKeDataUrl(await r.blob());
       }
@@ -613,7 +614,11 @@ export function render(root) {
         if (manual && !catalogModel(manual)) fallback = null;
         const coba = async (md, q) => {
           const o = opsiGenerate(md.id ? md : { id: md, maxRef: 4, qualities: [], defaultQuality: '' }, ratioTerpilih, mode, q, inputs);
-          return { res: await window.puter.ai.txt2img(p, o), id: md.id || md };
+          const res = await Promise.race([
+            Promise.resolve(window.puter.ai.txt2img(p, o)),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: Puter tidak merespons dalam 90 detik.')), 90000)),
+          ]);
+          return { res, id: md.id || md };
         };
         let hasil, dipakai = utama.id || utama;
         try {
@@ -630,7 +635,7 @@ export function render(root) {
         lastPrompt = p;
         let blob = null;
         try {
-          const r = await fetch(src);
+          const r = await fetch(src, { signal: AbortSignal.timeout(30000) });
           if (r.ok) blob = await r.blob();
         } catch (e) { /* pakai URL langsung */ }
         tampilHasil(blob ? URL.createObjectURL(blob) : src, blob);

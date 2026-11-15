@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 // Metode US Navy (Hodgdon & Beckett, 1984): persen lemak dari lingkar tubuh
 // dan tinggi badan. Pria: leher + pinggang. Wanita: leher + pinggang + pinggul.
@@ -53,7 +53,7 @@ export function render(root) {
       const le = T.num(leher.value), pi = T.num(pinggang.value), pg = T.num(pinggul.value);
       const pria = gender.value === 'pria';
       if (!(b > 0) || !(h > 0) || !(le > 0) || !(pi > 0) || (!pria && !(pg > 0))) {
-        T.show(box, '<span class="err">Isi semua ukuran dengan angka yang valid.</span>');
+        T.show(box, '<span class="err">Isi semua ukuran dengan angka yang benar.</span>');
         return;
       }
       if (pi <= le) {

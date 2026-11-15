@@ -1,4 +1,4 @@
-import { h as T, esc, errBox, preHtml } from '../../core.js?v=6.11.5';
+import { h as T, esc, errBox, preHtml } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "keyboard-telegram", "name": "Pembuat Tombol Inline Telegram", "cat": "developer", "icon": "⌨️", "desc": "Susun tombol inline bot Telegram dan salin JSON inline_keyboard siap pakai.", "keywords": "telegram,inline keyboard,tombol,bot api,json,callback", "since": "6.11.0"};
 

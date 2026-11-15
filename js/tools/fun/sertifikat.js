@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.11.5';
+import { h as T, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"sertifikat","name":"Sertifikat Tolol","cat":"fun","icon":"🏆","desc":"Sertifikat meme roast: namamu + TERBUKTI TOLOL DAN TAK BEROTAK. 100% digambar di perangkat, tanpa server.","keywords":"sertifikat,meme,tolol,roast,nama,gambar,lucu"};
 
@@ -436,7 +436,7 @@ export function render(root) {
   const bDl = T.btn('Unduh JPG', () => {
     if (!imgPrev.src) { T.show(box, errBox('Generate dulu gambarnya.')); return; }
     cv.toBlob((b) => {
-      if (!b) { T.show(box, errBox('Gagal membuat file. Coba lagi.')); return; }
+      if (!b) { T.show(box, errBox('Filenya tidak bisa dibuat. Coba lagi.')); return; }
       const a = document.createElement('a');
       a.href = URL.createObjectURL(b);
       a.download = 'sertifikat-tolol-' + Date.now() + '.jpg';

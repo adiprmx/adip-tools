@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "imagevectorizer", "name": "Auto Trace", "cat": "gambar", "icon": "✒️", "desc": "Ubah foto/logo jadi vektor SVG, 100% di perangkat (potrace).", "keywords": "vektor,trace,svg,potrace,logo,outline"};
 
@@ -255,7 +255,7 @@ export function render(root) {
     T.show(out, '<span class="dim">Memuat engine trace…</span>');
     let lib;
     try { lib = await import(/* @vite-ignore */ POTRACE_ESM); }
-    catch (e) { T.show(out, '<span class="err">Gagal memuat engine trace. Cek koneksi lalu coba lagi.</span>'); return; }
+    catch (e) { T.show(out, '<span class="err">Alat trace tidak bisa dimuat. Cek koneksi lalu coba lagi.</span>'); return; }
     T.show(out, '<span class="dim">Menyiapkan gambar…</span>');
     try {
       const raw = await readFileAsDataUrl(file);
@@ -284,7 +284,7 @@ export function render(root) {
       cur = { svg, w, h, mode: isColor ? 'color' : 'bw', name: (file.name.replace(/\.[^.]+$/, '') || 'trace') + '.svg' };
       drawResult();
     } catch (e) {
-      T.show(out, '<span class="err">Trace gagal (' + T.esc(e && e.message ? e.message : 'error') + '). Coba gambar lain atau turunkan detail.</span>');
+      T.show(out, '<span class="err">Trace tidak berhasil (' + T.esc(e && e.message ? e.message : 'error') + '). Coba gambar lain atau turunkan detail.</span>');
     }
   }
 

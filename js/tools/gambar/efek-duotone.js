@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"efek-duotone","name":"Efek Duotone","cat":"gambar","icon":"🎭","desc":"Foto biasa jadi poster duotone dua warna.","keywords":"duotone,efek,warna,foto,poster,canvas"};
 
@@ -76,14 +76,14 @@ export function render(root) {
     if (!fileI.files[0]) { T.toast('Pilih foto dulu'); return; }
     let img;
     try { img = await loadImage(fileI.files[0]); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     const dk = darkI.value || '#000000', lt = lightI.value || '#ffffff';
     setLS('dt-dark', dk); setLS('dt-light', lt);
     T.toast('Lagi mewarnai…');
     await new Promise((r) => setTimeout(r, 30));
     resCanvas = duotone(img, dk, lt, 1600);
     const blob = await canvasToBlob(resCanvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat gambar'); return; }
+    if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
     const resURL = URL.createObjectURL(blob);
     T.onLeave(() => URL.revokeObjectURL(resURL));
     T.show(box, '');
@@ -97,7 +97,7 @@ export function render(root) {
   const dlB = T.btn('Unduh PNG', async () => {
     if (!resCanvas) { T.toast('Proses dulu fotonya'); return; }
     const blob = await canvasToBlob(resCanvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat file'); return; }
+    if (!blob) { T.toast('Filenya tidak bisa dibuat. Coba lagi.'); return; }
     const base = (fileI.files[0] && fileI.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-duotone.png', blob, 'image/png');
     T.toast('Berhasil diunduh');
@@ -114,7 +114,7 @@ export function render(root) {
     T.field('Warna gelap (bayangan)', darkI),
     T.field('Warna terang (cahaya)', lightI)
   ));
-  root.appendChild(T.field('Preset siap pakai', presetBox, 'Ketuk salah satu, warna langsung keganti.'));
+  root.appendChild(T.field('Pilihan siap pakai', presetBox, 'Ketuk salah satu, warna langsung keganti.'));
   root.appendChild(T.row(T.btn('Terapkan Duotone', process, true), dlB));
   root.appendChild(infoBox);
   root.appendChild(box);

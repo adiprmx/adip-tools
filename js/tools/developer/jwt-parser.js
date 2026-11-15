@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml, tabs } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc, preHtml, tabs } from '../../core.js?v=6.12.0';
 
 function b64urlDecode(seg) {
     const b64 = seg.replace(/-/g, '+').replace(/_/g, '/');
@@ -47,23 +47,80 @@ function pemToBytes(pem, label) {
     return bytes;
   }
 
-async function signJwt(header, payload, alg, secretOrKey) {
+// Tabel algoritma: HMAC (satu kata sandi), RSA klasik & PSS, ECDSA.
+// size = panjang tiap komponen R/S dalam byte (untuk konversi DER <-> mentah).
+const ALGS = {
+    HS256: { kind: 'hmac', hash: 'SHA-256' },
+    HS384: { kind: 'hmac', hash: 'SHA-384' },
+    HS512: { kind: 'hmac', hash: 'SHA-512' },
+    RS256: { kind: 'rsassa', hash: 'SHA-256' },
+    RS384: { kind: 'rsassa', hash: 'SHA-384' },
+    RS512: { kind: 'rsassa', hash: 'SHA-512' },
+    PS256: { kind: 'pss', hash: 'SHA-256', salt: 32 },
+    PS384: { kind: 'pss', hash: 'SHA-384', salt: 48 },
+    PS512: { kind: 'pss', hash: 'SHA-512', salt: 64 },
+    ES256: { kind: 'ecdsa', hash: 'SHA-256', curve: 'P-256', size: 32 },
+    ES384: { kind: 'ecdsa', hash: 'SHA-384', curve: 'P-384', size: 48 },
+    ES512: { kind: 'ecdsa', hash: 'SHA-512', curve: 'P-521', size: 66 },
+  };
+
+const ALG_OPTIONS = [
+    ['HS256', 'HS256 (kata sandi rahasia)'],
+    ['HS384', 'HS384 (kata sandi rahasia)'],
+    ['HS512', 'HS512 (kata sandi rahasia)'],
+    ['RS256', 'RS256 (kunci RSA)'],
+    ['RS384', 'RS384 (kunci RSA)'],
+    ['RS512', 'RS512 (kunci RSA)'],
+    ['PS256', 'PS256 (kunci RSA, PSS)'],
+    ['PS384', 'PS384 (kunci RSA, PSS)'],
+    ['PS512', 'PS512 (kunci RSA, PSS)'],
+    ['ES256', 'ES256 (kunci kurva P-256)'],
+    ['ES384', 'ES384 (kunci kurva P-384)'],
+    ['ES512', 'ES512 (kunci kurva P-521)'],
+  ];
+
+const KUNCI_HINT = {
+    hmac: 'Kata sandi rahasia — satu kata sandi yang sama untuk membuat & memeriksa.',
+    rsassa: 'Kunci private RSA format PEM (PKCS#8, diawali "BEGIN PRIVATE KEY"). Belum punya? Buat di tab "Buat kunci".',
+    pss: 'Kunci private RSA format PEM (PKCS#8). Kunci RSA yang sama bisa dipakai RS* maupun PS*.',
+    ecdsa: 'Kunci private EC format PEM (PKCS#8) dengan kurva yang sesuai algoritma. Belum punya? Buat di tab "Buat kunci".',
+  };
+const KUNCI_HINT_VERIFIKASI = {
+    hmac: 'Kata sandi rahasia yang sama dengan saat token dibuat.',
+    rsassa: 'Kunci public RSA format PEM (SPKI, diawali "BEGIN PUBLIC KEY").',
+    pss: 'Kunci public RSA format PEM (SPKI).',
+    ecdsa: 'Kunci public EC format PEM (SPKI) dengan kurva yang sesuai algoritma.',
+  };
+
+export async function signJwt(header, payload, alg, secretOrKey) {
+    const a = ALGS[alg];
+    if (!a) throw new Error('Algoritma tidak didukung: ' + alg);
     const encHeader = b64urlEncode(new TextEncoder().encode(JSON.stringify(header)));
     const encPayload = b64urlEncode(new TextEncoder().encode(JSON.stringify(payload)));
     const input = encHeader + '.' + encPayload;
     const data = new TextEncoder().encode(input);
     let sig;
-    if (alg === 'HS256') {
-      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secretOrKey), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    if (a.kind === 'hmac') {
+      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secretOrKey), { name: 'HMAC', hash: a.hash }, false, ['sign']);
       sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, data));
-    } else if (alg === 'RS256') {
-      const key = await crypto.subtle.importKey('pkcs8', pemToBytes(secretOrKey, 'private'), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+    } else if (a.kind === 'rsassa') {
+      const key = await crypto.subtle.importKey('pkcs8', pemToBytes(secretOrKey, 'private'), { name: 'RSASSA-PKCS1-v1_5', hash: a.hash }, false, ['sign']);
       sig = new Uint8Array(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, data));
-    } else throw new Error('Algoritma tidak didukung: ' + alg);
+    } else if (a.kind === 'pss') {
+      const key = await crypto.subtle.importKey('pkcs8', pemToBytes(secretOrKey, 'private'), { name: 'RSA-PSS', hash: a.hash }, false, ['sign']);
+      sig = new Uint8Array(await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: a.salt }, key, data));
+    } else if (a.kind === 'ecdsa') {
+      // WebCrypto mengembalikan tanda tangan ECDSA sudah dalam format mentah
+      // R||S (IEEE P1363) — persis format yang dipakai JWT, tanpa konversi.
+      const key = await crypto.subtle.importKey('pkcs8', pemToBytes(secretOrKey, 'private'), { name: 'ECDSA', namedCurve: a.curve }, false, ['sign']);
+      sig = new Uint8Array(await crypto.subtle.sign({ name: 'ECDSA', hash: a.hash }, key, data));
+    }
     return input + '.' + b64urlEncode(sig);
   }
 
-async function verifyJwt(token, alg, secretOrKey) {
+export async function verifyJwt(token, alg, secretOrKey) {
+    const a = ALGS[alg];
+    if (!a) throw new Error('Algoritma tidak didukung: ' + alg);
     const r = jwtDecode(token);
     if (r.error) throw new Error(r.error);
     const data = new TextEncoder().encode(r.signingInput);
@@ -75,18 +132,48 @@ async function verifyJwt(token, alg, secretOrKey) {
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
       return bytes;
     })();
-    if (alg === 'HS256') {
-      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secretOrKey), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
+    if (a.kind === 'hmac') {
+      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secretOrKey), { name: 'HMAC', hash: a.hash }, false, ['verify']);
       return crypto.subtle.verify('HMAC', key, sigBytes, data);
     }
-    if (alg === 'RS256') {
-      const key = await crypto.subtle.importKey('spki', pemToBytes(secretOrKey, 'public'), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+    if (a.kind === 'rsassa') {
+      const key = await crypto.subtle.importKey('spki', pemToBytes(secretOrKey, 'public'), { name: 'RSASSA-PKCS1-v1_5', hash: a.hash }, false, ['verify']);
       return crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, sigBytes, data);
+    }
+    if (a.kind === 'pss') {
+      const key = await crypto.subtle.importKey('spki', pemToBytes(secretOrKey, 'public'), { name: 'RSA-PSS', hash: a.hash }, false, ['verify']);
+      return crypto.subtle.verify({ name: 'RSA-PSS', saltLength: a.salt }, key, sigBytes, data);
+    }
+    if (a.kind === 'ecdsa') {
+      const key = await crypto.subtle.importKey('spki', pemToBytes(secretOrKey, 'public'), { name: 'ECDSA', namedCurve: a.curve }, false, ['verify']);
+      return crypto.subtle.verify({ name: 'ECDSA', hash: a.hash }, key, sigBytes, data);
     }
     throw new Error('Algoritma tidak didukung: ' + alg);
   }
 
-export const meta = {"id": "jwt-parser", "name": "JWT Parser", "cat": "developer", "icon": "🎫", "desc": "Baca, buat & verifikasi token JWT.", "keywords": "jwt,token,auth,sign,verify"};
+function toPem(buf, label) {
+    const bytes = new Uint8Array(buf);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    const b64 = btoa(bin);
+    return '-----BEGIN ' + label + '-----\n' + b64.match(/.{1,64}/g).join('\n') + '\n-----END ' + label + '-----';
+  }
+
+export async function generateKeyPair(kind) {
+    let pair;
+    if (kind === 'rsa') {
+      pair = await crypto.subtle.generateKey(
+        { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+        true, ['sign', 'verify']);
+    } else {
+      pair = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: kind }, true, ['sign', 'verify']);
+    }
+    const priv = await crypto.subtle.exportKey('pkcs8', pair.privateKey);
+    const pub = await crypto.subtle.exportKey('spki', pair.publicKey);
+    return { priv: toPem(priv, 'PRIVATE KEY'), pub: toPem(pub, 'PUBLIC KEY') };
+  }
+
+export const meta = {"id": "jwt-parser", "name": "JWT Parser", "cat": "developer", "icon": "🎫", "desc": "Baca, buat & verifikasi token JWT (HS/RS/PS/ES) + buat kunci.", "keywords": "jwt,token,auth,sign,verify,hs256,rs256,es256,ps256"};
 export function render(root) {
 
     const fmtDur = (sec) => {
@@ -141,11 +228,14 @@ export function render(root) {
 
     // ---- Tab 2: Buat token ----
     const pCreate = T.el('<div></div>');
-    const algSel = T.select([['HS256', 'HS256 (kata sandi rahasia)'], ['RS256', 'RS256 (kunci private RSA)']], 'HS256');
+    const algSel = T.select(ALG_OPTIONS, 'HS256');
     const hdrTa = T.ta(3, '{\n  "alg": "HS256",\n  "typ": "JWT"\n}');
     const payTa = T.ta(5, '{\n  "sub": "123",\n  "name": "contoh",\n  "iat": 1700000000\n}');
     hdrTa.style.fontFamily = 'ui-monospace,monospace'; payTa.style.fontFamily = 'ui-monospace,monospace';
-    const keyTa = T.ta(3, 'Kata sandi rahasia (HS256) atau kunci private PEM (RS256)…');
+    const keyTa = T.ta(3, 'Kata sandi rahasia (HS*) atau kunci private PEM (RS*/PS*/ES*)…');
+    const keyHint = T.el('<div class="hint"></div>');
+    const syncKeyHint = () => { keyHint.textContent = KUNCI_HINT[ALGS[algSel.value].kind] || ''; };
+    algSel.addEventListener('change', syncKeyHint);
     const createBox = T.out();
     const createRes = T.ta(4, 'Token hasil muncul di sini…');
     createRes.readOnly = true;
@@ -157,7 +247,7 @@ export function render(root) {
       const alg = algSel.value;
       header = { ...header, alg, typ: header.typ || 'JWT' };
       const secret = keyTa.value;
-      if (!secret.trim()) { T.show(createBox, errBox(alg === 'HS256' ? 'Isi kata sandi rahasianya.' : 'Tempel kunci private PEM-nya.')); return; }
+      if (!secret.trim()) { T.show(createBox, errBox(ALGS[alg].kind === 'hmac' ? 'Isi kata sandi rahasianya.' : 'Tempel kunci private PEM-nya.')); return; }
       T.show(createBox, '<span class="dim">Menandatangani…</span>');
       try {
         created = await signJwt(header, payload, alg, secret);
@@ -165,22 +255,31 @@ export function render(root) {
         T.show(createBox, '<span class="ok">✓ Token dibuat (' + alg + ').</span>');
       } catch (e) {
         created = '';
-        T.show(createBox, errBox('Gagal membuat token: ' + (e && e.message ? e.message : e) + (alg === 'RS256' ? ' Pastikan kunci private format PKCS#8 (diawali "BEGIN PRIVATE KEY").' : '')));
+        const kind = ALGS[alg].kind;
+        const tip = kind === 'hmac' ? ''
+          : kind === 'ecdsa' ? ' Pastikan kunci private EC-nya memakai kurva yang sesuai (' + ALGS[alg].curve + ') dan format PKCS#8 (diawali "BEGIN PRIVATE KEY").'
+          : ' Pastikan kunci private format PKCS#8 (diawali "BEGIN PRIVATE KEY").';
+        T.show(createBox, errBox('Gagal membuat token: ' + (e && e.message ? e.message : e) + tip));
       }
     };
-    pCreate.appendChild(T.field('Algoritma', algSel, 'HS256 pakai satu kata sandi rahasia. RS256 pakai pasangan kunci private/public.'));
+    pCreate.appendChild(T.field('Algoritma', algSel, 'HS* pakai satu kata sandi rahasia. RS*/PS* pakai kunci RSA. ES* pakai kunci kurva eliptik (lebih pendek).'));
     pCreate.appendChild(T.field('Header (JSON)', hdrTa));
     pCreate.appendChild(T.field('Payload (JSON)', payTa));
     pCreate.appendChild(T.field('Kunci', keyTa));
+    pCreate.appendChild(keyHint);
+    syncKeyHint();
     pCreate.appendChild(T.row(T.btn('Buat Token', doCreate, true), T.copyBtn(() => created, 'Salin Token')));
     pCreate.appendChild(createBox);
     pCreate.appendChild(T.field('Token', createRes));
 
     // ---- Tab 3: Verifikasi ----
     const pVerify = T.el('<div></div>');
-    const vAlgSel = T.select([['HS256', 'HS256 (kata sandi rahasia)'], ['RS256', 'RS256 (kunci public RSA)']], 'HS256');
+    const vAlgSel = T.select(ALG_OPTIONS, 'HS256');
     const vTa = T.ta(4, 'Paste token JWT…');
-    const vKeyTa = T.ta(3, 'Kata sandi rahasia (HS256) atau kunci public PEM (RS256)…');
+    const vKeyTa = T.ta(3, 'Kata sandi rahasia (HS*) atau kunci public PEM (RS*/PS*/ES*)…');
+    const vKeyHint = T.el('<div class="hint"></div>');
+    const syncVKeyHint = () => { vKeyHint.textContent = KUNCI_HINT_VERIFIKASI[ALGS[vAlgSel.value].kind] || ''; };
+    vAlgSel.addEventListener('change', syncVKeyHint);
     const vBox = T.out();
     const doVerify = async () => {
       if (!vTa.value.trim()) { T.show(vBox, errBox('Tempel dulu tokennya.')); return; }
@@ -199,19 +298,59 @@ export function render(root) {
           ? '<span class="ok">✓ Signature SAH.</span> <span class="dim">Token ini memang ditandatangani dengan kunci tersebut dan isinya tidak berubah.</span>' + expNote
           : '<span class="err">✗ Signature TIDAK SAH.</span> <span class="dim">Kunci salah, atau isi token sudah diubah setelah ditandatangani.</span>');
       } catch (e) {
-        T.show(vBox, errBox('Gagal memverifikasi: ' + (e && e.message ? e.message : e) + (vAlgSel.value === 'RS256' ? ' Pastikan kunci public format SPKI (diawali "BEGIN PUBLIC KEY").' : '')));
+        const kind = ALGS[vAlgSel.value].kind;
+        const tip = kind === 'hmac' ? ''
+          : kind === 'ecdsa' ? ' Pastikan kunci public EC-nya memakai kurva yang sesuai (' + ALGS[vAlgSel.value].curve + ') dan format SPKI (diawali "BEGIN PUBLIC KEY").'
+          : ' Pastikan kunci public format SPKI (diawali "BEGIN PUBLIC KEY").';
+        T.show(vBox, errBox('Gagal memverifikasi: ' + (e && e.message ? e.message : e) + tip));
       }
     };
     pVerify.appendChild(T.field('Algoritma', vAlgSel));
     pVerify.appendChild(T.field('Token JWT', vTa));
     pVerify.appendChild(T.field('Kunci', vKeyTa));
+    pVerify.appendChild(vKeyHint);
+    syncVKeyHint();
     pVerify.appendChild(T.row(T.btn('Verifikasi', doVerify, true)));
     pVerify.appendChild(vBox);
 
-    root.appendChild(tabs([['Baca token', 0], ['Buat token', 1], ['Verifikasi', 2]], [pRead, pCreate, pVerify]));
+    // ---- Tab 4: Buat kunci (RSA / EC) ----
+    const pKeys = T.el('<div></div>');
+    const kKindSel = T.select([
+      ['rsa', 'RSA 2048-bit (untuk RS256/384/512 & PS256/384/512)'],
+      ['P-256', 'Kurva P-256 (untuk ES256)'],
+      ['P-384', 'Kurva P-384 (untuk ES384)'],
+      ['P-521', 'Kurva P-521 (untuk ES512)'],
+    ], 'rsa');
+    const kPrivTa = T.ta(6, 'Kunci private muncul di sini…');
+    const kPubTa = T.ta(4, 'Kunci public muncul di sini…');
+    kPrivTa.readOnly = true; kPubTa.readOnly = true;
+    kPrivTa.style.fontFamily = 'ui-monospace,monospace'; kPubTa.style.fontFamily = 'ui-monospace,monospace';
+    const kBox = T.out();
+    const doGenKeys = async () => {
+      T.show(kBox, '<span class="dim">Membuat pasangan kunci…</span>');
+      try {
+        const kp = await generateKeyPair(kKindSel.value);
+        kPrivTa.value = kp.priv;
+        kPubTa.value = kp.pub;
+        T.show(kBox, '<span class="ok">✓ Pasangan kunci dibuat.</span> <span class="dim">Private untuk membuat token, public untuk memeriksa. Simpan private-nya baik-baik.</span>');
+      } catch (e) {
+        T.show(kBox, errBox('Gagal membuat kunci: ' + (e && e.message ? e.message : e)));
+      }
+    };
+    pKeys.appendChild(T.el('<p class="hint" style="margin-bottom:10px">Kunci dibuat langsung di perangkat ini dan tidak dikirim ke mana-mana. Dipakai untuk algoritma RS*, PS*, dan ES*.</p>'));
+    pKeys.appendChild(T.field('Jenis kunci', kKindSel));
+    pKeys.appendChild(T.row(T.btn('Buat Pasangan Kunci', doGenKeys, true)));
+    pKeys.appendChild(kBox);
+    pKeys.appendChild(T.field('Kunci private (rahasia)', kPrivTa));
+    pKeys.appendChild(T.row(T.copyBtn(() => kPrivTa.value, 'Salin Private')));
+    pKeys.appendChild(T.field('Kunci public (boleh dibagikan)', kPubTa));
+    pKeys.appendChild(T.row(T.copyBtn(() => kPubTa.value, 'Salin Public')));
+
+    root.appendChild(tabs([['Baca token', 0], ['Buat token', 1], ['Verifikasi', 2], ['Buat kunci', 3]], [pRead, pCreate, pVerify, pKeys]));
     root.appendChild(pRead);
     root.appendChild(pCreate);
     root.appendChild(pVerify);
+    root.appendChild(pKeys);
     root.appendChild(T.el('<div class="hint" style="margin-top:12px">Semua diproses di perangkat ini. Jangan tempel token produksi yang masih aktif ke perangkat orang lain.</div>'));
   
 }

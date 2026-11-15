@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "tes-webcam", "name": "Tes Webcam", "cat": "sehari", "icon": "📹", "desc": "Lihat pratinjau kamera dan cek resolusi yang benar-benar dipakai.", "keywords": "webcam,kamera,video,resolusi,tes kamera", "since": "6.11.0"};
 

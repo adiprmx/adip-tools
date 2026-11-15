@@ -183,23 +183,31 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-achievement</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-boarding-pass</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-call</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-call-history-iphone</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-messenger</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-tele</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-wa</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-dm-discord</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-dm-ig</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-dm-tiktok</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-imessage</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-komen-tiktok</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-komen-yt</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-notes-iphone</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-notif-hp</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-notif-tele</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-post-ig</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-profil-wa</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-reddit-post</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-spotify-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-story-ig</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-threads-post</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-tweet</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/acak-grup</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/animegallery</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/baby-name</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bagan-turnamen</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/benar-atau-salah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bola-ramalan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-khodam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-vibes</loc></url>
@@ -214,6 +222,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kocok-hadiah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-emoji-hewan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-ibukota</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kuis-matematika-cepat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/mau-makan-apa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/meter-bucin</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/nama-panggung</loc></url>
@@ -227,10 +236,12 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-angka</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-bendera</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-kata</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tebak-tahun</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-tebakan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-kepribadian</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tier-list</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tod-indonesia</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/trivia-umum</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/winquotes</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/winrate-ff</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/winrate-ml</loc></url>
@@ -367,6 +378,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/arah-kiblat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/baca-quran</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cari-buku</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/data-indonesia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fakta-kucing</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fase-bulan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/galeri-seni</loc></url>
@@ -379,16 +391,20 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/ip-saya</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jadwal-sholat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jam-dunia</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kamus-inggris</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kualitas-udara</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kurs-cuaca</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lirik-lagu</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penerjemah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pokemon-viewer</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/posisi-iss</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/quotes-random</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/resep-makanan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/saran-random</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-nama</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/terbit-terbenam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-kecepatan-internet</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/wilayah-indonesia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/audio-trimmer</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/camelot</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/chop-sample</loc></url>
@@ -455,6 +471,8 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/typing-test</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/worldclassics</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/autopdf</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/bantuan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/beri-masukan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bio-link</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/catatan-cepat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/daftar-bacaan</loc></url>

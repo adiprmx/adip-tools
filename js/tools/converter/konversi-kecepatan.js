@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "konversi-kecepatan", "name": "Konversi Kecepatan", "cat": "converter", "icon": "💨", "desc": "Konversi km/jam ↔ m/s ↔ mph ↔ knot.", "keywords": "kecepatan,km/jam,ms,mph,knot,konversi,lari,berkendara"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "komisi-reseller", "name": "Komisi Reseller", "cat": "bisnis", "icon": "🤝", "desc": "Hitung komisi per penjualan dan rekap bulanan untuk reseller atau afiliator.", "keywords": "komisi reseller,afiliasi,affiliate,reseller,dropship,komisi penjualan", "since": "6.11.0"};
 export function render(root) {

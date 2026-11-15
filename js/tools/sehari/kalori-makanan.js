@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node).
 // Kalori per porsi umum dari Tabel Kalori Makanan sehari-hari (acuan TKPI
@@ -12,7 +12,7 @@ utils.MAKANAN_KALORI = [
   { nama: 'Soun goreng', gram: 100, kkal: 263 }, { nama: 'Kentang goreng', gram: 150, kkal: 211 },
   { nama: 'Singkong rebus', gram: 100, kkal: 146 }, { nama: 'Ubi rebus', gram: 100, kkal: 125 },
   { nama: 'Ketan putih', gram: 120, kkal: 217 }, { nama: 'Makaroni', gram: 25, kkal: 91 },
-  { nama: 'Crakers', gram: 50, kkal: 229 },
+  { nama: 'Crackers', gram: 50, kkal: 229 },
   { nama: 'Ayam panggang', gram: 100, kkal: 164 }, { nama: 'Ayam bakar bumbu kuning', gram: 100, kkal: 129 },
   { nama: 'Ayam goreng kecap', gram: 75, kkal: 359 }, { nama: 'Ayam pop', gram: 200, kkal: 265 },
   { nama: 'Ati ayam goreng', gram: 50, kkal: 98 }, { nama: 'Telur ayam rebus', gram: 60, kkal: 97 },
@@ -117,7 +117,7 @@ export function render(root) {
     T.show(totalBox,
       `<div class="kv"><span>Total kalori hari ini</span><b style="color:#fff">${T.fmt(Math.round(total))} kkal</b></div>` +
       (t > 0 ? `<div class="kv"><span>Target harian</span><b>${T.fmt(t)} kkal (sisa ${T.fmt(Math.max(0, Math.round(t - total)))} kkal)</b></div>` : '') +
-      `<div class="hint">Angka kalori memakai porsi umum dari tabel gizi. Masakan rumahan bisa beda karena takaran minyak, santan, dan gula. Untuk kebutuhan kalori harian yang pas untukmu, hitung di tool BMI.</div>`
+      `<div class="hint">Angka kalori memakai porsi umum dari tabel gizi. Masakan rumahan bisa beda karena takaran minyak, santan, dan gula. Untuk kebutuhan kalori harian yang pas untukmu, hitung di Kalkulator BMI.</div>`
     );
   }
 

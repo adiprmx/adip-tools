@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.11.5';
+import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.0';
 
 // Checksum file: SHA-256/384/512 via WebCrypto, MD5 via crypto-js
 // (dimuat dari CDN hanya bila MD5 dicentang). File dibaca utuh ke
@@ -83,7 +83,7 @@ export function render(root) {
       ).join('');
       html += '<div style="margin-top:10px">' + results.map(([, h], i) =>
         '<button type="button" class="btn small" data-h="' + i + '" style="margin:0 6px 6px 0">Salin ' + results[i][0] + '</button>').join('') + '</div>';
-      if (md5Fail) html += '<div class="hint" style="margin-top:8px">MD5 tidak bisa dihitung: pustaka MD5 gagal dimuat dari CDN. Cek koneksi lalu coba lagi.</div>';
+      if (md5Fail) html += '<div class="hint" style="margin-top:8px">MD5 tidak bisa dihitung: alat MD5 tidak bisa dimuat dari internet. Cek koneksi lalu coba lagi.</div>';
       const expect = expectInp.value.trim().toLowerCase();
       if (expect) {
         const hit = results.find(([, h]) => h.toLowerCase() === expect);

@@ -1,4 +1,4 @@
-import { h as T, utils, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "kalkulator-umum", "name": "Kalkulator Umum", "cat": "pelajar", "icon": "🧮", "desc": "Hitung biasa sampai ilmiah: tambah kurang kali bagi, persen, sin cos tan, log, akar, pangkat, plus riwayat.", "keywords": "kalkulator,hitung,matematika,ilmiah,sin,cos,tan,log,ln,akar,pangkat,faktorial,persen,derajat,radian", "since": "6.11.0"};
 
@@ -15,13 +15,13 @@ function tokenize(s) {
       let j = i, dot = false;
       while (j < s.length && ((s[j] >= '0' && s[j] <= '9') || s[j] === '.')) {
         if (s[j] === '.') {
-          if (dot) throw new Error('Angka tidak valid.');
+          if (dot) throw new Error('Angkanya tidak benar.');
           dot = true;
         }
         j++;
       }
       const raw = s.slice(i, j);
-      if (raw === '.') throw new Error('Angka tidak valid.');
+      if (raw === '.') throw new Error('Angkanya tidak benar.');
       out.push({ t: 'num', v: parseFloat(raw) });
       i = j;
       continue;
@@ -162,7 +162,7 @@ function evalTree(n, deg) {
     case 'pct': return evalTree(n.x, deg) / 100;
     case 'fact': {
       const v = evalTree(n.x, deg);
-      if (!Number.isInteger(v) || v < 0 || v > 170) throw new Error('Faktorial hanya untuk bilangan bulat 0 sampai 170.');
+      if (!Number.isInteger(v) || v < 0 || v > 170) throw new Error('Faktorial hanya untuk angka bulat 0 sampai 170.');
       return factorial(v);
     }
     case 'fn': {

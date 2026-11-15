@@ -1,4 +1,4 @@
-import { h as T, kv, tabs } from '../../core.js?v=6.11.5';
+import { h as T, kv, tabs } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kalkulator-waktu","name":"Kalkulator Waktu","cat":"sehari","icon":"⏱️","desc":"Tambah dan kurang durasi jam, menit, detik, plus konversi satuan waktu.","keywords":"waktu,jam,menit,detik,durasi,konversi,hitung waktu","since":"6.11.0"};
 

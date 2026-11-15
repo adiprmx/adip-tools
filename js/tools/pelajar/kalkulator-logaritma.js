@@ -1,4 +1,4 @@
-import { h as T, tabs } from '../../core.js?v=6.11.5';
+import { h as T, tabs } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kalkulator-logaritma","name":"Kalkulator Logaritma","cat":"pelajar","icon":"📊","desc":"Hitung log basis bebas + bedah sifat perkalian, pembagian, dan pangkat.","keywords":"logaritma,log,ln,matematika,basis,sifat logaritma,pelajar"};
 

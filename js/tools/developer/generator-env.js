@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "generator-env", "name": "Generator .env", "cat": "developer", "icon": "⚙️", "desc": "Susun file .env dari template: Node.js, Laravel, Django, Next.js.", "keywords": "env,environment variable,dotenv,config,node,laravel,django,nextjs"};
 export function render(root) {

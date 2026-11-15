@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "target-omzet", "name": "Target Omzet", "cat": "bisnis", "icon": "🎯", "desc": "Dari target laba dan biaya tetap, ketahuan omzet dan jumlah unit yang harus terjual tiap hari.", "keywords": "target omzet,target laba,omzet,biaya tetap,unit terjual,rencana penjualan", "since": "6.11.0"};
 export function render(root) {

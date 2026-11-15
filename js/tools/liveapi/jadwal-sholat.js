@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "jadwal-sholat", "name": "Jadwal Sholat", "cat": "liveapi", "icon": "🕌", "desc": "Jadwal sholat harian per kota + countdown ke waktu berikutnya.", "keywords": "jadwal,sholat,shalat,waktu,subuh,dzuhur,ashar,maghrib,isya,kota,adzan"};
 export function render(root) {
@@ -12,6 +12,7 @@ export function render(root) {
     KOTA.forEach((k) => { const o = document.createElement('option'); o.value = k; dl.appendChild(o); });
     const box = T.out();
     let timer = null;
+    const cacheJadwal = new Map(); // kota|tanggal -> { at, data } (cache 30 menit)
     const stopTimer = () => { if (timer) { clearInterval(timer); timer = null; } };
     T.onLeave(stopTimer);
 
@@ -72,17 +73,29 @@ export function render(root) {
       const kota = inKota.value.trim();
       if (!kota) { T.show(box, errBox('Isi dulu nama kotanya ya.')); return; }
       stopTimer();
+      const kunciCache = kota.toLowerCase() + '|' + new Date().toDateString();
+      const cached = cacheJadwal.get(kunciCache);
+      if (cached && Date.now() - cached.at < 30 * 60 * 1000) { tampil(cached.data, kota); return; }
       T.show(box, '<p class="mut">Mengambil jadwal sholat ' + T.esc(kota) + '…</p>');
+      const ctrl = new AbortController();
+      const timerFetch = setTimeout(() => ctrl.abort(), 15000);
       try {
-        const r = await fetch('https://api.aladhan.com/v1/timingsByCity?city=' + encodeURIComponent(kota) + '&country=Indonesia&method=20');
+        const r = await fetch('https://api.aladhan.com/v1/timingsByCity?city=' + encodeURIComponent(kota) + '&country=Indonesia&method=20', { signal: ctrl.signal });
         if (!r.ok) throw new Error('http ' + r.status);
         const j = await r.json();
         const d = j && j.data;
         if (!d || !d.timings || !d.timings.Fajr) throw new Error('bad-data');
+        cacheJadwal.set(kunciCache, { at: Date.now(), data: d });
         tampil(d, kota);
       } catch (e) {
-        T.show(box, errBox('Gagal ambil jadwal, cek koneksi internet atau coba kota lain.'));
-      }
+        const msg = e.name === 'AbortError'
+          ? 'Waktu habis — server jadwal sholat tidak merespons dalam 15 detik.'
+          : 'Gagal ambil jadwal, cek koneksi internet atau coba kota lain.';
+        T.show(box, errBox(msg));
+        const wr = T.el('<div style="margin-top:8px"></div>');
+        wr.appendChild(T.btn('🔄 Coba lagi', ambil));
+        box.appendChild(wr);
+      } finally { clearTimeout(timerFetch); }
     };
 
     inKota.addEventListener('keydown', (e) => { if (e.key === 'Enter') ambil(); });

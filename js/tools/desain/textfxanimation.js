@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 /* textfxanimation — "Text FX Animation": 5 preset efek teks -> XML Alight Motion.
    Setia pada rujukan (all-tools-nexora, izin Developer Dika): 5 preset memakai
@@ -10,7 +10,7 @@ const AL = utils.alight;
 
 export const meta = {
   id: 'textfxanimation', name: 'Animasi FX Teks', cat: 'desain', icon: '💥',
-  desc: '5 preset efek teks (Pink Glow, Reveal Up, Glow Out-In, Neon Block, Star Reveal) → XML Alight Motion, dengan color roles per preset.',
+  desc: '5 pilihan efek teks (Pink Glow, Reveal Up, Glow Out-In, Neon Block, Star Reveal) → XML Alight Motion, dengan peran warna per pilihan.',
   keywords: 'teks,fx,efek,alight motion,xml,glow,neon,reveal,color roles',
 };
 
@@ -188,7 +188,7 @@ export function render(root) {
   const inpFile = T.input('text', 'Otomatis: teks#preset', '');
 
   root.appendChild(T.field('Teks (maks 2 baris)', inpText));
-  root.appendChild(T.grid2(T.field('Preset FX', selPreset), T.field('Mode layer', selMode)));
+  root.appendChild(T.grid2(T.field('Pilihan efek', selPreset), T.field('Animasi per', selMode)));
   root.appendChild(T.grid2(T.field('Font', selFont), T.field('Weight', selWeight)));
   root.appendChild(T.grid2(T.field('Ukuran font (8–120)', inpSize), T.field('Jarak huruf (0–420)', inpSpacing)));
 

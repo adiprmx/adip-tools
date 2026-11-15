@@ -1,4 +1,4 @@
-import { h as T, errBox, esc } from '../../core.js?v=6.11.5';
+import { h as T, errBox, esc } from '../../core.js?v=6.12.0';
 
 // Bandingkan dua JSON secara rekursif. Hasil: daftar jalur yang
 // ditambah, dihapus, atau berubah nilainya, plus ringkasan jumlah.
@@ -48,8 +48,8 @@ export function render(root) {
 
     const run = () => {
       let a, b;
-      try { a = JSON.parse(taA.value); } catch (e) { T.show(box, errBox('JSON pertama tidak valid: ' + e.message)); return; }
-      try { b = JSON.parse(taB.value); } catch (e) { T.show(box, errBox('JSON kedua tidak valid: ' + e.message)); return; }
+      try { a = JSON.parse(taA.value); } catch (e) { T.show(box, errBox('JSON pertama tidak benar: ' + e.message)); return; }
+      try { b = JSON.parse(taB.value); } catch (e) { T.show(box, errBox('JSON kedua tidak benar: ' + e.message)); return; }
       const out = [];
       diffWalk(a, b, '', out);
       const nAdd = out.filter((d) => d.kind === 'add').length;

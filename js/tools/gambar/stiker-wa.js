@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "stiker-wa", "name": "Stiker WA Maker", "cat": "gambar", "icon": "💬", "desc": "Ubah foto jadi stiker WhatsApp 512×512 siap pakai.", "keywords": "stiker,whatsapp,wa,sticker,stiker wa,png,512"};
 export function render(root) {
@@ -32,7 +32,7 @@ export function render(root) {
     function render2() {
         if (!hasImg) return;
         const ctx = ctx2d(canvas);
-        if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+        if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
         try {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(off, 0, 0, canvas.width, canvas.height);
@@ -47,7 +47,7 @@ export function render(root) {
             ctx.setLineDash([10, 8]);
             ctx.strokeRect(crop.x, crop.y, crop.s, crop.s);
             ctx.setLineDash([]);
-        } catch (e) { T.toast('Gagal menggambar: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dibuat: ' + (e && e.message ? e.message : e)); }
     }
     function evPos(e) {
         const r = canvas.getBoundingClientRect();
@@ -79,9 +79,9 @@ export function render(root) {
         if (!fileI.files[0]) return;
         let img;
         try { img = await loadImage(fileI.files[0]); }
-        catch (e) { T.toast('File bukan gambar yang valid'); return; }
+        catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
         const ctx = ctx2d(off);
-        if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+        if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
         try {
             const s = Math.min(1, 1100 / Math.max(img.naturalWidth, img.naturalHeight));
             off.width = Math.round(img.naturalWidth * s);
@@ -96,7 +96,7 @@ export function render(root) {
             T.show(box, '');
             box.appendChild(canvas);
             T.toast('Geser kotak untuk memilih area stiker');
-        } catch (e) { T.toast('Gagal memuat gambar: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dimuat: ' + (e && e.message ? e.message : e)); }
     }
     fileI.addEventListener('change', onFile);
 
@@ -108,17 +108,17 @@ export function render(root) {
             const c = document.createElement('canvas');
             c.width = S; c.height = S;
             const ctx = ctx2d(c);
-            if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+            if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
             const scale = off.width / canvas.width; // rasio gambar asli vs preview
             const sx = crop.x * scale, sy = crop.y * scale, ss = Math.max(1, crop.s * scale);
             const inner = Math.max(1, S - pad * 2);
             ctx.clearRect(0, 0, S, S); // latar transparan (syarat stiker WA)
             ctx.drawImage(off, sx, sy, ss, ss, pad, pad, inner, inner);
             const blob = await canvasToBlob(c, 'image/png');
-            if (!blob) { T.toast('Gagal membuat gambar'); return; }
+            if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
             T.dl('stiker-wa.png', blob, 'image/png');
             T.toast('Stiker siap! Tambahkan via aplikasi pembuat stiker WA');
-        } catch (e) { T.toast('Gagal: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Tidak bisa: ' + (e && e.message ? e.message : e)); }
     }, true);
 
     root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
@@ -128,10 +128,10 @@ export function render(root) {
     root.appendChild(T.field('Ukuran area stiker', sRow));
     const pRow = T.el('<div class="row"></div>');
     pRow.appendChild(padR); pRow.appendChild(padV);
-    root.appendChild(T.field('Jarak tepi (padding)', pRow));
+    root.appendChild(T.field('Jarak tepi', pRow));
     root.appendChild(T.row(dlB));
     root.appendChild(box);
-    root.appendChild(T.el('<p class="hint">Geser kotak putih di foto untuk memilih area yang jadi stiker. Hasilnya PNG 512×512 berlatar transparan, sesuai syarat stiker WhatsApp — tinggal diimport lewat aplikasi pembuat stiker (mis. Sticker Maker).</p>'));
+    root.appendChild(T.el('<p class="hint">Geser kotak putih di foto untuk memilih area yang jadi stiker. Hasilnya PNG 512×512 berlatar transparan, sesuai syarat stiker WhatsApp — tinggal dimasukkan lewat aplikasi pembuat stiker (mis. Sticker Maker).</p>'));
     T.onLeave(() => { hasImg = false; drag = null; });
 
 }

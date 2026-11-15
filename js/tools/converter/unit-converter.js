@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "unit-converter", "name": "Konverter Satuan", "cat": "converter", "icon": "📏", "desc": "Panjang, berat, suhu, volume, kecepatan.", "keywords": "satuan,konversi,panjang,berat,suhu,km,mile"};
 export function render(root) {
@@ -8,7 +8,7 @@ export function render(root) {
       berat: { label: 'Berat', units: { kg: ['Kilogram', 1], g: ['Gram', 0.001], mg: ['Miligram', 1e-6], ton: ['Ton', 1000], lb: ['Pound', 0.45359237], oz: ['Ons', 0.0283495231] } },
       volume: { label: 'Volume', units: { L: ['Liter', 1], ml: ['Mililiter', 0.001], m3: ['Meter kubik', 1000], gal: ['Galon (US)', 3.785411784], floz: ['Fluid ounce (US)', 0.0295735296], cup: ['Cup (US)', 0.2365882365] } },
       kecepatan: { label: 'Kecepatan', units: { 'm/s': ['Meter/detik', 1], 'km/h': ['Kilometer/jam', 1 / 3.6], mph: ['Mil/jam', 0.44704], knot: ['Knot', 0.514444] } },
-      suhu: { label: 'Suhu', units: { C: ['Celcius (°C)', 0], F: ['Fahrenheit (°F)', 0], K: ['Kelvin (K)', 0] } },
+      suhu: { label: 'Suhu', units: { C: ['Celsius (°C)', 0], F: ['Fahrenheit (°F)', 0], K: ['Kelvin (K)', 0] } },
     };
     const catSel = T.select(Object.keys(DEFS).map((k) => [k, DEFS[k].label]), 'panjang');
     const fromSel = T.select([], '');

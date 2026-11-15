@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node).
 // Koefisien per m2 (AHSP/SNI): dinding bata merah 1/2 bata 1:4 = bata 70 buah,
@@ -62,7 +62,7 @@ export function render(root) {
         ? `<div class="kv"><span>Keramik</span><b>${T.fmt(Math.round(r.keramikM2 * 100) / 100)} m² (sekitar ${r.dus} dus)</b></div>` +
           `<div class="kv"><span>Semen nat</span><b>${T.fmt(Math.round(r.natKg * 10) / 10)} kg</b></div>` : '') +
       (totalHarga > 0 ? `<div class="kv"><span>Perkiraan total biaya bahan</span><b style="color:#fff">${T.rp(totalHarga)}</b></div>` : '') +
-      `<div class="hint">Koefisien memakai standar AHSP/SNI: 1 m² dinding bata 1/2 bata butuh 70 bata, 11,5 kg semen, dan 0,043 m³ pasir. Angka ini patokan, tukangmu mungkin memakai campuran berbeda. Harga bahan tidak diisi otomatis karena beda daerah dan beda waktu, isi sendiri sesuai harga toko bangunan terdekat.</div>`
+      `<div class="hint">Takaran memakai standar AHSP/SNI: 1 m² dinding bata 1/2 bata butuh 70 bata, 11,5 kg semen, dan 0,043 m³ pasir. Angka ini patokan, tukangmu mungkin memakai campuran berbeda. Harga bahan tidak diisi otomatis karena beda daerah dan beda waktu, isi sendiri sesuai harga toko bangunan terdekat.</div>`
     );
   }
 

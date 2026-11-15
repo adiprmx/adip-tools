@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"novelcover","name":"Novel Cover","cat":"desain","icon":"📕","desc":"Buat cover novel AI dari sinopsis + overlay judul.","keywords":"novel,cover,sampul,buku,ai,desain,puter"};
 
@@ -145,7 +145,10 @@ export function render(root) {
         const prompt = 'Kamu art director cover novel. Genre: ' + genre.value + '. Sinopsis: ' + s.slice(0, 1500) +
           (karakter.value.trim() ? ' Karakter utama: ' + karakter.value.trim().slice(0, 500) : '') +
           '. Jawab SINGKAT dalam format persis 8 baris:\nGAYA: ...\nMOOD: ...\nKOMPOSISI: ...\nZONA: ...\nTIPOGRAFI: ...\nPALET: ...\nPENCAHAYAAN: ...\nMOTIF: ...';
-        const res = await window.puter.ai.chat(prompt, {});
+        const res = await Promise.race([
+          Promise.resolve(window.puter.ai.chat(prompt, {})),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+        ]);
         const txt = (typeof res === 'string' ? res : (res && (res.text || res.content)) || '').trim();
         const ambil = (k) => { const m = new RegExp(k + ':\\s*(.+)', 'i').exec(txt); return m ? m[1].trim() : '-'; };
         arahAI = {
@@ -230,7 +233,10 @@ export function render(root) {
             const opts = { model: mid, ratio: { w: 2, h: 3 } };
             if (refDu) { opts.input_image = refDu; opts.input_image_mime_type = refMime; }
             try {
-              const res = await window.puter.ai.txt2img(prompt, opts);
+              const res = await Promise.race([
+                Promise.resolve(window.puter.ai.txt2img(prompt, opts)),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: Puter tidak merespons dalam 90 detik.')), 90000)),
+              ]);
               src = utils.puter.srcOf(res);
               dipakai = mid;
               if (src) break;

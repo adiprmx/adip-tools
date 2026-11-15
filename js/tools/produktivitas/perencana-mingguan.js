@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"perencana-mingguan","name":"Perencana Mingguan","cat":"produktivitas","icon":"🗓️","desc":"Susun blok waktu kegiatan untuk 7 hari ke depan, biar minggumu punya arah.","keywords":"perencana mingguan,weekly planner,time block,jadwal,minggu,planning,rencana"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"nilai-akhir","name":"Kalkulator Nilai Akhir","cat":"pelajar","icon":"🎓","desc":"Hitung nilai akhir dari bobot tiap komponen + predikat A–E.","keywords":"nilai,akhir,bobot,predikat,rapor,uts,uas,tugas,kuliah,sekolah"};
 
@@ -70,7 +70,7 @@ export function render(root) {
     const ok = Math.abs(totalW - 100) < 0.0001;
     let html = '';
     if (!ok) {
-      html += '<p class="warn" style="margin-top:0">⚠️ Total bobot = ' + (Math.round(totalW * 100) / 100) + '%, bukan 100%. Hasil di bawah belum valid sampai totalnya pas 100%.</p>';
+      html += '<p class="warn" style="margin-top:0">⚠️ Total bobot = ' + (Math.round(totalW * 100) / 100) + '%, bukan 100%. Hasil di bawah belum benar sampai totalnya pas 100%.</p>';
     }
     html += '<div class="big center">' + akhir.toFixed(2) + ' <span class="mut" style="font-size:15px">· Predikat ' + predikat(akhir) + '</span></div>';
     html += '<p class="center hint">Rumus: Σ(nilai × bobot) ÷ 100</p>';

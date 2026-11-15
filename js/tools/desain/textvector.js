@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 /* textvector — "Text to Vector": teks -> path vektor -> XML Alight Motion + preview SVG.
    Dua mode:
@@ -64,11 +64,18 @@ export async function loadPrecisionFont(font, weight) {
   if (!url) throw new Error('font tidak tersedia di mode presisi');
   if (_fontCache.has(url)) return _fontCache.get(url);
   const ot = await ensureOpentype();
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('font gagal diunduh (HTTP ' + res.status + ')');
-  const parsed = ot.parse(await res.arrayBuffer());
-  _fontCache.set(url, parsed);
-  return parsed;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) throw new Error('font gagal diunduh (HTTP ' + res.status + ')');
+    const parsed = ot.parse(await res.arrayBuffer());
+    _fontCache.set(url, parsed);
+    return parsed;
+  } catch (e) {
+    if (e.name === 'AbortError') throw new Error('font gagal diunduh (waktu habis 15 detik)');
+    throw e;
+  } finally { clearTimeout(timer); }
 }
 function otHasGlyphs(font, text) {
   for (const ch of text) {

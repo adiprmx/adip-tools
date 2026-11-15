@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "jadwal-ronda", "name": "Jadwal Ronda", "cat": "indonesia", "icon": "🌙", "desc": "Generate jadwal ronda malam 14 hari: rotasi otomatis warga per malam.", "keywords": "ronda,siskamling,jaga,malam,warga,jadwal,rotasi,keamanan"};
 export function render(root) {

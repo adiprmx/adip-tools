@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 const LOREM_BANK = [
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
@@ -45,7 +45,7 @@ utils.lorem = function (mode, count) {
     return paras.join('\n\n');
   };
 
-export const meta = {"id": "lorem-ipsum", "name": "Lorem Ipsum Generator", "cat": "teks", "icon": "📄", "desc": "Generator teks dummy.", "keywords": "lorem,dummy,teks"};
+export const meta = {"id": "lorem-ipsum", "name": "Lorem Ipsum Generator", "cat": "teks", "icon": "📄", "desc": "Teks contoh untuk mengisi desain.", "keywords": "lorem,dummy,teks"};
 export function render(root) {
 
       const modeSel = T.select([['paragraf', 'Paragraf'], ['kalimat', 'Kalimat'], ['kata', 'Kata']], 'paragraf');
@@ -58,9 +58,9 @@ export function render(root) {
         T.show(box, `<pre class="pre">${T.esc(last)}</pre>`);
       }
 
-      root.appendChild(T.grid2(T.field('Mode', modeSel), T.field('Jumlah', countI)));
+      root.appendChild(T.grid2(T.field('Satuan', modeSel), T.field('Jumlah', countI)));
       root.appendChild(T.row(
-        T.btn('Generate', gen, true),
+        T.btn('Buat Teks', gen, true),
         T.copyBtn(() => last, 'Salin')
       ));
       root.appendChild(box);

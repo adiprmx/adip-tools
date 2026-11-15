@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "ocrintel", "name": "OCR", "cat": "produktivitas", "icon": "🔠", "desc": "Ekstrak teks dari gambar 100% lokal — tanpa upload, tanpa server.", "keywords": "ocr,teks,gambar,scan,ekstrak,tesseract,pdf,tabel,tiff"};
 
@@ -161,6 +161,25 @@ export function tabelKeCSV(t) {
     c = String(c);
     return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c;
   }).join(',')).join('\n');
+}
+
+// Teks polos -> dokumen RTF (dibuka Word/LibreOffice/WPS).
+// Karakter non-ASCII ditulis sebagai \uN (signed 16-bit) + '?' pengganti,
+// jadi teks Indonesia & aksen tetap terbaca.
+export function teksKeRtf(teks) {
+  let isi = '';
+  for (const ch of String(teks || '')) {
+    const code = ch.codePointAt(0);
+    if (ch === '\\') isi += '\\\\';
+    else if (ch === '{') isi += '\\{';
+    else if (ch === '}') isi += '\\}';
+    else if (ch === '\n') isi += '\\par\n';
+    else if (ch === '\r') isi += '';
+    else if (ch === '\t') isi += '\\tab ';
+    else if (code > 127) isi += '\\u' + (code > 32767 ? code - 65536 : code) + '?';
+    else isi += ch;
+  }
+  return '{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0\\fswiss Arial;}}\n\\f0\\fs22\n' + isi + '\n}';
 }
 
 // Bangun PDF searchable: tiap halaman = gambar + teks tak-terlihat di posisi kata.
@@ -539,6 +558,7 @@ export function render(root) {
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
       '<button class="btn primary" data-o="copy">📋 Salin Teks</button>' +
       '<button class="btn" data-o="txt">⬇️ Unduh TXT</button>' +
+      '<button class="btn" data-o="rtf">⬇️ Unduh RTF</button>' +
       '<button class="btn" data-o="json">⬇️ Unduh JSON</button>' +
       '<button class="btn" data-o="pdf">⬇️ Unduh PDF searchable</button>' +
       (adaTabel ? '<button class="btn" data-o="csv">⬇️ Unduh CSV</button><button class="btn" data-o="tsv">⬇️ Unduh TSV</button>' : '') + '</div>' +
@@ -570,6 +590,7 @@ export function render(root) {
     hasilBox.querySelectorAll('[data-kw]').forEach((b) => { b.onclick = () => { cariInp.value = b.getAttribute('data-kw'); sorot(); }; });
     hasilBox.querySelector('[data-o=copy]').onclick = () => T.copy(teksTabAktif());
     hasilBox.querySelector('[data-o=txt]').onclick = () => T.dl('ocr-' + Date.now() + '.txt', teksTabAktif(), 'text/plain');
+    hasilBox.querySelector('[data-o=rtf]').onclick = () => T.dl('ocr-' + Date.now() + '.rtf', teksKeRtf(teksTabAktif()), 'application/rtf');
     hasilBox.querySelector('[data-o=json]').onclick = () => T.dl('ocr-' + Date.now() + '.json',
       JSON.stringify({ teks: teksHasil, kata, karakter: kar, halaman: hasilHalaman.length, keywords: kw.map(([w, n]) => ({ kata: w, muncul: n })) }, null, 2), 'application/json');
     hasilBox.querySelector('[data-o=pdf]').onclick = unduhPdfSearchable;

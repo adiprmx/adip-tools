@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "json-yaml", "name": "JSON ↔ YAML", "cat": "converter", "icon": "⇄", "desc": "Konversi JSON ke YAML dan sebaliknya.", "keywords": "json,yaml"};
 export function render(root) {
@@ -19,28 +19,28 @@ export function render(root) {
       try {
         const obj = JSON.parse(inp.value);
         outp.value = window.jsyaml.dump(obj, { indent: 2 });
-      } catch (e) { T.show(errBox, '<span class="err">JSON tidak valid: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(errBox, '<span class="err">JSON-nya tidak benar: ' + T.esc(e.message) + '</span>'); }
     };
     const keJson = () => {
       T.hide(errBox);
       try {
         const obj = window.jsyaml.load(inp.value);
         outp.value = JSON.stringify(obj, null, 2);
-      } catch (e) { T.show(errBox, '<span class="err">YAML tidak valid: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(errBox, '<span class="err">YAML-nya tidak benar: ' + T.esc(e.message) + '</span>'); }
     };
 
-    T.show(status, '<span class="dim">⏳ Memuat library YAML…</span>');
+    T.show(status, '<span class="dim">⏳ Menyiapkan alat YAML…</span>');
     root.appendChild(status);
     root.appendChild(wrap);
     T.hide(wrap);
     T.loadScript(CDN).then((ok) => {
       if (!ok || !window.jsyaml) {
-        status.innerHTML = '<span class="err">⚠️ CDN tidak bisa dimuat, cek koneksi internet kamu.</span>';
+        status.innerHTML = '<span class="err">⚠️ Alat YAML tidak bisa dimuat, cek koneksi internet kamu.</span>';
         const retry = T.btn('🔄 Coba Lagi', () => {
-          status.innerHTML = '<span class="dim">⏳ Memuat library YAML…</span>';
+          status.innerHTML = '<span class="dim">⏳ Menyiapkan alat YAML…</span>';
           T.loadScript(CDN).then((ok2) => {
             if (!ok2 || !window.jsyaml) {
-              status.innerHTML = '<span class="err">⚠️ Masih gagal. Coba lagi nanti.</span>';
+              status.innerHTML = '<span class="err">⚠️ Masih belum bisa. Coba lagi nanti.</span>';
               status.appendChild(retry);
               return;
             }

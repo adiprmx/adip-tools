@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 /* Enkripsi AES-GCM via WebCrypto. Diekspor agar bisa diuji round-trip di luar browser. */
 const _te = new TextEncoder(), _td = new TextDecoder();

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "jadwal-piket-harian", "name": "Generator Jadwal Piket", "cat": "produktivitas", "icon": "🗓️", "desc": "Susun jadwal piket harian otomatis.", "keywords": "piket,jadwal,giliran,kelas,kantor", "file": "tools/produktivitas/jadwal-piket-harian.js"};
 
@@ -23,7 +23,7 @@ export function render(root) {
     const n = Math.floor(T.num(jmlHari.value));
     if (!(n >= 1)) { T.show(box, '<p class="warn">Jumlah hari minimal 1.</p>'); return; }
     const tgl0 = new Date(mulai.value + 'T00:00:00');
-    if (isNaN(tgl0.getTime())) { T.show(box, '<p class="warn">Tanggal mulai tidak valid.</p>'); return; }
+    if (isNaN(tgl0.getTime())) { T.show(box, '<p class="warn">Tanggal mulainya tidak benar.</p>'); return; }
     const lewati = skipWknd.querySelector('input').checked;
 
     const baris = [];

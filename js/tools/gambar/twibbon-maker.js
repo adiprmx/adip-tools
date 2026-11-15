@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"twibbon-maker","name":"Twibbon Maker","cat":"gambar","icon":"🖼️","desc":"Bikin twibbon: bingkai + pita teks buat fotomu.","keywords":"twibbon,bingkai,frame,foto,kampanye,pita,teks"};
 
@@ -66,7 +66,7 @@ export function render(root) {
       x.restore();
     } else {
       x.fillStyle = '#8a8073'; x.font = '28px system-ui'; x.textAlign = 'center'; x.textBaseline = 'middle';
-      x.fillText('Upload fotomu dulu…', cx, cy);
+      x.fillText('Pilih fotomu dulu…', cx, cy);
     }
 
     // Bingkai (digambar via canvas, bukan gambar eksternal)
@@ -137,7 +137,7 @@ export function render(root) {
   fileI.addEventListener('change', async () => {
     if (!fileI.files[0]) return;
     try { img = await loadImage(fileI.files[0]); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     zoom = 1; ox = 0; oy = 0;
     zoomR.value = '1'; zoomV.textContent = '100%';
     draw();
@@ -145,9 +145,9 @@ export function render(root) {
   });
 
   const dlB = T.btn('Unduh PNG', async () => {
-    if (!img) { T.toast('Upload foto dulu'); return; }
+    if (!img) { T.toast('Pilih foto dulu'); return; }
     const blob = await canvasToBlob(cv, 'image/png');
-    if (!blob) { T.toast('Gagal membuat file'); return; }
+    if (!blob) { T.toast('Filenya tidak bisa dibuat. Coba lagi.'); return; }
     const base = (fileI.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-twibbon.png', blob, 'image/png');
     T.toast('Twibbon siap disebar!');
@@ -157,14 +157,14 @@ export function render(root) {
   zoomRow.appendChild(zoomR); zoomRow.appendChild(zoomV);
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Bikin twibbon kampanye / event tanpa buka Photoshop. Upload foto, pilih bingkai, <b>geser langsung di gambarnya</b> buat atur posisi, zoom pakai slider, tulis teks di pita — jadi.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Bikin twibbon kampanye / event tanpa buka Photoshop. Pilih foto, pilih bingkai, <b>geser langsung di gambarnya</b> buat atur posisi, zoom pakai slider, tulis teks di pita — jadi.</p>'));
   root.appendChild(T.field('Pilih foto', fileI));
   root.appendChild(T.grid2(
     T.field('Model bingkai', tmplS),
     T.field('Warna bingkai & pita', colorI)
   ));
   root.appendChild(T.field('Teks di pita', textI, 'Cuma kepakai di model yang ada pitanya.'));
-  root.appendChild(T.field('Zoom foto', zoomRow, 'Atau geser langsung fotonya di kanvas buat mindahin posisi.'));
+  root.appendChild(T.field('Zoom foto', zoomRow, 'Atau geser langsung fotonya di gambar buat mindahin posisi.'));
   T.show(box, '');
   box.appendChild(cv);
   root.appendChild(box);

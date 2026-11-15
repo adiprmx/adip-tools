@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.0';
 
 // Cari kualitas tertinggi (0..1) yang hasilnya <= targetBytes.
 // ukur(q) -> Promise<number|null> ukuran byte pada kualitas q.
@@ -21,18 +21,28 @@ export async function cariKualitasPas(ukur, targetBytes, batas) {
   return best;
 }
 
-export const meta = {"id": "image-compress", "name": "Kompres Gambar", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran foto langsung di HP.", "keywords": "kompres,gambar,foto,kecil,ukuran"};
+export const meta = {"id": "image-compress", "name": "Kompres Gambar", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran foto langsung di HP.", "keywords": "kompres,gambar,foto,kecil,ukuran,heic,avif,tiff,batch"};
 export function render(root) {
 
       const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';
+      const HEIC_CDN = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+      const UTIF_CDN = 'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js';
       const MAKS_JUMLAH = 20;
-      let zipSiap = null;
+      let zipSiap = null, heicSiap = null, utifSiap = null;
       const pastZip = () => {
         if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
         return zipSiap;
       };
+      const pastHeic = () => {
+        if (!heicSiap) heicSiap = T.loadScript(HEIC_CDN).then((ok) => ok && typeof window.heic2any === 'function');
+        return heicSiap;
+      };
+      const pastUtif = () => {
+        if (!utifSiap) utifSiap = T.loadScript(UTIF_CDN).then((ok) => ok && !!window.UTIF);
+        return utifSiap;
+      };
 
-      const fileI = fileInput('image/*');
+      const fileI = fileInput('image/*,.heic,.heif,.tif,.tiff');
       fileI.multiple = true;
       const modeSel = T.select([['kualitas', 'Kualitas (geser sendiri)'], ['target', 'Target ukuran pas']], 'kualitas');
       const qRange = T.input('range'); qRange.min = '10'; qRange.max = '100'; qRange.value = '80';
@@ -40,7 +50,7 @@ export function render(root) {
       const targetSel = T.select([['200', '200 KB (CPNS)'], ['500', '500 KB'], ['1024', '1 MB'], ['bebas', 'Angka bebas…']], '200');
       const targetCustom = T.input('text', 'cth: 300', ''); targetCustom.inputMode = 'decimal';
       const maxDim = T.input('number', 'cth: 1600', '1600'); maxDim.inputMode = 'numeric';
-      const fmtSel = T.select([['jpeg', 'JPEG'], ['webp', 'WebP'], ['png', 'PNG']], 'jpeg');
+      const fmtSel = T.select([['jpeg', 'JPEG'], ['webp', 'WebP'], ['avif', 'AVIF'], ['png', 'PNG']], 'jpeg');
       const box = T.out();
       const infoBox = T.out();
       const statusBox = T.out();
@@ -48,6 +58,55 @@ export function render(root) {
       let hasilBatch = []; // [{blob, name, asal, hemat}]
 
       qRange.addEventListener('input', () => { qVal.textContent = qRange.value + '%'; });
+
+      // AVIF keluar hanya bila browser ini bisa menyimpannya; kalau tidak, opsinya dihapus.
+      const avifCatatan = T.el('<p class="dim" style="font-size:12px" hidden>Browser ini belum bisa menyimpan AVIF, jadi pilihan AVIF disembunyikan.</p>');
+      try {
+        const tes = document.createElement('canvas');
+        tes.width = 1; tes.height = 1;
+        tes.toBlob((b) => {
+          if (!b) {
+            const opt = fmtSel.querySelector('option[value="avif"]');
+            if (opt) opt.remove();
+            avifCatatan.hidden = false;
+          }
+        }, 'image/avif');
+      } catch (e) { /* abaikan, AVIF tetap dicoba saat proses */ }
+
+      const jenisMasukan = (file) => {
+        const t = (file.type || '').toLowerCase();
+        const n = (file.name || '').toLowerCase();
+        if (t === 'image/heic' || t === 'image/heif' || n.endsWith('.heic') || n.endsWith('.heif')) return 'heic';
+        if (t === 'image/tiff' || t === 'image/x-tiff' || n.endsWith('.tif') || n.endsWith('.tiff')) return 'tiff';
+        return 'biasa';
+      };
+
+      // File apa pun -> {el, w, h} yang bisa digambar ke canvas.
+      async function muatSumber(file) {
+        const jenis = jenisMasukan(file);
+        if (jenis === 'heic') {
+          if (!(await pastHeic())) throw new Error('pengubah HEIC gagal dimuat, cek koneksi');
+          const keluar = await window.heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+          const blob = Array.isArray(keluar) ? keluar[0] : keluar;
+          if (!blob) throw new Error('file HEIC tidak terbaca');
+          const img = await loadImage(blob);
+          return { el: img, w: img.naturalWidth, h: img.naturalHeight };
+        }
+        if (jenis === 'tiff') {
+          if (!(await pastUtif())) throw new Error('pembaca TIFF gagal dimuat, cek koneksi');
+          const buffer = await file.arrayBuffer();
+          const ifds = window.UTIF.decode(buffer);
+          if (!ifds || !ifds.length) throw new Error('file TIFF tidak terbaca');
+          window.UTIF.decodeImage(buffer, ifds[0]);
+          const rgba = window.UTIF.toRGBA8(ifds[0]);
+          const c = document.createElement('canvas');
+          c.width = ifds[0].width; c.height = ifds[0].height;
+          c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(rgba), c.width, c.height), 0, 0);
+          return { el: c, w: c.width, h: c.height };
+        }
+        const img = await loadImage(file);
+        return { el: img, w: img.naturalWidth, h: img.naturalHeight };
+      }
 
       const qField = T.field('Kualitas', (() => { const d = T.el('<div class="row"></div>'); d.appendChild(qRange); d.appendChild(qVal); return d; })());
       const targetField = T.field('Target ukuran', targetSel);
@@ -84,16 +143,19 @@ export function render(root) {
 
       // Satu file -> hasil kompres (mode kualitas atau target ukuran).
       async function prosesSatu(file, target) {
-        let img;
-        try { img = await loadImage(file); }
-        catch (e) { throw new Error('bukan gambar yang valid'); }
-        let w = img.naturalWidth, h = img.naturalHeight;
+        let img, w, h;
+        try {
+          const s = await muatSumber(file);
+          img = s.el; w = s.w; h = s.h;
+        }
+        catch (e) { throw new Error(e.message || 'bukan gambar yang valid'); }
+        const origW = w, origH = h;
         const max = parseInt(maxDim.value, 10);
         if (max > 0 && Math.max(w, h) > max) {
           const s = max / Math.max(w, h);
           w = Math.round(w * s); h = Math.round(h * s);
         }
-        const mime = fmtSel.value === 'png' ? 'image/png' : fmtSel.value === 'webp' ? 'image/webp' : 'image/jpeg';
+        const mime = fmtSel.value === 'png' ? 'image/png' : fmtSel.value === 'webp' ? 'image/webp' : fmtSel.value === 'avif' ? 'image/avif' : 'image/jpeg';
         const isiPutih = fmtSel.value !== 'png';
         const base = (file.name || 'gambar').replace(/\.[^.]*$/, '');
         const ext = fmtSel.value === 'jpeg' ? 'jpg' : fmtSel.value;
@@ -103,7 +165,7 @@ export function render(root) {
           const q = fmtSel.value === 'png' ? undefined : (parseInt(qRange.value, 10) / 100);
           const blob = await canvasToBlob(gambarKeCanvas(img, w, h, isiPutih), mime, q);
           if (!blob) throw new Error('gagal memproses gambar');
-          return { blob, name: nama, w, h, origW: img.naturalWidth, origH: img.naturalHeight, origSize: file.size, catatan: '' };
+          return { blob, name: nama, w, h, origW: origW, origH: origH, origSize: file.size, catatan: '' };
         }
 
         // Mode target ukuran.
@@ -117,7 +179,7 @@ export function render(root) {
             if (blob.size <= target) break;
             skala *= 0.8;
           }
-          return { blob, name: nama, w: cw, h: ch, origW: img.naturalWidth, origH: img.naturalHeight, origSize: file.size,
+          return { blob, name: nama, w: cw, h: ch, origW: origW, origH: origH, origSize: file.size,
             catatan: blob.size > target ? 'Tetap di atas target, ini hasil terkecil yang bisa dibuat.' : (skala < 1 ? 'Dimensi diperkecil supaya muat di target.' : '') };
         }
         let skala = 1, cw = w, ch = h, ketemu = null, diperkecil = false;
@@ -140,10 +202,10 @@ export function render(root) {
           const canvas = gambarKeCanvas(img, cw, ch, isiPutih);
           const blob = await canvasToBlob(canvas, mime, 0.05);
           if (!blob) throw new Error('gagal memproses gambar');
-          return { blob, name: nama, w: cw, h: ch, origW: img.naturalWidth, origH: img.naturalHeight, origSize: file.size,
+          return { blob, name: nama, w: cw, h: ch, origW: origW, origH: origH, origSize: file.size,
             catatan: 'Tetap di atas target (' + fmtBytes(blob.size) + '), ini hasil terkecil yang bisa dibuat. Coba naikkan targetnya.' };
         }
-        return { blob: ketemu.blob, name: nama, w: cw, h: ch, origW: img.naturalWidth, origH: img.naturalHeight, origSize: file.size,
+        return { blob: ketemu.blob, name: nama, w: cw, h: ch, origW: origW, origH: origH, origSize: file.size,
           catatan: diperkecil ? 'Dimensi diperkecil supaya muat di target.' : '' };
       }
 
@@ -228,7 +290,7 @@ export function render(root) {
       }, true);
 
       root.appendChild(T.el(`<p class="note">🔒 ${LOCAL_NOTE}</p>`));
-      root.appendChild(T.field('Pilih gambar (bisa banyak sekaligus)', fileI, 'Maksimal ' + MAKS_JUMLAH + ' foto sekali proses.'));
+      root.appendChild(T.field('Pilih gambar (bisa banyak sekaligus)', fileI, 'Maksimal ' + MAKS_JUMLAH + ' foto sekali proses. Foto iPhone (HEIC) dan TIFF juga bisa.'));
       root.appendChild(T.field('Cara kompres', modeSel, 'Target ukuran pas: hasil diusahakan tepat di bawah ukuran yang dipilih.'));
       root.appendChild(qField);
       root.appendChild(targetField);
@@ -237,6 +299,7 @@ export function render(root) {
         T.field('Format output', fmtSel),
         T.field('Maksimal dimensi (px, sisi terpanjang)', maxDim, 'Dikosongkan = ukuran asli.')
       ));
+      root.appendChild(avifCatatan);
       root.appendChild(T.row(T.btn('Kompres', process, true), dlB));
       root.appendChild(statusBox);
       root.appendChild(infoBox);

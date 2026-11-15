@@ -1,4 +1,4 @@
-import { h as T, utils, imglyRemoval } from '../../core.js?v=6.11.5';
+import { h as T, utils, imglyRemoval } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "nexoraautocut", "name": "Auto Cut", "cat": "gambar", "icon": "🧩", "desc": "Hapus background lalu pecah jadi layer PNG per objek.", "keywords": "cutout,layer,hapus background,autocut,alight,zip"};
 
@@ -141,7 +141,7 @@ export function alightScene(srcW, srcH) {
     bbox layer yang di-fit ke scene). Tanpa DOM, bisa diuji.
     layers: [{name, x0,y0,x1,y1, pngW, pngH, size}] (size = byte PNG). */
 export function alightXml(srcW, srcH, layers, seed) {
-  if (!Number.isFinite(srcW) || !Number.isFinite(srcH) || srcW <= 0 || srcH <= 0) throw new Error('dimensi sumber tidak valid');
+  if (!Number.isFinite(srcW) || !Number.isFinite(srcH) || srcW <= 0 || srcH <= 0) throw new Error('ukuran sumber tidak benar');
   if (!layers || !layers.length) throw new Error('Tidak ada cut untuk diekspor.');
   const sc = alightScene(srcW, srcH);
   const f6 = (n) => (+n).toFixed(6);
@@ -339,7 +339,7 @@ export function render(root) {
           files.push({ name: 'manifest.xml', data: te.encode(manifestXml()) });
           files.push({ name: zname + '-alight.xml', data: te.encode(alightXml(st.srcW, st.srcH, entries)) });
           T.dl(zname + '-autocut.zip', new Blob([buildZip(files)], { type: 'application/zip' }), 'application/zip');
-        } catch (e) { T.toast('Gagal membuat ZIP: ' + (e && e.message ? e.message : 'error')); }
+        } catch (e) { T.toast('ZIP tidak bisa dibuat: ' + (e && e.message ? e.message : 'error')); }
       }, true),
       T.btn('⬇ Manifest XML', () => T.dl(safeName(st.fname, 'cut') + '-manifest.xml', manifestXml(), 'application/xml')),
       T.btn('🎬 XML Alight Motion', async () => {
@@ -347,7 +347,7 @@ export function render(root) {
         try {
           const entries = await layerEntries();
           T.dl(safeName(st.fname, 'cut') + '-alight.xml', alightXml(st.srcW, st.srcH, entries), 'text/xml');
-        } catch (e) { T.toast('Gagal membuat XML: ' + (e && e.message ? e.message : 'error')); }
+        } catch (e) { T.toast('XML tidak bisa dibuat: ' + (e && e.message ? e.message : 'error')); }
       }),
       T.btn('🔁 Gambar lain', () => { st.layers = []; T.hide(out); fileInp.click(); })
     ));

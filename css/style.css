@@ -36,7 +36,7 @@
   --txt: #f6f1e8;
   --mut: #c9bda9;
   --faint: #9d9078;
-  --dim: #6e6252;
+  --dim: #94876f;
   --acc: #ff6f61;
   --acc-ink: #2b100a;
   --acc-soft: rgba(255, 111, 97, 0.12);
@@ -420,7 +420,7 @@ a { color: inherit; }
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .inp::placeholder { color: var(--faint); }
-.inp:focus { border-color: var(--acc-line); box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.12); }
+.inp:focus { border-color: var(--acc-line); box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.45); }
 textarea.inp { resize: vertical; min-height: 96px; line-height: 1.55; }
 select.inp { appearance: none; -webkit-appearance: none; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -449,11 +449,10 @@ select.inp { appearance: none; -webkit-appearance: none; }
 .back:focus-visible, .hcard:focus-visible, .allbtn:focus-visible,
 .pkey:focus-visible, .drumgrid .cell:focus-visible, .tapzone:focus-visible,
 .fav:focus-visible, .tab:focus-visible, .icobtn:focus-visible,
-.hsearch input:focus-visible {
+.hsearch input:focus-visible, .inp:focus-visible, .pal-bar input:focus-visible {
   outline: 2px solid var(--acc);
   outline-offset: 2px;
 }
-.inp:focus-visible { outline: none; }
 
 /* ---------- output ---------- */
 @keyframes out-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

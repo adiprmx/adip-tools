@@ -67,14 +67,41 @@ async function main() {
   }
   console.log(`import tool: ${ok}/${manifest.length} OK`);
 
-  // 5. core.js + app.js + manifest.js syntax (di-check via import)
+  // 5. core.js di-check via import. app.js TIDAK bisa di-import di Node
+  //    (top-level memakai `document` — terverifikasi 15 Nov 2026:
+  //    "document is not defined"), jadi sintaks file shell (app.js, fx.js,
+  //    ffmpeg-loader.js, ffmpeg-worker/*) di-check via `node --check`
+  //    dengan --input-type=module lewat stdin. WAJIB cara ini: `node --check
+  //    file.js` polos TIDAK BISA dipercaya untuk ES module (pernah lolos
+  //    syntax error nyata, pelajaran 1 Okt 2026); --input-type=module
+  //    memaksa parse goal module dan teruji gagal pada cuplikan rusak.
   await import('../js/core.js');
   console.log('core.js import OK');
+  const { spawnSync } = require('node:child_process');
+  const shellFiles = ['app.js', 'fx.js', 'ffmpeg-loader.js',
+    'ffmpeg-worker/worker.js', 'ffmpeg-worker/const.js',
+    'ffmpeg-worker/errors.js'];
+  for (const sf of shellFiles) {
+    const full = path.join(JS, sf);
+    if (!fs.existsSync(full)) { errors.push(`file shell hilang: js/${sf}`); continue; }
+    const r = spawnSync(process.execPath,
+      ['--check', '--input-type=module'],
+      { input: fs.readFileSync(full), encoding: 'utf8' });
+    if (r.status !== 0) {
+      const first = (r.stderr || '').split('\n').slice(0, 3).join(' | ');
+      errors.push(`js/${sf}: syntax error — ${first}`);
+    }
+  }
+  console.log(`cek sintaks shell: ${shellFiles.length} file`);
 
   // 6. Semua ?v= cache-buster harus sama dengan VERSION manifest (gap 6:
   //    ?v= basi = cache basi + instans modul core.js ganda). Regex hanya
   //    menangkap ?v= diikuti angka x.y.z, jadi pola dinamis '?v=' + VERSION
-  //    di app.js:626 dan teks 'watch?v=' otomatis dilewati.
+  //    di app.js:883 dan teks 'watch?v=' otomatis dilewati.
+  //    Cakupan: SELURUH file .js di js/ (tool + tingkat atas + worker) dan
+  //    index.html — sebelumnya hanya tool + app.js, jadi ?v= basi di
+  //    core.js/fx.js/ffmpeg-loader.js tidak akan pernah ketahuan
+  //    (T05, 15 Nov 2026).
   const stale = new Map(); // versi basi -> {count, files:Set}
   const scanV = (file) => {
     const src = fs.readFileSync(file, 'utf8');
@@ -86,13 +113,39 @@ async function main() {
       stale.set(m[1], e);
     }
   };
-  filesOnDisk.forEach(scanV);
+  const allJs = [];
+  const walkJs = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walkJs(p);
+      else if (e.name.endsWith('.js')) allJs.push(p);
+    }
+  };
+  walkJs(JS);
+  allJs.forEach(scanV);
   scanV(path.join(JS, '..', 'index.html'));
-  scanV(path.join(JS, 'app.js'));
   for (const [v, e] of [...stale.entries()].sort()) {
     errors.push(`?v= basi: ?v=${v} (${e.count}x di ${e.files.size} file, cth: ${[...e.files].slice(0, 3).join(', ')}) — VERSION=${VERSION}`);
   }
   console.log(`cek ?v=: ${stale.size ? [...stale.keys()].join(', ') + ' (BASI)' : 'semua sama dengan VERSION'}`);
+
+  // 7. Import statis core.js/manifest.js TANPA ?v= = instans modul ganda
+  //    (gap 6): satu instans tanpa query + satu dengan ?v=VERSION, state
+  //    (mis. utils/registry) terbelah diam-diam. Hanya kedua modul ini yang
+  //    diperiksa: import relatif lain (mis. ./const.js di ffmpeg-worker)
+  //    sengaja tanpa ?v= karena worker di-load via import.meta.url.
+  //    Regex dijangkar ke awal statement `import` (flag m): tanpa jangkar,
+  //    contoh import di dalam komentar blok (core.js:6) ikut ke-match dan
+  //    jadi false positive (T05, 15 Nov 2026).
+  //    (T05, 15 Nov 2026; temuan pertama: js/beranda.js:33 milik T08.)
+  for (const f of allJs) {
+    const src = fs.readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/^import\s+[\s\S]*?from\s+['"]([^'"]*(?:core|manifest)\.js)([^'"]*)['"]/gm)) {
+      if (!m[2].startsWith('?v=')) {
+        errors.push(`${rel(f)}: import ${m[1]} tanpa ?v= (instans modul ganda)`);
+      }
+    }
+  }
 
   if (errors.length) {
     console.log('\n❌ KEGAGALAN:');

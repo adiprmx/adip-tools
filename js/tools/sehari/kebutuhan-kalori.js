@@ -1,4 +1,4 @@
-import { h as T, kv, esc } from '../../core.js?v=6.11.5';
+import { h as T, kv, esc } from '../../core.js?v=6.12.0';
 
 // Rumus BMR:
 // - Mifflin-St Jeor (1990): pria 10W + 6.25H - 5A + 5; wanita - 161
@@ -28,7 +28,7 @@ const MAKRO = {
   naik: { p: 0.25, k: 0.45, l: 0.30, label: '25% protein, 45% karbo, 30% lemak' },
 };
 
-export const meta = {"id": "kebutuhan-kalori", "name": "Kebutuhan Kalori Harian", "cat": "sehari", "icon": "🔥", "desc": "TDEE dari 3 rumus BMR + target berat badan + pembagian makro.", "keywords": "kalori,tdee,bmr,mifflin,harris benedict,katch mcardle,makro,diet,protein,karbo,lemak", "since": "6.11.0"};
+export const meta = {"id": "kebutuhan-kalori", "name": "Kebutuhan Kalori Harian", "cat": "sehari", "icon": "🔥", "desc": "Hitung kalori harian dari 3 rumus + target berat badan + pembagian nutrisi.", "keywords": "kalori,tdee,bmr,mifflin,harris benedict,katch mcardle,makro,diet,protein,karbo,lemak", "since": "6.11.0"};
 export function render(root) {
 
     const berat = T.input('text', 'Berat badan, cth: 65', '65');
@@ -48,7 +48,7 @@ export function render(root) {
       const b = T.num(berat.value), h = T.num(tinggi.value), u = T.num(umur.value);
       const bf = lemak.value.trim() === '' ? NaN : T.num(lemak.value);
       if (!(b > 0) || !(h > 0) || !(u > 0)) {
-        T.show(box, '<span class="err">Isi berat, tinggi, dan umur dengan angka yang valid.</span>');
+        T.show(box, '<span class="err">Isi berat, tinggi, dan umur dengan angka yang benar.</span>');
         return;
       }
       if (!isNaN(bf) && (bf <= 0 || bf >= 60)) {
@@ -81,9 +81,9 @@ export function render(root) {
         katchRow = kv('Katch-McArdle (BMR ' + T.fmt(Math.round(katch)) + ' kkal)', T.fmt(tdeeK) + ' kkal/hari');
       }
       const goalLabel = goal === 'turun'
-        ? 'Turun sekitar 0,5 kg/minggu (defisit 500 kkal)'
+        ? 'Turun sekitar 0,5 kg/minggu (kurangi 500 kkal)'
         : goal === 'naik'
-          ? 'Naik sekitar 0,5 kg/minggu (surplus 500 kkal)'
+          ? 'Naik sekitar 0,5 kg/minggu (tambah 500 kkal)'
           : 'Berat badan tetap';
       T.show(box,
         '<div class="center"><div class="dim">Kebutuhan kalori harian (TDEE)</div>' +
@@ -97,7 +97,7 @@ export function render(root) {
         kv('Protein (' + Math.round(m.p * 100) + '%)', prot + ' g/hari') +
         kv('Karbohidrat (' + Math.round(m.k * 100) + '%)', karb + ' g/hari') +
         kv('Lemak (' + Math.round(m.l * 100) + '%)', lemk + ' g/hari') +
-        '<p class="hint">Pembagian makro: ' + m.label + '. BMR = kalori yang dipakai tubuh saat istirahat total. TDEE = BMR dikali aktivitas. ' +
+        '<p class="hint">Pembagian nutrisi: ' + m.label + '. BMR = kalori yang dipakai tubuh saat istirahat total. TDEE = BMR dikali aktivitas. ' +
         'Rumus Katch-McArdle butuh persen lemak tubuh, jadi muncul hanya kalau kolom itu diisi. ' +
         'Angka 500 kkal didapat dari perkiraan umum: 1 kg lemak tubuh setara sekitar 7.700 kkal.</p>' +
         NOTE);

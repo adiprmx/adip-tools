@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "tes-mikrofon", "name": "Tes Mikrofon", "cat": "sehari", "icon": "🎙️", "desc": "Lihat level suara mikrofon dan rekam sebentar untuk didengar ulang.", "keywords": "mikrofon,mic,suara,rekam,audio", "since": "6.11.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node): putuskan hasil dari dua sinyal.
 // dnsOk = domain terdaftar di DNS publik. reachable = bisa dijangkau dari koneksi pengguna.
@@ -31,8 +31,10 @@ export function render(root) {
     if (!domain) { T.show(box, errBox('Isi dulu alamat situsnya.')); return; }
     T.show(box, '<span class="dim">Memeriksa DNS dan koneksi ke ' + esc(domain) + '…</span>');
     let dnsOk = false, ips = [];
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
     try {
-      const res = await fetch('https://dns.google/resolve?name=' + encodeURIComponent(domain) + '&type=A');
+      const res = await fetch('https://dns.google/resolve?name=' + encodeURIComponent(domain) + '&type=A', { signal: ctrl.signal });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const j = await res.json();
       if (j.Status === 0 && j.Answer && j.Answer.length) {
@@ -40,9 +42,15 @@ export function render(root) {
         ips = j.Answer.filter((a) => a.type === 1).map((a) => a.data);
       }
     } catch (e) {
-      T.show(box, errBox('Tidak bisa menghubungi layanan DNS. Periksa koneksimu lalu coba lagi.'));
+      const msg = e.name === 'AbortError'
+        ? 'Layanan DNS tidak merespons dalam 15 detik. Periksa koneksimu lalu coba lagi.'
+        : 'Tidak bisa menghubungi layanan DNS. Periksa koneksimu lalu coba lagi.';
+      T.show(box, errBox(msg));
+      const wr = T.el('<div style="margin-top:8px"></div>');
+      wr.appendChild(T.btn('🔄 Coba lagi', cek));
+      box.appendChild(wr);
       return;
-    }
+    } finally { clearTimeout(timer); }
     let reachable = false;
     if (dnsOk) {
       const ac = new AbortController();

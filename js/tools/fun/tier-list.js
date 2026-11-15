@@ -1,4 +1,4 @@
-import { h as T, utils, dlNodePng } from '../../core.js?v=6.11.5';
+import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node).
 utils.TIER_LIST_BARIS = ['S', 'A', 'B', 'C', 'D', 'F'];
@@ -95,7 +95,7 @@ export function render(root) {
     T.btn('Unduh sebagai gambar', async () => {
       if (state.item.length === 0) { T.toast('Tambahkan item dulu'); return; }
       const ok = await dlNodePng(papan, 'tier-list.png');
-      T.toast(ok ? 'Gambar berhasil diunduh' : 'Gagal membuat gambar');
+      T.toast(ok ? 'Gambar berhasil diunduh' : 'Gambarnya tidak bisa dibuat. Coba lagi.');
     }),
     T.btn('Kosongkan semua', () => {
       state.item = [];

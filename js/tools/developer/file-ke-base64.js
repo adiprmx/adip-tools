@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 const BATAS = 2 * 1024 * 1024; // 2 MB
 
@@ -68,7 +68,7 @@ export function render(root) {
         ));
         out.appendChild(T.el('<div class="hint" style="margin-top:8px">Siap ditempel ke kode: <span style="font-family:ui-monospace,monospace">src="data:…"</span>. ' + T.esc(fmtSize(f.size)) + ' file jadi ' + T.esc(fmtSize(b64size)) + ' teks — makanya jangan buat file gede ya.</div>'));
       };
-      rd.onerror = () => T.show(out, '<span class="err">Gagal membaca file.</span>');
+      rd.onerror = () => T.show(out, '<span class="err">Filenya tidak bisa dibaca. Coba file lain.</span>');
       rd.readAsDataURL(f);
     });
 

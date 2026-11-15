@@ -13,9 +13,25 @@ Pendekatan: analisis AST (acorn) sudah di analysis.json — presisi, bukan regex
 """
 import json, os, re, shutil, sys
 
-ROOT = '/home/hatch/workspace/projects/adip-tools'
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JS = os.path.join(ROOT, 'js')
-VERSION = '6.11.5'
+VERSION = '6.12.0'
+
+# --- PENGAMAN (T05, 15 Nov 2026) -------------------------------------------
+# Skrip ini adalah generator SATU KALI untuk migrasi Fase 2 (100 tool).
+# Fase 2 SUDAH SELESAI; manifest kini dirawat scripts/sync-manifest.js dan
+# repo berisi 588 tool. Menjalankan ulang skrip ini akan MENGHAPUS js/tools/
+# (shutil.rmtree di bawah) lalu gagal karena sumber js/tools-{a..e}.js dan
+# /tmp/split/analysis.json sudah tidak ada. JANGAN hapus baris VERSION di
+# atas: bump-version.py menjadikannya sumber kebenaran versi dan mengeditnya
+# tiap rilis. Seluruh isi di bawah garis ini dipertahankan sebagai arsip.
+if __name__ == '__main__':
+    sys.exit('REFUSED: split-tools.py adalah generator satu-kali Fase 2 '
+             '(sudah selesai) — manifest kini dirawat '
+             'scripts/sync-manifest.js. File ini dipertahankan hanya '
+             'sebagai arsip + pemegang VERSION untuk bump-version.py.')
+# ---------------------------------------------------------------------------
+
 analysis = json.load(open('/tmp/split/analysis.json'))
 
 # Muat source per batch

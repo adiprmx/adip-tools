@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.11.5';
+import { h as T, kv, utils } from '../../core.js?v=6.12.0';
 
 // Rentang berat dewasa per ras kucing (standar ras CFA dan acuan umum
 // veteriner). Skor kondisi tubuh memakai skala 9 poin WSAVA (Laflamme 1997).

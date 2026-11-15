@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "kalkulator-dana-darurat", "name": "Dana Darurat", "cat": "indonesia", "icon": "🛟", "desc": "Hitung target dana darurat ideal + progres menabungmu.", "keywords": "dana darurat,tabungan,keuangan,emergency fund,pengeluaran"};
 

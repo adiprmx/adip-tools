@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.0';
 
 function xmlPretty(src) {
     const doc = new DOMParser().parseFromString(String(src || ''), 'text/xml');
@@ -58,14 +58,14 @@ export function render(root) {
         const raw = ta.value.trim();
         if (!raw) { T.show(box, errBox('Tempel dulu XML-nya.')); return; }
         const r = xmlPretty(raw);
-        if (r.error) T.show(box, errBox('XML tidak valid: ' + r.error));
+        if (r.error) T.show(box, errBox('XML-nya tidak benar: ' + r.error));
         else T.show(box, preHtml(r.xml));
       }, true),
       T.btn('Validasi', () => {
         const raw = ta.value.trim();
         if (!raw) { T.show(box, errBox('Tempel dulu XML-nya.')); return; }
         const r = xmlPretty(raw);
-        T.show(box, r.error ? errBox('XML tidak valid: ' + r.error) : '<span class="ok">✓ XML valid.</span>');
+        T.show(box, r.error ? errBox('XML-nya tidak benar: ' + r.error) : '<span class="ok">✓ XML sudah benar.</span>');
       })
     ));
     root.appendChild(box);

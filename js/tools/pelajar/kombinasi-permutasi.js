@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kombinasi-permutasi","name":"Kombinasi & Permutasi","cat":"pelajar","icon":"🎲","desc":"Hitung C(n,r) dan P(n,r) lengkap dengan langkah perhitungannya.","keywords":"kombinasi,permutasi,peluang,matematika,c(n,r),p(n,r),faktorial"};
 
@@ -43,7 +43,7 @@ export function render(root) {
   const hitung = () => {
     const n = T.num(nIn.value), r = T.num(rIn.value);
     if (!Number.isInteger(n) || !Number.isInteger(r) || n < 0 || r < 0) {
-      T.show(box, '<p style="color:#ef4444">n dan r harus bilangan bulat ≥ 0. Coba lagi ya.</p>');
+      T.show(box, '<p style="color:#ef4444">n dan r harus angka bulat ≥ 0. Coba lagi ya.</p>');
       return;
     }
     if (r > n) {

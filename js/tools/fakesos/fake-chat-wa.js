@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
 
 export const meta = {
   id: 'fake-chat-wa',

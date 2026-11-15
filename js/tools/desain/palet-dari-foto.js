@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=6.11.5';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "palet-dari-foto", "name": "Palet dari Foto", "cat": "desain", "icon": "🖼️", "desc": "Ekstrak warna dominan dari foto jadi palet HEX.", "keywords": "palet,palette,foto,warna dominan,ekstrak,hex"};
 export function render(root) {
@@ -69,12 +69,12 @@ export function render(root) {
         thumb.src = url;
         imgWrap.style.display = '';
         try { paint(extract(img)); }
-        catch (e) { T.toast('Gagal membaca gambar'); }
+        catch (e) { T.toast('Gambarnya tidak bisa dibaca'); }
       };
       img.onerror = () => { T.toast('Gambar tidak bisa dibaca'); URL.revokeObjectURL(url); };
       img.src = url;
     });
-    nSel.addEventListener('change', () => { if (lastImg) { try { paint(extract(lastImg)); } catch (e) { T.toast('Gagal membaca gambar'); } } });
+    nSel.addEventListener('change', () => { if (lastImg) { try { paint(extract(lastImg)); } catch (e) { T.toast('Gambarnya tidak bisa dibaca'); } } });
 
     root.appendChild(T.field('Jumlah warna', nSel));
     root.appendChild(drop);

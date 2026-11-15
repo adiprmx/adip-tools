@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, U, kv } from '../../core.js?v=6.12.0';
 
 U.weton = (yyyy, mm, dd) => {
     const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -26,7 +26,7 @@ export function render(root) {
       if (!tgl.value) { T.show(box, '<p class="warn">Pilih tanggal dulu ya.</p>'); return; }
       const [y, m, d] = tgl.value.split('-').map(Number);
       const u = U.weton(y, m, d);
-      if (!u) { T.show(box, '<p class="err">Tanggal tidak valid.</p>'); return; }
+      if (!u) { T.show(box, '<p class="err">Tanggalnya tidak benar.</p>'); return; }
       T.show(box,
         '<div class="big center">' + T.esc(u.weton) + '</div>' +
         kv('Hari', T.esc(u.hari) + ' <span class="mut">(neptu ' + u.neptuHari + ')</span>') +

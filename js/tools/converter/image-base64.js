@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "image-base64", "name": "Gambar ke Base64", "cat": "converter", "icon": "🖼️", "desc": "Gambar jadi string Base64 siap embed.", "keywords": "gambar,base64,foto,embed"};
+export const meta = {"id": "image-base64", "name": "Gambar ke Base64", "cat": "converter", "icon": "🖼️", "desc": "Gambar jadi kode Base64, siap ditempel di web.", "keywords": "gambar,base64,foto,embed"};
 export function render(root) {
 
     const fileInp = T.el('<input type="file" accept="image/*" class="inp">');
@@ -20,10 +20,10 @@ export function render(root) {
           T.show(out,
             '<div class="kv"><span class="k">Nama</span><span class="v">' + T.esc(f.name) + '</span></div>' +
             '<div class="kv"><span class="k">Ukuran file</span><span class="v">' + sizeS + '</span></div>' +
-            '<div class="kv"><span class="k">Dimensi</span><span class="v">' + img.naturalWidth + ' × ' + img.naturalHeight + ' px</span></div>' +
+            '<div class="kv"><span class="k">Ukuran gambar</span><span class="v">' + img.naturalWidth + ' × ' + img.naturalHeight + ' px</span></div>' +
             '<div class="kv"><span class="k">Tipe</span><span class="v">' + T.esc(f.type) + '</span></div>' +
-            '<div class="kv"><span class="k">Panjang string</span><span class="v">' + T.fmt(lastUrl.length) + ' karakter</span></div>' +
-            (f.size > 2 * 1024 * 1024 ? '<div class="hint" style="color:#eab308">⚠️ File besar. String Base64 sangat panjang, mungkin berat disalin.</div>' : '') +
+            '<div class="kv"><span class="k">Panjang kode</span><span class="v">' + T.fmt(lastUrl.length) + ' karakter</span></div>' +
+            (f.size > 2 * 1024 * 1024 ? '<div class="hint" style="color:#eab308">⚠️ File besar. Kode Base64-nya sangat panjang, mungkin berat saat disalin.</div>' : '') +
             '<div class="center" style="margin:10px 0"><img src="' + T.esc(lastUrl) + '" alt="preview" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid #3f3f46"></div>');
           out.appendChild(T.row(
             T.btn('Salin Base64', () => T.copy(lastUrl), true),
@@ -31,10 +31,10 @@ export function render(root) {
           ));
           out.appendChild(T.el('<div class="hint" style="margin-top:8px">Siap ditempel: &lt;img src="<span style="font-family:ui-monospace,monospace">data:…</span>"&gt;</div>'));
         };
-        img.onerror = () => T.show(out, '<span class="err">Gagal membaca gambar.</span>');
+        img.onerror = () => T.show(out, '<span class="err">Gambarnya tidak bisa dibaca. Coba gambar lain.</span>');
         img.src = lastUrl;
       };
-      rd.onerror = () => T.show(out, '<span class="err">Gagal membaca file.</span>');
+      rd.onerror = () => T.show(out, '<span class="err">Filenya tidak bisa dibaca. Coba file lain.</span>');
       rd.readAsDataURL(f);
     });
     root.appendChild(T.field('Pilih gambar', fileInp, 'Semua diproses lokal, gambar tidak di-upload ke mana pun.'));

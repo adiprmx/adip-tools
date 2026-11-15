@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "setlist-dj", "name": "Perencana Setlist DJ", "cat": "musik", "icon": "🎧", "desc": "Susun urutan lagu DJ: key Camelot, BPM, durasi, energy + saran transisi.", "keywords": "setlist,dj,perencana,camelot,key,transisi,bpm,energy,set"};
 
@@ -15,7 +15,7 @@ export function render(root) {
   // Kompatibilitas Camelot antar dua key berurutan
   const compat = (a, b) => {
     const A = parseKey(a), B = parseKey(b);
-    if (!A || !B) return { cls: 'na', dot: '#71717a', label: 'Key tidak valid — cek format (cth: 8A)' };
+    if (!A || !B) return { cls: 'na', dot: '#71717a', label: 'Key tidak benar — cek format (cth: 8A)' };
     if (A.n === B.n && A.L === B.L) return { cls: 'ok', dot: '#22c55e', label: 'Sempurna — key sama, mix tanpa geser nada' };
     if (A.n === B.n) return { cls: 'ok2', dot: '#a3e635', label: 'Smooth — relatif mayor/minor, harmonis' };
     const d = Math.abs(A.n - B.n);
@@ -110,7 +110,7 @@ export function render(root) {
     const judul = nmIn.value.trim();
     const key = keyIn.value.trim().toUpperCase();
     if (!judul) { T.toast('Isi judul lagu dulu'); return; }
-    if (!parseKey(key)) { T.toast('Key tidak valid — pakai format Camelot, cth: 8A'); return; }
+    if (!parseKey(key)) { T.toast('Key tidak benar — pakai format Camelot, cth: 8A'); return; }
     songs.push({
       judul: judul,
       key: key,

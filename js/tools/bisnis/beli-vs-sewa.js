@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "beli-vs-sewa", "name": "Beli vs Sewa", "cat": "bisnis", "icon": "⚖️", "desc": "Bandingkan total biaya beli vs sewa + titik impasnya.", "keywords": "beli,sewa,break even,impas,perbandingan,biaya"};
 

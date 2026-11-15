@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
-import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
+import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"pixel-art","name":"Pixel Art","cat":"gambar","icon":"👾","desc":"Ubah foto jadi pixel art retro.","keywords":"pixel,pixelate,retro,foto,efek"};
 
@@ -59,7 +59,7 @@ export function render(root) {
   const muat = async () => {
     if (!fi.files[0]) { T.toast('Pilih foto dulu'); return; }
     try { img = await loadImage(fi.files[0]); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     process();
     T.toast('Jadi! Berasa main game jadul');
   };
@@ -67,7 +67,7 @@ export function render(root) {
   const dlB = T.btn('Unduh PNG', async () => {
     if (!resCanvas) { T.toast('Proses dulu fotonya'); return; }
     const blob = await canvasToBlob(resCanvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat file'); return; }
+    if (!blob) { T.toast('Filenya tidak bisa dibuat. Coba lagi.'); return; }
     const base = (fi.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-pixel.png', blob, 'image/png');
     T.toast('Berhasil diunduh');

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"aivideo","name":"AI Video","cat":"gambar","icon":"🎬","desc":"Generate video AI (teks/gambar jadi video) pakai akun Puter milikmu.","keywords":"ai,video,generator,sora,veo,puter"};
 
@@ -131,7 +131,7 @@ export function render(root) {
       prevBox.style.display = 'flex';
       pilihBtn.textContent = 'Ganti Gambar';
       pesan('Gambar siap dipakai sebagai frame referensi.', 'ok');
-    } catch (e) { bersihRef(); pesan(T.esc(e.message || 'Gambar tidak valid.'), 'err'); }
+    } catch (e) { bersihRef(); pesan(T.esc(e.message || 'Gambarnya tidak benar.'), 'err'); }
   });
 
   /* ---------- Prompt ---------- */

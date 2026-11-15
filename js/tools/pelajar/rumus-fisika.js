@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"rumus-fisika","name":"Rumus Fisika","cat":"pelajar","icon":"🔬","desc":"Isi yang diketahui, kosongkan satu — jawabannya dihitung + langkahnya.","keywords":"fisika,rumus,glb,glbb,gaya,usaha,daya,energi kinetik,gerak lurus,percepatan"};
 

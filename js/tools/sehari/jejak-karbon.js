@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "jejak-karbon", "name": "Jejak Karbon", "cat": "sehari", "icon": "🌱", "desc": "Estimasi jejak karbon tahunanmu + tips menguranginya.", "keywords": "karbon,emisi,co2,lingkungan,kendaraan,listrik,penerbangan"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"sample-size","name":"Ukuran Sampel Survei","cat":"pelajar","icon":"📋","desc":"Berapa responden yang dibutuhkan dari jumlah populasi, margin error, dan tingkat kepercayaan.","keywords":"sampel,survei,responden,populasi,margin error,statistik,skripsi,penelitian","since":"6.11.0"};
 
@@ -29,7 +29,7 @@ export function render(root) {
     const err = T.num(errInp.value);
     const p = T.num(pSel.value);
     if (pop != null && (!isFinite(pop) || pop < 1 || !Number.isInteger(pop))) {
-      T.show(out, '<p class="err">Jumlah populasi harus bilangan bulat 1 atau lebih, atau dikosongkan.</p>'); return;
+      T.show(out, '<p class="err">Jumlah populasi harus angka bulat 1 atau lebih, atau dikosongkan.</p>'); return;
     }
     if (!isFinite(err) || !(err > 0) || err >= 100) {
       T.show(out, '<p class="err">Margin error harus di antara 0 dan 100 persen.</p>'); return;

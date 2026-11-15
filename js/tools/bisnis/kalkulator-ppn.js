@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "kalkulator-ppn", "name": "Kalkulator PPN", "cat": "bisnis", "icon": "🧾", "desc": "Bedah harga jadi DPP + PPN, include maupun exclude.", "keywords": "ppn,pajak,dpp,11 persen,12 persen,include,exclude,faktur"};
 export function render(root) {
@@ -21,7 +21,7 @@ export function render(root) {
     const calc = () => {
       const harga = T.num(nominalI.value);
       const tarif = Number(tarifSel.value) / 100;
-      if (!isFinite(harga) || harga <= 0) { T.toast('Isi nominal yang valid dulu'); return; }
+      if (!isFinite(harga) || harga <= 0) { T.toast('Isi nominalnya dengan benar dulu'); return; }
       let dpp, ppn, total;
       if (modeSel.value === 'inc') {
         dpp = harga / (1 + tarif);

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "token-listrik", "name": "Kalkulator Token Listrik", "cat": "indonesia", "icon": "⚡", "desc": "Konversi rupiah ke kWh token listrik & sebaliknya.", "keywords": "token,listrik,kwh,pln,prabayar,tarif"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"elevenlabs","name":"ElevenLabs Studio","cat":"musik","icon":"🎙️","desc":"Text-to-speech suara AI via API key ElevenLabs milikmu.","keywords":"elevenlabs,tts,suara,ai,voice,text to speech"};
 

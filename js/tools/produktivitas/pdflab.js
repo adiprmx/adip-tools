@@ -1,4 +1,4 @@
-import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.11.5';
+import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.12.0';
 
 // ---------- Util murni tab Banding (tanpa DOM, bisa diuji dari Node) ----------
 
@@ -85,6 +85,20 @@ export function render(root) {
       jsZipOk = ok && !!window.JSZip;
       return jsZipOk;
     });
+  };
+
+  // Pengubah HEIC & pembaca TIFF untuk tab Gambar->PDF (browser sendiri
+  // tidak bisa membaca keduanya di sebagian besar perangkat).
+  const HEIC_CDN = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+  const UTIF_CDN = 'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js';
+  let heicSiap = null, utifSiap = null;
+  const pastHeic = () => {
+    if (!heicSiap) heicSiap = T.loadScript(HEIC_CDN).then((ok) => ok && typeof window.heic2any === 'function');
+    return heicSiap;
+  };
+  const pastUtif = () => {
+    if (!utifSiap) utifSiap = T.loadScript(UTIF_CDN).then((ok) => ok && !!window.UTIF);
+    return utifSiap;
   };
 
   // Kunci localStorage bersama tool Tanda Tangan (gambar PNG terakhir).
@@ -413,10 +427,31 @@ export function render(root) {
           const bytes = new Uint8Array(await f.arrayBuffer());
           let img, dims;
           try {
+            const nm = (f.name || '').toLowerCase();
+            const tp = (f.type || '').toLowerCase();
+            const isHeic = tp === 'image/heic' || tp === 'image/heif' || /\.hei[cf]$/.test(nm);
+            const isTiff = tp === 'image/tiff' || tp === 'image/x-tiff' || /\.tiff?$/.test(nm);
             if (/png$/i.test(f.type) || /\.png$/i.test(f.name)) { img = await out.embedPng(bytes); }
             else if (/jpe?g$/i.test(f.type) || /\.jpe?g$/i.test(f.name)) { img = await out.embedJpg(bytes); }
-            else {
-              // WEBP/HEIC/TIFF: decode lewat browser lalu tanam sebagai PNG.
+            else if (isHeic) {
+              // HEIC tidak bisa dibaca browser: ubah dulu jadi JPEG.
+              if (!(await pastHeic())) throw new Error('pengubah HEIC gagal dimuat');
+              const keluar = await window.heic2any({ blob: f, toType: 'image/jpeg', quality: 0.92 });
+              const blob = Array.isArray(keluar) ? keluar[0] : keluar;
+              if (!blob) throw new Error('file HEIC tidak terbaca');
+              img = await out.embedJpg(new Uint8Array(await blob.arrayBuffer()));
+            } else if (isTiff) {
+              if (!(await pastUtif())) throw new Error('pembaca TIFF gagal dimuat');
+              const ifds = window.UTIF.decode(bytes.buffer);
+              if (!ifds || !ifds.length) throw new Error('file TIFF tidak terbaca');
+              window.UTIF.decodeImage(bytes.buffer, ifds[0]);
+              const rgba = window.UTIF.toRGBA8(ifds[0]);
+              const c = document.createElement('canvas');
+              c.width = ifds[0].width; c.height = ifds[0].height;
+              c.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(rgba), c.width, c.height), 0, 0);
+              img = await out.embedPng(await canvasToBytes(c, 'image/png'));
+            } else {
+              // WEBP/BMP/dll: decode lewat browser lalu tanam sebagai PNG.
               const el = await decodeImageFile(f);
               const c = document.createElement('canvas');
               c.width = el.naturalWidth; c.height = el.naturalHeight;
@@ -439,7 +474,7 @@ export function render(root) {
         T.show(box, '<span class="ok">Berhasil: ' + made + ' halaman terunduh.' + (gagal.length ? ' ' + gagal.length + ' file dilewati karena tidak bisa dibaca browser ini: ' + gagal.slice(0, 3).map(T.esc).join(', ') + (gagal.length > 3 ? ' dan lainnya' : '') + '.' : '') + '</span>');
       } catch (e) { T.show(box, errBox('Gagal: ' + e.message + ' (pastikan file benar-benar gambar)')); }
     }, true);
-    pImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah kumpulan gambar jadi satu PDF. PNG, JPG, dan WEBP bisa langsung. HEIC dan TIFF tergantung browser: bila tidak bisa dibaca, file itu dilewati dan sisanya tetap diproses.</p>'));
+    pImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah kumpulan gambar jadi satu PDF. PNG, JPG, WEBP, dan BMP bisa langsung. HEIC (foto iPhone) dan TIFF diubah dulu di perangkat — pertama kali butuh internet untuk mengunduh pengubahnya.</p>'));
     pImg.appendChild(fi);
     pImg.appendChild(T.grid2(T.field('Ukuran halaman', sizeSel), T.field('Margin (mm, 0-50)', mInp)));
     pImg.appendChild(T.row(bGo));
@@ -452,6 +487,14 @@ export function render(root) {
     const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
     const modeSel = T.select([['text', 'Teks'], ['image', 'Gambar/logo']], 'text');
     const tInp = T.input('text', 'Teks watermark', 'DRAF');
+    const fSel = T.select([
+      ['HelveticaBold', 'Tebal (Helvetica Bold)'],
+      ['Helvetica', 'Biasa (Helvetica)'],
+      ['TimesRomanBold', 'Serif tebal (Times Bold)'],
+      ['TimesRoman', 'Serif (Times)'],
+      ['CourierBold', 'Mesin ketik tebal (Courier Bold)'],
+      ['Courier', 'Mesin ketik (Courier)'],
+    ], 'HelveticaBold');
     const sSel = T.select([['24', '24'], ['34', '34'], ['48', '48'], ['72', '72']], '34');
     const oSel = T.select([['0.1', '0,10'], ['0.22', '0,22'], ['0.4', '0,40'], ['0.6', '0,60']], '0.22');
     const aSel = T.select([['-35', '-35°'], ['0', '0°'], ['-45', '-45°'], ['45', '45°']], '-35');
@@ -465,6 +508,7 @@ export function render(root) {
     const pgInp = T.input('text', 'semua, atau mis. 1-3,5', 'semua');
     const textWrap = T.el('<div></div>');
     textWrap.appendChild(T.field('Teks watermark', tInp));
+    textWrap.appendChild(T.field('Huruf', fSel));
     textWrap.appendChild(T.grid2(T.field('Ukuran', sSel), T.field('Sudut', aSel)));
     const imgWrap = T.el('<div></div>');
     imgWrap.appendChild(T.el('<p class="dim" style="font-size:13px;margin:6px 0">Pilih gambar logo (PNG transparan paling bagus).</p>'));
@@ -486,7 +530,7 @@ export function render(root) {
         const targets = parsePages(pgInp.value, n);
         const op = +oSel.value;
         if (mode === 'text') {
-          const font = await doc.embedFont(window.PDFLib.StandardFonts.HelveticaBold);
+          const font = await doc.embedFont(window.PDFLib.StandardFonts[fSel.value] || window.PDFLib.StandardFonts.HelveticaBold);
           const size = +sSel.value, ang = +aSel.value;
           for (const p1 of targets) {
             const page = doc.getPage(p1 - 1);
@@ -545,11 +589,24 @@ export function render(root) {
     pWm.appendChild(box);
   }
 
-  /* ============ TAB 6: Tambah Teks ============ */
+  /* ============ TAB 6: Tambah Teks & Bentuk ============ */
   const pTx = T.el('<div></div>');
   {
     const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
+    const modeSel = T.select([
+      ['teks', 'Teks'],
+      ['sorot', 'Sorot (stabilo transparan)'],
+      ['kotak', 'Kotak (garis tepi)'],
+      ['lingkaran', 'Lingkaran / elips (garis tepi)'],
+    ], 'teks');
     const tInp = T.input('text', 'Teks yang ditambahkan', '');
+    const fSel = T.select([
+      ['Helvetica', 'Biasa (Helvetica)'],
+      ['HelveticaBold', 'Tebal (Helvetica Bold)'],
+      ['TimesRoman', 'Serif (Times)'],
+      ['TimesRomanBold', 'Serif tebal (Times Bold)'],
+      ['Courier', 'Mesin ketik (Courier)'],
+    ], 'Helvetica');
     const posSel = T.select([
       ['tl', 'Kiri atas'], ['tc', 'Tengah atas'], ['tr', 'Kanan atas'],
       ['ml', 'Kiri tengah'], ['mc', 'Tengah'], ['mr', 'Kanan tengah'],
@@ -562,28 +619,49 @@ export function render(root) {
     xyRow.hidden = true;
     posSel.addEventListener('change', () => { xyRow.hidden = posSel.value !== 'free'; });
     const sSel = T.select([['12', '12'], ['18', '18'], ['24', '24'], ['36', '36'], ['48', '48']], '18');
+    const wInp = T.input('text', '60', '60'); wInp.inputMode = 'decimal';
+    const hInp = T.input('text', '20', '20'); hInp.inputMode = 'decimal';
     const cInp = T.el('<input type="color" value="#111111" style="width:100%;height:44px;border:1px solid #27272a;border-radius:8px;background:none;padding:4px;cursor:pointer">');
     const pgInp = T.input('text', 'semua, atau mis. 1,3', 'semua');
     const box = T.out();
+    const textWrap = T.el('<div></div>');
+    textWrap.appendChild(T.field('Teks', tInp));
+    textWrap.appendChild(T.grid2(T.field('Huruf', fSel), T.field('Ukuran', sSel)));
+    const shapeWrap = T.el('<div></div>');
+    shapeWrap.appendChild(T.grid2(T.field('Lebar (mm)', wInp), T.field('Tinggi (mm)', hInp)));
+    shapeWrap.hidden = true;
+    modeSel.addEventListener('change', () => {
+      const isTeks = modeSel.value === 'teks';
+      textWrap.hidden = !isTeks;
+      shapeWrap.hidden = isTeks;
+      if (modeSel.value === 'sorot') cInp.value = '#ffeb3b';
+      else if (modeSel.value !== 'teks') cInp.value = '#d62626';
+    });
     const bGo = T.btn('Terapkan & Unduh', async () => {
       const f = fi.files && fi.files[0];
       if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
-      if (!tInp.value.trim()) { T.show(box, errBox('Isi teksnya.')); return; }
+      const mode = modeSel.value;
+      if (mode === 'teks' && !tInp.value.trim()) { T.show(box, errBox('Isi teksnya.')); return; }
       const ok = await needLib(); if (!ok) return;
-      T.show(box, '<span class="dim">Menambahkan teks…</span>');
+      T.show(box, '<span class="dim">Menambahkan…</span>');
       try {
         const doc = await window.PDFLib.PDFDocument.load(new Uint8Array(await f.arrayBuffer()), { ignoreEncryption: true });
         const n = doc.getPageCount();
         const targets = parsePages(pgInp.value, n);
-        const font = await doc.embedFont(window.PDFLib.StandardFonts.Helvetica);
-        const size = +sSel.value;
         const hex = cInp.value;
         const col = window.PDFLib.rgb(parseInt(hex.slice(1, 3), 16) / 255, parseInt(hex.slice(3, 5), 16) / 255, parseInt(hex.slice(5, 7), 16) / 255);
         const m = 36;
+        const wPt = mm2pt(clamp(parseNum(wInp.value, 60), 5, 300));
+        const hPt = mm2pt(clamp(parseNum(hInp.value, 20), 5, 300));
+        let font = null, size = 0, tw = 0;
+        if (mode === 'teks') {
+          font = await doc.embedFont(window.PDFLib.StandardFonts[fSel.value] || window.PDFLib.StandardFonts.Helvetica);
+          size = +sSel.value;
+          tw = font.widthOfTextAtSize(tInp.value, size);
+        }
         for (const p1 of targets) {
           const page = doc.getPage(p1 - 1);
           const { width, height } = page.getSize();
-          const tw = font.widthOfTextAtSize(tInp.value, size);
           const pos = posSel.value;
           let x, y;
           if (pos === 'free') {
@@ -591,19 +669,31 @@ export function render(root) {
             const yp = Math.min(100, Math.max(0, +yInp.value || 0));
             x = width * xp / 100; y = height * yp / 100;
           } else {
-            x = pos[1] === 'l' ? m : pos[1] === 'c' ? (width - tw) / 2 : width - tw - m;
-            y = pos[0] === 't' ? height - m - size : pos[0] === 'm' ? (height - size) / 2 : m;
+            const bw = mode === 'teks' ? tw : wPt;
+            const bh = mode === 'teks' ? size : hPt;
+            x = pos[1] === 'l' ? m : pos[1] === 'c' ? (width - bw) / 2 : width - bw - m;
+            y = pos[0] === 't' ? height - m - bh : pos[0] === 'm' ? (height - bh) / 2 : m;
           }
-          page.drawText(tInp.value, { x, y, size, font, color: col });
+          if (mode === 'teks') {
+            page.drawText(tInp.value, { x, y, size, font, color: col });
+          } else if (mode === 'sorot') {
+            page.drawRectangle({ x, y, width: wPt, height: hPt, color: col, opacity: 0.45 });
+          } else if (mode === 'kotak') {
+            page.drawRectangle({ x, y, width: wPt, height: hPt, borderColor: col, borderWidth: 2 });
+          } else {
+            page.drawEllipse({ x: x + wPt / 2, y: y + hPt / 2, xScale: wPt / 2, yScale: hPt / 2, borderColor: col, borderWidth: 2 });
+          }
         }
         dlPdf(await doc.save(), 'pdf-teks.pdf');
-        T.show(box, '<span class="ok">Teks ditambahkan di ' + targets.length + ' halaman.</span>');
+        T.show(box, '<span class="ok">Diterapkan di ' + targets.length + ' halaman.</span>');
       } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
     }, true);
-    pTx.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel teks overlay di posisi tertentu pada halaman.</p>'));
+    pTx.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel teks, sorotan stabilo, kotak, atau lingkaran di posisi tertentu pada halaman.</p>'));
     pTx.appendChild(fi);
-    pTx.appendChild(T.field('Teks', tInp));
-    pTx.appendChild(T.grid2(T.field('Posisi', posSel), T.field('Ukuran', sSel)));
+    pTx.appendChild(T.field('Yang ditambahkan', modeSel));
+    pTx.appendChild(textWrap);
+    pTx.appendChild(shapeWrap);
+    pTx.appendChild(T.field('Posisi', posSel));
     pTx.appendChild(xyRow);
     pTx.appendChild(T.grid2(T.field('Warna', cInp), T.field('Halaman target', pgInp)));
     pTx.appendChild(T.row(bGo));
@@ -1567,26 +1657,29 @@ export function render(root) {
     let rows = [];
     const addRow = (kind) => {
       const idx = rows.length + 1;
-      const nameInp = T.input('text', 'Nama kolom, mis. nama_lengkap', kind === 'text' ? 'isian_' + idx : 'centang_' + idx);
+      const nameInp = T.input('text', 'Nama kolom, mis. nama_lengkap', kind === 'text' ? 'isian_' + idx : kind === 'check' ? 'centang_' + idx : 'pilihan_' + idx);
       const pgInp = T.input('text', '1', '1'); pgInp.inputMode = 'decimal';
       const xInp = T.input('text', '10', '10'); xInp.inputMode = 'decimal';
       const yInp = T.input('text', '50', '50'); yInp.inputMode = 'decimal';
-      const wInp = T.input('text', kind === 'text' ? '60' : '6', kind === 'text' ? '60' : '6'); wInp.inputMode = 'decimal';
+      const wInp = T.input('text', kind === 'check' ? '6' : '60', kind === 'check' ? '6' : '60'); wInp.inputMode = 'decimal';
+      const optTa = kind === 'select' ? T.ta(2, 'Satu pilihan per baris', 'Ya\nTidak') : null;
       const row = T.el('<div style="border:1px solid #ffffff20;border-radius:10px;padding:10px;display:grid;gap:8px"></div>');
       const head = T.el('<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px"></div>');
-      head.appendChild(T.el('<b>' + (kind === 'text' ? 'Kolom isian teks' : 'Kotak centang') + '</b>'));
+      head.appendChild(T.el('<b>' + (kind === 'text' ? 'Kolom isian teks' : kind === 'check' ? 'Kotak centang' : 'Pilihan (dropdown)') + '</b>'));
       const bDel = T.btn('Hapus', () => { rows = rows.filter((r) => r.el !== row); row.remove(); });
       bDel.classList.add('small'); bDel.style.padding = '4px 8px';
       head.appendChild(bDel);
       row.appendChild(head);
       row.appendChild(T.field('Nama kolom', nameInp, 'Nama ini yang muncul sebagai nama field di PDF.'));
-      row.appendChild(T.grid2(T.field('Halaman', pgInp), T.field(kind === 'text' ? 'Lebar (mm)' : 'Ukuran (mm)', wInp)));
+      if (optTa) row.appendChild(T.field('Pilihan', optTa, 'Satu pilihan per baris.'));
+      row.appendChild(T.grid2(T.field('Halaman', pgInp), T.field(kind === 'check' ? 'Ukuran (mm)' : 'Lebar (mm)', wInp)));
       row.appendChild(T.grid2(T.field('X % (dari kiri)', xInp), T.field('Y % (dari bawah)', yInp)));
       list.appendChild(row);
-      rows.push({ kind, el: row, nameInp, pgInp, xInp, yInp, wInp });
+      rows.push({ kind, el: row, nameInp, pgInp, xInp, yInp, wInp, optTa });
     };
     const bAddT = T.btn('Tambah Kolom Teks', () => addRow('text'));
     const bAddC = T.btn('Tambah Kotak Centang', () => addRow('check'));
+    const bAddS = T.btn('Tambah Pilihan', () => addRow('select'));
     const bGo = T.btn('Buat Form & Unduh', async () => {
       const f = fi.files && fi.files[0];
       if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
@@ -1613,6 +1706,13 @@ export function render(root) {
             const w = mm2pt(clamp(parseNum(r.wInp.value, 60), 10, 200));
             const fld = form.createTextField(name);
             fld.addToPage(page, { x, y, width: w, height: 22, textColor: window.PDFLib.rgb(0, 0, 0), borderColor: window.PDFLib.rgb(0.6, 0.6, 0.6), borderWidth: 1 });
+          } else if (r.kind === 'select') {
+            const w = mm2pt(clamp(parseNum(r.wInp.value, 60), 10, 200));
+            const opts = (r.optTa ? r.optTa.value : '').split('\n').map((s) => s.trim()).filter(Boolean);
+            if (!opts.length) throw new Error('Pilihan "' + name + '" masih kosong.');
+            const fld = form.createDropdown(name);
+            fld.addOptions(opts);
+            fld.addToPage(page, { x, y, width: w, height: 22, textColor: window.PDFLib.rgb(0, 0, 0), borderColor: window.PDFLib.rgb(0.6, 0.6, 0.6), borderWidth: 1 });
           } else {
             const s = mm2pt(clamp(parseNum(r.wInp.value, 6), 3, 30));
             const fld = form.createCheckBox(name);
@@ -1624,9 +1724,9 @@ export function render(root) {
         T.show(box, '<span class="ok">Form dibuat (' + rows.length + ' kolom) & terunduh. Buka di pembaca PDF untuk mengisinya.</span>');
       } catch (e) { T.show(box, errBox(e.message)); }
     }, true);
-    pFormNew.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Buat kolom isian di PDF yang masih kosong: kolom teks untuk diisi tulisan, kotak centang untuk dicentang. Hasilnya bisa diisi di pembaca PDF atau di tab Form.</p>'));
+    pFormNew.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Buat kolom isian di PDF yang masih kosong: kolom teks untuk diisi tulisan, kotak centang untuk dicentang, dan pilihan dropdown. Hasilnya bisa diisi di pembaca PDF atau di tab Form.</p>'));
     pFormNew.appendChild(fi);
-    pFormNew.appendChild(T.row(bAddT, bAddC));
+    pFormNew.appendChild(T.row(bAddT, bAddC, bAddS));
     pFormNew.appendChild(list);
     pFormNew.appendChild(T.row(bGo));
     pFormNew.appendChild(box);
@@ -1885,10 +1985,124 @@ export function render(root) {
     pDiff.appendChild(pre);
   }
 
-  const pages = [pOrg, pMerge, pSplit, pImg, pWm, pTx, pMeta, pForm, pCompress, pPdfImg, pNum, pSign, pCrop, pRedact, pPdfText, pImgOut, pTarget, pFormNew, pArrange, pInfo, pDiff];
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">21 operasi PDF langsung di perangkatmu. Diproses di browser, file tidak diupload ke mana pun.</p>'));
+  /* ============ TAB 22: Corat-coret (anotasi freehand) ============ */
+  const pDraw = T.el('<div></div>');
+  {
+    const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
+    const pgInp = T.input('text', '1', '1'); pgInp.inputMode = 'decimal';
+    const tebalSel = T.select([['2', 'Tipis'], ['4', 'Sedang'], ['7', 'Tebal']], '4');
+    const warnaSel = T.select([['#d62626', 'Merah'], ['#111111', 'Hitam'], ['#1a3fd6', 'Biru'], ['#0a7a2f', 'Hijau']], '#d62626');
+    const box = T.out();
+    const stage = T.el('<div style="position:relative;margin:12px 0;display:none"></div>');
+    const base = document.createElement('canvas'); // render halaman
+    base.style.cssText = 'width:100%;height:auto;display:block;border-radius:10px;background:#fff';
+    const over = document.createElement('canvas'); // coretan
+    over.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;touch-action:none;cursor:crosshair';
+    stage.appendChild(base);
+    stage.appendChild(over);
+    let srcBytes = null, pageCount = 0, pageNo = 1, scale = 1, pageW = 0, pageH = 0;
+    let strokes = []; // [{titik:[[x,y]...] dalam poin PDF (y dari atas), tebal (pt), warna}]
+    let aktif = null;
+
+    const gambarUlang = () => {
+      const ox = over.getContext('2d');
+      ox.clearRect(0, 0, over.width, over.height);
+      ox.lineCap = 'round'; ox.lineJoin = 'round';
+      const gambarSatu = (s) => {
+        if (s.titik.length < 2) return;
+        ox.strokeStyle = s.warna;
+        ox.lineWidth = s.tebal * scale;
+        ox.beginPath();
+        ox.moveTo(s.titik[0][0] * scale, s.titik[0][1] * scale);
+        for (let i = 1; i < s.titik.length; i++) ox.lineTo(s.titik[i][0] * scale, s.titik[i][1] * scale);
+        ox.stroke();
+      };
+      strokes.forEach(gambarSatu);
+      if (aktif) gambarSatu(aktif);
+    };
+    const pos = (e) => {
+      const r = over.getBoundingClientRect();
+      return [(e.clientX - r.left) * (over.width / r.width) / scale, (e.clientY - r.top) * (over.height / r.height) / scale];
+    };
+    over.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      over.setPointerCapture(e.pointerId);
+      aktif = { titik: [pos(e)], tebal: +tebalSel.value, warna: warnaSel.value };
+      strokes.push(aktif);
+    });
+    over.addEventListener('pointermove', (e) => {
+      if (!aktif) return;
+      e.preventDefault();
+      aktif.titik.push(pos(e));
+      gambarUlang();
+    });
+    const selesai = () => { aktif = null; };
+    over.addEventListener('pointerup', selesai);
+    over.addEventListener('pointercancel', selesai);
+
+    const bLoad = T.btn('Muat Halaman', async () => {
+      const f = fi.files && fi.files[0];
+      if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
+      const okJs = await ensurePdfJs();
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      T.show(box, '<span class="dim">Merender halaman…</span>');
+      try {
+        srcBytes = new Uint8Array(await f.arrayBuffer());
+        const jsDoc = await window.pdfjsLib.getDocument({ data: srcBytes.slice(0) }).promise;
+        pageCount = jsDoc.numPages;
+        pageNo = clamp(Math.floor(parseNum(pgInp.value, 1)), 1, pageCount);
+        const page = await jsDoc.getPage(pageNo);
+        const vp0 = page.getViewport({ scale: 1 });
+        pageW = vp0.width; pageH = vp0.height;
+        scale = Math.min(2, 700 / Math.max(pageW, pageH));
+        const vp = page.getViewport({ scale });
+        base.width = Math.ceil(vp.width); base.height = Math.ceil(vp.height);
+        over.width = base.width; over.height = base.height;
+        await page.render({ canvasContext: base.getContext('2d'), viewport: vp }).promise;
+        strokes = [];
+        gambarUlang();
+        stage.style.display = 'block';
+        bApply.hidden = false;
+        T.show(box, '<span class="ok">Halaman ' + pageNo + ' dari ' + pageCount + ' siap dicorat-coret. Goresan disimpan sebagai garis vektor di PDF.</span>');
+      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+    }, true);
+    const bUndo = T.btn('Urungkan', () => { strokes.pop(); gambarUlang(); });
+    const bClear = T.btn('Hapus semua', () => { strokes = []; gambarUlang(); });
+    const bApply = T.btn('Terapkan & Unduh', async () => {
+      if (!srcBytes || !strokes.length) { T.show(box, errBox('Belum ada coretan.')); return; }
+      const ok = await needLib(); if (!ok) return;
+      T.show(box, '<span class="dim">Menempelkan coretan…</span>');
+      try {
+        const doc = await window.PDFLib.PDFDocument.load(srcBytes.slice(0), { ignoreEncryption: true });
+        const page = doc.getPage(pageNo - 1);
+        const H = page.getHeight();
+        for (const s of strokes) {
+          const hex = s.warna;
+          const col = window.PDFLib.rgb(parseInt(hex.slice(1, 3), 16) / 255, parseInt(hex.slice(3, 5), 16) / 255, parseInt(hex.slice(5, 7), 16) / 255);
+          for (let i = 1; i < s.titik.length; i++) {
+            const [x0, y0] = s.titik[i - 1], [x1, y1] = s.titik[i];
+            page.drawLine({ start: { x: x0, y: H - y0 }, end: { x: x1, y: H - y1 }, thickness: s.tebal, color: col });
+          }
+        }
+        dlPdf(await doc.save(), 'pdf-corat-coret.pdf');
+        T.show(box, '<span class="ok">Coretan ditempel di halaman ' + pageNo + ' & terunduh.</span>');
+      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+    }, true);
+    bApply.hidden = true;
+    pDraw.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Corat-coret langsung di atas halaman PDF dengan jari atau stylus — untuk menandai, melingkari, atau memberi catatan. Satu halaman per unduhan.</p>'));
+    pDraw.appendChild(fi);
+    pDraw.appendChild(T.grid2(T.field('Halaman', pgInp), T.field('Ketebalan garis', tebalSel)));
+    pDraw.appendChild(T.field('Warna tinta', warnaSel));
+    pDraw.appendChild(T.row(bLoad));
+    pDraw.appendChild(box);
+    pDraw.appendChild(stage);
+    pDraw.appendChild(T.row(bUndo, bClear, bApply));
+  }
+
+  const pages = [pOrg, pMerge, pSplit, pImg, pWm, pTx, pMeta, pForm, pCompress, pPdfImg, pNum, pSign, pCrop, pRedact, pPdfText, pImgOut, pTarget, pFormNew, pArrange, pInfo, pDiff, pDraw];
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">22 operasi PDF langsung di perangkatmu. Diproses di browser, file tidak diupload ke mana pun.</p>'));
   const tabBar = tabs(
-    [['Atur', 0], ['Gabung', 1], ['Pisah', 2], ['Gambar→PDF', 3], ['Watermark', 4], ['Teks', 5], ['Metadata', 6], ['Form', 7], ['Kompres', 8], ['PDF→Gambar', 9], ['Nomor', 10], ['Tanda Tangan', 11], ['Potong', 12], ['Sensor', 13], ['PDF ke Teks', 14], ['Ambil Gambar', 15], ['Target KB', 16], ['Form Baru', 17], ['Susun', 18], ['Info', 19], ['Banding', 20]],
+    [['Atur', 0], ['Gabung', 1], ['Pisah', 2], ['Gambar→PDF', 3], ['Watermark', 4], ['Teks & Bentuk', 5], ['Metadata', 6], ['Form', 7], ['Kompres', 8], ['PDF→Gambar', 9], ['Nomor', 10], ['Tanda Tangan', 11], ['Potong', 12], ['Sensor', 13], ['PDF ke Teks', 14], ['Ambil Gambar', 15], ['Target KB', 16], ['Form Baru', 17], ['Susun', 18], ['Info', 19], ['Banding', 20], ['Corat-coret', 21]],
     pages
   );
   root.appendChild(tabBar);

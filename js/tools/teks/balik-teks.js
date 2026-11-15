@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
-export const meta = {"id":"balik-teks","name":"Teks Terbalik","cat":"teks","icon":"🙃","desc":"Teks upside-down unicode atau dibalik urutannya.","keywords":"terbalik,upside down,reverse,teks,flip"};
+export const meta = {"id":"balik-teks","name":"Teks Terbalik","cat":"teks","icon":"🙃","desc":"Teks jadi huruf terbalik atau urutannya dibalik.","keywords":"terbalik,upside down,reverse,teks,flip"};
 
 const FLIP={a:'ɐ',b:'q',c:'ɔ',d:'p',e:'ǝ',f:'ɟ',g:'ƃ',h:'ɥ',i:'ı',j:'ɾ',k:'ʞ',l:'l',m:'ɯ',n:'u',o:'o',p:'d',q:'b',r:'ɹ',s:'s',t:'ʇ',u:'n',v:'ʌ',w:'ʍ',x:'x',y:'ʎ',z:'z',
   '0':'0','1':'Ɩ','2':'ᘔ','3':'Ɛ','6':'9','8':'8','9':'6',
@@ -18,7 +18,7 @@ export function render(root){
   const taIn=T.ta(5,'Ketik teks di sini, hasil muncul otomatis…');
   const box=T.out();
   const bFlip=T.btn('🙃 Upside-down',null,true);
-  const bRev=T.btn('⬅ Reverse biasa',null);
+  const bRev=T.btn('⬅ Dibalik biasa',null);
   const go=()=>{
     const s=taIn.value;
     if(!s){T.hide(box);lastRes='';return;}

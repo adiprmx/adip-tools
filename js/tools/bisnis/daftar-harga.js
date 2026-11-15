@@ -1,4 +1,4 @@
-import { h as T, utils, dlNodePng } from '../../core.js?v=6.11.5';
+import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node): daftar harga jadi teks rapi (untuk dibagikan).
 utils.daftarHargaTeks = function (namaUsaha, daftar) {
@@ -80,7 +80,7 @@ export function render(root) {
     T.btn('Unduh sebagai gambar', async () => {
       if (daftar.length === 0) { T.toast('Daftarnya masih kosong'); return; }
       const ok = await dlNodePng(kartu, 'daftar-harga.png');
-      T.toast(ok ? 'Gambar berhasil diunduh' : 'Gagal membuat gambar, coba salin sebagai teks');
+      T.toast(ok ? 'Gambar berhasil diunduh' : 'Gambarnya tidak bisa dibuat, coba salin sebagai teks');
     })
   ));
   root.appendChild(box);

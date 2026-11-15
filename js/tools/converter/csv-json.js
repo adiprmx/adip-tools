@@ -1,4 +1,4 @@
-import { h as T, fileInput } from '../../core.js?v=6.11.5';
+import { h as T, fileInput } from '../../core.js?v=6.12.0';
 
 // Parser CSV yang benar: dukung quote, koma di dalam field, quote ganda, newline di dalam field.
 function parseCSV(text, delim) {
@@ -40,15 +40,15 @@ export function render(root) {
 
     const mode = T.select([['auto', 'Otomatis (deteksi)'], ['c2j', 'CSV → JSON'], ['j2c', 'JSON → CSV']], 'auto');
     const delim = T.select([['auto', 'Otomatis (, atau ;)'], [',', 'Koma (,)'], [';', 'Titik koma (;)']], 'auto');
-    const head = T.select([['1', 'Baris pertama = header'], ['0', 'Tanpa header (kolom: col1, col2, …)']], '1');
-    const ta = T.ta(10, 'Paste CSV atau JSON di sini…');
+    const head = T.select([['1', 'Baris pertama = nama kolom'], ['0', 'Tanpa nama kolom (kolom: col1, col2, …)']], '1');
+    const ta = T.ta(10, 'Tempel CSV atau JSON di sini…');
     const fileI = fileInput('.csv,.json,.txt,text/csv,application/json');
     const box = T.out();
     let lastOut = '', lastName = 'hasil.txt', lastMime = 'text/plain';
 
     const konversi = () => {
       const src = ta.value.trim();
-      if (!src) { T.show(box, '<p class="warn">Paste dulu datanya atau upload file.</p>'); return; }
+      if (!src) { T.show(box, '<p class="warn">Tempel dulu datanya atau pilih file.</p>'); return; }
       let m = mode.value;
       if (m === 'auto') m = /^[[{]/.test(src) ? 'j2c' : 'c2j';
       try {
@@ -71,12 +71,12 @@ export function render(root) {
           lastName = 'hasil.json'; lastMime = 'application/json';
           T.show(box,
             '<div class="kv"><span>Baris data</span><b>' + out.length + '</b></div>' +
-            '<div class="kv"><span>Delimiter terdeteksi</span><b>' + (d === ';' ? 'titik koma (;)' : 'koma (,)') + '</b></div>' +
-            '<pre style="max-height:260px;overflow:auto;font-size:12px;background:#ffffff08;padding:10px;border-radius:8px;user-select:all">' + T.esc(lastOut.slice(0, 4000)) + (lastOut.length > 4000 ? '\n…(dipotong, unduh untuk full)' : '') + '</pre>');
+            '<div class="kv"><span>Pemisah yang terdeteksi</span><b>' + (d === ';' ? 'titik koma (;)' : 'koma (,)') + '</b></div>' +
+            '<pre style="max-height:260px;overflow:auto;font-size:12px;background:#ffffff08;padding:10px;border-radius:8px;user-select:all">' + T.esc(lastOut.slice(0, 4000)) + (lastOut.length > 4000 ? '\n…(dipotong, unduh untuk melihat semua)' : '') + '</pre>');
         } else {
           const data = JSON.parse(src);
           const arr = Array.isArray(data) ? data : [data];
-          if (!arr.length || typeof arr[0] !== 'object') throw new Error('JSON harus array of objects');
+          if (!arr.length || typeof arr[0] !== 'object') throw new Error('JSON harus berupa daftar objek');
           const keys = [];
           for (const o of arr) for (const k of Object.keys(o)) if (!keys.includes(k)) keys.push(k);
           const d = delim.value === 'auto' ? ',' : delim.value;
@@ -86,14 +86,14 @@ export function render(root) {
           T.show(box,
             '<div class="kv"><span>Baris data</span><b>' + arr.length + '</b></div>' +
             '<div class="kv"><span>Kolom</span><b>' + keys.length + '</b></div>' +
-            '<pre style="max-height:260px;overflow:auto;font-size:12px;background:#ffffff08;padding:10px;border-radius:8px;user-select:all">' + T.esc(lastOut.slice(0, 4000)) + (lastOut.length > 4000 ? '\n…(dipotong, unduh untuk full)' : '') + '</pre>');
+            '<pre style="max-height:260px;overflow:auto;font-size:12px;background:#ffffff08;padding:10px;border-radius:8px;user-select:all">' + T.esc(lastOut.slice(0, 4000)) + (lastOut.length > 4000 ? '\n…(dipotong, unduh untuk melihat semua)' : '') + '</pre>');
         }
         box.appendChild(T.row(
           T.copyBtn(() => lastOut, 'Salin hasil'),
           T.btn('Unduh file', () => T.dl(lastName, lastOut, lastMime + ';charset=utf-8'))
         ));
       } catch (e) {
-        T.show(box, '<p class="warn">Gagal konversi: ' + T.esc(e.message) + '</p>');
+        T.show(box, '<p class="warn">Tidak bisa diubah: ' + T.esc(e.message) + '</p>');
       }
     };
 
@@ -105,12 +105,12 @@ export function render(root) {
       rd.readAsText(f);
     });
 
-    root.appendChild(T.field('Upload file (opsional)', fileI));
+    root.appendChild(T.field('Pilih file (opsional)', fileI));
     root.appendChild(T.grid2(
       T.field('Arah konversi', mode),
-      T.field('Delimiter CSV', delim)
+      T.field('Pemisah CSV', delim)
     ));
-    root.appendChild(T.field('Header CSV', head));
+    root.appendChild(T.field('Baris pertama', head));
     root.appendChild(T.field('Data', ta));
     root.appendChild(T.row(T.btn('Konversi', konversi, true)));
     root.appendChild(box);

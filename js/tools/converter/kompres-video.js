@@ -1,7 +1,7 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.11.5';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.11.5';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.0';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.0';
 
-export const meta = {"id": "kompres-video", "name": "Kompres Video", "cat": "converter", "icon": "🗜️", "desc": "Perkecil ukuran video, termasuk preset pas untuk WhatsApp.", "keywords": "video,kompres,perkecil,whatsapp,ukuran,mp4,kecil", "since": "6.11.0"};
+export const meta = {"id": "kompres-video", "name": "Kompres Video", "cat": "converter", "icon": "🗜️", "desc": "Perkecil ukuran video, termasuk pilihan pas untuk WhatsApp.", "keywords": "video,kompres,perkecil,whatsapp,ukuran,mp4,kecil", "since": "6.11.0"};
 
 export function render(root) {
   const WA_TARGET_MB = 15.5; // di bawah batas 16 MB, sisakan ruang untuk audio
@@ -59,7 +59,7 @@ export function render(root) {
       if (vk === null) { estLine.textContent = 'Durasi video tidak terbaca, jadi target ukuran tidak bisa dihitung. Dipakai setelan hemat (resolusi paling tinggi 480p).'; return; }
       estLine.textContent = 'Target sekitar ' + WA_TARGET_MB.toString().replace('.', ',') + ' MB (dihitung dari durasi ' + duration.toFixed(0) + ' detik).' +
         (vk <= 150 ? ' Video ini panjang, jadi hasilnya bisa tetap di atas 16 MB.' : '') +
-        (fileObj.size <= WA_TARGET_MB * 1024 * 1024 ? ' Video ini sudah di bawah 16 MB, jadi preset ini hanya memperkecil sedikit. Pakai Hemat bila mau jauh lebih kecil.' : '');
+        (fileObj.size <= WA_TARGET_MB * 1024 * 1024 ? ' Video ini sudah di bawah 16 MB, jadi pilihan ini hanya memperkecil sedikit. Pakai Hemat bila mau jauh lebih kecil.' : '');
       return;
     }
     if (p === 'hemat') estLine.textContent = 'Resolusi paling tinggi 720p, kualitas gambar diturunkan paling banyak. Ukuran hasil baru ketahuan setelah proses selesai.';
@@ -119,7 +119,7 @@ export function render(root) {
         kv('Ukuran hasil', fmtBytes(blob.size)) +
         (blob.size < fileObj.size
           ? kv('Lebih kecil', fmtBytes(fileObj.size - blob.size) + ' (' + pct + '%)')
-          : '<p class="dim" style="font-size:13px;margin:8px 0 0">Hasil tidak lebih kecil. Video aslinya sudah padat, coba preset Hemat bila perlu.</p>'));
+          : '<p class="dim" style="font-size:13px;margin:8px 0 0">Hasil tidak lebih kecil. Video aslinya sudah padat, coba pilihan Hemat bila perlu.</p>'));
       T.toast('Video terunduh');
     } catch (e) {
       if (isCancelled(e)) { T.show(outBox, '<span class="dim">Dibatalkan.</span>'); }
@@ -167,7 +167,7 @@ export function render(root) {
 
   T.onLeave(() => { if (busy) cancelFFmpeg(); });
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Perkecil video supaya gampang dikirim atau diunggah. Preset WhatsApp mengusahakan hasil di bawah 16 MB.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Perkecil video supaya gampang dikirim atau diunggah. Pilihan WhatsApp mengusahakan hasil di bawah 16 MB.</p>'));
   root.appendChild(T.field('Pilih video', file, 'MP4, MOV, MKV, WebM, dan format video umum lainnya'));
   root.appendChild(infoBox);
   root.appendChild(T.field('Preset', presetSel));

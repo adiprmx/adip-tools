@@ -1,5 +1,5 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.11.5';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.11.5';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.0';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.0';
 
 export const meta = {"id": "video-ke-mp3", "name": "Video ke MP3", "cat": "converter", "icon": "🎵", "desc": "Ambil suara dari video jadi file MP3.", "keywords": "video,mp3,audio,ekstrak,musik,suara,lagu", "since": "6.11.0"};
 
@@ -88,7 +88,7 @@ export function render(root) {
         kv('File', T.esc(fileObj.name)) +
         kv('Durasi', duration ? duration.toFixed(1) + ' detik' : 'tidak terbaca') +
         kv('Ukuran', fmtBytes(fileObj.size)) +
-        (big ? '<p class="dim" style="font-size:13px;margin:8px 0 0">File besar. Proses bisa lama dan butuh memori besar di browser.</p>' : ''));
+        (big ? '<p class="dim" style="font-size:13px;margin:8px 0 0">File besar. Prosesnya bisa lama dan HP/browser bisa terasa berat.</p>' : ''));
       URL.revokeObjectURL(url);
     };
     v.onerror = () => {

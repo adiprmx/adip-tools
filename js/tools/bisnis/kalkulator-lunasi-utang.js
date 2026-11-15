@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kalkulator-lunasi-utang","name":"Kalkulator Lunasi Utang","cat":"bisnis","icon":"💳","desc":"Bandingkan cara snowball dan avalanche melunasi utang: urutan bayar, lama lunas, dan total bunga.","keywords":"utang,lunasi utang,snowball,avalanche,cicilan,kartu kredit,pinjaman","since":"6.11.0"};
 

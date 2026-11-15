@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=6.12.0';
 
 function subnet(ip, cidr) {
     const o = String(ip == null ? '' : ip).trim().split('.');
@@ -34,7 +34,7 @@ export function render(root) {
       const m = raw.match(/^([0-9.]+)\s*\/\s*(\d{1,2})$/);
       if (!m) { T.show(box, errBox('Format salah. Contoh yang benar: 192.168.1.10/24')); return; }
       const r = subnet(m[1], m[2]);
-      if (!r) { T.show(box, errBox('IP atau prefix tidak valid.')); return; }
+      if (!r) { T.show(box, errBox('IP atau prefix-nya tidak benar.')); return; }
       T.show(box, kvRows([
         ['Network', r.network + '/' + r.prefix],
         ['Broadcast', r.broadcast],

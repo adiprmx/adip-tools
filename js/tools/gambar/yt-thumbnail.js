@@ -1,4 +1,4 @@
-import { h as T, utils, imgEl } from '../../core.js?v=6.11.5';
+import { h as T, utils, imgEl } from '../../core.js?v=6.12.0';
 
 utils.ytId = function (url) {
     const s = String(url == null ? '' : url).trim();
@@ -28,8 +28,10 @@ export function render(root) {
 
       async function dlThumb(id, q) {
         const url = `https://i.ytimg.com/vi/${id}/${q}.jpg`;
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 15000);
         try {
-          const r = await fetch(url);
+          const r = await fetch(url, { signal: ctrl.signal });
           if (!r.ok) throw new Error('bad');
           const b = await r.blob();
           T.dl(`thumbnail-${id}-${q}.jpg`, b, 'image/jpeg');
@@ -37,7 +39,7 @@ export function render(root) {
         } catch (e) {
           window.open(url, '_blank', 'noopener');
           T.toast('Unduh langsung diblokir, dibuka di tab baru');
-        }
+        } finally { clearTimeout(timer); }
       }
 
       function show() {

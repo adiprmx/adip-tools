@@ -1,24 +1,42 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "tebak-kata", "name": "Tebak Kata", "cat": "fun", "icon": "🔤", "desc": "Hangman Bahasa Indonesia: 64 kata, 6 nyawa.", "keywords": "hangman,tebak,kata,game,indonesia,huruf"};
+export const meta = {"id": "tebak-kata", "name": "Tebak Kata", "cat": "fun", "icon": "🔤", "desc": "Hangman Bahasa Indonesia: 112 kata, 7 kategori, 3 level nyawa.", "keywords": "hangman,tebak,kata,game,indonesia,huruf,kategori,level"};
 
 const KATA = [
   ['hewan', 'Hewan', ['KOMODO', 'KANCIL', 'BEKANTAN', 'ANOA', 'KASUARI', 'ORANGUTAN', 'CENDRAWASIH', 'GAJAH', 'HARIMAU', 'BUAYA', 'KATAK', 'BURUNG', 'IKAN', 'KUCING', 'ANJING', 'AYAM']],
   ['makanan', 'Makanan', ['RENDANG', 'NASI GORENG', 'SATE', 'SOTO', 'BAKSO', 'MIE AYAM', 'GUDEG', 'PEMPEK', 'MARTABAK', 'KLEPON', 'RAWON', 'LONTONG', 'KETOPRAK', 'SIOMAY', 'BATAGOR', 'ES CENDOL']],
   ['kota', 'Kota di Indonesia', ['JAKARTA', 'SURABAYA', 'BANDUNG', 'MEDAN', 'SEMARANG', 'MAKASSAR', 'DENPASAR', 'YOGYAKARTA', 'PALEMBANG', 'BALIKPAPAN', 'MANADO', 'PONTIANAK', 'PADANG', 'MALANG', 'BOGOR', 'SOLO']],
   ['benda', 'Benda', ['PAYUNG', 'KACAMATA', 'SEPEDA', 'GITAR', 'BUKU', 'LAMPU', 'KIPAS ANGIN', 'TELEVISI', 'KULKAS', 'KOMPOR', 'SAPU', 'BANTAL', 'CERMIN', 'JAM', 'TAS', 'SEPATU']],
+  ['buah', 'Buah', ['MANGGA', 'DURIAN', 'RAMBUTAN', 'MANGGIS', 'SALAK', 'NANAS', 'PEPAYA', 'JAMBU', 'DUKU', 'SAWO', 'ALPUKAT', 'SIRSAK', 'BELIMBING', 'NANGKA', 'KEDONDONG', 'APEL']],
+  ['profesi', 'Profesi', ['DOKTER', 'GURU', 'PETANI', 'NELAYAN', 'PILOT', 'POLISI', 'TENTARA', 'PENGACARA', 'ARSITEK', 'KOKI', 'MONTIR', 'BIDAN', 'PERAWAT', 'SOPIR', 'PEDAGANG', 'PENULIS']],
+  ['olahraga', 'Olahraga', ['SEPAK BOLA', 'BULUTANGKIS', 'BASKET', 'VOLI', 'RENANG', 'TINJU', 'KARATE', 'JUDO', 'PANAHAN', 'GOLF', 'CATUR', 'LARI', 'DAYUNG', 'SENAM', 'ANGKAT BESI', 'MARATON']],
 ];
-const NYAWA_MAX = 6;
+const LEVELS = [
+  { id: 'santai', label: 'Santai — 8 nyawa', nyawa: 8 },
+  { id: 'normal', label: 'Normal — 6 nyawa', nyawa: 6 },
+  { id: 'sulit', label: 'Sulit — 4 nyawa', nyawa: 4 },
+];
 const ABJAD = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const LS_KEY = 'tebak-kata-best-v2';
+function loadBest() {
+  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
+  catch (e) { return {}; }
+}
+function saveBest(b) { try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } catch (e) { /* abaikan */ } }
 
 export function render(root) {
   let kata = '', kategori = '', ditebak = new Set(), salah = 0, selesai = false;
+  let level = LEVELS[1];
+  let best = loadBest();
 
+  const lvlSel = T.select(LEVELS.map((l) => [l.id, l.label]), 'normal');
+  const katSel = T.select([['acak', 'Acak — semua kategori']].concat(KATA.map(([id, label]) => [id, label])), 'acak');
   const nyawaEl = T.el('<p class="center" style="font-size:18px;margin:6px 0"></p>');
   const katEl = T.el('<p class="center hint"></p>');
   const kataEl = T.el('<div class="center" style="font-family:monospace;font-size:26px;letter-spacing:6px;margin:12px 0;word-break:break-all"></div>');
   const salahEl = T.el('<p class="center hint" style="min-height:20px"></p>');
   const hasilBox = T.out();
+  const bestBox = T.el('<p class="hint center"></p>');
 
   const canvas = document.createElement('canvas');
   canvas.width = 160; canvas.height = 180;
@@ -30,6 +48,10 @@ export function render(root) {
     b.addEventListener('click', () => tebakHuruf(h));
     kb.appendChild(b); keyBtns[h] = b;
   });
+
+  const gambarBest = () => {
+    bestBox.textContent = 'Skor terbaik — ' + LEVELS.map((l) => l.label.split(' ')[0] + ': ' + (best[l.id] || 0)).join(' · ');
+  };
 
   const gambarOrang = () => {
     const ctx = canvas.getContext('2d');
@@ -54,7 +76,9 @@ export function render(root) {
       () => { ctx.beginPath(); ctx.moveTo(120, 115); ctx.lineTo(105, 145); ctx.stroke(); },
       () => { ctx.beginPath(); ctx.moveTo(120, 115); ctx.lineTo(135, 145); ctx.stroke(); },
     ];
-    for (let i = 0; i < Math.min(salah, parts.length); i++) parts[i]();
+    // Gambar orang digambar bertahap sesuai porsi nyawa yang hilang (biar 4/6/8 nyawa sama-sama pas).
+    const n = Math.min(parts.length, Math.max(1, Math.round(salah / level.nyawa * parts.length)));
+    for (let i = 0; i < n; i++) parts[i]();
   };
 
   const gambarKata = () => {
@@ -65,10 +89,22 @@ export function render(root) {
   };
 
   const gambarNyawa = () => {
-    nyawaEl.textContent = '❤️'.repeat(Math.max(0, NYAWA_MAX - salah)) + '🖤'.repeat(Math.min(NYAWA_MAX, salah));
+    nyawaEl.textContent = '❤️'.repeat(Math.max(0, level.nyawa - salah)) + '🖤'.repeat(Math.min(level.nyawa, salah));
   };
 
   const hurufUnik = () => [...new Set(kata.replace(/ /g, '').split(''))];
+
+  const tombolHasil = (teksHasil) => {
+    const w = T.el('<div class="row center" style="margin-top:10px"></div>');
+    w.appendChild(T.btn('Main Lagi', rondeBaru, true));
+    if (teksHasil) {
+      w.appendChild(T.copyBtn(() => teksHasil, '📋 Salin hasil'));
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        w.appendChild(T.btn('📤 Bagikan', () => { navigator.share({ text: teksHasil }).catch(() => {}); }));
+      }
+    }
+    return w;
+  };
 
   const tebakHuruf = (h) => {
     if (selesai || ditebak.has(h)) return;
@@ -89,32 +125,35 @@ export function render(root) {
     const menang = hurufUnik().every((x) => ditebak.has(x));
     if (menang) {
       selesai = true;
+      const skor = (level.nyawa - salah) * 100 + kata.replace(/ /g, '').length * 10;
+      let baru = '';
+      if (skor > (best[level.id] || 0)) { best[level.id] = skor; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+      gambarBest();
+      const teks = '🔤 Tebak Kata (' + level.label.split(' — ')[0] + '): aku nebak "' + kata + '" (' + kategori + ') dengan sisa ' + (level.nyawa - salah) + ' nyawa, skor ' + skor + '! Coba kalahin aku di Adip Tools.';
       T.show(hasilBox, '<div class="center" style="padding:8px 0">' +
         '<div style="font-size:34px">🎉</div>' +
         '<p style="font-size:15px;font-weight:700;margin:6px 0">Mantap, ketebak!</p>' +
-        '<p class="hint">Kata: <b>' + T.esc(kata) + '</b> · sisa nyawa ' + (NYAWA_MAX - salah) + '</p></div>' +
-        '<div class="center"></div>');
-      hasilBox.querySelector('.center:last-child').appendChild(T.btn('Main Lagi', rondeBaru, true));
+        '<p class="hint">Kata: <b>' + T.esc(kata) + '</b> · sisa nyawa ' + (level.nyawa - salah) + ' · skor <b>' + skor + '</b>' + baru + '</p></div>');
+      hasilBox.appendChild(tombolHasil(teks));
       T.beep(523, 0.12); T.beep(659, 0.12, 'sine', 0.12); T.beep(784, 0.2, 'sine', 0.24);
-    } else if (salah >= NYAWA_MAX) {
+    } else if (salah >= level.nyawa) {
       selesai = true;
       T.show(hasilBox, '<div class="center" style="padding:8px 0">' +
         '<div style="font-size:34px">😵</div>' +
         '<p style="font-size:15px;font-weight:700;margin:6px 0">Yah, nyawanya habis.</p>' +
-        '<p class="hint">Jawabannya: <b>' + T.esc(kata) + '</b></p></div>' +
-        '<div class="center"></div>');
-      hasilBox.querySelector('.center:last-child').appendChild(T.btn('Coba Lagi', rondeBaru, true));
+        '<p class="hint">Jawabannya: <b>' + T.esc(kata) + '</b></p></div>');
+      hasilBox.appendChild(tombolHasil(null));
       T.beep(220, 0.2, 'sawtooth'); T.beep(150, 0.3, 'sawtooth', 0.2);
     }
   };
 
   const rondeBaru = () => {
-    const [cid, clabel, daftar] = KATA[Math.floor(Math.random() * KATA.length)];
-    void cid;
+    const pool = katSel.value === 'acak' ? KATA : KATA.filter(([id]) => id === katSel.value);
+    const [, clabel, daftar] = pool[Math.floor(Math.random() * pool.length)];
     kategori = clabel;
     kata = daftar[Math.floor(Math.random() * daftar.length)];
     ditebak = new Set(); salah = 0; selesai = false;
-    katEl.textContent = 'Kategori: ' + kategori + ' · ' + kata.replace(/ /g, '').length + ' huruf';
+    katEl.textContent = 'Kategori: ' + kategori + ' · ' + kata.replace(/ /g, '').length + ' huruf · ' + level.nyawa + ' nyawa';
     salahEl.textContent = '';
     T.hide(hasilBox);
     ABJAD.forEach((h) => {
@@ -124,7 +163,15 @@ export function render(root) {
     gambarKata(); gambarNyawa(); gambarOrang();
   };
 
-  root.appendChild(T.el('<p class="center hint">Tebak kata Bahasa Indonesianya, huruf per huruf.<br>Salah 6 kali = tamat. Semangat!</p>'));
+  lvlSel.addEventListener('change', () => {
+    level = LEVELS.find((l) => l.id === lvlSel.value) || LEVELS[1];
+    rondeBaru();
+  });
+  katSel.addEventListener('change', rondeBaru);
+
+  root.appendChild(T.el('<p class="center hint">Tebak kata Bahasa Indonesianya, huruf per huruf.<br>Salah sampai nyawa habis = tamat. Semangat!</p>'));
+  root.appendChild(T.field('Level', lvlSel));
+  root.appendChild(T.field('Kategori', katSel));
   root.appendChild(katEl);
   root.appendChild(canvas);
   root.appendChild(nyawaEl);
@@ -132,5 +179,7 @@ export function render(root) {
   root.appendChild(salahEl);
   root.appendChild(kb);
   root.appendChild(hasilBox);
+  root.appendChild(bestBox);
+  gambarBest();
   rondeBaru();
 }

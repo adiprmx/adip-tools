@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, money, kv } from '../../core.js?v=6.12.0';
 
 // Bulan penuh antara dua tanggal (tanggal akhir di bawah tanggal mulai = belum genap sebulan).
 function bulanPenuh(a, b) {
@@ -14,7 +14,7 @@ function bulanPenuh(a, b) {
 utils.cutiProrata = function (o) {
   const mulai = new Date(o.mulai + 'T00:00:00');
   const hitung = new Date(o.hitung + 'T00:00:00');
-  if (isNaN(mulai) || isNaN(hitung)) return { error: 'Tanggal tidak valid.' };
+  if (isNaN(mulai) || isNaN(hitung)) return { error: 'Tanggalnya tidak benar.' };
   if (hitung < mulai) return { error: 'Tanggal hitung tidak boleh sebelum tanggal mulai kerja.' };
   const jatah = Math.max(0, Number(o.jatah) || 0);
   const dipakai = Math.max(0, Number(o.dipakai) || 0);

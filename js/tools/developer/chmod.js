@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc } from '../../core.js?v=6.12.0';
 
 function chmodToSym(oct) {
     const s = String(oct == null ? '' : oct).trim();
@@ -50,7 +50,7 @@ export function render(root) {
     }
     function paint(oct) {
       const sym = chmodToSym(oct);
-      if (sym == null) { T.show(resBox, errBox('Oktal tidak valid (3-4 digit 0-7).')); return; }
+      if (sym == null) { T.show(resBox, errBox('Oktal tidak benar (3-4 digit 0-7).')); return; }
       const names = ['Pemilik', 'Grup', 'Lainnya'];
       const lines = [0, 1, 2].map((i) => {
         const t = sym.slice(i * 3, i * 3 + 3);
@@ -68,7 +68,7 @@ export function render(root) {
     }
     function syncFromOct() {
       const sym = chmodToSym(octInp.value);
-      if (sym == null) { T.show(resBox, errBox('Oktal tidak valid (3-4 digit 0-7).')); return; }
+      if (sym == null) { T.show(resBox, errBox('Oktal tidak benar (3-4 digit 0-7).')); return; }
       roles.forEach(([r], i) => {
         cbs[r + 'r'].checked = sym[i * 3] === 'r';
         cbs[r + 'w'].checked = sym[i * 3 + 1] === 'w';

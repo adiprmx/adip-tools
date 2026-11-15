@@ -1,4 +1,4 @@
-import { h as T, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "stempel-tanggal-foto", "name": "Stempel Tanggal di Foto", "cat": "gambar", "icon": "📷", "desc": "Tambah stempel tanggal oranye ala kamera film ke fotomu.", "keywords": "stempel tanggal,kamera film,analog,disposable,vintage,foto,tanggal", "since": "6.11.0"};
 
@@ -46,7 +46,7 @@ export function render(root) {
     const f = fileI.files && fileI.files[0];
     if (!f) return;
     try { imgAsli = await loadImage(f); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     proses();
   });
   [tgl, posisi, warna].forEach((el) => el.addEventListener('change', proses));
@@ -62,7 +62,7 @@ export function render(root) {
     T.btn('Unduh hasil', async () => {
       if (!kanvas.width) { T.toast('Pilih foto dulu'); return; }
       const blob = await canvasToBlob(kanvas, 'image/jpeg', 0.92);
-      if (!blob) { T.toast('Gagal membuat gambar'); return; }
+      if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
       T.dl('foto-stempel.jpg', blob, 'image/jpeg');
       T.toast('Foto berhasil diunduh');
     }, true)

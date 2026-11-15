@@ -1,4 +1,4 @@
-import { h as T, utils, esc, fileInput } from '../../core.js?v=6.11.5';
+import { h as T, utils, esc, fileInput } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node): susun satu file HTML halaman tautan.
 utils.buatBioLinkHTML = function (d) {
@@ -13,8 +13,13 @@ utils.buatBioLinkHTML = function (d) {
   const foto = d.foto
     ? `<img src="${esc(d.foto)}" alt="" style="width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 16px">`
     : `<div style="width:96px;height:96px;border-radius:50%;background:${tombol};color:${tombolTeks};display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;margin:0 auto 16px">${esc((d.nama || 'N').trim().charAt(0).toUpperCase())}</div>`;
+  /* hanya skema aman yang jadi tautan (T04 S3): javascript: dibuang href-nya */
+  const okUrl = (u) => /^(https?:|mailto:|tel:)/i.test(String(u || '').trim());
+  const gayaTombol = `display:block;text-align:center;padding:14px 16px;margin:0 0 12px;border-radius:12px;background:${tombol};color:${tombolTeks};text-decoration:none;font-size:15px;font-weight:600`;
   const tautan = (d.tautan || []).filter((t) => t.label && t.url).map((t) =>
-    `<a href="${esc(t.url)}" target="_blank" rel="noopener" style="display:block;text-align:center;padding:14px 16px;margin:0 0 12px;border-radius:12px;background:${tombol};color:${tombolTeks};text-decoration:none;font-size:15px;font-weight:600">${esc(t.label)}</a>`
+    okUrl(t.url)
+      ? `<a href="${esc(t.url)}" target="_blank" rel="noopener" style="${gayaTombol}">${esc(t.label)}</a>`
+      : `<span style="${gayaTombol}">${esc(t.label)}</span>`
   ).join('\n    ');
   return '<!DOCTYPE html>\n<html lang="id">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + nama + '</title>\n' +
     '<style>body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:' + latar + ';color:' + teks + '}.wrap{max-width:480px;margin:0 auto;padding:48px 20px 64px}h1{text-align:center;font-size:24px;margin:0 0 8px}p{text-align:center;color:' + redup + ';font-size:15px;line-height:1.6;margin:0 0 28px}</style>\n</head>\n<body>\n<div class="wrap">\n' +
@@ -36,6 +41,7 @@ export function render(root) {
   const pratinjau = document.createElement('iframe');
   pratinjau.style.cssText = 'width:100%;height:420px;border:1px solid #2a2a2a;border-radius:12px;background:#0a0a0a;margin-top:12px';
   pratinjau.title = 'Pratinjau halaman tautan';
+  pratinjau.setAttribute('sandbox', 'allow-popups');
 
   function barisTautan(label, url) {
     const l = T.input('text', 'Label, contoh: Instagram', label || '');

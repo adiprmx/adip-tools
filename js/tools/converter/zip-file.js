@@ -1,4 +1,4 @@
-import { h as T, kv, fileInput, fmtBytes, errBox } from '../../core.js?v=6.11.5';
+import { h as T, kv, fileInput, fmtBytes, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"zip-file","name":"Buat & Buka ZIP","cat":"converter","icon":"🗜️","desc":"Gabung banyak file jadi satu ZIP, atau buka isi file ZIP.","keywords":"zip,arsip,kompres,ekstrak,file,buka","since":"6.11.0"};
 
@@ -65,9 +65,9 @@ export function render(root) {
 
   const buatZip = async () => {
     if (!filesBuat.length) { T.show(boxBuat, errBox('Pilih file dulu.')); return; }
-    T.show(boxBuat, '<span class="dim">Memuat pustaka ZIP…</span>');
+    T.show(boxBuat, '<span class="dim">Menyiapkan alat ZIP…</span>');
     const ok = await ensureLib();
-    if (!ok) { T.show(boxBuat, errBox('Gagal memuat pustaka ZIP dari internet. Periksa koneksi, lalu coba lagi.')); return; }
+    if (!ok) { T.show(boxBuat, errBox('Alat ZIP tidak bisa dimuat dari internet. Periksa koneksi, lalu coba lagi.')); return; }
     T.show(boxBuat, '<span class="dim">Menggabungkan ' + filesBuat.length + ' file…</span>');
     try {
       const zip = new window.JSZip();
@@ -78,7 +78,7 @@ export function render(root) {
       T.show(boxBuat, kv('File digabung', filesBuat.length + ' file') + kv('Ukuran ZIP', fmtBytes(blob.size)));
       T.toast('ZIP diunduh');
     } catch (e) {
-      T.show(boxBuat, errBox('Gagal membuat ZIP.'));
+      T.show(boxBuat, errBox('ZIP tidak bisa dibuat. Coba lagi.'));
     }
   };
 
@@ -100,17 +100,17 @@ export function render(root) {
   fiBuka.addEventListener('change', async () => {
     const f = fiBuka.files && fiBuka.files[0];
     if (!f) return;
-    T.show(boxBuka, '<span class="dim">Memuat pustaka ZIP…</span>');
+    T.show(boxBuka, '<span class="dim">Menyiapkan alat ZIP…</span>');
     T.hide(listBuka); T.hide(prevBuka);
     const ok = await ensureLib();
-    if (!ok) { T.show(boxBuka, errBox('Gagal memuat pustaka ZIP dari internet. Periksa koneksi, lalu coba lagi.')); return; }
+    if (!ok) { T.show(boxBuka, errBox('Alat ZIP tidak bisa dimuat dari internet. Periksa koneksi, lalu coba lagi.')); return; }
     T.show(boxBuka, '<span class="dim">Membaca isi ZIP…</span>');
     try {
       zipObj = await new window.JSZip().loadAsync(f);
       zipName = f.name.replace(/\.zip$/i, '');
     } catch (e) {
       zipObj = null;
-      T.show(boxBuka, errBox('File ini bukan ZIP yang valid, atau filenya rusak.'));
+      T.show(boxBuka, errBox('File ini bukan ZIP yang benar, atau filenya rusak.'));
       return;
     }
     const names = Object.keys(zipObj.files).filter((n) => !zipObj.files[n].dir);
@@ -146,7 +146,7 @@ export function render(root) {
         try {
           const blob = await zipObj.files[n].async('blob');
           T.dl(n.split('/').pop(), blob);
-        } catch (e) { T.toast('Gagal mengunduh file ini'); }
+        } catch (e) { T.toast('File ini tidak bisa diunduh'); }
       });
       dl.classList.add('small');
       acts.appendChild(dl);
@@ -169,7 +169,7 @@ export function render(root) {
     tabBuka.classList.add('primary'); tabBuat.classList.remove('primary');
   });
 
-  root.appendChild(T.el('<p class="note">Diproses di browser, file tidak diunggah ke mana-mana. Pustaka ZIP dimuat sekali dari internet saat tombol ditekan.</p>'));
+  root.appendChild(T.el('<p class="note">Diproses di browser, file tidak diunggah ke mana-mana. Alat ZIP dimuat sekali dari internet saat tombol ditekan.</p>'));
   root.appendChild(tabs);
   root.appendChild(panelBuat);
   root.appendChild(panelBuka);

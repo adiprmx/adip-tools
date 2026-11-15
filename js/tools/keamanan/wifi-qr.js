@@ -1,4 +1,4 @@
-import { h as T, utils, errBox } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox } from '../../core.js?v=6.12.0';
 
 function wifiString(ssid, pass, enc, hidden) {
   const e = (v) => String(v == null ? '' : v).replace(/([\\;,":])/g, '\\$1');
@@ -27,10 +27,10 @@ export function render(root) {
       if (libOk !== null) return Promise.resolve(libOk);
       if (libLoading) return new Promise((res) => { const t = setInterval(() => { if (libOk !== null) { clearInterval(t); res(libOk); } }, 300); });
       libLoading = true;
-      T.show(statusBox, '<span class="mut">Memuat library QR…</span>');
+      T.show(statusBox, '<span class="mut">Menyiapkan alat QR…</span>');
       return T.loadScript(QR_CDN).then((ok) => {
         libOk = ok && typeof QRCode !== 'undefined';
-        if (!libOk) T.show(statusBox, errBox('Gagal memuat library QR dari CDN. Cek koneksi internet lalu coba lagi.'));
+        if (!libOk) T.show(statusBox, errBox('Alat QR tidak bisa dimuat dari internet. Cek koneksi internet lalu coba lagi.'));
         return libOk;
       });
     };

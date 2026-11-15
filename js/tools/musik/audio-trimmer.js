@@ -1,13 +1,13 @@
-import { h as T, utils, fmtBytes, errBox } from '../../core.js?v=6.11.5';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.11.5';
+import { h as T, utils, fmtBytes, errBox } from '../../core.js?v=6.12.0';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.0';
 
-export const meta = {"id": "audio-trimmer", "name": "Audio Trimmer", "cat": "musik", "icon": "✂️", "desc": "Potong audio di browser, export WAV, MP3, atau M4A, dengan fade.", "keywords": "audio,potong,mp3,m4a,wav,trim,fade"};
+export const meta = {"id": "audio-trimmer", "name": "Audio Trimmer", "cat": "musik", "icon": "✂️", "desc": "Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.", "keywords": "audio,potong,mp3,m4a,ogg,wav,trim,fade,video,ekstrak"};
 export function render(root) {
 
     const file = T.input('file');
-    file.accept = 'audio/*';
+    file.accept = 'audio/*,video/*';
     const wrap = T.el('<div></div>');
-    let buf = null, srcNode = null, origFile = null, busy = false;
+    let buf = null, srcNode = null, origFile = null, busy = false, dariVideo = false;
     T.onLeave(() => { try { srcNode && srcNode.stop(); } catch (e) {} if (busy) cancelFFmpeg(); });
     const stopPrev = () => { try { srcNode && srcNode.stop(); } catch (e) {} srcNode = null; };
     const parseNum = (v, fallback) => {
@@ -66,15 +66,49 @@ export function render(root) {
       return new Blob([ab], { type: 'audio/wav' });
     };
 
+    // Ekstrak trek audio dari file video (MP4/WebM/dll) jadi WAV lewat
+    // ffmpeg, supaya bisa dipotong seperti file audio biasa.
+    const ekstrakDariVideo = async (f, onTahap) => {
+      const sup = supportsFFmpeg();
+      if (!sup.ok) throw new Error(sup.reason);
+      busy = true;
+      try {
+        const { ffmpeg, fetchFile } = await loadFFmpeg((st) => { if (onTahap) onTahap(st.label, st.pct || 0); });
+        const ext = (f.name.match(/\.[a-z0-9]+$/i) || ['.mp4'])[0].toLowerCase();
+        const inName = 'video' + ext;
+        const outName = 'audio.wav';
+        if (onTahap) onTahap('Menyalin video ke mesin…', 0);
+        await ffmpeg.writeFile(inName, await fetchFile(f));
+        if (onTahap) onTahap('Mengekstrak audio dari video…', 0);
+        await runFFmpeg(ffmpeg, ['-i', inName, '-vn', '-ac', '2', '-ar', '44100', '-c:a', 'pcm_s16le', outName], (p) => {
+          if (onTahap) onTahap('Mengekstrak audio dari video… ' + Math.round(p * 100) + '%', Math.round(p * 100));
+        });
+        const data = await ffmpeg.readFile(outName);
+        await cleanupFFmpeg(ffmpeg, [inName, outName]);
+        return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+      } finally { busy = false; }
+    };
+
     file.addEventListener('change', async () => {
       const f = file.files[0];
       if (!f) return;
       stopPrev();
       origFile = f;
+      const isVideo = /^video\//i.test(f.type || '') || /\.(mp4|webm|mov|mkv|avi|3gp)$/i.test(f.name || '');
+      dariVideo = isVideo;
+      wrap.innerHTML = '';
       try {
         const c = T.actx();
-        buf = await c.decodeAudioData(await f.arrayBuffer());
-      } catch (e) { wrap.innerHTML = '<p class="err">Gagal membaca file audio. Coba file MP3/WAV/OGG lain.</p>'; return; }
+        if (isVideo) {
+          const statusEl = T.el('<p class="dim" style="font-size:13px">Mengekstrak audio dari video…</p>');
+          wrap.appendChild(statusEl);
+          const wavBuf = await ekstrakDariVideo(f, (label) => { statusEl.textContent = label; });
+          buf = await c.decodeAudioData(wavBuf);
+          wrap.innerHTML = '';
+        } else {
+          buf = await c.decodeAudioData(await f.arrayBuffer());
+        }
+      } catch (e) { wrap.innerHTML = '<p class="err">' + (isVideo ? 'Gagal mengekstrak audio dari video. Coba file MP4/WebM lain, atau pastikan mesin ffmpeg bisa dimuat.' : 'Gagal membaca file audio. Coba file MP3/WAV/OGG lain.') + '</p>'; return; }
       wrap.innerHTML = '';
       const info = T.el('<p class="mut" style="font-size:13px"></p>');
       const canvas = T.el('<canvas class="prev" style="width:100%;cursor:pointer"></canvas>');
@@ -84,7 +118,10 @@ export function render(root) {
       const eIn = T.input('text', '', buf.duration.toFixed(2)); eIn.inputMode = 'decimal';
       const fiIn = T.input('text', '0', '0'); fiIn.inputMode = 'decimal';
       const foIn = T.input('text', '0', '0'); foIn.inputMode = 'decimal';
-      const fmtSel = T.select([['wav', 'WAV (tanpa kompresi)'], ['mp3', 'MP3'], ['m4a', 'M4A']], 'wav');
+      const fmtSel = T.select([['wav', 'WAV (tanpa kompresi)'], ['mp3', 'MP3'], ['m4a', 'M4A'], ['ogg', 'OGG Vorbis']], 'wav');
+      const bitSel = T.select([['128', '128 kbps (hemat)'], ['192', '192 kbps (seimbang)'], ['320', '320 kbps (kualitas tinggi)']], '192');
+      const fBitrate = T.field('Kualitas suara (bitrate)', bitSel, 'Makin tinggi makin bagus, tapi ukuran file makin besar.');
+      fBitrate.hidden = true;
       const clickSel = T.select([['mulai', 'Titik mulai'], ['selesai', 'Titik selesai']], 'mulai');
       const outBox = T.out();
       const barWrap = T.el('<div style="margin:12px 0" hidden></div>');
@@ -115,7 +152,7 @@ export function render(root) {
       const refresh = () => {
         const [s, e] = getRange();
         const [fi, fo] = getFades();
-        info.textContent = 'Durasi file ' + buf.duration.toFixed(2) + ' dtk · potongan ' + (e - s).toFixed(2) + ' dtk' + (fi > 0 || fo > 0 ? ' · fade ' + fi.toFixed(1) + ' dtk / ' + fo.toFixed(1) + ' dtk' : '');
+        info.textContent = 'Durasi ' + (dariVideo ? 'audio dari video' : 'file') + ' ' + buf.duration.toFixed(2) + ' dtk · potongan ' + (e - s).toFixed(2) + ' dtk' + (fi > 0 || fo > 0 ? ' · fade ' + fi.toFixed(1) + ' dtk / ' + fo.toFixed(1) + ' dtk' : '');
         drawWave(canvas, s, e, fi, fo);
         dlBtn.textContent = 'Export ' + fmtSel.value.toUpperCase();
       };
@@ -128,7 +165,9 @@ export function render(root) {
       });
       const playBtn = T.btn('Putar potongan', () => {
         stopPrev();
-        const c = T.actx(), [s, e] = getRange();
+        let c;
+        try { c = T.actx(); } catch (e) { T.toast('Audio tidak tersedia di browser ini'); return; }
+        const [s, e] = getRange();
         const [fi, fo] = getFades();
         const seg = e - s;
         srcNode = c.createBufferSource();
@@ -154,7 +193,7 @@ export function render(root) {
         const seg = e - s;
         const ext = (origFile.name.match(/\.[a-z0-9]+$/i) || ['.mp3'])[0].toLowerCase();
         const inName = 'input' + ext;
-        const outName = fmt === 'mp3' ? 'output.mp3' : 'output.m4a';
+        const outName = 'output.' + fmt;
         const base = origFile.name.replace(/\.[^.]+$/, '').replace(/[^\w\- ]+/g, '').trim() || 'audio';
         try {
           const { ffmpeg, fetchFile } = await loadFFmpeg((st) => {
@@ -163,13 +202,15 @@ export function render(root) {
           });
           setStage('Menyalin audio ke mesin…', 0);
           await ffmpeg.writeFile(inName, await fetchFile(origFile));
-          const args = ['-ss', String(s), '-t', String(seg), '-i', inName];
+          const args = ['-ss', String(s), '-t', String(seg), '-i', inName, '-vn'];
           const fades = [];
           if (fi > 0) fades.push('afade=t=in:st=0:d=' + fi.toFixed(3));
           if (fo > 0) fades.push('afade=t=out:st=' + Math.max(0, seg - fo).toFixed(3) + ':d=' + fo.toFixed(3));
           if (fades.length) args.push('-af', fades.join(','));
-          if (fmt === 'mp3') args.push('-c:a', 'libmp3lame', '-b:a', '192k');
-          else args.push('-c:a', 'aac', '-b:a', '192k');
+          const bitrate = (bitSel.value || '192') + 'k';
+          if (fmt === 'mp3') args.push('-c:a', 'libmp3lame', '-b:a', bitrate);
+          else if (fmt === 'ogg') args.push('-c:a', 'libvorbis', '-b:a', bitrate);
+          else args.push('-c:a', 'aac', '-b:a', bitrate);
           args.push(outName);
           setStage('Mengekspor ' + fmt.toUpperCase() + '… 0%', 0);
           await runFFmpeg(ffmpeg, args, (p) => {
@@ -178,7 +219,8 @@ export function render(root) {
           });
           const data = await ffmpeg.readFile(outName);
           await cleanupFFmpeg(ffmpeg, [inName, outName]);
-          const blob = new Blob([data], { type: fmt === 'mp3' ? 'audio/mpeg' : 'audio/mp4' });
+          const mime = fmt === 'mp3' ? 'audio/mpeg' : fmt === 'ogg' ? 'audio/ogg' : 'audio/mp4';
+          const blob = new Blob([data], { type: mime });
           T.dl(base + '-potongan.' + fmt, blob, blob.type);
           T.show(outBox, '<span class="ok">' + fmt.toUpperCase() + ' terunduh (' + fmtBytes(blob.size) + ').</span>');
           T.toast(fmt.toUpperCase() + ' terunduh');
@@ -208,20 +250,21 @@ export function render(root) {
       const cancelBtn = T.btn('Batalkan', () => { cancelFFmpeg(); });
       cancelBtn.hidden = true;
       [sIn, eIn, fiIn, foIn].forEach((i) => i.addEventListener('input', refresh));
-      fmtSel.addEventListener('change', refresh);
+      fmtSel.addEventListener('change', () => { fBitrate.hidden = fmtSel.value === 'wav'; refresh(); });
       wrap.appendChild(info);
       wrap.appendChild(canvas);
       wrap.appendChild(T.field('Ketuk gelombang untuk mengatur', clickSel, 'Ketuk di mana saja pada gelombang untuk memindah titik mulai atau titik selesai.'));
       wrap.appendChild(T.grid2(T.field('Mulai (detik)', sIn), T.field('Selesai (detik)', eIn)));
       wrap.appendChild(T.grid2(T.field('Fade masuk (detik, 0-5)', fiIn, 'Suara muncul pelan dari hening.'), T.field('Fade keluar (detik, 0-5)', foIn, 'Suara menghilang pelan di akhir.')));
-      wrap.appendChild(T.field('Format hasil', fmtSel, 'MP3 dan M4A memakai mesin unduhan ' + CORE_SIZE_LABEL + ' sekali di awal.'));
+      wrap.appendChild(T.field('Format hasil', fmtSel, 'MP3, M4A, dan OGG memakai mesin unduhan ' + CORE_SIZE_LABEL + ' sekali di awal. Mau konversi saja tanpa potong? Biarkan titik mulai 0 dan titik selesai di ujung.'));
+      wrap.appendChild(fBitrate);
       wrap.appendChild(T.row(playBtn, stopBtn, dlBtn, cancelBtn));
       wrap.appendChild(barWrap);
       wrap.appendChild(outBox);
-      wrap.appendChild(T.el('<p class="hint">Semua proses jalan lokal di browser, file tidak di-upload ke mana pun. Export WAV menghasilkan WAV 16-bit dan langsung jadi tanpa mesin tambahan.</p>'));
+      wrap.appendChild(T.el('<p class="hint">Semua proses jalan lokal di browser, file tidak di-upload ke mana pun. Export WAV menghasilkan WAV 16-bit dan langsung jadi tanpa mesin tambahan. File video (MP4/WebM) diekstrak dulu audionya, lalu bisa dipotong seperti biasa.</p>'));
       requestAnimationFrame(refresh);
     });
-    root.appendChild(T.field('Pilih file audio', file, 'MP3, WAV, OGG, M4A…'));
+    root.appendChild(T.field('Pilih file audio atau video', file, 'Audio: MP3, WAV, OGG, M4A… Video: MP4, WebM, MOV — audionya diekstrak otomatis.'));
     root.appendChild(wrap);
   
 }

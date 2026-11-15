@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.11.5';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"markdown-ke-pdf","name":"Markdown ke PDF","cat":"converter","icon":"📝","desc":"Ubah tulisan Markdown jadi PDF A4 dengan pratinjau dulu.","keywords":"markdown,pdf,dokumen,tulisan,md,a4","since":"6.11.0"};
 
@@ -87,10 +87,31 @@ export function render(root) {
     return pdfLibsOk;
   };
 
-  const parse = (md) => {
-    if (markedOk && window.marked) return window.marked.parse(md);
-    return miniMd(md);
+  /* Bersihkan HTML hasil Markdown sebelum innerHTML (T04 S1/S2): marked
+     tidak menyaring HTML mentah — <img onerror> dari Markdown tempel bisa
+     jalan di origin situs. Pola sama seperti sanitizeEmailHtml di genmail. */
+  const sanitizeHtml = (raw) => {
+    const doc = new DOMParser().parseFromString(String(raw || ''), 'text/html');
+    doc.querySelectorAll('script,style,iframe,object,embed,form,link,meta,base').forEach((n) => n.remove());
+    doc.querySelectorAll('*').forEach((n) => {
+      [...n.attributes].forEach((a) => {
+        if (/^on/i.test(a.name)) n.removeAttribute(a.name);
+        if ((a.name === 'src' || a.name === 'href') && /^\s*javascript:/i.test(a.value)) n.removeAttribute(a.name);
+      });
+    });
+    doc.querySelectorAll('a[href]').forEach((a) => {
+      const href = a.getAttribute('href') || '';
+      if (/^(https?:|mailto:)/i.test(href)) { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); }
+      else a.removeAttribute('href');
+    });
+    doc.querySelectorAll('img').forEach((img) => {
+      const src = img.getAttribute('src') || '';
+      if (!/^(https?:|data:image\/)/i.test(src)) img.removeAttribute('src');
+      img.style.maxWidth = '100%';
+    });
+    return doc.body.innerHTML;
   };
+  const parse = (md) => sanitizeHtml(markedOk && window.marked ? window.marked.parse(md) : miniMd(md));
 
   const pratinjau = async () => {
     const md = ta.value.trim();
@@ -101,7 +122,7 @@ export function render(root) {
     simpleMode = !ok;
     prev.innerHTML = parse(md);
     T.show(box, simpleMode
-      ? '<p class="hint">Pustaka Markdown tidak bisa dimuat (koneksi bermasalah), jadi pratinjau memakai parser sederhana. Heading, tebal, miring, list, dan kode tetap jalan.</p>'
+      ? '<p class="hint">Alat Markdown tidak bisa dimuat (koneksi bermasalah), jadi pratinjau memakai cara sederhana. Judul, tebal, miring, daftar, dan kode tetap tampil.</p>'
       : '<p class="hint">Pratinjau di atas adalah tampilan yang masuk ke PDF.</p>');
     T.scrollToPreview(prev);
   };
@@ -110,10 +131,10 @@ export function render(root) {
     const md = ta.value.trim();
     if (!md) { T.show(box, errBox('Tulis Markdown dulu.')); return; }
     if (md.length > MAX_MD) { T.show(box, errBox('Tulisan terlalu panjang (maksimal ' + (MAX_MD / 1000) + ' ribu karakter).')); return; }
-    T.show(box, '<span class="dim">Memuat pustaka PDF…</span>');
+    T.show(box, '<span class="dim">Menyiapkan alat PDF…</span>');
     await ensureMarked();
     const ok = await ensurePdfLibs();
-    if (!ok) { T.show(box, errBox('Gagal memuat pustaka PDF dari internet. Periksa koneksi, lalu coba lagi.')); return; }
+    if (!ok) { T.show(box, errBox('Alat PDF tidak bisa dimuat dari internet. Periksa koneksi, lalu coba lagi.')); return; }
     prev.innerHTML = parse(md);
     const stage = document.createElement('div');
     stage.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#ffffff;color:#111111;padding:40px 48px;box-sizing:border-box;font-family:sans-serif;font-size:15px;line-height:1.7';
@@ -141,7 +162,7 @@ export function render(root) {
       const blob = doc.output('blob');
       const url = URL.createObjectURL(blob);
       T.show(box, kv('Halaman', pages + ' halaman A4') + kv('Ukuran file', fmtBytes(blob.size)) +
-        (simpleMode ? '<p class="hint">Dibuat dengan parser sederhana karena pustaka Markdown tidak termuat.</p>' : ''));
+        (simpleMode ? '<p class="hint">Dibuat dengan cara sederhana karena alat Markdown tidak termuat.</p>' : ''));
       box.appendChild(T.row(T.btn('Unduh PDF', () => {
         const a = document.createElement('a');
         a.href = url; a.download = 'dokumen.pdf';
@@ -149,7 +170,7 @@ export function render(root) {
       }, true)));
       T.toast('PDF jadi, ' + pages + ' halaman');
     } catch (e) {
-      T.show(box, errBox('Gagal membuat PDF. Coba sederhanakan isi tulisannya.'));
+      T.show(box, errBox('PDF tidak bisa dibuat. Coba sederhanakan isi tulisannya.'));
     } finally {
       stage.remove();
     }
@@ -159,8 +180,8 @@ export function render(root) {
     ta.value = '# Catatan Rapat\n\n**Tanggal:** Senin, 16 November 2026\n\n## Yang dibahas\n\n- Stok minggu ini aman\n- Promo akhir bulan disiapkan\n- Jadwal kirim diatur ulang\n\n## Tindak lanjut\n\n1. Cek harga pemasok\n2. Hubungi pelanggan yang menunggu\n\n> Semua poin di atas perlu selesai minggu ini.';
   });
 
-  root.appendChild(T.el('<p class="note">Diproses di browser. Pustaka Markdown dan PDF dimuat sekali dari internet saat tombol ditekan.</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Tulis dengan format Markdown (judul pakai #, tebal pakai **, list pakai -), lihat pratinjaunya, lalu unduh PDF A4.</p>'));
+  root.appendChild(T.el('<p class="note">Diproses di browser. Alat Markdown dan PDF dimuat sekali dari internet saat tombol ditekan.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Tulis dengan format Markdown (judul pakai #, tebal pakai **, daftar pakai -), lihat pratinjaunya, lalu unduh PDF A4.</p>'));
   root.appendChild(T.field('Tulisan Markdown', ta));
   root.appendChild(T.row(contohBtn));
   root.appendChild(T.row(T.btn('Lihat pratinjau', pratinjau), T.btn('Buat PDF', buatPdf, true)));

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 function hex2rgb(hex) {
   let h = String(hex || '').trim().replace('#', '');
@@ -35,7 +35,7 @@ export function render(root) {
 
     const hitung = () => {
       const a = hex2rgb(t1.value) || hex2rgb(c1.value), b = hex2rgb(t2.value) || hex2rgb(c2.value);
-      if (!a || !b) { T.show(box, '<p class="warn">Format warna tidak valid. Pakai hex, cth: #1e3a8a.</p>'); return; }
+      if (!a || !b) { T.show(box, '<p class="warn">Format warnanya tidak benar. Pakai kode warna, contoh: #1e3a8a.</p>'); return; }
       const ha = '#' + a.map((n) => n.toString(16).padStart(2, '0')).join('');
       const hb = '#' + b.map((n) => n.toString(16).padStart(2, '0')).join('');
       const L1 = lum(a), L2 = lum(b);

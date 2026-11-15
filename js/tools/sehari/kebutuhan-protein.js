@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 // Rentang protein gram per kg berat badan per hari, dari panduan umum:
 // AKG Kemenkes (0,8 g/kg untuk dewasa sehat), ACSM dan ISSN (1,2-2,2 g/kg
@@ -24,7 +24,7 @@ export function render(root) {
     const calc = () => {
       const b = T.num(berat.value);
       if (!(b > 0)) {
-        T.show(box, '<span class="err">Isi berat badan dengan angka yang valid.</span>');
+        T.show(box, '<span class="err">Isi berat badan dengan angka yang benar.</span>');
         return;
       }
       const row = LEVEL.find(([v]) => v === level.value) || LEVEL[0];

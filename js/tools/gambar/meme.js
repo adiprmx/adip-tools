@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "meme", "name": "Meme Generator", "cat": "gambar", "icon": "😂", "desc": "Bikin meme teks atas-bawah + unduh PNG.", "keywords": "meme,lucu,gambar,teks"};
 export function render(root) {
@@ -82,7 +82,7 @@ export function render(root) {
     async function onFile() {
       if (!fileI.files[0]) return;
       try { img = await loadImage(fileI.files[0]); tpl.value = ''; }
-      catch (e) { T.toast('File bukan gambar yang valid'); return; }
+      catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
       draw();
     }
     fileI.addEventListener('change', onFile);
@@ -91,21 +91,21 @@ export function render(root) {
 
     const dlB = T.btn('Unduh PNG', async () => {
       const blob = await canvasToBlob(canvas, 'image/png');
-      if (!blob) { T.toast('Gagal membuat gambar'); return; }
+      if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
       T.dl('meme.png', blob, 'image/png');
       T.toast('Meme berhasil diunduh');
     }, true);
 
     root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-    root.appendChild(T.field('Upload foto (opsional)', fileI));
-    root.appendChild(T.field('Atau pakai background warna', tpl));
+    root.appendChild(T.field('Pilih foto (opsional)', fileI));
+    root.appendChild(T.field('Atau pakai latar warna', tpl));
     root.appendChild(T.grid2(
       T.field('Teks atas', topT),
       T.field('Teks bawah', botT)
     ));
     const sRow = T.el('<div class="row"></div>');
     sRow.appendChild(sizeR); sRow.appendChild(sizeV);
-    root.appendChild(T.field('Ukuran font', sRow));
+    root.appendChild(T.field('Ukuran huruf', sRow));
     root.appendChild(T.row(dlB));
     root.appendChild(box);
     box.appendChild(canvas);

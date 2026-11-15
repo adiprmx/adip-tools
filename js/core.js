@@ -26,6 +26,7 @@ export const cats = [
   ['produktivitas', 'Produktivitas'],
   ['pelajar', 'Pelajar'],
   ['liveapi', 'Live API'],
+  ['fakesos', 'Fake Sosmed'],
 ];
 
 /** Registry semua tool — diisi modul tools via tools.push({...}). */
@@ -51,6 +52,7 @@ export function toast(msg) {
   if (!n) {
     n = document.createElement('div');
     n.className = 'toast';
+    n.setAttribute('role', 'status');
     document.body.appendChild(n);
   }
   n.textContent = msg;
@@ -96,7 +98,7 @@ export function num(v) {
   let s = String(v == null ? '' : v).trim().replace(/\s/g, '');
   if (!s) return NaN;
   if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
-  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  else if (/^[+-]?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
   const n = Number(s);
   return n;
 }
@@ -149,7 +151,9 @@ export function ta(rows, placeholder, value) {
 }
 
 export function out() {
-  return el('<div class="out" hidden></div>');
+  const d = el('<div class="out" hidden></div>');
+  d.setAttribute('aria-live', 'polite');
+  return d;
 }
 export function show(box, html) {
   box.hidden = false;
@@ -238,7 +242,7 @@ export function actx() {
     const AC = window.AudioContext || window.webkitAudioContext;
     _actx = new AC();
   }
-  if (_actx.state === 'suspended') _actx.resume();
+  if (_actx.state === 'suspended') { const r = _actx.resume(); if (r && r.catch) r.catch(() => {}); }
   return _actx;
 }
 export function beep(freq, dur, type, delay) {
@@ -254,18 +258,22 @@ export function beep(freq, dur, type, delay) {
   } catch (e) { /* audio tidak tersedia */ }
 }
 
-// Muat script CDN sekali, resolve true/false
+// Muat script CDN sekali, resolve true/false.
+// Janji disimpan (bukan status string): pemanggil bersamaan ikut menunggu
+// janji yang sama, dan kegagalan tidak di-cache — tombol "Coba Lagi" bisa
+// mencoba jaringan lagi (T02 B2, v6.12.0).
 const _loaded = {};
 export function loadScript(src) {
-  if (_loaded[src]) return Promise.resolve(_loaded[src] === 'ok');
-  _loaded[src] = 'loading';
-  return new Promise((resolve) => {
+  if (_loaded[src]) return _loaded[src];
+  const p = new Promise((resolve) => {
     const s = document.createElement('script');
     s.src = src; s.async = true;
-    s.onload = () => { _loaded[src] = 'ok'; resolve(true); };
-    s.onerror = () => { _loaded[src] = 'fail'; resolve(false); };
+    s.onload = () => resolve(true);
+    s.onerror = () => { delete _loaded[src]; resolve(false); };
     document.head.appendChild(s);
   });
+  _loaded[src] = p;
+  return p;
 }
 
 /** Namespace kompatibel pola lama (const T = NS.h) — cukup import { h as T }. */
@@ -273,6 +281,7 @@ export const h = {
   el, esc, btn, field, input, select, ta, out, show, hide,
   copy, copyBtn, dl, dlBtn, toast, row, grid2, onLeave,
   fmt, rp, num, actx, beep, loadScript, sysbar, scrollToPreview,
+  calcResult, nextSteps, zipFiles, dlZip, zipBtn, crc32,
 };
 
 /* ---- Status bar HP per platform & merk (dipakai tool fake sosmed) ----
@@ -571,7 +580,7 @@ utils.dlUrl = async function (url, filename) {
     dl(filename || 'hasil', b, b.type || 'application/octet-stream');
     return true;
   } catch (e) {
-    try { window.open(url, '_blank', 'noopener'); return true; }
+    try { const w = window.open(url, '_blank', 'noopener'); if (!w) { toast('Gagal mengunduh — izinkan popup untuk situs ini'); return false; } return true; }
     catch (e2) { toast('Gagal mengunduh'); return false; }
   }
 };
@@ -836,16 +845,15 @@ AL.customPalettes = {
 AL.history = {
   key: 'adip-alight-history-v1', limit: 10,
   _all() { try { const o = JSON.parse(localStorage.getItem(this.key) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } },
-  _save(o) { try { localStorage.setItem(this.key, JSON.stringify(o)); } catch (e) {} },
+  _save(o) { try { localStorage.setItem(this.key, JSON.stringify(o)); return true; } catch (e) { return false; } },
   list(toolId) { return this._all()[toolId] || []; },
   push(toolId, entry) {
     const all = this._all();
     const arr = [Object.assign({ id: 'h' + Date.now().toString(36), at: Date.now() }, entry)]
       .concat(all[toolId] || []).slice(0, this.limit);
-    try { this._save(Object.assign(all, { [toolId]: arr })); }
-    catch (e) { // kuota penuh: simpan metadata saja
+    if (!this._save(Object.assign(all, { [toolId]: arr }))) { // kuota penuh: simpan metadata saja
       const slim = arr.map(({ xml, ...m }) => m);
-      try { this._save(Object.assign(all, { [toolId]: slim })); } catch (e2) {}
+      this._save(Object.assign(all, { [toolId]: slim }));
     }
   },
   remove(toolId, id) { const all = this._all(); all[toolId] = (all[toolId] || []).filter((e) => e.id !== id); this._save(all); },
@@ -1060,7 +1068,7 @@ AL.paletteUI = (state, onChange) => {
       '.al-sw{display:flex;height:22px;border-radius:5px;overflow:hidden}' +
       '.al-nm{display:block;font-size:10.5px;color:#c9bda9;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
       '.al-del{font-style:normal;color:#ef4444;margin-left:4px;font-size:13px}</style>';
-    wrap.querySelector('[data-m]').addEventListener('change', (e) => { state.mode = e.target.value; state.customId = state.customId; draw(); onChange(state); });
+    wrap.querySelector('[data-m]').addEventListener('change', (e) => { state.mode = e.target.value; draw(); onChange(state); });
     const ri = wrap.querySelector('[data-r]');
     if (ri) ri.addEventListener('change', (e) => { state.repeatEvery = Math.max(1, Math.min(12, +e.target.value || 1)); onChange(state); });
     wrap.querySelectorAll('[data-i]').forEach((b) => b.addEventListener('click', () => {
@@ -1119,7 +1127,8 @@ AL.historyUI = (toolId, onPick) => {
 
 /* ================= REPLIKA R2 (12 Okt 2026, manual) =================
    Shared loader engine hapus-background @imgly/background-removal 1.7.0
-   (MIT, tanpa key, 100% client-side). Dipakai 2 tool: nexoraautocut &
+   (AGPL-3.0 — dulu salah dilabeli MIT; lihat LICENSES.md,
+   tanpa key, 100% client-side). Dipakai 2 tool: nexoraautocut &
    removebg — per kontrak Fase 2 fungsi dipakai >1 tool tinggal di core.js.
    Dynamic import (bukan import statis) agar check-tools & halaman lain
    tidak ikut memuat WASM. */
@@ -1189,3 +1198,173 @@ AL.vectorizeText = (s, fontCss, px, pad, smooth, bx, by, shear) => {
   const moved = polys.map((poly) => poly.map((p) => [p[0] + dx + sh * p[1], p[1] + dy]));
   return { d: AL.polysToPath(moved, smooth !== false), advance: r.advance, w: r.w, h: r.h };
 };
+
+/* ================= v6.12.0 — pola hasil kalkulator, rantai antar-tool, ZIP =================
+   Dari riset 13 Nov 2026 bagian 3 (ide UX #6, #7, #11, #13). Ditulis manual —
+   bukan bagian auto-generated split-tools.py. */
+
+/* --- Pola hasil Calculator.net (ide UX #6) ---
+   Form di atas (punya tool sendiri), lalu hasil: angka besar + tabel rincian
+   + penjelasan bahasa sederhana + asumsi/batasan. Dipakai tool kalkulator
+   di dalam render() setelah menghitung, mis.:
+     const box = T.out();
+     T.show(box, '');
+     box.appendChild(T.calcResult({
+       big: T.rp(total), label: 'Total yang harus dibayar',
+       rows: [['Pokok', T.rp(pokok)], ['Bunga', T.rp(bunga)]],
+       explain: 'Dari Rp5.000.000 yang kamu pinjam, ...',
+       note: 'Bunga diasumsikan tetap selama tenor.',
+       actions: [T.copyBtn(() => '...', 'Salin hasil')],
+     }));
+   big/label/explain/note di-escape (teks polos); rows memakai kvRows yang
+   juga meng-escape kunci & nilai. actions: elemen DOM opsional (tombol dsb). */
+export function calcResult(o) {
+  o = o || {};
+  const wrap = el('<div></div>');
+  let html = '';
+  if (o.big != null && String(o.big) !== '') {
+    html += '<div class="center" style="padding:12px 8px 4px"><div class="big">' + esc(o.big) + '</div>'
+      + (o.label ? '<div class="hint" style="margin-top:4px">' + esc(o.label) + '</div>' : '') + '</div>';
+  }
+  const rows = (Array.isArray(o.rows) ? o.rows : []).filter((r) => Array.isArray(r) && r.length >= 2);
+  if (rows.length) html += kvRows(rows);
+  if (o.explain) html += '<p style="font-size:13.5px;line-height:1.65;margin:12px 2px 0">' + esc(o.explain) + '</p>';
+  if (o.note) html += '<p class="hint" style="margin:10px 2px 0;line-height:1.6"><b style="color:var(--mut)">Asumsi &amp; batasan:</b> ' + esc(o.note) + '</p>';
+  wrap.innerHTML = html;
+  if (Array.isArray(o.actions) && o.actions.length) {
+    const rw = row(...o.actions.filter(Boolean));
+    rw.style.marginTop = '12px';
+    wrap.appendChild(rw);
+  }
+  return wrap;
+}
+
+/* --- Rantai antar-tool (ide UX #7) ---
+   Shell menampilkan rantai otomatis di halaman tool (peta NEXT di app.js).
+   Tool yang mau menaruh rantai DI DALAM area hasilnya — tepat setelah user
+   selesai menghitung/memproses — bisa memanggil helper ini sendiri:
+     box.appendChild(T.nextSteps([
+       { id: 'ubah-ukuran-foto', icon: '🖼️', name: 'Ubah Ukuran Foto', desc: 'Kecilkan dimensinya' },
+     ]));
+   id hanya boleh [a-z0-9-] (selain itu item dilewati) supaya href aman.
+   Maks 4 item yang ditampilkan. */
+export function nextSteps(items) {
+  const list = (Array.isArray(items) ? items : []).filter((it) => it && /^[a-z0-9-]+$/.test(it.id || '')).slice(0, 4);
+  const wrap = el('<div style="margin-top:16px"></div>');
+  if (!list.length) return wrap;
+  wrap.innerHTML = '<div style="font-weight:700;font-size:14px;margin-bottom:8px">Lanjut ke</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' + list.map((it) =>
+      '<a href="#/t/' + it.id + '" style="display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-decoration:none;color:inherit;background:var(--surface)">'
+      + '<span style="font-size:20px;flex:none">' + esc(it.icon || '🧰') + '</span>'
+      + '<span style="min-width:0"><span style="display:block;font-weight:650;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(it.name || it.id) + '</span>'
+      + (it.desc ? '<span class="hint" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(it.desc) + '</span>' : '')
+      + '</span></a>').join('') + '</div>';
+  return wrap;
+}
+
+/* --- Batch + unduh ZIP (ide UX #11) ---
+   ZIP "store" (tanpa kompresi) murni JavaScript — tanpa library, tanpa CDN,
+   jadi tetap jalan offline. Cocok untuk batch gambar/PDF/audio yang memang
+   sudah terkompresi (ukuran ZIP ≈ jumlah ukuran file). Untuk teks mentah
+   yang ingin dikecilkan, pakai JSZip via CDN bila perlu (DEFLATE).
+   files: [{ name: 'a.png', data: Blob | string | ArrayBuffer | Uint8Array }]
+   Nama boleh mengandung subfolder ('foto/a.png'); '..' dan '/' di awal dibuang. */
+const _CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+export function crc32(u8) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < u8.length; i++) c = _CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function _dosDateTime(d) {
+  const y = Math.max(1980, d.getFullYear());
+  return {
+    time: ((d.getHours() & 31) << 11) | ((d.getMinutes() & 63) << 5) | ((d.getSeconds() >> 1) & 31),
+    date: (((y - 1980) & 127) << 9) | (((d.getMonth() + 1) & 15) << 5) | (d.getDate() & 31),
+  };
+}
+function _zipName(name) {
+  const n = String(name || '').replace(/\\/g, '/').split('/').filter((p) => p && p !== '.' && p !== '..').join('/');
+  return (n || 'file').slice(0, 200);
+}
+export async function zipFiles(files) {
+  const list = Array.isArray(files) ? files : [];
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0, count = 0;
+  const dos = _dosDateTime(new Date());
+  for (const f of list) {
+    if (!f || f.data == null) continue;
+    let data = f.data;
+    if (typeof data === 'string') data = enc.encode(data);
+    else if (typeof Blob !== 'undefined' && data instanceof Blob) data = new Uint8Array(await data.arrayBuffer());
+    else if (data instanceof ArrayBuffer) data = new Uint8Array(data);
+    else if (!(data instanceof Uint8Array)) continue;
+    const nameBytes = enc.encode(_zipName(f.name));
+    const crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true);
+    lh.setUint16(4, 20, true);       // versi minimum
+    lh.setUint16(6, 0x0800, true);   // nama UTF-8
+    lh.setUint16(8, 0, true);        // method 0 = store
+    lh.setUint16(10, dos.time, true);
+    lh.setUint16(12, dos.date, true);
+    lh.setUint32(14, crc, true);
+    lh.setUint32(18, data.length, true);
+    lh.setUint32(22, data.length, true);
+    lh.setUint16(26, nameBytes.length, true);
+    lh.setUint16(28, 0, true);
+    parts.push(lh.buffer, nameBytes, data);
+    const cd = new DataView(new ArrayBuffer(46));
+    cd.setUint32(0, 0x02014b50, true);
+    cd.setUint16(4, 20, true);       // versi pembuat
+    cd.setUint16(6, 20, true);       // versi minimum
+    cd.setUint16(8, 0x0800, true);
+    cd.setUint16(10, 0, true);
+    cd.setUint16(12, dos.time, true);
+    cd.setUint16(14, dos.date, true);
+    cd.setUint32(16, crc, true);
+    cd.setUint32(20, data.length, true);
+    cd.setUint32(24, data.length, true);
+    cd.setUint16(28, nameBytes.length, true);
+    cd.setUint32(42, offset, true);  // offset header lokal
+    central.push(cd.buffer, nameBytes);
+    offset += 30 + nameBytes.length + data.length;
+    count++;
+  }
+  const cdSize = central.reduce((a, p) => a + p.byteLength, 0);
+  const eocd = new DataView(new ArrayBuffer(22));
+  eocd.setUint32(0, 0x06054b50, true);
+  eocd.setUint16(8, count, true);
+  eocd.setUint16(10, count, true);
+  eocd.setUint32(12, cdSize, true);
+  eocd.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, eocd.buffer], { type: 'application/zip' });
+}
+export async function dlZip(filename, files) {
+  const list = (Array.isArray(files) ? files : []).filter((f) => f && f.name != null && f.data != null);
+  if (!list.length) { toast('Belum ada file untuk diunduh'); return false; }
+  try {
+    const blob = await zipFiles(list);
+    dl(filename || 'hasil.zip', blob, 'application/zip');
+    return true;
+  } catch (e) { toast('Gagal membuat ZIP. Coba lagi.'); return false; }
+}
+export function zipBtn(filename, getFiles, label) {
+  const b = btn(label || 'Unduh semua (ZIP)', null);
+  b.addEventListener('click', async () => {
+    const files = typeof getFiles === 'function' ? getFiles() : getFiles;
+    b.disabled = true;
+    const ok = await dlZip(filename, files);
+    if (ok) toast('ZIP diunduh');
+    b.disabled = false;
+  });
+  return b;
+}

@@ -1,4 +1,4 @@
-import { h as T, kv, esc, errBox, preHtml, tabs } from '../../core.js?v=6.11.5';
+import { h as T, kv, esc, errBox, preHtml, tabs } from '../../core.js?v=6.12.0';
 
 export const DATA_JENIS = [
   ['nama', 'Nama lengkap'],

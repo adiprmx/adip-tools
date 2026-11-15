@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "margin-markup", "name": "Margin vs Markup", "cat": "bisnis", "icon": "📊", "desc": "Bedain margin & markup, plus cari harga jual dari target.", "keywords": "margin,markup,modal,harga jual,profit,untung"};
 export function render(root) {
@@ -16,10 +16,10 @@ export function render(root) {
 
     const calc = () => {
       const modal = T.num(modalI.value);
-      if (!isFinite(modal) || modal <= 0) { T.toast('Isi modal yang valid dulu'); return; }
+      if (!isFinite(modal) || modal <= 0) { T.toast('Isi modalnya dengan benar dulu'); return; }
       if (modeSel.value === 'm1') {
         const jual = T.num(jualI.value);
-        if (!isFinite(jual) || jual <= 0) { T.toast('Isi modal & harga jual yang valid'); return; }
+        if (!isFinite(jual) || jual <= 0) { T.toast('Isi modal & harga jual dengan benar'); return; }
         const untung = jual - modal;
         const margin = (untung / jual) * 100;
         const markup = (untung / modal) * 100;
@@ -30,7 +30,7 @@ export function render(root) {
           '<p class="hint">Margin dibagi harga jual, markup dibagi modal — makanya markup selalu kelihatan lebih gede.</p>');
       } else if (modeSel.value === 'm2') {
         const mp = T.num(marginI.value);
-        if (!isFinite(mp) || mp < 0 || mp >= 100) { T.toast('Isi modal & target margin yang valid (margin < 100%)'); return; }
+        if (!isFinite(mp) || mp < 0 || mp >= 100) { T.toast('Isi modal & target margin dengan benar (margin < 100%)'); return; }
         const jual = modal / (1 - mp / 100);
         T.show(box,
           '<div class="big center">' + T.rp(jual) + '</div>' +
@@ -39,7 +39,7 @@ export function render(root) {
           '<p class="hint">Rumus: modal ÷ (1 − margin). Ini cara yang bener — bukan modal + 30%.</p>');
       } else {
         const mk = T.num(markupI.value);
-        if (!isFinite(mk) || mk < 0) { T.toast('Isi modal & target markup yang valid'); return; }
+        if (!isFinite(mk) || mk < 0) { T.toast('Isi modal & target markup dengan benar'); return; }
         const jual = modal * (1 + mk / 100);
         T.show(box,
           '<div class="big center">' + T.rp(jual) + '</div>' +

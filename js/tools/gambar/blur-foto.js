@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "blur-foto", "name": "Blur Foto (Sensor)", "cat": "gambar", "icon": "🫣", "desc": "Sensor area foto, atau blur latar potret otomatis.", "keywords": "blur,sensor,foto,pixel,privasi,latar,potret"};
 export function render(root) {
@@ -29,6 +29,27 @@ export function render(root) {
       ctx.imageSmoothingEnabled = true;
     }
 
+    function sensorArea(ctx, x, y, w, h, block) {
+      const gaya = gayaSel.value;
+      if (gaya === 'bar') {
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(x, y, w, h);
+        return;
+      }
+      if (gaya === 'blur') {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.clip();
+        ctx.filter = 'blur(' + Math.max(2, Math.round(block / 2)) + 'px)';
+        ctx.drawImage(off, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+        ctx.filter = 'none';
+        return;
+      }
+      pix(ctx, x, y, w, h, block);
+    }
+
     function render2() {
       if (!hasImg) return;
       const ctx = canvas.getContext('2d');
@@ -39,12 +60,12 @@ export function render(root) {
       }
       ctx.drawImage(off, 0, 0, canvas.width, canvas.height);
       const block = parseInt(sizeR.value, 10);
-      if (fullBlur) { pix(ctx, 0, 0, canvas.width, canvas.height, block * 2); return; }
+      if (fullBlur) { sensorArea(ctx, 0, 0, canvas.width, canvas.height, block * 2); return; }
       for (const r of rects) {
         const x = Math.max(0, Math.min(r.x, r.x + r.w)), y = Math.max(0, Math.min(r.y, r.y + r.h));
         const w = Math.abs(r.w), h = Math.abs(r.h);
         if (w < 4 || h < 4) continue;
-        pix(ctx, x, y, w, h, block);
+        sensorArea(ctx, x, y, w, h, block);
       }
       if (drag) {
         const x = Math.min(drag.x0, drag.x1), y = Math.min(drag.y0, drag.y1);
@@ -193,11 +214,18 @@ export function render(root) {
 
     // Panel per mode
     const panelSensor = T.el('<div></div>');
+    const gayaSel = T.select([['pixel', 'Kotak-kotak (pixelate)'], ['blur', 'Blur halus'], ['bar', 'Bar hitam polos']], 'pixel');
     const sRow = T.el('<div class="row"></div>');
     sRow.appendChild(sizeR); sRow.appendChild(sizeV);
-    panelSensor.appendChild(T.field('Kekuatan blur (ukuran pixel)', sRow));
+    const kekuatanField = T.field('Kekuatan sensor', sRow);
+    gayaSel.addEventListener('change', () => {
+      kekuatanField.style.display = gayaSel.value === 'bar' ? 'none' : '';
+      render2();
+    });
+    panelSensor.appendChild(T.field('Cara sensor', gayaSel, 'Bar hitam paling aman untuk menutupi tulisan atau wajah.'));
+    panelSensor.appendChild(kekuatanField);
     panelSensor.appendChild(T.row(bAll, bUndo, bClear));
-    panelSensor.appendChild(T.el('<p class="hint">Seret/drag di atas foto untuk menandai area yang disensor. Makin besar nilai pixel, makin kasar blur-nya.</p>'));
+    panelSensor.appendChild(T.el('<p class="hint">Seret/drag di atas foto untuk menandai area yang disensor. Makin besar nilainya, makin kuat sensornya.</p>'));
 
     const panelLatar = T.el('<div></div>');
     const lRow = T.el('<div class="row"></div>');

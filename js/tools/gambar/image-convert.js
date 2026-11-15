@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.0';
 
 // Canvas -> file BMP 24-bit (tanpa kompresi). Hanya butuh getImageData,
 // jadi bisa diuji di Node dengan canvas tiruan.
@@ -31,6 +31,52 @@ export function canvasKeBmp(canvas) {
   return new Blob([buf], { type: 'image/bmp' });
 }
 
+// Canvas -> file TIFF 24-bit tanpa kompresi (1 strip, little-endian).
+// Tag diurutkan menaik sesuai spesifikasi TIFF; hanya butuh getImageData,
+// jadi bisa diuji di Node dengan canvas tiruan.
+export function canvasKeTiff(canvas) {
+  const w = canvas.width, h = canvas.height;
+  const ctx = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, w, h).data;
+  const pxLen = w * h * 3;
+  const nTag = 10;
+  const pxOff = 8 + 2 + nTag * 12 + 4;
+  const bpsOff = pxOff + pxLen;
+  const buf = new ArrayBuffer(bpsOff + 6);
+  const dv = new DataView(buf);
+  dv.setUint8(0, 0x49); dv.setUint8(1, 0x49); // II (little-endian)
+  dv.setUint16(2, 42, true);
+  dv.setUint32(4, 8, true); // offset IFD
+  dv.setUint16(8, nTag, true);
+  const tag = (i, id, type, count, val) => {
+    const o = 10 + i * 12;
+    dv.setUint16(o, id, true);
+    dv.setUint16(o + 2, type, true);
+    dv.setUint32(o + 4, count, true);
+    if (type === 3 && count === 1) dv.setUint16(o + 8, val, true);
+    else dv.setUint32(o + 8, val, true);
+  };
+  tag(0, 256, 4, 1, w);        // ImageWidth
+  tag(1, 257, 4, 1, h);        // ImageLength
+  tag(2, 258, 3, 3, bpsOff);   // BitsPerSample [8,8,8]
+  tag(3, 259, 3, 1, 1);        // Compression: none
+  tag(4, 262, 3, 1, 2);        // Photometric: RGB
+  tag(5, 273, 4, 1, pxOff);    // StripOffsets
+  tag(6, 277, 3, 1, 3);        // SamplesPerPixel
+  tag(7, 278, 4, 1, h);        // RowsPerStrip
+  tag(8, 279, 4, 1, pxLen);    // StripByteCounts
+  tag(9, 284, 3, 1, 1);        // PlanarConfiguration: chunky
+  dv.setUint32(10 + nTag * 12, 0, true); // tidak ada IFD berikutnya
+  dv.setUint16(bpsOff, 8, true);
+  dv.setUint16(bpsOff + 2, 8, true);
+  dv.setUint16(bpsOff + 4, 8, true);
+  const px = new Uint8Array(buf, pxOff, pxLen);
+  for (let i = 0, j = 0; i < data.length; i += 4, j += 3) {
+    px[j] = data[i]; px[j + 1] = data[i + 1]; px[j + 2] = data[i + 2];
+  }
+  return new Blob([buf], { type: 'image/tiff' });
+}
+
 export const meta = {"id": "image-convert", "name": "Convert Gambar", "cat": "gambar", "icon": "🔁", "desc": "Convert WebP/JPG/PNG/HEIC/TIFF/AVIF/BMP/ICO/SVG di browser.", "keywords": "convert,gambar,webp,jpg,png,format,heic,tiff,avif,bmp,ico,svg"};
 export function render(root) {
 
@@ -54,7 +100,7 @@ export function render(root) {
 
       const fileI = fileInput('image/*,.heic,.heif,.tif,.tiff,.svg,.ico,.bmp,.avif');
       fileI.multiple = true;
-      const fmtSel = T.select([['jpeg', 'JPEG (.jpg)'], ['png', 'PNG'], ['webp', 'WebP'], ['avif', 'AVIF'], ['bmp', 'BMP'], ['ico', 'ICO (ikon)']], 'jpeg');
+      const fmtSel = T.select([['jpeg', 'JPEG (.jpg)'], ['png', 'PNG'], ['webp', 'WebP'], ['avif', 'AVIF'], ['bmp', 'BMP'], ['tiff', 'TIFF'], ['svg', 'SVG (foto dibungkus)'], ['ico', 'ICO (ikon)']], 'jpeg');
       const qRange = T.input('range'); qRange.min = '10'; qRange.max = '100'; qRange.value = '90';
       const qVal = T.el('<b>90%</b>');
       const box = T.out();
@@ -171,13 +217,28 @@ export function render(root) {
       }
 
       async function encodeHasil(canvas, fmt, q) {
-        if (fmt === 'bmp') {
+        if (fmt === 'bmp' || fmt === 'tiff') {
           const c = document.createElement('canvas');
           c.width = canvas.width; c.height = canvas.height;
           const ctx = c.getContext('2d');
           ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
           ctx.drawImage(canvas, 0, 0);
-          return { blob: canvasKeBmp(c), ext: 'bmp' };
+          return fmt === 'bmp'
+            ? { blob: canvasKeBmp(c), ext: 'bmp' }
+            : { blob: canvasKeTiff(c), ext: 'tiff' };
+        }
+        if (fmt === 'svg') {
+          // SVG di sini membungkus foto (data PNG), bukan mengubah jadi vektor.
+          const png = await canvasToBlob(canvas, 'image/png');
+          if (!png) throw new Error('gagal membuat SVG');
+          const dataUrl = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result);
+            r.onerror = () => rej(new Error('gagal membaca gambar'));
+            r.readAsDataURL(png);
+          });
+          const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + canvas.width + '" height="' + canvas.height + '" viewBox="0 0 ' + canvas.width + ' ' + canvas.height + '"><image width="100%" height="100%" href="' + dataUrl + '"/></svg>';
+          return { blob: new Blob([svg], { type: 'image/svg+xml' }), ext: 'svg' };
         }
         if (fmt === 'ico') return { blob: await canvasKeIco(canvas), ext: 'ico' };
         const mime = fmt === 'png' ? 'image/png' : fmt === 'webp' ? 'image/webp' : fmt === 'avif' ? 'image/avif' : 'image/jpeg';
@@ -262,10 +323,10 @@ export function render(root) {
       root.appendChild(T.field('Pilih gambar (bisa banyak sekaligus)', fileI, 'Masuk: JPG, PNG, WebP, GIF, BMP, AVIF, ICO, SVG, HEIC, TIFF. Maksimal ' + MAKS_JUMLAH + ' file.'));
       root.appendChild(T.grid2(
         T.field('Format tujuan', fmtSel),
-        T.field('Kualitas', (() => { const d = T.el('<div class="row"></div>'); d.appendChild(qRange); d.appendChild(qVal); return d; })(), 'Tidak berlaku untuk PNG, BMP, dan ICO.')
+        T.field('Kualitas', (() => { const d = T.el('<div class="row"></div>'); d.appendChild(qRange); d.appendChild(qVal); return d; })(), 'Tidak berlaku untuk PNG, BMP, TIFF, SVG, dan ICO.')
       ));
       root.appendChild(avifCatatan);
-      root.appendChild(T.el('<p class="dim" style="font-size:12px;line-height:1.5">Belum bisa menyimpan ke HEIC, TIFF, atau SVG, karena tidak ada pengubahnya di browser. Untuk foto jadi gambar vektor SVG, pakai <a href="#/t/imagevectorizer">Image Vectorizer</a>.</p>'));
+      root.appendChild(T.el('<p class="dim" style="font-size:12px;line-height:1.5">Belum bisa menyimpan ke HEIC, karena tidak ada pengubahnya di browser. SVG di sini membungkus foto (bukan vektor asli) — untuk foto jadi gambar vektor SVG, pakai <a href="#/t/imagevectorizer">Image Vectorizer</a>.</p>'));
       root.appendChild(T.row(
         T.btn('Convert', process, true),
         T.btn('Unduh Hasil', () => {

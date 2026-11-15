@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, money, kv } from '../../core.js?v=6.12.0';
 
 const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 function tambahBulan(y, m, n) {
@@ -9,7 +9,8 @@ function tambahBulan(y, m, n) {
 // Simulasi angsuran dengan pembayaran ekstra.
 // skema 'anuitas': cicilan tetap, bunga dari sisa pokok (ekstra memangkas bunga).
 // skema 'flat': total bunga tetap dari pokok awal (ekstra hanya memangkas tenor).
-// extraBln dibayar tiap bulan, extraThn tiap akhir tahun. Keduanya masuk ke pokok.
+// extraBln dibayar tiap bulan, extraThn tiap akhir tahun, extraSekali dibayar
+// sekali di bulan ke-extraSekaliBln. Semuanya masuk ke pokok.
 utils.kprSimulasi = function (o) {
   const pokok = Math.max(0, Number(o.pokok) || 0);
   const bungaPct = Math.max(0, Number(o.bunga) || 0);
@@ -18,6 +19,8 @@ utils.kprSimulasi = function (o) {
   const r = bungaPct / 100 / 12;
   const extraBln = Math.max(0, Number(o.extraBln) || 0);
   const extraThn = Math.max(0, Number(o.extraThn) || 0);
+  const extraSekali = Math.max(0, Number(o.extraSekali) || 0);
+  const extraSekaliBln = Math.max(1, Math.min(n, Math.round(Number(o.extraSekaliBln)) || 1));
   const skema = o.skema === 'flat' ? 'flat' : 'anuitas';
   const totalBungaFlat = pokok * bungaPct / 100 * tahun;
   const cicilan = skema === 'flat'
@@ -31,6 +34,7 @@ utils.kprSimulasi = function (o) {
     let ib = skema === 'flat' ? totalBungaFlat / n : sisa * r;
     let pb = cicilan - ib + extraBln;
     if (bulan % 12 === 0) pb += extraThn;
+    if (extraSekali > 0 && bulan === extraSekaliBln) pb += extraSekali;
     if (bulan === n || pb >= sisa) {
       pb = sisa;
       // Flat: total bunga sudah ditetapkan di awal, jadi sisa bunga yang belum
@@ -70,6 +74,8 @@ export function render(root) {
     ], 'anuitas');
     const extraBlnI = money(null, 'cth: 500000 (opsional)', '0');
     const extraThnI = money(null, 'cth: 5000000 (opsional)', '0');
+    const extraSekaliI = money(null, 'cth: 10000000 (opsional)', '0');
+    const extraSekaliBlnI = T.input('number', 'cth: 12', '12'); extraSekaliBlnI.inputMode = 'numeric';
     const mulaiI = T.input('month', '', ym);
     const pbbI = money(null, 'cth: 2000000 (opsional)', '0');
     const asuransiI = money(null, 'cth: 3000000 (opsional)', '0');
@@ -86,9 +92,12 @@ export function render(root) {
       const pokok = H - DP;
       const extraBln = T.num(extraBlnI.value) || 0;
       const extraThn = T.num(extraThnI.value) || 0;
+      const extraSekali = T.num(extraSekaliI.value) || 0;
+      const extraSekaliBln = Math.max(1, Math.round(T.num(extraSekaliBlnI.value)) || 1);
       const skema = skemaSel.value;
-      const r = utils.kprSimulasi({ pokok, bunga: b, tahun: thn, skema, extraBln, extraThn });
-      const dasar = (extraBln > 0 || extraThn > 0)
+      const r = utils.kprSimulasi({ pokok, bunga: b, tahun: thn, skema, extraBln, extraThn, extraSekali, extraSekaliBln });
+      const adaExtra = extraBln > 0 || extraThn > 0 || extraSekali > 0;
+      const dasar = adaExtra
         ? utils.kprSimulasiDasar({ pokok, bunga: b, tahun: thn, skema }) : null;
       const pbbThn = T.num(pbbI.value) || 0;
       const asrThn = T.num(asuransiI.value) || 0;
@@ -124,13 +133,13 @@ export function render(root) {
           '<td style="text-align:right">' + T.rp(Math.round(row.sisa)) + '</td></tr>';
       }
       T.show(tblBox,
-        '<h3 style="font-size:14px;margin:12px 0 6px">Tabel angsuran per tahun' + ((extraBln > 0 || extraThn > 0) ? ' (sudah termasuk pembayaran ekstra)' : '') + '</h3>' +
+        '<h3 style="font-size:14px;margin:12px 0 6px">Tabel angsuran per tahun' + (adaExtra ? ' (sudah termasuk pembayaran ekstra)' : '') + '</h3>' +
         '<div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse">' +
         '<tr style="opacity:.7"><th>Thn</th><th style="text-align:right">Pokok</th><th style="text-align:right">Bunga</th><th style="text-align:right">Sisa</th></tr>' +
         rows + '</table></div>' +
         '<p class="hint">Simulasi bunga tetap. Bank biasanya memakai bunga fixed beberapa tahun pertama lalu floating, jadi cicilan aktual bisa berubah. Pembayaran ekstra diasumsikan langsung memotong pokok tanpa denda pelunasan dipercepat, cek ketentuan bankmu.</p>');
     };
-    [harga, dp, tenor, bunga, extraBlnI, extraThnI, pbbI, asuransiI, pmiI].forEach((i) => i.addEventListener('input', hitung));
+    [harga, dp, tenor, bunga, extraBlnI, extraThnI, extraSekaliI, extraSekaliBlnI, pbbI, asuransiI, pmiI].forEach((i) => i.addEventListener('input', hitung));
     skemaSel.addEventListener('change', hitung);
     mulaiI.addEventListener('change', hitung);
 
@@ -148,6 +157,10 @@ export function render(root) {
       T.field('Pembayaran ekstra / bulan (Rp)', extraBlnI, 'Di luar cicilan, langsung memotong pokok')
     ));
     root.appendChild(T.field('Pembayaran ekstra / tahun (Rp)', extraThnI, 'Dibayar tiap akhir tahun, misal dari THR atau bonus'));
+    root.appendChild(T.grid2(
+      T.field('Pembayaran ekstra sekali (Rp)', extraSekaliI, 'Sekali bayar, misal dari hasil jual aset atau bonus besar'),
+      T.field('Dibayar di bulan ke-', extraSekaliBlnI, 'Bulan ke-1 = cicilan pertama')
+    ));
     root.appendChild(T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Biaya lain (opsional)</p>'));
     root.appendChild(T.grid2(
       T.field('PBB / tahun (Rp)', pbbI),

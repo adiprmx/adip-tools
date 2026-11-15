@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kalkulator-sewa-properti","name":"Kalkulator Sewa Properti","cat":"bisnis","icon":"🔑","desc":"Hitung hasil sewa properti: yield kotor dan bersih, uang masuk tiap bulan, dan lama balik modal.","keywords":"properti,sewa,kos,kontrakan,yield,rental,investasi,balik modal","since":"6.11.0"};
 

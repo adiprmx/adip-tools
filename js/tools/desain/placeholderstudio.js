@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.11.5';
+import { h as T, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "placeholderstudio", "name": "Placeholder Studio", "cat": "desain", "icon": "🖼️", "desc": "Generator gambar placeholder custom.", "keywords": "placeholder,gambar,dummy,wireframe,mockup"};
 
@@ -96,7 +96,7 @@ export function render(root) {
   const generate = () => {
     const w = Math.round(+wInp.value), h = Math.round(+hInp.value);
     if (!Number.isFinite(w) || !Number.isFinite(h) || w < 10 || h < 10 || w > 4000 || h > 4000) {
-      T.show(box, errBox('Ukuran tidak valid. Lebar & tinggi 10–4000 px.')); return;
+      T.show(box, errBox('Ukurannya tidak benar. Lebar & tinggi 10–4000 px.')); return;
     }
     const bg = normHex(bgInp.value), fg = normHex(fgInp.value);
     if (!bg || !fg) { T.show(box, errBox('Warna harus HEX valid.')); return; }
@@ -177,7 +177,7 @@ export function render(root) {
   urlPane.appendChild(T.row(T.btn('Buat URL Publik', () => {
     const w = Math.round(+cwInp.value), h = Math.round(+chInp.value);
     if (!Number.isFinite(w) || !Number.isFinite(h) || w < 10 || h < 10 || w > 4000 || h > 4000) {
-      T.show(urlOut, errBox('Ukuran tidak valid. Lebar & tinggi 10–4000 px.')); return;
+      T.show(urlOut, errBox('Ukurannya tidak benar. Lebar & tinggi 10–4000 px.')); return;
     }
     const bg = normHex(cbgInp.value), fg = normHex(cfgInp.value);
     if (!bg || !fg) { T.show(urlOut, errBox('Warna harus HEX valid.')); return; }

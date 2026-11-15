@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
 
 export const meta = {
   id: 'fake-achievement',
@@ -24,7 +24,8 @@ export function render(root) {
     '.fa-bgwords{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:800;letter-spacing:6px;color:#ffffff0d;user-select:none}' +
     /* Xbox: toast gelap tengah-atas */
     '.fa-xbox{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:min(88%,400px);background:#107C10;border-radius:8px;display:flex;align-items:center;gap:12px;padding:12px 14px;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.55)}' +
-    '.fa-xbox .fa-ava{width:52px;height:52px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:#0e5c0e}' +
+    '.fa-xbox .fa-ava{width:52px;height:52px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:#0e5c0e;overflow:hidden}' +
+    '.fa-xbox .fa-ava img{width:100%;height:100%;object-fit:cover;display:block}' +
     '.fa-xbox .fa-main{min-width:0;flex:1}' +
     '.fa-xbox .fa-kicker{font-size:13px;font-weight:700;letter-spacing:.4px;margin:0 0 3px;opacity:.95}' +
     '.fa-xbox .fa-title{font-size:16px;font-weight:700;margin:0;overflow-wrap:break-word}' +
@@ -32,14 +33,15 @@ export function render(root) {
     '.fa-xbox .fa-score{flex:none;font-size:20px;font-weight:800;background:#0a5a0a;border-radius:6px;padding:6px 9px;min-width:34px;text-align:center}' +
     /* Steam: toast kanan-bawah ala client desktop */
     '.fa-steam{position:absolute;right:18px;bottom:18px;width:min(80%,340px);background:#1b2838;border:1px solid #2a3f5a;border-radius:6px;display:flex;gap:12px;padding:12px 14px;color:#c7d5e0;box-shadow:0 8px 28px rgba(0,0,0,.6)}' +
-    '.fa-steam .fa-tic{flex:none;width:44px;height:44px;border-radius:6px;background:#2a3f5a;display:flex;align-items:center;justify-content:center;color:#a4d007}' +
+    '.fa-steam .fa-tic{flex:none;width:44px;height:44px;border-radius:6px;background:#2a3f5a;display:flex;align-items:center;justify-content:center;color:#a4d007;overflow:hidden}' +
+    '.fa-steam .fa-tic img,.fa-ps .fa-tic img{width:100%;height:100%;object-fit:cover;display:block}' +
     '.fa-steam .fa-main{min-width:0;flex:1}' +
     '.fa-steam .fa-kicker{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#a4d007;margin:0 0 3px}' +
     '.fa-steam .fa-title{font-size:15px;font-weight:700;color:#fff;margin:0;overflow-wrap:break-word}' +
     '.fa-steam .fa-sub{font-size:12.5px;margin:2px 0 0;color:#8f98a0;overflow-wrap:break-word}' +
     /* PS: toast kanan-atas */
     '.fa-ps{position:absolute;top:22px;right:18px;width:min(78%,330px);background:#003791;border-radius:8px;display:flex;gap:12px;padding:12px 14px;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.55)}' +
-    '.fa-ps .fa-tic{flex:none;width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}' +
+    '.fa-ps .fa-tic{flex:none;width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;overflow:hidden}' +
     '.fa-ps .fa-main{min-width:0;flex:1}' +
     '.fa-ps .fa-kicker{font-size:12px;font-weight:700;letter-spacing:.6px;margin:0 0 3px;opacity:.95}' +
     '.fa-ps .fa-title{font-size:15px;font-weight:700;margin:0;overflow-wrap:break-word}' +
@@ -54,6 +56,14 @@ export function render(root) {
   const scoreI = T.input('text', 'cth: 100', '100');
   const gayaI = T.select([['xbox', 'Xbox'], ['steam', 'Steam'], ['ps', 'PlayStation']], 'xbox');
 
+  const fi = fileInput('image/*');
+  let iconUrl = null;
+  fi.onchange = () => {
+    const f = fi.files && fi.files[0];
+    if (f) { iconUrl = URL.createObjectURL(f); draw(); }
+    fi.value = '';
+  };
+
   const ctl = T.el('<div class="fa-ctl"></div>');
   ctl.appendChild(T.field('Gaya notifikasi', gayaI));
   ctl.appendChild(T.field('Judul achievement', titleI));
@@ -64,9 +74,11 @@ export function render(root) {
   const btns = T.el('<div class="fa-btns"></div>');
   const screen = T.el('<div class="fa-screen"></div>');
 
+  btns.appendChild(T.btn('🖼️ Pilih ikon game', () => fi.click()));
+  btns.appendChild(T.btn('✕ Hapus ikon', () => { iconUrl = null; draw(); }));
   btns.appendChild(T.btn('🎲 Contoh', () => {
     titleI.value = 'Raja Begadang'; descI.value = 'Main sampai jam 3 pagi tanpa sadar waktu';
-    scoreI.value = '100'; gayaI.value = 'xbox';
+    scoreI.value = '100'; gayaI.value = 'xbox'; iconUrl = null;
     draw(); T.scrollToPreview(screen);
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(screen, 'fake-achievement.png'), true));
@@ -85,23 +97,24 @@ export function render(root) {
     const desc = T.esc(descI.value.trim());
     const score = T.esc(scoreI.value.trim() || '0');
     const gaya = gayaI.value;
+    const iconImg = iconUrl ? '<img src="' + T.esc(iconUrl) + '" alt="ikon game">' : '';
     let toast = '';
     if (gaya === 'xbox') {
       toast = '<div class="fa-xbox">' +
-        '<div class="fa-ava">' + ICO_XBOX + '</div>' +
+        '<div class="fa-ava">' + (iconImg || ICO_XBOX) + '</div>' +
         '<div class="fa-main"><p class="fa-kicker">Achievement unlocked</p>' +
         '<p class="fa-title">' + title + '</p>' +
         (desc ? '<p class="fa-sub">' + desc + '</p>' : '') + '</div>' +
         '<div class="fa-score">' + score + '</div></div>';
     } else if (gaya === 'steam') {
       toast = '<div class="fa-steam">' +
-        '<div class="fa-tic">' + ICO_TROPHY + '</div>' +
+        '<div class="fa-tic">' + (iconImg || ICO_TROPHY) + '</div>' +
         '<div class="fa-main"><p class="fa-kicker">Achievement Unlocked!</p>' +
         '<p class="fa-title">' + title + '</p>' +
         (desc ? '<p class="fa-sub">' + desc + '</p>' : '') + '</div></div>';
     } else {
       toast = '<div class="fa-ps">' +
-        '<div class="fa-tic">' + ICO_TROPHY + '</div>' +
+        '<div class="fa-tic">' + (iconImg || ICO_TROPHY) + '</div>' +
         '<div class="fa-main"><p class="fa-kicker">Trophy earned!</p>' +
         '<p class="fa-title">' + title + '</p>' +
         (desc ? '<p class="fa-sub">' + desc + '</p>' : '') + '</div>' +

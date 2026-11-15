@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.11.5';
+import { h as T, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "winquotes", "name": "Windows Quotes", "cat": "fun", "icon": "🪟", "desc": "Bikin gambar quote ala Windows Media Player.", "keywords": "windows,media player,quote,kutipan,meme,gambar"};
 

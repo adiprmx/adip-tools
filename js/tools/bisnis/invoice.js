@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 utils.invoiceCalc = function (items, discPct, taxPct) {
     let sub = 0;
@@ -109,6 +109,7 @@ export function render(root) {
         T.dl((noI.value || 'invoice') + '.html', html, 'text/html;charset=utf-8');
       }
 
+      root.appendChild(T.el('<p class="note">Buat invoice usaha sendiri: isi barang atau jasa, diskon dan pajak dihitung otomatis.</p>'));
       root.appendChild(T.grid2(T.field('Nama usaha', usahaI), T.field('No. invoice', noI)));
       root.appendChild(T.grid2(T.field('Tanggal', tglI), T.el('<div></div>')));
       root.appendChild(T.el('<b>Item</b>'));

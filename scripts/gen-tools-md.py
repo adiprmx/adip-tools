@@ -23,6 +23,19 @@ CAT_LABEL = {
 }
 
 
+def clean(text):
+    """Ratakan whitespace (termasuk newline) jadi satu spasi — desc/nama tool
+    boleh mengandung newline, dan newline di tengah baris bernomor akan
+    memecah daftar TOOLS.md."""
+    return ' '.join((text or '').split())
+
+
+def md_bold(text):
+    """Nama tool untuk di dalam **...**: escape '*' supaya markup bold tidak
+    rusak bila nama mengandung asterisk."""
+    return clean(text).replace('*', '\\*')
+
+
 def main():
     src = open(MANIFEST, encoding='utf-8').read()
     m = re.search(r"export const VERSION = '([^']+)'", src)
@@ -54,16 +67,17 @@ def main():
         label = CAT_LABEL.get(c, c.replace('-', ' ').title())
         out.append(f'\n## {label} ({len(cats[c])})\n')
         for i, t in enumerate(cats[c], 1):
-            desc = (t.get('desc') or '').strip()
-            out.append(f'{i}. **{t["name"]}** — {desc}' if desc
-                       else f'{i}. **{t["name"]}**')
+            desc = clean(t.get('desc'))
+            out.append(f'{i}. **{md_bold(t["name"])}** — {desc}' if desc
+                       else f'{i}. **{md_bold(t["name"])}**')
     out.append('\n## Cara menambah tool\n')
     out.append('1. Tambah file `js/tools/<kategori>/<id>.js` dengan '
                '`export const meta = { id, name, cat, icon, desc, keywords }` '
                'dan `export function render(...)`.')
-    out.append('2. Regenerate manifest: `node scripts/sync-manifest.js <versi>`.')
-    out.append('3. Regenerate daftar ini: `python3 scripts/gen-tools-md.py`.')
-    out.append('4. Cek konsistensi: `node scripts/check-tools.js`.')
+    out.append('2. Regenerate manifest: `node scripts/sync-manifest.js <versi>` '
+               '(otomatis ikut regenerate daftar ini, sitemap.xml, dan '
+               'llms.txt).')
+    out.append('3. Cek konsistensi: `node scripts/check-tools.js`.')
     out.append('')
     open(OUT, 'w', encoding='utf-8').write('\n'.join(out))
     print(f'TOOLS.md ditulis: {len(entries)} tool, {len(cats)} kategori, v{version}')

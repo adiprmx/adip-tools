@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
-import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
+import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"teks-di-foto","name":"Teks di Foto","cat":"gambar","icon":"🔤","desc":"Tambahkan tulisan ke foto.","keywords":"teks,foto,caption,meme,tulisan"};
 
@@ -82,16 +82,16 @@ export function render(root) {
   const muat = async () => {
     if (!fi.files[0]) { T.toast('Pilih foto dulu'); return; }
     try { img = await loadImage(fi.files[0]); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     redraw();
-    T.toast('Foto dimuat — ketik tulisannya');
+    T.toast('Foto sudah dipilih — ketik tulisannya');
   };
 
   const unduh = async () => {
-    if (!img) { T.toast('Muat foto dulu'); return; }
+    if (!img) { T.toast('Pilih foto dulu'); return; }
     redraw();
     const blob = await canvasToBlob(resCanvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat file'); return; }
+    if (!blob) { T.toast('Filenya tidak bisa dibuat. Coba lagi.'); return; }
     T.show(infoBox, '<div class="kv"><span>Ukuran hasil</span><b>' + resCanvas.width + '×' + resCanvas.height + ' px (' + fmtBytes(blob.size) + ')</b></div>');
     const base = (fi.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-teks.png', blob, 'image/png');
@@ -113,7 +113,7 @@ export function render(root) {
   sizeRow.appendChild(sizeR); sizeRow.appendChild(sizeV);
   const outRow = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer"></label>');
   outRow.appendChild(outC);
-  outRow.appendChild(T.el('<span>Outline hitam — biar tulisan kebaca di foto ramai</span>'));
+  outRow.appendChild(T.el('<span>Garis tepi hitam — biar tulisan kebaca di foto ramai</span>'));
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
   root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Bikin caption atau meme: ketik tulisan, pilih posisi, atur ukuran dan warnanya. Enter buat baris baru.</p>'));

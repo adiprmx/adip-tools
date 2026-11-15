@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"hitung-suku-kata","name":"Hitung Suku Kata","cat":"teks","icon":"🗣️","desc":"Estimasi suku kata per kata Bahasa Indonesia.","keywords":"suku kata,puisi,pantun,bahasa indonesia,hitung"};
 
@@ -35,6 +35,6 @@ export function render(root){
 
   root.appendChild(T.field('Teks',taIn,'Contoh: "makan" = 2, "Indonesia" = 4.'));
   root.appendChild(box);
-  root.appendChild(T.el('<div class="hint" style="margin-top:10px">Estimasi dengan heuristik gugus vokal + koreksi diftong (ai, au, oi). Berguna buat ngecek rima pantun &amp; puisi — hasil bukan fonetik sempurna ya.</div>'));
+  root.appendChild(T.el('<div class="hint" style="margin-top:10px">Perkiraan dari cara baca vokal + koreksi diftong (ai, au, oi). Berguna buat ngecek rima pantun &amp; puisi — hasilnya bukan hitungan fonetik yang sempurna ya.</div>'));
   hitung();
 }

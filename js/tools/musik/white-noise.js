@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "white-noise", "name": "White Noise", "cat": "musik", "icon": "🌧️", "desc": "Suara fokus & tidur.", "keywords": "noise,tidur,fokus,suara,hujan"};
 export function render(root) {
@@ -46,7 +46,8 @@ export function render(root) {
     };
     const start = () => {
       stop();
-      const c = T.actx();
+      let c;
+      try { c = T.actx(); } catch (e) { T.toast('Audio tidak tersedia di browser ini'); return; }
       const kind = jenis.value;
       const master = c.createGain();
       master.gain.value = (+vol.value / 100) * 0.6;

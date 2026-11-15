@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 // ---------- Logika murni (tanpa DOM, bisa diuji dari Node) ----------
 
@@ -249,7 +249,15 @@ export function render(root) {
       card.querySelector('p:nth-child(2)').textContent = baris.join(', ');
       box.appendChild(card);
     });
-    box.appendChild(T.row(T.copyBtn(() => teks.trim(), 'Salin Hasil')));
+    box.appendChild(T.row(
+      T.copyBtn(() => teks.trim(), 'Salin Hasil'),
+      T.btn('⬇️ Unduh TXT', () => {
+        const d = new Date();
+        const nama = 'pembagian-grup-' + d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + '.txt';
+        T.dl(nama, teks.trim(), 'text/plain');
+        T.toast('TXT terunduh');
+      })
+    ));
   };
 
   const bagi = () => {

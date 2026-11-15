@@ -1,4 +1,4 @@
-import { h as T, utils, dlNodePng } from '../../core.js?v=6.11.5';
+import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.0';
 
 const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
 
@@ -96,7 +96,7 @@ export function render(root) {
       });
     };
 
-    root.appendChild(T.el('<p class="note">Isi form di bawah, kwitansi rapi langsung jadi — terbilangnya ditulis otomatis, tinggal cetak atau bagikan.</p>'));
+    root.appendChild(T.el('<p class="note">Isi form di bawah, kwitansi rapi langsung jadi — terbilangnya ditulis otomatis, tinggal cetak atau bagikan. Untuk usaha sendiri.</p>'));
     root.appendChild(T.field('Nomor kwitansi (opsional)', nomorI));
     root.appendChild(T.field('Telah diterima dari', dariI, 'Nama orang yang membayar.'));
     root.appendChild(T.field('Untuk pembayaran', untukI, 'Pembayaran apa — cth: sewa kos, DP pesanan, les privat.'));

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "tes-sensor", "name": "Tes Sensor Gerak", "cat": "sehari", "icon": "🧭", "desc": "Cek sensor gerak HP: kemiringan, putaran, dan getaran.", "keywords": "sensor,accelerometer,giroskop,kemiringan,gerak", "since": "6.11.0"};
 

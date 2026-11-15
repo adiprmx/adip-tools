@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.11.5';
+import { h as T, utils, esc } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "github-profile", "name": "Profil GitHub", "cat": "liveapi", "icon": "🐙", "desc": "Lihat profil GitHub siapapun: avatar, bio, followers, repo.", "keywords": "github,profil,username,avatar,followers,repo,developer"};
 
@@ -46,6 +46,7 @@ export function render(root) {
         (d.location ? '<div class="kv"><span class="k">Lokasi</span><span class="v">' + esc(d.location) + '</span></div>' : '') +
         '</div>'
       );
+      T.show(box, '');
       box.appendChild(isi);
       const wrap = T.el('<div class="center" style="margin-top:12px"></div>');
       const a = document.createElement('a');

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"simulasi-skd-cpns","name":"Simulasi SKD CPNS","cat":"pelajar","icon":"🎓","desc":"Tryout singkat 30 soal ala CAT BKN: TWK, TIU, TKP dengan timer dan skor passing grade.","keywords":"cpns,skd,twk,tiu,tkp,tryout,simulasi,cat bkn,asn","since":"6.11.0"};
 

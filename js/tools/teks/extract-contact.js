@@ -1,6 +1,6 @@
-import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "extract-contact", "name": "Ekstrak Kontak", "cat": "teks", "icon": "📇", "desc": "Ambil email & nomor HP dari teks.", "keywords": "kontak,email,nomor,ekstrak"};
+export const meta = {"id": "extract-contact", "name": "Ambil Kontak", "cat": "teks", "icon": "📇", "desc": "Ambil email & nomor HP dari teks.", "keywords": "kontak,email,nomor,ekstrak"};
 export function render(root) {
 
       const taIn = T.ta(8, 'Tempel teks yang berisi email / nomor HP…');
@@ -30,7 +30,7 @@ export function render(root) {
 
       root.appendChild(T.el('<p class="note">Mendeteksi email umum dan nomor HP Indonesia (08xx, +62, 62xx). ' + T.esc(LOCAL_NOTE) + '</p>'));
       root.appendChild(T.field('Teks', taIn));
-      root.appendChild(T.btn('Ekstrak', extract, true));
+      root.appendChild(T.btn('Cari', extract, true));
       root.appendChild(box);
     
 }

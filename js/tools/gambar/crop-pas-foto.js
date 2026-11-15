@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
-import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
+import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop pas foto, ganti latar, lembar cetak 4R, cek kelayakan.","keywords":"pas foto,crop,ktp,lamaran,rasio,latar merah,lembar cetak"};
 
@@ -176,6 +176,17 @@ export function render(root) {
     // latar seragam: bila latar diganti, sudah pasti rata; bila asli, cek 4 sudut
     if (latar !== 'asli' && maskCanvas) {
       item.push([true, 'Latar ' + LATAR.find(([v]) => v === latar)[1].toLowerCase() + ' rata']);
+      // Posisi orang di dalam bingkai, dari kotak pembatas masker.
+      const kb = kotakMasker();
+      if (kb) {
+        const { bx, by, bw: cw, bh: ch } = daerahCrop();
+        const ix0 = Math.max(kb.x0, bx), ix1 = Math.min(kb.x1, bx + cw);
+        const iy0 = Math.max(kb.y0, by), iy1 = Math.min(kb.y1, by + ch);
+        const persen = Math.round(Math.max(0, iy1 - iy0) / ch * 100);
+        const tengahX = ((ix0 + ix1) / 2 - bx) / cw * 100;
+        item.push([persen >= 55 && persen <= 98, 'Orang mengisi ' + persen + '% tinggi bingkai' + (persen < 55 ? ' (terlalu kecil — pakai foto yang lebih dekat)' : persen > 98 ? ' (kepala atau bahu terpotong)' : '')]);
+        item.push([tengahX >= 35 && tengahX <= 65, 'Posisi orang ' + (tengahX >= 35 && tengahX <= 65 ? 'di tengah bingkai' : 'miring ke ' + (tengahX < 50 ? 'kiri' : 'kanan') + ' — geser fotonya')]);
+      }
     } else if (latar === 'asli') {
       item.push([null, 'Latar asli: pastikan latar fotomu polos dan tidak ramai']);
     }
@@ -184,6 +195,30 @@ export function render(root) {
       item.map(([ok, teks]) => '<div style="font-size:13px;line-height:1.5;padding:4px 0">' +
         (ok === null ? '<span style="color:#facc15">!</span> ' : ok ? '<span style="color:#86efac">✓</span> ' : '<span style="color:#fca5a5">✗</span> ') +
         T.esc(teks) + '</div>').join(''));
+  }
+
+  // Kotak pembatas orang dari masker, dalam koordinat foto asli (atau null).
+  function kotakMasker() {
+    if (!maskCanvas) return null;
+    const s = Math.min(1, 200 / Math.max(nw, nh));
+    const sw = Math.max(1, Math.round(nw * s)), sh = Math.max(1, Math.round(nh * s));
+    const c = document.createElement('canvas');
+    c.width = sw; c.height = sh;
+    const cx = c.getContext('2d');
+    cx.drawImage(maskCanvas, 0, 0, sw, sh);
+    let d;
+    try { d = cx.getImageData(0, 0, sw, sh).data; } catch (e) { return null; }
+    let x0 = sw, y0 = sh, x1 = -1, y1 = -1;
+    for (let y = 0; y < sh; y++) {
+      for (let x = 0; x < sw; x++) {
+        if (d[(y * sw + x) * 4] > 128) {
+          if (x < x0) x0 = x; if (x > x1) x1 = x;
+          if (y < y0) y0 = y; if (y > y1) y1 = y;
+        }
+      }
+    }
+    if (x1 < 0) return null;
+    return { x0: x0 / s, y0: y0 / s, x1: (x1 + 1) / s, y1: (y1 + 1) / s };
   }
 
   const muat = async () => {
@@ -240,6 +275,12 @@ export function render(root) {
     T.toast('Berhasil diunduh');
   };
 
+  const KERTAS = [
+    ['4R', '4R (4x6 inci)', 1200, 1800],
+    ['3R', '3R (3,5x5 inci)', 1050, 1500],
+  ];
+  const kertasSel = T.select(KERTAS.map(([v, l]) => [v, l]), '4R');
+
   const unduhLembar = async () => {
     if (!img) { T.toast('Muat foto dulu'); return; }
     if (latar !== 'asli' && !maskCanvas) {
@@ -247,8 +288,9 @@ export function render(root) {
       T.toast('Ganti latar belum berhasil, coba pilih latarnya lagi');
       return;
     }
-    // Kertas 4R (4x6 inci) pada 300 DPI = 1200x1800 px
-    const W = 1200, H = 1800, gap = 24, margin = 48;
+    // Kertas pada 300 DPI: 4R = 1200x1800 px, 3R = 1050x1500 px
+    const kertas = KERTAS.find(([v]) => v === kertasSel.value) || KERTAS[0];
+    const W = kertas[2], H = kertas[3], gap = 24, margin = 48;
     const satu = gambarHasil();
     const sw = satu.width, sh = satu.height;
     const cols = Math.max(1, Math.floor((W - margin * 2 + gap) / (sw + gap)));
@@ -265,11 +307,21 @@ export function render(root) {
         lx.drawImage(satu, x0 + c * (sw + gap), y0 + r * (sh + gap));
       }
     }
+    // Garis potong putus-putus di sekeliling tiap foto
+    lx.strokeStyle = '#999999';
+    lx.lineWidth = 2;
+    lx.setLineDash([10, 8]);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        lx.strokeRect(x0 + c * (sw + gap) - 1, y0 + r * (sh + gap) - 1, sw + 2, sh + 2);
+      }
+    }
+    lx.setLineDash([]);
     const blob = await canvasToBlob(lembar, 'image/jpeg', 0.92);
     if (!blob) { T.toast('Gagal membuat lembar cetak'); return; }
-    T.show(infoBox, '<div class="kv"><span>Lembar cetak</span><b>' + (cols * rows) + ' foto (' + cols + 'x' + rows + ') di kertas 4R, ' + fmtBytes(blob.size) + '</b></div>');
+    T.show(infoBox, '<div class="kv"><span>Lembar cetak</span><b>' + (cols * rows) + ' foto (' + cols + 'x' + rows + ') di kertas ' + kertas[0] + ', ' + fmtBytes(blob.size) + '</b></div>');
     const base = (fi.files[0].name || 'foto').replace(/\.[^.]*$/, '');
-    T.dl(base + '-lembar-cetak-4R.jpg', blob, 'image/jpeg');
+    T.dl(base + '-lembar-cetak-' + kertas[0] + '.jpg', blob, 'image/jpeg');
     T.toast('Lembar cetak berhasil diunduh');
   };
 
@@ -304,7 +356,8 @@ export function render(root) {
   root.appendChild(T.grid2(T.field('Latar belakang', latarSel), T.field('Kualitas cetak (DPI)', dpiSel)));
   root.appendChild(latarBox);
   root.appendChild(T.grid2(T.field('Format file', formatSel), T.field('Batas ukuran file (KB)', targetI, 'Hanya untuk JPG. Kosongkan bila tidak ada batas.')));
-  root.appendChild(T.row(T.btn('Unduh Pas Foto', unduh, true), T.btn('Unduh Lembar Cetak 4R', unduhLembar)));
+  root.appendChild(T.field('Kertas lembar cetak', kertasSel, 'Lembar cetak dilengkapi garis potong putus-putus di sekeliling tiap foto.'));
+  root.appendChild(T.row(T.btn('Unduh Pas Foto', unduh, true), T.btn('Unduh Lembar Cetak', unduhLembar)));
   root.appendChild(infoBox);
   root.appendChild(cekBox);
   root.appendChild(box);

@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "bingkai-foto", "name": "Bingkai Foto", "cat": "gambar", "icon": "🖼️", "desc": "Tambah bingkai warna ke foto, atur tebal & sudutnya.", "keywords": "bingkai,frame,border,foto,warna,tebal,sudut,png"};
 export function render(root) {
@@ -62,23 +62,23 @@ export function render(root) {
     function render2() {
         if (!hasImg) return;
         const ctx = ctx2d(canvas);
-        if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+        if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
         try {
             const s = Math.min(1, 900 / Math.max(off.width, off.height));
             const bw = Math.max(1, Math.round(off.width * s)), bh = Math.max(1, Math.round(off.height * s));
             canvas.width = bw + Math.round(parseInt(thickR.value, 10) * s) * 2;
             canvas.height = bh + Math.round(parseInt(thickR.value, 10) * s) * 2;
             drawFramed(ctx, bw, bh);
-        } catch (e) { T.toast('Gagal menggambar: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dibuat: ' + (e && e.message ? e.message : e)); }
     }
 
     async function onFile() {
         if (!fileI.files[0]) return;
         let img;
         try { img = await loadImage(fileI.files[0]); }
-        catch (e) { T.toast('File bukan gambar yang valid'); return; }
+        catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
         const ctx = ctx2d(off);
-        if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+        if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
         try {
             const s = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
             off.width = Math.max(1, Math.round(img.naturalWidth * s));
@@ -88,7 +88,7 @@ export function render(root) {
             render2();
             T.show(box, '');
             box.appendChild(canvas);
-        } catch (e) { T.toast('Gagal memuat gambar: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dimuat: ' + (e && e.message ? e.message : e)); }
     }
     fileI.addEventListener('change', onFile);
 
@@ -100,13 +100,13 @@ export function render(root) {
             c.width = off.width + t * 2;
             c.height = off.height + t * 2;
             const ctx = ctx2d(c);
-            if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+            if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
             drawFramed(ctx, off.width, off.height); // resolusi penuh
             const blob = await canvasToBlob(c, 'image/png');
-            if (!blob) { T.toast('Gagal membuat gambar'); return; }
+            if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
             T.dl('foto-bingkai.png', blob, 'image/png');
             T.toast('Berhasil diunduh');
-        } catch (e) { T.toast('Gagal: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Tidak bisa: ' + (e && e.message ? e.message : e)); }
     }, true);
 
     root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
@@ -123,7 +123,7 @@ export function render(root) {
     root.appendChild(T.field('Kebulatan sudut bingkai', rRow));
     root.appendChild(T.row(dlB));
     root.appendChild(box);
-    root.appendChild(T.el('<p class="hint">Bingkai ditambahkan di luar foto (ukuran foto tidak berubah). Preview tampil langsung setiap pengaturan diganti.</p>'));
+    root.appendChild(T.el('<p class="hint">Bingkai ditambahkan di luar foto (ukuran foto tidak berubah). Pratinjau tampil langsung setiap pengaturan diganti.</p>'));
     T.onLeave(() => { hasImg = false; });
 
 }

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"mockup-hp","name":"Mockup HP","cat":"desain","icon":"📱","desc":"Tempel screenshot ke bingkai HP, unduh PNG.","keywords":"mockup,hp,smartphone,screenshot,bingkai,phone,frame"};
 
@@ -105,7 +105,7 @@ export function render(root) {
     if (!lastCv) return;
     lastCv.toBlob((b) => {
       if (b) T.dl('mockup-hp.png', b, 'image/png');
-      else T.toast('Gagal bikin gambar, coba lagi');
+      else T.toast('Gambar tidak bisa dibuat, coba lagi');
     }, 'image/png');
   });
 
@@ -114,5 +114,5 @@ export function render(root) {
   root.appendChild(file);
   root.appendChild(box);
   root.appendChild(T.row(dlBtn));
-  root.appendChild(T.el('<p class="hint center">Screenshot tidak diupload ke mana-mana — semua dikerjakan di perangkatmu.</p>'));
+  root.appendChild(T.el('<p class="hint center">Screenshot tidak diunggah ke mana-mana — semua dikerjakan di perangkatmu.</p>'));
 }

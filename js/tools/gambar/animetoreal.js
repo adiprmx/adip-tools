@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"animetoreal","name":"Anime to Real","cat":"gambar","icon":"🧑‍🎨","desc":"Ubah ilustrasi anime jadi foto realistik via akun Puter milikmu.","keywords":"anime,realistik,foto,ai,konversi,puter"};
 
@@ -199,8 +199,13 @@ export function render(root) {
     if (!u) throw new Error('Pilih file atau tempel URL gambar dulu.');
     if (u.length > 4096 || !urlValid(u)) throw new Error('URL gambar tidak valid.');
     let r;
-    try { r = await fetch(u); }
-    catch (e) { throw new Error('URL tidak bisa diambil (kemungkinan diblokir CORS). Unduh gambarnya lalu upload sebagai file.'); }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    try { r = await fetch(u, { signal: ctrl.signal }); }
+    catch (e) {
+      if (e.name === 'AbortError') throw new Error('URL tidak merespons dalam 15 detik. Unduh gambarnya lalu upload sebagai file.');
+      throw new Error('URL tidak bisa diambil (kemungkinan diblokir CORS). Unduh gambarnya lalu upload sebagai file.');
+    } finally { clearTimeout(timer); }
     if (!r.ok) throw new Error('URL gambar tidak bisa diakses (HTTP ' + r.status + ').');
     const b = await r.blob();
     if (!/^image\//.test(b.type)) throw new Error('URL itu bukan file gambar langsung (terdeteksi: ' + (b.type || 'tak dikenal') + '). Pakai link file gambar, bukan halaman web.');

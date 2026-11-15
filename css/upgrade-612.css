@@ -1,0 +1,199 @@
+/* ============================================================
+   upgrade-612.css — Perbaikan frontend Adip Tools v6.12.0 (T01)
+   Dimuat TERAKHIR, setelah fx-joy.css. Aturan file ini:
+   - HANYA perbaikan aman: konsistensi komponen bersama +
+     responsif HP. Tanpa mengubah tampilan yang sudah disetujui.
+   - Tanpa warna/efek baru: semua nilai memakai token yang
+     sudah ada di style.css (:root). Tanpa framework, tanpa
+     backdrop-filter/glow (arah visual "Tenang" v6.1 dipertahankan:
+     permukaan solid, hairline, aksen coral hemat).
+   - Tanpa !important. Override mengandalkan urutan muat
+     (file terakhir menang pada spesifisitas yang sama).
+   CATATAN KONFLIK DESAIN (lihat laporan T01): brief tugas
+   menyebut "liquid glass, aksen PUTIH saja" — itu BERTENTANGAN
+   dengan design lock yang berlaku di style.css v6.1 ("Tenang":
+   solid, aksen coral #ff6f61 hemat; efek kaca v6.0 sengaja
+   dicabut karena terbaca template AI generik). File ini
+   mengikuti design lock yang berlaku di repo, bukan brief.
+   ============================================================ */
+
+/* ---------- 1. Chip filter (.fchip/.fchips, dipakai app.js) ----------
+   Sebelumnya: tanpa definisi CSS sama sekali; gaya hidup di
+   konstanta inline CHIP/CHIP_ON (app.js:654-655). Nilai di bawah
+   MENYALIN PERSIS konstanta itu — nol perubahan visual selama
+   inline style masih ada (inline selalu menang), tapi memberi
+   T07 jalan untuk menghapus konstanta inline nanti. Tambahan
+   satu-satunya: state :hover/:active (inline style tidak bisa),
+   mengikuti pola .schip yang sudah ada di style.css. */
+.fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.fchip {
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--mut);
+  cursor: pointer; border: 1px solid var(--line); border-radius: 999px;
+  padding: 8px 14px; background: var(--surface);
+  transition: transform 0.1s var(--ease), color 0.15s, border-color 0.15s;
+}
+.fchip:hover { color: var(--txt); border-color: var(--acc-line); }
+.fchip:active { transform: scale(0.94); }
+.fchip[aria-pressed="true"] {
+  color: var(--txt);
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- 2. Select: chevron yang hilang ----------
+   style.css:425 mematikan appearance native select.inp TANPA
+   memberi indikator dropdown — select tampil persis seperti
+   input teks (tidak ada affordance "bisa dibuka"). Chevron SVG
+   ini memakai warna --mut agar selaras, dan padding kanan
+   disesuaikan supaya teks tidak menabrak chevron. */
+select.inp {
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23c9bda9' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+/* ---------- 3. Range slider: sebelumnya tanpa gaya sama sekali ----------
+   29 pemakaian type="range" di tools mengandalkan tampilan
+   default browser (tidak konsisten antar browser/OS). Gaya ini
+   memakai token yang ada; tinggi total 44px = target sentuh. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -9px;
+  border-radius: 50%;
+  background: var(--txt);
+  border: 1px solid var(--line);
+}
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--txt);
+  border: 1px solid var(--line);
+}
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* ---------- 4. Tabel .tbl bisa di-scroll horizontal ----------
+   12+ file tool merender <table class="tbl"> langsung di alur
+   .tool TANPA pembungkus overflow (mis. cicilan.js:117,127;
+   banding-gaji.js; hitung-waris.js). Saat kolomnya lebih lebar
+   dari layar HP, tabel terpotong diam-diam (body overflow-x
+   hidden). display:block + overflow-x:auto membuat tabel yang
+   meluber bisa digeser; tabel yang muat tidak berubah apa pun. */
+table.tbl {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* ---------- 5. Media di dalam tool tidak boleh meluber ----------
+   canvas.prev sudah dibatasi style.css, tapi <img>/<video>/
+   <canvas> polos di 40+ file tool belum punya batas. Aturan ini
+   hanya membatasi yang LEBIH LEBAR dari wadahnya; <style> injeksi
+   milik tool sendiri (mis. avatar fakesos) punya spesifisitas
+   sama + urutan lebih akhir sehingga tetap menang. Iframe hanya
+   dibatasi lebarnya (height:auto pada iframe akan menyusutkan
+   tinggi embed). */
+.tool img,
+.out img,
+.tool video,
+.tool canvas {
+  max-width: 100%;
+  height: auto;
+}
+.tool iframe {
+  max-width: 100%;
+}
+
+/* ---------- 6. Pasangan kunci-nilai (.kv) tahan teks panjang ----------
+   .kv memakai justify-content:space-between tanpa min-width:0 —
+   nilai panjang (URL, hash, angka) bisa mendorong label keluar
+   atau meluber. overflow-wrap memecah kata panjang; label tetap
+   di kiri, nilai tetap rata kanan. */
+.kv .k,
+.kv .v {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- 7. Kepala invoice boleh membungkus di HP ----------
+   .inv-head flex tanpa wrap: dua kolom (judul + meta) saling
+   jepit di layar sempit. */
+.inv-head {
+  flex-wrap: wrap;
+}
+
+/* ---------- 8. Penyempurnaan layar sangat sempit (<=400px) ----------
+   Hanya dua penyesuaian, keduanya nyaris tak terlihat:
+   - padding .tool 16px -> 14px: konten dapat +4px lebar
+     (296px -> 300px pada viewport 360px) tanpa mengubah
+     ritme visual.
+   - padding .invoice diselaraskan agar tabel invoice tidak
+     makin terjepit.
+   Yang SENGAJA tidak diubah di breakpoint ini (terverifikasi
+   muat di 360px): .top (total ~322px), .tgrid 2 kolom
+   (kartu ~159px), .catgrid 4 kolom, .tool-head, .tabs,
+   .pal-item, hero h1 (clamp min 36px). */
+@media (max-width: 400px) {
+  .tool {
+    padding: 18px 14px;
+  }
+  .invoice {
+    padding: 18px 14px;
+  }
+}
+
+/* ---------- 9. Skip link aksesibilitas (T24 P1-6, v6.12.0) ----------
+   Tautan "Lewati ke konten" di index.html: tersembunyi sampai
+   difokus keyboard, lalu muncul di pojok kiri atas. Memakai
+   token yang sudah ada; tanpa perubahan visual bagi pengguna
+   mouse/sentuh. */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -100px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--txt);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus-visible {
+  top: 12px;
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+#app:focus {
+  outline: none;
+}

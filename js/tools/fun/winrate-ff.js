@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "winrate-ff", "name": "Kalkulator Winrate FF", "cat": "fun", "icon": "🎮", "desc": "Berapa win beruntun biar WR Free Fire-mu nyentuh target?", "keywords": "winrate,ff,free fire,wr,target,win beruntun,kalkulator"};
 
@@ -9,9 +9,9 @@ export const meta = {"id": "winrate-ff", "name": "Kalkulator Winrate FF", "cat":
    Return: { state:'need'|'done'|'impossible', needed, current, projected } */
 export function calcWinrate(total, wins, target) {
     if (!Number.isInteger(total) || total < 1 || total > 10000000)
-        throw new Error('Total match harus bilangan bulat 1–10.000.000');
+        throw new Error('Total match harus angka bulat 1–10.000.000');
     if (!Number.isInteger(wins) || wins < 0 || wins > total)
-        throw new Error('Total win harus bilangan bulat 0 sampai total match');
+        throw new Error('Total win harus angka bulat 0 sampai total match');
     if (!isFinite(target) || target <= 0 || target > 100)
         throw new Error('Target winrate harus lebih dari 0 sampai 100');
     const current = wins / total * 100;

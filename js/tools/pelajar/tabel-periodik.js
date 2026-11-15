@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"tabel-periodik","name":"Tabel Periodik","cat":"pelajar","icon":"⚛️","desc":"118 unsur kimia: ketuk buat lihat detailnya.","keywords":"tabel periodik,unsur,kimia,atom,simbol,massa"};
 

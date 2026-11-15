@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "ipintel", "name": "IP & ASN Intelligence", "cat": "keamanan", "icon": "🌐", "desc": "Lookup IP: ASN, organisasi jaringan, negara, dan status bogon.", "keywords": "ip,asn,lookup,jaringan,negara,bogon,whois"};
 
@@ -23,8 +23,30 @@ const isBogonV6 = (ip) => {
   return false;
 };
 
+// Fetch dengan timeout 15 detik. signalLuar (opsional) = sinyal batal dari onLeave:
+// batal dari luar tetap melempar AbortError, timeout melempar Error('Waktu habis...').
+async function fetchTimeout(url, signalLuar) {
+  const ctrl = new AbortController();
+  let habis = false;
+  const timer = setTimeout(() => { habis = true; ctrl.abort(); }, 15000);
+  const onLuar = () => ctrl.abort();
+  if (signalLuar) {
+    if (signalLuar.aborted) ctrl.abort();
+    else signalLuar.addEventListener('abort', onLuar, { once: true });
+  }
+  try {
+    return await fetch(url, { signal: ctrl.signal });
+  } catch (e) {
+    if (e.name === 'AbortError' && habis) throw new Error('Waktu habis (15 detik).');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+    if (signalLuar) signalLuar.removeEventListener('abort', onLuar);
+  }
+}
+
 async function lookupIpwho(ip) {
-  const r = await fetch('https://ipwho.is/' + encodeURIComponent(ip));
+  const r = await fetchTimeout('https://ipwho.is/' + encodeURIComponent(ip));
   if (!r.ok) throw new Error('ipwho.is: http ' + r.status);
   const j = await r.json();
   if (!j.success) throw new Error('ipwho.is: ' + (j.message || 'lookup gagal'));
@@ -39,7 +61,7 @@ async function lookupIpwho(ip) {
   };
 }
 async function lookupIpapi(ip) {
-  const r = await fetch('https://ipapi.co/' + encodeURIComponent(ip) + '/json/');
+  const r = await fetchTimeout('https://ipapi.co/' + encodeURIComponent(ip) + '/json/');
   if (!r.ok) throw new Error('ipapi.co: http ' + r.status);
   const j = await r.json();
   if (j.error) throw new Error('ipapi.co: ' + j.reason);
@@ -92,7 +114,7 @@ export function render(root) {
     try {
       let d;
       if (self) {
-        const r = await fetch('https://ipwho.is/', { signal: ctl.signal });
+        const r = await fetchTimeout('https://ipwho.is/', ctl.signal);
         const j = await r.json();
         if (!j.success) throw new Error('gagal deteksi IP sendiri');
         d = await lookupIpwho(j.ip);

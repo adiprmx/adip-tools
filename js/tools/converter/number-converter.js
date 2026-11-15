@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 (function () {
     const TBL = [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
@@ -34,7 +34,7 @@ export function render(root) {
 
     const basis = () => {
       const n = Math.floor(Number(decInp.value));
-      if (!Number.isFinite(n)) { T.show(out, '<span class="err">Masukkan angka yang valid.</span>'); return; }
+      if (!Number.isFinite(n)) { T.show(out, '<span class="err">Tulis angka yang benar dulu.</span>'); return; }
       const neg = n < 0, a = Math.abs(n), sgn = neg ? '-' : '';
       T.show(out,
         '<div class="kv"><span class="k">Biner</span><span class="v" class="monoall">' + sgn + a.toString(2) + '</span></div>' +
@@ -45,7 +45,7 @@ export function render(root) {
     };
     const r2d = () => {
       const v = utils.fromRoman(rInp.value);
-      if (Number.isNaN(v)) T.show(out2, '<span class="err">Bukan angka romawi yang valid.</span>');
+      if (Number.isNaN(v)) T.show(out2, '<span class="err">Itu bukan angka Romawi. Coba lagi, contoh: MMXXVI.</span>');
       else { T.show(out2, '<div class="kv"><span class="k">Desimal</span><span class="v big">' + T.fmt(v) + '</span></div>'); dInp2.value = v; }
     };
     const d2r = () => {
@@ -54,7 +54,7 @@ export function render(root) {
       if (!r) T.show(out2, '<span class="err">Romawi hanya untuk 1-3999.</span>');
       else { T.show(out2, '<div class="kv"><span class="k">Romawi</span><span class="v big" style="font-family:ui-monospace,monospace">' + r + '</span></div>'); rInp.value = r; }
     };
-    root.appendChild(T.el('<h3 class="h3">Basis bilangan</h3>'));
+    root.appendChild(T.el('<h3 class="h3">Bentuk Angka Lain</h3>'));
     root.appendChild(T.field('Desimal', decInp));
     root.appendChild(T.row(T.btn('Konversi', basis, true)));
     root.appendChild(out);

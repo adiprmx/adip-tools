@@ -1,4 +1,4 @@
-import { h as T, kvRows } from '../../core.js?v=6.11.5';
+import { h as T, kvRows } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"statistika-dasar","name":"Statistika Dasar","cat":"pelajar","icon":"📈","desc":"Mean, median, modus, range & standar deviasi dari deret angka.","keywords":"statistika,mean,median,modus,range,standar deviasi,rata-rata,pelajar"};
 

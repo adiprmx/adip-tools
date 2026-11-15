@@ -1,6 +1,6 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "ubah-ukuran-foto", "name": "Ubah Ukuran Foto", "cat": "gambar", "icon": "🖼️", "desc": "Ubah dimensi foto ke ukuran yang pas — pas foto, KTP, feed IG, atau ukuran bebas.", "keywords": "resize,ubah,ukuran,foto,dimensi,piksel,pas foto,ktp,instagram"};
+export const meta = {"id": "ubah-ukuran-foto", "name": "Ubah Ukuran Foto", "cat": "gambar", "icon": "🖼️", "desc": "Ubah ukuran foto — pas foto, KTP, feed IG, atau ukuran bebas.", "keywords": "resize,ubah,ukuran,foto,dimensi,piksel,pas foto,ktp,instagram"};
 export function render(root) {
 
       const fileI = fileInput('image/*');
@@ -76,14 +76,14 @@ export function render(root) {
         if (!(tw > 0) || !(th > 0) || tw > 8000 || th > 8000) { T.toast('Lebar & tinggi harus 1–8000 piksel'); return; }
         let img;
         try { img = await loadImage(fileI.files[0]); }
-        catch (e) { T.toast('File bukan gambar yang valid'); return; }
+        catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
         ratio = img.naturalWidth / img.naturalHeight;
         loaded = true;
         const c = drawSharp(img, tw, th);
         const mime = fmtSel.value === 'png' ? 'image/png' : fmtSel.value === 'webp' ? 'image/webp' : 'image/jpeg';
         const q = fmtSel.value === 'png' ? undefined : (parseInt(qRange.value, 10) / 100);
         const blob = await canvasToBlob(c, mime, q);
-        if (!blob) { T.toast('Gagal memproses foto'); return; }
+        if (!blob) { T.toast('Fotonya tidak bisa diproses. Coba foto lain.'); return; }
         const orig = fileI.files[0];
         const base = (orig.name || 'foto').replace(/\.[^.]*$/, '');
         const ext = fmtSel.value === 'jpeg' ? 'jpg' : fmtSel.value;
@@ -98,14 +98,14 @@ export function render(root) {
       }
 
       const dlB = T.btn('Unduh Hasil', () => {
-        if (!cur) { T.toast('Proses dulu fotonya'); return; }
+        if (!cur) { T.toast('Ubah ukuran dulu fotonya'); return; }
         T.dl(cur.name, cur.blob, cur.blob.type);
         T.toast('Berhasil diunduh');
       }, true);
 
       root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
       root.appendChild(T.field('Pilih foto', fileI));
-      root.appendChild(T.field('Preset ukuran', presetSel));
+      root.appendChild(T.field('Pilih ukuran', presetSel));
       root.appendChild(T.grid2(
         T.field('Lebar (px)', wInp),
         T.field('Tinggi (px)', hInp)
@@ -114,7 +114,7 @@ export function render(root) {
       const qRow = T.el('<div class="row"></div>');
       qRow.appendChild(qRange); qRow.appendChild(qVal);
       root.appendChild(T.grid2(
-        T.field('Format output', fmtSel),
+        T.field('Format hasil', fmtSel),
         T.field('Kualitas (JPEG/WebP)', qRow)
       ));
       root.appendChild(T.row(T.btn('Ubah Ukuran', process, true), dlB));

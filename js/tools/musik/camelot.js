@@ -1,4 +1,4 @@
-import { h as T, utils, U, _NI, _normAcc, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, U, _NI, _normAcc, kv } from '../../core.js?v=6.12.0';
 
 const _MIN = { 1: 'Ab', 2: 'Eb', 3: 'Bb', 4: 'F', 5: 'C', 6: 'G', 7: 'D', 8: 'A', 9: 'E', 10: 'B', 11: 'F#', 12: 'Db' };
 
@@ -80,7 +80,7 @@ export function render(root) {
       const a = U.keyToCamelot(inKey.value), b = U.camelotToKey(inCam.value);
       let html = '';
       if (inKey.value.trim()) html += a ? kv('"' + inKey.value.trim() + '" → Camelot', '<b>' + T.esc(a) + '</b>') : '<p class="warn">Kunci "' + T.esc(inKey.value.trim()) + '" tidak dikenali.</p>';
-      if (inCam.value.trim()) html += b ? kv('"' + inCam.value.trim() + '" → Kunci', '<b>' + T.esc(b) + '</b>') : '<p class="warn">Kode "' + T.esc(inCam.value.trim()) + '" tidak valid (1A-12B).</p>';
+      if (inCam.value.trim()) html += b ? kv('"' + inCam.value.trim() + '" → Kunci', '<b>' + T.esc(b) + '</b>') : '<p class="warn">Kode "' + T.esc(inCam.value.trim()) + '" tidak benar (1A-12B).</p>';
       if (html) T.show(boxC, html); else T.hide(boxC);
     };
     [inKey, inCam].forEach((i) => i.addEventListener('input', conv));

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kekuatan-pin","name":"Kekuatan PIN","cat":"keamanan","icon":"🔢","desc":"Cek seberapa kuat PIN kamu, 100% offline.","keywords":"pin,password,keamanan,kuat,sandi,cek"};
 

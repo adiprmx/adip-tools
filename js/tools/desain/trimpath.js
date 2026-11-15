@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 /* trimpath — "Trimpath Generator": animasi garis draw-on per huruf -> XML Alight Motion.
    Path huruf dibuat sendiri via vectorizer lokal (marching squares), jadi semua
@@ -157,7 +157,7 @@ export function render(root) {
   const inpFile = T.input('text', 'Otomatis: teks#preset', '');
 
   root.appendChild(T.field('Teks', inpText));
-  root.appendChild(T.grid2(T.field('Preset animasi', selPreset), T.field('Style', selStyle)));
+  root.appendChild(T.grid2(T.field('Pilihan animasi', selPreset), T.field('Style', selStyle)));
   root.appendChild(T.grid2(T.field('Ukuran huruf (10–120)', inpSize), T.field('Jarak huruf (-20–120)', inpSpacing)));
   root.appendChild(T.grid2(T.field('Jarak baris (60–320)', inpLineGap), T.field('Kurva gerak', selCurve)));
   const iw = T.el('<label class="dim" style="font-size:13px;display:flex;gap:8px;align-items:center;margin:4px 0"></label>');

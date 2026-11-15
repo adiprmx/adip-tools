@@ -1,4 +1,4 @@
-import { h as T, kv, utils, esc, tabs } from '../../core.js?v=6.11.5';
+import { h as T, kv, utils, esc, tabs } from '../../core.js?v=6.12.0';
 
 /* Fungsi murni (bisa diuji dari node tanpa DOM). */
 export function parseOgTags(html) {
@@ -24,7 +24,48 @@ export function cekTag(tags) {
   return perlu.map(([k, label]) => ({ key: k, label, ada: Boolean(tags[k] && String(tags[k]).trim()), nilai: tags[k] || '' }));
 }
 
-export const meta = {"id": "og-preview", "name": "Open Graph Preview", "cat": "developer", "icon": "👁️", "desc": "Preview tampilan link di medsos.", "keywords": "og,preview,link,sosmed,medsos"};
+// Vonis ukuran gambar og:image terhadap acuan umum tiap platform:
+// Facebook/LinkedIn menyarankan 1200x630 (rasio 1,91:1), minimal 200x200;
+// kartu besar X menyarankan 1200x628, file maksimal 5 MB.
+export function nilaiGambarOg(lebar, tinggi, ukuranByte) {
+  const catatan = [];
+  let skor = 0;
+  if (lebar < 200 || tinggi < 200) {
+    catatan.push({ ok: false, teks: 'Terlalu kecil — Facebook menolak gambar di bawah 200×200 px.' });
+  } else {
+    skor += 1;
+    catatan.push({ ok: true, teks: 'Melewati ukuran minimal 200×200 px.' });
+  }
+  const rasio = lebar / tinggi;
+  if (Math.abs(rasio - 1.91) <= 0.05) {
+    skor += 1;
+    catatan.push({ ok: true, teks: 'Rasio ' + rasio.toFixed(2) + ':1 pas untuk kartu landscape (acuan 1,91:1).' });
+  } else {
+    catatan.push({ ok: false, teks: 'Rasio ' + rasio.toFixed(2) + ':1 — gambar bisa terpotong, acuan landscape 1,91:1 (1200×630).' });
+  }
+  if (lebar >= 1200 && tinggi >= 630) {
+    skor += 1;
+    catatan.push({ ok: true, teks: 'Resolusi 1200×630 atau lebih — tampil tajam di Facebook, LinkedIn, dan X.' });
+  } else {
+    catatan.push({ ok: false, teks: 'Di bawah 1200×630 — masih tampil, tapi bisa terlihat kurang tajam.' });
+  }
+  if (ukuranByte != null) {
+    if (ukuranByte > 8 * 1024 * 1024) catatan.push({ ok: false, teks: 'File ' + (ukuranByte / 1048576).toFixed(1) + ' MB — di atas batas 8 MB Facebook.' });
+    else if (ukuranByte > 5 * 1024 * 1024) catatan.push({ ok: false, teks: 'File ' + (ukuranByte / 1048576).toFixed(1) + ' MB — di atas batas 5 MB kartu besar X.' });
+    else catatan.push({ ok: true, teks: 'Ukuran file ' + (ukuranByte < 1048576 ? Math.round(ukuranByte / 1024) + ' KB' : (ukuranByte / 1048576).toFixed(1) + ' MB') + ' masih dalam batas.' });
+  }
+  return { skor, maks: 3, catatan };
+}
+
+export function nilaiPanjangOg(judul, deskripsi) {
+  const out = [];
+  const pj = String(judul || '').length, pd = String(deskripsi || '').length;
+  if (pj) out.push({ ok: pj <= 60, teks: 'Judul ' + pj + ' karakter' + (pj <= 60 ? ' — pas, tidak terpotong di hasil pencarian.' : ' — kepanjangan, Google memotong di sekitar 60 karakter.') });
+  if (pd) out.push({ ok: pd <= 160, teks: 'Deskripsi ' + pd + ' karakter' + (pd <= 160 ? ' — pas untuk cuplikan pencarian.' : ' — kepanjangan, cuplikan dipotong di sekitar 160 karakter.') });
+  return out;
+}
+
+export const meta = {"id": "og-preview", "name": "Open Graph Preview", "cat": "developer", "icon": "👁️", "desc": "Preview tampilan link di medsos + periksa tag & ukuran gambar OG.", "keywords": "og,preview,link,sosmed,medsos,opengraph,1200x630"};
 export function render(root) {
 
     const fT = T.input('text', 'Judul link', 'Judul Artikel yang Menarik');
@@ -34,14 +75,38 @@ export function render(root) {
     const fFile = T.el('<input type="file" accept="image/*" class="inp">');
     const fPaste = T.ta(4, 'Tempel tag <meta> dari situsmu di sini, misal:\n<meta property="og:title" content="Judul">\n<meta property="og:image" content="https://…">');
     const cekBox = T.out();
+    const imgCekBox = T.out();
     const waBox = T.el('<div></div>'), tgBox = T.el('<div></div>'), fbBox = T.el('<div></div>'), liBox = T.el('<div></div>'), xBox = T.el('<div></div>');
     let imgData = '';
     let imgStatus = '';
+    let imgUkuran = null;
+    const barisVonis = (c) => '<div style="font-size:13px;line-height:1.7"><span style="color:' + (c.ok ? '#4ade80' : '#f87171') + '">' + (c.ok ? '✓' : '✗') + '</span> ' + esc(c.teks) + '</div>';
+    // Periksa gambar og:image langsung: dimensi + vonis terhadap acuan platform.
+    const cekGambarLive = (src, ukuranByte) => {
+      if (!src) { T.hide(imgCekBox); return; }
+      T.show(imgCekBox, '<span class="dim">Memeriksa gambar…</span>');
+      const probe = new Image();
+      probe.onload = () => {
+        const v = nilaiGambarOg(probe.naturalWidth, probe.naturalHeight, ukuranByte);
+        T.show(imgCekBox,
+          '<div style="font-size:13px;font-weight:600;margin-bottom:4px">Gambar: ' + probe.naturalWidth + ' × ' + probe.naturalHeight + ' px' +
+          (ukuranByte != null ? ' · ' + (ukuranByte < 1048576 ? Math.round(ukuranByte / 1024) + ' KB' : (ukuranByte / 1048576).toFixed(1) + ' MB') : '') + '</div>' +
+          v.catatan.map(barisVonis).join(''));
+      };
+      probe.onerror = () => { T.show(imgCekBox, '<span class="err">✗ Gambar tidak bisa dibuka. Periksa lagi URL-nya.</span>'); };
+      probe.src = src;
+    };
+    let cekTimer = null;
+    fImg.addEventListener('input', () => {
+      clearTimeout(cekTimer);
+      cekTimer = setTimeout(() => cekGambarLive(fImg.value.trim(), null), 600);
+    });
     fFile.addEventListener('change', () => {
       const f = fFile.files && fFile.files[0];
       if (!f) return;
+      imgUkuran = f.size;
       const rd = new FileReader();
-      rd.onload = () => { imgData = String(rd.result); imgStatus = ''; paint(); };
+      rd.onload = () => { imgData = String(rd.result); imgStatus = ''; paint(); cekGambarLive(imgData, imgUkuran); };
       rd.readAsDataURL(f);
     });
     const cardShell = 'border-radius:12px;overflow:hidden;max-width:420px;margin-bottom:16px;border:1px solid #27272a';
@@ -105,12 +170,24 @@ export function render(root) {
         return;
       }
       let html = hasil.map((h) => '<div style="font-size:13px;line-height:1.7"><span style="color:' + (h.ada ? '#4ade80' : '#f87171') + '">' + (h.ada ? '✓' : '✗') + '</span> ' + esc(h.label) + (h.ada ? ' <span class="hint">: ' + esc(String(h.nilai).slice(0, 60)) + (String(h.nilai).length > 60 ? '…' : '') + '</span>' : ' <span class="hint">(belum ada, sebaiknya ditambahkan)</span>') + '</div>').join('');
+      html += nilaiPanjangOg(tags['og:title'], tags['og:description']).map(barisVonis).join('');
+      if (tags['og:image:width'] && tags['og:image:height']) {
+        html += '<div style="font-size:13px;line-height:1.7"><span style="color:#4ade80">✓</span> Ukuran gambar sudah ditulis di tag (' + esc(String(tags['og:image:width'])) + '×' + esc(String(tags['og:image:height'])) + ') — membantu medsos menggambar kartu lebih cepat.</div>';
+      } else if (tags['og:image']) {
+        html += '<div style="font-size:13px;line-height:1.7"><span style="color:#fbbf24">•</span> Tag og:image:width &amp; og:image:height belum ada — opsional, tapi membantu medsos menggambar kartu lebih cepat.</div>';
+      }
       const imgUrl = tags['og:image'];
       if (imgUrl) {
         html += '<div id="og-img-cek" style="font-size:13px;line-height:1.7;color:#a1a1aa">Memeriksa gambar…</div>';
         T.show(cekBox, html);
         const probe = new Image();
-        probe.onload = () => { const n = document.getElementById('og-img-cek'); if (n) { n.innerHTML = '<span style="color:#4ade80">✓</span> Gambar bisa dibuka (' + probe.naturalWidth + ' × ' + probe.naturalHeight + ' px)'; } };
+        probe.onload = () => {
+          const n = document.getElementById('og-img-cek');
+          if (!n) return;
+          const v = nilaiGambarOg(probe.naturalWidth, probe.naturalHeight, null);
+          n.innerHTML = '<div style="font-weight:600;color:#e4e4e7">Gambar bisa dibuka (' + probe.naturalWidth + ' × ' + probe.naturalHeight + ' px)</div>' +
+            v.catatan.map(barisVonis).join('');
+        };
         probe.onerror = () => { const n = document.getElementById('og-img-cek'); if (n) { n.innerHTML = '<span style="color:#f87171">✗</span> Gambar tidak bisa dibuka. Periksa lagi URL gambarnya.'; } };
         probe.src = imgUrl;
       } else {
@@ -119,6 +196,7 @@ export function render(root) {
       paint();
     }, true)));
     root.appendChild(cekBox);
+    root.appendChild(imgCekBox);
     root.appendChild(T.el('<div class="hint" style="margin:12px 0 8px">Pratinjau tampilan link di tiap aplikasi:</div>'));
     root.appendChild(tabs([['WhatsApp', 0], ['Telegram', 1], ['Facebook', 2], ['LinkedIn', 3], ['X', 4]], [waBox, tgBox, fbBox, liBox, xBox]));
     root.appendChild(waBox);

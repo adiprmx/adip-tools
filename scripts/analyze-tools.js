@@ -1,7 +1,24 @@
 // Analisis presisi struktur tools-*.js memakai AST (acorn).
 // Output JSON: definisi top-level + tiap tool (metadata, render body, identifier refs).
+//
+// PENGAMAN (T05, 15 Nov 2026): skrip SATU KALI untuk migrasi Fase 2. Sumbernya
+// (js/tools-{a..e}.js) sudah tidak ada dan dependensi acorn tidak terpasang
+// (repo tanpa node_modules) — skrip ini tidak bisa jalan lagi dan tidak dipakai
+// alur build/rilis mana pun. Dipertahankan sebagai arsip; guard di bawah
+// memberi pesan jelas bila ada yang mencoba menjalankannya.
+// Guard WAJIB di atas require('acorn'): acorn tidak terpasang, jadi require
+// itu akan throw MODULE_NOT_FOUND sebelum guard sempat jalan bila urutannya
+// dibalik.
+if (require.main === module) {
+  console.error('REFUSED: analyze-tools.js adalah analisis satu-kali Fase 2 '
+    + '(sudah selesai) — sumber js/tools-{a..e}.js sudah tidak ada dan '
+    + 'skrip ini tidak dipakai alur build/rilis.');
+  process.exit(2);
+}
+
 const acorn = require('acorn');
 const fs = require('fs');
+const path = require('path');
 
 const CORE_GLOBALS = new Set([
   'document','window','localStorage','sessionStorage','fetch','console','setTimeout',
@@ -207,7 +224,10 @@ function collectRefs(blockNode, params) {
 
 const out = {};
 for (const b of ['a', 'b', 'c', 'd', 'e']) {
-  out[b] = analyze(`/home/hatch/workspace/projects/adip-tools/js/tools-${b}.js`);
+  // Path relatif repo (sebelumnya hardcode absolut /home/hatch/... — pecah
+  // di mesin mana pun selain mesin asal; T05, 15 Nov 2026). Tidak terjangkau
+  // karena guard REFUSED di atas; dipertahankan sebagai arsip.
+  out[b] = analyze(path.join(__dirname, '..', 'js', `tools-${b}.js`));
 }
-fs.writeFileSync('/tmp/split/analysis.json', JSON.stringify(out, null, 1));
+fs.writeFileSync(path.join('/tmp', 'split', 'analysis.json'), JSON.stringify(out, null, 1));
 console.log('OK, tools:', Object.values(out).reduce((n, x) => n + x.tools.length, 0));

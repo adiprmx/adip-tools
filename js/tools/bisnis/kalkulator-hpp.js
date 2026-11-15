@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "kalkulator-hpp", "name": "Kalkulator HPP", "cat": "bisnis", "icon": "🏭", "desc": "Hitung biaya pokok per unit + saran harga jual.", "keywords": "hpp,harga pokok,produksi,biaya,unit,modal"};
 export function render(root) {
@@ -14,7 +14,7 @@ export function render(root) {
       const mat = T.num(matI.value), kerja = T.num(kerjaI.value), ov = T.num(ovI.value);
       const unit = T.num(unitI.value), mp = T.num(marginI.value);
       if (![mat, kerja, ov, unit, mp].every(isFinite) || mat < 0 || kerja < 0 || ov < 0 || unit <= 0 || mp < 0 || mp >= 100) {
-        T.toast('Isi semua kolom dengan valid (margin < 100%)'); return;
+        T.toast('Isi semua kolom dengan benar (margin < 100%)'); return;
       }
       const total = mat + kerja + ov;
       const hpp = total / unit;

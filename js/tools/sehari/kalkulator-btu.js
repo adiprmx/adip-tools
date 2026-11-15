@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kalkulator-btu","name":"Kalkulator BTU AC","cat":"sehari","icon":"❄️","desc":"Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.","keywords":"btu,ac,pk,air conditioner,ruangan,dingin","since":"6.11.0"};
 
@@ -52,7 +52,7 @@ export function render(root) {
       T.show(out, '<p class="err">Isi panjang dan lebar ruangan dengan angka lebih dari 0.</p>'); return;
     }
     if (!isFinite(tg) || !(tg > 0) || tg > 10) { T.show(out, '<p class="err">Tinggi plafon isi 0 sampai 10 meter.</p>'); return; }
-    if (!isFinite(org) || !(org >= 1) || !Number.isInteger(org)) { T.show(out, '<p class="err">Jumlah orang isi bilangan bulat 1 atau lebih.</p>'); return; }
+    if (!isFinite(org) || !(org >= 1) || !Number.isInteger(org)) { T.show(out, '<p class="err">Jumlah orang isi angka bulat 1 atau lebih.</p>'); return; }
     const luas = pj * lb;
     const btu = hitungBtu(luas, tg, org, matahariSel.value, alatCek.checked);
     const pk = rekomendasiPk(btu);

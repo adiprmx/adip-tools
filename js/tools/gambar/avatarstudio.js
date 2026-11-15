@@ -1,9 +1,18 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "avatarstudio", "name": "Avatar Studio", "cat": "gambar", "icon": "🎭", "desc": "Avatar SVG unik puluhan style + editor visual (DiceBear).", "keywords": "avatar,profil,svg,dicebear,editor,seed"};
 
 // API publik independen (bukan milik siapa pun yang direplika): DiceBear HTTP API v10.
 const API = 'https://api.dicebear.com/10.x';
+
+// Fetch dengan timeout 15 detik (DiceBear kadang lambat, jangan gantung selamanya).
+async function fetchTimeout(url, opts) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    return await fetch(url, { ...(opts || {}), signal: ctrl.signal });
+  } finally { clearTimeout(timer); }
+}
 export const RASTER_MAX = 256;
 export const FALLBACK_STYLES = ['adventurer', 'avataaars', 'bottts', 'identicon', 'initials', 'lorelei', 'pixel-art', 'shapes'];
 const FALLBACK_LABEL = { adventurer: 'Adventurer', avataaars: 'Avataaars', bottts: 'Bottts', identicon: 'Identicon', initials: 'Initials', lorelei: 'Lorelei', 'pixel-art': 'Pixel Art', shapes: 'Shapes' };
@@ -196,7 +205,8 @@ export function render(root) {
 
   async function loadStyles() {
     try {
-      const r = await fetch(API, { cache: 'no-cache' });
+      const r = await fetchTimeout(API, { cache: 'no-cache' });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
       if (j && Array.isArray(j.styles) && j.styles.length) fillStyles(j.styles);
     } catch (e) { apiDown = true; }
@@ -252,7 +262,8 @@ export function render(root) {
     const dyn = T.el('<div style="margin-top:8px"></div>');
     core.appendChild(dyn);
     try {
-      const r = await fetch(API + '/' + encodeURIComponent(state.style) + '/options.json');
+      const r = await fetchTimeout(API + '/' + encodeURIComponent(state.style) + '/options.json');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       const schema = await r.json();
       const keys = Object.keys(schema || {}).filter((k) => !['seed', 'flip', 'rotate', 'scale', 'backgroundColor', 'size'].includes(k)).slice(0, 8);
       keys.forEach((k) => {
@@ -298,7 +309,7 @@ export function render(root) {
     const ext = st.format === 'jpeg' ? 'jpg' : st.format;
     T.show(actBox, '<span class="dim">Mengunduh…</span>');
     try {
-      const r = await fetch(url);
+      const r = await fetchTimeout(url);
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const blob = await r.blob();
       T.dl('avatar-' + st.style + '-' + (st.seed || 'acak').replace(/[^\w-]+/g, '_') + '.' + ext, blob, blob.type);

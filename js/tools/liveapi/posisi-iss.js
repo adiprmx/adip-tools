@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "posisi-iss", "name": "Posisi ISS", "cat": "liveapi", "icon": "🛰️", "desc": "Lacak posisi Stasiun Luar Angkasa Internasional secara live.", "keywords": "iss,satelit,posisi,stasiun luar angkasa,nasa,live"};
 export function render(root) {
@@ -63,8 +63,10 @@ export function render(root) {
       if (memuat) return;
       memuat = true;
       T.show(box, '<p class="center mut">Menghubungi ISS…</p>');
+      const ctrl = new AbortController();
+      const timerFetch = setTimeout(() => ctrl.abort(), 15000);
       try {
-        const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+        const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544', { signal: ctrl.signal });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const d = await res.json();
         if (typeof d.latitude !== 'number' || typeof d.longitude !== 'number') throw new Error('data tidak valid');
@@ -91,6 +93,7 @@ export function render(root) {
         wr.appendChild(T.btn('🔄 Coba lagi', muat, true));
         box.appendChild(wr);
       } finally {
+        clearTimeout(timerFetch);
         memuat = false;
       }
     };

@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.11.5';
+import { h as T, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "getcode", "name": "Get Code HTML", "cat": "developer", "icon": "💻", "desc": "Ambil & ekstrak source HTML dari URL mana pun.", "keywords": "html,source,kode,extract,view-source,scrape"};
 
@@ -45,7 +45,7 @@ export function render(root) {
   viewer.readOnly = true;
   const previewWrap = T.el('<div style="margin-top:12px" hidden></div>');
   const frame = document.createElement('iframe');
-  frame.setAttribute('sandbox', 'allow-same-origin');
+  frame.setAttribute('sandbox', '');
   frame.style.cssText = 'width:100%;height:420px;border:1px solid #ffffff20;border-radius:12px;background:#fff';
   previewWrap.appendChild(frame);
 

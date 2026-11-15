@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, money, kv } from '../../core.js?v=6.12.0';
 
 // PTKP setahun (Rp): PMK 101/2016
 const PTKP = {
@@ -45,21 +45,35 @@ function pphProgresif(pkp) {
   return { total: Math.round(total), rinc };
 }
 
+// PPh setahun dari penghasilan bruto setahun (dipakai mode THR/bonus).
+// Biaya jabatan 5%, maks Rp6.000.000 setahun.
+function pphTahunan(brutoThn, iuranThn, ptkp) {
+  const bjThn = Math.min(brutoThn * 0.05, 6000000);
+  const netoThn = Math.max(0, brutoThn - bjThn - iuranThn);
+  const pkp = Math.floor(Math.max(0, netoThn - ptkp) / 1000) * 1000;
+  const { total: pphThn, rinc } = pphProgresif(pkp);
+  return { bjThn, netoThn, pkp, pphThn, rinc };
+}
+
 // PPh 21 sebulan dengan metode progresif tahunan (disetahunkan).
-function pphBulanProgresif(brutoBln, iuranBln, ptkp) {
+// Tanpa NPWP, tarifnya 20% lebih tinggi (Pasal 21 ayat 5 UU PPh).
+function pphBulanProgresif(brutoBln, iuranBln, ptkp, punyaNpwp) {
   const brutoThn = brutoBln * 12;
   const bjBln = Math.min(brutoBln * 0.05, 500000); // biaya jabatan 5%, maks 500rb/bln
   const netoBln = brutoBln - bjBln - iuranBln;
   const netoThn = netoBln * 12;
   const pkp = Math.floor(Math.max(0, netoThn - ptkp) / 1000) * 1000;
-  const { total: pphThn, rinc } = pphProgresif(pkp);
-  return { brutoThn, bjBln, netoBln, netoThn, pkp, pphThn, pphBln: Math.round(pphThn / 12), rinc };
+  const { total, rinc } = pphProgresif(pkp);
+  const kali = punyaNpwp === false ? 1.2 : 1;
+  const pphThn = Math.round(total * kali);
+  const rincAdj = rinc.map((x) => ({ label: x.label, kena: x.kena, pajak: Math.round(x.pajak * kali) }));
+  return { brutoThn, bjBln, netoBln, netoThn, pkp, pphThn, pphBln: Math.round(pphThn / 12), rinc: rincAdj };
 }
 
 // Gross-up: cari gaji bruto supaya setelah dipotong PPh 21 (progresif) dan iuran,
 // yang diterima sama dengan target. Diselesaikan dengan bagi dua (bisection).
-function grossUp(targetThp, iuranBln, ptkp) {
-  const thp = (bruto) => bruto - pphBulanProgresif(bruto, iuranBln, ptkp).pphBln - iuranBln;
+function grossUp(targetThp, iuranBln, ptkp, punyaNpwp) {
+  const thp = (bruto) => bruto - pphBulanProgresif(bruto, iuranBln, ptkp, punyaNpwp).pphBln - iuranBln;
   let lo = targetThp + iuranBln, hi = Math.max(lo * 1.5, lo + 1000000);
   for (let i = 0; i < 60 && thp(hi) < targetThp; i++) hi = lo + (hi - lo) * 2;
   for (let i = 0; i < 80; i++) {
@@ -67,43 +81,65 @@ function grossUp(targetThp, iuranBln, ptkp) {
     if (thp(mid) < targetThp) lo = mid; else hi = mid;
   }
   const bruto = Math.round((lo + hi) / 2);
-  const r = pphBulanProgresif(bruto, iuranBln, ptkp);
+  const r = pphBulanProgresif(bruto, iuranBln, ptkp, punyaNpwp);
   return { bruto, pphBln: r.pphBln, pphThn: r.pphThn, pkp: r.pkp, thp: bruto - r.pphBln - iuranBln };
+}
+
+// PPh 21 atas THR/bonus: selisih PPh setahun dengan THR dan tanpa THR
+// (cara resmi untuk penghasilan tidak teratur, PER-16/PJ/2016).
+function pphThr(brutoBln, thr, iuranBln, ptkp, punyaNpwp) {
+  const kali = punyaNpwp === false ? 1.2 : 1;
+  const biasa = pphTahunan(brutoBln * 12, iuranBln * 12, ptkp);
+  const dengan = pphTahunan(brutoBln * 12 + thr, iuranBln * 12, ptkp);
+  const pph = Math.round((dengan.pphThn - biasa.pphThn) * kali);
+  return { pph, bersih: Math.max(0, thr - pph), pphThnBiasa: Math.round(biasa.pphThn * kali), pphThnDengan: Math.round(dengan.pphThn * kali), pkpBiasa: biasa.pkp, pkpDengan: dengan.pkp };
 }
 
 // Logika murni (bisa di-test di Node).
 utils.pph21Ter = (bruto, status) => terRate(bruto, status);
-utils.pph21Progresif = (brutoBln, iuranBln, status) => pphBulanProgresif(brutoBln, iuranBln, PTKP[status] || 54000000);
-utils.pph21GrossUp = (targetThp, iuranBln, status) => grossUp(targetThp, iuranBln, PTKP[status] || 54000000);
+utils.pph21Progresif = (brutoBln, iuranBln, status, punyaNpwp) => pphBulanProgresif(brutoBln, iuranBln, PTKP[status] || 54000000, punyaNpwp);
+utils.pph21GrossUp = (targetThp, iuranBln, status, punyaNpwp) => grossUp(targetThp, iuranBln, PTKP[status] || 54000000, punyaNpwp);
+utils.pph21Thr = (brutoBln, thr, iuranBln, status, punyaNpwp) => pphThr(brutoBln, thr, iuranBln, PTKP[status] || 54000000, punyaNpwp);
 
-export const meta = {"id": "pph21", "name": "Kalkulator PPh 21", "cat": "indonesia", "icon": "🧾", "desc": "Hitung PPh 21 karyawan: progresif, TER bulanan, atau gross-up.", "keywords": "gaji,pajak,penghasilan,pph,karyawan,ter,gross-up,ptkp"};
+export const meta = {"id": "pph21", "name": "Kalkulator PPh 21", "cat": "indonesia", "icon": "🧾", "desc": "Hitung PPh 21 karyawan: progresif, TER bulanan, gross-up, atau THR/bonus.", "keywords": "gaji,pajak,penghasilan,pph,karyawan,ter,gross-up,ptkp,thr,bonus,npwp"};
 export function render(root) {
 
     const modeSel = T.select([
       ['progresif', 'Progresif tahunan (disetahunkan)'],
       ['ter', 'TER bulanan (potongan Januari-November)'],
       ['grossup', 'Gross-up (cari gaji bruto dari target bersih)'],
+      ['thr', 'THR / bonus (dihitung dari selisih setahun)'],
     ], 'progresif');
     const gaji = money(null, 'cth: 12000000');
     const tunj = money(null, 'cth: 2000000', '0');
     const iuran = money(null, 'cth: 240000 (JHT 2%)', '0');
     const target = money(null, 'cth: 10000000');
+    const thr = money(null, 'cth: 12000000');
+    const npwpSel = T.select([
+      ['ya', 'Punya NPWP'],
+      ['tidak', 'Tidak punya NPWP (pajaknya 20% lebih tinggi)'],
+    ], 'ya');
     const status = T.select(Object.keys(PTKP).map((k) => [k, PTKP_LABEL[k]]), 'TK/0');
     const box = T.out();
 
     const fldGaji = T.field('Gaji pokok / bulan (Rp)', gaji);
-    const fldTunj = T.field('Tunjangan / bulan (Rp)', tunj, 'THR & bonus tidak dihitung di sini');
+    const fldTunj = T.field('Tunjangan / bulan (Rp)', tunj, 'THR & bonus tidak dihitung di sini, pakai mode THR / bonus di atas');
     const fldIuran = T.field('Iuran pensiun / JHT / bulan (Rp)', iuran, 'Biasanya 2% dari gaji (JHT)');
     const fldTarget = T.field('Target gaji bersih / bulan (Rp)', target, 'Jumlah yang mau diterima setelah dipotong PPh 21 dan iuran');
+    const fldThr = T.field('THR / bonus yang diterima (Rp)', thr, 'Jumlah kotor sebelum dipotong pajak');
+    const fldNpwp = T.field('NPWP', npwpSel, 'Tanpa NPWP, PPh 21 dikenakan 20% lebih tinggi (Pasal 21 ayat 5 UU PPh)');
     const fldStatus = T.field('Status PTKP', status);
     fldTarget.hidden = true;
+    fldThr.hidden = true;
 
     const aturTampil = () => {
       const mode = modeSel.value;
       fldGaji.hidden = true; fldTunj.hidden = true; fldIuran.hidden = true; fldTarget.hidden = true; fldStatus.hidden = true;
+      fldThr.hidden = true;
       fldStatus.hidden = false;
       if (mode === 'grossup') { fldTarget.hidden = false; fldIuran.hidden = false; }
       else if (mode === 'ter') { fldGaji.hidden = false; fldTunj.hidden = false; }
+      else if (mode === 'thr') { fldGaji.hidden = false; fldTunj.hidden = false; fldIuran.hidden = false; fldThr.hidden = false; }
       else { fldGaji.hidden = false; fldTunj.hidden = false; fldIuran.hidden = false; }
       hitung();
     };
@@ -113,11 +149,12 @@ export function render(root) {
       const mode = modeSel.value;
       const g = T.num(gaji.value) || 0, t = T.num(tunj.value) || 0, iu = T.num(iuran.value) || 0;
       const ptkp = PTKP[status.value];
+      const punyaNpwp = npwpSel.value === 'ya';
 
       if (mode === 'grossup') {
         const tg = T.num(target.value) || 0;
         if (tg <= 0) { T.show(box, '<p class="warn">Isi dulu target gaji bersih per bulan.</p>'); return; }
-        const r = grossUp(tg, iu, ptkp);
+        const r = grossUp(tg, iu, ptkp, punyaNpwp);
         T.show(box,
           '<div class="big">' + T.rp(r.bruto) + '<span style="font-size:13px;font-weight:400"> / bulan</span></div>' +
           '<p class="center mut">Gaji bruto yang dibutuhkan supaya bersihnya ' + T.rp(tg) + '</p>' +
@@ -133,24 +170,41 @@ export function render(root) {
       if (g <= 0) { T.show(box, '<p class="warn">Isi dulu gaji pokok per bulan.</p>'); return; }
       const brutoBln = g + t;
 
+      if (mode === 'thr') {
+        const th = T.num(thr.value) || 0;
+        if (th <= 0) { T.show(box, '<p class="warn">Isi dulu jumlah THR / bonusnya.</p>'); return; }
+        const r = pphThr(brutoBln, th, iu, ptkp, punyaNpwp);
+        T.show(box,
+          '<div class="big">' + T.rp(r.pph) + '</div>' +
+          '<p class="center mut">PPh 21 atas THR / bonus</p>' +
+          kv('THR / bonus kotor', T.rp(th)) +
+          kv('THR / bonus bersih yang diterima', '<b>' + T.rp(r.bersih) + '</b>') +
+          '<h3 style="font-size:14px;margin:10px 0 4px">Cara hitungnya</h3>' +
+          kv('PPh setahun tanpa THR', T.rp(r.pphThnBiasa)) +
+          kv('PPh setahun dengan THR', T.rp(r.pphThnDengan)) +
+          kv('Selisih = PPh atas THR', T.rp(r.pph)) +
+          '<p class="hint">THR dan bonus adalah penghasilan tidak teratur: pajaknya dihitung dari selisih PPh setahun dengan dan tanpa THR (PER-16/PJ/2016), bukan dari tarif bulanan. Karena itu potongannya bisa terasa lebih besar bila THR mendorong penghasilan ke lapisan tarif yang lebih tinggi.' + (punyaNpwp ? '' : ' Tanpa NPWP, angkanya sudah dikali 120%.') + '</p>');
+        return;
+      }
+
       if (mode === 'ter') {
         const tr = terRate(brutoBln, status.value);
         if (!tr) { T.show(box, '<p class="warn">TER tidak mengatur status gabungan K/I. Pakai mode progresif tahunan untuk status ini.</p>'); return; }
-        const pphBln = Math.round(brutoBln * tr.tarif / 100);
+        const pphBln = Math.round(brutoBln * tr.tarif / 100 * (punyaNpwp ? 1 : 1.2));
         const takeHome = Math.round(brutoBln - pphBln);
         T.show(box,
           '<div class="big">' + T.rp(pphBln) + '<span style="font-size:13px;font-weight:400"> / bulan</span></div>' +
           '<p class="center mut">Potongan PPh 21 bulan ini (Januari-November)</p>' +
           kv('Penghasilan bruto / bulan', T.rp(brutoBln)) +
           kv('Kategori TER (' + T.esc(status.value) + ')', 'Kategori ' + tr.kat) +
-          kv('Tarif efektif rata-rata', T.esc(String(tr.tarif)) + '%') +
+          kv('Tarif efektif rata-rata', T.esc(String(tr.tarif)) + '%' + (punyaNpwp ? '' : ' × 120% (tanpa NPWP)')) +
           kv('PPh 21 / bulan', T.rp(pphBln)) +
           kv('Sisa setelah PPh 21', '<b>' + T.rp(takeHome) + '</b>') +
           '<p class="hint">Sejak Januari 2024, PPh 21 pegawai tetap untuk Januari-November dihitung dari bruto sebulan dikali TER, tanpa mengurangi biaya jabatan atau PTKP dulu (PP 58/2023, PMK 168/2023). Di bulan terakhir (Desember atau saat berhenti kerja), pajak dihitung ulang setahun penuh dengan tarif progresif dikurangi potongan yang sudah dibayar. Sisa di atas belum dipotong iuran BPJS bagian karyawan.</p>');
         return;
       }
 
-      const r = pphBulanProgresif(brutoBln, iu, ptkp);
+      const r = pphBulanProgresif(brutoBln, iu, ptkp, punyaNpwp);
       const pphBln = r.pphBln;
       const takeHome = Math.round(brutoBln - pphBln - iu);
       let rincHtml = '';
@@ -169,16 +223,19 @@ export function render(root) {
         kv('PTKP (' + T.esc(status.value) + ')', T.rp(ptkp)) +
         kv('PKP (dibulatkan ke bawah ribuan)', T.rp(r.pkp)) +
         rincHtml +
-        '<p class="hint">Metode progresif tahunan (disetahunkan) sesuai Pasal 17 UU PPh. Untuk potongan di slip gaji Januari-November, pemberi kerja memakai tarif efektif rata-rata (TER) bulanan (PP 58/2023). Pindah ke mode TER bulanan di atas untuk melihatnya. Total setahun kedua cara sama setelah rekonsiliasi Desember.</p>');
+        '<p class="hint">Metode progresif tahunan (disetahunkan) sesuai Pasal 17 UU PPh. Untuk potongan di slip gaji Januari-November, pemberi kerja memakai tarif efektif rata-rata (TER) bulanan (PP 58/2023). Pindah ke mode TER bulanan di atas untuk melihatnya. Total setahun kedua cara sama setelah rekonsiliasi Desember.' + (punyaNpwp ? '' : ' Tanpa NPWP, PPh di atas sudah dikali 120%.') + '</p>');
     };
-    [gaji, tunj, iuran, target].forEach((i) => i.addEventListener('input', hitung));
+    [gaji, tunj, iuran, target, thr].forEach((i) => i.addEventListener('input', hitung));
     status.addEventListener('change', hitung);
+    npwpSel.addEventListener('change', hitung);
 
     root.appendChild(T.field('Mode perhitungan', modeSel));
     root.appendChild(fldGaji);
     root.appendChild(fldTunj);
     root.appendChild(fldTarget);
+    root.appendChild(fldThr);
     root.appendChild(fldIuran);
+    root.appendChild(fldNpwp);
     root.appendChild(fldStatus);
     root.appendChild(T.row(T.btn('Hitung PPh 21', hitung, true)));
     root.appendChild(box);

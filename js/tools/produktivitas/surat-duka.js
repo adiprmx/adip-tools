@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "surat-duka", "name": "Pembuat Surat Belasungkawa", "cat": "produktivitas", "icon": "🕊️", "desc": "Bikin surat turut berduka cita dengan bahasa yang sopan dan hangat untuk keluarga yang ditinggalkan, siap salin atau cetak.", "keywords": "surat duka,belasungkawa,turut berduka cita,surat belasungkawa,ucapan duka", "since": "6.11.0"};
 

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.11.5';
+import { h as T } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "projection-mapping", "name": "Mockup Generator", "cat": "desain", "icon": "🧊", "desc": "Tempel gambarmu ke permukaan miring via warp perspektif.", "keywords": "mockup,warp,perspektif,mapping,desain"};
 
@@ -82,7 +82,7 @@ export function render(root) {
       buildStage();
       T.scrollToPreview(stage);
     };
-    im.onerror = () => T.toast('Gagal membaca gambar');
+    im.onerror = () => T.toast('Gambarnya tidak bisa dibaca');
     im.src = URL.createObjectURL(file);
   }
 

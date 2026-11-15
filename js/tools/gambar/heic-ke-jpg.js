@@ -1,4 +1,4 @@
-import { h as T, errBox, LOCAL_NOTE, fmtBytes, fileInput } from '../../core.js?v=6.11.5';
+import { h as T, errBox, LOCAL_NOTE, fmtBytes, fileInput } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "heic-ke-jpg", "name": "HEIC ke JPG", "cat": "gambar", "icon": "🍎", "desc": "Ubah foto iPhone (HEIC) jadi JPG/PNG, bisa banyak foto sekaligus.", "keywords": "heic,heif,iphone,jpg,png,foto,convert", "since": "6.11.0"};
 export function render(root) {
@@ -79,7 +79,7 @@ export function render(root) {
       T.hide(hasilBox);
       T.show(statusBox, '<span class="dim">Memuat pengubah HEIC…</span>');
       if (!(await pastHeic())) {
-        T.show(statusBox, errBox('Pengubah HEIC gagal dimuat dari internet. Cek koneksi lalu coba lagi.'));
+        T.show(statusBox, errBox('Alat pengubah HEIC tidak bisa dimuat dari internet. Cek koneksi lalu coba lagi.'));
         memproses = false;
         return;
       }
@@ -103,7 +103,7 @@ export function render(root) {
       memproses = false;
       T.hide(statusBox);
       if (!hasil.length) {
-        T.show(statusBox, errBox('Tidak ada foto yang berhasil diubah. Beberapa varian HEIC memang tidak bisa dibaca pengubah ini. Coba kirim ulang fotonya dari iPhone sebagai JPG (Pengaturan > Kamera > Format > Paling Kompatibel).'));
+        T.show(statusBox, errBox('Tidak ada foto yang berhasil diubah. Beberapa varian HEIC memang tidak bisa dibaca alat ini. Coba kirim ulang fotonya dari iPhone sebagai JPG (Pengaturan > Kamera > Format > Paling Kompatibel).'));
         return;
       }
       T.show(hasilBox, '');
@@ -114,12 +114,12 @@ export function render(root) {
         hasilBox.appendChild(row);
       });
       if (gagal.length) {
-        hasilBox.appendChild(T.el('<p class="dim" style="font-size:12px">' + gagal.length + ' foto gagal diubah: ' + T.esc(gagal.join(', ')) + '. Varian HEIC-nya tidak didukung pengubah ini.</p>'));
+        hasilBox.appendChild(T.el('<p class="dim" style="font-size:12px">' + gagal.length + ' foto gagal diubah: ' + T.esc(gagal.join(', ')) + '. Varian HEIC-nya tidak bisa diubah oleh alat ini.</p>'));
       }
       if (hasil.length > 1) {
         const zipB = T.btn('Unduh semua (ZIP)', async () => {
           T.show(statusBox, '<span class="dim">Menyiapkan ZIP…</span>');
-          if (!(await pastZip())) { T.show(statusBox, errBox('Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi.')); return; }
+          if (!(await pastZip())) { T.show(statusBox, errBox('Alat pembuat ZIP tidak bisa dimuat. Cek koneksi lalu coba lagi.')); return; }
           try {
             const zip = new window.JSZip();
             hasil.forEach((r) => zip.file(r.name, r.blob));
@@ -128,7 +128,7 @@ export function render(root) {
             T.hide(statusBox);
             T.toast('ZIP berhasil diunduh');
           } catch (e) {
-            T.show(statusBox, errBox('Gagal membuat ZIP. Unduh fotonya satu per satu.'));
+            T.show(statusBox, errBox('ZIP tidak bisa dibuat. Unduh fotonya satu per satu.'));
           }
         }, true);
         hasilBox.appendChild(T.row(zipB));

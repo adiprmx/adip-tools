@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"habit-tracker","name":"Habit Tracker","cat":"produktivitas","icon":"✅","desc":"Bangun kebiasaan baik & pantau streak harianmu.","keywords":"habit,kebiasaan,streak,rutinitas,produktif,target"};
 

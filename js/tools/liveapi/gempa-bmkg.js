@@ -1,17 +1,11 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "gempa-bmkg", "name": "Gempa BMKG Terkini", "cat": "liveapi", "icon": "🌊", "desc": "Info gempa bumi terbaru langsung dari BMKG.", "keywords": "gempa,bmkg,tsunami,lindu,magnitudo,gempa bumi,terkini"};
 export function render(root) {
 
     const box = T.out();
-    const muat = async () => {
-      T.show(box, '<p class="mut">Mengambil data gempa terbaru dari BMKG…</p>');
-      try {
-        const r = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json');
-        if (!r.ok) throw new Error('http ' + r.status);
-        const j = await r.json();
-        const g = j && j.Infogempa && j.Infogempa.gempa;
-        if (!g || !g.Magnitude) throw new Error('bad-data');
+    let cacheData = null, cacheAt = 0;
+    const tampil = (g) => {
         const potensi = String(g.Potensi || '');
         const tsunami = /berpotensi/i.test(potensi) && !/tidak/i.test(potensi);
         let html = '';
@@ -30,9 +24,29 @@ export function render(root) {
         }
         html += '<p class="hint">Sumber: BMKG — data.bmkg.go.id</p>';
         T.show(box, html);
+    };
+    const muat = async () => {
+      if (cacheData && Date.now() - cacheAt < 5 * 60 * 1000) { tampil(cacheData); return; }
+      T.show(box, '<p class="mut">Mengambil data gempa terbaru dari BMKG…</p>');
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
+      try {
+        const r = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json', { signal: ctrl.signal });
+        if (!r.ok) throw new Error('http ' + r.status);
+        const j = await r.json();
+        const g = j && j.Infogempa && j.Infogempa.gempa;
+        if (!g || !g.Magnitude) throw new Error('bad-data');
+        cacheData = g; cacheAt = Date.now();
+        tampil(g);
       } catch (e) {
-        T.show(box, errBox('Gagal ambil data gempa. Cek koneksi internet, lalu coba lagi.'));
-      }
+        const msg = e.name === 'AbortError'
+          ? 'Waktu habis — server BMKG tidak merespons dalam 15 detik.'
+          : 'Gagal ambil data gempa. Cek koneksi internet, lalu coba lagi.';
+        T.show(box, errBox(msg));
+        const wr = T.el('<div style="margin-top:8px"></div>');
+        wr.appendChild(T.btn('🔄 Coba lagi', muat));
+        box.appendChild(wr);
+      } finally { clearTimeout(timer); }
     };
     root.appendChild(T.row(T.btn('Cek gempa terkini', muat, true)));
     root.appendChild(box);

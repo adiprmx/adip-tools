@@ -1,6 +1,6 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "bentuk-foto", "name": "Crop Bentuk Foto", "cat": "gambar", "icon": "⭐", "desc": "Crop foto jadi lingkaran, hati, bintang, atau sudut bulat.", "keywords": "crop,bentuk,lingkaran,hati,bintang,rounded,foto profil,png"};
+export const meta = {"id": "bentuk-foto", "name": "Bentuk Foto", "cat": "gambar", "icon": "⭐", "desc": "Potong foto jadi lingkaran, hati, bintang, atau sudut bulat.", "keywords": "crop,bentuk,lingkaran,hati,bintang,rounded,foto profil,png"};
 export function render(root) {
 
     const fileI = fileInput('image/*');
@@ -69,18 +69,18 @@ export function render(root) {
         const S = Math.min(1000, Math.max(320, Math.min(imgW, imgH)));
         canvas.width = S; canvas.height = S;
         const ctx = ctx2d(canvas);
-        if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+        if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
         try { drawShaped(ctx, S); }
-        catch (e) { T.toast('Gagal menggambar: ' + (e && e.message ? e.message : e)); }
+        catch (e) { T.toast('Gambar tidak bisa dibuat: ' + (e && e.message ? e.message : e)); }
     }
 
     async function onFile() {
         if (!fileI.files[0]) return;
         let img;
         try { img = await loadImage(fileI.files[0]); }
-        catch (e) { T.toast('File bukan gambar yang valid'); return; }
+        catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
         const ctx = ctx2d(canvas);
-        if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+        if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
         imgObj = img; imgW = img.naturalWidth; imgH = img.naturalHeight;
         hasImg = true;
         render2();
@@ -96,13 +96,13 @@ export function render(root) {
             const c = document.createElement('canvas');
             c.width = S; c.height = S;
             const ctx = ctx2d(c);
-            if (!ctx) { T.toast('Canvas tidak tersedia di perangkat ini'); return; }
+            if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
             drawShaped(ctx, S);
             const blob = await canvasToBlob(c, 'image/png');
-            if (!blob) { T.toast('Gagal membuat gambar'); return; }
+            if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
             T.dl('foto-' + shapeSel.value + '.png', blob, 'image/png');
             T.toast('Berhasil diunduh');
-        } catch (e) { T.toast('Gagal: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Tidak bisa: ' + (e && e.message ? e.message : e)); }
     }, true);
 
     root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));

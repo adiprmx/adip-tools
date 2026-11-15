@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "food-cost", "name": "Food Cost", "cat": "bisnis", "icon": "🍽️", "desc": "Cek berapa persen biaya bahan dari harga jual, dan ketahuan harga jual yang ideal.", "keywords": "food cost,biaya bahan,harga jual,kuliner,restoran,warung,margin makanan", "since": "6.11.0"};
 export function render(root) {

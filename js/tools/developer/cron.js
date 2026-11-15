@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, kvRows, tabs } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc, kvRows, tabs } from '../../core.js?v=6.12.0';
 
 const DOW_ID = { 0: 'Minggu', 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 
@@ -34,7 +34,7 @@ function cronToId(cron) {
     if (presets[c]) return presets[c];
     const f = c.split(/\s+/);
     if (f.length !== 5 || !f.every((x) => /^[0-9*,\-\/]+$/.test(x)))
-      return 'Ekspresi cron tidak valid (format: menit jam tanggal bulan hari).';
+      return 'Rumus cron tidak benar (format: menit jam tanggal bulan hari).';
     const mi = f[0], hr = f[1], dom = f[2], mon = f[3], dow = f[4];
     let when;
     if (mi === '*' && hr === '*') when = 'setiap menit';

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.0';
 
 // Perbaiki JSON rusak dengan toleransi: komentar, koma berlebih,
 // kutip tunggal, dan kunci tanpa kutip. Scanner karakter, bukan regex
@@ -185,16 +185,102 @@ function treeHtml(value, depth) {
   return '<span style="color:#a9e5bb">' + esc(JSON.stringify(value)) + '</span>';
 }
 
-export const meta = {"id": "json-formatter", "name": "JSON Formatter", "cat": "developer", "icon": "🧩", "desc": "Rapikan, perbaiki, telusuri & validasi JSON.", "keywords": "json,format,rapi,validasi,tree,jsonpath,schema"};
+// ---- Angka besar tanpa pembulatan ----
+// JSON.parse mengubah angka jadi double JavaScript: bilangan bulat di atas
+// 2^53 dan desimal dengan digit lebih dari ~15 akan dibulatkan. Formatter
+// teks di bawah bekerja langsung pada teks mentah sehingga literal angka
+// (mis. ID 64-bit, saldo kripto) tetap utuh apa adanya.
+export function cariAngkaBesar(raw) {
+  const ketemu = [];
+  let inStr = false, escNext = false;
+  const isNum = (c) => /[0-9eE+\-.]/.test(c);
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (inStr) {
+      if (escNext) escNext = false;
+      else if (ch === '\\') escNext = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') { inStr = true; continue; }
+    if (ch === '-' || (ch >= '0' && ch <= '9')) {
+      let j = i;
+      while (j < raw.length && isNum(raw[j])) j++;
+      const tok = raw.slice(i, j);
+      if (/^-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?$/.test(tok)) {
+        const mantissa = tok.replace(/^[+-]?/, '').split(/[eE]/)[0].replace('.', '').replace(/^0+/, '');
+        if (mantissa.length > 15) ketemu.push(tok);
+      }
+      i = j - 1;
+    }
+  }
+  return ketemu;
+}
+
+export function rapikanMentah(raw, indent) {
+  const sp = ' '.repeat(indent);
+  let out = '', depth = 0, inStr = false, escNext = false;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (inStr) {
+      out += ch;
+      if (escNext) escNext = false;
+      else if (ch === '\\') escNext = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') { inStr = true; out += ch; continue; }
+    if (ch === '{' || ch === '[') {
+      let j = i + 1;
+      while (j < raw.length && /\s/.test(raw[j])) j++;
+      const tutup = ch === '{' ? '}' : ']';
+      if (raw[j] === tutup) { out += ch + tutup; i = j; continue; }
+      out += ch + '\n' + sp.repeat(++depth);
+      continue;
+    }
+    if (ch === '}' || ch === ']') { out += '\n' + sp.repeat(--depth) + ch; continue; }
+    if (ch === ',') { out += ch + '\n' + sp.repeat(depth); continue; }
+    if (ch === ':') { out += ': '; continue; }
+    if (/\s/.test(ch)) continue;
+    out += ch;
+  }
+  return out;
+}
+
+export function minifyMentah(raw) {
+  let out = '', inStr = false, escNext = false;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (inStr) {
+      out += ch;
+      if (escNext) escNext = false;
+      else if (ch === '\\') escNext = true;
+      else if (ch === '"') inStr = false;
+      continue;
+    }
+    if (ch === '"') { inStr = true; out += ch; continue; }
+    if (/\s/.test(ch)) continue;
+    out += ch;
+  }
+  return out;
+}
+
+export const meta = {"id": "json-formatter", "name": "JSON Formatter", "cat": "developer", "icon": "🧩", "desc": "Rapikan, perbaiki, telusuri & validasi JSON — angka besar tetap utuh.", "keywords": "json,format,rapi,validasi,tree,jsonpath,schema,angka besar"};
 export function render(root) {
 
     const ta = T.ta(8, 'Paste JSON di sini…');
     const indentSel = T.select([['2', 'Indent 2'], ['4', 'Indent 4']], '2');
+    const jagaAngka = document.createElement('input');
+    jagaAngka.type = 'checkbox'; jagaAngka.checked = true; jagaAngka.id = 'jf-jaga';
     const box = T.out();
+    let angkaBesar = [];
+    const peringatanAngka = () => angkaBesar.length
+      ? '<div class="hint" style="margin-top:8px;color:#fbbf24">Perhatian: JSON ini berisi ' + angkaBesar.length + ' angka besar (contoh: ' + esc(angkaBesar[0]) + ') yang sudah dibulatkan di tampilan ini. Pakai tombol Rapikan dengan opsi "Jaga angka besar" supaya angkanya tetap utuh.</div>'
+      : '';
     const parseInput = () => {
       const raw = ta.value.trim();
       if (!raw) { T.show(box, errBox('Tempel dulu JSON-nya.')); return null; }
-      try { return { obj: JSON.parse(raw), raw }; }
+      try { angkaBesar = cariAngkaBesar(raw); return { obj: JSON.parse(raw), raw }; }
       catch (e) {
         let pos = '';
         const m = /position (\d+)/.exec(String(e.message));
@@ -206,10 +292,21 @@ export function render(root) {
     const run = (mode) => {
       const parsed = parseInput();
       if (!parsed) return;
-      const { obj } = parsed;
-      if (mode === 'valid') { T.show(box, '<span class="ok">✓ JSON valid.</span>'); return; }
+      const { obj, raw } = parsed;
+      if (mode === 'valid') {
+        T.show(box, '<span class="ok">✓ JSON valid.</span>' + (angkaBesar.length
+          ? '<div class="hint" style="margin-top:6px;color:#fbbf24">' + angkaBesar.length + ' angka besar terdeteksi (contoh: ' + esc(angkaBesar[0]) + '). Aktifkan "Jaga angka besar" saat merapikan supaya tidak dibulatkan.</div>' : ''));
+        return;
+      }
       const ind = mode === 'min' ? 0 : +indentSel.value;
-      T.show(box, preHtml(JSON.stringify(obj, null, ind)));
+      if (jagaAngka.checked) {
+        // Jalur teks mentah: literal angka tidak pernah disentuh.
+        const hasil = mode === 'min' ? minifyMentah(raw) : rapikanMentah(raw, ind);
+        T.show(box, preHtml(hasil) + (angkaBesar.length
+          ? '<div class="hint" style="margin-top:8px">' + angkaBesar.length + ' angka besar dipertahankan utuh (tidak dibulatkan).</div>' : ''));
+        return;
+      }
+      T.show(box, preHtml(JSON.stringify(obj, null, ind)) + peringatanAngka());
     };
     const runRepair = () => {
       const raw = ta.value.trim();
@@ -226,12 +323,12 @@ export function render(root) {
     const runSort = () => {
       const parsed = parseInput();
       if (!parsed) return;
-      T.show(box, preHtml(JSON.stringify(sortKeysDeep(parsed.obj), null, +indentSel.value)));
+      T.show(box, preHtml(JSON.stringify(sortKeysDeep(parsed.obj), null, +indentSel.value)) + peringatanAngka());
     };
     const runTree = () => {
       const parsed = parseInput();
       if (!parsed) return;
-      T.show(box, '<div style="font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.6">' + treeHtml(parsed.obj, 0) + '</div><div class="hint" style="margin-top:8px">Ketuk baris untuk membuka/menutup cabangnya.</div>');
+      T.show(box, '<div style="font-family:ui-monospace,monospace;font-size:12.5px;line-height:1.6">' + treeHtml(parsed.obj, 0) + '</div><div class="hint" style="margin-top:8px">Ketuk baris untuk membuka/menutup cabangnya.</div>' + peringatanAngka());
     };
     const pathInp = T.input('text', '$.pengguna.nama  atau  $.daftar[*].harga');
     const runPath = () => {
@@ -260,6 +357,10 @@ export function render(root) {
     };
 
     root.appendChild(T.field('Input JSON', ta));
+    const lblJaga = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0 10px"></label>');
+    lblJaga.appendChild(jagaAngka);
+    lblJaga.appendChild(document.createTextNode('Jaga angka besar tetap utuh (tanpa pembulatan)'));
+    root.appendChild(lblJaga);
     root.appendChild(T.row(T.field('Indentasi', indentSel)));
     root.appendChild(T.row(
       T.btn('Rapikan', () => run('pretty'), true),

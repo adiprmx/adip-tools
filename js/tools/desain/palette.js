@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 function hslToHex(h, s, l) {
     h = ((h % 360) + 360) % 360; s /= 100; l /= 100;
@@ -136,13 +136,25 @@ export function render(root) {
       const isi = skalaState.scale.map(({ step, hex }) => '  --brand-' + step + ': ' + hex + ';').join('\n');
       T.copy(':root {\n' + isi + '\n}');
     };
+    const eksporJson = () => {
+      if (!skalaState.scale.length) { T.toast('Buat skalanya dulu'); return; }
+      const obj = {};
+      skalaState.scale.forEach(({ step, hex }) => { obj[step] = hex; });
+      T.copy(JSON.stringify({ brand: obj }, null, 2));
+    };
+    const salinSemuaHex = () => {
+      if (!skalaState.scale.length) { T.toast('Buat skalanya dulu'); return; }
+      T.copy(skalaState.scale.map(({ hex }) => hex).join('\n'));
+    };
     root.appendChild(T.el('<h3 style="font-size:14px;margin:22px 0 4px">Skala warna 50-950</h3>'));
     root.appendChild(T.el('<p class="hint" style="margin-bottom:10px">Satu warna dasar jadi 11 tingkat terang sampai gelap, siap pakai di Tailwind atau CSS. Klik baris untuk salin HEX-nya.</p>'));
     root.appendChild(T.grid2(T.field('Warna dasar', skalaInp), T.field('Kode HEX', skalaHex)));
     root.appendChild(T.row(
       T.btn('Buat skala', catSkala, true),
       T.btn('Salin Tailwind', eksporTailwind),
-      T.btn('Salin CSS', eksporMaterial)
+      T.btn('Salin CSS', eksporMaterial),
+      T.btn('Salin JSON', eksporJson),
+      T.btn('Salin semua HEX', salinSemuaHex)
     ));
     root.appendChild(skalaWrap);
     catSkala();

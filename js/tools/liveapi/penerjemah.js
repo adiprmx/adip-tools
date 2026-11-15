@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.11.5';
+import { h as T, esc } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "penerjemah", "name": "Penerjemah", "cat": "liveapi", "icon": "🌏", "desc": "Terjemahkan teks Indonesia↔Inggris secara instan.", "keywords": "terjemah,translate,inggris,indonesia,bahasa"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv, errBox, todayISO } from '../../core.js?v=6.11.5';
+import { h as T, kv, errBox, todayISO } from '../../core.js?v=6.12.0';
 
 // Konversi Masehi ke penanggalan Jawa, sistem kurup Asapon (tahun Jawa
 // 1867-1986, sekitar 1936-2053 M). Jangkar terverifikasi:

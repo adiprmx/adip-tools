@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 (function () {
     const M = {
@@ -37,11 +37,11 @@ export function render(root) {
     let token = 0;
     T.onLeave(() => { token++; });
 
-    const enc = () => { outp.value = utils.morseEncode(inp.value) || '⚠️ Tidak ada karakter yang bisa di-encode.'; };
+    const enc = () => { outp.value = utils.morseEncode(inp.value) || '⚠️ Tidak ada huruf yang bisa diubah jadi Morse.'; };
     const dec = () => { outp.value = utils.morseDecode(inp.value); };
     const play = () => {
       const seq = (outp.value || utils.morseEncode(inp.value)).split('');
-      if (!seq.length) { T.toast('Tidak ada morse untuk dimainkan'); return; }
+      if (!seq.length) { T.toast('Tidak ada morse untuk diputar'); return; }
       const my = ++token;
       T.toast('Memutar morse…');
       let i = 0;
@@ -57,9 +57,9 @@ export function render(root) {
     };
     bPlay.addEventListener('click', play);
     bStop.addEventListener('click', () => { token++; T.toast('Berhenti'); });
-    root.appendChild(T.field('Input', inp, 'Huruf, angka, dan tanda baca umum didukung.'));
+    root.appendChild(T.field('Teks', inp, 'Huruf, angka, dan tanda baca biasa bisa dipakai.'));
     root.appendChild(T.row(T.btn('Teks → Morse', enc, true), T.btn('Morse → Teks', dec)));
-    root.appendChild(T.field('Output', outp));
+    root.appendChild(T.field('Hasil', outp));
     root.appendChild(T.row(bPlay, bStop, T.copyBtn(() => outp.value, 'Salin')));
   
 }

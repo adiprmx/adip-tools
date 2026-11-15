@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "cooking-converter", "name": "Takaran Masak", "cat": "converter", "icon": "🍳", "desc": "Konversi sendok, cup, gram, ml.", "keywords": "masak,takaran,sendok,cup,gram,resep,dapur"};
 export function render(root) {
@@ -10,9 +10,9 @@ export function render(root) {
       mentega: ['Mentega / margarin', 227], madu: ['Madu', 340], garam: ['Garam', 273], cokelat: ['Cokelat bubuk', 100],
     };
     const VOL = { cup: ['Cup', 240], sdm: ['Sendok makan', 15], sdt: ['Sendok teh', 5], ml: ['Mililiter', 1], L: ['Liter', 1000] };
-    const bahanSel = T.select(Object.keys(BAHAN).map((k) => [k, BAHAN[k][0] + ' (' + BAHAN[k][1] + ' g/cup)']).concat([['custom', 'Custom (isi g/ml sendiri)']]), 'tepung');
+    const bahanSel = T.select(Object.keys(BAHAN).map((k) => [k, BAHAN[k][0] + ' (' + BAHAN[k][1] + ' g/cup)']).concat([['custom', 'Lainnya (isi sendiri gram per ml)']]), 'tepung');
     const customWrap = T.el('<div></div>');
-    const customInp = T.input('number', 'Berat jenis, misal: 0,5 (gram per ml)', '');
+    const customInp = T.input('number', 'Misal: 0,5 (1 ml bahan = 0,5 gram)', '');
     customWrap.appendChild(T.field('Gram per ml', customInp));
     T.hide(customWrap);
     const dariSel = T.select(Object.keys(VOL).map((k) => [k, VOL[k][0]]), 'cup');
@@ -30,7 +30,7 @@ export function render(root) {
       const v = T.num(valInp.value);
       const d = gPerMl();
       if (!Number.isFinite(v) || v < 0) { T.hide(out); return; }
-      if (!Number.isFinite(d)) { T.show(out, '<span class="err">Isi berat jenis (gram per ml) yang valid untuk bahan custom.</span>'); return; }
+      if (!Number.isFinite(d)) { T.show(out, '<span class="err">Isi dulu berat bahan per ml (gram per ml) untuk bahan lainnya.</span>'); return; }
       const ml = v * VOL[dariSel.value][1];
       const gram = ml * d;
       const rows = Object.keys(VOL).map((k) =>

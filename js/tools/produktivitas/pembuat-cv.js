@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 4 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja"};
+export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 5 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja,sertifikat"};
 
 let _printCssDone = false;
 
@@ -27,6 +27,7 @@ const CONTOH = {
   ringkasan: 'Lulusan SMK jurusan Administrasi yang teliti, disiplin, dan siap belajar. Berpengalaman magang di bagian administrasi selama 3 bulan.',
   pendidikan: [{ sekolah: 'SMK Contoh Negeri 1', jurusan: 'Administrasi Perkantoran', tahun: '2023 - 2026' }],
   pengalaman: [{ tempat: 'PT Contoh Sejahtera', jabatan: 'Magang Administrasi', tahun: 'Jan - Mar 2026', tugas: 'Mengarsip dokumen, menginput data, dan melayani tamu kantor.' }],
+  sertifikat: [{ nama: 'Sertifikat Komputer Dasar', tahun: '2025' }],
   keahlian: ['Microsoft Word & Excel', 'Mengetik 10 jari', 'Administrasi perkantoran', 'Komunikasi'],
   template: 'formal'
 };
@@ -37,6 +38,7 @@ function kosong() {
     alamat: '', telepon: '', email: '', ringkasan: '',
     pendidikan: [{ sekolah: '', jurusan: '', tahun: '' }],
     pengalaman: [{ tempat: '', jabatan: '', tahun: '', tugas: '' }],
+    sertifikat: [{ nama: '', tahun: '' }],
     keahlian: [''],
     template: 'formal'
   };
@@ -71,8 +73,58 @@ export function render(root) {
       const ttl = [baris(data.tempatLahir), baris(data.tanggalLahir)].filter(Boolean).join(', ');
       const pend = data.pendidikan.filter((p) => baris(p.sekolah) || baris(p.jurusan));
       const peng = data.pengalaman.filter((p) => baris(p.tempat) || baris(p.jabatan));
+      const sert = (data.sertifikat || []).filter((s) => baris(s.nama));
       const ahli = data.keahlian.map(baris).filter(Boolean);
       const tpl = data.template || 'formal';
+
+      // Tampilan dua kolom: kontak + keahlian di kiri, isi utama di kanan.
+      if (tpl === 'kolom') {
+        const jdl = (t) => '<div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px">' + t + '</div>';
+        const jdlKiri = (t) => '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 6px">' + t + '</div>';
+        let kiri = '';
+        if (kontak.length || ttl) {
+          kiri += jdlKiri('Kontak') + '<div style="font-size:12px;line-height:1.7;color:#333">' +
+            kontak.map(esc).join('<br/>') + (ttl ? (kontak.length ? '<br/>' : '') + esc(ttl) : '') + '</div>';
+        }
+        if (ahli.length) {
+          kiri += jdlKiri('Keahlian') + '<div style="font-size:12px;line-height:1.7">' + ahli.map((a) => '• ' + esc(a)).join('<br/>') + '</div>';
+        }
+        let kanan = '';
+        if (baris(data.ringkasan)) kanan += jdl('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0 0 14px">' + esc(data.ringkasan) + '</p>';
+        if (pend.length) {
+          kanan += jdl('Pendidikan');
+          pend.forEach((p) => {
+            kanan += '<div style="font-size:13px;line-height:1.5;margin-bottom:6px"><b>' + esc(p.sekolah || '(Sekolah)') + '</b>' +
+              (baris(p.tahun) ? ' <span style="color:#555">(' + esc(p.tahun) + ')</span>' : '') +
+              (baris(p.jurusan) ? '<br/>' + esc(p.jurusan) : '') + '</div>';
+          });
+          kanan += '<div style="height:8px"></div>';
+        }
+        if (peng.length) {
+          kanan += jdl('Pengalaman');
+          peng.forEach((p) => {
+            kanan += '<div style="font-size:13px;line-height:1.5;margin-bottom:8px"><b>' + esc(p.jabatan || '(Jabatan)') + '</b> - ' + esc(p.tempat || '(Tempat)') +
+              (baris(p.tahun) ? ' <span style="color:#555">(' + esc(p.tahun) + ')</span>' : '') +
+              (baris(p.tugas) ? '<br/>' + esc(p.tugas) : '') + '</div>';
+          });
+          kanan += '<div style="height:8px"></div>';
+        }
+        if (sert.length) {
+          kanan += jdl('Pelatihan & Sertifikat');
+          sert.forEach((s) => {
+            kanan += '<div style="font-size:13px;line-height:1.5;margin-bottom:4px">• ' + esc(s.nama) +
+              (baris(s.tahun) ? ' <span style="color:#555">(' + esc(s.tahun) + ')</span>' : '') + '</div>';
+          });
+        }
+        return '<div style="border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:0">' +
+          '<div style="font-size:26px;font-weight:700;letter-spacing:.5px">' + esc(nama) + '</div>' +
+          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          '</div>' +
+          '<div style="display:flex;gap:0">' +
+          '<div style="width:190px;flex-shrink:0;padding:4px 16px 0 0;border-right:1px solid #ccc">' + kiri + '</div>' +
+          '<div style="flex:1;padding:14px 0 0 16px">' + kanan + '</div>' +
+          '</div>';
+      }
 
       const head = tpl === 'formal'
         ? '<div style="text-align:center;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:14px">' +
@@ -126,6 +178,13 @@ export function render(root) {
           h += '<div style="font-size:13px;line-height:1.5;margin-bottom:8px"><b>' + esc(p.jabatan || '(Jabatan)') + '</b> - ' + esc(p.tempat || '(Tempat)') +
             (baris(p.tahun) ? ' <span style="color:#555">(' + esc(p.tahun) + ')</span>' : '') +
             (baris(p.tugas) ? '<br/>' + esc(p.tugas) : '') + '</div>';
+        });
+      }
+      if (sert.length) {
+        h += judul('Pelatihan & Sertifikat');
+        sert.forEach((s) => {
+          h += '<div style="font-size:13px;line-height:1.5;margin-bottom:4px">• ' + esc(s.nama) +
+            (baris(s.tahun) ? ' <span style="color:#555">(' + esc(s.tahun) + ')</span>' : '') + '</div>';
         });
       }
       if (ahli.length) {
@@ -262,6 +321,12 @@ export function render(root) {
           { k: 'tahun', label: 'Periode', ph: 'Contoh: Jan 2025 - Jun 2025' },
           { k: 'tugas', label: 'Tugas utama (singkat)', ph: 'Apa saja yang dikerjakan', ta: true }
         ], 'Tambah pengalaman'));
+        box.appendChild(T.el('<p class="dim" style="margin-top:16px">Pelatihan &amp; sertifikat (opsional, misal kursus komputer atau sertifikat kerja)</p>'));
+        if (!Array.isArray(data.sertifikat)) data.sertifikat = [{ nama: '', tahun: '' }];
+        box.appendChild(daftarDinamis(data.sertifikat, [
+          { k: 'nama', label: 'Nama pelatihan / sertifikat', ph: 'Contoh: Sertifikat Komputer Dasar' },
+          { k: 'tahun', label: 'Tahun', ph: 'Contoh: 2025' }
+        ], 'Tambah sertifikat'));
       } else if (langkah === 4) {
         const ring = T.ta(3, 'Ceritakan diri kamu dalam 2-3 kalimat: latar belakang, kelebihan, dan tujuan melamar.', data.ringkasan);
         ring.addEventListener('input', () => { data.ringkasan = ring.value; simpan(); });
@@ -274,6 +339,7 @@ export function render(root) {
           ['formal', 'Formal, judul tengah dan garis tegas'],
           ['simpel', 'Simpel, rapi tanpa garis'],
           ['modern', 'Modern, aksen garis tebal di kiri'],
+          ['kolom', 'Dua kolom, kontak & keahlian di kiri'],
           ['ats', 'ATS, polos dan mudah dibaca sistem HRD']
         ], data.template);
         tpl.addEventListener('change', () => { data.template = tpl.value; simpan(); });

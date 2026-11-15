@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=6.12.0';
 
 function vcardString(d) {
     const e = (v) => String(v == null ? '' : v).replace(/\n/g, ' ');
@@ -36,11 +36,11 @@ export function render(root) {
       const nama = vNama.value.trim();
       if (!nama) { T.show(vStatus, errBox('Isi dulu nama kontaknya.')); return; }
       const s = vcardString({ nama, hp: vHp.value.trim(), email: vMail.value.trim(), org: vOrg.value.trim(), web: vWeb.value.trim() });
-      T.show(vStatus, '<span class="dim">Memuat library QR…</span>');
+      T.show(vStatus, '<span class="dim">Menyiapkan alat QR…</span>');
       loadQr().then((ok) => {
-        if (!ok) { T.show(vStatus, errBox('Gagal memuat library QR dari CDN. Cek koneksi internet.')); return; }
+        if (!ok) { T.show(vStatus, errBox('Alat QR tidak bisa dimuat dari internet. Cek koneksi internet.')); return; }
         QRCode.toCanvas(vCv, s, { width: 400, margin: 2 }, (err) => {
-          if (err) { T.show(vStatus, errBox('Gagal membuat QR: ' + err.message)); return; }
+          if (err) { T.show(vStatus, errBox('QR tidak bisa dibuat: ' + err.message)); return; }
           vWrap.innerHTML = '';
           vCv.style.maxWidth = '100%'; vCv.style.height = 'auto';
           vWrap.appendChild(vCv);
@@ -72,9 +72,9 @@ export function render(root) {
     const bDraw = () => {
       const txt = bText.value.trim();
       if (!txt) { T.show(bStatus, errBox('Isi dulu teks/angkanya.')); return; }
-      T.show(bStatus, '<span class="dim">Memuat library barcode…</span>');
+      T.show(bStatus, '<span class="dim">Menyiapkan alat barcode…</span>');
       loadBc().then((ok) => {
-        if (!ok) { T.show(bStatus, errBox('Gagal memuat library barcode dari CDN. Cek koneksi internet.')); return; }
+        if (!ok) { T.show(bStatus, errBox('Alat barcode tidak bisa dimuat dari internet. Cek koneksi internet.')); return; }
         try {
           bWrap.innerHTML = '';
           bSvg.setAttribute('width', '100%');
@@ -82,7 +82,7 @@ export function render(root) {
           bWrap.appendChild(bSvg);
           T.hide(bStatus);
         } catch (e) {
-          T.show(bStatus, errBox('Barcode tidak valid untuk format ' + bFmt.value + ': ' + e.message));
+          T.show(bStatus, errBox('Barcode tidak cocok untuk format ' + bFmt.value + ': ' + e.message));
         }
       });
     };
@@ -103,7 +103,7 @@ export function render(root) {
         a.download = 'barcode.png';
         document.body.appendChild(a); a.click(); a.remove();
       };
-      img.onerror = () => T.toast('Gagal render PNG');
+      img.onerror = () => T.toast('PNG tidak bisa dibuat');
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
     })));
     bPage.appendChild(bStatus);

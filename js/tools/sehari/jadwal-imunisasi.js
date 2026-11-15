@@ -1,4 +1,4 @@
-import { h as T, utils, p2 } from '../../core.js?v=6.11.5';
+import { h as T, utils, p2 } from '../../core.js?v=6.12.0';
 
 // Jadwal Imunisasi Anak IDAI 2024 (0-18 tahun), ringkas.
 // umurBulan: usia pemberian dalam bulan. gratis = vaksin program pemerintah.

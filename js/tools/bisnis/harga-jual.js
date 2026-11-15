@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 utils.hargaJual = function (modal, marginPct) {
     modal = Number(modal); marginPct = Number(marginPct);
@@ -26,7 +26,7 @@ export function render(root) {
         if (modeSel.value === 'm1') {
           const mp = T.num(marginI.value);
           const jual = utils.hargaJual(modal, mp);
-          if (!isFinite(jual)) { T.toast('Isi modal & margin yang valid (margin < 100%)'); return; }
+          if (!isFinite(jual)) { T.toast('Isi modal & margin dengan benar (margin < 100%)'); return; }
           T.show(box,
             `<div class="kv"><span>Harga jual</span><b>${T.rp(jual)}</b></div>` +
             `<div class="kv"><span>Profit per pcs</span><b>${T.rp(jual - modal)}</b></div>` +
@@ -34,7 +34,7 @@ export function render(root) {
         } else {
           const jual = T.num(jualI.value);
           const mp = utils.marginAktual(modal, jual);
-          if (!isFinite(mp)) { T.toast('Isi modal & harga jual yang valid'); return; }
+          if (!isFinite(mp)) { T.toast('Isi modal & harga jual dengan benar'); return; }
           T.show(box,
             `<div class="kv"><span>Margin aktual</span><b>${mp.toFixed(1)}%</b></div>` +
             `<div class="kv"><span>Profit per pcs</span><b>${T.rp(jual - modal)}</b></div>`);

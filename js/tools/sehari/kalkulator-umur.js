@@ -1,4 +1,4 @@
-import { h as T, utils, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, onLeave } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node)
 utils.hitungUmur = function (tglStr, nowMs) {
@@ -34,7 +34,7 @@ export function render(root) {
 
   function calc() {
     const r = utils.hitungUmur(tgl.value);
-    if (!r) { T.show(box, '<div class="hint">⚠️ Isi tanggal lahir yang valid (tidak boleh di masa depan).</div>'); return; }
+    if (!r) { T.show(box, '<div class="hint">⚠️ Isi tanggal lahir yang benar (tidak boleh di masa depan).</div>'); return; }
     T.show(box, `
       <div class="big">${r.tahun} <span style="font-size:14px">tahun</span> ${r.bulan} <span style="font-size:14px">bulan</span> ${r.hari} <span style="font-size:14px">hari</span></div>
       <div class="kv"><span>Total bulan</span><b>${r.totalBulan.toLocaleString('id-ID')}</b></div>

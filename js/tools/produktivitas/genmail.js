@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas", "icon": "📧", "desc": "Email sementara: buat alamat, terima & baca pesan tanpa daftar.", "keywords": "temp mail,email sementara,inbox,otp,spam,guerrillamail"};
 
@@ -143,7 +143,7 @@ export function render(root) {
     }
   };
 
-  pNew.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Butuh email sekali pakai buat daftar/OTP tanpa mengumbar email utama? Buat di sini — gratis, tanpa daftar, kedaluwarsa ±60 menit. Email ini <b>hanya bisa menerima</b>, tidak bisa mengirim.</p>'));
+  pNew.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Butuh email sekali pakai buat daftar/OTP tanpa mengumbar email utama? Buat di sini — gratis, tanpa daftar, kedaluwarsa ±60 menit. Email ini <b>hanya bisa menerima</b>, tidak bisa mengirim. <b>Jangan dipakai untuk akun penting atau kode berisi uang:</b> siapa pun yang tahu alamat email ini bisa membaca isinya.</p>'));
   pNew.appendChild(T.field('Nama email (opsional — kosong = acak)', userInp));
   pNew.appendChild(T.row(T.btn('Buat Email', buat, true)));
   pNew.appendChild(outNew);

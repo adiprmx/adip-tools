@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -110,6 +110,17 @@ export function render(root) {
       const now = new Date();
       const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
       const diffHari = Math.round((today - hpht) / 86400000);
+      // Rentang cukup bulan: 37 minggu 0 hari sampai 41 minggu 6 hari.
+      const cukupAwal = tambahHari(hpht, 37 * 7);
+      const cukupAkhir = tambahHari(hpht, 42 * 7 - 1);
+      const tri2 = tambahHari(hpht, 14 * 7);
+      const tri3 = tambahHari(hpht, 28 * 7);
+      const sisaHpl = Math.round((hpl - today) / 86400000);
+      const sisaHtml = sisaHpl > 0
+        ? kv('Sisa waktu menuju HPL', sisaHpl + ' hari lagi')
+        : sisaHpl === 0
+        ? kv('Sisa waktu menuju HPL', 'Hari ini HPL-nya!')
+        : kv('Sisa waktu menuju HPL', 'Sudah lewat ' + (-sisaHpl) + ' hari dari HPL');
 
       let usiaHtml = '', trimesterHtml = '', janinHtml = '';
       if (diffHari < 0) {
@@ -136,10 +147,13 @@ export function render(root) {
       T.show(box,
         '<div class="big center">' + fmtTgl(hpl) + '</div>' +
         '<p class="center">Hari Perkiraan Lahir (HPL)</p>' +
-        usiaHtml + trimesterHtml + janinHtml +
+        usiaHtml + trimesterHtml + janinHtml + sisaHtml +
         kv('HPHT (dihitung)', fmtTgl(hpht)) +
+        kv('Masuk trimester 2', fmtTgl(tri2)) +
+        kv('Masuk trimester 3', fmtTgl(tri3)) +
+        kv('Rentang cukup bulan (37-42 minggu)', fmtTgl(cukupAwal) + ' s.d. ' + fmtTgl(cukupAkhir)) +
         '<p class="hint">' + cara + ' Ini cuma perkiraan kasar, HPL bisa maju atau mundur. ' +
-        'Hasil USG trimester pertama biasanya paling akurat. Ini perkiraan umum, bukan pengganti saran dokter.</p>');
+        'Hasil USG trimester pertama biasanya paling akurat. Bayi yang lahir di rentang cukup bulan (37-42 minggu) umumnya sudah siap lahir. Ini perkiraan umum, bukan pengganti saran dokter.</p>');
     };
     tgl.addEventListener('change', calc);
     tglUsg.addEventListener('change', calc);

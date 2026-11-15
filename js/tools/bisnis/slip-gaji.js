@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "slip-gaji", "name": "Slip Gaji", "cat": "bisnis", "icon": "🧾", "desc": "Bikin slip gaji rapi: gaji, tunjangan, potongan — siap cetak.", "keywords": "slip gaji,payroll,gaji karyawan,tunjangan,potongan,cetak gaji"};
 
@@ -114,7 +114,7 @@ export function render(root) {
 
     [namaI, periodeI].forEach((el) => el.addEventListener('input', hitung));
 
-    root.appendChild(T.el('<p class="note">Buat slip gaji karyawan dalam 1 menit: isi nama, periode, lalu tambah baris gaji, tunjangan, dan potongan sesuka kamu.</p>'));
+    root.appendChild(T.el('<p class="note">Buat slip gaji karyawan dalam 1 menit: isi nama, periode, lalu tambah baris gaji, tunjangan, dan potongan sesuka kamu. Untuk usaha sendiri.</p>'));
     root.appendChild(T.field('Nama karyawan', namaI));
     root.appendChild(T.field('Periode', periodeI));
     root.appendChild(T.el('<p class="note" style="margin-top:12px"><b>Komponen gaji:</b></p>'));

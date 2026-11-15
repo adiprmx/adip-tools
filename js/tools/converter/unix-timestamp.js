@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "unix-timestamp", "name": "Unix Timestamp", "cat": "converter", "icon": "🕰️", "desc": "Unix timestamp ↔ tanggal (WIB).", "keywords": "unix,timestamp,waktu,epoch"};
 export function render(root) {
@@ -12,11 +12,11 @@ export function render(root) {
 
     const keTanggal = () => {
       let v = Number(tsInp.value);
-      if (!Number.isFinite(v)) { T.show(out1, '<span class="err">Masukkan timestamp yang valid.</span>'); return; }
+      if (!Number.isFinite(v)) { T.show(out1, '<span class="err">Isi angka timestamp yang benar dulu.</span>'); return; }
       if (Math.abs(v) > 1e12) v = v / 1000; // milidetik -> detik
       else if (Math.abs(v) > 1e10) v = v / 1000;
       const d = new Date(v * 1000);
-      if (Number.isNaN(d.getTime())) { T.show(out1, '<span class="err">Timestamp tidak valid.</span>'); return; }
+      if (Number.isNaN(d.getTime())) { T.show(out1, '<span class="err">Timestamp itu tidak bisa dibaca. Coba angka lain.</span>'); return; }
       T.show(out1,
         '<div class="kv"><span class="k">WIB (UTC+7)</span><span class="v">' + T.esc(fWib.format(d)) + '</span></div>' +
         '<div class="kv"><span class="k">UTC</span><span class="v">' + T.esc(fUtc.format(d)) + '</span></div>' +

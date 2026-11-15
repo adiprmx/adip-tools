@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "break-even-point", "name": "Break-Even Point", "cat": "bisnis", "icon": "⚖️", "desc": "Jual berapa unit biar modal balik? Cari titik impasmu.", "keywords": "bep,break even,titik impas,modal balik,unit,usaha"};
 export function render(root) {
@@ -11,7 +11,7 @@ export function render(root) {
     const calc = () => {
       const fixed = T.num(fixedI.value), vari = T.num(variI.value), harga = T.num(hargaI.value);
       if (![fixed, vari, harga].every(isFinite) || fixed < 0 || vari < 0 || harga <= 0) {
-        T.toast('Isi ketiga angka dengan valid dulu'); return;
+        T.toast('Isi ketiga angkanya dengan benar dulu'); return;
       }
       if (harga <= vari) {
         T.show(box, '<p class="err">Harga jual (' + T.rp(harga) + ') harus lebih besar dari biaya variabel (' + T.rp(vari) + ') — kalau nggak, tiap unit yang kejual malah nombok.</p>');

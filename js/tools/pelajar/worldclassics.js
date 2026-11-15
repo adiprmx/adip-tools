@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "worldclassics", "name": "World Classics Reader", "cat": "pelajar", "icon": "📜", "desc": "Baca sastra klasik Tiongkok/Jepang/Korea (public domain) dari Wikisource + terjemahan Indonesia.", "keywords": "klasik,sastra,wenyan,baca,buku,tiongkok,jepang,korea,wikisource,terjemahan"};
 
@@ -330,7 +330,7 @@ export function render(root) {
       '<article data-a="isi" style="font-size:' + fontSize + 'px;line-height:2;border:1px solid #ffffff14;border-radius:12px;padding:16px;background:#12100d;overflow-wrap:anywhere">' + html + '</article>' +
       '<p class="dim" style="font-size:11.5px;margin-top:8px">Sumber teks: ' + T.esc(lang) + '.wikisource.org (public domain) · ' +
       '<a href="https://' + T.esc(lang) + '.wikisource.org/wiki/' + encodeURIComponent(pageTitle.replace(/ /g, '_')) + '" target="_blank" rel="noopener" style="color:#8ab8ff">Lihat aslinya</a>' +
-      (view === 'orig' ? '' : ' · Terjemahan ' + (mode === 'literal' ? 'mesin' : 'AI') + ' — bisa tidak akurat untuk bahasa klasik') + '</p>');
+      (view === 'orig' ? '' : ' · Terjemahan ' + (mode === 'literal' ? 'mesin' : 'AI (teks dikirim ke layanan AI publik Pollinations)') + ' — bisa tidak akurat untuk bahasa klasik') + '</p>');
     if (catatan) T.show(statusBox, '<p class="dim">' + T.esc(catatan) + '</p>');
     bacaBox.querySelector('[data-bm]').onclick = (e) => {
       let l = getBm();

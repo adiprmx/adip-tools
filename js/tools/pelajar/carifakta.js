@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "carifakta", "name": "CariFakta", "cat": "pelajar", "icon": "🕵️", "desc": "Analisis klaim & forward-an dengan AI: verdict hoaks/valid, klaim, dan panduan verifikasi.", "keywords": "hoaks,fakta,cek fakta,forward,whatsapp,berita,verifikasi,ai"};
 

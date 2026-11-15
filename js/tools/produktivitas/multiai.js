@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"multiai","name":"Multi-AI","cat":"produktivitas","icon":"🤖","desc":"Tanya banyak AI sekaligus + generate gambar & suara via Puter.","keywords":"ai,chat,multi,gpt,claude,puter,tts,gambar"};
 
@@ -134,7 +134,7 @@ export function render(root) {
       c.tampilAksi();
     } catch (e) {
       c.jawaban = '';
-      c.setStatus('Gagal: ' + T.esc(errPesan(e)), 'err');
+      c.setStatus('Tidak bisa: ' + T.esc(errPesan(e)), 'err');
       c.tampilUlangi(p);
     } finally { aborts.delete(ctl); }
   }
@@ -214,7 +214,7 @@ export function render(root) {
         gOut.appendChild(rw);
         gOut.appendChild(T.el(utils.puter.poweredBy()));
       } catch (e) {
-        T.show(gOut, '<span class="err">Gagal: ' + T.esc(errPesan(e)) + '</span>');
+        T.show(gOut, '<span class="err">Tidak bisa: ' + T.esc(errPesan(e)) + '</span>');
       } finally { gBusy = false; gBtn.disabled = false; }
     });
   }, true);
@@ -252,7 +252,7 @@ export function render(root) {
         sOut.appendChild(T.el(utils.puter.poweredBy()));
         sOut.appendChild(T.el('<div class="dim" style="font-size:12px;margin-top:6px">Catatan: suara AI memotong kuota akun Putermu.</div>'));
       } catch (e) {
-        T.show(sOut, '<span class="err">Gagal: ' + T.esc(errPesan(e)) + '</span>');
+        T.show(sOut, '<span class="err">Tidak bisa: ' + T.esc(errPesan(e)) + '</span>');
       } finally { sBusy = false; sBtn.disabled = false; }
     });
   }, true);

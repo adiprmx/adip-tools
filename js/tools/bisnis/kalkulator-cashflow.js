@@ -1,4 +1,4 @@
-import { h as T, utils, kv, rp, num } from '../../core.js?v=6.11.5';
+import { h as T, utils, kv, rp, num } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node): ringkasan dari baris { nama, kategori, jumlah }.
 utils.cashflowRingkasan = function (masuk, keluar) {
@@ -78,6 +78,15 @@ export function render(root) {
           return '<div class="kv"><span class="k">' + T.esc(kat) + ' (' + pct + '%)</span><span class="v">' + rp(v) + '</span></div>';
         }).join('');
       };
+      // Patokan 50/30/20 dari total pemasukan: 50% kebutuhan, 30% keinginan,
+      // 20% tabungan/investasi.
+      const bagiHtml = m.total > 0
+        ? '<h3 style="font-size:14px;margin:10px 0 4px">Patokan 50 / 30 / 20 dari pemasukan</h3>' +
+          kv('Kebutuhan (50%)', rp(Math.round(m.total * 0.5))) +
+          kv('Keinginan (30%)', rp(Math.round(m.total * 0.3))) +
+          kv('Tabungan & investasi (20%)', rp(Math.round(m.total * 0.2))) +
+          '<p class="hint">Ini patokan umum mengatur uang, bukan aturan wajib. Bila pengeluarannya sudah di atas 50% untuk kebutuhan pokok, sesuaikan porsinya dulu.</p>'
+        : '';
       T.show(box,
         '<div class="big center">' + rp(saldo) + '</div>' +
         '<p class="center"><b>' + status + '</b>, sisa kas bulan ini</p>' +
@@ -87,7 +96,29 @@ export function render(root) {
         (Object.keys(k.perKat).length ? '<h3 style="font-size:14px;margin:10px 0 4px">Pengeluaran per kategori</h3>' + katHtml(k.perKat, k.total) : '') +
         (m.items.length ? '<p class="hint">Masuk: ' + m.items.slice(0, 5).map((x) => T.esc(x.nama) + ' ' + rp(x.v)).join(' · ') + (m.items.length > 5 ? ' · …' : '') + '</p>' : '') +
         (k.items.length ? '<p class="hint">Keluar: ' + k.items.slice(0, 5).map((x) => T.esc(x.nama) + ' ' + rp(x.v)).join(' · ') + (k.items.length > 5 ? ' · …' : '') + '</p>' : '') +
-        '<p class="note">' + T.esc(ringkas) + '</p>');
+        '<p class="note">' + T.esc(ringkas) + '</p>' +
+        bagiHtml);
+    };
+
+    const eksporCsv = () => {
+      calc();
+      const escCsv = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+      const barisCsv = (jenis, rows) => rows.map(({ nI, cI, jI }) => {
+        const v = num(jI.value);
+        if (!isFinite(v) || v === 0) return null;
+        return [jenis, (nI.value || '(tanpa nama)').trim(), cI.value || 'Lainnya', Math.abs(v)].map(escCsv).join(',');
+      }).filter(Boolean);
+      const isi = ['Jenis,Nama,Kategori,Jumlah (Rp)']
+        .concat(barisCsv('Masuk', inRows), barisCsv('Keluar', outRows))
+        .concat([
+          ['Total', 'Pemasukan', '', lastTotals.masuk].map(escCsv).join(','),
+          ['Total', 'Pengeluaran', '', lastTotals.keluar].map(escCsv).join(','),
+          ['Total', 'Sisa kas', '', lastTotals.masuk - lastTotals.keluar].map(escCsv).join(','),
+        ]).join('\n');
+      const d = new Date();
+      const nama = 'arus-kas-' + d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '.csv';
+      T.dl(nama, isi, 'text/csv');
+      T.toast('CSV terunduh');
     };
 
     const renderChart = () => {
@@ -152,7 +183,7 @@ export function render(root) {
     root.appendChild(T.row(T.btn('+ Tambah pengeluaran', () => { const x = makeRow('', '', 'Lainnya', OUT_CATS); outBox.appendChild(x.wrap); outRows.push(x); bindRowEvents(x); calc(); })));
     root.appendChild(T.row(T.btn('Hitung Arus Kas', calc, true)));
     root.appendChild(box);
-    root.appendChild(T.row(T.btn('Simpan bulan ini', simpanBulan), T.btn('Hapus riwayat tren', hapusRiwayat)));
+    root.appendChild(T.row(T.btn('Simpan bulan ini', simpanBulan), T.btn('Unduh CSV', eksporCsv), T.btn('Hapus riwayat tren', hapusRiwayat)));
     root.appendChild(chartBox);
     calc();
     renderChart();

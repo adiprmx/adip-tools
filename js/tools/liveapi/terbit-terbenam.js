@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "terbit-terbenam", "name": "Terbit & Terbenam", "cat": "liveapi", "icon": "🌅", "desc": "Jadwal matahari terbit & terbenam + hitung mundur.", "keywords": "matahari,terbit,terbenam,sunrise,sunset,jadwal,shubuh,maghrib"};
 export function render(root) {
@@ -23,6 +23,7 @@ export function render(root) {
     const box = T.out();
     const cdBox = T.out();
     let timer = null, nextEvent = null;
+    const cacheMatahari = new Map(); // lat,lng,tanggal -> { at, data } (jadwal matahari harian, cache 1 jam)
     T.onLeave(() => { if (timer) clearInterval(timer); });
 
     const jamWIB = (iso) => new Date(iso).toLocaleTimeString('id-ID', {
@@ -51,14 +52,37 @@ export function render(root) {
     const muat = async (lat, lng, namaLokasi, tanggal) => {
       stopCountdown();
       T.hide(cdBox);
-      T.show(box, '<p class="center mut">Menghitung jadwal matahari buat ' + T.esc(namaLokasi) + '…</p>');
-      try {
-        let url = 'https://api.sunrise-sunset.org/json?lat=' + lat + '&lng=' + lng + '&formatted=0';
-        if (tanggal) url += '&date=' + tanggal;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const d = await res.json();
-        if (d.status !== 'OK' || !d.results || !d.results.sunrise) throw new Error('data tidak valid');
+      const kunci = lat + ',' + lng + '|' + (tanggal || 'hari-ini');
+      const cached = cacheMatahari.get(kunci);
+      let d;
+      if (cached && Date.now() - cached.at < 60 * 60 * 1000) {
+        d = cached.data;
+      } else {
+        T.show(box, '<p class="center mut">Menghitung jadwal matahari buat ' + T.esc(namaLokasi) + '…</p>');
+        try {
+          let url = 'https://api.sunrise-sunset.org/json?lat=' + lat + '&lng=' + lng + '&formatted=0';
+          if (tanggal) url += '&date=' + tanggal;
+          const ctrl = new AbortController();
+          const timerFetch = setTimeout(() => ctrl.abort(), 15000);
+          try {
+            const res = await fetch(url, { signal: ctrl.signal });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            d = await res.json();
+          } finally { clearTimeout(timerFetch); }
+          if (d.status !== 'OK' || !d.results || !d.results.sunrise) throw new Error('data tidak valid');
+          cacheMatahari.set(kunci, { at: Date.now(), data: d });
+        } catch (e) {
+          T.show(box,
+            '<p class="center">🌤️ <b>Waduh, jadwal mataharinya gagal dimuat.</b></p>' +
+            '<p class="center mut">Cek koneksi internet kamu, terus coba lagi ya.</p>' +
+            '<p class="center hint">(' + T.esc(e.message || e) + ')</p>');
+          const wr = T.el('<div class="center" style="margin-top:8px"></div>');
+          wr.appendChild(T.btn('🔄 Coba lagi', () => pakaiKota(), true));
+          box.appendChild(wr);
+          return;
+        }
+      }
+      {
         const r = d.results;
         const terbit = new Date(r.sunrise).getTime();
         const terbenam = new Date(r.sunset).getTime();
@@ -87,14 +111,6 @@ export function render(root) {
             cdBox.appendChild(wr);
           }
         }
-      } catch (e) {
-        T.show(box,
-          '<p class="center">🌤️ <b>Waduh, jadwal mataharinya gagal dimuat.</b></p>' +
-          '<p class="center mut">Cek koneksi internet kamu, terus coba lagi ya.</p>' +
-          '<p class="center hint">(' + T.esc(e.message || e) + ')</p>');
-        const wr = T.el('<div class="center" style="margin-top:8px"></div>');
-        wr.appendChild(T.btn('🔄 Coba lagi', () => pakaiKota(), true));
-        box.appendChild(wr);
       }
     };
 

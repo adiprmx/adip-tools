@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "totp-generator", "name": "OTP Authenticator", "cat": "keamanan", "icon": "⏱️", "desc": "Kode OTP 30-detik dari secret (kayak Google Authenticator).", "keywords": "otp,authenticator,2fa,kode"};
 export function render(root) {
@@ -16,11 +16,11 @@ export function render(root) {
       const res = [];
       for (const ch of s) {
         const i = A.indexOf(ch);
-        if (i < 0) throw new Error('Karakter Base32 tidak valid: "' + ch + '"');
+        if (i < 0) throw new Error('Karakter Base32 tidak benar: "' + ch + '"');
         val = (val << 5) | i; bits += 5;
         if (bits >= 8) { res.push((val >>> (bits - 8)) & 0xff); bits -= 8; }
       }
-      if (!res.length) throw new Error('Secret tidak valid.');
+      if (!res.length) throw new Error('Secret-nya tidak benar.');
       return new Uint8Array(res);
     }
     async function totp(secret, when) {
@@ -61,7 +61,7 @@ export function render(root) {
           sisaEl.textContent = 'Kode baru dalam ' + sisa + ' detik';
         } catch (e) {
           clearInterval(timer); timer = null;
-          T.show(out, '<span class="err">Secret tidak valid: ' + T.esc(e.message) + '</span>');
+          T.show(out, '<span class="err">Secret-nya tidak benar: ' + T.esc(e.message) + '</span>');
         }
       };
       tick();

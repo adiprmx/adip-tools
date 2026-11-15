@@ -1,4 +1,4 @@
-import { h as T, utils, esc, fileInput, fmtBytes, LOCAL_NOTE, kvRows } from '../../core.js?v=6.11.5';
+import { h as T, utils, esc, fileInput, fmtBytes, LOCAL_NOTE, kvRows } from '../../core.js?v=6.12.0';
 
 // Parser EXIF JPEG minimal, ditulis sendiri (tanpa pustaka luar).
 // Membaca IFD0 + ExifIFD + GPS IFD. Mengembalikan null bila tidak ada EXIF.
@@ -124,7 +124,7 @@ export function render(root) {
     if (ex) {
       if (ex.kamera) { baris.push(['Kamera', ex.kamera]); adaData = true; }
       if (ex.tanggalJepret || ex.tanggal) { baris.push(['Tanggal jepret', ex.tanggalJepret || ex.tanggal]); adaData = true; }
-      if (ex.dimensi) { baris.push(['Dimensi foto', ex.dimensi + ' piksel']); adaData = true; }
+      if (ex.dimensi) { baris.push(['Ukuran foto', ex.dimensi + ' piksel']); adaData = true; }
       if (ex.bukaan) { baris.push(['Bukaan lensa', ex.bukaan]); adaData = true; }
       if (ex.exposure) { baris.push(['Waktu pajanan', ex.exposure]); adaData = true; }
       if (ex.iso) { baris.push(['ISO', String(ex.iso)]); adaData = true; }

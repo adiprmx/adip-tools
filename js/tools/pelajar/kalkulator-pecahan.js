@@ -1,4 +1,4 @@
-import { h as T, kv, tabs } from '../../core.js?v=6.11.5';
+import { h as T, kv, tabs } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kalkulator-pecahan","name":"Kalkulator Pecahan","cat":"pelajar","icon":"🍕","desc":"Tambah, kurang, kali, bagi pecahan lengkap dengan langkah dan bentuk campurannya.","keywords":"pecahan,fraksi,matematika,pembilang,penyebut,sederhanakan,pelajar","since":"6.11.0"};
 
@@ -89,7 +89,7 @@ export function render(root) {
     const vs = [aPem, aPen, bPem, bPen].map((i) => T.num(i.value));
     if (vs.some((v) => !isFinite(v))) { T.show(out1, '<p class="err">Isi keempat kotak dengan angka.</p>'); return; }
     if (!Number.isInteger(vs[0]) || !Number.isInteger(vs[1]) || !Number.isInteger(vs[2]) || !Number.isInteger(vs[3])) {
-      T.show(out1, '<p class="err">Pembilang dan penyebut harus bilangan bulat.</p>'); return;
+      T.show(out1, '<p class="err">Pembilang dan penyebut harus angka bulat.</p>'); return;
     }
     const r = hitungPecahan(vs[0], vs[1], vs[2], vs[3], opSel.value);
     if (r.err) { T.show(out1, '<p class="err">' + T.esc(r.err) + '</p>'); return; }
@@ -113,7 +113,7 @@ export function render(root) {
   const hitung2 = () => {
     const p = T.num(sPem.value), q = T.num(sPen.value);
     if (!isFinite(p) || !isFinite(q)) { T.show(out2, '<p class="err">Isi pembilang dan penyebut dengan angka.</p>'); return; }
-    if (!Number.isInteger(p) || !Number.isInteger(q)) { T.show(out2, '<p class="err">Pembilang dan penyebut harus bilangan bulat.</p>'); return; }
+    if (!Number.isInteger(p) || !Number.isInteger(q)) { T.show(out2, '<p class="err">Pembilang dan penyebut harus angka bulat.</p>'); return; }
     const s = sederhanakan(p, q);
     if (!s) { T.show(out2, '<p class="err">Penyebut tidak boleh nol.</p>'); return; }
     const langkah = ['FPB(' + Math.abs(p) + ', ' + Math.abs(q) + ') = ' + s.fpb + '.'];

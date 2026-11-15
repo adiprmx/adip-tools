@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "danbooru", "name": "Danbooru Search", "cat": "gambar", "icon": "🎨", "desc": "Cari ilustrasi anime dari Danbooru berdasarkan tag.", "keywords": "danbooru,anime,ilustrasi,tag,gambar,fanart"};
 
@@ -45,6 +45,8 @@ export function render(root) {
     if (cache.has(key)) { tampilHasil(cache.get(key)); return; }
     if (ctl) ctl.abort();
     ctl = new AbortController();
+    let timeoutHabis = false;
+    const timerFetch = setTimeout(() => { timeoutHabis = true; ctl.abort(); }, 15000);
     T.show(out, '<p class="dim">Mencari ilustrasi…</p>');
     T.hide(grid);
     try {
@@ -55,9 +57,12 @@ export function render(root) {
       cache.set(key, j);
       tampilHasil(j);
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (e.name === 'AbortError') {
+        if (timeoutHabis) T.show(out, errBox('Waktu habis — Danbooru tidak merespons dalam 15 detik. Coba lagi.'));
+        return;
+      }
       T.show(out, errBox('Gagal mencari: ' + e.message + '. Cek koneksi / tag-nya.'));
-    }
+    } finally { clearTimeout(timerFetch); }
   };
 
   const tampilGate = (lanjut) => {
@@ -122,8 +127,10 @@ export function render(root) {
     detail.querySelector('[data-d=copy]').onclick = () => T.copy(img);
     detail.querySelector('[data-d=x]').onclick = () => T.hide(detail);
     detail.querySelector('[data-d=dl]').onclick = async () => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
       try {
-        const r = await fetch(img);
+        const r = await fetch(img, { signal: ctrl.signal });
         if (!r.ok) throw new Error('http ' + r.status);
         const b = await r.blob();
         const a = document.createElement('a');
@@ -132,6 +139,7 @@ export function render(root) {
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       } catch (e) { window.open(img, '_blank', 'noopener'); }
+      finally { clearTimeout(timer); }
     };
     detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   };

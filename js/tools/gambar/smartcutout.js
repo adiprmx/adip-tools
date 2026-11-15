@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "smartcutout", "name": "Smart Cutout", "cat": "gambar", "icon": "✂️", "desc": "Ketuk objek di foto → AI pisahkan otomatis, 100% lokal.", "keywords": "cutout,segmentasi,potong,objek,transparan,mask"};
 
@@ -67,7 +67,7 @@ export function render(root) {
       buildEditor();
       T.scrollToPreview(editor);
       ensureModel();
-    } catch (e) { T.toast('Gagal membaca gambar'); }
+    } catch (e) { T.toast('Gambarnya tidak bisa dibaca'); }
   }
 
   async function ensureModel() {
@@ -85,7 +85,7 @@ export function render(root) {
       });
       setStatus('✅ Model siap — ketuk objek yang mau dipotong.');
     } catch (e) {
-      setStatus('<span class="err">Gagal memuat model (' + T.esc(e && e.message ? e.message : 'error') + '). Butuh WebAssembly + koneksi.</span>');
+      setStatus('<span class="err">Model tidak bisa dimuat (' + T.esc(e && e.message ? e.message : 'error') + '). Cek koneksi internet lalu coba lagi.</span>');
       st.busy = false;
     }
   }
@@ -250,7 +250,7 @@ export function render(root) {
 
   async function extract() {
     if (!st.mask) { T.toast('Ketuk objek dulu biar ada mask-nya'); return; }
-    T.show(st.out, '<span class="dim">⏳ Merender resolusi penuh…</span>');
+    T.show(st.out, '<span class="dim">⏳ Membuat hasil resolusi penuh…</span>');
     await new Promise((r) => setTimeout(r, 30));
     try {
       // mask diskala ke resolusi sumber

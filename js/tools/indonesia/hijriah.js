@@ -1,4 +1,4 @@
-import { h as T, p2, todayISO } from '../../core.js?v=6.11.5';
+import { h as T, p2, todayISO } from '../../core.js?v=6.12.0';
 
 // Algoritma Kuwaiti (kalender Hijriah tabular/astronomis).
 // Perkiraan — bisa selisih ±1-2 hari dari penetapan rukyat pemerintah.
@@ -67,7 +67,7 @@ export function render(root) {
     const box2 = T.out();
     const hit2 = () => {
       const y = parseInt(hy.value, 10), m = parseInt(hm.value, 10), d = parseInt(hd.value, 10);
-      if (!(y > 0) || !(m >= 1 && m <= 12) || !(d >= 1 && d <= 30)) { T.show(box2, '<p class="warn">Tanggal Hijriah tidak valid.</p>'); return; }
+      if (!(y > 0) || !(m >= 1 && m <= 12) || !(d >= 1 && d <= 30)) { T.show(box2, '<p class="warn">Tanggal Hijriahnya tidak benar.</p>'); return; }
       const jdn = isl2jdn(y, m, d);
       const g = jdn2g(jdn);
       T.show(box2,

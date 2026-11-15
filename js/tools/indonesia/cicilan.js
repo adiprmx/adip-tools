@@ -1,4 +1,4 @@
-import { h as T, utils, U, money } from '../../core.js?v=6.11.5';
+import { h as T, utils, U, money } from '../../core.js?v=6.12.0';
 
 U.cicilanFlat = (pokok, bungaTahunanPct, bulan) => {
     pokok = +pokok || 0; bulan = Math.max(1, Math.round(+bulan) || 1);
@@ -50,6 +50,24 @@ U.cicilanFlatExtra = (pokok, bungaTahunanPct, bulan, extra) => {
     return { perBulan: dasar.perBulan + extra, months: n, totalBunga: dasar.totalBunga, totalBayar: dasar.totalBayar, hematBunga: 0 };
   };
 
+// Jadwal angsuran per bulan (anuitas + ekstra): rincian pokok, bunga, sisa.
+U.cicilanJadwalAnuitas = (pokok, bungaTahunanPct, bulan, extra) => {
+    pokok = +pokok || 0; bulan = Math.max(1, Math.round(+bulan) || 1);
+    extra = Math.max(0, +extra || 0);
+    const r = (+bungaTahunanPct || 0) / 100 / 12;
+    const dasar = U.cicilanAnuitas(pokok, bungaTahunanPct, bulan);
+    const rows = [];
+    let sisa = pokok;
+    for (let n = 1; n <= bulan && sisa > 0.5; n++) {
+      const ib = sisa * r;
+      let pb = dasar.perBulan - ib + extra;
+      if (n === bulan || pb >= sisa) pb = sisa;
+      sisa -= pb;
+      rows.push({ bulan: n, cicilan: pb + ib, pokok: pb, bunga: ib, sisa: Math.max(0, sisa) });
+    }
+    return rows;
+  };
+
 const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 function tambahBulan(y, m, n) {
   const d = new Date(y, m - 1 + n, 1);
@@ -71,6 +89,23 @@ export function render(root) {
       const ex = T.num(extra.value) || 0;
       const f = U.cicilanFlat(p, r, n), a = U.cicilanAnuitas(p, r, n);
       const murah = f.totalBayar <= a.totalBayar ? 'flat' : 'anuitas';
+      const jadwal = U.cicilanJadwalAnuitas(p, r, n, ex);
+      const maksBaris = 120;
+      let jadwalHtml = '';
+      if (jadwal.length) {
+        let rows = '';
+        jadwal.slice(0, maksBaris).forEach((row) => {
+          rows += '<tr><td style="text-align:center">' + row.bulan + '</td><td style="text-align:right">' + T.rp(row.cicilan) + '</td>' +
+            '<td style="text-align:right">' + T.rp(row.pokok) + '</td><td style="text-align:right">' + T.rp(row.bunga) + '</td>' +
+            '<td style="text-align:right">' + T.rp(row.sisa) + '</td></tr>';
+        });
+        jadwalHtml = '<details style="margin-top:14px"><summary style="font-size:14px;font-weight:600;cursor:pointer">Tabel angsuran per bulan (anuitas' + (ex > 0 ? ', sudah termasuk ekstra' : '') + ')</summary>' +
+          '<div style="overflow-x:auto;margin-top:8px"><table style="width:100%;font-size:12px;border-collapse:collapse">' +
+          '<tr style="opacity:.7"><th>Bln</th><th style="text-align:right">Cicilan</th><th style="text-align:right">Pokok</th><th style="text-align:right">Bunga</th><th style="text-align:right">Sisa</th></tr>' +
+          rows + '</table></div>' +
+          (jadwal.length > maksBaris ? '<p class="hint">Hanya ' + maksBaris + ' bulan pertama yang ditampilkan dari ' + jadwal.length + ' bulan.</p>' : '') +
+          '</details>';
+      }
       let extraHtml = '';
       if (ex > 0) {
         const fe = U.cicilanFlatExtra(p, r, n, ex), ae = U.cicilanAnuitasExtra(p, r, n, ex);
@@ -95,6 +130,7 @@ export function render(root) {
         '<tr><td>Total bayar</td><td>' + T.rp(f.totalBayar) + '</td><td>' + T.rp(a.totalBayar) + '</td></tr></table>' +
         '<p class="hint">Flat: bunga dihitung dari pokok awal setiap bulan (cicilan tetap). Anuitas: porsi bunga menyusut, pokok membesar (cicilan tetap). ' +
         'Untuk simulasi ini yang totalnya lebih ringan adalah metode <b>' + murah + '</b>.</p>' +
+        jadwalHtml +
         extraHtml);
     };
     [pokok, bunga, tenor, extra].forEach((i) => i.addEventListener('input', hitung));

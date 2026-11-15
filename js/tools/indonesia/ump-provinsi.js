@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.11.5';
+import { h as T, utils, kv } from '../../core.js?v=6.12.0';
 
 // Data UMP TAHUN 2026 (38 provinsi), sumber: Satudata Kemnaker
 // ("Upah Minimum Provinsi (UMP) Tahun 2026"), berlaku 1 Jan 2026 per PP 49/2025.

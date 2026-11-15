@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 (function () {
     const K = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
@@ -62,7 +62,7 @@ export function render(root) {
     const out = T.out();
     const go = () => {
       const n = T.num(inp.value);
-      if (!Number.isFinite(n)) { T.show(out, '<span class="err">Masukkan angka yang valid.</span>'); return; }
+      if (!Number.isFinite(n)) { T.show(out, '<span class="err">Tulis angka yang benar dulu.</span>'); return; }
       const neg = n < 0, a = Math.abs(n);
       const bulat = Math.floor(a);
       const sen = Math.round((a - bulat) * 100);

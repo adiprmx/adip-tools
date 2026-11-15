@@ -1,4 +1,4 @@
-import { h as T, loadImage, fileInput, LOCAL_NOTE, canvasToBlob } from '../../core.js?v=6.11.5';
+import { h as T, loadImage, fileInput, LOCAL_NOTE, canvasToBlob } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "palet-foto", "name": "Palet Warna dari Foto", "cat": "gambar", "icon": "🎨", "desc": "Ambil 6 warna dominan dari fotomu, atau klik piksel mana pun.", "keywords": "palet,warna,foto,hex,dominan,swatch,desain,eyedropper"};
 
@@ -17,8 +17,11 @@ export function render(root) {
   let dipetik = [];
 
   function kartuWarna(hex, kecil) {
-    const sw = T.el('<div style="flex:1 1 90px;height:' + (kecil ? 72 : 96) + 'px;border-radius:12px;display:flex;align-items:flex-end;justify-content:center;cursor:pointer;border:1px solid #ffffff20;background:' + hex + '">' +
-      '<span style="font-size:11px;font-family:monospace;background:rgba(0,0,0,.55);color:#fff;padding:3px 8px;border-radius:20px;margin-bottom:8px">' + hex + '</span></div>');
+    const num = parseInt(hex.slice(1), 16);
+    const rgb = 'RGB ' + ((num >> 16) & 255) + ', ' + ((num >> 8) & 255) + ', ' + (num & 255);
+    const sw = T.el('<div style="flex:1 1 90px;height:' + (kecil ? 72 : 96) + 'px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;border:1px solid #ffffff20;background:' + hex + '">' +
+      '<span style="font-size:11px;font-family:monospace;background:rgba(0,0,0,.55);color:#fff;padding:3px 8px;border-radius:20px;margin-bottom:4px">' + hex + '</span>' +
+      '<span style="font-size:10px;font-family:monospace;background:rgba(0,0,0,.55);color:#e4e4e7;padding:2px 8px;border-radius:20px;margin-bottom:8px">' + rgb + '</span></div>');
     sw.addEventListener('click', () => T.copy(hex));
     return sw;
   }
@@ -141,9 +144,16 @@ export function render(root) {
     T.toast('Kartu palet berhasil diunduh');
   };
 
+  const salinSemua = () => {
+    const semua = [...dominan, ...dipetik.filter((h) => !dominan.includes(h))];
+    if (!semua.length) { T.toast('Ambil palet dulu dari foto'); return; }
+    T.copy(semua.join('\n'));
+    T.toast(semua.length + ' kode warna disalin');
+  };
+
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
   root.appendChild(T.field('Pilih foto', fi));
-  root.appendChild(T.row(T.btn('Ambil palet warna', ambil, true), T.btn('Simpan kartu PNG', simpanKartu)));
+  root.appendChild(T.row(T.btn('Ambil palet warna', ambil, true), T.btn('Simpan kartu PNG', simpanKartu), T.btn('Salin semua kode', salinSemua)));
   root.appendChild(box);
   root.appendChild(fotoBox);
   root.appendChild(ambilBox);

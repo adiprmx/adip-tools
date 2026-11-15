@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "drum-machine", "name": "Drum Machine", "cat": "musik", "icon": "🎛️", "desc": "Step sequencer drum sederhana.", "keywords": "drum,beat,musik"};
 export function render(root) {
@@ -65,7 +65,8 @@ export function render(root) {
       }));
     };
     const scheduler = () => {
-      const c = T.actx(), nb = getNoise(c);
+      let c, nb;
+      try { c = T.actx(); nb = getNoise(c); } catch (e) { stop(); T.toast('Audio tidak tersedia di browser ini'); return; }
       const spb = 60 / Math.min(220, Math.max(40, +bpmIn.value || 120)) / 4;
       while (nextTime < c.currentTime + 0.12) {
         const cur = step % STEPS;
@@ -83,7 +84,9 @@ export function render(root) {
     };
     const playBtn = T.btn('Play', () => {
       if (playing) { stop(); return; }
-      T.actx(); playing = true; step = 0; nextTime = T.actx().currentTime + 0.06;
+      let c;
+      try { c = T.actx(); } catch (e) { T.toast('Audio tidak tersedia di browser ini'); return; }
+      playing = true; step = 0; nextTime = c.currentTime + 0.06;
       timer = setInterval(scheduler, 25);
       playBtn.textContent = 'Stop';
     }, true);

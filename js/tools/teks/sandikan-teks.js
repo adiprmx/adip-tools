@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 /* Sandi klasik: Caesar (geser huruf) + Vigenère (kunci kata). */
 
@@ -45,7 +45,7 @@ function loadState() {
   } catch (e) { return {}; }
 }
 
-export const meta = {"id": "sandikan-teks", "name": "Sandi Teks", "cat": "teks", "icon": "🔏", "desc": "Enkripsi teks dengan sandi Caesar & Vigenère.", "keywords": "sandi,caesar,vigenere,enkripsi,rahasia"};
+export const meta = {"id": "sandikan-teks", "name": "Sandi Teks", "cat": "teks", "icon": "🔏", "desc": "Ubah teks jadi sandi Caesar & Vigenère.", "keywords": "sandi,caesar,vigenere,enkripsi,rahasia"};
 export function render(root) {
 
   const saved = loadState();
@@ -56,7 +56,7 @@ export function render(root) {
     key: String(saved.key || 'KUNCI'),
   };
 
-  const modeSel = T.select([['enc', 'Enkripsi (acakin teks)'], ['dec', 'Dekripsi (balikin teks)']], state.mode);
+  const modeSel = T.select([['enc', 'Jadi sandi (acakin teks)'], ['dec', 'Buka sandi (balikin teks)']], state.mode);
   const cipherSel = T.select([['caesar', 'Caesar — geser huruf'], ['vig', 'Vigenère — kunci kata']], state.cipher);
 
   const shiftWrap = T.el('<div class="fld"><label>Geser <span class="hint"></span></label></div>');
@@ -113,7 +113,7 @@ export function render(root) {
     shiftIn.removeEventListener('input', onShift);
   });
 
-  root.appendChild(T.grid2(T.field('Mode', modeSel), T.field('Jenis sandi', cipherSel)));
+  root.appendChild(T.grid2(T.field('Arah', modeSel), T.field('Jenis sandi', cipherSel)));
   root.appendChild(shiftWrap);
   root.appendChild(keyWrap);
   root.appendChild(T.field('Teks', inTa));

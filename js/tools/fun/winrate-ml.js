@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "winrate-ml", "name": "Kalkulator Winrate ML", "cat": "fun", "icon": "⚔️", "desc": "Berapa win beruntun biar WR Mobile Legends-mu nyentuh target?", "keywords": "winrate,ml,mobile legends,wr,target,win beruntun,kalkulator"};
 
@@ -9,11 +9,11 @@ export const meta = {"id": "winrate-ml", "name": "Kalkulator Winrate ML", "cat":
    Return: { state:'need'|'done'|'impossible', needed, current, projected } */
 export function calcWinrate(total, current, target) {
     total = Number(total); current = Number(current); target = Number(target);
-    if (!Number.isFinite(total)) throw new Error('Total match tidak valid.');
-    if (!Number.isFinite(current)) throw new Error('WR sekarang tidak valid.');
-    if (!Number.isFinite(target)) throw new Error('Target WR tidak valid.');
+    if (!Number.isFinite(total)) throw new Error('Total match-nya tidak benar.');
+    if (!Number.isFinite(current)) throw new Error('WR sekarang tidak benar.');
+    if (!Number.isFinite(target)) throw new Error('Target WR tidak benar.');
     if (!Number.isInteger(total) || total < 1 || total > 10000000)
-        throw new Error('Total match harus bilangan bulat 1–10.000.000');
+        throw new Error('Total match harus angka bulat 1–10.000.000');
     if (current < 0 || current > 100)
         throw new Error('WR sekarang harus 0–100');
     if (target <= 0 || target > 100)

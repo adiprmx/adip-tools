@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"foto-sketca","name":"Foto ke Sketsa","cat":"gambar","icon":"✏️","desc":"Ubah foto jadi sketsa pensil.","keywords":"sketsa,pensil,foto,efek,grayscale,hitam putih"};
 
@@ -102,7 +102,7 @@ export function render(root) {
     T.hide(infoBox); T.hide(box);
     if (!fileI.files[0]) { T.toast('Pilih foto dulu'); return; }
     try { img = await loadImage(fileI.files[0]); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     T.toast('Lagi menggambar…');
     await new Promise((r) => setTimeout(r, 30)); // kasih napas biar toast tampil
     const blurPx = parseInt(blurR.value, 10) || 8;
@@ -127,7 +127,7 @@ export function render(root) {
   const dlB = T.btn('Unduh PNG', async () => {
     if (!resCanvas) { T.toast('Proses dulu fotonya'); return; }
     const blob = await canvasToBlob(resCanvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat file'); return; }
+    if (!blob) { T.toast('Filenya tidak bisa dibuat. Coba lagi.'); return; }
     const base = (fileI.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-sketsa.png', blob, 'image/png');
     T.toast('Berhasil diunduh');
@@ -137,7 +137,7 @@ export function render(root) {
   blurRow.appendChild(blurR); blurRow.appendChild(blurV);
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Upload foto apa aja — selfie, pemandangan, kucing — terus sulap jadi sketsa pensil. Makin besar blur, makin halus garisnya.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Pilih foto apa aja — selfie, pemandangan, kucing — terus sulap jadi sketsa pensil. Makin besar blur, makin halus garisnya.</p>'));
   root.appendChild(T.field('Pilih foto', fileI));
   root.appendChild(T.field('Kehalusan garis (blur)', blurRow, 'Kecil = tegas kayak sketsa kasar, besar = lembut.'));
   root.appendChild(T.row(T.btn('Jadiin Sketsa', process, true), dlB));

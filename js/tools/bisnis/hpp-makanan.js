@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "hpp-makanan", "name": "HPP Makanan per Porsi", "cat": "bisnis", "icon": "🍜", "desc": "Hitung modal tiap porsi dari resep satu batch: bahan, kemasan, gas, listrik, dan tenaga.", "keywords": "hpp makanan,hpp minuman,modal per porsi,resep,batch,food cost,kuliner,warung", "since": "6.11.0"};
 export function render(root) {

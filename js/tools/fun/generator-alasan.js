@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "generator-alasan", "name": "Generator Alasan", "cat": "fun", "icon": "🫣", "desc": "Stok alasan mangkir yang anti mainstream.", "keywords": "alasan,mangkir,izin,lucu,kerja,sekolah,kondangan,bacot"};
 export function render(root) {

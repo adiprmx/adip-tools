@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"efek-polaroid","name":"Efek Polaroid","cat":"gambar","icon":"📸","desc":"Foto jadi polaroid klasik + caption tulisan tangan.","keywords":"polaroid,foto,efek,vintage,retro,caption,klasik"};
 
@@ -82,23 +82,23 @@ export function render(root) {
   fileI.addEventListener('change', async () => {
     if (!fileI.files[0]) return;
     try { img = await loadImage(fileI.files[0]); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     T.toast('Kepasang! Tulis caption sesukamu');
     update();
   });
   capI.addEventListener('input', update);
 
   const dlB = T.btn('Unduh PNG', async () => {
-    if (!resCanvas) { T.toast('Upload foto dulu'); return; }
+    if (!resCanvas) { T.toast('Pilih foto dulu'); return; }
     const blob = await canvasToBlob(resCanvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat file'); return; }
+    if (!blob) { T.toast('Filenya tidak bisa dibuat. Coba lagi.'); return; }
     const base = (fileI.files[0] && fileI.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-polaroid.png', blob, 'image/png');
     T.toast('Polaroidnya jadi, siap dipajang!');
   }, true);
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Kangen zaman foto cetak? Upload foto, kasih caption ala tulisan tangan di bagian bawahnya yang lebar itu — hasilnya polaroid klasik siap diunduh.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Kangen zaman foto cetak? Pilih foto, kasih caption ala tulisan tangan di bagian bawahnya yang lebar itu — hasilnya polaroid klasik siap diunduh.</p>'));
   root.appendChild(T.field('Pilih foto', fileI));
   root.appendChild(T.field('Caption', capI, 'Tampil di area putih bawah, font-nya gaya tulisan tangan.'));
   root.appendChild(T.row(dlB));

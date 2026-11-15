@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "kalkulator-roi", "name": "Kalkulator ROI", "cat": "bisnis", "icon": "📈", "desc": "Ukur balik modal: ROI %, profit, dan payback period.", "keywords": "roi,return,investasi,balik modal,payback,profit"};
 export function render(root) {
@@ -11,7 +11,7 @@ export function render(root) {
     const calc = () => {
       const inv = T.num(invI.value), back = T.num(backI.value), dur = T.num(durI.value);
       if (![inv, back, dur].every(isFinite) || inv <= 0 || back < 0 || dur <= 0) {
-        T.toast('Isi ketiga angka dengan valid dulu'); return;
+        T.toast('Isi ketiga angkanya dengan benar dulu'); return;
       }
       const profit = back - inv;
       const roi = (profit / inv) * 100;

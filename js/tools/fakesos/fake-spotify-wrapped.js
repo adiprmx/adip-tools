@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.12.0';
 
 export const meta = {
   id: 'fake-spotify-wrapped',
@@ -52,6 +52,7 @@ export function render(root) {
     '</style>';
 
   const nameI = T.input('text', 'Nama kamu', 'Adip');
+  const yearI = T.input('text', 'cth: 2026', '2026');
   const minI = T.input('text', 'cth: 45.210', '45.210');
   const artisI = T.ta(5, 'Satu artis per baris…', 'Payung Teduh\nTulus\nColdplay\nPamungkas\nHindia');
   const laguI = T.ta(5, 'Satu lagu per baris…', 'Akad — Payung Teduh\nMonokrom — Tulus\nYellow — Coldplay\nFlying Solo — Pamungkas\nEvaluasi — Hindia');
@@ -59,6 +60,7 @@ export function render(root) {
 
   const ctl = T.el('<div class="fsw-ctl"></div>');
   ctl.appendChild(T.field('Nama', nameI));
+  ctl.appendChild(T.field('Tahun Wrapped', yearI));
   ctl.appendChild(T.field('Menit didengarkan tahun ini', minI, 'Angka bebas, cth: 45.210'));
   ctl.appendChild(T.field('Top 5 artis (1 per baris)', artisI));
   ctl.appendChild(T.field('Top 5 lagu (1 per baris)', laguI));
@@ -70,6 +72,7 @@ export function render(root) {
 
   btns.appendChild(T.btn('🎲 Contoh', () => {
     nameI.value = 'Adip';
+    yearI.value = '2026';
     minI.value = '45.210';
     artisI.value = 'Payung Teduh\nTulus\nColdplay\nPamungkas\nHindia';
     laguI.value = 'Akad — Payung Teduh\nMonokrom — Tulus\nYellow — Coldplay\nFlying Solo — Pamungkas\nEvaluasi — Hindia';
@@ -90,10 +93,11 @@ export function render(root) {
   function draw() {
     const th = THEMES[themeI.value] || THEMES.wrapped;
     const name = nameI.value.trim() || 'Kamu';
+    const year = yearI.value.trim() || '2026';
     const menit = minI.value.trim() || '0';
     card.setAttribute('style', 'background:' + th.bg + ';color:' + th.fg);
     card.innerHTML =
-      '<p class="fsw-kicker">Spotify Wrapped 2026</p>' +
+      '<p class="fsw-kicker">Spotify Wrapped ' + T.esc(year) + '</p>' +
       '<h2 class="fsw-name">' + T.esc(name) + '</h2>' +
       '<p class="fsw-year">Inilah tahunmu dalam musik 🎧</p>' +
       '<div class="fsw-statbox" style="color:' + th.sub + '">' +
@@ -111,7 +115,7 @@ export function render(root) {
       '</div>';
   }
 
-  [nameI, minI, artisI, laguI, themeI].forEach((elx) => {
+  [nameI, yearI, minI, artisI, laguI, themeI].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

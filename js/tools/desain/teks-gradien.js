@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "teks-gradien", "name": "Teks Gradien", "cat": "desain", "icon": "🌅", "desc": "Bikin teks berwarna gradasi + salin sebagai HTML/CSS.", "keywords": "gradien,teks,warna,css,desain,gradient"};
 

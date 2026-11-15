@@ -1,12 +1,12 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Encode & decode Base64, termasuk varian URL-safe.", "keywords": "base64,encode,decode"};
+export const meta = {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Ubah teks jadi kode Base64 dan sebaliknya, termasuk versi aman untuk link.", "keywords": "base64,encode,decode"};
 export function render(root) {
 
     const inp = T.ta(5, 'Tulis atau tempel teks di sini…');
     const outp = T.ta(5, 'Hasil muncul di sini…');
     outp.readOnly = true;
-    const urlSafe = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:8px 0;cursor:pointer"><input type="checkbox"> <span>Varian URL-safe (tanpa + / =)</span></label>');
+    const urlSafe = T.el('<label style="display:flex;align-items:center;gap:10px;font-size:14px;padding:8px 0;cursor:pointer"><input type="checkbox"> <span>Versi aman untuk link (tanpa + / =)</span></label>');
     const usBox = urlSafe.querySelector('input');
 
     function utf8ToB64(s) {
@@ -31,12 +31,12 @@ export function render(root) {
         if (usBox.checked || /[-_]/.test(b)) b = b.replace(/-/g, '+').replace(/_/g, '/');
         while (b.length % 4) b += '=';
         outp.value = b64ToUtf8(b);
-      } catch (e) { outp.value = '⚠️ Bukan Base64 yang valid.'; }
+      } catch (e) { outp.value = '⚠️ Itu bukan kode Base64. Periksa lagi teksnya.'; }
     };
-    root.appendChild(T.field('Input', inp));
+    root.appendChild(T.field('Teks', inp));
     root.appendChild(urlSafe);
-    root.appendChild(T.row(T.btn('Encode →', enc, true), T.btn('← Decode', dec)));
-    root.appendChild(T.field('Output', outp));
+    root.appendChild(T.row(T.btn('Jadi Base64 →', enc, true), T.btn('← Jadi Teks', dec)));
+    root.appendChild(T.field('Hasil', outp));
     root.appendChild(T.row(T.btn('Salin Hasil', () => T.copy(outp.value)), T.btn('Tukar ⇅', () => { const t = inp.value; inp.value = outp.value; outp.value = t; })));
   
 }

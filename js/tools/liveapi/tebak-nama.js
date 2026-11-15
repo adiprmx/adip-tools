@@ -1,6 +1,6 @@
-import { h as T, esc } from '../../core.js?v=6.11.5';
+import { h as T, esc } from '../../core.js?v=6.12.0';
 
-export const meta = {"id":"tebak-nama","name":"Tebak Profil Nama","cat":"liveapi","icon":"🔮","desc":"Tebak perkiraan usia, gender, dan asal negara dari sebuah nama.","keywords":"nama,tebak,umur,usia,gender,jenis kelamin,negara,asal"};
+export const meta = {"id":"tebak-nama","name":"Tebak Profil Nama","cat":"liveapi","icon":"🔮","desc":"Tebak dulu umur & gender sebuah nama, lalu cek tebakanmu ke data nama dunia.","keywords":"nama,tebak,umur,usia,gender,jenis kelamin,negara,asal,kuis"};
 
 // Emoji bendera dari kode negara ISO 2 huruf (ID -> 🇮🇩)
 const flagOf = (cc) => {
@@ -8,9 +8,25 @@ const flagOf = (cc) => {
   return String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1F1E6 + c.charCodeAt(0) - 65));
 };
 
+// Rentang umur tebakan: [label, min, max]
+const RENTANG_UMUR = [
+  ['skip', 'Lewati — tidak menebak umur'],
+  ['remaja', 'Remaja (di bawah 20)'],
+  ['20an', '20-an (20–29)'],
+  ['30an', '30-an (30–39)'],
+  ['40an', '40-an (40–49)'],
+  ['50plus', '50 ke atas'],
+];
+const BATAS_UMUR = {
+  remaja: [0, 19], '20an': [20, 29], '30an': [30, 39], '40an': [40, 49], '50plus': [50, 200],
+};
+
 export function render(root) {
   const inp = T.input('text', 'Contoh: budi, siti, andi', '');
+  const tebakGender = T.select([['skip', 'Lewati — tidak menebak'], ['male', 'Laki-laki'], ['female', 'Perempuan']], 'skip');
+  const tebakUmur = T.select(RENTANG_UMUR, 'skip');
   const box = T.out();
+  const skorBox = T.out();
 
   // Tiap API punya AbortController + timeout sendiri-sendiri (paralel).
   const getJson = async (url) => {
@@ -32,6 +48,7 @@ export function render(root) {
   const tebak = async () => {
     const nama = inp.value.trim();
     if (!nama) { T.show(box, '<span class="err">Isi nama dulu ya.</span>'); return; }
+    T.hide(skorBox);
     T.show(box, '<div class="dim center">Menerawang nama "' + esc(nama) + '"…</div>');
     const enc = encodeURIComponent(nama);
     const [rUmur, rGender, rNegara] = await Promise.all([
@@ -90,10 +107,44 @@ export function render(root) {
 
     html += '<div class="hint">Tebakan kasar dari statistik nama publik — bukan hasil pasti. API gratis ~100 cek/hari.</div>';
     T.show(box, html);
+
+    // --- Lapisan kuis: nilai tebakan user (tidak mengubah logika API di atas) ---
+    const g = tebakGender.value, u = tebakUmur.value;
+    if (g !== 'skip' || u !== 'skip') {
+      let total = 0, dapat = 0;
+      const rincian = [];
+      if (g !== 'skip') {
+        total++;
+        const cocok = rGender.ok && rGender.d.gender === g;
+        if (cocok) dapat++;
+        rincian.push('gender: ' + (rGender.ok && rGender.d.gender ? (cocok ? '✅ benar' : '❌ kurang tepat') : '⚪ data tidak cukup'));
+      }
+      if (u !== 'skip') {
+        total++;
+        const [mn, mx] = BATAS_UMUR[u];
+        const cocok = rUmur.ok && rUmur.d.age != null && rUmur.d.age >= mn && rUmur.d.age <= mx;
+        if (cocok) dapat++;
+        rincian.push('umur: ' + (rUmur.ok && rUmur.d.age != null ? (cocok ? '✅ benar' : '❌ kurang tepat') : '⚪ data tidak cukup'));
+      }
+      const teks = '🔮 Tebak Profil Nama: tebakanku untuk nama "' + nama + '" benar ' + dapat + ' dari ' + total + '! Coba kalahin aku di Adip Tools.';
+      T.show(skorBox, '<div class="center" style="margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:12px">' +
+        '<div style="font-size:16px;font-weight:700">Tebakanmu: ' + dapat + '/' + total + ' benar</div>' +
+        '<p class="hint" style="margin:4px 0 0">' + rincian.join(' · ') + '</p></div>');
+      const w = T.el('<div class="row center" style="margin-top:10px"></div>');
+      w.appendChild(T.copyBtn(() => teks, '📋 Salin hasil'));
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        w.appendChild(T.btn('📤 Bagikan', () => { navigator.share({ text: teks }).catch(() => {}); }));
+      }
+      skorBox.appendChild(w);
+    }
   };
 
   root.appendChild(T.field('Nama depan', inp, 'Satu kata saja, mis. budi'));
+  root.appendChild(T.el('<p class="hint" style="margin:6px 0 2px">🎲 Mau main tebak-tebakan? Isi tebakanmu dulu (boleh dilewati), lalu lihat benar atau tidak setelah hasilnya keluar:</p>'));
+  root.appendChild(T.field('Tebak gendernya', tebakGender));
+  root.appendChild(T.field('Tebak rentang umurnya', tebakUmur));
   root.appendChild(T.row(T.btn('🔮 Tebak', tebak, true)));
   root.appendChild(box);
+  root.appendChild(skorBox);
   inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') tebak(); });
 }

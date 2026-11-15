@@ -1,4 +1,4 @@
-import { h as T, kv, esc, errBox } from '../../core.js?v=6.11.5';
+import { h as T, kv, esc, errBox } from '../../core.js?v=6.12.0';
 
 export const UTM_KEY = 'adiptools-utm-history';
 
@@ -92,7 +92,7 @@ export function render(root) {
   root.appendChild(T.row(T.btn('Buat Link', () => {
     let built;
     try { built = buildUtm(fUrl.value, collect()); } catch (e) {
-      T.show(outBox, errBox(e.message === 'URL dasar kosong' ? 'Isi dulu URL dasarnya.' : 'URL dasarnya tidak valid. Periksa lagi penulisannya.'));
+      T.show(outBox, errBox(e.message === 'URL dasar kosong' ? 'Isi dulu URL dasarnya.' : 'URL dasarnya tidak benar. Periksa lagi penulisannya.'));
       return;
     }
     if (!fSource.value.trim() && !fMedium.value.trim() && !fCampaign.value.trim()) {

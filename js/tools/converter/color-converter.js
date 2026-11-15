@@ -1,9 +1,37 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
+
+// OKLCH -> RGB (invers matriks Bjorn Ottosson). L 0-1, C >= 0, H derajat.
+export function oklchToRgb(L, C, H) {
+  const a = C * Math.cos(H * Math.PI / 180), b = C * Math.sin(H * Math.PI / 180);
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+  const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
+  const enc = (c) => {
+    c = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+    return Math.min(255, Math.max(0, Math.round(c * 255)));
+  };
+  return {
+    r: enc(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+    g: enc(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+    b: enc(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s),
+  };
+}
+
+// CMYK (%) -> RGB.
+export function cmykToRgb(c, m, y, k) {
+  c /= 100; m /= 100; y /= 100; k /= 100;
+  return {
+    r: Math.round(255 * (1 - c) * (1 - k)),
+    g: Math.round(255 * (1 - m) * (1 - k)),
+    b: Math.round(255 * (1 - y) * (1 - k)),
+  };
+}
 
 export const meta = {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL, OKLCH, CMYK + nama warna + cek kontras.", "keywords": "warna,color,hex,rgb,hsl,oklch,cmyk,kontras,wcag"};
 export function render(root) {
 
-    const inp = T.input('text', '#ff6b6b  atau  255,107,107  atau  hsl(0,100%,65%)', '#ff6b6b');
+    const inp = T.input('text', '#ff6b6b  atau  255,107,107  atau  hsl(0,100%,65%)  atau  oklch(65% 0.2 20)', '#ff6b6b');
     inp.autocapitalize = 'none'; inp.spellcheck = false;
     const prev = T.el('<div style="width:100%;height:96px;border-radius:12px;border:1px solid #3f3f46;margin:12px 0"></div>');
     const out = T.out();
@@ -39,6 +67,20 @@ export function render(root) {
       }
       if ((m = str.match(/^(\d{1,3}(?:\.\d+)?)\s*[, ]\s*(\d{1,3}(?:\.\d+)?)%\s*[, ]\s*(\d{1,3}(?:\.\d+)?)%$/))) {
         const c = hslToRgb(+m[1], +m[2], +m[3]);
+        c.a = 1;
+        return c;
+      }
+      // oklch(70% 0.15 20) atau oklch(0.7 0.15 20 / 0.5) — L boleh % atau 0-1.
+      if ((m = str.match(/^oklch\(\s*(\d{1,3}(?:\.\d+)?%?)\s+(\d(?:\.\d+)?)\s+(\d{1,3}(?:\.\d+)?)(?:\s*\/\s*([0-9]*\.?[0-9]+))?\s*\)$/))) {
+        let L = parseFloat(m[1]);
+        if (m[1].includes('%')) L /= 100;
+        else if (L > 1) L /= 100;
+        const c = oklchToRgb(L, +m[2], +m[3]);
+        c.a = m[4] == null ? 1 : +m[4];
+        return c;
+      }
+      if ((m = str.match(/^cmyk\(\s*(\d{1,3}(?:\.\d+)?)%?\s*,\s*(\d{1,3}(?:\.\d+)?)%?\s*,\s*(\d{1,3}(?:\.\d+)?)%?\s*,\s*(\d{1,3}(?:\.\d+)?)%?\s*\)$/))) {
+        const c = cmykToRgb(+m[1], +m[2], +m[3], +m[4]);
         c.a = 1;
         return c;
       }
@@ -153,7 +195,7 @@ export function render(root) {
     const go = () => {
       const c = parse(inp.value);
       if (!c || [c.r, c.g, c.b].some((v) => v < 0 || v > 255 || Number.isNaN(v)) || c.a < 0 || c.a > 1) {
-        T.show(out, '<span class="err">Format tidak dikenali. Coba: <b>#ff6b6b</b>, <b>255, 107, 107</b>, <b>rgba(255,107,107,0.5)</b>, atau <b>hsl(0, 100%, 65%)</b>.</span>');
+        T.show(out, '<span class="err">Format tidak dikenali. Coba: <b>#ff6b6b</b>, <b>255, 107, 107</b>, <b>rgba(255,107,107,0.5)</b>, <b>hsl(0, 100%, 65%)</b>, <b>oklch(65%, 0.2, 20)</b>, atau <b>cmyk(0%, 58%, 58%, 0%)</b>.</span>');
         return;
       }
       const hex = '#' + hex2(c.r) + hex2(c.g) + hex2(c.b);

@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.11.5';
+import { h as T, kv, utils } from '../../core.js?v=6.12.0';
 
 /* Fungsi murni (bisa diuji dari node tanpa DOM). */
 export const STOPWORDS_ID = ['yang', 'dan', 'di', 'ke', 'dari', 'untuk', 'dengan', 'ini', 'itu', 'adalah', 'atau', 'juga', 'pada', 'dalam', 'sebagai', 'tidak', 'akan', 'sudah', 'ada', 'oleh', 'karena', 'saat', 'jika', 'agar', 'dapat', 'bisa', 'saya', 'kami', 'kita', 'mereka', 'dia', 'ia', 'nya', 'lah', 'pun', 'telah', 'lebih', 'sangat', 'seperti', 'antara', 'setelah', 'sebelum', 'selama', 'tanpa', 'tentang', 'kepada', 'menjadi', 'merupakan', 'dimana', 'kapan', 'bagaimana', 'kenapa', 'mengapa'];
@@ -37,6 +37,8 @@ export function kataKunci(s, top) {
 }
 
 export const BATAS_PLATFORM = [
+  ['Judul halaman (SEO)', 60],
+  ['Meta description Google', 160],
   ['X (Twitter)', 280],
   ['Threads', 500],
   ['Status WhatsApp', 700],
@@ -47,7 +49,7 @@ export const BATAS_PLATFORM = [
   ['Postingan Facebook', 63206],
 ];
 
-export const meta = {"id": "word-counter", "name": "Penghitung Kata", "cat": "teks", "icon": "🔡", "desc": "Kata, karakter, estimasi baca.", "keywords": "kata,hitung,karakter,skripsi"};
+export const meta = {"id": "word-counter", "name": "Penghitung Kata", "cat": "teks", "icon": "🔡", "desc": "Kata, karakter, estimasi baca, skor baca & batas tiap platform.", "keywords": "kata,hitung,karakter,skripsi,seo,meta description"};
 export function render(root) {
 
       const taIn = T.ta(8, 'Ketik atau tempel teks di sini, hitungan live…');
@@ -70,11 +72,13 @@ export function render(root) {
         const mins = words / 200;
         const read = fmtDurasi(mins);
         const speak = fmtDurasi(words / 130);
+        const unik = new Set((s.toLowerCase().match(/[a-zà-ÿ']+/g) || [])).size;
         const suku = (s.match(/\S+/g) || []).reduce((a, w) => a + hitungSukuKata(w), 0);
         const skor = flesch(words, sentences, suku);
         const kunci = kataKunci(s, 5);
         let html =
           `<div class="kv"><span>Kata</span><b>${T.fmt(words)}</b></div>` +
+          `<div class="kv"><span>Kata unik (tidak berulang)</span><b>${T.fmt(unik)}</b></div>` +
           `<div class="kv"><span>Karakter (dengan spasi)</span><b>${T.fmt(withSpace)}</b></div>` +
           `<div class="kv"><span>Karakter (tanpa spasi)</span><b>${T.fmt(noSpace)}</b></div>` +
           `<div class="kv"><span>Kalimat</span><b>${T.fmt(sentences)}</b></div>` +

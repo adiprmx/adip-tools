@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"kuis-emoji-hewan","name":"Kuis Emoji Hewan","cat":"fun","icon":"🐾","desc":"Tebak hewan dari deretan emoji.","keywords":"kuis,emoji,hewan,tebak,game"};
 

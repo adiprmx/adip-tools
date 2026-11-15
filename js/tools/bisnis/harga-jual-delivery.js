@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 // Komisi aplikasi pesan antar, riset 14 Nov 2026 (nusantek.com, hitungcerdas.net,
 // duid.tech, diverifikasi 18 Okt 2026). GoFood ±20% + Rp1.000 per pesanan,

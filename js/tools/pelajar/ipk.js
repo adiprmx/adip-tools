@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 utils.ipk = function (entries) {
     let bobotSks = 0, sks = 0;
@@ -13,7 +13,7 @@ utils.ipk = function (entries) {
 export const meta = {"id": "ipk", "name": "Kalkulator IPK", "cat": "pelajar", "icon": "🎓", "desc": "Hitung IPK semester.", "keywords": "ipk,nilai,kuliah,semester"};
 export function render(root) {
 
-    const GRADES = [['4', 'A (4,0)'], ['3.7', 'A− (3,7)'], ['3.3', 'B+ (3,3)'], ['3', 'B (3,0)'], ['2.7', 'B− (2,7)'], ['2.3', 'C+ (2,3)'], ['2', 'C (2,0)'], ['1', 'D (1,0)'], ['0', 'E (0,0)'], ['custom', 'Bobot custom…']];
+    const GRADES = [['4', 'A (4,0)'], ['3.7', 'A− (3,7)'], ['3.3', 'B+ (3,3)'], ['3', 'B (3,0)'], ['2.7', 'B− (2,7)'], ['2.3', 'C+ (2,3)'], ['2', 'C (2,0)'], ['1', 'D (1,0)'], ['0', 'E (0,0)'], ['custom', 'Bobot sendiri…']];
     const listEl = T.el('<div></div>');
     const box = T.out();
     const rows = [];
@@ -32,7 +32,7 @@ export function render(root) {
       });
       const wrap = T.el('<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px"></div>');
       wrap.appendChild(T.grid2(T.field('Mata kuliah', r.nama), T.field('SKS', r.sks)));
-      wrap.appendChild(T.grid2(T.field('Nilai', r.grade), T.field('Bobot custom', r.bobot)));
+      wrap.appendChild(T.grid2(T.field('Nilai', r.grade), T.field('Bobot sendiri', r.bobot)));
       const delRow = T.el('<div style="text-align:right"></div>');
       delRow.appendChild(r.del);
       wrap.appendChild(delRow);
@@ -46,7 +46,7 @@ export function render(root) {
         bobot: r.grade.value === 'custom' ? T.num(r.bobot.value) : Number(r.grade.value),
       }));
       const valid = entries.filter((e) => e.sks > 0 && !isNaN(e.bobot));
-      if (!valid.length) { T.show(box, '<span class="err">Isi minimal satu mata kuliah dengan SKS dan nilai yang valid.</span>'); return; }
+      if (!valid.length) { T.show(box, '<span class="err">Isi minimal satu mata kuliah dengan SKS dan nilai yang benar.</span>'); return; }
       const ipk = utils.ipk(valid);
       const totalSks = valid.reduce((a, e) => a + e.sks, 0);
       const predikat = ipk >= 3.5 ? 'Sangat Memuaskan' : ipk >= 3.0 ? 'Memuaskan' : ipk >= 2.0 ? 'Cukup' : 'Kurang';

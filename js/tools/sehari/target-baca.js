@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node)
 utils.paceBaca = function (o) {
@@ -46,7 +46,7 @@ export function render(root) {
       deadline: deadline.value
     });
     if (!deadline.value) { T.show(box, '<div class="hint">⚠️ Pilih tanggal target selesai dulu.</div>'); return; }
-    if (r.target <= 0) { T.show(box, '<div class="hint">⚠️ Isi target yang valid dulu.</div>'); return; }
+    if (r.target <= 0) { T.show(box, '<div class="hint">⚠️ Isi targetnya dengan benar dulu.</div>'); return; }
 
     const u = unit();
     const needTxt = isFinite(r.need) ? r.need.toFixed(2) + ' ' + u + '/hari' : '—';

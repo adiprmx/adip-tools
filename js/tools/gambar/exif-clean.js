@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.11.5';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "exif-clean", "name": "Hapus EXIF", "cat": "gambar", "icon": "🧹", "desc": "Lihat dulu datanya, baru bersihkan metadata sebelum dishare.", "keywords": "exif,metadata,bersih,privasi,gps"};
 export function render(root) {

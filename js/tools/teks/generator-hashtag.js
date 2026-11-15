@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.11.5';
+import { h as T, kv, utils } from '../../core.js?v=6.12.0';
 
 /* Dibuat agar bisa diuji langsung dari node (tanpa DOM). */
 export function topikKeTag(s) {
@@ -8,9 +8,10 @@ export function topikKeTag(s) {
     .replace(/\s+/g, ' ').trim().replace(/\s/g, '');
 }
 
-export function buatHashtag(input) {
+export function buatHashtag(input, jumlah) {
   const topik = topikKeTag(input);
   if (!topik) return [];
+  const maks = Math.max(5, Math.min(30, Math.round(Number(jumlah) || 15)));
   const pola = [
     (t) => t,
     (t) => t + 'indonesia',
@@ -20,12 +21,38 @@ export function buatHashtag(input) {
     (t) => 'seputar' + t,
     (t) => t + 'hits',
     (t) => t + 'reels',
+    (t) => t + 'daily',
+    (t) => 'daily' + t,
+    (t) => t + 'lover',
+    (t) => 'pecinta' + t,
+    (t) => t + 'terbaik',
+    (t) => t + 'murah',
+    (t) => 'jualan' + t,
+    (t) => t + 'online',
+    (t) => 'belajar' + t,
+    (t) => t + 'pemula',
+    (t) => 'tutorial' + t,
+    (t) => t + 'kekinian',
+    (t) => 'inspirasi' + t,
+    (t) => t + 'id',
+    (t) => 'explore' + t,
   ];
   const list = [];
   pola.forEach((p) => { const h = '#' + p(topik); if (list.indexOf(h) === -1) list.push(h); });
-  ['fyp', 'fypindonesia', 'beranda', 'viral', 'trending', 'reelsindonesia', 'tiktokindonesia']
+  ['fyp', 'fypindonesia', 'beranda', 'viral', 'trending', 'reelsindonesia', 'tiktokindonesia',
+    'explorepage', 'foryoupage', 'reels', 'tiktokviral', 'viralindonesia', 'indonesiaku']
     .forEach((g) => { const h = '#' + g; if (list.indexOf(h) === -1) list.push(h); });
-  return list.slice(0, 15);
+  return list.slice(0, maks);
+}
+
+// Campuran seimbang: 3 luas + 5 niche + 2 lokal (disesuaikan bila kurang).
+export function campuranHashtag(tier) {
+  const out = [];
+  const ambil = (arr, n) => { for (const h of arr.slice(0, n)) if (out.indexOf(h) === -1) out.push(h); };
+  ambil(tier.luas || [], 3);
+  ambil(tier.niche || [], 5);
+  ambil(tier.lokal || [], 2);
+  return out;
 }
 
 export const HASHTAG_LUAS = ['#fyp', '#fypindonesia', '#beranda', '#viral', '#trending'];
@@ -37,8 +64,8 @@ export function tierHashtag(h) {
   return 'niche';
 }
 
-export function buatHashtagTier(input) {
-  const semua = buatHashtag(input);
+export function buatHashtagTier(input, jumlah) {
+  const semua = buatHashtag(input, jumlah);
   const out = { luas: [], niche: [], lokal: [] };
   semua.forEach((h) => { out[tierHashtag(h)].push(h); });
   return out;
@@ -61,11 +88,12 @@ export const BATAS_HASHTAG = [
   ['X', 2, 'disarankan, supaya tidak terlihat seperti spam'],
 ];
 
-export const meta = {"id": "generator-hashtag", "name": "Generator Hashtag", "cat": "teks", "icon": "#️⃣", "desc": "Bikin 15 hashtag siap pakai dari satu topik.", "keywords": "hashtag,tagar,instagram,tiktok,reels,caption"};
+export const meta = {"id": "generator-hashtag", "name": "Generator Hashtag", "cat": "teks", "icon": "#️⃣", "desc": "Bikin sampai 30 hashtag siap pakai dari satu topik, per tier luas/niche/lokal.", "keywords": "hashtag,tagar,instagram,tiktok,reels,caption"};
 
 export function render(root) {
 
     const inp = T.input('text', 'Contoh: kopi susu, skincare, jualan baju…');
+    const jumlahSel = T.select([['15', '15 hashtag'], ['20', '20 hashtag'], ['30', '30 hashtag (maksimal Instagram)']], '15');
     const fPakai = T.ta(2, 'Tempel hashtag yang sudah pernah dipakai, misal: #kopi #fyp (opsional)');
     const out = T.out();
     let daftar = [];
@@ -84,8 +112,9 @@ export function render(root) {
 
     function gambar() {
       if (!daftar.length) { T.hide(out); return; }
-      const tier = buatHashtagTier(inp.value);
+      const tier = buatHashtagTier(inp.value, jumlahSel.value);
       const dup = cariDuplikat(daftar, dipakai);
+      const campur = campuranHashtag(tier);
       const box = T.el('<div></div>');
       box.appendChild(T.el('<div style="font-size:13px;font-weight:600;margin-bottom:8px">' + daftar.length + ' hashtag · ' + tier.luas.length + ' luas · ' + tier.niche.length + ' niche · ' + tier.lokal.length + ' lokal' + (dup.length ? ' · <span style="color:#fbbf24">' + dup.length + ' sudah pernah dipakai</span>' : '') + '</div>'));
       [['luas', 'Luas (jangkauan besar)'], ['niche', 'Niche (sesuai topik)'], ['lokal', 'Lokal (Indonesia)']].forEach(([k, label]) => {
@@ -112,14 +141,16 @@ export function render(root) {
       const tierRow = T.row(
         T.copyBtn(() => tier.luas.join(' '), 'Salin Luas'),
         T.copyBtn(() => tier.niche.join(' '), 'Salin Niche'),
-        T.copyBtn(() => tier.lokal.join(' '), 'Salin Lokal')
+        T.copyBtn(() => tier.lokal.join(' '), 'Salin Lokal'),
+        T.copyBtn(() => campur.join(' '), 'Salin Campuran (' + campur.length + ')')
       );
       tierRow.style.marginTop = '8px';
       out.appendChild(tierRow);
+      out.appendChild(T.el('<p class="hint">Campuran = 3 luas + 5 niche + 2 lokal, porsi yang paling sering disarankan buat satu postingan.</p>'));
     }
 
     const proses = () => {
-      daftar = buatHashtag(inp.value);
+      daftar = buatHashtag(inp.value, jumlahSel.value);
       dipakai = parseHashtagPakai(fPakai.value);
       if (!daftar.length) {
         T.show(out, '<span class="err">Tulis topiknya dulu, misal "kopi susu" atau "skincare".</span>');
@@ -129,9 +160,11 @@ export function render(root) {
     };
 
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') proses(); });
+    jumlahSel.addEventListener('change', () => { if (daftar.length) proses(); });
     fPakai.addEventListener('input', () => { dipakai = parseHashtagPakai(fPakai.value); if (daftar.length) gambar(); });
-    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ketik satu topik, langsung dapat 15 hashtag: pola turunan topikmu + hashtag generik yang lagi ramai di Indonesia. Ketuk satu chip buat salin satuan, atau salin semuanya sekaligus.</p>'));
+    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ketik satu topik, langsung dapat hashtag siap pakai: pola turunan topikmu + hashtag generik yang lagi ramai di Indonesia. Ketuk satu chip buat salin satuan, atau salin semuanya sekaligus.</p>'));
     root.appendChild(T.field('Topik / kata kunci', inp));
+    root.appendChild(T.field('Jumlah hashtag', jumlahSel, 'Instagram maksimal 30 per postingan. TikTok & X lebih baik sedikit saja.'));
     root.appendChild(T.field('Hashtag yang sudah pernah dipakai (opsional)', fPakai, 'Hashtag yang sama dengan daftar ini ditandai supaya tidak dipakai berulang-ulang.'));
     root.appendChild(T.row(T.btn('Buat Hashtag', proses, true)));
     root.appendChild(out);

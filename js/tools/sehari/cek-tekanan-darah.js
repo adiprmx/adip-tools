@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 // Kategori tekanan darah mengikuti pedoman AHA/ACC 2017 yang juga dipakai
 // sebagai acuan umum di Indonesia:
@@ -35,7 +35,7 @@ const KATEGORI = [
   },
 ];
 
-export const meta = {"id": "cek-tekanan-darah", "name": "Cek Tekanan Darah", "cat": "sehari", "icon": "🩺", "desc": "Klasifikasi tekanan darah dari angka sistolik dan diastolik.", "keywords": "tekanan darah,hipertensi,sistolik,diastolik,tensi,darah tinggi", "since": "6.11.0"};
+export const meta = {"id": "cek-tekanan-darah", "name": "Cek Tekanan Darah", "cat": "sehari", "icon": "🩺", "desc": "Cek arti angka tensimu: normal, naik, atau tinggi.", "keywords": "tekanan darah,hipertensi,sistolik,diastolik,tensi,darah tinggi", "since": "6.11.0"};
 export function render(root) {
 
     const sis = T.input('text', 'Sistolik (angka atas), cth: 120', '120');
@@ -47,7 +47,7 @@ export function render(root) {
     const calc = () => {
       const s = T.num(sis.value), d = T.num(dia.value);
       if (!(s > 0) || !(d > 0)) {
-        T.show(box, '<span class="err">Isi kedua angka tekanan darah dengan angka yang valid.</span>');
+        T.show(box, '<span class="err">Isi kedua angka tekanan darah dengan angka yang benar.</span>');
         return;
       }
       if (s < 50 || s > 300 || d < 30 || d > 200) {
@@ -72,13 +72,13 @@ export function render(root) {
         '<div class="big">' + kat.nama + '</div>' +
         '<div class="' + kat.cls + '">' + kat.jelas + '</div></div>' +
         kv('Tekanan nadi (sistolik - diastolik)', pulse + ' mmHg') +
-        kv('Tekanan arteri rata-rata (MAP)', map + ' mmHg') +
+        kv('Tekanan arteri rata-rata', map + ' mmHg') +
         '<p class="hint">Kategori mengikuti pedoman AHA/ACC 2017. Satu kali ukur belum cukup untuk diagnosis hipertensi, dokter biasanya mengukur beberapa kali di hari berbeda. ' +
         'Ukur setelah duduk tenang 5 menit, jangan habis kopi atau olahraga. Tekanan nadi normal umumnya 30-50 mmHg.</p>' +
         NOTE);
     };
 
-    root.appendChild(T.el('<p class="note">Masukkan hasil tensimeter (angka atas dan bawah). Alat ini mengklasifikasikan hasilnya, bukan mendiagnosis.</p>'));
+    root.appendChild(T.el('<p class="note">Masukkan hasil tensimeter (angka atas dan bawah). Alat ini cuma membaca hasil ukurmu, bukan mendiagnosis.</p>'));
     root.appendChild(T.grid2(
       T.field('Sistolik / angka atas (mmHg)', sis),
       T.field('Diastolik / angka bawah (mmHg)', dia),

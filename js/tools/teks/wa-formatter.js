@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 utils.waFormat = function (text, kind) {
     const s = String(text == null ? '' : text);
@@ -29,10 +29,10 @@ export function render(root) {
           last = txt.split('\n').map((ln) => ln.trim() ? utils.waFormat(ln, kind) : ln).join('\n');
           taIn.value = last;
         }
-        T.show(box, `<div class="hint">Hasil (format aktif saat ditempel ke WhatsApp):</div><pre class="pre">${T.esc(last)}</pre>`);
+        T.show(box, `<div class="hint">Hasil (gayanya aktif saat ditempel ke WhatsApp):</div><pre class="pre">${T.esc(last)}</pre>`);
       }
 
-      root.appendChild(T.el('<p class="note">Pilih sebagian teks (blok) untuk memformat bagian itu saja, atau biarkan tanpa blok untuk memformat semua baris.</p>'));
+      root.appendChild(T.el('<p class="note">Blok sebagian teks untuk mengubah gaya bagian itu saja, atau biarkan tanpa blok untuk mengubah semua baris.</p>'));
       root.appendChild(T.field('Teks', taIn));
       root.appendChild(T.row(
         fmtSel,

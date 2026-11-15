@@ -1,4 +1,4 @@
-import { h as T, loadImage, fileInput, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, loadImage, fileInput, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "watermark-foto", "name": "Watermark Foto", "cat": "gambar", "icon": "©️", "desc": "Tempel watermark teks ke foto, unduh PNG.", "keywords": "watermark,foto,teks,tulisan,hak cipta,logo,png,download"};
 
@@ -55,18 +55,18 @@ export function render(root) {
     const f = fi.files[0];
     if (!f) { T.toast('Pilih foto dulu'); return; }
     try { img = await loadImage(f); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     draw();
     T.show(box, '');
     box.appendChild(canvas);
-    T.toast('Foto dimuat, atur watermark lalu unduh');
+    T.toast('Foto sudah dipilih, atur watermark lalu unduh');
   };
 
   const unduh = async () => {
-    if (!img) { T.toast('Muat foto dulu'); return; }
+    if (!img) { T.toast('Pilih foto dulu'); return; }
     draw();
     const blob = await canvasToBlob(canvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat gambar'); return; }
+    if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
     T.dl('watermark.png', blob, 'image/png');
     T.toast('Berhasil diunduh');
   };
@@ -93,7 +93,7 @@ export function render(root) {
   root.appendChild(T.field('Posisi', posGrid));
   const opRow = T.el('<div class="row" style="align-items:center"></div>');
   opRow.appendChild(opR); opRow.appendChild(opV);
-  root.appendChild(T.field('Transparansi', opRow));
+  root.appendChild(T.field('Ketebalan', opRow, '100% = tulisan paling jelas, 10% = hampir tidak terlihat'));
   root.appendChild(T.field('Ukuran huruf', sizeSel));
   root.appendChild(T.row(T.btn('Unduh PNG', unduh, true)));
   root.appendChild(box);

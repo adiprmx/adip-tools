@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.11.5';
+import { h as T, errBox } from '../../core.js?v=6.12.0';
 
 // Baca Al-Quran lewat API gratis AlQuran Cloud (tanpa key).
 // Terverifikasi 14 Nov 2026: /v1/surah (114 surah), /v1/surah/1 (teks Arab),
@@ -26,6 +26,7 @@ export function render(root) {
   const daftarBox = T.out();
   let surahList = [];
   let sedangBuka = 0;
+  const cacheSurah = new Map(); // nomor surah -> [arab, indo] (teks Quran tidak berubah, cache selama sesi)
 
   const tampilTerakhir = () => {
     const last = loadLast();
@@ -78,11 +79,17 @@ export function render(root) {
     const info = surahList.find((s) => s.number === nomor);
     T.hide(daftarBox);
     T.show(box, '<p class="mut">Mengambil surah ' + (info ? T.esc(info.englishName) : nomor) + '…</p>');
+    const cached = cacheSurah.get(nomor);
     try {
-      const [arab, indo] = await Promise.all([
-        getJSON(API + '/surah/' + nomor),
-        getJSON(API + '/surah/' + nomor + '/id.indonesian'),
-      ]);
+      let arab, indo;
+      if (cached) { [arab, indo] = cached; }
+      else {
+        [arab, indo] = await Promise.all([
+          getJSON(API + '/surah/' + nomor),
+          getJSON(API + '/surah/' + nomor + '/id.indonesian'),
+        ]);
+        cacheSurah.set(nomor, [arab, indo]);
+      }
       if (sedangBuka !== nomor) return;
       const a = arab && arab.data;
       const ter = indo && indo.data;

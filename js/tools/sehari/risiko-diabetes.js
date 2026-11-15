@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 // Skor risiko diabetes tipe 2 mengikuti kuesioner FINDRISC (Finnish Diabetes
 // Risk Score, Lindstrom & Tuomilehto 2003). Total skor dan perkiraan risiko
@@ -28,7 +28,7 @@ const LEVEL = [
   [99, 'Sangat tinggi', 'err', 'Perkiraan risiko sekitar 1 dari 2 orang dalam 10 tahun. Sangat disarankan cek gula darah ke dokter secepatnya.'],
 ];
 
-export const meta = {"id": "risiko-diabetes", "name": "Skor Risiko Diabetes", "cat": "sehari", "icon": "🩸", "desc": "Skor risiko diabetes tipe 2 gaya FINDRISC dari umur, BMI, dan gaya hidup.", "keywords": "diabetes,findrisc,risiko diabetes,gula darah,skrining", "since": "6.11.0"};
+export const meta = {"id": "risiko-diabetes", "name": "Skor Risiko Diabetes", "cat": "sehari", "icon": "🩸", "desc": "Perkirakan risiko diabetes tipe 2 dari umur, berat badan, dan gaya hidup.", "keywords": "diabetes,findrisc,risiko diabetes,gula darah,skrining", "since": "6.11.0"};
 export function render(root) {
 
     const berat = T.input('text', 'Berat badan, cth: 70', '70');
@@ -49,7 +49,7 @@ export function render(root) {
     const calc = () => {
       const b = T.num(berat.value), h = T.num(tinggi.value), pg = T.num(pinggang.value);
       if (!(b > 0) || !(h > 0) || !(pg > 0)) {
-        T.show(box, '<span class="err">Isi berat, tinggi, dan lingkar pinggang dengan angka yang valid.</span>');
+        T.show(box, '<span class="err">Isi berat, tinggi, dan lingkar pinggang dengan angka yang benar.</span>');
         return;
       }
       const bmi = b / Math.pow(h / 100, 2);

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=6.11.5';
+import { h as T, utils, errBox, esc } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "regex-tester", "name": "Regex Tester", "cat": "developer", "icon": "🔍", "desc": "Tes regex + highlight hasil.", "keywords": "regex,tes,pola"};
 export function render(root) {
@@ -12,7 +12,7 @@ export function render(root) {
       const flags = [fG, fI, fM, fS].filter((c) => c.querySelector('input').checked).map((c) => c.querySelector('input').value).join('');
       let re;
       try { re = new RegExp(pat.value, flags); }
-      catch (e) { T.show(box, errBox('Regex tidak valid: ' + e.message)); return; }
+      catch (e) { T.show(box, errBox('Regex-nya tidak benar: ' + e.message)); return; }
       const src = txt.value;
       if (!re.global) {
         const m = re.exec(src);

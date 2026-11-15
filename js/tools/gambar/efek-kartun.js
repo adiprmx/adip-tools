@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
-import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
+import { loadImage, fileInput, canvasToBlob, imgEl, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"efek-kartun","name":"Efek Kartun","cat":"gambar","icon":"🎨","desc":"Ubah foto jadi efek kartun/poster.","keywords":"kartun,poster,foto,efek,filter"};
 
@@ -85,14 +85,14 @@ export function render(root) {
   const muat = async () => {
     if (!fi.files[0]) { T.toast('Pilih foto dulu'); return; }
     try { img = await loadImage(fi.files[0]); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    catch (e) { T.toast('File itu bukan gambar. Pilih file gambar.'); return; }
     process();
   };
 
   const dlB = T.btn('Unduh PNG', async () => {
     if (!resCanvas) { T.toast('Proses dulu fotonya'); return; }
     const blob = await canvasToBlob(resCanvas, 'image/png');
-    if (!blob) { T.toast('Gagal membuat file'); return; }
+    if (!blob) { T.toast('Filenya tidak bisa dibuat. Coba lagi.'); return; }
     const base = (fi.files[0].name || 'foto').replace(/\.[^.]*$/, '');
     T.dl(base + '-kartun.png', blob, 'image/png');
     T.toast('Berhasil diunduh');
@@ -105,7 +105,7 @@ export function render(root) {
   edgeRow.appendChild(T.el('<span>Garis tepi (edge) — bikin kontur lebih tegas</span>'));
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Upload foto apa aja — selfie, pemandangan, kucing — terus sulap jadi kartun. Makin sedikit level warnanya, makin berasa efek posternya.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Pilih foto apa aja — selfie, pemandangan, kucing — terus sulap jadi kartun. Makin sedikit level warnanya, makin berasa efek posternya.</p>'));
   root.appendChild(T.field('Pilih foto', fi));
   root.appendChild(T.field('Level warna (2–8)', lvlRow, 'Kecil = flat kayak poster, besar = mendekati foto asli.'));
   root.appendChild(T.field('Opsi', edgeRow));

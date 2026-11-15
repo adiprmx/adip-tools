@@ -7,7 +7,7 @@
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
@@ -1696,7 +1696,8 @@ export function render(root) {
     '<div style="margin-bottom:14px">' +
     '<div style="font-size:20px;font-weight:700;margin-bottom:4px">🛡️ Website Security Scanner</div>' +
     '<div class="dim" style="font-size:13px;line-height:1.6">Pindai keamanan website: security header, DNS/email, sertifikat, secrets & file terekspos. ' +
-    '25 modul jalan 100% di browser <span class="dim">(tanpa data dikirim ke server kami)</span>; 2 limitasi (HSTS preload, versi TLS & cipher) ditandai jujur.</div>' +
+    '25 modul jalan 100% di browser <span class="dim">(tanpa data dikirim ke server kami)</span>; 2 limitasi (HSTS preload, versi TLS & cipher) ditandai jujur. ' +
+    'Pindai hanya situs milikmu atau yang kamu punya izin. URL target dilewatkan ke proxy publik agar bisa dibaca browser.</div>' +
     '<div id="aqws-modinfo" style="margin-top:8px;font-size:11px" class="dim">' + footerInfoText() + '</div></div>');
 
   // ---- form ----

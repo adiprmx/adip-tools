@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.11.5';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"fake-dm-ig","name":"Fake DM Instagram","cat":"fakesos","icon":"📩","desc":"Bikin screenshot DM Instagram palsu + unduh PNG.","keywords":"instagram,dm,chat,fake,palsu,screenshot,prank,android,iphone"};
 
@@ -61,8 +61,10 @@ const FDM_CSS = `
 .fdm-row.b .fdm-like{right:6px}
 .fdm-row.a .fdm-like{left:6px}
 .fdm-wrap.dark .fdm-like{background:#1c1c1c}
-.fdm-seen{display:flex;justify-content:flex-end;margin:3px 2px 5px;font-size:12px;color:#8e8e8e}
-.fdm-wrap.dark .fdm-seen{color:#a8a8a8}
+.fdm-seen{display:flex;justify-content:flex-end;margin:3px 2px 5px}
+.fdm-seenav{width:16px;height:16px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#efefef;flex:none}
+.fdm-wrap.dark .fdm-seenav{background:#262626}
+.fdm-seenav img{width:100%;height:100%;object-fit:cover;display:block}
 .fdm-input{display:flex;align-items:center;gap:10px;padding:8px 10px 12px}
 .fdm-pill{flex:1;display:flex;align-items:center;gap:11px;background:#efefef;border-radius:26px;padding:6px 13px 6px 6px;min-width:0}
 .fdm-wrap.dark .fdm-pill{background:#262626}
@@ -100,13 +102,11 @@ export function render(root) {
   style.textContent = FDM_CSS;
   root.appendChild(style);
 
-  let avaA = null, avaB = null;
+  let avaA = null;
 
   const userA = T.input('text', 'cth: rinaa.prm', '');
-  const userB = T.input('text', 'cth: adip.rmx', '');
   const statusInp = T.input('text', 'cth: Active now', 'Active now');
   const fiA = fileInput('image/*');
-  const fiB = fileInput('image/*');
   const platSel = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   const themeSel = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
@@ -115,7 +115,6 @@ export function render(root) {
   const preview = T.out();
 
   fiA.addEventListener('change', () => { if (fiA.files[0]) { avaA = URL.createObjectURL(fiA.files[0]); draw(); } });
-  fiB.addEventListener('change', () => { if (fiB.files[0]) { avaB = URL.createObjectURL(fiB.files[0]); draw(); } });
 
   function draw() {
     const dark = themeSel.value === 'gelap';
@@ -158,7 +157,8 @@ export function render(root) {
           const mk = msgs[k];
           const like = mk.like ? '<span class="fdm-like">❤️</span>' : '';
           h += '<div class="fdm-row b' + (k === j ? ' grp' : '') + '"><div class="fdm-bub">' + T.esc(mk.text) + like + '</div></div>';
-          if (k === seenIdx) h += '<div class="fdm-seen">Seen</div>';
+          // IG asli: tanda dibaca = avatar kecil si lawan di bawah pesan terakhir, bukan teks "Seen".
+          if (k === seenIdx) h += '<div class="fdm-seen"><span class="fdm-seenav">' + (avaA ? '<img src="' + T.esc(avaA) + '" alt="">' : FDM_PERSON) + '</span></div>';
         }
         i = j + 1;
       }
@@ -176,11 +176,10 @@ export function render(root) {
     T.show(preview, '<div class="fdm-wrap' + (dark ? ' dark' : '') + '">' + h + '</div>');
   }
 
-  [userA, userB, statusInp, platSel, selBrand, themeSel, divInp, chatTa].forEach((elx) => { elx.addEventListener('input', draw); elx.addEventListener('change', draw); });
+  [userA, statusInp, platSel, selBrand, themeSel, divInp, chatTa].forEach((elx) => { elx.addEventListener('input', draw); elx.addEventListener('change', draw); });
 
   function contoh() {
     userA.value = 'rinaa.prm';
-    userB.value = 'adip.rmx';
     statusInp.value = 'Active now';
     divInp.value = 'Today';
     chatTa.value = 'A: woyy, jadi kan nongkrong nanti?\nB: jadi dong, jam 7 ya\nA|like: oke gas! gue bawa cemilan\nB|seen: wkwk parah 😂 bawa yang banyak';
@@ -190,13 +189,13 @@ export function render(root) {
   }
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  root.appendChild(T.grid2(T.field('Username lawan', userA), T.field('Username sendiri', userB)));
-  root.appendChild(T.grid2(T.field('Avatar lawan', fiA), T.field('Avatar sendiri', fiB)));
+  root.appendChild(T.field('Username lawan', userA));
+  root.appendChild(T.field('Avatar lawan', fiA));
   root.appendChild(T.grid2(T.field('Platform', platSel), T.field('Tema', themeSel)));
   const brandField = T.field('Merk HP', selBrand);
   root.appendChild(brandField);
   root.appendChild(T.grid2(T.field('Status', statusInp), T.field('Teks pembatas tanggal', divInp)));
-  root.appendChild(T.field('Percakapan', chatTa, 'Format: A: pesan (lawan, kiri) / B: pesan (sendiri, kanan). Tambah |like untuk ❤️, |seen di baris B terakhir untuk tanda dibaca.'));
+  root.appendChild(T.field('Percakapan', chatTa, 'Format: A: pesan (lawan, kiri) / B: pesan (sendiri, kanan). Tambah |like untuk ❤️, |seen di baris B terakhir untuk tanda dibaca (avatar lawan).'));
   root.appendChild(T.row(
     T.btn('🎲 Contoh', contoh),
     T.btn('⬇️ Unduh PNG', () => { dlNodePng(preview, 'fake-dm-ig.png'); }, true)

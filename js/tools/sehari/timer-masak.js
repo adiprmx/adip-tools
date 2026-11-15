@@ -1,6 +1,6 @@
-import { h as T, num, p2 } from '../../core.js?v=6.11.5';
+import { h as T, num, p2 } from '../../core.js?v=6.12.0';
 
-export const meta = {"id": "timer-masak", "name": "Timer Masak", "cat": "sehari", "icon": "🍜", "desc": "Timer masak dengan preset telur, mie, nasi — bunyi saat matang.", "keywords": "timer,masak,telur,mie,nasi,countdown,pengingat"};
+export const meta = {"id": "timer-masak", "name": "Timer Masak", "cat": "sehari", "icon": "🍜", "desc": "Timer masak untuk telur, mie, nasi — bunyi saat matang.", "keywords": "timer,masak,telur,mie,nasi,countdown,pengingat"};
 
 export function render(root) {
 
@@ -59,8 +59,8 @@ export function render(root) {
 
     root.appendChild(T.el('<p class="note">Masak sambil scroll HP aman — <b>timer yang jagain</b>, mateng langsung bunyi.</p>'));
     root.appendChild(T.grid2(...PRESETS.map(([nama, mnt]) => T.btn(nama + ' (' + mnt + ' mnt)', () => mulai(mnt, nama)))));
-    root.appendChild(T.field('Atau custom (menit)', customI, 'Durasi sendiri sesuai kebutuhan.'));
-    root.appendChild(T.row(T.btn('Mulai Custom', () => mulai(customI.value, 'Timer custom'), true), T.btn('Batal', batal)));
+    root.appendChild(T.field('Atau isi sendiri (menit)', customI, 'Durasi sendiri sesuai kebutuhan.'));
+    root.appendChild(T.row(T.btn('Mulai Timer', () => mulai(customI.value, 'Timer sendiri'), true), T.btn('Batal', batal)));
     root.appendChild(disp);
     root.appendChild(labelBox);
 }

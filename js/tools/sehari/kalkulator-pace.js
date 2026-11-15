@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.11.5';
+import { h as T, kv } from '../../core.js?v=6.12.0';
 
 // Prediksi waktu jarak lain memakai rumus Riegel (1977):
 // T2 = T1 x (D2 / D1) ^ 1.06
@@ -43,11 +43,11 @@ export function render(root) {
       const j = T.num(jam.value) || 0, m = T.num(menit.value) || 0, s = T.num(detik.value) || 0;
       const total = j * 3600 + m * 60 + s;
       if (!(d > 0)) {
-        T.show(box, '<span class="err">Isi jarak lari dengan angka yang valid.</span>');
+        T.show(box, '<span class="err">Isi jarak larinya dengan angka yang benar.</span>');
         return;
       }
       if (!(total > 0)) {
-        T.show(box, '<span class="err">Isi waktu lari dengan angka yang valid.</span>');
+        T.show(box, '<span class="err">Isi waktu larinya dengan angka yang benar.</span>');
         return;
       }
       if (m >= 60 || s >= 60) {
@@ -68,7 +68,7 @@ export function render(root) {
         '<div class="hint">' + fmtPace(paceMil) + ' per mil, kecepatan ' + kec.toFixed(1) + ' km/jam</div></div>' +
         '<div class="dim" style="margin-top:12px">Prediksi waktu untuk jarak lain (rumus Riegel)</div>' +
         prediksi +
-        '<p class="hint">Prediksi memakai rumus Riegel (1977): waktu naik sedikit lebih lambat dari jaraknya, pangkat 1,06. ' +
+        '<p class="hint">Prediksi memakai rumus Riegel (1977): makin jauh jaraknya, waktunya naik sedikit lebih lambat dari jaraknya. ' +
         'Ini perkiraan untuk pelari yang latihannya seimbang. Jarak yang jauh dari jarak aslinya biasanya kurang akurat.</p>' +
         NOTE);
     };

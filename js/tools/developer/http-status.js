@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id":"http-status","name":"HTTP Status Lookup","cat":"developer","icon":"🌐","desc":"Cari arti 35 kode status HTTP + contoh pemakaiannya.","keywords":"http,status code,api,developer,404,500"};
 
@@ -18,7 +18,7 @@ const DATA=[
  [304,'Not Modified','3xx','Konten tidak berubah — browser boleh pakai cache-nya.'],
  [307,'Temporary Redirect','3xx','Redirect sementara tapi method & body request dipertahankan.'],
  [308,'Permanent Redirect','3xx','Redirect permanen tapi method & body request dipertahankan.'],
- [400,'Bad Request','4xx','Request-nya ngaco — parameter atau formatnya tidak valid.'],
+ [400,'Bad Request','4xx','Request-nya ngaco — parameter atau formatnya tidak benar.'],
  [401,'Unauthorized','4xx','Belum login / token hilang — suruh autentikasi dulu.'],
  [402,'Payment Required','4xx','Butuh bayar dulu — dipakai untuk paywall & API berbayar.'],
  [403,'Forbidden','4xx','Sudah login tapi tidak punya izin akses resource ini.'],

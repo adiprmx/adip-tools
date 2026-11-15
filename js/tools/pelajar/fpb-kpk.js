@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "fpb-kpk", "name": "FPB & KPK", "cat": "pelajar", "icon": "➗", "desc": "Cari FPB dan KPK dari 2–3 bilangan, lengkap dengan pohon faktor dan langkah pengerjaannya.", "keywords": "fpb,kpk,faktorisasi,pohon faktor,matematika,sd,smp,pr"};
 
@@ -50,7 +50,7 @@ export function render(root) {
     const hitung = () => {
       const nums = [aI, bI, cI].map((el) => Math.round(T.num(el.value) || 0)).filter((n) => n > 0);
       if (nums.length < 2) {
-        T.show(box, '<p class="dim">Isi minimal 2 bilangan bulat positif (maks 1.000.000).</p>');
+        T.show(box, '<p class="dim">Isi minimal 2 angka bulat positif (maks 1.000.000).</p>');
         return;
       }
       if (nums.some((n) => n > 1000000)) {

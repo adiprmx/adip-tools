@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.11.5';
+import { h as T, utils } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "tts", "name": "Text-to-Speech", "cat": "musik", "icon": "🗣️", "desc": "Bacakan teks bahasa Indonesia.", "keywords": "tts,suara,baca,teks"};
 export function render(root) {
@@ -44,7 +44,7 @@ export function render(root) {
       if (v) u.voice = v;
       u.rate = +rate.value / 100; u.pitch = +pitch.value / 100;
       u.onend = () => T.hide(box);
-      u.onerror = () => T.show(box, '<p class="err">Gagal membacakan teks.</p>');
+      u.onerror = () => T.show(box, '<p class="err">Teksnya tidak bisa dibacakan.</p>');
       synth.speak(u);
       T.show(box, '<p class="center mut">Membacakan…</p>');
     };

@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.11.5';
+import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.12.0';
 
 export const meta = {"id": "konversi-kecepatan-internet", "name": "Kecepatan Internet", "cat": "converter", "icon": "🌐", "desc": "Konversi Mbps ↔ MB/s dan satuan kecepatan internet.", "keywords": "internet,kecepatan,mbps,mb/s,bandwidth,download,konversi"};
 
@@ -37,7 +37,7 @@ export function render(root) {
       const rows = UNITS.map((u) => [u[1], fmtV(bps / u[2])]);
       T.show(out,
         kvRows(rows) +
-        '<div class="hint" style="margin-top:8px">Paket internet dijual dalam <b>bit</b> (Mbps), file diunduh dalam <b>byte</b> (MB/s) — bagi 8. K = 1000 (standar telekomunikasi/SI). GB di sini = 10⁹ byte.</div>');
+        '<div class="hint" style="margin-top:8px">Paket internet dijual dalam <b>bit</b> (Mbps), file diunduh dalam <b>byte</b> (MB/s) — bagi 8. K = 1000 (standar telekomunikasi). GB di sini = 1 miliar byte.</div>');
     };
 
     valInp.addEventListener('input', hitung);

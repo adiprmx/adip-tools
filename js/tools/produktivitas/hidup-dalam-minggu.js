@@ -1,4 +1,4 @@
-import { h as T, utils, canvasToBlob } from '../../core.js?v=6.11.5';
+import { h as T, utils, canvasToBlob } from '../../core.js?v=6.12.0';
 
 // Logika murni (bisa di-test di Node).
 utils.mingguHidup = function (tglLahirISO, usiaHarapan, sekarangISO) {
@@ -40,7 +40,7 @@ export function render(root) {
   function tampil() {
     if (!lahir.value) { T.show(box, '<div class="hint">Isi dulu tanggal lahirmu.</div>'); return; }
     const r = utils.mingguHidup(lahir.value, T.num(usia.value));
-    if (!r) { T.show(box, '<div class="hint">Tanggal lahir tidak valid.</div>'); return; }
+    if (!r) { T.show(box, '<div class="hint">Tanggal lahirnya tidak benar.</div>'); return; }
     terakhir = r;
     gambar(r);
     T.show(box,
@@ -61,7 +61,7 @@ export function render(root) {
     T.btn('Unduh sebagai gambar', async () => {
       if (!terakhir) { T.toast('Tampilkan dulu gambarnya'); return; }
       const blob = await canvasToBlob(kanvas, 'image/png');
-      if (!blob) { T.toast('Gagal membuat gambar'); return; }
+      if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
       T.dl('hidup-dalam-minggu.png', blob, 'image/png');
       T.toast('Gambar berhasil diunduh');
     })
