@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.0';
+import { h as T, errBox } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"sertifikat","name":"Sertifikat Tolol","cat":"fun","icon":"🏆","desc":"Sertifikat meme roast: namamu + TERBUKTI TOLOL DAN TAK BEROTAK. 100% digambar di perangkat, tanpa server.","keywords":"sertifikat,meme,tolol,roast,nama,gambar,lucu"};
 

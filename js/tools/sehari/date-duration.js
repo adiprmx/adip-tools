@@ -1,4 +1,4 @@
-import { h as T, utils, kv, tabs, parseISO, todayISO } from '../../core.js?v=6.12.0';
+import { h as T, utils, kv, tabs, parseISO, todayISO } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari dari tanggal, dan hitung hari kerja dengan daftar libur.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari"};
 

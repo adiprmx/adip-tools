@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.0';
+import { h as T } from '../../core.js?v=6.12.1';
 
 // ---------- Logika murni (tanpa DOM, bisa diuji dari Node) ----------
 

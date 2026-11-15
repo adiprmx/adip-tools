@@ -30,7 +30,7 @@
      persis dengan cardEl di app.js). Copy bahasa Indonesia
      sehari-hari; tanpa klaim popularitas yang tidak terukur.
    ============================================================ */
-import { esc } from './core.js?v=6.12.0';
+import { esc } from './core.js?v=6.12.1';
 
 /* selaras dengan SEARCH_DENY di app.js */
 const SEARCH_DENY = ['muse-test'];

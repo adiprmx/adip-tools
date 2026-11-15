@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-threads-post',
@@ -87,6 +87,8 @@ export function render(root) {
     '.fth-homebar span{width:134px;height:5px;border-radius:3px;background:var(--fth-fg);opacity:.85}' +
     '.fth-navpill{display:flex;justify-content:center;padding:8px 0}' +
     '.fth-navpill span{width:108px;height:4px;border-radius:2px;background:var(--fth-fg);opacity:.85}' +
+    '.fth-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}' +
+    '.fth-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}' +
     '.fth-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
     '</style>';
 
@@ -205,7 +207,8 @@ export function render(root) {
         '<span>' + ICO_HOME + '</span><span>' + ICO_SEARCH + '</span><span>' + ICO_COMPOSE + '</span><span>' + ICO_ACTIVITY + '</span>' +
         '<span class="fth-pava"' + pavaBg + '>' + pavaInner + '</span>' +
       '</div>' +
-      (isIPh ? '<div class="fth-homebar"><span></span></div>' : '<div class="fth-navpill"><span></span></div>');
+      (isIPh ? '<div class="fth-homebar"><span></span></div>' : '<div class="fth-navpill"><span></span></div>') +
+      '<div class="fth-pranktag-wrap"><span class="fth-pranktag">palsu · cuma prank</span></div>';
   }
 
   [userI, verI, timeI, textI, text2I, repI, likeI, likedI, repostedI, themeI, platI, selBrand].forEach((elx) => {

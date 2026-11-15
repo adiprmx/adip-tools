@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 /* Logo X resmi (path merek X, viewBox 24) — fill currentColor agar ikut
    warna teks tema situs (putih di tema gelap, hitam di tema terang). */
@@ -99,6 +99,8 @@ export function render(root) {
     '.ft-homebar span{width:134px;height:5px;border-radius:3px;background:var(--ft-fg);opacity:.85}' +
     '.ft-navpill{display:flex;justify-content:center;padding:10px 0 8px}' +
     '.ft-navpill span{width:108px;height:4px;border-radius:2px;background:var(--ft-fg);opacity:.85}' +
+    '.ft-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}' +
+    '.ft-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}' +
     '</style>';
 
   const nameI = T.input('text', 'Nama tampilan', 'Adip RMX');
@@ -201,7 +203,8 @@ export function render(root) {
           '</div>' +
         '</div>' +
       '</div>' +
-      navHtml;
+      navHtml +
+      '<div class="ft-pranktag-wrap"><span class="ft-pranktag">palsu · cuma prank</span></div>';
   }
 
   [nameI, handleI, verI, timeI, textI, repI, rtI, likeI, viewI, themeI, platI, selBrand].forEach((elx) => {

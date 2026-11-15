@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.0';
+import { h as T, utils, kv } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'simulasi-deposito',

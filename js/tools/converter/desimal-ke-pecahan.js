@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 /* Fungsi murni, diekspor supaya bisa diuji dari node tanpa DOM. */
 export function fpb(a, b) {

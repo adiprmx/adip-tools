@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.0';
+import { h as T } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"kanban-board","name":"Kanban Board","cat":"produktivitas","icon":"🗂️","desc":"Atur kerjaanmu: Todo → Doing → Done. Tersimpan otomatis di HP.","keywords":"kanban,todo,task,kerjaan,produktivitas,board,doing,done"};
 export function render(root) {

@@ -1,5 +1,5 @@
-import { h as T, utils, fmtBytes, errBox } from '../../core.js?v=6.12.0';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.0';
+import { h as T, utils, fmtBytes, errBox } from '../../core.js?v=6.12.1';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.1';
 
 export const meta = {"id": "audio-trimmer", "name": "Audio Trimmer", "cat": "musik", "icon": "✂️", "desc": "Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.", "keywords": "audio,potong,mp3,m4a,ogg,wav,trim,fade,video,ekstrak"};
 export function render(root) {

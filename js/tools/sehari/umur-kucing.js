@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.12.0';
+import { h as T, kv, utils } from '../../core.js?v=6.12.1';
 
 // Umur kucing ke umur manusia, bagan AAHA/AAFP: tahun pertama 15,
 // tahun kedua tambah 9, setelah itu tambah 4 per tahun.

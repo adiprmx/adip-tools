@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"fake-call","name":"Fake Panggilan Masuk","cat":"fakesos","icon":"📞","desc":"Bikin screenshot layar panggilan masuk palsu + unduh PNG.","keywords":"telepon,call,panggilan,fake,palsu,screenshot,prank"};
 
@@ -50,6 +50,7 @@ export function render(root) {
     // bottom chrome
     '.' + P + '-home{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:123px;height:4px;border-radius:3px;background:rgba(255,255,255,.88);z-index:2}' +
     '.' + P + '-navpill{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:104px;height:4px;border-radius:3px;background:rgba(255,255,255,.55);z-index:2}' +
+    '.' + P + '-pranktag{position:absolute;bottom:12px;left:12px;font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px;z-index:9}' +
     // ikon
     '.' + P + '-ic{display:inline-flex;flex:none;vertical-align:middle}' +
     '.' + P + '-ic svg{width:100%;height:100%;display:block}' +
@@ -131,7 +132,7 @@ export function render(root) {
             '<div class="' + P + '-roundbtn ' + P + '-decline" title="Tolak">' + ic('phone', true) + '</div>' +
             '<div class="' + P + '-roundbtn ' + P + '-accept" title="Jawab">' + ic('phone') + '</div>' +
           '</div>' +
-        '</div>' + bottomChrome() + '</div>';
+        '</div>' + bottomChrome() + '<span class="' + P + '-pranktag">palsu · cuma prank</span></div>';
     } else {
       html = '<div class="' + P + '-screen">' + doodle +
         '<div class="' + P + '-ct">' + sb() +
@@ -153,7 +154,7 @@ export function render(root) {
             '<div class="' + P + '-ctl">' + ic('more') + '</div>' +
           '</div>' +
           '<div class="' + P + '-endrow"><div class="' + P + '-endbtn">' + ic('phone', true) + '</div></div>' +
-        '</div>' + bottomChrome() + '</div>';
+        '</div>' + bottomChrome() + '<span class="' + P + '-pranktag">palsu · cuma prank</span></div>';
     }
     frame = T.el(html);
     stage.innerHTML = '';

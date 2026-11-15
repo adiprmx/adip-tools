@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-chat-wa',
@@ -176,6 +176,9 @@ export function render(root) {
 .fcw-dark .fcw-home{background:#1F2C34}
 .fcw-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
 .fcw-dark .fcw-home i{background:rgba(255,255,255,.4)}
+.fcw-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px;background:#F0F2F5}
+.fcw-dark .fcw-pranktag-wrap{background:#1F2C34}
+.fcw-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}
 .fcw-hint{font-size:12px;color:#8696A0;line-height:1.6;background:rgba(127,127,127,.08);border-radius:8px;padding:8px 10px}
 .fcw-hint code{font-family:monospace;font-size:11.5px}
 .fcw-note{font-size:11.5px;color:#8696A0;margin-top:10px;line-height:1.5}
@@ -321,7 +324,7 @@ export function render(root) {
       phone.style.setProperty('--fcw-di', 'none');
       phone.style.setProperty('--fcw-did', 'none');
     }
-    phone.innerHTML = sbHtml + hdHtml + '<div class="fcw-chat">' + chatHtml + '</div>' + ibarHtml;
+    phone.innerHTML = sbHtml + hdHtml + '<div class="fcw-chat">' + chatHtml + '</div>' + ibarHtml + '<div class="fcw-pranktag-wrap"><span class="fcw-pranktag">palsu · cuma prank</span></div>';
   }
 
   [inName, inStatus, selPlatform, selBrand, selTheme, selChatTheme, selTicks, inChip, selChip, selEnc, taMsg].forEach((el) => {

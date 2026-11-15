@@ -1,4 +1,4 @@
-import { h as T, kv, canvasToBlob, errBox } from '../../core.js?v=6.12.0';
+import { h as T, kv, canvasToBlob, errBox } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"chart-maker","name":"Chart Maker","cat":"desain","icon":"📊","desc":"Ubah tabel angka jadi grafik batang, garis, atau pie.","keywords":"grafik,chart,batang,pie,garis,data,tabel","since":"6.11.0"};
 

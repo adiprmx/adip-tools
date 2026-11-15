@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 /* Diekspor supaya pola bisa diuji otomatis dari node. */
 export const POLA = [

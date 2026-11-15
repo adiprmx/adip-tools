@@ -1,4 +1,4 @@
-import { h as T, kv, esc, errBox, preHtml } from '../../core.js?v=6.12.0';
+import { h as T, kv, esc, errBox, preHtml } from '../../core.js?v=6.12.1';
 
 /* Fungsi murni (bisa diuji dari node tanpa DOM). */
 export function parseUrlList(text) {

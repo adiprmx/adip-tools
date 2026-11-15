@@ -1,6 +1,6 @@
 # ADIP Tools
 
-> Kumpulan 606 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi 6.12.0.
+> Kumpulan 606 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi 6.12.1.
 
 ## Keamanan
 
@@ -102,7 +102,7 @@
 - [Markdown Preview](https://tools.adipmusic.my.id/#/t/markdown-preview): Preview Markdown jadi HTML.
 - [Meta Tag Generator](https://tools.adipmusic.my.id/#/t/meta-generator): Generator meta tag SEO + pratinjau Google (desktop & HP) dan kartu X.
 - [Open Graph Preview](https://tools.adipmusic.my.id/#/t/og-preview): Preview tampilan link di medsos + periksa tag & ukuran gambar OG.
-- [Pembanding Teks](https://tools.adipmusic.my.id/#/t/pembanding-teks): Bandingkan dua teks baris per baris, lihat bedanya.
+- [Pembanding Teks & Kode](https://tools.adipmusic.my.id/#/t/pembanding-teks): Bandingkan dua teks baris per baris, lihat bedanya.
 - [Pratinjau HTML](https://tools.adipmusic.my.id/#/t/preview-html): Tulis HTML dan lihat hasilnya langsung di bawah.
 - [Generator Prompt AI](https://tools.adipmusic.my.id/#/t/prompt-ai): Susun prompt AI yang rapi dari template.
 - [Rapikan Kode](https://tools.adipmusic.my.id/#/t/rapikan-kode): Rapikan indentasi JSON, HTML & CSS.
@@ -131,8 +131,8 @@
 - [Clip-Path Generator](https://tools.adipmusic.my.id/#/t/clip-path-generator): Potong bentuk pakai clip-path CSS.
 - [Kode ke Gambar](https://tools.adipmusic.my.id/#/t/code-to-image): Ubah potongan kode jadi gambar PNG dengan warna sintaks.
 - [CSS Grid Generator](https://tools.adipmusic.my.id/#/t/css-grid-generator): Rancang layout grid, salin CSS-nya.
-- [Favicon Generator](https://tools.adipmusic.my.id/#/t/favicon): Bikin favicon dari emoji/teks.
-- [Favicon Generator](https://tools.adipmusic.my.id/#/t/favicon-generator): Bikin favicon dari gambar atau emoji: multi-ukuran + ZIP + PWA.
+- [Favicon Emoji Cepat](https://tools.adipmusic.my.id/#/t/favicon): Bikin favicon dari emoji/teks.
+- [Paket Favicon Lengkap](https://tools.adipmusic.my.id/#/t/favicon-generator): Bikin favicon dari gambar atau emoji: multi-ukuran + ZIP + PWA.
 - [Gradient Generator](https://tools.adipmusic.my.id/#/t/gradient): Bikin gradient CSS + preview.
 - [HTML/WebGL ke MP4](https://tools.adipmusic.my.id/#/t/htmlvideo): Render animasi canvas / HTML jadi video MP4 8 detik.
 - [Komponen Wireframe](https://tools.adipmusic.my.id/#/t/komponen-wireframe): Wireframe grayscale siap pakai: tombol, kartu, navbar, dll.
@@ -184,7 +184,7 @@
 - [Konverter Hijriah](https://tools.adipmusic.my.id/#/t/hijriah): Konversi Masehi ↔ Hijriah dua arah.
 - [Hitung 1000 Hari](https://tools.adipmusic.my.id/#/t/hitung-1000-hari): Tanggal selamatan 40, 100 & 1000 hari + pasaran Jawa.
 - [Hitung Fidyah](https://tools.adipmusic.my.id/#/t/hitung-fidyah): Hitung fidyah untuk puasa yang terlewat: berapa hari × berapa rupiah, atau setara berapa kg beras.
-- [Kalkulator Upah Lembur](https://tools.adipmusic.my.id/#/t/hitung-lembur): Hitung upah lembur (aturan 1,5x & 2x).
+- [Upah Lembur Kerja & Libur](https://tools.adipmusic.my.id/#/t/hitung-lembur): Hitung upah lembur hari kerja & hari libur (1,5×–4×).
 - [Pajak Resto](https://tools.adipmusic.my.id/#/t/hitung-pajak-resto): Hitung total bayar makan di resto + split bill patungan.
 - [Kalkulator Waris Islam](https://tools.adipmusic.my.id/#/t/hitung-waris): Simulasi pembagian waris (faraidh) sederhana.
 - [Iuran BPJS Kesehatan](https://tools.adipmusic.my.id/#/t/iuran-bpjs): Hitung iuran BPJS Kesehatan per bulan & per tahun.
@@ -197,7 +197,7 @@
 - [Kalkulator Emas](https://tools.adipmusic.my.id/#/t/kalkulator-emas): Hitung harga emas dari berat, atau berat emas dari budget-mu.
 - [Kalkulator Gadai](https://tools.adipmusic.my.id/#/t/kalkulator-gadai): Simulasi gadai: taksiran barang → plafon pinjaman, sewa modal, total tebus.
 - [Kalkulator Kurban](https://tools.adipmusic.my.id/#/t/kalkulator-kurban): Patungan sapi (maks 7 orang) atau kambing — iuran per orang otomatis.
-- [Kalkulator Lembur](https://tools.adipmusic.my.id/#/t/kalkulator-lembur): Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.
+- [Upah Lembur per Jam](https://tools.adipmusic.my.id/#/t/kalkulator-lembur): Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.
 - [Kalkulator Pesangon](https://tools.adipmusic.my.id/#/t/kalkulator-pesangon): Estimasi uang pesangon (UP + UPMK + UPH) ala PP 35/2021.
 - [Kalkulator Biaya QRIS](https://tools.adipmusic.my.id/#/t/mdr-qris): Hitung potongan MDR QRIS per jenis merchant.
 - [Hitung Pajak Motor & Mobil](https://tools.adipmusic.my.id/#/t/pajak-kendaraan): Hitung pajak tahunan kendaraanmu: PKB + opsen + SWDKLLJ, dari NJKB di STNK.
@@ -313,7 +313,7 @@
 - [Hitung Suku Kata](https://tools.adipmusic.my.id/#/t/hitung-suku-kata): Estimasi suku kata per kata Bahasa Indonesia.
 - [Konverter Subtitle](https://tools.adipmusic.my.id/#/t/konverter-subtitle): Ubah subtitle SRT ke VTT atau sebaliknya, plus geser waktunya.
 - [Lorem Ipsum Generator](https://tools.adipmusic.my.id/#/t/lorem-ipsum): Teks contoh untuk mengisi desain.
-- [Pantun Generator](https://tools.adipmusic.my.id/#/t/pantun-generator): Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.
+- [Pantun Acak per Tema](https://tools.adipmusic.my.id/#/t/pantun-generator): Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.
 - [Pembuat Singkatan](https://tools.adipmusic.my.id/#/t/pembuat-singkatan): Bikin beberapa varian singkatan dari kalimat atau frasa.
 - [Pengacak Kalimat](https://tools.adipmusic.my.id/#/t/pengacak-kalimat): Acak urutan kata dalam tiap kalimat.
 - [Quote Generator](https://tools.adipmusic.my.id/#/t/quotegenerator): Bikin gambar quote 736×917: teks justify + kata sorotan, render lokal.
@@ -323,7 +323,7 @@
 - [Teks Mocking](https://tools.adipmusic.my.id/#/t/teks-mocking): Ubah teks jadi tEkS mOcKiNg ala SpongeBob.
 - [Teks Pelangi](https://tools.adipmusic.my.id/#/t/teks-pelangi): Ubah teks jadi pelangi huruf per huruf, salin sebagai HTML.
 - [Teks jadi Tulisan Tangan](https://tools.adipmusic.my.id/#/t/teks-tulisan-tangan): Ubah ketikan jadi tulisan tangan di kertas bergaris.
-- [Pembanding Teks](https://tools.adipmusic.my.id/#/t/text-diff): Bandingkan dua teks.
+- [Pembanding Teks Cepat](https://tools.adipmusic.my.id/#/t/text-diff): Bandingkan dua teks, lihat baris yang beda.
 - [Generator Ucapan](https://tools.adipmusic.my.id/#/t/ucapan-generator): Bikin ucapan Lebaran, nikah, ultah, dan lainnya.
 - [WA Text Formatter](https://tools.adipmusic.my.id/#/t/wa-formatter): Teks biasa jadi format WhatsApp.
 - [Penghitung Kata](https://tools.adipmusic.my.id/#/t/word-counter): Kata, karakter, estimasi baca, skor baca & batas tiap platform.
@@ -339,7 +339,7 @@
 - [Berat Volumetrik Paket](https://tools.adipmusic.my.id/#/t/berat-volumetrik): Hitung berat volumetrik paket dan bandingkan dengan berat timbangan — yang lebih besar itulah yang ditagih kurir.
 - [Hitung Biaya PayLater](https://tools.adipmusic.my.id/#/t/biaya-paylater): Lihat total yang benar-benar dibayar kalau belanja pakai PayLater — pokok, bunga, biaya, dan denda kalau telat.
 - [Break-Even Point](https://tools.adipmusic.my.id/#/t/break-even-point): Jual berapa unit biar modal balik? Cari titik impasmu.
-- [Buat Invoice](https://tools.adipmusic.my.id/#/t/buat-invoice): Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.
+- [Invoice Usaha dengan PPN](https://tools.adipmusic.my.id/#/t/buat-invoice): Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.
 - [Kalkulator Cat](https://tools.adipmusic.my.id/#/t/cat-tembok): Kebutuhan cat dari luas ruangan.
 - [Cuti Prorata](https://tools.adipmusic.my.id/#/t/cuti-prorata): Jatah cuti tahunan sesuai masa kerja, plus uang pengganti cuti.
 - [Pembuat Daftar Harga](https://tools.adipmusic.my.id/#/t/daftar-harga): Susun daftar harga usahamu jadi kartu rapi siap dibagikan.
@@ -358,7 +358,7 @@
 - [Harga Jual Delivery](https://tools.adipmusic.my.id/#/t/harga-jual-delivery): Tentukan harga jual di GoFood, GrabFood, dan ShopeeFood supaya untung tidak habis dipotong komisi.
 - [Harga Jual Marketplace](https://tools.adipmusic.my.id/#/t/harga-jual-marketplace): Dari modal + target untung, ketahuan harga jual minimal di Shopee, Tokopedia, dan TikTok Shop setelah dipotong fee.
 - [HPP Makanan per Porsi](https://tools.adipmusic.my.id/#/t/hpp-makanan): Hitung modal tiap porsi dari resep satu batch: bahan, kemasan, gas, listrik, dan tenaga.
-- [Invoice Generator](https://tools.adipmusic.my.id/#/t/invoice): Bikin invoice rapi siap cetak.
+- [Invoice dengan Diskon & Pajak](https://tools.adipmusic.my.id/#/t/invoice): Bikin invoice rapi dengan diskon & pajak, siap cetak.
 - [Arus Kas](https://tools.adipmusic.my.id/#/t/kalkulator-cashflow): Catat pemasukan & pengeluaran bulanan per kategori, lihat sisa kas & trennya.
 - [Kalkulator DCA](https://tools.adipmusic.my.id/#/t/kalkulator-dca): Rata-rata harga beli dari investasi rutin tiap bulan.
 - [Kalkulator Dividen](https://tools.adipmusic.my.id/#/t/kalkulator-dividen): Berapa dividen yang masuk dari saham yang dimiliki?
@@ -395,7 +395,7 @@
 
 ## Sehari-hari
 
-- [Kalkulator Umur](https://tools.adipmusic.my.id/#/t/age-calc): Umur tepat: tahun, bulan, hari.
+- [Umur di Tanggal Tertentu](https://tools.adipmusic.my.id/#/t/age-calc): Umurmu di tanggal yang kamu pilih: tahun, bulan, hari.
 - [Anggaran Mudik](https://tools.adipmusic.my.id/#/t/anggaran-mudik): Siapkan dana mudik: bensin, tol, makan, sampai oleh-oleh.
 - [Hitung Bahan Bangunan](https://tools.adipmusic.my.id/#/t/bahan-bangunan): Berapa bata, semen, pasir, dan keramik yang perlu dibeli?
 - [Berat Ideal Anjing](https://tools.adipmusic.my.id/#/t/berat-ideal-anjing): Rentang berat ideal anjing per ras, plus cek skor kondisi tubuh.
@@ -404,14 +404,14 @@
 - [Biaya Pelihara Anjing](https://tools.adipmusic.my.id/#/t/biaya-pelihara-anjing): Perkiraan biaya bulanan pelihara anjing, semua angkanya bisa diubah.
 - [Biaya Pelihara Kucing](https://tools.adipmusic.my.id/#/t/biaya-pelihara-kucing): Perkiraan biaya bulanan pelihara kucing, semua angkanya bisa diubah.
 - [BMI & Kalori](https://tools.adipmusic.my.id/#/t/bmi): BMI + estimasi kebutuhan kalori.
-- [Catat Minum Air](https://tools.adipmusic.my.id/#/t/catat-minum-air): Pantau air minum harianmu, jangan sampai kurang.
+- [Catat Minum Air & Riwayat](https://tools.adipmusic.my.id/#/t/catat-minum-air): Pantau air minum harianmu, jangan sampai kurang.
 - [Cek Makanan Hewan](https://tools.adipmusic.my.id/#/t/cek-makanan-hewan): Cek makanan aman atau berbahaya untuk kucing dan anjing, beserta alasannya.
 - [Cek Tekanan Darah](https://tools.adipmusic.my.id/#/t/cek-tekanan-darah): Cek arti angka tensimu: normal, naik, atau tinggi.
 - [Daftar Belanja](https://tools.adipmusic.my.id/#/t/daftar-belanja): Catat belanjaan, centang yang udah dibeli, pantau totalnya.
 - [Durasi Tanggal](https://tools.adipmusic.my.id/#/t/date-duration): Durasi antara dua tanggal, tambah/kurang hari dari tanggal, dan hitung hari kerja dengan daftar libur.
 - [Hitung HPL](https://tools.adipmusic.my.id/#/t/hitung-hpl): Perkiraan hari lahir (HPL) + usia kehamilan dari HPHT.
 - [Hitung Parkir](https://tools.adipmusic.my.id/#/t/hitung-parkir): Estimasi biaya parkir motor & mobil
-- [Hitung PK AC](https://tools.adipmusic.my.id/#/t/hitung-pk-ac): Ukuran AC yang pas untuk ruanganmu, plus biaya listriknya.
+- [PK AC & Biaya Listrik](https://tools.adipmusic.my.id/#/t/hitung-pk-ac): Ukuran AC yang pas untuk ruanganmu, plus biaya listriknya.
 - [Jadwal Imunisasi Anak](https://tools.adipmusic.my.id/#/t/jadwal-imunisasi): Jadwal imunisasi lengkap dari lahir sampai 18 tahun.
 - [Jadwal Latihan](https://tools.adipmusic.my.id/#/t/jadwal-latihan): Susun jadwal latihan mingguanmu, Senin sampai Minggu.
 - [Jadwal Siram](https://tools.adipmusic.my.id/#/t/jadwal-siram-tanaman): Catat tanamanmu, diingetin kapan waktunya disiram.
@@ -419,9 +419,9 @@
 - [Jadwal Vaksin Kucing](https://tools.adipmusic.my.id/#/t/jadwal-vaksin-kucing): Jadwal vaksin F3 dan rabies anak kucing dari tanggal lahir.
 - [Jejak Karbon](https://tools.adipmusic.my.id/#/t/jejak-karbon): Estimasi jejak karbon tahunanmu + tips menguranginya.
 - [Kalkulator 1RM](https://tools.adipmusic.my.id/#/t/kalkulator-1rm): Perkiraan beban maksimal sekali angkat (1RM) dari beban dan repetisi.
-- [Kalkulator BTU AC](https://tools.adipmusic.my.id/#/t/kalkulator-btu): Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.
+- [Kebutuhan BTU AC](https://tools.adipmusic.my.id/#/t/kalkulator-btu): Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.
 - [Kalkulator Pace Lari](https://tools.adipmusic.my.id/#/t/kalkulator-pace): Pace per km dari jarak dan waktu lari, plus prediksi waktu jarak lain.
-- [Kalkulator Umur](https://tools.adipmusic.my.id/#/t/kalkulator-umur): Hitung umur persis: tahun, bulan, hari + total hari & hitung mundur ultah
+- [Kalkulator Umur Hari Ini](https://tools.adipmusic.my.id/#/t/kalkulator-umur): Hitung umur persis: tahun, bulan, hari + total hari & hitung mundur ultah
 - [Kalkulator Waktu](https://tools.adipmusic.my.id/#/t/kalkulator-waktu): Tambah dan kurang durasi jam, menit, detik, plus konversi satuan waktu.
 - [Kalori Harian Hewan](https://tools.adipmusic.my.id/#/t/kalori-hewan): Kebutuhan kalori harian kucing dan anjing dari berat dan kondisinya.
 - [Kalori Makanan Indonesia](https://tools.adipmusic.my.id/#/t/kalori-makanan): Cari kalori makanan Indonesia dan jumlahkan kalori seharianmu.
@@ -437,7 +437,7 @@
 - [Checklist Packing Traveling](https://tools.adipmusic.my.id/#/t/packing-travel): Daftar bawaan traveling, tersimpan otomatis.
 - [Porsi Makan Anjing](https://tools.adipmusic.my.id/#/t/pakan-anjing): Porsi makan harian anjing dalam gram dan kalori, dari berat dan aktivitas.
 - [Porsi Makan Kucing](https://tools.adipmusic.my.id/#/t/pakan-kucing): Porsi makan harian kucing dalam gram dan kalori, dari berat dan aktivitas.
-- [Pantun Pembuka](https://tools.adipmusic.my.id/#/t/pantun): Template pantun buat presentasi.
+- [Pantun Pembuka & Penutup](https://tools.adipmusic.my.id/#/t/pantun): Pantun pembuka & penutup buat presentasi.
 - [Pengingat Obat](https://tools.adipmusic.my.id/#/t/pengingat-obat): Alarm minum obat + checklist harian
 - [Skor Risiko Diabetes](https://tools.adipmusic.my.id/#/t/risiko-diabetes): Perkirakan risiko diabetes tipe 2 dari umur, berat badan, dan gaya hidup.
 - [Siklus Haid & Masa Subur](https://tools.adipmusic.my.id/#/t/siklus-haid): Prediksi haid berikut & masa subur dari hari pertama haid terakhir.
@@ -552,7 +552,7 @@
 - [Tanda Tangan Digital](https://tools.adipmusic.my.id/#/t/tanda-tangan): Tanda tangan di layar pakai jari atau stylus, unduh sebagai gambar transparan untuk ditempel di dokumen.
 - [Target Menulis](https://tools.adipmusic.my.id/#/t/target-menulis): Pasang target kata, pantau bar progresnya sampai garis finis.
 - [Time Tracker](https://tools.adipmusic.my.id/#/t/time-tracker): Catat waktu kerjamu per tugas — start, stop, ketahuan totalnya.
-- [Tracker Air Minum](https://tools.adipmusic.my.id/#/t/water-tracker): Target minum harian.
+- [Target Minum dari Berat Badan](https://tools.adipmusic.my.id/#/t/water-tracker): Target minum harian dari berat badanmu (30 ml × kg).
 - [Wishlist](https://tools.adipmusic.my.id/#/t/wishlist): Daftar barang impian + progress nabung.
 
 ## Pelajar

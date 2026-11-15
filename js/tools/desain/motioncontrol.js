@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.0';
+import { h as T } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "motioncontrol", "name": "Motion Control", "cat": "desain", "icon": "🎥", "desc": "Direktori layanan AI motion & animasi karakter.", "keywords": "motion,animasi,ai,video,karakter,direktori"};
 

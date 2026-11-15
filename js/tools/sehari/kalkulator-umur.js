@@ -1,4 +1,4 @@
-import { h as T, utils, onLeave } from '../../core.js?v=6.12.0';
+import { h as T, utils, onLeave } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node)
 utils.hitungUmur = function (tglStr, nowMs) {
@@ -25,7 +25,7 @@ utils.hitungUmur = function (tglStr, nowMs) {
   };
 };
 
-export const meta = {"id": "kalkulator-umur", "name": "Kalkulator Umur", "cat": "sehari", "icon": "🎂", "desc": "Hitung umur persis: tahun, bulan, hari + total hari & hitung mundur ultah", "keywords": "umur,usia,ulang tahun,ultah,age,tanggal lahir"};
+export const meta = {"id": "kalkulator-umur", "name": "Kalkulator Umur Hari Ini", "cat": "sehari", "icon": "🎂", "desc": "Hitung umur persis: tahun, bulan, hari + total hari & hitung mundur ultah", "keywords": "umur,usia,ulang tahun,ultah,age,tanggal lahir"};
 
 export function render(root) {
   const tgl = T.input('date', 'Tanggal lahir', '');

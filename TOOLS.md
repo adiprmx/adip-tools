@@ -1,6 +1,6 @@
 # Daftar Tools Adip Tools
 
-> 606 tool · v6.12.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
+> 606 tool · v6.12.1 · dibuat otomatis dari js/manifest.js — jangan edit manual.
 
 ## Ringkasan kategori
 
@@ -25,7 +25,7 @@
 
 ## Sehari-hari (67)
 
-1. **Kalkulator Umur** — Umur tepat: tahun, bulan, hari.
+1. **Umur di Tanggal Tertentu** — Umurmu di tanggal yang kamu pilih: tahun, bulan, hari.
 2. **Anggaran Mudik** — Siapkan dana mudik: bensin, tol, makan, sampai oleh-oleh.
 3. **Hitung Bahan Bangunan** — Berapa bata, semen, pasir, dan keramik yang perlu dibeli?
 4. **Berat Ideal Anjing** — Rentang berat ideal anjing per ras, plus cek skor kondisi tubuh.
@@ -34,14 +34,14 @@
 7. **Biaya Pelihara Anjing** — Perkiraan biaya bulanan pelihara anjing, semua angkanya bisa diubah.
 8. **Biaya Pelihara Kucing** — Perkiraan biaya bulanan pelihara kucing, semua angkanya bisa diubah.
 9. **BMI & Kalori** — BMI + estimasi kebutuhan kalori.
-10. **Catat Minum Air** — Pantau air minum harianmu, jangan sampai kurang.
+10. **Catat Minum Air & Riwayat** — Pantau air minum harianmu, jangan sampai kurang.
 11. **Cek Makanan Hewan** — Cek makanan aman atau berbahaya untuk kucing dan anjing, beserta alasannya.
 12. **Cek Tekanan Darah** — Cek arti angka tensimu: normal, naik, atau tinggi.
 13. **Daftar Belanja** — Catat belanjaan, centang yang udah dibeli, pantau totalnya.
 14. **Durasi Tanggal** — Durasi antara dua tanggal, tambah/kurang hari dari tanggal, dan hitung hari kerja dengan daftar libur.
 15. **Hitung HPL** — Perkiraan hari lahir (HPL) + usia kehamilan dari HPHT.
 16. **Hitung Parkir** — Estimasi biaya parkir motor & mobil
-17. **Hitung PK AC** — Ukuran AC yang pas untuk ruanganmu, plus biaya listriknya.
+17. **PK AC & Biaya Listrik** — Ukuran AC yang pas untuk ruanganmu, plus biaya listriknya.
 18. **Jadwal Imunisasi Anak** — Jadwal imunisasi lengkap dari lahir sampai 18 tahun.
 19. **Jadwal Latihan** — Susun jadwal latihan mingguanmu, Senin sampai Minggu.
 20. **Jadwal Siram** — Catat tanamanmu, diingetin kapan waktunya disiram.
@@ -49,9 +49,9 @@
 22. **Jadwal Vaksin Kucing** — Jadwal vaksin F3 dan rabies anak kucing dari tanggal lahir.
 23. **Jejak Karbon** — Estimasi jejak karbon tahunanmu + tips menguranginya.
 24. **Kalkulator 1RM** — Perkiraan beban maksimal sekali angkat (1RM) dari beban dan repetisi.
-25. **Kalkulator BTU AC** — Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.
+25. **Kebutuhan BTU AC** — Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.
 26. **Kalkulator Pace Lari** — Pace per km dari jarak dan waktu lari, plus prediksi waktu jarak lain.
-27. **Kalkulator Umur** — Hitung umur persis: tahun, bulan, hari + total hari & hitung mundur ultah
+27. **Kalkulator Umur Hari Ini** — Hitung umur persis: tahun, bulan, hari + total hari & hitung mundur ultah
 28. **Kalkulator Waktu** — Tambah dan kurang durasi jam, menit, detik, plus konversi satuan waktu.
 29. **Kalori Harian Hewan** — Kebutuhan kalori harian kucing dan anjing dari berat dan kondisinya.
 30. **Kalori Makanan Indonesia** — Cari kalori makanan Indonesia dan jumlahkan kalori seharianmu.
@@ -67,7 +67,7 @@
 40. **Checklist Packing Traveling** — Daftar bawaan traveling, tersimpan otomatis.
 41. **Porsi Makan Anjing** — Porsi makan harian anjing dalam gram dan kalori, dari berat dan aktivitas.
 42. **Porsi Makan Kucing** — Porsi makan harian kucing dalam gram dan kalori, dari berat dan aktivitas.
-43. **Pantun Pembuka** — Template pantun buat presentasi.
+43. **Pantun Pembuka & Penutup** — Pantun pembuka & penutup buat presentasi.
 44. **Pengingat Obat** — Alarm minum obat + checklist harian
 45. **Skor Risiko Diabetes** — Perkirakan risiko diabetes tipe 2 dari umur, berat badan, dan gaya hidup.
 46. **Siklus Haid & Masa Subur** — Prediksi haid berikut & masa subur dari hari pertama haid terakhir.
@@ -103,7 +103,7 @@
 6. **Berat Volumetrik Paket** — Hitung berat volumetrik paket dan bandingkan dengan berat timbangan — yang lebih besar itulah yang ditagih kurir.
 7. **Hitung Biaya PayLater** — Lihat total yang benar-benar dibayar kalau belanja pakai PayLater — pokok, bunga, biaya, dan denda kalau telat.
 8. **Break-Even Point** — Jual berapa unit biar modal balik? Cari titik impasmu.
-9. **Buat Invoice** — Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.
+9. **Invoice Usaha dengan PPN** — Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.
 10. **Kalkulator Cat** — Kebutuhan cat dari luas ruangan.
 11. **Cuti Prorata** — Jatah cuti tahunan sesuai masa kerja, plus uang pengganti cuti.
 12. **Pembuat Daftar Harga** — Susun daftar harga usahamu jadi kartu rapi siap dibagikan.
@@ -122,7 +122,7 @@
 25. **Harga Jual Delivery** — Tentukan harga jual di GoFood, GrabFood, dan ShopeeFood supaya untung tidak habis dipotong komisi.
 26. **Harga Jual Marketplace** — Dari modal + target untung, ketahuan harga jual minimal di Shopee, Tokopedia, dan TikTok Shop setelah dipotong fee.
 27. **HPP Makanan per Porsi** — Hitung modal tiap porsi dari resep satu batch: bahan, kemasan, gas, listrik, dan tenaga.
-28. **Invoice Generator** — Bikin invoice rapi siap cetak.
+28. **Invoice dengan Diskon & Pajak** — Bikin invoice rapi dengan diskon & pajak, siap cetak.
 29. **Arus Kas** — Catat pemasukan & pengeluaran bulanan per kategori, lihat sisa kas & trennya.
 30. **Kalkulator DCA** — Rata-rata harga beli dari investasi rutin tiap bulan.
 31. **Kalkulator Dividen** — Berapa dividen yang masuk dari saham yang dimiliki?
@@ -179,7 +179,7 @@
 18. **Konverter Hijriah** — Konversi Masehi ↔ Hijriah dua arah.
 19. **Hitung 1000 Hari** — Tanggal selamatan 40, 100 & 1000 hari + pasaran Jawa.
 20. **Hitung Fidyah** — Hitung fidyah untuk puasa yang terlewat: berapa hari × berapa rupiah, atau setara berapa kg beras.
-21. **Kalkulator Upah Lembur** — Hitung upah lembur (aturan 1,5x & 2x).
+21. **Upah Lembur Kerja & Libur** — Hitung upah lembur hari kerja & hari libur (1,5×–4×).
 22. **Pajak Resto** — Hitung total bayar makan di resto + split bill patungan.
 23. **Kalkulator Waris Islam** — Simulasi pembagian waris (faraidh) sederhana.
 24. **Iuran BPJS Kesehatan** — Hitung iuran BPJS Kesehatan per bulan & per tahun.
@@ -192,7 +192,7 @@
 31. **Kalkulator Emas** — Hitung harga emas dari berat, atau berat emas dari budget-mu.
 32. **Kalkulator Gadai** — Simulasi gadai: taksiran barang → plafon pinjaman, sewa modal, total tebus.
 33. **Kalkulator Kurban** — Patungan sapi (maks 7 orang) atau kambing — iuran per orang otomatis.
-34. **Kalkulator Lembur** — Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.
+34. **Upah Lembur per Jam** — Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.
 35. **Kalkulator Pesangon** — Estimasi uang pesangon (UP + UPMK + UPH) ala PP 35/2021.
 36. **Kalkulator Biaya QRIS** — Hitung potongan MDR QRIS per jenis merchant.
 37. **Hitung Pajak Motor & Mobil** — Hitung pajak tahunan kendaraanmu: PKB + opsen + SWDKLLJ, dari NJKB di STNK.
@@ -247,7 +247,7 @@
 28. **Markdown Preview** — Preview Markdown jadi HTML.
 29. **Meta Tag Generator** — Generator meta tag SEO + pratinjau Google (desktop & HP) dan kartu X.
 30. **Open Graph Preview** — Preview tampilan link di medsos + periksa tag & ukuran gambar OG.
-31. **Pembanding Teks** — Bandingkan dua teks baris per baris, lihat bedanya.
+31. **Pembanding Teks & Kode** — Bandingkan dua teks baris per baris, lihat bedanya.
 32. **Pratinjau HTML** — Tulis HTML dan lihat hasilnya langsung di bawah.
 33. **Generator Prompt AI** — Susun prompt AI yang rapi dari template.
 34. **Rapikan Kode** — Rapikan indentasi JSON, HTML & CSS.
@@ -354,7 +354,7 @@
 39. **Tanda Tangan Digital** — Tanda tangan di layar pakai jari atau stylus, unduh sebagai gambar transparan untuk ditempel di dokumen.
 40. **Target Menulis** — Pasang target kata, pantau bar progresnya sampai garis finis.
 41. **Time Tracker** — Catat waktu kerjamu per tugas — start, stop, ketahuan totalnya.
-42. **Tracker Air Minum** — Target minum harian.
+42. **Target Minum dari Berat Badan** — Target minum harian dari berat badanmu (30 ml × kg).
 43. **Wishlist** — Daftar barang impian + progress nabung.
 
 ## Gambar (42)
@@ -413,8 +413,8 @@
 7. **Clip-Path Generator** — Potong bentuk pakai clip-path CSS.
 8. **Kode ke Gambar** — Ubah potongan kode jadi gambar PNG dengan warna sintaks.
 9. **CSS Grid Generator** — Rancang layout grid, salin CSS-nya.
-10. **Favicon Generator** — Bikin favicon dari emoji/teks.
-11. **Favicon Generator** — Bikin favicon dari gambar atau emoji: multi-ukuran + ZIP + PWA.
+10. **Favicon Emoji Cepat** — Bikin favicon dari emoji/teks.
+11. **Paket Favicon Lengkap** — Bikin favicon dari gambar atau emoji: multi-ukuran + ZIP + PWA.
 12. **Gradient Generator** — Bikin gradient CSS + preview.
 13. **HTML/WebGL ke MP4** — Render animasi canvas / HTML jadi video MP4 8 detik.
 14. **Komponen Wireframe** — Wireframe grayscale siap pakai: tombol, kartu, navbar, dll.
@@ -632,7 +632,7 @@
 10. **Hitung Suku Kata** — Estimasi suku kata per kata Bahasa Indonesia.
 11. **Konverter Subtitle** — Ubah subtitle SRT ke VTT atau sebaliknya, plus geser waktunya.
 12. **Lorem Ipsum Generator** — Teks contoh untuk mengisi desain.
-13. **Pantun Generator** — Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.
+13. **Pantun Acak per Tema** — Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.
 14. **Pembuat Singkatan** — Bikin beberapa varian singkatan dari kalimat atau frasa.
 15. **Pengacak Kalimat** — Acak urutan kata dalam tiap kalimat.
 16. **Quote Generator** — Bikin gambar quote 736×917: teks justify + kata sorotan, render lokal.
@@ -642,7 +642,7 @@
 20. **Teks Mocking** — Ubah teks jadi tEkS mOcKiNg ala SpongeBob.
 21. **Teks Pelangi** — Ubah teks jadi pelangi huruf per huruf, salin sebagai HTML.
 22. **Teks jadi Tulisan Tangan** — Ubah ketikan jadi tulisan tangan di kertas bergaris.
-23. **Pembanding Teks** — Bandingkan dua teks.
+23. **Pembanding Teks Cepat** — Bandingkan dua teks, lihat baris yang beda.
 24. **Generator Ucapan** — Bikin ucapan Lebaran, nikah, ultah, dan lainnya.
 25. **WA Text Formatter** — Teks biasa jadi format WhatsApp.
 26. **Penghitung Kata** — Kata, karakter, estimasi baca, skor baca & batas tiap platform.

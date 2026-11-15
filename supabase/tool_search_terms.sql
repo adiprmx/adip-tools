@@ -28,6 +28,13 @@ BEGIN
   IF v_term !~ '^[a-z0-9 \-]+$' THEN
     RETURN;
   END IF;
+  -- Batas pertumbuhan (v6.12.1, Blue Team R1/F4): tolak istilah BARU bila
+  -- tabel sudah > 5000 baris; istilah yang sudah ada tetap boleh naik count.
+  -- Mencegah penghabisan kuota storage proyek bersama via spam istilah unik.
+  IF NOT EXISTS (SELECT 1 FROM public.tool_search_terms WHERE term = v_term)
+     AND (SELECT count(*) FROM public.tool_search_terms) > 5000 THEN
+    RETURN;
+  END IF;
   INSERT INTO public.tool_search_terms (term, count, updated_at)
   VALUES (v_term, 1, now())
   ON CONFLICT (term) DO UPDATE

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"fake-komen-tiktok","name":"Fake Komen TikTok","cat":"fakesos","icon":"🎶","desc":"Bikin screenshot komentar TikTok palsu + unduh PNG.","keywords":"tiktok,komentar,fake,palsu,screenshot,prank"};
 
@@ -83,6 +83,8 @@ export function render(root) {
     '.' + P + '-icobtn{flex:none;color:var(--' + P + '-sub);line-height:0;display:flex;align-items:center;justify-content:center}' +
     '.' + P + '-at{font-size:21px;font-weight:600;color:var(--' + P + '-sub);line-height:1;padding:0 2px}' +
     '.' + P + '-send{flex:none;color:var(--' + P + '-sub);line-height:0;display:flex;align-items:center;opacity:.85}' +
+    '.' + P + '-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 14px}' +
+    '.' + P + '-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}' +
     '.' + P + '-hint{font-size:12px;opacity:.65;line-height:1.6}' +
     '.' + P + '-note{font-size:12px;opacity:.65;margin-top:14px}';
   root.appendChild(css);
@@ -144,6 +146,7 @@ export function render(root) {
               '<span class="' + P + '-icobtn">' + IC.emoji + '</span>' +
               '<span class="' + P + '-send">' + IC.send + '</span>' +
             '</div>' +
+            '<div class="' + P + '-pranktag-wrap"><span class="' + P + '-pranktag">palsu · cuma prank</span></div>' +
           '</div>' +
           '<div class="' + P + '-navpill"></div>' +
         '</div>' +

@@ -1,4 +1,4 @@
-import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.0';
+import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node): daftar harga jadi teks rapi (untuk dibagikan).
 utils.daftarHargaTeks = function (namaUsaha, daftar) {

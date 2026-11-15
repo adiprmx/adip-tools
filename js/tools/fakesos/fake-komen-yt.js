@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-komen-yt',
@@ -55,6 +55,8 @@ export function render(root) {
     '.fy-heart .fy-ava{width:20px;height:20px;flex-basis:20px;font-size:10px}' +
     '.fy-heart span:last-child{font-size:12px;color:var(--fy-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
     '.fy-repcount{display:flex;align-items:center;gap:8px;margin:4px 0 0 54px;font-size:14px;font-weight:500;color:#3ea6ff;padding:8px 0}' +
+    '.fy-pranktag-wrap{display:flex;justify-content:center;padding:10px 0 12px}' +
+    '.fy-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}' +
     '.fy-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
     '</style>';
 
@@ -152,7 +154,8 @@ export function render(root) {
           heart +
         '</div>' +
       '</div>' +
-      repRow;
+      repRow +
+      '<div class="fy-pranktag-wrap"><span class="fy-pranktag">palsu · cuma prank</span></div>';
   }
 
   [nameI, verI, timeI, textI, likeI, repI, heartI, pinI, pinByI, themeI].forEach((elx) => {

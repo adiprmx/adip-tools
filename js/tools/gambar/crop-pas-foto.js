@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
-import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
+import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop pas foto, ganti latar, lembar cetak 4R, cek kelayakan.","keywords":"pas foto,crop,ktp,lamaran,rasio,latar merah,lembar cetak"};
 

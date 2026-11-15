@@ -1,4 +1,4 @@
-import { h as T, utils, canvasToBlob } from '../../core.js?v=6.12.0';
+import { h as T, utils, canvasToBlob } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node): bagi teks jadi baris sesuai lebar.
 utils.bungkusTeks = function (teks, maksKarakter) {

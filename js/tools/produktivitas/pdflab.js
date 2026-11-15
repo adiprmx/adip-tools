@@ -1,4 +1,4 @@
-import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.12.0';
+import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.12.1';
 
 // ---------- Util murni tab Banding (tanpa DOM, bisa diuji dari Node) ----------
 

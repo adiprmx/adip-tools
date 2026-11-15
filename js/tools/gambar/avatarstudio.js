@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "avatarstudio", "name": "Avatar Studio", "cat": "gambar", "icon": "🎭", "desc": "Avatar SVG unik puluhan style + editor visual (DiceBear).", "keywords": "avatar,profil,svg,dicebear,editor,seed"};
 

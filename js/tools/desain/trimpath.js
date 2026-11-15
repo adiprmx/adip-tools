@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 /* trimpath — "Trimpath Generator": animasi garis draw-on per huruf -> XML Alight Motion.
    Path huruf dibuat sendiri via vectorizer lokal (marching squares), jadi semua

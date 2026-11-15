@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.1';
 
 // Perbaiki JSON rusak dengan toleransi: komentar, koma berlebih,
 // kutip tunggal, dan kunci tanpa kutip. Scanner karakter, bukan regex

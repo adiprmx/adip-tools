@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.0';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.1';
 
 // Canvas -> file BMP 24-bit (tanpa kompresi). Hanya butuh getImageData,
 // jadi bisa diuji di Node dengan canvas tiruan.

@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.0';
+import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.1';
 
 // Checksum file: SHA-256/384/512 via WebCrypto, MD5 via crypto-js
 // (dimuat dari CDN hanya bila MD5 dicentang). File dibaca utuh ke

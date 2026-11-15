@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"setlist-timer","name":"Setlist Timer","cat":"musik","icon":"⏳","desc":"Timer setlist manggung: countdown per lagu + total durasi.","keywords":"setlist,timer,manggung,live,dj,musik,konser,panggung"};
 

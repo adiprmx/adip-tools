@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node): target FIRE = pengeluaran setahun x 25,
 // lalu simulasi bunga majemuk bulanan sampai target tercapai.

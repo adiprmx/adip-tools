@@ -1,4 +1,4 @@
-import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.0';
+import { h as T, utils, dlNodePng } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node).
 utils.TIER_LIST_BARIS = ['S', 'A', 'B', 'C', 'D', 'F'];

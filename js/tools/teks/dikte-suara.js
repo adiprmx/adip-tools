@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.0';
+import { h as T, errBox } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"dikte-suara","name":"Dikte Suara","cat":"teks","icon":"🗣️","desc":"Ubah ucapan jadi teks langsung di browser.","keywords":"dikte,suara,teks,speech,mengetik,ucapan","since":"6.11.0"};
 

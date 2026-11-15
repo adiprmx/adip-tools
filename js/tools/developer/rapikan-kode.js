@@ -1,4 +1,4 @@
-import { h as T, errBox, esc } from '../../core.js?v=6.12.0';
+import { h as T, errBox, esc } from '../../core.js?v=6.12.1';
 
 // Rapikan JSON, HTML, dan CSS secara ringan, tanpa pustaka berat.
 // JavaScript sengaja TIDAK didukung: formatter JS yang benar butuh

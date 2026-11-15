@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.0';
+import { h as T, kv } from '../../core.js?v=6.12.1';
 
 // Rumus one-rep max (1RM) dari beban + repetisi:
 // - Brzycki (1993): W / (1.0278 - 0.0278 x R)

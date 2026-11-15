@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.0';
+import { h as T, kv } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "winrate-ff", "name": "Kalkulator Winrate FF", "cat": "fun", "icon": "🎮", "desc": "Berapa win beruntun biar WR Free Fire-mu nyentuh target?", "keywords": "winrate,ff,free fire,wr,target,win beruntun,kalkulator"};
 

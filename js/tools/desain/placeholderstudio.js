@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.0';
+import { h as T, errBox } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "placeholderstudio", "name": "Placeholder Studio", "cat": "desain", "icon": "🖼️", "desc": "Generator gambar placeholder custom.", "keywords": "placeholder,gambar,dummy,wireframe,mockup"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "smartcutout", "name": "Smart Cutout", "cat": "gambar", "icon": "✂️", "desc": "Ketuk objek di foto → AI pisahkan otomatis, 100% lokal.", "keywords": "cutout,segmentasi,potong,objek,transparan,mask"};
 

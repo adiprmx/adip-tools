@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.12.0';
+import { h as T, utils, money, kv } from '../../core.js?v=6.12.1';
 
 const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 function tambahBulan(y, m, n) {

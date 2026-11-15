@@ -45,7 +45,7 @@ Laporan audit lengkap: `~/workspace/adip-tools-upgrade/v6.12.0/t04-security-repo
 
 | Tujuan | Data | Tool |
 |---|---|---|
-| Supabase milik sendiri | Kata pencarian (huruf kecil, maks 80 karakter) | Shell aplikasi (otomatis, debounce 1,2 dtk) |
+| Supabase milik sendiri | Kata pencarian (huruf kecil, maks 40 karakter) | Shell aplikasi (otomatis, debounce 1,2 dtk) |
 | api.telegram.org | Token bot (di URL, sesuai desain Bot API) | tes-bot-telegram, lihat-update-telegram |
 | api.elevenlabs.io | API key + teks/audio pengguna | elevenlabs |
 | Endpoint LLM pilihan pengguna (default Pollinations / OpenAI) | API key + isi dokumen | documentai |
@@ -83,15 +83,15 @@ Laporan audit lengkap: `~/workspace/adip-tools-upgrade/v6.12.0/t04-security-repo
    (`js.puter.com/v2/`) bahkan tanpa pin versi. Tambah parameter integritas
    di `loadScript` + hash SRI untuk pustaka klasik; dokumentasikan risiko
    residu untuk modul ESM (dynamic `import()` tidak mendukung SRI).
-6. **(Medium) Verifikasi RLS Supabase belum bisa dibuktikan dari repo.**
-   Kode memakai tabel `search_logs` + RPC `popular_tools`, sementara
-   `supabase/tool_search_terms.sql` di repo mendefinisikan objek yang
-   berbeda (`tool_search_terms` + `track_search`) — drift. Pastikan di
-   dashboard Supabase: anon **tidak** punya kebijakan SELECT ke
-   `search_logs` (kata pencarian pengguna tidak boleh bisa dibaca publik
-   lewat anon key), dan tulis sebaiknya hanya via RPC bervalidasi seperti
-   desain di file SQL tersebut. (Verifikasi live 15 Nov 2026 tidak
-   konklusif: curl timeout, probe HTTP 401.)
+6. **(Medium → ditutup v6.12.1) Verifikasi RLS Supabase.** Kode kini memakai
+   tabel agregat `tool_search_terms` + RPC `track_search` (skema di
+   `supabase/tool_search_terms.sql`), sesuai dengan yang benar-benar ada di
+   database. RLS aktif; anon hanya punya kebijakan SELECT ke tabel agregat
+   (istilah + hitungan, tanpa identitas pengguna), dan tulis hanya via RPC
+   SECURITY DEFINER bervalidasi. Key client adalah publishable key proyek
+   (bukan service_role/secret). Verifikasi live 15 Nov 2026: RPC
+   `track_search` + GET `tool_search_terms` berfungsi dengan key baru
+   (lihat `~/workspace/adip-tools-upgrade/v6.12.1/p1-supabase-report.md`).
 7. **(Low) EXIF tidak dibersihkan sebelum upload.** `fotolink` mengunggah
    file asli ke catbox.moe — metadata EXIF (termasuk GPS) ikut terkirim
    ke URL publik. Peringatan sudah ada di UI; idealnya EXIF di-strip dulu

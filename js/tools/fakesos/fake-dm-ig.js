@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"fake-dm-ig","name":"Fake DM Instagram","cat":"fakesos","icon":"📩","desc":"Bikin screenshot DM Instagram palsu + unduh PNG.","keywords":"instagram,dm,chat,fake,palsu,screenshot,prank,android,iphone"};
 
@@ -79,6 +79,8 @@ const FDM_CSS = `
 .fdm-heartbtn{width:27px;height:27px;display:inline-flex;flex:none;color:#262626}
 .fdm-wrap.dark .fdm-heartbtn{color:#f5f5f5}
 .fdm-heartbtn svg{width:100%;height:100%}
+.fdm-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}
+.fdm-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}
 `;
 
 function fdmAva(url, size) {
@@ -172,6 +174,7 @@ export function render(root) {
       + '<span class="fdm-tic">' + FDM_IC.sticker + '</span></div>'
       + '<span class="fdm-heartbtn">' + FDM_IC.heart + '</span></div>'
       + (isIPh ? '<div class="fdm-home"><i></i></div>' : '<div class="fdm-anav"><i></i></div>');
+    h += '<div class="fdm-pranktag-wrap"><span class="fdm-pranktag">palsu · cuma prank</span></div>';
 
     T.show(preview, '<div class="fdm-wrap' + (dark ? ' dark' : '') + '">' + h + '</div>');
   }

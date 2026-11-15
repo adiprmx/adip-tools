@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-spotify-wrapped',

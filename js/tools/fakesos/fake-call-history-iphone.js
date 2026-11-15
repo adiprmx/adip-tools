@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-call-history-iphone',
@@ -84,6 +84,8 @@ export function render(root) {
 .fch-home{display:flex;justify-content:center;align-items:center;height:22px}
 .fch-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
 .fch-dark .fch-home i{background:rgba(255,255,255,.4)}
+.fch-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}
+.fch-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}
 .fch-hint{font-size:12px;color:#8696A0;line-height:1.6;background:rgba(127,127,127,.08);border-radius:8px;padding:8px 10px}
 .fch-hint code{font-family:monospace;font-size:11.5px}
 .fch-note{font-size:11.5px;color:#8696A0;margin-top:10px;line-height:1.5}
@@ -149,7 +151,8 @@ export function render(root) {
         '<span class="fch-tab">' + SVG_KEYPAD + '<span>Tombol</span></span>' +
         '<span class="fch-tab">' + SVG_VOICEMAIL + '<span>Pesan Suara</span></span>' +
       '</div>' +
-      '<div class="fch-home" style="background:' + th.bg + '"><i></i></div>';
+      '<div class="fch-home" style="background:' + th.bg + '"><i></i></div>' +
+      '<div class="fch-pranktag-wrap"><span class="fch-pranktag">palsu · cuma prank</span></div>';
   }
 
   [selTheme, selFilter, taRows].forEach((el) => {

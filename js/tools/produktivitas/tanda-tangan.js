@@ -1,4 +1,4 @@
-import { h as T, utils, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, utils, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "tanda-tangan", "name": "Tanda Tangan Digital", "cat": "produktivitas", "icon": "✍️", "desc": "Tanda tangan di layar pakai jari atau stylus, unduh sebagai gambar transparan untuk ditempel di dokumen.", "keywords": "tanda tangan,signature,ttd,canvas,transparan,dokumen"};
 

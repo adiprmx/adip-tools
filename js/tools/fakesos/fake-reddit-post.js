@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-reddit-post',
@@ -97,6 +97,8 @@ export function render(root) {
     '.fr-homebar span{width:134px;height:5px;border-radius:3px;background:var(--fr-fg);opacity:.85}' +
     '.fr-navpill{display:flex;justify-content:center;padding:8px 0}' +
     '.fr-navpill span{width:108px;height:4px;border-radius:2px;background:var(--fr-fg);opacity:.85}' +
+    '.fr-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}' +
+    '.fr-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}' +
     '.fr-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
     '</style>';
 
@@ -226,7 +228,8 @@ export function render(root) {
         '<span class="fr-tab">' + ICO_CHAT + '<span>Obrolan</span></span>' +
         '<span class="fr-tab">' + ICO_BELL + '<span>Kotak Masuk</span></span>' +
       '</div>' +
-      (isIPh ? '<div class="fr-homebar"><span></span></div>' : '<div class="fr-navpill"><span></span></div>');
+      (isIPh ? '<div class="fr-homebar"><span></span></div>' : '<div class="fr-navpill"><span></span></div>') +
+      '<div class="fr-pranktag-wrap"><span class="fr-pranktag">palsu · cuma prank</span></div>';
   }
 
   [subI, userI, timeI, titleI, flairI, nsfwI, bodyI, upI, cmtI, awardI, voteI, themeI, platI, selBrand].forEach((elx) => {

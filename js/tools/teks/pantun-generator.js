@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 const TEMA = {
   cinta: [
@@ -31,7 +31,7 @@ const TEMA = {
   ]
 };
 
-export const meta = {"id": "pantun-generator", "name": "Pantun Generator", "cat": "teks", "icon": "📜", "desc": "Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.", "keywords": "pantun,sampiran,isi,puisi,indonesia"};
+export const meta = {"id": "pantun-generator", "name": "Pantun Acak per Tema", "cat": "teks", "icon": "📜", "desc": "Pantun ABAB siap pakai: cinta, nasehat, lucu, perpisahan.", "keywords": "pantun,sampiran,isi,puisi,indonesia"};
 export function render(root) {
 
       const tema = T.select([

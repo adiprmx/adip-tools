@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "trivia-umum", "name": "Trivia Umum", "cat": "fun", "icon": "🧠", "desc": "Kuis 10 soal pengetahuan umum: soal Indonesia atau soal dunia dari Open Trivia DB.", "keywords": "trivia,kuis,umum,pengetahuan,soal,dunia,indonesia", "since": "6.12.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.0';
+import { h as T, kv } from '../../core.js?v=6.12.1';
 
 // Prediksi waktu jarak lain memakai rumus Riegel (1977):
 // T2 = T1 x (D2 / D1) ^ 1.06

@@ -1,6 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.0';
+import { h as T, utils, kv } from '../../core.js?v=6.12.1';
 
-export const meta = {"id": "kalkulator-lembur", "name": "Kalkulator Lembur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.", "keywords": "lembur,upah,overtime,gaji,kerja,jam,lemburan"};
+export const meta = {"id": "kalkulator-lembur", "name": "Upah Lembur per Jam", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.", "keywords": "lembur,upah,overtime,gaji,kerja,jam,lemburan"};
 export function render(root) {
 
     const inGaji = T.input('text', 'Gaji per bulan (Rp)', '');

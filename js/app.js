@@ -24,15 +24,15 @@
    - Filter "Favorit" di #/semua + tombol ♥ di palette
    - Halaman Metodologi (#/metodologi, anchor per tool)
    ============================================================ */
-import { manifest, VERSION } from './manifest.js?v=6.12.0';
-import * as T from './core.js?v=6.12.0';
-import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML } from './beranda.js?v=6.12.0';
-import { recentRailHTML, prevToolChip, catMoreLink } from './detail-riwayat.js?v=6.12.0';
-import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js?v=6.12.0';
-import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js?v=6.12.0';
+import { manifest, VERSION } from './manifest.js?v=6.12.1';
+import * as T from './core.js?v=6.12.1';
+import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML } from './beranda.js?v=6.12.1';
+import { recentRailHTML, prevToolChip, catMoreLink } from './detail-riwayat.js?v=6.12.1';
+import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js?v=6.12.1';
+import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js?v=6.12.1';
 
 const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJic3VwYWJhc2UiLCJyZWYiOiJqZWJhZmRkd3VweXFwd2V2aHNxbiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc1NzQ1MDQzLCJleHAiOjIwOTI5NjEwNDN9.HY9zA3H3cC6cT9aN5b_8R3fJ5m7Y4pQ2wE9rT1uI4oP6sD8fG';
+const SB_ANON = 'sb_publishable_rxxzONDsxTmmsHiQgaptjg_7zbG5qeT';
 const SEARCH_DENY = ['muse-test'];
 
 const CATS = [
@@ -219,7 +219,7 @@ function sbHeaders() {
 const SB_POPULAR = [];
 async function sbFetchPopular() {
   try {
-    const r = await fetch(SB_URL + '/rest/v1/rpc/popular_tools', { method: 'POST', headers: sbHeaders(), body: '{}' });
+    const r = await fetch(SB_URL + '/rest/v1/tool_search_terms?select=term&order=count.desc&limit=8', { headers: sbHeaders() });
     if (!r.ok) return;
     const data = await r.json();
     if (Array.isArray(data)) SB_POPULAR.push(...data.map((x) => String(x.term || x).trim()).filter(Boolean));
@@ -228,9 +228,9 @@ async function sbFetchPopular() {
 }
 async function sbTrack(q) {
   try {
-    await fetch(SB_URL + '/rest/v1/search_logs', {
+    await fetch(SB_URL + '/rest/v1/rpc/track_search', {
       method: 'POST', headers: sbHeaders(),
-      body: JSON.stringify({ term: q.toLowerCase().slice(0, 80) }),
+      body: JSON.stringify({ p_term: q.toLowerCase().slice(0, 40) }),
     });
   } catch (e) { /* silent */ }
 }

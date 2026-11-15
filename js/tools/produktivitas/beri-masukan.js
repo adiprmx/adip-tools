@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"beri-masukan","name":"Beri Masukan","cat":"produktivitas","icon":"💬","desc":"Laporkan masalah atau beri saran untuk Adip Tools — lewat email atau GitHub.","keywords":"masukan,feedback,lapor,masalah,bug,saran,github,email","since":"6.12.0"};
 

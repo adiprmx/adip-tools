@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 // Tarif Efektif Rata-rata (TER) bulanan, Lampiran PP 58/2023.
 // Tiap baris: [batas atas bruto sebulan, tarif %]. Batas atas termasuk di baris itu.

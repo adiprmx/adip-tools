@@ -1,4 +1,4 @@
-import { h as T, utils, kv, errBox, esc } from '../../core.js?v=6.12.0';
+import { h as T, utils, kv, errBox, esc } from '../../core.js?v=6.12.1';
 
 // UUID v4 (acak), v7 (waktu + acak, terurut), v5 (dari namespace + nama,
 // SHA-1, hasil sama untuk input yang sama). Plus inspeksi UUID yang ditempel.

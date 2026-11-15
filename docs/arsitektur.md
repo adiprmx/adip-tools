@@ -77,9 +77,9 @@ Dipakai `video-ke-mp3`, `kompres-video`, `video-ke-gif`, `potong-video`, `konver
 
 ## Supabase (opsional)
 
-`js/app.js` memakai satu proyek Supabase hanya untuk dua hal: mencatat kata kunci pencarian (`POST /rest/v1/search_logs`, anonim, maks. 80 karakter, debounce 1,2 detik) dan mengambil daftar tool populer (RPC `popular_tools`). Semua panggilan dibungkus `try/catch` dan gagal diam-diam — situs tetap berfungsi penuh tanpa Supabase.
+`js/app.js` memakai satu proyek Supabase hanya untuk dua hal: mencatat kata kunci pencarian (RPC `track_search`, anonim, maks. 40 karakter, debounce 1,2 detik) dan mengambil daftar istilah paling sering dicari (`GET /rest/v1/tool_search_terms?select=term&order=count.desc&limit=8`). Data disimpan sebagai agregat satu baris per istilah di tabel `tool_search_terms` — tanpa identitas pengguna. Semua panggilan dibungkus `try/catch` dan gagal diam-diam — situs tetap berfungsi penuh tanpa Supabase. Bila fetch gagal atau tabel kosong, rel Populer memakai 6 istilah fallback hardcoded di `renderPopuler()`.
 
-> ⚠️ Ketidakcocokan yang tercatat (15 Nov 2026): file `supabase/tool_search_terms.sql` mendefinisikan tabel `tool_search_terms` + RPC `track_search`, yang **tidak sama** dengan yang dipakai `app.js` saat ini (`search_logs` + `popular_tools`). Skema yang benar-benar dipakai `app.js` tidak ada di repo — kemungkinan SQL ini peninggalan desain lama.
+> Catatan (v6.12.1, 15 Nov 2026): aplikasi sebelumnya memakai tabel + RPC yang ternyata tidak ada di database, dan anon key-nya sudah dirotasi sehingga semua panggilan 401. Aplikasi kini diselaraskan ke desain database yang benar-benar live (`tool_search_terms` + `track_search`, skema di `supabase/tool_search_terms.sql`) dan memakai publishable key proyek.
 
 ## Cache-busting
 

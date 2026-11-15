@@ -1,6 +1,6 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.0';
+import { h as T, utils, esc } from '../../core.js?v=6.12.1';
 
-export const meta = {"id": "pantun", "name": "Pantun Pembuka", "cat": "sehari", "icon": "🎭", "desc": "Template pantun buat presentasi.", "keywords": "pantun,presentasi,pembuka"};
+export const meta = {"id": "pantun", "name": "Pantun Pembuka & Penutup", "cat": "sehari", "icon": "🎭", "desc": "Pantun pembuka & penutup buat presentasi.", "keywords": "pantun,presentasi,pembuka"};
 export function render(root) {
 
     const PEMBUKA = [

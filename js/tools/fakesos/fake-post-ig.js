@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"fake-post-ig","name":"Fake Postingan IG","cat":"fakesos","icon":"🖼️","desc":"Bikin screenshot postingan Instagram palsu + unduh PNG.","keywords":"instagram,postingan,feed,fake,palsu,screenshot,prank"};
 
@@ -105,6 +105,8 @@ const FPI_CSS = `
 .fpi-anav{display:flex;justify-content:center;padding:8px 0 10px;flex:none}
 .fpi-anav i{display:block;width:120px;height:4px;border-radius:2px;background:#111}
 .fpi-scr.dk .fpi-anav i{background:#f5f5f5}
+.fpi-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px;flex:none}
+.fpi-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}
 `;
 
 function fpiFmt(v) {
@@ -211,6 +213,7 @@ export function render(root) {
       + '<div class="fpi-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>'
       + '<div class="fpi-app' + (dark ? ' dk' : '') + '">' + h + '</div>'
       + (isIPh ? '<div class="fpi-home"></div>' : '<div class="fpi-anav"><i></i></div>')
+      + '<div class="fpi-pranktag-wrap"><span class="fpi-pranktag">palsu · cuma prank</span></div>'
       + '</div></div>');
   }
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node).
 // Kebutuhan pendinginan = luas (m2) x 500 BTU (teduh) s.d. x 600 BTU (kena matahari).
@@ -24,7 +24,7 @@ utils.hitungPkAc = function (o) {
   return { btu, pilih, kwh, biaya: kwh * tarif };
 };
 
-export const meta = {"id": "hitung-pk-ac", "name": "Hitung PK AC", "cat": "sehari", "icon": "❄️", "desc": "Ukuran AC yang pas untuk ruanganmu, plus biaya listriknya.", "keywords": "ac,pk ac,btu,pendingin ruangan,air conditioner,ukuran ac", "since": "6.11.0"};
+export const meta = {"id": "hitung-pk-ac", "name": "PK AC & Biaya Listrik", "cat": "sehari", "icon": "❄️", "desc": "Ukuran AC yang pas untuk ruanganmu, plus biaya listriknya.", "keywords": "ac,pk ac,btu,pendingin ruangan,air conditioner,ukuran ac", "since": "6.11.0"};
 
 export function render(root) {
   const panjang = T.input('text', 'Contoh: 4', '4'); panjang.inputMode = 'decimal';

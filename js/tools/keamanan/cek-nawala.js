@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=6.12.0';
+import { h as T, utils, errBox, esc } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node): putuskan hasil dari dua sinyal.
 // dnsOk = domain terdaftar di DNS publik. reachable = bisa dijangkau dari koneksi pengguna.

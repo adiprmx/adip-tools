@@ -1,6 +1,6 @@
-import { h as T, kv, todayISO } from '../../core.js?v=6.12.0';
+import { h as T, kv, todayISO } from '../../core.js?v=6.12.1';
 
-export const meta = {"id": "catat-minum-air", "name": "Catat Minum Air", "cat": "sehari", "icon": "💧", "desc": "Pantau air minum harianmu, jangan sampai kurang.", "keywords": "air minum,hidrasi,catat minum,tracker air,kesehatan"};
+export const meta = {"id": "catat-minum-air", "name": "Catat Minum Air & Riwayat", "cat": "sehari", "icon": "💧", "desc": "Pantau air minum harianmu, jangan sampai kurang.", "keywords": "air minum,hidrasi,catat minum,tracker air,kesehatan"};
 
 export function render(root) {
 

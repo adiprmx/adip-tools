@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-notes-iphone',
@@ -94,6 +94,8 @@ export function render(root) {
 .fni-home{display:flex;justify-content:center;align-items:center;height:22px}
 .fni-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
 .fni-dark .fni-home i{background:rgba(255,255,255,.4)}
+.fni-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}
+.fni-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}
 .fni-topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 14px 4px}
 .fni-back{display:flex;align-items:center;gap:6px;font-size:17px}
 .fni-tright{display:flex;align-items:center;gap:22px}
@@ -183,7 +185,7 @@ export function render(root) {
     phone.style.background = th.bg;
     phone.style.color = th.fg;
     phone.style.setProperty('--fni-hair', th.hair);
-    phone.innerHTML = sbHtml + body + '<div class="fni-home" style="background:' + th.bg + '"><i></i></div>';
+    phone.innerHTML = sbHtml + body + '<div class="fni-home" style="background:' + th.bg + '"><i></i></div>' + '<div class="fni-pranktag-wrap"><span class="fni-pranktag">palsu · cuma prank</span></div>';
   }
 
   [selMode, selTheme, taList, inTitle, inDate, taBody].forEach((el) => {

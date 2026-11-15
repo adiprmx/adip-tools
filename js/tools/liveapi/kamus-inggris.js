@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.0';
+import { h as T, esc } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"kamus-inggris","name":"Kamus Inggris","cat":"liveapi","icon":"📖","desc":"Arti kata bahasa Inggris lengkap dengan cara baca & contoh kalimat.","keywords":"kamus,inggris,arti kata,dictionary,definisi,pengucapan,sinonim","since":"6.12.0"};
 

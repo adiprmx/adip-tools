@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node): tiap pembelian = investasi / harga saat itu.
 utils.hitungDCA = function (o) {

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"fake-story-ig","name":"Fake Story IG","cat":"fakesos","icon":"📱","desc":"Bikin screenshot Story Instagram palsu + unduh PNG.","keywords":"instagram,story,fake,palsu,screenshot,prank"};
 
@@ -69,6 +69,7 @@ export function render(root) {
     /* home indicator / nav pill */
     '.' + P + '-home{position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:102px;height:4px;border-radius:2px;background:#fff;z-index:8;box-shadow:0 1px 3px rgba(0,0,0,.45)}' +
     '.' + P + '-navpill{position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:100px;height:4px;border-radius:2px;background:rgba(255,255,255,.85);z-index:8}' +
+    '.' + P + '-pranktag{position:absolute;bottom:68px;left:12px;font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px;z-index:9}' +
     '.' + P + '-note{font-size:12px;opacity:.65;margin-top:14px}';
   root.appendChild(css);
 
@@ -113,6 +114,7 @@ export function render(root) {
           '<span class="' + P + '-fic">' + SVG_PLANE + '</span>' +
         '</div>' +
         (isIph ? '<div class="' + P + '-home"></div>' : '<div class="' + P + '-navpill"></div>') +
+        '<span class="' + P + '-pranktag">palsu · cuma prank</span>' +
       '</div>'
     );
     stage.innerHTML = '';

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-profil-wa',
@@ -66,6 +66,8 @@ const CSS = `
 .fpw-dark .fpw-home{background:#000000}
 .fpw-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
 .fpw-dark .fpw-home i{background:rgba(255,255,255,.4)}
+.fpw-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}
+.fpw-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}
 
 /* ================= INFO KONTAK — ANDROID (2026) ================= */
 .fpw-hd{display:flex;align-items:center;height:60px;padding:0 10px 0 2px;background:#FFFFFF}
@@ -464,7 +466,7 @@ export function render(root) {
     if (tipe === 'info') html = plat === 'android' ? infoAndroid(d) : infoIPhone(d);
     else html = plat === 'android' ? sayaAndroid(d) : sayaIPhone(d);
     phone.className = 'fpw-phone' + (dark ? ' fpw-dark' : '');
-    phone.innerHTML = html;
+    phone.innerHTML = html + '<div class="fpw-pranktag-wrap"><span class="fpw-pranktag">palsu · cuma prank</span></div>';
     phone.querySelectorAll('.fpw-sw').forEach((sw) => {
       sw.addEventListener('click', () => {
         const off = sw.classList.toggle('off');

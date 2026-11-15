@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.0';
+import { h as T } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "packing-travel", "name": "Checklist Packing Traveling", "cat": "sehari", "icon": "🧳", "desc": "Daftar bawaan traveling, tersimpan otomatis.", "keywords": "packing,traveling,checklist,koper,liburan", "file": "tools/sehari/packing-travel.js"};
 

@@ -1,6 +1,6 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.0';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.1';
 
-export const meta = {"id": "pembanding-teks", "name": "Pembanding Teks", "cat": "developer", "icon": "🔀", "desc": "Bandingkan dua teks baris per baris, lihat bedanya.", "keywords": "diff,teks,bandingkan,perbandingan,kode"};
+export const meta = {"id": "pembanding-teks", "name": "Pembanding Teks & Kode", "cat": "developer", "icon": "🔀", "desc": "Bandingkan dua teks baris per baris, lihat bedanya.", "keywords": "diff,teks,bandingkan,perbandingan,kode"};
 
 // Diff baris-per-baris ala LCS. Tiap item: {t:'='|'-'|'+', x:teks}
 // '=' sama di kedua, '-' hanya di teks A, '+' hanya di teks B.

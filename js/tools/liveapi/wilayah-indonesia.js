@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.0';
+import { h as T, esc } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"wilayah-indonesia","name":"Wilayah Indonesia","cat":"liveapi","icon":"🗺️","desc":"Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.","keywords":"wilayah,provinsi,kabupaten,kota,kecamatan,kelurahan,desa,kode wilayah,indonesia","since":"6.12.0"};
 

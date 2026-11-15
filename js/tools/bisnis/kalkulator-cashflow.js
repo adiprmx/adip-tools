@@ -1,4 +1,4 @@
-import { h as T, utils, kv, rp, num } from '../../core.js?v=6.12.0';
+import { h as T, utils, kv, rp, num } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node): ringkasan dari baris { nama, kategori, jumlah }.
 utils.cashflowRingkasan = function (masuk, keluar) {

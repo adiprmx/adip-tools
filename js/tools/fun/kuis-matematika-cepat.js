@@ -1,4 +1,4 @@
-import { h as T, utils, onLeave } from '../../core.js?v=6.12.0';
+import { h as T, utils, onLeave } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "kuis-matematika-cepat", "name": "Kuis Matematika Cepat", "cat": "fun", "icon": "🧮", "desc": "10 soal hitung-hitungan acak lawan waktu. Makin cepat jawab, makin besar skor.", "keywords": "matematika,hitung,kuis,cepat,angka,latihan,otak", "since": "6.12.0"};
 

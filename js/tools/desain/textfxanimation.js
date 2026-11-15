@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 /* textfxanimation — "Text FX Animation": 5 preset efek teks -> XML Alight Motion.
    Setia pada rujukan (all-tools-nexora, izin Developer Dika): 5 preset memakai

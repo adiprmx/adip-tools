@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "tagihan-listrik", "name": "Hitung Tagihan Listrik", "cat": "indonesia", "icon": "💡", "desc": "Hitung tagihan listrik bulanan dari alat elektronik di rumahmu — ketahuan alat mana yang paling boros.", "keywords": "listrik,tagihan,pln,kwh,watt,tarif,hemat,token,boros"};
 export function render(root) {

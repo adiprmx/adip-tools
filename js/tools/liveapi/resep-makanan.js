@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.0';
+import { h as T, esc } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"resep-makanan","name":"Resep Makanan","cat":"liveapi","icon":"🍳","desc":"Cari resep masakan dari seluruh dunia, lengkap dengan bahan & cara masak.","keywords":"resep,masakan,makanan,masak,bahan,cara masak,themealdb","since":"6.12.0"};
 

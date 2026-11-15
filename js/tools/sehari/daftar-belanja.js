@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"daftar-belanja","name":"Daftar Belanja","cat":"sehari","icon":"🛒","desc":"Catat belanjaan, centang yang udah dibeli, pantau totalnya.","keywords":"belanja,daftar,shopping,grocery,total,harga,list,pasar"};
 

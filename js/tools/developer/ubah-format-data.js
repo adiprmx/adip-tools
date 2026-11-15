@@ -1,4 +1,4 @@
-import { h as T, errBox, esc } from '../../core.js?v=6.12.0';
+import { h as T, errBox, esc } from '../../core.js?v=6.12.1';
 
 // JSON <-> YAML <-> TOML <-> XML.
 // YAML: js-yaml (dipakai repo). TOML: smol-toml (ESM, via dynamic import).

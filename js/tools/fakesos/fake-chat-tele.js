@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-chat-tele',
@@ -141,6 +141,8 @@ export function render(root) {
 .fct-home{display:flex;justify-content:center;align-items:center;height:20px}
 .fct-home i{display:block;width:134px;height:5px;border-radius:3px;background:rgba(0,0,0,.35)}
 .fct-dark .fct-nav i,.fct-dark .fct-home i{background:rgba(255,255,255,.4)}
+.fct-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}
+.fct-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}
 .fct-hint{font-size:12px;color:#8696A0;line-height:1.6;background:rgba(127,127,127,.08);border-radius:8px;padding:8px 10px}
 .fct-hint code{font-family:monospace;font-size:11.5px}
 .fct-note{font-size:11.5px;color:#8696A0;margin-top:10px;line-height:1.5}
@@ -256,7 +258,7 @@ export function render(root) {
     phone.style.background = th.bg;
     phone.style.color = th.fg;
     phone.innerHTML = sbHtml + hdHtml +
-      '<div class="fct-chat" style="background:' + telePattern(th.pat) + ',' + th.bg + '">' + chatHtml + '</div>' + ibarHtml;
+      '<div class="fct-chat" style="background:' + telePattern(th.pat) + ',' + th.bg + '">' + chatHtml + '</div>' + ibarHtml + '<div class="fct-pranktag-wrap" style="background:' + th.hdBg + '"><span class="fct-pranktag">palsu · cuma prank</span></div>';
   }
 
   [inName, inStatus, selVer, selPlatform, selBrand, selTheme, selTicks, inChip, selChip, taMsg].forEach((el) => {

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node): hukum Ohm V = I x R dan daya P = V x I.
 // Isi dua nilai apa pun, dua sisanya dihitung.

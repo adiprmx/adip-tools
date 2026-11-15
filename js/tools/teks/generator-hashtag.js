@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.12.0';
+import { h as T, kv, utils } from '../../core.js?v=6.12.1';
 
 /* Dibuat agar bisa diuji langsung dari node (tanpa DOM). */
 export function topikKeTag(s) {

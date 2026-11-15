@@ -1,6 +1,6 @@
-import { h as T, kv } from '../../core.js?v=6.12.0';
+import { h as T, kv } from '../../core.js?v=6.12.1';
 
-export const meta = {"id":"kalkulator-btu","name":"Kalkulator BTU AC","cat":"sehari","icon":"❄️","desc":"Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.","keywords":"btu,ac,pk,air conditioner,ruangan,dingin","since":"6.11.0"};
+export const meta = {"id":"kalkulator-btu","name":"Kebutuhan BTU AC","cat":"sehari","icon":"❄️","desc":"Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.","keywords":"btu,ac,pk,air conditioner,ruangan,dingin","since":"6.11.0"};
 
 /* Patokan umum teknisi AC: 500 BTU per m2 (teduh), 550 (sedang), 600 (terik).
    Tambah 600 BTU per orang di atas 2 orang. Ini perkiraan kasar, bukan ganti hitungan teknisi. */

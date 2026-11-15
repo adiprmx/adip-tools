@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, loadImage } from '../../core.js?v=6.12.0';
+import { h as T, utils, errBox, esc, loadImage } from '../../core.js?v=6.12.1';
 
 function wifiString(ssid, pass, enc) {
     const e = (v) => String(v == null ? '' : v).replace(/([\\;,":])/g, '\\$1');

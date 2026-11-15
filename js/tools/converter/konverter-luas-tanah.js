@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 // Logika murni (bisa di-test di Node).
 // 1 ubin = 1 ru = 1 tumbak = 1 bata = 14,0625 m2 (3,75 m x 3,75 m).

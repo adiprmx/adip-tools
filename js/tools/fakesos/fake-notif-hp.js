@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"fake-notif-hp","name":"Fake Notifikasi HP","cat":"fakesos","icon":"🔔","desc":"Bikin screenshot notifikasi HP palsu + unduh PNG.","keywords":"notifikasi,notification,fake,palsu,screenshot,prank"};
 
@@ -23,6 +23,7 @@ export function render(root) {
     // bottom chrome
     '.' + P + '-home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:130px;height:5px;border-radius:3px;background:rgba(255,255,255,.92);z-index:2}' +
     '.' + P + '-navpill{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);width:104px;height:4px;border-radius:3px;background:rgba(255,255,255,.55);z-index:2}' +
+    '.' + P + '-pranktag{position:absolute;bottom:12px;left:12px;font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px;z-index:9}' +
     // ---- Android: kartu notifikasi Material You (stock Pixel, Android 12+) ----
     // radius 28dp (M3 extra-large), margin samping 8dp, bg surface M3
     '.' + P + '-acard{margin:10px 8px 0;background:#FDF8FD;border-radius:28px;padding:12px 16px 4px;box-shadow:0 6px 22px rgba(0,0,0,.28);position:relative;z-index:1}' +
@@ -154,6 +155,7 @@ export function render(root) {
           '</div>' + acts +
         '</div>' +
         '<div class="' + P + '-navpill"></div>' +
+        '<span class="' + P + '-pranktag">palsu · cuma prank</span>' +
       '</div>';
     } else {
       html = '<div class="' + P + '-phone ' + P + '-wall-i">' +
@@ -175,6 +177,7 @@ export function render(root) {
         '</div>' +
         '<div class="' + P + '-lbtns"><span class="' + P + '-lbtn">' + torchSvg() + '</span><span class="' + P + '-lbtn">' + camSvg() + '</span></div>' +
         '<div class="' + P + '-home"></div>' +
+        '<span class="' + P + '-pranktag">palsu · cuma prank</span>' +
       '</div>';
     }
     frame = T.el(html);

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js?v=6.12.1';
 
 export const meta = {"id": "benar-atau-salah", "name": "Benar atau Salah?", "cat": "fun", "icon": "✅", "desc": "Kuis 10 soal acak dari 35 pernyataan: benar atau salah? Tiap jawaban ada penjelasannya.", "keywords": "benar,salah,fakta,mitos,kuis,trivia,pengetahuan", "since": "6.12.0"};
 

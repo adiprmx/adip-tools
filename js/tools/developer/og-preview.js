@@ -1,4 +1,4 @@
-import { h as T, kv, utils, esc, tabs } from '../../core.js?v=6.12.0';
+import { h as T, kv, utils, esc, tabs } from '../../core.js?v=6.12.1';
 
 /* Fungsi murni (bisa diuji dari node tanpa DOM). */
 export function parseOgTags(html) {

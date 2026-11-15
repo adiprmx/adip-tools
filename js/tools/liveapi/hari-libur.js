@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.0';
+import { h as T, utils, esc } from '../../core.js?v=6.12.1';
 
 export const meta = {"id":"hari-libur","name":"Hari Libur Indonesia","cat":"liveapi","icon":"📅","desc":"Daftar hari libur nasional Indonesia per tahun.","keywords":"hari,libur,nasional,tanggal,merah,indonesia"};
 export function render(root) {

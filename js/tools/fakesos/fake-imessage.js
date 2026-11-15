@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
 
 export const meta = {
   id: 'fake-imessage',
@@ -106,6 +106,8 @@ export function render(root) {
     '.fi-home{width:134px;height:5px;border-radius:3px;background:var(--fi-home);margin:8px auto 8px;opacity:.9}' +
     '.fi-navpill{display:flex;justify-content:center;padding:10px 0 8px}' +
     '.fi-navpill span{width:108px;height:4px;border-radius:2px;background:var(--fi-home);opacity:.9}' +
+    '.fi-pranktag-wrap{display:flex;justify-content:center;padding:8px 0 12px}' +
+    '.fi-pranktag{font-size:11px;font-weight:600;color:#ffffffaa;background:#00000088;padding:5px 10px;border-radius:20px}' +
     '.fi-note{font-size:12px;color:#8b8b93;line-height:1.5}' +
     '</style>';
 
@@ -216,6 +218,7 @@ export function render(root) {
     } else {
       html += '<div class="fi-navpill"><span></span></div>';
     }
+    html += '<div class="fi-pranktag-wrap"><span class="fi-pranktag">palsu · cuma prank</span></div>';
 
     phone.innerHTML = html;
   }

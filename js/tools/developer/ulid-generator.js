@@ -1,4 +1,4 @@
-import { h as T, kv, errBox, esc } from '../../core.js?v=6.12.0';
+import { h as T, kv, errBox, esc } from '../../core.js?v=6.12.1';
 
 // ULID: 26 karakter base32 (alfabet Crockford, tanpa I, L, O, U).
 // 10 karakter pertama = waktu (milidetik), 16 sisanya = acak.

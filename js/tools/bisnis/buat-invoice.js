@@ -1,6 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.0';
+import { h as T, utils, kv } from '../../core.js?v=6.12.1';
 
-export const meta = {"id": "buat-invoice", "name": "Buat Invoice", "cat": "bisnis", "icon": "🧮", "desc": "Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.", "keywords": "invoice,buat invoice,nota,tagihan,ppn 11%,klien,cetak"};
+export const meta = {"id": "buat-invoice", "name": "Invoice Usaha dengan PPN", "cat": "bisnis", "icon": "🧮", "desc": "Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.", "keywords": "invoice,buat invoice,nota,tagihan,ppn 11%,klien,cetak"};
 
 let _printCssDone = false;
 
