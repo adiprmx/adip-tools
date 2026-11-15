@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
 /* logoanimate — "Logo Animate": template animasi logo 8,33 detik -> XML Alight Motion.
    100% client-side. Koreografi template orisinal (bukan salinan template pihak lain).

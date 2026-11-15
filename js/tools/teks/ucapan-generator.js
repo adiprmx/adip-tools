@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.10.0';
+import { h as T } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "ucapan-generator", "name": "Generator Ucapan", "cat": "teks", "icon": "💌", "desc": "Bikin ucapan Lebaran, nikah, ultah, dan lainnya.", "keywords": "ucapan,lebaran,nikah,ultah,kartu,selamat", "file": "tools/teks/ucapan-generator.js"};
 export function render(root) {

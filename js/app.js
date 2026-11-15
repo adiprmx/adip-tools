@@ -18,8 +18,8 @@
    - Kontrak: tool = 1 file; tool dilarang import tool lain;
      fungsi bersama -> core.js; manifest.js generated (jangan edit manual).
    ============================================================ */
-import { manifest, VERSION } from './manifest.js?v=6.10.0';
-import * as T from './core.js?v=6.10.0';
+import { manifest, VERSION } from './manifest.js?v=6.11.5';
+import * as T from './core.js?v=6.11.5';
 
 const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJic3VwYWJhc2UiLCJyZWYiOiJqZWJhZmRkd3VweXFwd2V2aHNxbiIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzc1NzQ1MDQzLCJleHAiOjIwOTI5NjEwNDN9.HY9zA3H3cC6cT9aN5b_8R3fJ5m7Y4pQ2wE9rT1uI4oP6sD8fG';
@@ -41,6 +41,8 @@ const CAT_ICON = {
 const catLabel = (id) => (CATS.find((c) => c[0] === id) || ['?','Lainnya'])[1];
 const byId = (id) => manifest.find((m) => m.id === id);
 const visibleTools = () => manifest.filter((m) => !SEARCH_DENY.includes(m.id));
+/* tool baru = field `since` di meta-nya sama dengan versi saat ini */
+const isNew = (m) => Boolean(m.since) && m.since === VERSION;
 
 /* ---------------- sapaan waktu ---------------- */
 function greet() {
@@ -323,7 +325,7 @@ function cardEl(m, hl) {
     <span class="tic" aria-hidden="true">${m.icon}</span>
     <span class="nm">${hl ? hiMark(m.name, hl) : T.esc(m.name)}</span>
     <span class="ds">${T.esc(m.desc || '')}</span>
-    <span class="ct">${catLabel(m.cat)}</span>
+    <span class="ct">${catLabel(m.cat)}${isNew(m) ? '<span class="newb" style="color:var(--txt);border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);border-radius:999px;padding:2px 7px;margin-left:6px">BARU</span>' : ''}</span>
     <button class="fav${fav ? ' on' : ''}" data-id="${m.id}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>`;
   a.addEventListener('click', () => touchRecent(m.id));
   bindFav(a);
@@ -363,7 +365,8 @@ function home() {
   document.title = 'Butuh apa? - ADIP Tools';
   const n = manifest.length;
   const app = document.getElementById('app');
-  const tiles = CATS.filter((c) => c[0] !== 'semua')
+  const cats = CATS.filter((c) => c[0] !== 'semua');
+  const tiles = cats
     .map(([id, label]) => {
       const cnt = manifest.filter((m) => m.cat === id).length;
       return `<a class="cattile glass" href="#/k/${id}">
@@ -395,7 +398,7 @@ function home() {
       <div class="hscroll" id="popRail"></div>
     </section>
     <section class="sec rise" style="--i:3" aria-label="Kategori">
-      <div class="sechead"><h2>Kategori</h2><span class="n">14</span></div>
+      <div class="sechead"><h2>Kategori</h2><span class="n">${cats.length}</span></div>
       <div class="catgrid">${tiles}</div>
     </section>
     <section class="sec rise" style="--i:4" id="recSec" aria-label="Riwayat">
@@ -495,6 +498,12 @@ function allPage(q) {
   document.title = 'Semua tools - ADIP Tools';
   const n = manifest.length;
   const app = document.getElementById('app');
+  /* chip filter: gaya meniru .schip (token yang sama), tanpa sentuh CSS.
+     Chip hanya muncul bila ada tool baru, supaya tidak jadi tombol mati. */
+  const hasNew = manifest.some(isNew);
+  const CHIP = 'font:inherit;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:var(--surface)';
+  const CHIP_ON = 'font:inherit;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:8px 14px;background:rgba(255,255,255,.08)';
+  let onlyNew = false;
   app.innerHTML = `
   <div class="wrap view">
     <a class="back" href="#/">← Beranda</a>
@@ -503,6 +512,10 @@ function allPage(q) {
       <span class="glyph" aria-hidden="true">⌕</span>
       <input id="aq" type="search" placeholder="Cari ${n} tools..." value="${T.esc(q)}" autocomplete="off" aria-label="Cari semua tools">
     </div>
+    ${hasNew ? `<div class="fchips" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px" role="group" aria-label="Filter tools">
+      <button class="fchip" data-f="all" aria-pressed="true" style="${CHIP_ON}">Semua</button>
+      <button class="fchip" data-f="new" aria-pressed="false" style="${CHIP}">Terbaru</button>
+    </div>` : ''}
     <div class="sechead" style="margin-top:18px"><h2 id="allCount"></h2></div>
     <div class="tgrid" id="allGrid"></div>
     <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis selamanya</footer>
@@ -512,7 +525,8 @@ function allPage(q) {
   const count = app.querySelector('#allCount');
   const paint = (qq) => {
     const ql = qq.trim();
-    const list = ql ? rankedSearch(ql) : manifest;
+    let list = ql ? rankedSearch(ql) : manifest;
+    if (onlyNew) list = list.filter(isNew);
     count.textContent = ql ? `${list.length} hasil` : `${list.length} tools`;
     grid.innerHTML = '';
     if (!list.length) {
@@ -533,6 +547,16 @@ function allPage(q) {
   inp.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && inp.value.trim()) sbTrack(inp.value.trim());
   });
+  const chips = app.querySelectorAll('.fchip');
+  chips.forEach((b) => b.addEventListener('click', () => {
+    onlyNew = b.dataset.f === 'new';
+    chips.forEach((c) => {
+      const on = c === b;
+      c.style.cssText = on ? CHIP_ON : CHIP;
+      c.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    paint(inp.value);
+  }));
   paint(q);
 }
 

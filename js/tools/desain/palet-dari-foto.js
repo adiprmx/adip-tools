@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=6.10.0';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "palet-dari-foto", "name": "Palet dari Foto", "cat": "desain", "icon": "🖼️", "desc": "Ekstrak warna dominan dari foto jadi palet HEX.", "keywords": "palet,palette,foto,warna dominan,ekstrak,hex"};
 export function render(root) {

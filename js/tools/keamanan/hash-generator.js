@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
 utils.md5 = async function (str) { return _md5(str); };
 
@@ -92,7 +92,48 @@ async function shaHex(alg, text) {
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
-export const meta = {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks ke MD5, SHA-1, SHA-256, SHA-512.", "keywords": "hash,md5,sha"};
+// CRC-32 murni (polinomial IEEE 802.3, nilai awal 0xFFFFFFFF).
+function crc32Hex(text) {
+    let table = crc32Hex._t;
+    if (!table) {
+      table = crc32Hex._t = new Int32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        table[n] = c;
+      }
+    }
+    const bytes = new TextEncoder().encode(String(text));
+    let c = 0xFFFFFFFF;
+    for (let i = 0; i < bytes.length; i++) c = table[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+    return ((c ^ 0xFFFFFFFF) >>> 0).toString(16).padStart(8, '0');
+  }
+
+// SHA-224 & RIPEMD-160 tidak ada di WebCrypto: pakai crypto-js.
+// File komponennya bukan standalone: core dulu, lalu sha256 (dibutuhkan
+// sha224), lalu sha224 & ripemd160, berurutan.
+// SHA-3 sengaja TIDAK pakai crypto-js: CryptoJS.SHA3 menghasilkan Keccak
+// pra-standar, bukan SHA-3 resmi (FIPS 202). Dipakai js-sha3.
+const CJ_BASE = 'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/';
+const SHA3_CDN = 'https://cdn.jsdelivr.net/npm/js-sha3@0.9.3/build/sha3.min.js';
+let cjReady = null, sha3Ready = null;
+async function ensureCryptoJs() {
+    if (cjReady !== null) return cjReady;
+    for (const f of ['core.js', 'sha256.js', 'sha224.js', 'ripemd160.js']) {
+      const ok = await T.loadScript(CJ_BASE + f);
+      if (!ok) { cjReady = false; return false; }
+    }
+    cjReady = !!(window.CryptoJS && window.CryptoJS.SHA224 && window.CryptoJS.RIPEMD160);
+    return cjReady;
+  }
+async function ensureSha3() {
+    if (sha3Ready !== null) return sha3Ready;
+    const ok = await T.loadScript(SHA3_CDN);
+    sha3Ready = !!(ok && typeof window.sha3_256 === 'function' && typeof window.sha3_512 === 'function');
+    return sha3Ready;
+  }
+
+export const meta = {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks: MD5, SHA, SHA-3, RIPEMD-160, CRC-32.", "keywords": "hash,md5,sha,sha3,ripemd,crc32"};
 export function render(root) {
 
     const inp = T.ta(4, 'Tulis teks yang mau di-hash…');
@@ -100,28 +141,74 @@ export function render(root) {
       const l = T.el('<label class="pick"><input type="checkbox"' + (checked ? ' checked' : '') + ' style="width:20px;height:20px"> <span>' + T.esc(label) + '</span></label>');
       return { el: l, box: l.querySelector('input') };
     };
-    const cMd5 = mkChk('MD5', true), cSha1 = mkChk('SHA-1', true), cSha256 = mkChk('SHA-256', true), cSha512 = mkChk('SHA-512', false);
+    const cMd5 = mkChk('MD5', true), cSha1 = mkChk('SHA-1', true), cSha224 = mkChk('SHA-224', false), cSha256 = mkChk('SHA-256', true), cSha384 = mkChk('SHA-384', false), cSha512 = mkChk('SHA-512', false);
+    const cSha3_256 = mkChk('SHA3-256', false), cSha3_512 = mkChk('SHA3-512', false), cRipemd = mkChk('RIPEMD-160', false), cCrc32 = mkChk('CRC-32', false);
     const out = T.out();
     const go = async () => {
       const txt = inp.value;
       if (!txt) { T.show(out, '<span class="err">Isi teksnya dulu.</span>'); return; }
+      const needCj = cSha224.box.checked || cRipemd.box.checked;
+      const needSha3 = cSha3_256.box.checked || cSha3_512.box.checked;
+      // Semua job adalah promise -> [nama, hash] | [[nama, hash]...] | {fail}.
       const jobs = [];
-      if (cMd5.box.checked) jobs.push(['MD5', utils.md5(txt)]);
-      if (cSha1.box.checked) jobs.push(['SHA-1', shaHex('SHA-1', txt)]);
-      if (cSha256.box.checked) jobs.push(['SHA-256', shaHex('SHA-256', txt)]);
-      if (cSha512.box.checked) jobs.push(['SHA-512', shaHex('SHA-512', txt)]);
+      if (cMd5.box.checked) jobs.push(utils.md5(txt).then((h) => ['MD5', h]));
+      if (cSha1.box.checked) jobs.push(shaHex('SHA-1', txt).then((h) => ['SHA-1', h]));
+      if (cSha256.box.checked) jobs.push(shaHex('SHA-256', txt).then((h) => ['SHA-256', h]));
+      if (cSha384.box.checked) jobs.push(shaHex('SHA-384', txt).then((h) => ['SHA-384', h]));
+      if (cSha512.box.checked) jobs.push(shaHex('SHA-512', txt).then((h) => ['SHA-512', h]));
+      if (cCrc32.box.checked) jobs.push(Promise.resolve(['CRC-32', crc32Hex(txt)]));
+      if (needCj) {
+        jobs.push((async () => {
+          const ok = await ensureCryptoJs();
+          if (!ok) return { fail: 'cj' };
+          const r = [];
+          if (cSha224.box.checked) r.push(['SHA-224', window.CryptoJS.SHA224(txt).toString()]);
+          if (cRipemd.box.checked) r.push(['RIPEMD-160', window.CryptoJS.RIPEMD160(txt).toString()]);
+          return r;
+        })());
+      }
+      if (needSha3) {
+        jobs.push((async () => {
+          const ok = await ensureSha3();
+          if (!ok) return { fail: 'sha3' };
+          const r = [];
+          if (cSha3_256.box.checked) r.push(['SHA3-256', window.sha3_256(txt)]);
+          if (cSha3_512.box.checked) r.push(['SHA3-512', window.sha3_512(txt)]);
+          return r;
+        })());
+      }
       if (!jobs.length) { T.show(out, '<span class="err">Pilih minimal satu algoritma.</span>'); return; }
       T.show(out, '<span class="dim">Menghitung…</span>');
-      const hasil = await Promise.all(jobs.map(([n, p]) => p.then((h) => [n, h])));
-      T.show(out, hasil.map(([n, h]) =>
+      const settled = await Promise.all(jobs.map((p) => Promise.resolve(p).catch(() => null)));
+      const hasil = [];
+      let cjFail = false, sha3Fail = false;
+      for (const s of settled) {
+        if (s === null) continue;
+        if (!Array.isArray(s)) {
+          if (s.fail === 'cj') cjFail = true;
+          if (s.fail === 'sha3') sha3Fail = true;
+          continue;
+        }
+        if (Array.isArray(s[0])) { hasil.push(...s); continue; }
+        hasil.push(s);
+      }
+      if (!hasil.length) {
+        T.show(out, '<span class="err">Tidak ada hash yang bisa dihitung. ' + (cjFail || sha3Fail ? 'Pustaka dari CDN gagal dimuat, cek koneksi lalu coba lagi.' : '') + '</span>');
+        return;
+      }
+      let html = hasil.map(([n, h]) =>
         '<div class="kv"><span class="k">' + n + '</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(h) + '</span></div>'
       ).join('') + '<div style="margin-top:10px">' +
-        hasil.map(([n, h], i) => '<button type="button" class="btn small" data-h="' + i + '" style="margin:0 6px 6px 0">Salin ' + n + '</button>').join('') + '</div>');
+        hasil.map(([n, h], i) => '<button type="button" class="btn small" data-h="' + i + '" style="margin:0 6px 6px 0">Salin ' + n + '</button>').join('') + '</div>';
+      if (cjFail) html += '<div class="hint" style="margin-top:8px">SHA-224 / RIPEMD-160 gagal: pustaka crypto-js tidak bisa dimuat dari CDN.</div>';
+      if (sha3Fail) html += '<div class="hint" style="margin-top:8px">SHA3 gagal: pustaka js-sha3 tidak bisa dimuat dari CDN.</div>';
+      T.show(out, html);
       out.querySelectorAll('button[data-h]').forEach((b) => b.addEventListener('click', () => T.copy(hasil[+b.dataset.h][1])));
     };
     root.appendChild(T.field('Teks', inp));
-    root.appendChild(T.grid2(cMd5.el, cSha1.el, cSha256.el, cSha512.el));
+    root.appendChild(T.grid2(cMd5.el, cSha1.el, cSha224.el, cSha256.el, cSha384.el, cSha512.el, cSha3_256.el, cSha3_512.el, cRipemd.el, cCrc32.el));
     root.appendChild(T.row(T.btn('Hash Sekarang', go, true)));
     root.appendChild(out);
+    root.appendChild(T.el('<div class="hint" style="margin-top:12px">MD5, SHA-1/256/384/512 &amp; CRC-32 dihitung langsung di perangkat. SHA-224 &amp; RIPEMD-160 memuat crypto-js dari internet sekali, SHA3 memuat js-sha3 (SHA-3 resmi, bukan Keccak).</div>'));
   
 }

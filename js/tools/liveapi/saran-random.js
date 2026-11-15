@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.10.0';
+import { h as T, esc } from '../../core.js?v=6.11.5';
 
 export const meta = {"id":"saran-random","name":"Saran Acak","cat":"liveapi","icon":"💡","desc":"Kata-kata bijak & saran acak dari Advice Slip.","keywords":"saran,nasehat,kata bijak,motivasi,advice,random"};
 

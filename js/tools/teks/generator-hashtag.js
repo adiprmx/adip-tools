@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, kv, utils } from '../../core.js?v=6.11.5';
 
 /* Dibuat agar bisa diuji langsung dari node (tanpa DOM). */
 export function topikKeTag(s) {
@@ -28,47 +28,111 @@ export function buatHashtag(input) {
   return list.slice(0, 15);
 }
 
+export const HASHTAG_LUAS = ['#fyp', '#fypindonesia', '#beranda', '#viral', '#trending'];
+
+export function tierHashtag(h) {
+  const t = String(h).toLowerCase();
+  if (HASHTAG_LUAS.indexOf(t) > -1) return 'luas';
+  if (t.indexOf('indonesia') > -1) return 'lokal';
+  return 'niche';
+}
+
+export function buatHashtagTier(input) {
+  const semua = buatHashtag(input);
+  const out = { luas: [], niche: [], lokal: [] };
+  semua.forEach((h) => { out[tierHashtag(h)].push(h); });
+  return out;
+}
+
+export function parseHashtagPakai(s) {
+  const set = new Set();
+  (String(s == null ? '' : s).toLowerCase().match(/#[a-z0-9_]+/g) || []).forEach((h) => set.add(h));
+  return set;
+}
+
+export function cariDuplikat(daftar, dipakai) {
+  return daftar.filter((h) => dipakai.has(h.toLowerCase()));
+}
+
+export const BATAS_HASHTAG = [
+  ['Instagram', 30, 'maksimal per postingan'],
+  ['YouTube', 15, 'lebih dari itu diabaikan'],
+  ['TikTok', null, 'tanpa batas jumlah, dibatasi panjang caption'],
+  ['X', 2, 'disarankan, supaya tidak terlihat seperti spam'],
+];
+
 export const meta = {"id": "generator-hashtag", "name": "Generator Hashtag", "cat": "teks", "icon": "#️⃣", "desc": "Bikin 15 hashtag siap pakai dari satu topik.", "keywords": "hashtag,tagar,instagram,tiktok,reels,caption"};
 
 export function render(root) {
 
     const inp = T.input('text', 'Contoh: kopi susu, skincare, jualan baju…');
+    const fPakai = T.ta(2, 'Tempel hashtag yang sudah pernah dipakai, misal: #kopi #fyp (opsional)');
     const out = T.out();
     let daftar = [];
+    let dipakai = new Set();
+
+    function chip(h, duplikat) {
+      const c = T.el('<button type="button" class="btn small" style="border-radius:999px' + (duplikat ? ';border-color:#fbbf24;color:#fbbf24' : '') + '">' + T.esc(h) + (duplikat ? ' · dipakai' : '') + '</button>');
+      c.addEventListener('click', () => {
+        T.copy(h);
+        const lama = c.textContent;
+        c.textContent = '✓ ' + h;
+        setTimeout(() => { c.textContent = lama; }, 1200);
+      });
+      return c;
+    }
 
     function gambar() {
       if (!daftar.length) { T.hide(out); return; }
-      const box = T.el('<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"></div>');
-      daftar.forEach((h) => {
-        const c = T.el('<button type="button" class="btn small" style="border-radius:999px">' + T.esc(h) + '</button>');
-        c.addEventListener('click', () => {
-          T.copy(h);
-          const lama = c.textContent;
-          c.textContent = '✓ ' + h;
-          setTimeout(() => { c.textContent = lama; }, 1200);
-        });
-        box.appendChild(c);
+      const tier = buatHashtagTier(inp.value);
+      const dup = cariDuplikat(daftar, dipakai);
+      const box = T.el('<div></div>');
+      box.appendChild(T.el('<div style="font-size:13px;font-weight:600;margin-bottom:8px">' + daftar.length + ' hashtag · ' + tier.luas.length + ' luas · ' + tier.niche.length + ' niche · ' + tier.lokal.length + ' lokal' + (dup.length ? ' · <span style="color:#fbbf24">' + dup.length + ' sudah pernah dipakai</span>' : '') + '</div>'));
+      [['luas', 'Luas (jangkauan besar)'], ['niche', 'Niche (sesuai topik)'], ['lokal', 'Lokal (Indonesia)']].forEach(([k, label]) => {
+        if (!tier[k].length) return;
+        const sec = T.el('<div style="margin-bottom:12px"></div>');
+        sec.appendChild(T.el('<div class="hint" style="margin-bottom:6px">' + label + ' (' + tier[k].length + ')</div>'));
+        const chips = T.el('<div style="display:flex;flex-wrap:wrap;gap:8px"></div>');
+        tier[k].forEach((h) => chips.appendChild(chip(h, dipakai.has(h.toLowerCase()))));
+        sec.appendChild(chips);
+        box.appendChild(sec);
+      });
+      box.appendChild(T.el('<div style="font-size:13px;font-weight:600;margin:12px 0 4px">Batas tiap platform</div>'));
+      BATAS_HASHTAG.forEach(([nama, batas, ket]) => {
+        const ok = batas == null || daftar.length <= batas;
+        const row = T.el('<div class="kv"><span>' + T.esc(nama) + ' (' + T.esc(ket) + ')</span><b style="color:' + (ok ? '#4ade80' : '#f87171') + '">' + (batas == null ? 'Aman' : daftar.length + ' / ' + batas + (ok ? '' : ' · kelebihan')) + '</b></div>');
+        box.appendChild(row);
       });
       T.show(out, '');
       out.appendChild(box);
       out.appendChild(T.row(
-        T.copyBtn(() => daftar.join(' '), '📋 Salin Semua (15)'),
+        T.copyBtn(() => daftar.join(' '), '📋 Salin Semua (' + daftar.length + ')'),
         T.copyBtn(() => daftar.join('\n'), 'Salin per Baris')
       ));
+      const tierRow = T.row(
+        T.copyBtn(() => tier.luas.join(' '), 'Salin Luas'),
+        T.copyBtn(() => tier.niche.join(' '), 'Salin Niche'),
+        T.copyBtn(() => tier.lokal.join(' '), 'Salin Lokal')
+      );
+      tierRow.style.marginTop = '8px';
+      out.appendChild(tierRow);
     }
 
     const proses = () => {
       daftar = buatHashtag(inp.value);
+      dipakai = parseHashtagPakai(fPakai.value);
       if (!daftar.length) {
-        T.show(out, '<span class="err">Tulis topiknya dulu — misal "kopi susu" atau "skincare".</span>');
+        T.show(out, '<span class="err">Tulis topiknya dulu, misal "kopi susu" atau "skincare".</span>');
         return;
       }
       gambar();
     };
 
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') proses(); });
+    fPakai.addEventListener('input', () => { dipakai = parseHashtagPakai(fPakai.value); if (daftar.length) gambar(); });
     root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ketik satu topik, langsung dapat 15 hashtag: pola turunan topikmu + hashtag generik yang lagi ramai di Indonesia. Ketuk satu chip buat salin satuan, atau salin semuanya sekaligus.</p>'));
     root.appendChild(T.field('Topik / kata kunci', inp));
+    root.appendChild(T.field('Hashtag yang sudah pernah dipakai (opsional)', fPakai, 'Hashtag yang sama dengan daftar ini ditandai supaya tidak dipakai berulang-ulang.'));
     root.appendChild(T.row(T.btn('Buat Hashtag', proses, true)));
     root.appendChild(out);
 }

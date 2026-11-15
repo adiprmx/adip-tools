@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=6.10.0';
+import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=6.11.5';
 
 function vcardString(d) {
     const e = (v) => String(v == null ? '' : v).replace(/\n/g, ' ');

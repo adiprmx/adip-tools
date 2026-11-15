@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.10.0';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "ipintel", "name": "IP & ASN Intelligence", "cat": "keamanan", "icon": "🌐", "desc": "Lookup IP: ASN, organisasi jaringan, negara, dan status bogon.", "keywords": "ip,asn,lookup,jaringan,negara,bogon,whois"};
 

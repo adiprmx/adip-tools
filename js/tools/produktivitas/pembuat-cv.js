@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
-export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja"};
+export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 4 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja"};
 
 let _printCssDone = false;
 
@@ -72,14 +72,28 @@ export function render(root) {
       const pend = data.pendidikan.filter((p) => baris(p.sekolah) || baris(p.jurusan));
       const peng = data.pengalaman.filter((p) => baris(p.tempat) || baris(p.jabatan));
       const ahli = data.keahlian.map(baris).filter(Boolean);
-      const formal = data.template === 'formal';
+      const tpl = data.template || 'formal';
 
-      const head = formal
+      const head = tpl === 'formal'
         ? '<div style="text-align:center;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:14px">' +
           '<div style="font-size:24px;font-weight:700;letter-spacing:.5px">' + esc(nama) + '</div>' +
           (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
           (kontak.length ? '<div style="font-size:12px;margin-top:6px;color:#333">' + kontak.map(esc).join(' &nbsp;|&nbsp; ') + '</div>' : '') +
           (ttl ? '<div style="font-size:12px;color:#333">' + esc(ttl) + '</div>' : '') +
+          '</div>'
+        : tpl === 'modern'
+        ? '<div style="border-left:4px solid #111;padding-left:12px;margin-bottom:14px">' +
+          '<div style="font-size:26px;font-weight:700;letter-spacing:.5px">' + esc(nama) + '</div>' +
+          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (kontak.length ? '<div style="font-size:12px;margin-top:6px;color:#333">' + kontak.map(esc).join(' &nbsp;|&nbsp; ') + '</div>' : '') +
+          (ttl ? '<div style="font-size:12px;color:#333">' + esc(ttl) + '</div>' : '') +
+          '</div>'
+        : tpl === 'ats'
+        ? '<div style="margin-bottom:12px">' +
+          '<div style="font-size:20px;font-weight:700">' + esc(nama) + '</div>' +
+          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (kontak.length ? '<div style="font-size:12px;margin-top:4px">' + kontak.map(esc).join(' | ') + '</div>' : '') +
+          (ttl ? '<div style="font-size:12px">' + esc(ttl) + '</div>' : '') +
           '</div>'
         : '<div style="margin-bottom:14px">' +
           '<div style="font-size:24px;font-weight:700">' + esc(nama) + '</div>' +
@@ -88,8 +102,12 @@ export function render(root) {
           (ttl ? '<div style="font-size:12px;color:#333">' + esc(ttl) + '</div>' : '') +
           '</div>';
 
-      const judul = (t) => formal
+      const judul = (t) => tpl === 'formal'
         ? '<div style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #999;padding-bottom:3px;margin:14px 0 8px">' + t + '</div>'
+        : tpl === 'modern'
+        ? '<div style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-left:4px solid #111;padding-left:8px;margin:14px 0 8px">' + t + '</div>'
+        : tpl === 'ats'
+        ? '<div style="font-size:13px;font-weight:700;margin:12px 0 4px">' + t + '</div>'
         : '<div style="font-size:13px;font-weight:700;margin:14px 0 6px">' + t + '</div>';
 
       let h = head;
@@ -105,7 +123,7 @@ export function render(root) {
       if (peng.length) {
         h += judul('Pengalaman');
         peng.forEach((p) => {
-          h += '<div style="font-size:13px;line-height:1.5;margin-bottom:8px"><b>' + esc(p.jabatan || '(Jabatan)') + '</b> — ' + esc(p.tempat || '(Tempat)') +
+          h += '<div style="font-size:13px;line-height:1.5;margin-bottom:8px"><b>' + esc(p.jabatan || '(Jabatan)') + '</b> - ' + esc(p.tempat || '(Tempat)') +
             (baris(p.tahun) ? ' <span style="color:#555">(' + esc(p.tahun) + ')</span>' : '') +
             (baris(p.tugas) ? '<br/>' + esc(p.tugas) : '') + '</div>';
         });
@@ -117,16 +135,48 @@ export function render(root) {
       return h;
     }
 
+    function cvText() {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = cvHtml();
+      return tmp.innerText || tmp.textContent;
+    }
+
+    function cekKelengkapan() {
+      const cek = [
+        { ok: !!baris(data.nama), label: 'Nama lengkap terisi' },
+        { ok: !!baris(data.telepon), label: 'Nomor HP terisi' },
+        { ok: !!baris(data.email), label: 'Email terisi' },
+        { ok: baris(data.ringkasan).length >= 30, label: 'Ringkasan minimal 30 karakter' },
+        { ok: data.pendidikan.some((p) => baris(p.sekolah) || baris(p.jurusan)), label: 'Pendidikan terisi' },
+        { ok: data.pengalaman.some((p) => baris(p.tempat) || baris(p.jabatan)), label: 'Pengalaman atau magang terisi' },
+        { ok: data.keahlian.map(baris).filter(Boolean).length >= 3, label: 'Keahlian minimal 3' },
+        { ok: true, label: 'Tanpa foto, ramah sistem HRD' }
+      ];
+      const terisi = cek.filter((c) => c.ok).length;
+      return '<div style="border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px;margin-bottom:12px">' +
+        '<div style="font-size:13px;font-weight:700;margin-bottom:8px">Cek kelengkapan: ' + terisi + ' dari ' + cek.length + ' terisi</div>' +
+        cek.map((c) => '<div style="font-size:13px;line-height:1.7">' + (c.ok ? '✓ ' : '○ ') + esc(c.label) + '</div>').join('') +
+        '<div style="font-size:12px;color:#a1a1aa;margin-top:6px">Lengkapi yang masih kosong dengan kembali ke langkah sebelumnya. Cek ini hanya menghitung kolom yang terisi, bukan jaminan lolos seleksi.</div>' +
+        '</div>';
+    }
+
     function tampilkanPreview() {
       T.show(previewBox,
+        cekKelengkapan() +
         '<div id="cv-print"><div class="cv-page" style="background:#fff;color:#111;border:1px solid rgba(255,255,255,.15);border-radius:12px;max-width:720px;margin:0 auto;padding:28px 32px;font-family:Arial,Helvetica,sans-serif">' +
         cvHtml() +
         '</div></div>' +
         '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
         '<button class="btn primary" data-act="print">🖨️ Cetak / Simpan PDF</button>' +
-        '<button class="btn" data-act="dl">⬇️ Unduh HTML</button></div>' +
-        '<p class="hint">Tips cetak: pilih ukuran kertas A4 dan matikan header/footer browser supaya CV bersih 1 halaman.</p>');
+        '<button class="btn" data-act="dl">⬇️ Unduh HTML</button>' +
+        '<button class="btn" data-act="copy">📋 Salin teks CV</button>' +
+        '<button class="btn" data-act="txt">⬇️ Unduh TXT</button></div>' +
+        '<p class="hint">Tips cetak: pilih ukuran kertas A4 dan matikan header/footer browser supaya CV bersih 1 halaman. Teks polos berguna untuk ditempel ke formulir lamaran online.</p>');
       previewBox.querySelector('[data-act="print"]').addEventListener('click', () => window.print());
+      previewBox.querySelector('[data-act="copy"]').addEventListener('click', () => T.copy(cvText()));
+      previewBox.querySelector('[data-act="txt"]').addEventListener('click', () => {
+        T.dl('cv-' + (baris(data.nama) || 'lamaran').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.txt', cvText(), 'text/plain');
+      });
       previewBox.querySelector('[data-act="dl"]').addEventListener('click', () => {
         const html = '<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><title>CV ' + esc(data.nama || 'Lamaran') + '</title>' +
           '<style>@page{size:A4;margin:12mm}body{font-family:Arial,Helvetica,sans-serif;color:#111;max-width:700px;margin:0 auto;padding:24px}</style></head><body>' +
@@ -220,7 +270,12 @@ export function render(root) {
         const ahli = T.ta(4, 'Contoh:\nMicrosoft Word & Excel\nMengetik 10 jari\nAdministrasi perkantoran', data.keahlian.join('\n'));
         ahli.addEventListener('input', () => { data.keahlian = ahli.value.split('\n'); simpan(); });
         box.appendChild(ahli);
-        const tpl = T.select([['formal', 'Formal — judul tengah, garis tegas'], ['simpel', 'Simpel — rapi tanpa garis']], data.template);
+        const tpl = T.select([
+          ['formal', 'Formal, judul tengah dan garis tegas'],
+          ['simpel', 'Simpel, rapi tanpa garis'],
+          ['modern', 'Modern, aksen garis tebal di kiri'],
+          ['ats', 'ATS, polos dan mudah dibaca sistem HRD']
+        ], data.template);
         tpl.addEventListener('change', () => { data.template = tpl.value; simpan(); });
         box.appendChild(T.field('Pilih tampilan CV', tpl));
       } else {
@@ -238,7 +293,7 @@ export function render(root) {
       simpan();
       langkah = 5;
       tampilkanLangkah();
-      T.toast('Contoh terisi — ganti dengan data kamu');
+      T.toast('Contoh terisi, ganti dengan data kamu');
     };
     const hapusSemua = () => {
       data = kosong();

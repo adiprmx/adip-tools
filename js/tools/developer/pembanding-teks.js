@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.10.0';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "pembanding-teks", "name": "Pembanding Teks", "cat": "developer", "icon": "🔀", "desc": "Bandingkan dua teks baris per baris, lihat bedanya.", "keywords": "diff,teks,bandingkan,perbandingan,kode"};
 

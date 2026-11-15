@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.10.0';
+import { h as T } from '../../core.js?v=6.11.5';
 
 function hex2rgb(hex) {
   let h = String(hex || '').trim().replace('#', '');

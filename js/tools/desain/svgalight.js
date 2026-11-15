@@ -1,4 +1,4 @@
-import { h as T, fileInput, errBox } from '../../core.js?v=6.10.0';
+import { h as T, fileInput, errBox } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "svgalight", "name": "SVG ke Alight XML", "cat": "desain", "icon": "🎬", "desc": "Konversi SVG jadi project XML Alight Motion.", "keywords": "svg,alight motion,xml,vector,konversi,animasi"};
 

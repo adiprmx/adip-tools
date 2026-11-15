@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
 /* Tangga ukuran font harmonis: base px × ratio modular scale → h1–h6, p, small. */
 

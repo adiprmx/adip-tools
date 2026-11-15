@@ -1,4 +1,4 @@
-import { h as T, utils, imglyRemoval } from '../../core.js?v=6.10.0';
+import { h as T, utils, imglyRemoval } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "removebg", "name": "Remove BG", "cat": "gambar", "icon": "🪄", "desc": "Hapus background foto otomatis, 100% di perangkat.", "keywords": "hapus background,remove bg,transparan,foto,produk"};
 

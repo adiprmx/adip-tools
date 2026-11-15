@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.10.0';
+import { h as T, utils, esc } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "spinwheel", "name": "Roda Putar", "cat": "fun", "icon": "🎡", "desc": "Spin wheel visual.", "keywords": "roda,putar,spin,acak,undian"};
 export function render(root) {

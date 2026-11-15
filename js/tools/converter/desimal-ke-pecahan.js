@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
-/* Fungsi murni — diekspor supaya bisa diuji dari node tanpa DOM. */
+/* Fungsi murni, diekspor supaya bisa diuji dari node tanpa DOM. */
 export function fpb(a, b) {
   a = Math.abs(a); b = Math.abs(b);
   while (b) { const t = a % b; a = b; b = t; }
@@ -28,7 +28,15 @@ export function desimalKePecahan(d) {
   }
   pem = pem / f;
   const p2 = pen / f;
-  return { pembilang: neg ? -pem : pem, penyebut: p2, langkah };
+  const hasil = { pembilang: neg ? -pem : pem, penyebut: p2, langkah };
+  /* Langkah pecahan campuran bila hasilnya pecahan tidak murni. */
+  if (Math.abs(hasil.pembilang) > p2 && p2 !== 1) {
+    const bulat = Math.trunc(hasil.pembilang / p2);
+    const sisa = Math.abs(hasil.pembilang % p2);
+    langkah.push(Math.abs(hasil.pembilang) + ' ÷ ' + p2 + ' = ' + Math.abs(bulat) + ' sisa ' + sisa +
+      ', jadi bentuk campurannya ' + bulat + ' ' + sisa + '/' + p2 + '.');
+  }
+  return hasil;
 }
 
 export function pecahanKeDesimal(pem, pen) {
@@ -37,7 +45,7 @@ export function pecahanKeDesimal(pem, pen) {
   return { desimal: des, persen: des * 100 };
 }
 
-export const meta = {"id": "desimal-ke-pecahan", "name": "Desimal ke Pecahan", "cat": "converter", "icon": "➗", "desc": "Desimal jadi pecahan tersederhana + langkahnya.", "keywords": "desimal,pecahan,fraksi,fpb,persen"};
+export const meta = {"id": "desimal-ke-pecahan", "name": "Desimal ke Pecahan", "cat": "converter", "icon": "➗", "desc": "Desimal jadi pecahan tersederhana + langkahnya, dan sebaliknya termasuk pecahan campuran.", "keywords": "desimal,pecahan,fraksi,fpb,persen,campuran"};
 
 export function render(root) {
 
@@ -55,9 +63,9 @@ export function render(root) {
         ? '<div class="kv"><span class="k">Campuran</span><span class="v">' + Math.trunc(r.pembilang / r.penyebut) + ' ' + Math.abs(r.pembilang % r.penyebut) + '/' + r.penyebut + '</span></div>' : '';
       T.show(outA, '');
       outA.appendChild(T.el(
-        '<div class="kv"><span class="k">Pecahan</span><span class="v" style="font-size:18px"><b>' + r.pembilang + '/' + r.penyebut + '</b></span></div>' + campur +
+        '<div><div class="kv"><span class="k">Pecahan</span><span class="v" style="font-size:18px"><b>' + r.pembilang + '/' + r.penyebut + '</b></span></div>' + campur +
         '<div class="dim" style="font-size:12.5px;margin-top:8px;line-height:1.7">' +
-        r.langkah.map((l) => '• ' + T.esc(l)).join('<br>') + '</div>'
+        r.langkah.map((l) => '• ' + T.esc(l)).join('<br>') + '</div></div>'
       ));
       outA.appendChild(T.row(T.copyBtn(() => r.pembilang + '/' + r.penyebut, 'Salin Pecahan')));
     };
@@ -70,26 +78,45 @@ export function render(root) {
     // ---- Pecahan → Desimal ----
     root.appendChild(T.el('<hr class="divi">'));
     root.appendChild(T.el('<h3 class="h3">🔄 Pecahan → Desimal</h3>'));
+    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bisa juga pecahan campuran: isi bilangan bulatnya, mis. 1 3/4.</p>'));
+    const inBulat = T.input('text', 'Bilangan bulat, mis. 1 (boleh kosong)');
     const inPem = T.input('text', 'Pembilang, mis. 3');
     const inPen = T.input('text', 'Penyebut, mis. 4');
-    inPem.inputMode = 'numeric'; inPen.inputMode = 'numeric';
+    inBulat.inputMode = 'numeric'; inPem.inputMode = 'numeric'; inPen.inputMode = 'numeric';
     const outB = T.out();
     const hitungB = () => {
+      const bulat = inBulat.value.trim() === '' ? 0 : T.num(inBulat.value);
       const pem = T.num(inPem.value), pen = T.num(inPen.value);
+      if (!isFinite(bulat) || !Number.isInteger(bulat)) { T.show(outB, '<span class="err">Bilangan bulat harus bilangan bulat atau dikosongkan.</span>'); return; }
       if (!isFinite(pem) || !isFinite(pen)) { T.show(outB, '<span class="err">Isi pembilang & penyebut dengan angka.</span>'); return; }
-      const r = pecahanKeDesimal(pem, pen);
-      if (!r) { T.show(outB, '<span class="err">Penyebut nggak boleh nol — pembagian dengan nol itu dilarang keras 😄</span>'); return; }
+      if (!Number.isInteger(pem) || !Number.isInteger(pen)) { T.show(outB, '<span class="err">Pembilang & penyebut harus bilangan bulat.</span>'); return; }
+      const pemTotal = bulat * pen + pem;
+      const r = pecahanKeDesimal(pemTotal, pen);
+      if (!r) { T.show(outB, '<span class="err">Penyebut nggak boleh nol, pembagian dengan nol itu dilarang keras 😄</span>'); return; }
       const desStr = String(Math.round(r.desimal * 1e10) / 1e10).replace('.', ',');
       const perStr = String(Math.round(r.persen * 1e8) / 1e8).replace('.', ',');
+      /* Penyederhanaan pecahan + langkah FPB. */
+      const f = fpb(pemTotal, pen);
+      const sPem = pemTotal / f, sPen = pen / f;
+      const langkahS = f > 1
+        ? ['FPB(' + Math.abs(pemTotal) + ', ' + Math.abs(pen) + ') = ' + f + '.',
+           Math.abs(pemTotal) + ' ÷ ' + f + ' = ' + Math.abs(sPem) + ' dan ' + Math.abs(pen) + ' ÷ ' + f + ' = ' + sPen + '.']
+        : ['Pecahan sudah paling sederhana (FPB = 1).'];
+      const campurAsal = bulat !== 0 ? '<div class="kv"><span class="k">Sebagai pecahan biasa</span><span class="v"><b>' + pemTotal + '/' + pen + '</b></span></div>' : '';
       T.show(outB, '');
       outB.appendChild(T.el(
-        '<div class="kv"><span class="k">Desimal</span><span class="v" style="font-size:18px"><b>' + T.esc(desStr) + '</b></span></div>' +
-        '<div class="kv"><span class="k">Persen</span><span class="v"><b>' + T.esc(perStr) + ' %</b></span></div>'
+        '<div><div class="kv"><span class="k">Desimal</span><span class="v" style="font-size:18px"><b>' + T.esc(desStr) + '</b></span></div>' +
+        '<div class="kv"><span class="k">Persen</span><span class="v"><b>' + T.esc(perStr) + ' %</b></span></div>' +
+        campurAsal +
+        '<div class="kv"><span class="k">Pecahan tersederhana</span><span class="v"><b>' + sPem + '/' + sPen + '</b></span></div>' +
+        '<div class="dim" style="font-size:12.5px;margin-top:8px;line-height:1.7">' +
+        langkahS.map((l) => '• ' + T.esc(l)).join('<br>') + '</div></div>'
       ));
       outB.appendChild(T.row(T.copyBtn(() => desStr, 'Salin Desimal')));
     };
-    [inPem, inPen].forEach((i) => i.addEventListener('keydown', (e) => { if (e.key === 'Enter') hitungB(); }));
-    root.appendChild(T.grid2(T.field('Pembilang', inPem), T.field('Penyebut', inPen)));
+    [inBulat, inPem, inPen].forEach((i) => i.addEventListener('keydown', (e) => { if (e.key === 'Enter') hitungB(); }));
+    root.appendChild(T.grid2(T.field('Bilangan bulat (opsional)', inBulat), T.field('Pembilang', inPem)));
+    root.appendChild(T.field('Penyebut', inPen));
     root.appendChild(T.row(T.btn('Ubah ke Desimal', hitungB, true)));
     root.appendChild(outB);
 }

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.10.0';
+import { h as T } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "bep-umkm", "name": "Kalkulator BEP UMKM", "cat": "bisnis", "icon": "📊", "desc": "Hitung titik impas: berapa unit & rupiah.", "keywords": "bep,impas,umkm,usaha,modal", "file": "tools/bisnis/bep-umkm.js"};
 

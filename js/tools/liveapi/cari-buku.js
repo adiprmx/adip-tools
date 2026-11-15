@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.10.0';
+import { h as T, esc } from '../../core.js?v=6.11.5';
 
 export const meta = {"id":"cari-buku","name":"Pencari Buku","cat":"liveapi","icon":"📚","desc":"Cari jutaan buku dari Open Library berdasarkan judul atau penulis.","keywords":"buku,cari,open library,judul,penulis,cover,isbn"};
 

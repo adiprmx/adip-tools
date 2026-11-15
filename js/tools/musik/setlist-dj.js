@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.10.0';
+import { h as T } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "setlist-dj", "name": "Perencana Setlist DJ", "cat": "musik", "icon": "🎧", "desc": "Susun urutan lagu DJ: key Camelot, BPM, durasi, energy + saran transisi.", "keywords": "setlist,dj,perencana,camelot,key,transisi,bpm,energy,set"};
 

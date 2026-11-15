@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "nilai-skd-cpns", "name": "Cek Nilai SKD CPNS", "cat": "pelajar", "icon": "🎯", "desc": "Masukkan soal benar TWK/TIU dan skor TKP, langsung ketahuan lolos passing grade atau tidak per subtes.", "keywords": "cpns,skd,passing grade,twk,tiu,tkp,sekolah kedinasan,seleksi"};
 

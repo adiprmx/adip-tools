@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.10.0';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "ubah-ukuran-foto", "name": "Ubah Ukuran Foto", "cat": "gambar", "icon": "🖼️", "desc": "Ubah dimensi foto ke ukuran yang pas — pas foto, KTP, feed IG, atau ukuran bebas.", "keywords": "resize,ubah,ukuran,foto,dimensi,piksel,pas foto,ktp,instagram"};
 export function render(root) {

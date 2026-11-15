@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
 /* Atur border-radius tiap sudut secara visual: 4 slider + preview + CSS siap salin. */
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
 export const meta = {"id":"pelacak-tujuan","name":"Pelacak Tujuan","cat":"produktivitas","icon":"🎯","desc":"Tulis tujuan tahunanmu, pecah jadi milestone, pantau bar progresnya.","keywords":"tujuan,goals,milestone,target,resolusi,progres,tahunan"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils, beep, onLeave } from '../../core.js?v=6.10.0';
+import { h as T, utils, beep, onLeave } from '../../core.js?v=6.11.5';
 
 export const meta = {"id":"audit-hp","name":"Audit Keamanan HP","cat":"keamanan","icon":"📱","desc":"Checklist 12 poin keamanan HP dengan skor 0–100 + saran perbaikan.","keywords":"audit,keamanan,hp,android,checklist,skor,2fa,backup,privasi"};
 

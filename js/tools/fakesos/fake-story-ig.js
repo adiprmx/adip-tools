@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.10.0';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.11.5';
 
 export const meta = {"id":"fake-story-ig","name":"Fake Story IG","cat":"fakesos","icon":"📱","desc":"Bikin screenshot Story Instagram palsu + unduh PNG.","keywords":"instagram,story,fake,palsu,screenshot,prank"};
 

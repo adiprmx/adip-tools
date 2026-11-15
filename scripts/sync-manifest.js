@@ -37,6 +37,7 @@ async function main() {
     entries.push({
       id, name: mod.meta.name, cat, icon: mod.meta.icon, desc: mod.meta.desc,
       keywords: mod.meta.keywords || '', file: rel,
+      ...(mod.meta.since ? { since: mod.meta.since } : {}),
     });
   }
   entries.sort((a, b) => (a.cat < b.cat ? -1 : a.cat > b.cat ? 1 : a.id < b.id ? -1 : 1));

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.10.0';
+import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.11.5';
 
 export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas", "icon": "📧", "desc": "Email sementara: buat alamat, terima & baca pesan tanpa daftar.", "keywords": "temp mail,email sementara,inbox,otp,spam,guerrillamail"};
 

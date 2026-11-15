@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.10.0';
+import { h as T, utils } from '../../core.js?v=6.11.5';
 
 export const meta = {id:"qris-parser", name:"QRIS String Parser", cat:"converter", icon:"🧾", desc:"Bedah payload QRIS/EMVCo per field + cek CRC.", keywords:"qris,emvco,parser,crc,payload"};
 export function render(root) {
