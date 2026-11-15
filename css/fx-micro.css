@@ -29,9 +29,16 @@
   transform: translateY(-1px) scale(0.96);
   transition-duration: 0.12s;
 }
-/* ikon kartu: membesar + bergoyang pelan saat hover */
+/* ikon kartu: membesar + bergoyang pelan saat hover.
+   display:inline-block HANYA untuk .ci (span polos; perlu inline-block
+   supaya transform jalan, penengahannya dari align-items parent).
+   .tic/.hic adalah chip flex (display:flex + justify-content:center di
+   style.css) — inline-block di sini MEMATIKAN penengahan dan membuat
+   emoji menempel ke kiri chip (~7px). Jangan kembalikan. */
 .tcard .tic, .hcard .hic, .cattile .ci {
   transition: transform 0.32s var(--spring);
+}
+.cattile .ci {
   display: inline-block;
 }
 .tcard:hover .tic, .hcard:hover .hic { transform: scale(1.14) rotate(-6deg); }
