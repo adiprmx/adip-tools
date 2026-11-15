@@ -454,6 +454,12 @@ select.inp { appearance: none; -webkit-appearance: none; }
   outline-offset: 2px;
 }
 
+/* Judul yang difokus via JS saat ganti halaman (route(), app.js) tidak
+   boleh menampilkan ring fokus: fokus itu untuk pembaca layar, bukan
+   untuk mata. Tanpa ini browser menggambar kotak putih di sekeliling
+   judul beranda (terlihat di HP, 15 Nov 2026). */
+h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
+
 /* ---------- output ---------- */
 @keyframes out-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .out {
