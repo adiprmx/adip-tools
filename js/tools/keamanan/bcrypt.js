@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "bcrypt", "name": "Bcrypt Hasher", "cat": "keamanan", "icon": "🔐", "desc": "Hash password ala bcrypt + verifikasi.", "keywords": "bcrypt,hash,password"};
 export function render(root) {
@@ -28,9 +28,9 @@ export function render(root) {
             T.show(hashOut,
               '<div class="kv"><span class="k">Hash</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(h) + '</span></div>');
             hashOut.appendChild(T.row(T.btn('Salin Hash', () => T.copy(h))));
-          } catch (e) { T.show(hashOut, '<span class="err">Tidak bisa: ' + T.esc(e.message) + '</span>'); }
+          } catch (e) { T.show(hashOut, '<span class="err">Hash tidak bisa dibuat. Coba lagi.</span>'); }
         }, 30);
-      } catch (e) { T.show(hashOut, '<span class="err">Tidak bisa: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(hashOut, '<span class="err">Hash tidak bisa dibuat. Coba lagi.</span>'); }
     };
     const goVerify = () => {
       const pw = vPw.value, h = vHash.value.trim();
@@ -40,7 +40,7 @@ export function render(root) {
         T.show(vOut, ok
           ? '<span class="ok">✅ Cocok! Password sesuai dengan hash ini.</span>'
           : '<span class="err">❌ Tidak cocok. Password tidak sesuai dengan hash ini.</span>');
-      } catch (e) { T.show(vOut, '<span class="err">Hash-nya tidak benar: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(vOut, '<span class="err">Hash-nya tidak benar. Pastikan hash bcrypt-nya tersalin lengkap.</span>'); }
     };
 
     T.show(status, '<span class="dim">⏳ Menyiapkan alat bcrypt…</span>');

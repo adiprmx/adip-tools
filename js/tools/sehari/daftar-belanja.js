@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"daftar-belanja","name":"Daftar Belanja","cat":"sehari","icon":"🛒","desc":"Catat belanjaan, centang yang udah dibeli, pantau totalnya.","keywords":"belanja,daftar,shopping,grocery,total,harga,list,pasar"};
 
@@ -51,6 +51,7 @@ export function render(root) {
       st.innerHTML = done ? '<s class="mut">' + T.rp(subtotal(it)) + '</s>' : '<b>' + T.rp(subtotal(it)) + '</b>';
       line.appendChild(st);
       const del = T.btn('✕', () => { items.splice(idx, 1); save(); draw(); });
+      del.setAttribute('aria-label', 'Hapus ' + it.nama);
       del.style.cssText = 'padding:4px 9px';
       del.title = 'Hapus item';
       line.appendChild(del);

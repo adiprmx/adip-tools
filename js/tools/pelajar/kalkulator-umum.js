@@ -1,4 +1,4 @@
-import { h as T, utils, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "kalkulator-umum", "name": "Kalkulator Umum", "cat": "pelajar", "icon": "🧮", "desc": "Hitung biasa sampai ilmiah: tambah kurang kali bagi, persen, sin cos tan, log, akar, pangkat, plus riwayat.", "keywords": "kalkulator,hitung,matematika,ilmiah,sin,cos,tan,log,ln,akar,pangkat,faktorial,persen,derajat,radian", "since": "6.11.0"};
 
@@ -211,7 +211,7 @@ function evaluate(expr, deg) {
     if (!isFinite(v)) return { ok: false, error: 'Hasilnya terlalu besar untuk ditampilkan.' };
     return { ok: true, value: v };
   } catch (e) {
-    return { ok: false, error: e && e.message ? e.message : 'Ada yang belum beres di hitungannya.' };
+    return { ok: false, error: 'Ada yang belum beres di hitungannya.' };
   }
 }
 

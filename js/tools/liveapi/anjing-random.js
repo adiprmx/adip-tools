@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.1';
+import { h as T, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "anjing-random", "name": "Anjing Random", "cat": "liveapi", "icon": "🐶", "desc": "Foto anjing acak dari seluruh dunia.", "keywords": "anjing,dog,puppy,hewan,random,foto"};
 
@@ -44,7 +44,7 @@ export function render(root) {
       if (e && e.name === 'AbortError') {
         T.show(box, '<span class="err">Waktu habis (15 detik). Periksa koneksi internet lalu coba lagi.</span>');
       } else {
-        T.show(box, '<span class="err">Gagal memuat foto anjing. Periksa koneksi internet lalu coba lagi.</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+        T.show(box, '<span class="err">Gagal memuat foto anjing. Periksa koneksi internet lalu coba lagi.</span>');
       }
       const wr = T.el('<div class="mt8 center"></div>');
       wr.appendChild(T.btn('🔄 Coba lagi', muat));

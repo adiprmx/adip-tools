@@ -1,4 +1,4 @@
-import { h as T, fileInput, errBox } from '../../core.js?v=6.12.1';
+import { h as T, fileInput, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "svgalight", "name": "SVG ke Alight XML", "cat": "desain", "icon": "🎬", "desc": "Konversi SVG jadi project XML Alight Motion.", "keywords": "svg,alight motion,xml,vector,konversi,animasi"};
 
@@ -769,7 +769,7 @@ fi.addEventListener('change', async () => {
     renderLayerList();
     layerSec.hidden = false;
     bGo.hidden = false;
-  } catch (e) { T.show(box, errBox('Gagal membaca SVG: ' + e.message)); }
+  } catch (e) { T.show(box, errBox('Gagal membaca SVG. Periksa lagi file-nya lalu coba lagi.')); }
 });
 
 function renderLayerList() {
@@ -821,7 +821,7 @@ const bGo = T.btn('Konversi ke XML', () => {
       primOn: primChk.checked !== false, title, modifiedTime: Date.now(),
     });
   } catch (e) {
-    T.show(noteBox, errBox('Konversi gagal: ' + e.message)); return;
+    T.show(noteBox, errBox('Konversi gagal. Coba SVG lain atau sederhanakan isinya.')); return;
   }
   const xml = conv.xml;
   lastXml = xml;

@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.1';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"markdown-ke-pdf","name":"Markdown ke PDF","cat":"converter","icon":"📝","desc":"Ubah tulisan Markdown jadi PDF A4 dengan pratinjau dulu.","keywords":"markdown,pdf,dokumen,tulisan,md,a4","since":"6.11.0"};
 

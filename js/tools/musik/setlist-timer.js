@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"setlist-timer","name":"Setlist Timer","cat":"musik","icon":"⏳","desc":"Timer setlist manggung: countdown per lagu + total durasi.","keywords":"setlist,timer,manggung,live,dj,musik,konser,panggung"};
 
@@ -48,6 +48,7 @@ export function render(root){
       const du=T.input('text','m:ss',s.dur);
       du.style.width='78px';du.style.flex='none';du.inputMode='numeric';
       const del=T.btn('✕',()=>{songs.splice(i,1);resetPerf();paintList();paintTotal();});
+      del.setAttribute('aria-label', 'Hapus lagu ' + (s.name || (i + 1)));
       nm.addEventListener('input',()=>{s.name=nm.value;if(!running)paintPerf();});
       du.addEventListener('input',()=>{s.dur=du.value;paintTotal();if(!running){left=durAt(idx);paintPerf();}});
       listBox.appendChild(T.row(nm,du,del));

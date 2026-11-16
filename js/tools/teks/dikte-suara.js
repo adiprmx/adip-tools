@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.1';
+import { h as T, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"dikte-suara","name":"Dikte Suara","cat":"teks","icon":"🗣️","desc":"Ubah ucapan jadi teks langsung di browser.","keywords":"dikte,suara,teks,speech,mengetik,ucapan","since":"6.11.0"};
 
@@ -62,8 +62,17 @@ export function render(root) {
         return;
       } else if (err === 'aborted') {
         return;
+      } else if (err === 'audio-capture') {
+        T.show(box, errBox('Mikrofon tidak bisa dipakai. Pastikan mikrofon terpasang dan tidak dipakai aplikasi lain, lalu coba lagi.'));
+      } else if (err === 'bad-grammar') {
+        T.show(box, errBox('Pengaturan pengenalan suara tidak dikenali browser ini. Coba muat ulang halaman ini.'));
+      } else if (err === 'language-not-supported') {
+        T.show(box, errBox('Bahasa yang dipilih tidak didukung pengenalan suara di browser ini. Coba pilih bahasa lain.'));
       } else {
-        T.show(box, errBox('Terjadi kendala (' + err + '). Coba mulai lagi.'));
+        // Fallback generik TANPA kode mentah (P2-R1-I1): kode error
+        // SpeechRecognition (mis. 'audio-capture') tidak pernah tampil
+        // apa adanya ke user.
+        T.show(box, errBox('Terjadi kendala saat mendengarkan. Coba mulai lagi.'));
       }
     };
     rec.onend = () => {

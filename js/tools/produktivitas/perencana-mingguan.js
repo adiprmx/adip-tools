@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"perencana-mingguan","name":"Perencana Mingguan","cat":"produktivitas","icon":"🗓️","desc":"Susun blok waktu kegiatan untuk 7 hari ke depan, biar minggumu punya arah.","keywords":"perencana mingguan,weekly planner,time block,jadwal,minggu,planning,rencana"};
 
@@ -34,6 +34,7 @@ export function render(root) {
         rowEl.appendChild(T.el('<span class="mut" style="font-size:13px;min-width:52px">' + T.esc(b.time || '--:--') + '</span>'));
         rowEl.appendChild(T.el('<span style="flex:1;font-size:14px">' + T.esc(b.text) + '</span>'));
         const del = T.el('<button class="btn ghost" style="padding:4px 10px;font-size:12px">✕</button>');
+        del.setAttribute('aria-label', 'Hapus rencana ' + b.text);
         del.addEventListener('click', () => {
           blocks = blocks.filter((x) => x.id !== b.id);
           save(); draw();

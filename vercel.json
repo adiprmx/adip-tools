@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://esm.sh https://js.puter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; media-src 'self' blob: data:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://air-quality-api.open-meteo.com https://api.adviceslip.com https://api.agify.io https://api.aladhan.com https://api.allorigins.win https://api.alquran.cloud https://api.artic.edu https://api.coingecko.com https://api.dicebear.com https://api.dictionaryapi.dev https://api.elevenlabs.io https://api.genderize.io https://api.github.com https://api.guerrillamail.com https://api.ipify.org https://api.lyrics.ovh https://api.mymemory.translated.net https://api.nasa.gov https://api.nationalize.io https://api.open-meteo.com https://api.openai.com https://api.puter.com https://api.sunrise-sunset.org https://api.telegram.org https://api.waifu.im https://api.wheretheiss.at https://api.worldbank.org https://catbox.moe https://catfact.ninja https://cdn.jsdelivr.net https://cors-anyway.huskymobile.com https://crt.sh https://danbooru.donmai.us https://data.bmkg.go.id https://data.iana.org https://date.nager.at https://dns.google https://dog.ceo https://dummyjson.com https://geocoding-api.open-meteo.com https://image.pollinations.ai https://imei.kemenperin.go.id https://ipapi.co https://ipwho.is https://jebafddwupyqpwevhsqn.supabase.co https://nekos.best https://open.er-api.com https://openlibrary.org https://opentdb.com https://pokeapi.co https://r.jina.ai https://staticimgly.com https://storage.googleapis.com https://text.pollinations.ai https://tools.adipmusic.my.id https://translate.googleapis.com https://unpkg.com https://world.openfoodfacts.org https://www.emsifa.com https://www.themealdb.com; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-src https:; object-src 'none'; base-uri 'self'; form-action 'self'"
+        }
+      ]
+    }
+  ]
+}

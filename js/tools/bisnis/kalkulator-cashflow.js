@@ -1,4 +1,4 @@
-import { h as T, utils, kv, rp, num } from '../../core.js?v=6.12.1';
+import { h as T, utils, kv, rp, num } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node): ringkasan dari baris { nama, kategori, jumlah }.
 utils.cashflowRingkasan = function (masuk, keluar) {
@@ -43,6 +43,7 @@ export function render(root) {
       jI.style.flex = '1';
       jI.style.minWidth = '100px';
       const del = T.btn('✕', () => { wrap.remove(); calc(); });
+      del.setAttribute('aria-label', 'Hapus baris');
       wrap.appendChild(nI); wrap.appendChild(cI); wrap.appendChild(jI); wrap.appendChild(del);
       return { wrap, nI, cI, jI };
     };

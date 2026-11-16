@@ -1,4 +1,4 @@
-import { h as T, utils, errBox } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox } from '../../core.js?v=6.12.2';
 
 function wifiString(ssid, pass, enc, hidden) {
   const e = (v) => String(v == null ? '' : v).replace(/([\\;,":])/g, '\\$1');
@@ -42,7 +42,7 @@ export function render(root) {
       ensureLib().then((ok) => {
         if (!ok) return;
         QRCode.toCanvas(cv, txt, { width: 300, margin: 2, color: { dark: '#000000', light: '#ffffff' } }, (err) => {
-          if (err) { T.show(statusBox, errBox('Gagal membuat QR: ' + err.message)); return; }
+          if (err) { T.show(statusBox, errBox('QR tidak bisa dibuat. Datanya mungkin terlalu panjang — coba persingkat nama WiFi atau password-nya, lalu coba lagi.')); return; }
           qrWrap.innerHTML = '';
           cv.style.maxWidth = '100%'; cv.style.height = 'auto';
           qrWrap.appendChild(cv);

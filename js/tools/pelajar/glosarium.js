@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"glosarium","name":"Glosarium Pribadi","cat":"pelajar","icon":"📖","desc":"Kamus istilah pribadimu: simpan, cari, dan hapus definisi.","keywords":"glosarium,kamus,istilah,definisi,hafalan,kosakata"};
 
@@ -40,6 +40,7 @@ export function render(root) {
         items = items.filter((x) => x.id !== it.id);
         save(items); draw();
       });
+      del.setAttribute('aria-label', 'Hapus istilah ' + it.istilah);
       head.appendChild(del);
       card.appendChild(head);
       card.appendChild(T.el('<div style="font-size:14px;margin-top:6px;line-height:1.55">' + T.esc(it.definisi) + '</div>'));

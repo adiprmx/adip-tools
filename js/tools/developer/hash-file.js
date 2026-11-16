@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.1';
+import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.2';
 
 // Checksum file: SHA-256/384/512 via WebCrypto, MD5 via crypto-js
 // (dimuat dari CDN hanya bila MD5 dicentang). File dibaca utuh ke
@@ -60,7 +60,7 @@ export function render(root) {
       try {
         bytes = new Uint8Array(await file.arrayBuffer());
       } catch (e) {
-        T.show(out, errBox('File tidak bisa dibaca: ' + (e && e.message ? e.message : e)));
+        T.show(out, errBox('File tidak bisa dibaca. Pastikan filenya tidak rusak lalu coba lagi.'));
         return;
       }
       results = [];

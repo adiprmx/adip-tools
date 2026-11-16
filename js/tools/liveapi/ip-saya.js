@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.1';
+import { h as T, utils, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"ip-saya","name":"IP & Lokasi Saya","cat":"liveapi","icon":"🌐","desc":"Cek alamat IP publik & perkiraan lokasimu.","keywords":"ip,lokasi,saya,alamat,isp,internet"};
 export function render(root) {
@@ -36,7 +36,7 @@ export function render(root) {
       if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
       else if (status === 429) msg = 'Rate limit tercapai (429). Terlalu banyak permintaan — tunggu sebentar lalu coba lagi.';
       else msg = 'Gagal memuat data IP. Periksa koneksi internet lalu coba lagi.';
-      T.show(box, '<span class="err">' + esc(msg) + '</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+      T.show(box, '<span class="err">' + esc(msg) + '</span>');
       const wrap = T.el('<div style="margin-top:8px"></div>');
       wrap.appendChild(T.btn('🔄 Coba lagi', muat));
       box.appendChild(wrap);

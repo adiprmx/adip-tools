@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "image-base64", "name": "Gambar ke Base64", "cat": "converter", "icon": "🖼️", "desc": "Gambar jadi kode Base64, siap ditempel di web.", "keywords": "gambar,base64,foto,embed"};
 export function render(root) {

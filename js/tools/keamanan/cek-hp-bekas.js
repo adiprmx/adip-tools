@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.1';
+import { h as T } from '../../core.js?v=6.12.2';
 
 const CEK_HP = [
   { grup: 'Fisik dan layar', item: [

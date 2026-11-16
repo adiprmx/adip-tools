@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tebak-kata", "name": "Tebak Kata", "cat": "fun", "icon": "🔤", "desc": "Hangman Bahasa Indonesia: 112 kata, 7 kategori, 3 level nyawa.", "keywords": "hangman,tebak,kata,game,indonesia,huruf,kategori,level"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* textvector — "Text to Vector": teks -> path vektor -> XML Alight Motion + preview SVG.
    Dua mode:
@@ -68,7 +68,7 @@ export async function loadPrecisionFont(font, weight) {
   const timer = setTimeout(() => ctrl.abort(), 15000);
   try {
     const res = await fetch(url, { signal: ctrl.signal });
-    if (!res.ok) throw new Error('font gagal diunduh (HTTP ' + res.status + ')');
+    if (!res.ok) throw new Error('font gagal diunduh. Cek koneksi lalu coba lagi.');
     const parsed = ot.parse(await res.arrayBuffer());
     _fontCache.set(url, parsed);
     return parsed;
@@ -409,6 +409,14 @@ export function render(root) {
       project: inpProject.value, filename: inpFile.value,
     };
   }
+  /* Pesan error buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
+     Error lain (dari browser/library) diganti pesan ramah. */
+  const pesanErr = (e) => {
+    const m = (e && e.message) || '';
+    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    return 'XML tidak bisa dibuat. Coba lagi.';
+  };
+
   async function doGenerate() {
     status.textContent = 'Menyiapkan…';
     let font = null;
@@ -427,7 +435,7 @@ export function render(root) {
         status.innerHTML = 'Siap — <b>' + T.esc(r.paths) + ' path</b> · ' + modeLabel + ' · durasi ' + r.totalMs + ' ms · <span class="dim">' + T.esc(r.filename) + '</span>';
         AL.history.push('textvector', { filename: r.filename, project: inpProject.value, preset: 'Vector', xml: r.xml });
         hist.refresh();
-      } catch (e) { status.innerHTML = '<span class="err">' + T.esc(e.message) + '</span>'; }
+      } catch (e) { status.innerHTML = '<span class="err">' + T.esc(pesanErr(e)) + '</span>'; }
     }, 30);
   }
   root.appendChild(T.row(T.btn('Generate Vektor', doGenerate, true)));

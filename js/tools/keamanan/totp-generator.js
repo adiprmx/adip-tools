@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "totp-generator", "name": "OTP Authenticator", "cat": "keamanan", "icon": "⏱️", "desc": "Kode OTP 30-detik dari secret (kayak Google Authenticator).", "keywords": "otp,authenticator,2fa,kode"};
 export function render(root) {
@@ -61,7 +61,7 @@ export function render(root) {
           sisaEl.textContent = 'Kode baru dalam ' + sisa + ' detik';
         } catch (e) {
           clearInterval(timer); timer = null;
-          T.show(out, '<span class="err">Secret-nya tidak benar: ' + T.esc(e.message) + '</span>');
+          T.show(out, '<span class="err">Secret-nya tidak benar. Pastikan kodenya benar (huruf A–Z dan angka 2–7), lalu coba lagi.</span>');
         }
       };
       tick();

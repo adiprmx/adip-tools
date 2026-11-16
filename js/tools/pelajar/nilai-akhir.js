@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.1';
+import { h as T, utils, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"nilai-akhir","name":"Kalkulator Nilai Akhir","cat":"pelajar","icon":"🎓","desc":"Hitung nilai akhir dari bobot tiap komponen + predikat A–E.","keywords":"nilai,akhir,bobot,predikat,rapor,uts,uas,tugas,kuliah,sekolah"};
 
@@ -28,6 +28,7 @@ export function render(root) {
     ww.className += ' na-w';
     ww.min = '0'; ww.max = '100';
     const del = T.btn('✕', () => { line.remove(); hitung(); });
+    del.setAttribute('aria-label', 'Hapus komponen');
     line.appendChild(nm); line.appendChild(vv); line.appendChild(ww); line.appendChild(del);
     rowsBox.appendChild(line);
   };

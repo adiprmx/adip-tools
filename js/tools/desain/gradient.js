@@ -1,4 +1,4 @@
-import { h as T, utils, esc, preHtml } from '../../core.js?v=6.12.1';
+import { h as T, utils, esc, preHtml } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "gradient", "name": "Gradient Generator", "cat": "desain", "icon": "🌈", "desc": "Bikin gradient CSS + preview.", "keywords": "gradient,gradasi,css,warna"};
 export function render(root) {
@@ -28,6 +28,7 @@ export function render(root) {
         const p = T.el('<input type="range" min="0" max="100" value="' + s.pos + '" class="inp" style="flex:1">');
         const lbl = T.el('<span class="hint" style="min-width:44px;text-align:right">' + s.pos + '%</span>');
         const del = T.btn('✕', () => { if (stops.length > 2) { stops.splice(i, 1); paintStops(); paint(); } else T.toast('Minimal 2 warna'); });
+        del.setAttribute('aria-label', 'Hapus warna ' + (i + 1));
         del.style.padding = '6px 10px';
         c.addEventListener('input', () => { s.color = c.value; paint(); });
         p.addEventListener('input', () => { s.pos = +p.value; lbl.textContent = s.pos + '%'; paint(); });

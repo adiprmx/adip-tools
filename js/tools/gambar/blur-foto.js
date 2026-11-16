@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.1';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "blur-foto", "name": "Blur Foto (Sensor)", "cat": "gambar", "icon": "🫣", "desc": "Sensor area foto, atau blur latar potret otomatis.", "keywords": "blur,sensor,foto,pixel,privasi,latar,potret"};
 export function render(root) {
@@ -119,17 +119,24 @@ export function render(root) {
       render2();
       T.show(box, '');
       box.appendChild(canvas);
-      T.toast(mode === 'sensor' ? 'Seret di foto untuk menandai area sensor' : 'Foto dimuat, tekan proses blur latar');
+      T.toast(mode === 'sensor' ? 'Seret di foto untuk menandai area sensor' : 'Foto dimuat, tekan tombol proses di bawah');
     }
     fileI.addEventListener('change', onFile);
 
     /* ---- Blur latar potret (segmentasi orang, MediaPipe, pin versi) ---- */
-    const MP_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js';
-    const MP_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/';
+    const MP_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js';
+    const MP_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/';
     let mpSiap = null, seg = null;
     async function loadSeg() {
       if (seg) return seg;
-      if (!mpSiap) mpSiap = T.loadScript(MP_CDN).then((ok) => ok && !!window.SelfieSegmentation);
+      if (!mpSiap) {
+        // timeout 60 dtk: script CDN yang nyangkut tidak boleh menggantung selamanya.
+        // Gagal tidak di-cache (mpSiap di-reset) supaya tombol proses bisa coba lagi.
+        mpSiap = Promise.race([
+          T.loadScript(MP_CDN).then((ok) => ok && !!window.SelfieSegmentation),
+          new Promise((res) => setTimeout(() => res(false), 60000)),
+        ]).then((ok) => { if (!ok) mpSiap = null; return ok; });
+      }
       const ok = await mpSiap;
       if (!ok) throw new Error('cdn');
       seg = new window.SelfieSegmentation({ locateFile: (f) => MP_BASE + f });
@@ -143,27 +150,47 @@ export function render(root) {
     const latarR = T.input('range'); latarR.min = '2'; latarR.max = '30'; latarR.value = '12';
     const latarV = T.el('<b>12px</b>');
     let maskCache = null; // masker orang yang sudah dilunakkan pinggirnya
+    let targetBlur = 'latar'; // 'latar' = blur latar, orang tajam | 'orang' = blur orang, latar tajam
     latarR.addEventListener('input', () => { latarV.textContent = latarR.value + 'px'; if (maskCache) gabungLatar(); });
     let sedangProses = false;
+    // Persentase piksel "orang" di masker (disampel kecil biar cepat).
+    function cakupanMasker(mask) {
+      const w = 100, h = Math.max(1, Math.round(100 * mask.height / mask.width));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d', { willReadFrequently: true });
+      x.drawImage(mask, 0, 0, w, h);
+      const d = x.getImageData(0, 0, w, h).data;
+      let fg = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i] > 127) fg++;
+      return fg / (w * h);
+    }
     function gabungLatar() {
       const W = off.width, H = off.height, blurPx = +latarR.value;
-      // latar yang diblur
-      const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
-      const bx = bg.getContext('2d');
+      // versi blur dari seluruh foto
+      const blur = document.createElement('canvas'); blur.width = W; blur.height = H;
+      const bx = blur.getContext('2d');
       bx.filter = 'blur(' + blurPx + 'px)';
       bx.drawImage(off, 0, 0);
       bx.filter = 'none';
-      // orang tajam, dipotong pakai masker
-      const fg = document.createElement('canvas'); fg.width = W; fg.height = H;
-      const fx = fg.getContext('2d');
-      fx.drawImage(off, 0, 0);
-      fx.globalCompositeOperation = 'destination-in';
-      fx.drawImage(maskCache, 0, 0);
-      fx.globalCompositeOperation = 'source-over';
+      // potongan gambar yang dibatasi masker orang
+      function potongOrang(sumber) {
+        const c = document.createElement('canvas'); c.width = W; c.height = H;
+        const x = c.getContext('2d');
+        x.drawImage(sumber, 0, 0);
+        x.globalCompositeOperation = 'destination-in';
+        x.drawImage(maskCache, 0, 0);
+        x.globalCompositeOperation = 'source-over';
+        return c;
+      }
       bgHasil.width = W; bgHasil.height = H;
       const gx = bgHasil.getContext('2d');
-      gx.drawImage(bg, 0, 0);
-      gx.drawImage(fg, 0, 0);
+      if (targetBlur === 'latar') {
+        gx.drawImage(blur, 0, 0); // latar blur
+        gx.drawImage(potongOrang(off), 0, 0); // orang tajam
+      } else {
+        gx.drawImage(off, 0, 0); // latar tajam
+        gx.drawImage(potongOrang(blur), 0, 0); // orang blur
+      }
       bgSiap = true;
       render2();
     }
@@ -190,12 +217,23 @@ export function render(root) {
         mx.filter = 'blur(2px)';
         mx.drawImage(hasil.segmentationMask, 0, 0, m.width, m.height);
         mx.filter = 'none';
+        // tidak ada orang terdeteksi: jangan asal blur seluruh foto
+        if (cakupanMasker(m) < 0.005) {
+          maskCache = null; bgSiap = false;
+          T.show(statusBox, '<span class="err">Tidak ada orang yang terdeteksi di foto ini. Coba foto yang menampilkan orang dengan jelas, atau pakai mode sensor area untuk mem-blur manual.</span>');
+          return;
+        }
         maskCache = m;
         gabungLatar();
         T.hide(statusBox);
-        T.toast('Blur latar jadi!');
+        T.toast(targetBlur === 'latar' ? 'Blur latar jadi!' : 'Blur orang jadi!');
       } catch (e) {
-        T.show(statusBox, '<span class="err">Blur latar gagal. Cek koneksi internetmu lalu coba lagi. Foto yang dipakai sebaiknya menampilkan orang dengan jelas.</span>');
+        const msg = e && e.message === 'cdn'
+          ? 'Model tidak bisa dimuat. Cek koneksi internet lalu coba lagi.'
+          : e && e.message === 'timeout'
+            ? 'Prosesnya terlalu lama. Cek koneksi internet lalu coba lagi.'
+            : 'Blur latar gagal. Cek koneksi internetmu lalu coba lagi. Foto yang dipakai sebaiknya menampilkan orang dengan jelas.';
+        T.show(statusBox, '<span class="err">' + msg + '</span>');
       } finally {
         sedangProses = false;
       }
@@ -228,15 +266,18 @@ export function render(root) {
     panelSensor.appendChild(T.el('<p class="hint">Seret/drag di atas foto untuk menandai area yang disensor. Makin besar nilainya, makin kuat sensornya.</p>'));
 
     const panelLatar = T.el('<div></div>');
+    const targetSel = T.select([['latar', 'Latar saja (orang tetap tajam)'], ['orang', 'Orang saja (latar tetap tajam)']], 'latar');
+    targetSel.addEventListener('change', () => { targetBlur = targetSel.value; if (maskCache) gabungLatar(); });
     const lRow = T.el('<div class="row"></div>');
     lRow.appendChild(latarR); lRow.appendChild(latarV);
-    panelLatar.appendChild(T.field('Kekuatan blur latar', lRow));
-    panelLatar.appendChild(T.row(T.btn('Proses blur latar', () => prosesLatar(), true)));
-    panelLatar.appendChild(T.el('<p class="hint">Orang di foto tetap tajam, latarnya yang diblur. Model pemisah diunduh sekali dari internet, setelah itu fotonya diproses di perangkatmu.</p>'));
+    panelLatar.appendChild(T.field('Bagian yang diblur', targetSel));
+    panelLatar.appendChild(T.field('Kekuatan blur', lRow));
+    panelLatar.appendChild(T.row(T.btn('Proses blur', () => prosesLatar(), true)));
+    panelLatar.appendChild(T.el('<p class="hint">Model pemisah orang diunduh sekali dari internet, setelah itu fotonya diproses di perangkatmu.</p>'));
     panelLatar.hidden = true;
 
     const bModeSensor = T.btn('Sensor area', () => setMode('sensor'), true);
-    const bModeLatar = T.btn('Blur latar potret', () => setMode('latar'));
+    const bModeLatar = T.btn('Blur latar / orang', () => setMode('latar'));
     function setMode(m) {
       mode = m;
       bModeSensor.classList.toggle('primary', m === 'sensor');
@@ -255,6 +296,6 @@ export function render(root) {
     root.appendChild(statusBox);
     root.appendChild(T.row(dlB));
     root.appendChild(box);
-    T.onLeave(() => { hasImg = false; rects = []; });
+    T.onLeave(() => { hasImg = false; rects = []; try { seg && seg.close(); } catch (e) {} seg = null; mpSiap = null; });
 
 }

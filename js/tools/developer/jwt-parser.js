@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml, tabs } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, esc, preHtml, tabs } from '../../core.js?v=6.12.2';
 
 function b64urlDecode(seg) {
     const b64 = seg.replace(/-/g, '+').replace(/_/g, '/');
@@ -23,7 +23,7 @@ function jwtDecode(token) {
       const payload = JSON.parse(b64urlDecode(parts[1]));
       return { header, payload, signature: parts[2], signingInput: parts[0] + '.' + parts[1] };
     } catch (e) {
-      return { error: 'Gagal decode JWT: ' + (e && e.message ? e.message : e) };
+      return { error: 'Token ini tidak bisa dibaca. Pastikan token JWT-nya lengkap dan tersalin utuh.' };
     }
   }
 
@@ -242,8 +242,8 @@ export function render(root) {
     let created = '';
     const doCreate = async () => {
       let header, payload;
-      try { header = hdrTa.value.trim() ? JSON.parse(hdrTa.value) : {}; } catch (e) { T.show(createBox, errBox('Header bukan JSON valid: ' + e.message)); return; }
-      try { payload = payTa.value.trim() ? JSON.parse(payTa.value) : {}; } catch (e) { T.show(createBox, errBox('Payload bukan JSON valid: ' + e.message)); return; }
+      try { header = hdrTa.value.trim() ? JSON.parse(hdrTa.value) : {}; } catch (e) { T.show(createBox, errBox('Header bukan JSON yang benar. Periksa penulisannya, lalu coba lagi.')); return; }
+      try { payload = payTa.value.trim() ? JSON.parse(payTa.value) : {}; } catch (e) { T.show(createBox, errBox('Payload bukan JSON yang benar. Periksa penulisannya, lalu coba lagi.')); return; }
       const alg = algSel.value;
       header = { ...header, alg, typ: header.typ || 'JWT' };
       const secret = keyTa.value;
@@ -259,7 +259,7 @@ export function render(root) {
         const tip = kind === 'hmac' ? ''
           : kind === 'ecdsa' ? ' Pastikan kunci private EC-nya memakai kurva yang sesuai (' + ALGS[alg].curve + ') dan format PKCS#8 (diawali "BEGIN PRIVATE KEY").'
           : ' Pastikan kunci private format PKCS#8 (diawali "BEGIN PRIVATE KEY").';
-        T.show(createBox, errBox('Gagal membuat token: ' + (e && e.message ? e.message : e) + tip));
+        T.show(createBox, errBox('Gagal membuat token.' + tip));
       }
     };
     pCreate.appendChild(T.field('Algoritma', algSel, 'HS* pakai satu kata sandi rahasia. RS*/PS* pakai kunci RSA. ES* pakai kunci kurva eliptik (lebih pendek).'));
@@ -302,7 +302,7 @@ export function render(root) {
         const tip = kind === 'hmac' ? ''
           : kind === 'ecdsa' ? ' Pastikan kunci public EC-nya memakai kurva yang sesuai (' + ALGS[vAlgSel.value].curve + ') dan format SPKI (diawali "BEGIN PUBLIC KEY").'
           : ' Pastikan kunci public format SPKI (diawali "BEGIN PUBLIC KEY").';
-        T.show(vBox, errBox('Gagal memverifikasi: ' + (e && e.message ? e.message : e) + tip));
+        T.show(vBox, errBox('Gagal memverifikasi token.' + tip));
       }
     };
     pVerify.appendChild(T.field('Algoritma', vAlgSel));
@@ -334,7 +334,7 @@ export function render(root) {
         kPubTa.value = kp.pub;
         T.show(kBox, '<span class="ok">✓ Pasangan kunci dibuat.</span> <span class="dim">Private untuk membuat token, public untuk memeriksa. Simpan private-nya baik-baik.</span>');
       } catch (e) {
-        T.show(kBox, errBox('Gagal membuat kunci: ' + (e && e.message ? e.message : e)));
+        T.show(kBox, errBox('Kunci tidak bisa dibuat. Coba lagi.'));
       }
     };
     pKeys.appendChild(T.el('<p class="hint" style="margin-bottom:10px">Kunci dibuat langsung di perangkat ini dan tidak dikirim ke mana-mana. Dipakai untuk algoritma RS*, PS*, dan ES*.</p>'));

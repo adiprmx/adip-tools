@@ -1,4 +1,4 @@
-import { h as T, kv, esc, errBox, preHtml } from '../../core.js?v=6.12.1';
+import { h as T, kv, esc, errBox, preHtml } from '../../core.js?v=6.12.2';
 
 /* Fungsi murni (bisa diuji dari node tanpa DOM). */
 export function parseUrlList(text) {
@@ -77,6 +77,7 @@ export function render(root) {
       pr.style.width = '72px';
       pr.addEventListener('input', () => { e.priority = pr.value; });
       const del = T.btn('✕', () => { entries.splice(i, 1); paintList(); });
+      del.setAttribute('aria-label', 'Hapus URL ' + e.loc);
       del.style.padding = '4px 10px';
       const ctl = T.el('<div style="display:flex;gap:8px;align-items:center"></div>');
       ctl.appendChild(T.el('<span class="hint" style="white-space:nowrap">Berubah</span>'));

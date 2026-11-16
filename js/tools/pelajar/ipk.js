@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 utils.ipk = function (entries) {
     let bobotSks = 0, sks = 0;
@@ -30,6 +30,7 @@ export function render(root) {
         if (i >= 0) rows.splice(i, 1);
         wrap.remove();
       });
+      r.del.setAttribute('aria-label', 'Hapus mata kuliah');
       const wrap = T.el('<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px"></div>');
       wrap.appendChild(T.grid2(T.field('Mata kuliah', r.nama), T.field('SKS', r.sks)));
       wrap.appendChild(T.grid2(T.field('Nilai', r.grade), T.field('Bobot sendiri', r.bobot)));

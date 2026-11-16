@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 // Tarif Lazada, riset 14 Nov 2026. Komisi Marketplace 0–8,18% dan LazMall
 // 2,5–11,7% (sudah termasuk PPN), berlaku 1 Feb 2026. Sumber Lazada Seller

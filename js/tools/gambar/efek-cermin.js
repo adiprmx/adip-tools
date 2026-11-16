@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, loadImage, fileInput, canvasToBlob, LOCAL_NOTE, errBox } from '../../core.js?v=6.12.1';
+import { h as T, utils, beep, actx, onLeave, loadImage, fileInput, canvasToBlob, LOCAL_NOTE, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "efek-cermin", "name": "Efek Cermin", "cat": "gambar", "icon": "🪞", "desc": "Bikin efek cermin/kaleidoskop sederhana dari foto.", "keywords": "cermin,mirror,foto,efek,kaleidoskop"};
 

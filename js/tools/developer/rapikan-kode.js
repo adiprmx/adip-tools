@@ -1,4 +1,4 @@
-import { h as T, errBox, esc } from '../../core.js?v=6.12.1';
+import { h as T, errBox, esc } from '../../core.js?v=6.12.2';
 
 // Rapikan JSON, HTML, dan CSS secara ringan, tanpa pustaka berat.
 // JavaScript sengaja TIDAK didukung: formatter JS yang benar butuh
@@ -156,7 +156,7 @@ export function render(root) {
         T.show(status, '<span class="ok">✓ Sudah rapi.</span>');
       } catch (e) {
         lastResult = '';
-        T.show(status, errBox(fmtSel.value === 'json' ? 'JSON-nya tidak benar: ' + e.message : 'Tidak bisa dirapikan: ' + (e && e.message ? e.message : e)));
+        T.show(status, errBox(fmtSel.value === 'json' ? 'JSON-nya tidak benar. Periksa penulisannya, lalu coba lagi.' : 'Tidak bisa dirapikan. Periksa kodenya, lalu coba lagi.'));
       }
     };
 

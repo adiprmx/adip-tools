@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "animegallery", "name": "Anime Discover", "cat": "fun", "icon": "🖼️", "desc": "Jelajah ilustrasi & GIF reaksi anime SFW dari Waifu.im & NEKOSBEST.", "keywords": "anime,waifu,neko,ilustrasi,reaction,gif,sfw"};
 
@@ -7,13 +7,50 @@ const WI = 'https://api.waifu.im/search/';
 const WI_TAGS = 'https://api.waifu.im/tags';
 const SAVE_KEY = 'at-animegallery-saved-v1';
 const denganTimeout = (signal, ms) => {
-  const to = AbortSignal.timeout(ms || 25000);
+  const to = AbortSignal.timeout(ms || 15000);
   return signal ? AbortSignal.any([signal, to]) : to;
 };
+// Hanya http/https yang boleh jadi link — skema lain (javascript:, data:)
+// tidak pernah masuk ke href, baik dari API maupun dari simpanan.
+// Mengembalikan URL yang sudah dinormalisasi, atau null.
+const urlHttpAman = (u) => {
+  if (typeof u !== 'string') return null;
+  try {
+    const p = new URL(u.trim());
+    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
+  } catch (e) { return null; }
+};
+// Tag NSFW waifu.im (per dokumentasi API) — ditolak di sisi klien sebagai
+// lapis kedua. Lapis utama tetap parameter is_nsfw=false yang selalu dikirim
+// di wiParams(), jadi server tidak pernah mengembalikan konten NSFW.
+const TAG_DILARANG = ['ass', 'hentai', 'milf', 'oral', 'paizuri', 'ecchi', 'ero'];
 const REAKSI = ['hug', 'kiss', 'wave', 'dance', 'cry', 'laugh', 'pat', 'poke', 'smile', 'blush', 'sleep', 'think', 'wink', 'highfive', 'handhold', 'cuddle', 'feed', 'tickle', 'smug', 'stare', 'shrug', 'nod', 'bored', 'facepalm', 'yeet'];
 const ILAUSTRASI = ['waifu', 'neko', 'kitsune', 'husbando'];
 
-const getSaved = () => { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || '[]'); } catch (e) { return []; } };
+// Simpanan yang rusak (bukan array, atau berisi entri null/bukan-objek)
+// dilewati dan dibersihkan dari localStorage agar tidak kambuh — data lokal
+// yang rusak tidak boleh mematikan tool. `simpananRusak` dicatat supaya tab
+// Tersimpan bisa memberi catatan singkat ke user (lihat lihatSimpan).
+let simpananRusak = false;
+const getSaved = () => {
+  let v;
+  try { v = JSON.parse(localStorage.getItem(SAVE_KEY) || '[]'); } catch (e) {
+    simpananRusak = true;
+    try { localStorage.removeItem(SAVE_KEY); } catch (e2) {}
+    return [];
+  }
+  if (!Array.isArray(v)) {
+    simpananRusak = true;
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+    return [];
+  }
+  const bersih = v.filter((x) => x && typeof x === 'object');
+  if (bersih.length !== v.length) {
+    simpananRusak = true;
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(bersih.slice(0, 50))); } catch (e) {}
+  }
+  return bersih;
+};
 const setSaved = (l) => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(l.slice(0, 50))); } catch (e) {} };
 
 async function nbFetch(ep, amount, signal) {
@@ -76,7 +113,7 @@ const orientOf = (it) => {
 };
 
 export function render(root) {
-  let ctl = null, items = [], loader = null, loadingMore = false, io = null;
+  let ctl = null, items = [], loader = null, loadingMore = false, io = null, kosongBeruntun = 0;
   onLeave(() => { if (ctl) ctl.abort(); if (io) io.disconnect(); });
   const abort = () => { if (ctl) ctl.abort(); ctl = new AbortController(); return ctl.signal; };
 
@@ -126,11 +163,17 @@ export function render(root) {
     T.hide(detail);
     if (!l.length) { T.show(grid, '<p class="dim">Tidak ada yang cocok dengan filter. Longgarkan filternya atau muat lagi.</p>'); T.hide(moreBox); return; }
     T.show(grid, '<p class="dim" style="font-size:12.5px">' + l.length + ' gambar · SFW</p>' +
-      '<div style="columns:2;column-gap:8px">' + l.map((it, i) =>
-        '<button data-g="' + i + '" style="display:block;width:100%;border:1px solid #ffffff18;border-radius:10px;overflow:hidden;background:#161311;padding:0;margin:0 0 8px;cursor:pointer;break-inside:avoid">' +
-        '<img src="' + T.esc(it.thumb) + '" alt="" loading="lazy" style="width:100%;display:block">' +
+      '<div style="columns:2;column-gap:8px">' + l.map((it, i) => {
+        // Gambar yang rusak (thumb/img hilang/bukan string) tidak boleh
+        // mematikan grid — tampilkan kotak pengganti saja.
+        const thumb = (typeof it.thumb === 'string' && it.thumb) || (typeof it.img === 'string' && it.img) || '';
+        return '<button data-g="' + i + '" style="display:block;width:100%;border:1px solid #ffffff18;border-radius:10px;overflow:hidden;background:#161311;padding:0;margin:0 0 8px;cursor:pointer;break-inside:avoid">' +
+        (thumb
+          ? '<img src="' + T.esc(thumb) + '" alt="" loading="lazy" style="width:100%;display:block">'
+          : '<div class="dim" style="height:120px;display:flex;align-items:center;justify-content:center;font-size:12px">Gambar tidak tersedia</div>') +
         '<div class="dim" style="font-size:10.5px;padding:5px 7px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + T.esc(it.artist) + ' · ' + T.esc(it.provider) + '</div>' +
-        '</button>').join('') + '</div>');
+        '</button>';
+      }).join('') + '</div>');
     grid.querySelectorAll('[data-g]').forEach((b) => { b.onclick = () => lihatDetail(l[+b.getAttribute('data-g')]); });
     if (loader) {
       T.show(moreBox, '<div style="text-align:center;margin:10px 0"><button class="btn" data-m="1">Muat lebih banyak</button><div id="ag-sentinel" style="height:2px"></div></div>');
@@ -155,14 +198,22 @@ export function render(root) {
     const sig = ctl ? ctl.signal : abort();
     try {
       const baru = (await loader(sig)).filter((x) => !items.some((y) => y.img === x.img));
+      // Hentikan auto-load bila 2 batch beruntun tidak menambah gambar baru:
+      // tanpa ini sentinel yang masih terlihat memicu fetch tanpa henti
+      // (terbukti Playwright 16 Nov 2026: 125 panggilan API dalam 10 detik).
+      if (!baru.length) { kosongBeruntun++; if (kosongBeruntun >= 2) loader = null; }
+      else kosongBeruntun = 0;
       items = items.concat(baru);
       tampilGrid(true);
-    } catch (e) { /* abaikan, tombol bisa ditekan lagi */ }
+    } catch (e) {
+      if (e.name !== 'AbortError') T.toast('Gambar tambahan gagal dimuat. Coba tekan tombolnya lagi.');
+    }
     loadingMore = false;
   };
 
   const muat = async (fn, label, lanjutkan) => {
     const sig = abort();
+    kosongBeruntun = 0;
     T.show(out, '<p class="dim">' + T.esc(label) + '</p>');
     T.hide(grid); T.hide(detail); T.hide(moreBox); T.hide(notices);
     loader = lanjutkan ? fn : null;
@@ -171,15 +222,26 @@ export function render(root) {
       if (!items.length) throw new Error('hasil kosong');
       T.hide(out); tampilGrid();
     } catch (e) {
+      // AbortError = muatan ini digantikan muatan baru (klik lain) — diam saja.
+      // TimeoutError = AbortSignal.timeout habis — beri pesan yang jelas.
       if (e.name === 'AbortError') return;
-      T.show(out, errBox('Gagal memuat: ' + e.message + '. Coba lagi.'));
+      const msg = e.name === 'TimeoutError'
+        ? 'Waktu habis — sumber gambar tidak merespons. Periksa internetmu, lalu coba lagi.'
+        : e.message === 'tidak ada hasil untuk tag tersebut'
+          ? 'Tidak ada gambar untuk tag itu. Coba tag lain — mis. maid.'
+          : e.message === 'semua provider gagal'
+            ? 'Kedua sumber gambar tidak bisa dijangkau sekarang. Periksa koneksi internet, lalu coba lagi.'
+            : 'Gambar gagal dimuat. Periksa koneksi internet, lalu coba lagi.';
+      T.show(out, errBox(msg) + '<p style="margin-top:10px"><button class="btn" data-ag-retry>Coba lagi</button></p>');
+      const rb = out.querySelector('[data-ag-retry]');
+      if (rb) rb.onclick = () => muat(fn, label, lanjutkan);
       loader = null;
     }
   };
 
   const campur = (a, b) => [...a, ...b].sort(() => Math.random() - 0.5);
   const catatanProvider = (gagal) => {
-    if (gagal.length) T.show(notices, '<p class="dim" style="font-size:12.5px">Catatan: ' + gagal.map(T.esc).join(', ') + ' tidak merespons — menampilkan hasil dari provider lain.</p>');
+    if (gagal.length) T.show(notices, '<p class="dim" style="font-size:12.5px">Catatan: ' + gagal.map(T.esc).join(', ') + ' tidak merespons — menampilkan hasil dari sumber lain.</p>');
   };
 
   const ambilCampuran = (wi, nbEp, jml) => async (sig) => {
@@ -222,6 +284,7 @@ export function render(root) {
   const cariTag = () => {
     const t = searchInp.value.trim().toLowerCase().replace(/[\s,]+/g, ' ').split(' ').filter(Boolean).slice(0, 5);
     if (!t.length) { T.show(out, errBox('Isi dulu tag-nya — mis. maid')); return; }
+    if (t.some((x) => TAG_DILARANG.includes(x))) { T.show(out, errBox('Tag itu tidak bisa dicari di sini — tool ini hanya menampilkan konten aman (SFW).')); return; }
     const o = wiOpts(); o.tags = t;
     muat(async (sig) => {
       const r = await wiFetch(o, 24, sig);
@@ -231,7 +294,14 @@ export function render(root) {
     loader = async (sig) => wiFetch(Object.assign(wiOpts(), { tags: t }), 24, sig);
   };
 
-  const lihatSimpan = () => { loader = null; items = getSaved(); T.hide(out); T.hide(notices); tampilGrid(); perbaruiHitungSimpan(); };
+  const lihatSimpan = () => {
+    loader = null; items = getSaved(); T.hide(out); T.hide(notices); tampilGrid(); perbaruiHitungSimpan();
+    // Bila ada simpanan rusak yang dilewati, beri tahu user dengan singkat.
+    if (simpananRusak) {
+      simpananRusak = false;
+      T.show(notices, '<p class="dim" style="font-size:12.5px">Ada simpanan yang rusak, jadi dilewati.</p>');
+    }
+  };
 
   const perbaruiHitungSimpan = () => {
     const n = getSaved().length;
@@ -242,22 +312,36 @@ export function render(root) {
   const lihatDetail = (it) => {
     if (!it) return;
     const saved = getSaved().some((s) => s.img === it.img);
+    // w/h dipaksa angka — string apa pun dari API/simpanan jadi 0, bukan markup.
+    const w = Number(it.w) || 0, h = Number(it.h) || 0;
+    // tags yang bukan array (simpanan rusak) diperlakukan sebagai kosong, dan
+    // img yang bukan string diperlakukan sebagai tidak ada — satu item rusak
+    // tidak boleh mematikan detail.
+    const tags = Array.isArray(it.tags) ? it.tags : [];
+    const imgUrl = typeof it.img === 'string' ? it.img : '';
+    // Link artist & unduh hanya boleh http/https — skema lain jadi teks/tombol mati.
+    const artistUrl = urlHttpAman(it.artistUrl);
+    const unduhUrl = urlHttpAman(imgUrl);
     T.show(detail,
       '<div style="border:1px solid #ffffff20;border-radius:12px;padding:14px;margin-top:12px;background:#161311">' +
-      '<img src="' + T.esc(it.img) + '" alt="" style="width:100%;border-radius:10px;display:block">' +
-      '<div class="dim" style="font-size:11.5px;margin-top:8px">' + T.esc(it.provider) + (it.animated ? ' · Animasi' : '') + (it.w ? ' · ' + it.w + '×' + it.h : '') + '</div>' +
-      kv('Artist', it.artistUrl ? '<a href="' + T.esc(it.artistUrl) + '" target="_blank" rel="noopener" style="color:#8ab8ff">' + T.esc(it.artist) + ' ↗</a>' : T.esc(it.artist)) +
+      (imgUrl
+        ? '<img src="' + T.esc(imgUrl) + '" alt="" style="width:100%;border-radius:10px;display:block">'
+        : '<div class="dim" style="height:160px;display:flex;align-items:center;justify-content:center;font-size:12.5px">Gambar tidak tersedia</div>') +
+      '<div class="dim" style="font-size:11.5px;margin-top:8px">' + T.esc(it.provider) + (it.animated ? ' · Animasi' : '') + (w ? ' · ' + w + '×' + h : '') + '</div>' +
+      kv('Artist', artistUrl ? '<a href="' + T.esc(artistUrl) + '" target="_blank" rel="noopener" style="color:#8ab8ff">' + T.esc(it.artist) + ' ↗</a>' : T.esc(it.artist)) +
       (it.anime ? kv('Anime/Sumber', T.esc(it.anime)) : '') +
       (it.source ? kv('Sumber file', T.esc(it.source)) : '') +
-      (it.tags && it.tags.length ? '<p class="dim" style="font-size:12px;margin:8px 0 4px"><b>Tag:</b></p><div style="font-size:12px;font-family:monospace;max-height:90px;overflow:auto">' + it.tags.map((t) => T.esc(t)).join(' ') + '</div>' : '') +
+      (tags.length ? '<p class="dim" style="font-size:12px;margin:8px 0 4px"><b>Tag:</b></p><div style="font-size:12px;font-family:monospace;max-height:90px;overflow:auto">' + tags.map((t) => T.esc(t)).join(' ') + '</div>' : '') +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
       '<button class="btn" data-d="copy">Salin URL</button>' +
       '<button class="btn" data-d="share">Bagikan</button>' +
-      '<a class="btn" data-d="dl" href="' + T.esc(it.img) + '" target="_blank" rel="noopener" download style="text-decoration:none">Unduh</a>' +
+      (unduhUrl
+        ? '<a class="btn" data-d="dl" href="' + T.esc(unduhUrl) + '" target="_blank" rel="noopener" download style="text-decoration:none">Unduh</a>'
+        : '<button class="btn" data-d="dl" disabled>Unduh</button>') +
       '<button class="btn" data-d="save">' + (saved ? 'Tersimpan ✓' : 'Simpan') + '</button>' +
       '<button class="btn" data-d="x">Tutup</button></div>' +
-      '<p class="dim" style="font-size:11.5px;margin-top:10px">Artwork tetap milik kreatornya. Tool ini hanya membantu menemukan metadata & sumber aslinya.</p></div>');
-    detail.querySelector('[data-d=copy]').onclick = () => T.copy(it.img);
+      '<p class="dim" style="font-size:11.5px;margin-top:10px">Artwork tetap milik kreatornya. Tool ini hanya membantu menemukan info dan sumber aslinya.</p></div>');
+    detail.querySelector('[data-d=copy]').onclick = () => T.copy(imgUrl);
     detail.querySelector('[data-d=x]').onclick = () => T.hide(detail);
     detail.querySelector('[data-d=save]').onclick = (e) => {
       let l = getSaved();
@@ -265,8 +349,8 @@ export function render(root) {
       setSaved(l); e.target.textContent = saved ? 'Simpan' : 'Tersimpan ✓'; T.toast(saved ? 'Dihapus dari simpanan' : 'Tersimpan!'); perbaruiHitungSimpan();
     };
     detail.querySelector('[data-d=share]').onclick = async () => {
-      if (navigator.share) { try { await navigator.share({ title: 'Anime Discover', url: it.img }); } catch (e) {} }
-      else T.copy(it.img);
+      if (navigator.share) { try { await navigator.share({ title: 'Anime Discover', url: imgUrl }); } catch (e) {} }
+      else T.copy(imgUrl);
     };
     detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   };
@@ -285,6 +369,13 @@ export function render(root) {
   };
 
   const bar = tabs([['Jelajah', 0], ['Ilustrasi', 1], ['Reaksi', 2], ['Acak', 3], ['Tersimpan', 4]], [pJelajah, pIlustrasi, pReaksi, pAcak, pSimpan]);
+  // Stabilkan lebar tombol tab: efek ripple global (fx.js) menyetel
+  // overflow:hidden pada tombol saat ditekan — itu mengubah min-width
+  // otomatis flex item dari min-content menjadi 0 sehingga baris tab
+  // reflow di tengah klik dan tab gagal berpindah (terbukti Playwright
+  // 16 Nov 2026: tombol Reaksi menyusut 104px -> 48px saat mousedown).
+  // min-width eksplisit membuat lebar tidak bergantung pada overflow.
+  bar.querySelectorAll('button').forEach((b) => { b.style.minWidth = '80px'; });
 
   pJelajah.appendChild(T.el('<p class="dim" style="font-size:13px">Campuran acak SFW dari Waifu.im & NEKOSBEST.</p>'));
   pJelajah.appendChild(T.row(T.btn('Jelajah Acak', jelajah, true)));
@@ -296,10 +387,10 @@ export function render(root) {
   pReaksi.appendChild(rg);
   pAcak.appendChild(T.el('<p class="dim" style="font-size:13px">Satu gambar kejutan acak, langsung dibuka detailnya.</p>'));
   pAcak.appendChild(T.row(T.btn('Kejutan!', acak, true)));
-  pSimpan.appendChild(T.el('<p class="dim" style="font-size:13px">Gambar yang kamu simpan (tersimpan lokal di HP).</p>'));
+  pSimpan.appendChild(T.el('<p class="dim" style="font-size:13px">Gambar yang kamu simpan (tersimpan di HP ini).</p>'));
   pSimpan.appendChild(T.row(T.btn('Muat Simpanan', lihatSimpan, true)));
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Discovery visual anime — ilustrasi, artist, dan GIF reaksi. 100% SFW, sumber API publik (Waifu.im & NEKOSBEST), tanpa akun.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Discovery visual anime — ilustrasi, artist, dan GIF reaksi. 100% SFW, sumber publik (Waifu.im & NEKOSBEST), tanpa akun.</p>'));
   root.appendChild(bar);
   [pJelajah, pIlustrasi, pReaksi, pAcak, pSimpan].forEach((p) => root.appendChild(p));
   root.appendChild(T.field('Cari tag (Waifu.im)', searchInp, 'Contoh: maid — pisahkan beberapa tag dengan spasi'));
@@ -307,7 +398,7 @@ export function render(root) {
   root.appendChild(chipsBox);
   root.appendChild(T.el('<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0"></div>'));
   const frow = root.lastChild;
-  frow.appendChild(T.field('Provider', provSel));
+  frow.appendChild(T.field('Sumber', provSel));
   frow.appendChild(T.field('Orientasi', oriSel));
   frow.appendChild(T.field('Animasi', animSel));
   root.appendChild(T.el('<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px"></div>'));

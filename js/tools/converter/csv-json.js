@@ -1,4 +1,4 @@
-import { h as T, fileInput } from '../../core.js?v=6.12.1';
+import { h as T, fileInput } from '../../core.js?v=6.12.2';
 
 // Parser CSV yang benar: dukung quote, koma di dalam field, quote ganda, newline di dalam field.
 function parseCSV(text, delim) {
@@ -93,7 +93,9 @@ export function render(root) {
           T.btn('Unduh file', () => T.dl(lastName, lastOut, lastMime + ';charset=utf-8'))
         ));
       } catch (e) {
-        T.show(box, '<p class="warn">Tidak bisa diubah: ' + T.esc(e.message) + '</p>');
+        const m = (e && e.message) || '';
+        const ramah = (m === 'CSV kosong' || m === 'JSON harus berupa daftar objek') ? m : 'Format datanya tidak benar. Periksa lagi isinya lalu coba lagi.';
+        T.show(box, '<p class="warn">Tidak bisa diubah: ' + T.esc(ramah) + '</p>');
       }
     };
 

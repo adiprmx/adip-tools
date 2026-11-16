@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "fotolink", "name": "Foto to Link", "cat": "gambar", "icon": "🔗", "desc": "Upload gambar → dapat URL publik langsung.", "keywords": "upload,link,url,gambar,hosting,catbox"};
 
@@ -64,7 +64,7 @@ export function render(root) {
       if (!r.ok || !/^https:\/\/files\.catbox\.moe\//.test(text)) throw new Error(text.slice(0, 120) || 'upload-gagal');
       drawSuccess(text, previewUrl, file);
     } catch (e) {
-      T.show(out, '<span class="err">Upload gagal (' + T.esc(e && e.name === 'AbortError' ? 'timeout' : (e && e.message ? e.message : 'error')) + '). Coba lagi.</span>');
+      T.show(out, '<span class="err">' + (e && e.name === 'AbortError' ? 'Upload kelamaan. Coba lagi dengan file lebih kecil.' : 'Upload gagal. Coba lagi.') + '</span>');
     } finally { busy = false; }
   }
 

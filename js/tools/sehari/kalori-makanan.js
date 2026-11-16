@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node).
 // Kalori per porsi umum dari Tabel Kalori Makanan sehari-hari (acuan TKPI
@@ -102,12 +102,14 @@ export function render(root) {
       row.appendChild(T.el(`<span style="font-size:14px">${d.nama} x ${d.porsi}</span>`));
       const kanan = T.el('<span style="display:flex;gap:6px;align-items:center"></span>');
       kanan.appendChild(T.el(`<b style="font-size:14px">${Math.round(d.kkal * d.porsi)} kkal</b>`));
-      kanan.appendChild(T.btn('-', () => {
+      const kurangBtn = T.btn('-', () => {
         d.porsi -= 0.5;
         if (d.porsi <= 0) dimakan.splice(i, 1);
         simpan();
         tampilHariIni();
-      }));
+      });
+      kurangBtn.setAttribute('aria-label', 'Kurangi porsi ' + d.nama);
+      kanan.appendChild(kurangBtn);
       kanan.appendChild(T.btn('Hapus', () => { dimakan.splice(i, 1); simpan(); tampilHariIni(); }));
       row.appendChild(kanan);
       daftarHariIni.appendChild(row);

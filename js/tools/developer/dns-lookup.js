@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, esc, kvRows } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "dns-lookup", "name": "DNS Lookup", "cat": "developer", "icon": "📡", "desc": "Lookup DNS via Google DNS-over-HTTPS.", "keywords": "dns,domain,lookup,website"};
 export function render(root) {
@@ -31,7 +31,7 @@ export function render(root) {
       } catch (e) {
         const msg = e.name === 'AbortError'
           ? 'Waktu habis — dns.google tidak merespons dalam 15 detik.'
-          : 'Gagal lookup. Kemungkinan kamu offline atau dns.google tidak bisa dijangkau. (' + e.message + ')';
+          : 'Pencarian gagal. Kemungkinan kamu offline atau dns.google tidak bisa dijangkau.';
         T.show(box, errBox(msg));
         const wr = T.el('<div style="margin-top:8px"></div>');
         wr.appendChild(T.btn('🔄 Coba lagi', lookup));

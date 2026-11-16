@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, esc, tabs } from '../../core.js?v=6.12.2';
 
 function vcardString(d) {
     const e = (v) => String(v == null ? '' : v).replace(/\n/g, ' ');
@@ -40,7 +40,7 @@ export function render(root) {
       loadQr().then((ok) => {
         if (!ok) { T.show(vStatus, errBox('Alat QR tidak bisa dimuat dari internet. Cek koneksi internet.')); return; }
         QRCode.toCanvas(vCv, s, { width: 400, margin: 2 }, (err) => {
-          if (err) { T.show(vStatus, errBox('QR tidak bisa dibuat: ' + err.message)); return; }
+          if (err) { T.show(vStatus, errBox('QR tidak bisa dibuat. Datanya mungkin terlalu panjang — coba persingkat, lalu coba lagi.')); return; }
           vWrap.innerHTML = '';
           vCv.style.maxWidth = '100%'; vCv.style.height = 'auto';
           vWrap.appendChild(vCv);
@@ -82,7 +82,7 @@ export function render(root) {
           bWrap.appendChild(bSvg);
           T.hide(bStatus);
         } catch (e) {
-          T.show(bStatus, errBox('Barcode tidak cocok untuk format ' + bFmt.value + ': ' + e.message));
+          T.show(bStatus, errBox('Teks/angka ini tidak cocok untuk format ' + bFmt.value + '. Periksa lagi isinya (EAN-13 butuh 12–13 digit angka).'));
         }
       });
     };

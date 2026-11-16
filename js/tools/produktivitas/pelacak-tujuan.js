@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"pelacak-tujuan","name":"Pelacak Tujuan","cat":"produktivitas","icon":"🎯","desc":"Tulis tujuan tahunanmu, pecah jadi milestone, pantau bar progresnya.","keywords":"tujuan,goals,milestone,target,resolusi,progres,tahunan"};
 
@@ -42,6 +42,7 @@ export function render(root) {
         cb.addEventListener('change', () => { m.done = cb.checked; save(); draw(); });
         const lbl = T.el('<span style="flex:1;font-size:14px' + (m.done ? ';text-decoration:line-through;opacity:.55' : '') + '">' + T.esc(m.name) + '</span>');
         const del = T.el('<button class="btn ghost" style="padding:4px 10px;font-size:12px">✕</button>');
+        del.setAttribute('aria-label', 'Hapus milestone ' + m.name);
         del.addEventListener('click', () => {
           g.milestones = g.milestones.filter((x) => x.id !== m.id);
           save(); draw();

@@ -1,4 +1,4 @@
-import { h as T, utils, kvRows } from '../../core.js?v=6.12.1';
+import { h as T, utils, kvRows } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node): ubah data mentah jadi baris tampilan.
 // Nilai yang tidak ada ditulis apa adanya: browser tidak selalu mengizinkan dibaca.

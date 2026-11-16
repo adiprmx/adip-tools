@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.12.1';
+import { h as T, utils, money, kv } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node).
 // Asumsi: setahun = 52 minggu, sebulan = 52/12 minggu.

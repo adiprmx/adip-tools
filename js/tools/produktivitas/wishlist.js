@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"wishlist","name":"Wishlist","cat":"produktivitas","icon":"🎁","desc":"Daftar barang impian + progress nabung.","keywords":"wishlist,impian,nabung,target,belanja"};
 
@@ -81,6 +81,7 @@ export function render(root) {
         paintSemua();
         T.toast('Barang dihapus dari wishlist');
       });
+      hapus.setAttribute('aria-label', 'Hapus ' + it.nama);
       baris.appendChild(tglKebeli);
       baris.appendChild(hapus);
       kartu.appendChild(baris);

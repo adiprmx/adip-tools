@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "generator-env", "name": "Generator .env", "cat": "developer", "icon": "⚙️", "desc": "Susun file .env dari template: Node.js, Laravel, Django, Next.js.", "keywords": "env,environment variable,dotenv,config,node,laravel,django,nextjs"};
 export function render(root) {
@@ -61,6 +61,7 @@ export function render(root) {
     key.style.flex = '1';
     val.style.flex = '2';
     const del = T.btn('✕', () => { row.remove(); });
+    del.setAttribute('aria-label', 'Hapus baris');
     del.style.flexShrink = '0';
     row.appendChild(key);
     row.appendChild(val);

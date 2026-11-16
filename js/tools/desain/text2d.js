@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* text2d — "Animasi Teks 2D": 10 preset animasi teks 2D kinetik -> XML Alight Motion.
    100% client-side. Struktur XML diselaraskan dengan tool acuan (node <kf t/v/e>,
@@ -498,6 +498,14 @@ export function render(root) {
       colorState, project: inpProject.value, filename: inpFile.value,
     };
   }
+  /* Pesan error buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
+     Error lain (dari browser/library) diganti pesan ramah. */
+  const pesanErr = (e) => {
+    const m = (e && e.message) || '';
+    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    return 'XML tidak bisa dibuat. Coba lagi.';
+  };
+
   function doGenerate() {
     try {
       const r = generate(collect());
@@ -506,7 +514,7 @@ export function render(root) {
       AL.history.push('text2d', { filename: r.filename, project: inpProject.value, preset: (PRESETS.find((p) => p.id === selPreset.value) || {}).name, xml: r.xml });
       hist.refresh();
       playPreview();
-    } catch (e) { status.innerHTML = '<span class="err">❌ ' + T.esc(e.message) + '</span>'; }
+    } catch (e) { status.innerHTML = '<span class="err">❌ ' + T.esc(pesanErr(e)) + '</span>'; }
   }
   root.appendChild(T.row(T.btn('⚙️ Generate XML', doGenerate, true)));
   root.appendChild(status);

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas", "icon": "📧", "desc": "Email sementara: buat alamat, terima & baca pesan tanpa daftar.", "keywords": "temp mail,email sementara,inbox,otp,spam,guerrillamail"};
 
@@ -139,7 +139,7 @@ export function render(root) {
       T.toast('Email aktif!');
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(outNew, errBox('Gagal membuat email: ' + e.message + '. Coba lagi.'));
+      T.show(outNew, errBox('Tidak bisa membuat alamat email baru. Periksa koneksimu lalu coba lagi.'));
     }
   };
 
@@ -180,7 +180,7 @@ export function render(root) {
       listBox.querySelectorAll('[data-mid]').forEach((b) => { b.onclick = () => bacaPesan(b.getAttribute('data-mid')); });
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(listBox, errBox('Gagal memuat inbox: ' + e.message));
+      T.show(listBox, errBox('Inbox tidak bisa dimuat. Periksa koneksimu lalu coba lagi.'));
     }
   };
 
@@ -215,7 +215,7 @@ export function render(root) {
       readBox.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(readBox, errBox('Gagal membuka pesan: ' + e.message));
+      T.show(readBox, errBox('Pesan tidak bisa dibuka. Coba lagi.'));
     }
   };
 

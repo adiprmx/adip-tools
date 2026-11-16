@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node): byte + milidetik -> Mbps.
 utils.hitungMbps = function (bytes, ms) {
@@ -70,15 +70,15 @@ export function render(root) {
         `<div class="kv"><span>Kecepatan unduh</span><b style="color:#fff">${mbps.toFixed(1)} Mbps</b></div>` +
         `<div class="kv"><span>Dalam MB per detik</span><b>${(mbps / 8).toFixed(2)} MB/detik</b></div>` +
         `<div class="kv"><span>Latensi (rata-rata ${pings.length} pengukuran)</span><b>${latensi} ms</b></div>` +
-        `<div class="hint">Tes ini mengukur kecepatan ke server CDN jsDelivr, bukan ke server lokal di Indonesia. Hasilnya bisa beda dengan aplikasi speed test lain karena server dan rutenya beda. Angka di atas sekitar 100 Mbps kurang akurat karena file ujinya kecil. Kecepatan unggah tidak diukur di sini.</div>`
+        `<div class="hint">Tes ini mengukur kecepatan ke layanan jsDelivr, bukan ke layanan lokal di Indonesia. Hasilnya bisa beda dengan aplikasi tes kecepatan lain karena jalurnya beda. Angka di atas sekitar 100 Mbps kurang akurat karena file ujinya kecil. Kecepatan unggah tidak diukur di sini.</div>`
       );
     } catch (e) {
       T.show(box, '<div style="color:#ef4444;font-size:13px;line-height:1.5">Tes gagal. Periksa koneksi internetmu lalu coba lagi.' +
-        (e && e.message === 'latensi' ? ' Server uji tidak bisa dijangkau.' : '') + '</div>');
+        (e && e.message === 'latensi' ? ' Layanan uji tidak bisa dijangkau.' : '') + '</div>');
     } finally { jalan = false; }
   }
 
-  root.appendChild(T.el('<p class="note">Tes ini mengunduh file uji sekitar 2 MB dari CDN. Pakai WiFi bila kuotamu terbatas.</p>'));
+  root.appendChild(T.el('<p class="note">Tes ini mengunduh file uji sekitar 2 MB. Pakai WiFi bila kuotamu terbatas.</p>'));
   root.appendChild(T.btn('Mulai tes', mulai, true));
   root.appendChild(box);
 }

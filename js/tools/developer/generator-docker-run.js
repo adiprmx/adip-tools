@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "generator-docker-run", "name": "Docker Run Builder", "cat": "developer", "icon": "🐳", "desc": "Rakit perintah docker run + docker-compose setara lewat form.", "keywords": "docker,container,compose,docker run,devops,deployment"};
 export function render(root) {
@@ -11,7 +11,7 @@ export function render(root) {
       const row = T.el('<div style="display:flex;gap:8px;align-items:center"></div>');
       const i1 = T.input('text', ph1, a || ''); i1.style.flex = '1'; i1.style.fontFamily = 'monospace';
       const i2 = T.input('text', ph2, b || ''); i2.style.flex = '1'; i2.style.fontFamily = 'monospace';
-      const del = T.btn('✕', () => row.remove()); del.style.flexShrink = '0';
+      const del = T.btn('✕', () => row.remove()); del.style.flexShrink = '0'; del.setAttribute('aria-label', 'Hapus baris');
       row.appendChild(i1); row.appendChild(i2); row.appendChild(del);
       box.appendChild(row);
     };

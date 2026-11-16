@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.1';
+import { h as T, utils, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "slip-gaji", "name": "Slip Gaji", "cat": "bisnis", "icon": "🧾", "desc": "Bikin slip gaji rapi: gaji, tunjangan, potongan — siap cetak.", "keywords": "slip gaji,payroll,gaji karyawan,tunjangan,potongan,cetak gaji"};
 
@@ -45,7 +45,7 @@ export function render(root) {
           '<option value="plus"' + (r.tipe === 'plus' ? ' selected' : '') + '>＋ Pemasukan</option>' +
           '<option value="minus"' + (r.tipe === 'minus' ? ' selected' : '') + '>− Potongan</option>' +
           '</select>' +
-          (rows.length > 1 ? '<button class="btn" data-del="' + i + '" style="flex-shrink:0">✕</button>' : '') +
+          (rows.length > 1 ? '<button class="btn" data-del="' + i + '" aria-label="Hapus baris ' + (i + 1) + '" style="flex-shrink:0">✕</button>' : '') +
           '</div>').join('') +
         '<button class="btn" data-add="1">＋ Tambah baris</button>');
       rowsBox.querySelectorAll('input[data-k],select[data-k]').forEach((el) => {

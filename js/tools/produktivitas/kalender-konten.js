@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"kalender-konten","name":"Kalender Konten","cat":"produktivitas","icon":"📅","desc":"Jadwalkan ide konten per tanggal & platform.","keywords":"kalender,konten,content,tiktok,instagram,youtube,ide,jadwal,sosmed"};
 
@@ -120,6 +120,7 @@ export function render(root) {
           save(); draw();
         }
       });
+      del.setAttribute('aria-label', 'Hapus ide ' + x.ide);
       del.style.cssText = 'padding:4px 9px;flex-shrink:0';
       card.appendChild(del);
       list.appendChild(card);

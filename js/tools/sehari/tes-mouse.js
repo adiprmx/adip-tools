@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tes-mouse", "name": "Tes Mouse", "cat": "sehari", "icon": "🖱️", "desc": "Cek klik kiri, kanan, tengah, roda scroll, dan gerak mouse.", "keywords": "mouse,klik,scroll,tombol,tes mouse", "since": "6.11.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "password-strength", "name": "Cek Kekuatan Password", "cat": "keamanan", "icon": "🛡️", "desc": "Ukur seberapa kuat password kamu.", "keywords": "password,kuat,cek,sandi"};
 export function render(root) {
@@ -8,7 +8,9 @@ export function render(root) {
     const bShow = T.btn('👁️', () => {
       inp.type = inp.type === 'password' ? 'text' : 'password';
       bShow.textContent = inp.type === 'password' ? '👁️' : '🙈';
+      bShow.setAttribute('aria-label', inp.type === 'password' ? 'Lihat sandi' : 'Sembunyikan sandi');
     });
+    bShow.setAttribute('aria-label', 'Lihat sandi');
     bShow.classList.add('small');
     const bar = T.el('<div style="height:10px;border-radius:6px;background:#27272a;overflow:hidden;margin:12px 0 6px"><div id="pwbar" style="height:100%;width:0%;border-radius:6px;transition:width .3s"></div></div>');
     const out = T.out();

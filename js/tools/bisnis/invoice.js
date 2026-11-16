@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 utils.invoiceCalc = function (items, discPct, taxPct) {
     let sub = 0;
@@ -50,6 +50,7 @@ export function render(root) {
         const hI = T.input('text', 'Harga', harga || '');
         hI.style.flex = '2'; hI.inputMode = 'decimal';
         const del = T.btn('✕', () => r.remove());
+        del.setAttribute('aria-label', 'Hapus item');
         r.appendChild(nI); r.appendChild(qI); r.appendChild(hI); r.appendChild(del);
         r._get = () => ({ nama: nI.value, qty: T.num(qI.value) || 0, harga: T.num(hI.value) || 0 });
         return r;

@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.1';
+import { h as T, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"preview-html","name":"Pratinjau HTML","cat":"developer","icon":"👁️","desc":"Tulis HTML dan lihat hasilnya langsung di bawah.","keywords":"html,preview,editor,kode,pratinjau,web","since":"6.11.0"};
 

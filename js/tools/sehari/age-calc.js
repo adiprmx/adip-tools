@@ -1,4 +1,4 @@
-import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=6.12.1';
+import { h as T, utils, p2, parseISO, todayISO } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "age-calc", "name": "Umur di Tanggal Tertentu", "cat": "sehari", "icon": "🎂", "desc": "Umurmu di tanggal yang kamu pilih: tahun, bulan, hari.", "keywords": "umur,usia,lahir,tanggal"};
 export function render(root) {

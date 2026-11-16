@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.1';
+import { h as T, utils, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"hari-libur","name":"Hari Libur Indonesia","cat":"liveapi","icon":"📅","desc":"Daftar hari libur nasional Indonesia per tahun.","keywords":"hari,libur,nasional,tanggal,merah,indonesia"};
 export function render(root) {
@@ -106,7 +106,7 @@ export function render(root) {
       else if (status === 429) msg = 'Rate limit tercapai (429). Terlalu banyak permintaan — tunggu sebentar lalu coba lagi.';
       else if (status === 404 || /di luar jangkauan/.test(e.message)) msg = 'Tahun ' + th + ' di luar jangkauan data libur nasional. Pilih tahun 2025–2027.';
       else msg = 'Gagal memuat hari libur. Periksa koneksi internet lalu coba lagi.';
-      T.show(box, '<span class="err">' + esc(msg) + '</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+      T.show(box, '<span class="err">' + esc(msg) + '</span>');
       const wrap = T.el('<div style="margin-top:8px"></div>');
       wrap.appendChild(T.btn('🔄 Coba lagi', muat));
       box.appendChild(wrap);

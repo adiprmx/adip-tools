@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* trimpath — "Trimpath Generator": animasi garis draw-on per huruf -> XML Alight Motion.
    Path huruf dibuat sendiri via vectorizer lokal (marching squares), jadi semua
@@ -196,6 +196,14 @@ export function render(root) {
       colorState, project: inpProject.value, filename: inpFile.value,
     };
   }
+  /* Pesan error buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
+     Error lain (dari browser/library) diganti pesan ramah. */
+  const pesanErr = (e) => {
+    const m = (e && e.message) || '';
+    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    return 'XML tidak bisa dibuat. Coba lagi.';
+  };
+
   function doGenerate() {
     status.textContent = '⏳ Men-trace huruf…';
     setTimeout(() => {
@@ -205,7 +213,7 @@ export function render(root) {
         status.innerHTML = '✅ Siap — <b>' + T.esc(r.paths) + ' path</b> · durasi ' + r.totalMs + ' ms · <span class="dim">' + T.esc(r.filename) + '</span>';
         AL.history.push('trimpath', { filename: r.filename, project: inpProject.value, preset: (PRESETS.find((p) => p.id === selPreset.value) || {}).name, xml: r.xml });
         hist.refresh();
-      } catch (e) { status.innerHTML = '<span class="err">❌ ' + T.esc(e.message) + '</span>'; }
+      } catch (e) { status.innerHTML = '<span class="err">❌ ' + T.esc(pesanErr(e)) + '</span>'; }
     }, 30);
   }
   root.appendChild(T.row(T.btn('⚙️ Generate XML', doGenerate, true)));

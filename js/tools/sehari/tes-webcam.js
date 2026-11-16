@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tes-webcam", "name": "Tes Webcam", "cat": "sehari", "icon": "📹", "desc": "Lihat pratinjau kamera dan cek resolusi yang benar-benar dipakai.", "keywords": "webcam,kamera,video,resolusi,tes kamera", "since": "6.11.0"};
 
@@ -113,7 +113,7 @@ export function render(root) {
       } else if (e && e.name === 'NotFoundError') {
         T.show(stateBox, '<div class="big warn">Tidak ada kamera yang terdeteksi</div><p class="mut" style="font-size:13px">Perangkat ini tidak menemukan kamera yang bisa dipakai.</p>');
       } else {
-        T.show(stateBox, '<div class="big warn">Kamera tidak bisa dibuka</div><p class="mut" style="font-size:13px">' + T.esc((e && e.message) || 'Terjadi kesalahan.') + '</p>');
+        T.show(stateBox, '<div class="big warn">Kamera tidak bisa dibuka</div><p class="mut" style="font-size:13px">Coba tutup aplikasi lain yang memakai kamera, lalu coba lagi.</p>');
       }
       return;
     }

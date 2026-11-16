@@ -1,9 +1,9 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tap-bpm", "name": "Tap BPM", "cat": "musik", "icon": "👆", "desc": "Ketuk layar untuk deteksi tempo.", "keywords": "bpm,tempo,ketuk,dj"};
 export function render(root) {
 
-    const zone = T.el('<div class="tapzone">Ketuk di sini mengikuti beat</div>');
+    const zone = T.el('<button type="button" class="tapzone" style="font-family:inherit;color:inherit" aria-label="Ketuk di sini mengikuti beat untuk mengukur tempo">Ketuk di sini mengikuti beat</button>');
     const box = T.out();
     let taps = [];
     const labelTempo = (bpm) => {
@@ -29,15 +29,18 @@ export function render(root) {
         '<p class="center">' + T.esc(labelTempo(bpm)) + '</p>' +
         '<p class="center hint">' + taps.length + ' ketukan dihitung</p>');
     };
-    zone.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
+    const tap = () => {
       const now = performance.now();
       if (taps.length && now - taps[taps.length - 1] > 2000) taps = [];
       taps.push(now);
       if (taps.length > 16) taps.shift();
       T.beep(660, 0.06, 'square');
       render();
-    });
+    };
+    zone.addEventListener('pointerdown', (e) => { e.preventDefault(); tap(); });
+    // Klik keyboard (Enter/Spasi) punya detail 0; klik mouse sudah dicatat
+    // pointerdown di atas, jadi jangan hitung dua kali.
+    zone.addEventListener('click', (e) => { if (e.detail === 0) tap(); });
     root.appendChild(zone);
     root.appendChild(T.row(T.btn('Reset', () => { taps = []; render(); })));
     root.appendChild(box);

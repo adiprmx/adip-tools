@@ -1,4 +1,4 @@
-import { h as T, kv, esc } from '../../core.js?v=6.12.1';
+import { h as T, kv, esc } from '../../core.js?v=6.12.2';
 
 // Rumus BMR:
 // - Mifflin-St Jeor (1990): pria 10W + 6.25H - 5A + 5; wanita - 161

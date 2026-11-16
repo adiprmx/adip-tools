@@ -1,6 +1,6 @@
 # ADIP Tools
 
-> Kumpulan 606 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi 6.12.1.
+> Kumpulan 606 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi 6.12.2.
 
 ## Keamanan
 
@@ -536,7 +536,7 @@
 - [PDF Lab](https://tools.adipmusic.my.id/#/t/pdflab): Toolkit PDF lokal: gabung, pisah, watermark & lainnya.
 - [Pelacak Langganan](https://tools.adipmusic.my.id/#/t/pelacak-langganan): Catat semua langganan bulananmu, lihat total per bulan & tahun, dan tahu mana yang paling menguras.
 - [Pelacak Tujuan](https://tools.adipmusic.my.id/#/t/pelacak-tujuan): Tulis tujuan tahunanmu, pecah jadi milestone, pantau bar progresnya.
-- [Pembuat CV Lamaran](https://tools.adipmusic.my.id/#/t/pembuat-cv): Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 5 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.
+- [Pembuat CV Lamaran](https://tools.adipmusic.my.id/#/t/pembuat-cv): Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 6 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.
 - [Perencana Mingguan](https://tools.adipmusic.my.id/#/t/perencana-mingguan): Susun blok waktu kegiatan untuk 7 hari ke depan, biar minggumu punya arah.
 - [Pomodoro Timer](https://tools.adipmusic.my.id/#/t/pomodoro): Timer fokus 25/5.
 - [Prioritas Harian](https://tools.adipmusic.my.id/#/t/prioritas-harian): Pilih top-3 tugas hari ini, coret satu per satu, pulang dengan tenang.

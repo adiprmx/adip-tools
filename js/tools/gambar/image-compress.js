@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.1';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.2';
 
 // Cari kualitas tertinggi (0..1) yang hasilnya <= targetBytes.
 // ukur(q) -> Promise<number|null> ukuran byte pada kualitas q.
@@ -217,13 +217,20 @@ export function render(root) {
         if (target === -1) return;
         hasilBatch = [];
         cur = null;
+        // Pesan gagal buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
+        // Error lain (dari browser/library) diganti pesan ramah.
+        const pesanGagal = (er) => {
+          const m = (er && er.message) || '';
+          if (/^(pengubah HEIC|pembaca TIFF|file HEIC tidak terbaca|file TIFF tidak terbaca|gagal memproses gambar|bukan gambar yang valid)/.test(m)) return m;
+          return 'tidak bisa diproses';
+        };
         const gagal = [];
         for (let i = 0; i < files.length; i++) {
           if (files.length > 1) T.show(statusBox, '<span class="dim">Memproses ' + (i + 1) + ' dari ' + files.length + '…</span>');
           try {
             hasilBatch.push(await prosesSatu(files[i], target));
           } catch (e) {
-            gagal.push((files[i].name || 'gambar ' + (i + 1)) + ' (' + e.message + ')');
+            gagal.push((files[i].name || 'gambar ' + (i + 1)) + ' (' + pesanGagal(e) + ')');
           }
         }
         T.hide(statusBox);

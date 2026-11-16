@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.1';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "stiker-wa", "name": "Stiker WA Maker", "cat": "gambar", "icon": "💬", "desc": "Ubah foto jadi stiker WhatsApp 512×512 siap pakai.", "keywords": "stiker,whatsapp,wa,sticker,stiker wa,png,512"};
 export function render(root) {
@@ -47,7 +47,7 @@ export function render(root) {
             ctx.setLineDash([10, 8]);
             ctx.strokeRect(crop.x, crop.y, crop.s, crop.s);
             ctx.setLineDash([]);
-        } catch (e) { T.toast('Gambar tidak bisa dibuat: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dibuat. Coba foto lain.'); }
     }
     function evPos(e) {
         const r = canvas.getBoundingClientRect();
@@ -96,7 +96,7 @@ export function render(root) {
             T.show(box, '');
             box.appendChild(canvas);
             T.toast('Geser kotak untuk memilih area stiker');
-        } catch (e) { T.toast('Gambar tidak bisa dimuat: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dimuat. Coba foto lain.'); }
     }
     fileI.addEventListener('change', onFile);
 
@@ -118,7 +118,7 @@ export function render(root) {
             if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
             T.dl('stiker-wa.png', blob, 'image/png');
             T.toast('Stiker siap! Tambahkan via aplikasi pembuat stiker WA');
-        } catch (e) { T.toast('Tidak bisa: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Stikernya tidak bisa diunduh. Coba lagi.'); }
     }, true);
 
     root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));

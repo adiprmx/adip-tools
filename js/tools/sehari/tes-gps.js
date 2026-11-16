@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tes-gps", "name": "Tes GPS", "cat": "sehari", "icon": "📍", "desc": "Cek koordinat lokasi dan akurasinya, lalu buka di peta.", "keywords": "gps,lokasi,koordinat,latitude,longitude,peta", "since": "6.11.0"};
 

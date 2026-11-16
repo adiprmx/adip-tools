@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "json-table", "name": "JSON ke Tabel", "cat": "developer", "icon": "📊", "desc": "Paste JSON jadi tabel yang enak dibaca.", "keywords": "json,tabel"};
 export function render(root) {
@@ -11,7 +11,7 @@ export function render(root) {
       if (!raw) { T.show(box, errBox('Tempel dulu JSON-nya.')); return; }
       let data;
       try { data = JSON.parse(raw); }
-      catch (e) { T.show(box, errBox('JSON-nya tidak benar: ' + e.message)); return; }
+      catch (e) { T.show(box, errBox('JSON-nya tidak benar. Periksa penulisannya, lalu coba lagi.')); return; }
       let rows, cols;
       if (Array.isArray(data)) {
         if (!data.length) { T.show(box, '<span class="dim">Array kosong.</span>'); return; }

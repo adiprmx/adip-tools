@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.1';
+import { h as T, utils, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "kalkulator-kurban", "name": "Kalkulator Kurban", "cat": "indonesia", "icon": "🐄", "desc": "Patungan sapi (maks 7 orang) atau kambing — iuran per orang otomatis.", "keywords": "kurban,qurban,sapi,kambing,idul adha,patungan,iuran"};
 
@@ -24,7 +24,7 @@ export function render(root) {
         names.map((n, i) =>
           '<div style="display:flex;gap:8px;margin-bottom:8px">' +
           '<div style="flex:1">' + T.input('text', 'Nama peserta ' + (i + 1), n).outerHTML + '</div>' +
-          (names.length > 1 ? '<button class="btn" data-del="' + i + '" style="flex-shrink:0">✕</button>' : '') +
+          (names.length > 1 ? '<button class="btn" data-del="' + i + '" aria-label="Hapus peserta ' + (i + 1) + '" style="flex-shrink:0">✕</button>' : '') +
           '</div>').join('') +
         (names.length < max
           ? '<button class="btn" data-add="1">＋ Tambah peserta</button>'

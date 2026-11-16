@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.1';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "bentuk-foto", "name": "Bentuk Foto", "cat": "gambar", "icon": "⭐", "desc": "Potong foto jadi lingkaran, hati, bintang, atau sudut bulat.", "keywords": "crop,bentuk,lingkaran,hati,bintang,rounded,foto profil,png"};
 export function render(root) {
@@ -71,7 +71,7 @@ export function render(root) {
         const ctx = ctx2d(canvas);
         if (!ctx) { T.toast('Gambar tidak bisa diproses di perangkat ini'); return; }
         try { drawShaped(ctx, S); }
-        catch (e) { T.toast('Gambar tidak bisa dibuat: ' + (e && e.message ? e.message : e)); }
+        catch (e) { T.toast('Gambar tidak bisa dibuat. Coba foto lain.'); }
     }
 
     async function onFile() {
@@ -102,7 +102,7 @@ export function render(root) {
             if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
             T.dl('foto-' + shapeSel.value + '.png', blob, 'image/png');
             T.toast('Berhasil diunduh');
-        } catch (e) { T.toast('Tidak bisa: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambarnya tidak bisa diunduh. Coba lagi.'); }
     }, true);
 
     root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));

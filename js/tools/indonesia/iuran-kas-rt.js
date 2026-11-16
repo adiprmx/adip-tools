@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "iuran-kas-rt", "name": "Iuran Kas RT", "cat": "indonesia", "icon": "🧾", "desc": "Hitung iuran per KK, catat siapa sudah bayar, pantau total terkumpul & penunggak.", "keywords": "iuran,kas,rt,rw,kk,bayar,tagihan,penunggak,dana"};
 export function render(root) {
@@ -103,6 +103,7 @@ export function render(root) {
       });
       if (w.lunas) tggl.style.borderColor = '#16a34a';
       const del = T.btn('✕', () => { st.warga.splice(i, 1); save(); renderList(); renderStats(); });
+      del.setAttribute('aria-label', 'Hapus warga ' + (w.nama || (i + 1)));
       nom.addEventListener('input', () => { w.nominal = T.num(nom.value); save(); renderStats(); });
       row.appendChild(nama); row.appendChild(nom); row.appendChild(tggl); row.appendChild(del);
       listBox.appendChild(row);

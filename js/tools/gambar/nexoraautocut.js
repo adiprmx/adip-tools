@@ -1,4 +1,4 @@
-import { h as T, utils, imglyRemoval } from '../../core.js?v=6.12.1';
+import { h as T, utils, imglyRemoval } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "nexoraautocut", "name": "Auto Cut", "cat": "gambar", "icon": "🧩", "desc": "Hapus background lalu pecah jadi layer PNG per objek.", "keywords": "cutout,layer,hapus background,autocut,alight,zip"};
 
@@ -244,7 +244,7 @@ export function render(root) {
       st.fgCanvas = c; st.srcW = c.width; st.srcH = c.height;
       splitLayers();
     } catch (e) {
-      T.show(out, '<span class="err">Auto Cut gagal: ' + T.esc(e && e.message ? e.message : 'error') + '</span>');
+      T.show(out, '<span class="err">Auto Cut gagal. Coba gambar lain atau periksa koneksi internet.</span>');
     }
   }
 
@@ -339,7 +339,7 @@ export function render(root) {
           files.push({ name: 'manifest.xml', data: te.encode(manifestXml()) });
           files.push({ name: zname + '-alight.xml', data: te.encode(alightXml(st.srcW, st.srcH, entries)) });
           T.dl(zname + '-autocut.zip', new Blob([buildZip(files)], { type: 'application/zip' }), 'application/zip');
-        } catch (e) { T.toast('ZIP tidak bisa dibuat: ' + (e && e.message ? e.message : 'error')); }
+        } catch (e) { T.toast('ZIP tidak bisa dibuat. Coba lagi.'); }
       }, true),
       T.btn('⬇ Manifest XML', () => T.dl(safeName(st.fname, 'cut') + '-manifest.xml', manifestXml(), 'application/xml')),
       T.btn('🎬 XML Alight Motion', async () => {
@@ -347,7 +347,7 @@ export function render(root) {
         try {
           const entries = await layerEntries();
           T.dl(safeName(st.fname, 'cut') + '-alight.xml', alightXml(st.srcW, st.srcH, entries), 'text/xml');
-        } catch (e) { T.toast('XML tidak bisa dibuat: ' + (e && e.message ? e.message : 'error')); }
+        } catch (e) { T.toast('XML tidak bisa dibuat. Coba lagi.'); }
       }),
       T.btn('🔁 Gambar lain', () => { st.layers = []; T.hide(out); fileInp.click(); })
     ));

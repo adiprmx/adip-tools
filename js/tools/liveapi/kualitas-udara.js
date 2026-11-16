@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.1';
+import { h as T, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "kualitas-udara", "name": "Kualitas Udara", "cat": "liveapi", "icon": "🌫️", "desc": "Indeks kualitas udara (AQI), PM2.5 & PM10 kota pilihan.", "keywords": "kualitas,udara,aqi,polusi,pm2.5,pm10,polutan,sehat,indeks"};
 
@@ -33,8 +33,8 @@ export function render(root) {
 
   const namaLokasi = (loc) => loc.name + (loc.admin1 ? ', ' + loc.admin1 : '') + (loc.country ? ' (' + loc.country + ')' : '');
 
-  const errDenganTombolUlang = (boxEl, pesan, detail, ulang) => {
-    T.show(boxEl, '<span class="err">' + esc(pesan) + '</span><br><span class="dim">(' + esc(detail) + ')</span>');
+  const errDenganTombolUlang = (boxEl, pesan, ulang) => {
+    T.show(boxEl, '<span class="err">' + esc(pesan) + '</span>');
     const wr = T.el('<div class="mt8"></div>');
     wr.appendChild(T.btn('🔄 Coba lagi', ulang));
     boxEl.appendChild(wr);
@@ -62,7 +62,7 @@ export function render(root) {
         '<div class="kv"><span class="k">PM10</span><span class="v">' + (c.pm10 == null ? '–' : esc(String(c.pm10)) + ' µg/m³') + '</span></div>');
     } catch (e) {
       if (id !== reqId) return;
-      errDenganTombolUlang(box, 'Gagal memuat kualitas udara. Periksa koneksi internet atau coba kota lain.', e.message || String(e), () => muatAqi(loc));
+      errDenganTombolUlang(box, 'Gagal memuat kualitas udara. Periksa koneksi internet atau coba kota lain.', () => muatAqi(loc));
     }
   };
 
@@ -87,7 +87,7 @@ export function render(root) {
     } catch (e) {
       if (id !== reqId) return;
       T.show(pilihWrap, '');
-      errDenganTombolUlang(box, 'Gagal mencari kota. Periksa koneksi internet lalu coba lagi.', e.message || String(e), () => cariKota(false));
+      errDenganTombolUlang(box, 'Gagal mencari kota. Periksa koneksi internet lalu coba lagi.', () => cariKota(false));
     }
   };
 

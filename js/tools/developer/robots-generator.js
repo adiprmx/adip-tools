@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "robots-generator", "name": "Robots.txt Generator", "cat": "developer", "icon": "🤖", "desc": "Susun file robots.txt.", "keywords": "robots,seo,txt"};
 export function render(root) {
@@ -17,6 +17,7 @@ export function render(root) {
         const row = T.el('<div style="display:flex;align-items:center;gap:8px;background:#131316;border:1px solid #27272a;border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:13px;font-family:monospace"></div>');
         row.appendChild(T.el('<span style="flex:1">' + esc(r.ua) + ' → ' + esc(r.type) + ': ' + esc(r.path) + '</span>'));
         const del = T.btn('✕', () => { rules.splice(i, 1); paintList(); });
+        del.setAttribute('aria-label', 'Hapus aturan ' + r.path);
         del.style.padding = '4px 10px';
         row.appendChild(del);
         listBox.appendChild(row);

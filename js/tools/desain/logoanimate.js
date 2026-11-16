@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* logoanimate — "Logo Animate": template animasi logo 8,33 detik -> XML Alight Motion.
    100% client-side. Koreografi template orisinal (bukan salinan template pihak lain).
@@ -100,6 +100,14 @@ export function render(root) {
   let last = null;
   const hist = AL.historyUI('logoanimate', (xml) => { last = { xml }; xmlOut.value = xml; status.textContent = 'XML dari riwayat dimuat.'; });
 
+  /* Pesan error buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
+     Error lain (dari browser/library) diganti pesan ramah. */
+  const pesanErr = (e) => {
+    const m = (e && e.message) || '';
+    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    return 'XML tidak bisa dibuat. Coba lagi.';
+  };
+
   function doGenerate() {
     try {
       const r = generate({
@@ -110,7 +118,7 @@ export function render(root) {
       status.innerHTML = '✅ XML siap — durasi ' + (r.totalMs / 1000).toFixed(2) + ' dtk · <span class="dim">' + T.esc(r.filename) + '</span>';
       AL.history.push('logoanimate', { filename: r.filename, project: inpProject.value, preset: 'Logo 8,33 dtk', xml: r.xml });
       hist.refresh();
-    } catch (e) { status.innerHTML = '<span class="err">❌ ' + T.esc(e.message) + '</span>'; }
+    } catch (e) { status.innerHTML = '<span class="err">❌ ' + T.esc(pesanErr(e)) + '</span>'; }
   }
   root.appendChild(T.row(T.btn('⚙️ Generate XML', doGenerate, true)));
   root.appendChild(status);

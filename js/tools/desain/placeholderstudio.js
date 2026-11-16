@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.1';
+import { h as T, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "placeholderstudio", "name": "Placeholder Studio", "cat": "desain", "icon": "🖼️", "desc": "Generator gambar placeholder custom.", "keywords": "placeholder,gambar,dummy,wireframe,mockup"};
 
@@ -131,9 +131,9 @@ export function render(root) {
           T.show(box, '<span class="ok">Placeholder ' + cv.width + '×' + cv.height + ' ' + fmt.toUpperCase() + ' siap.</span>');
           dlRow.hidden = false;
         }, MIME[fmt], 0.94);
-      } catch (e) { URL.revokeObjectURL(url); T.show(box, errBox('Gagal me-render: ' + e.message)); }
+      } catch (e) { URL.revokeObjectURL(url); T.show(box, errBox('Gambar tidak bisa dibuat. Coba gambar lain.')); }
     };
-    image.onerror = () => { URL.revokeObjectURL(url); T.show(box, errBox('Gagal me-render gambar.')); };
+    image.onerror = () => { URL.revokeObjectURL(url); T.show(box, errBox('Gambar tidak bisa dibuat.')); };
     image.src = url;
   };
 

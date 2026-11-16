@@ -1,4 +1,4 @@
-import { h as T, p2 } from '../../core.js?v=6.12.1';
+import { h as T, p2 } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"time-tracker","name":"Time Tracker","cat":"produktivitas","icon":"⏱️","desc":"Catat waktu kerjamu per tugas — start, stop, ketahuan totalnya.","keywords":"time tracker,timer,tugas,waktu kerja,produktivitas,stopwatch,catat waktu"};
 export function render(root) {
@@ -122,11 +122,13 @@ export function render(root) {
         head.appendChild(nm);
         head.appendChild(tm);
         card.appendChild(head);
+        const delBtn = T.btn('✕', () => delTask(t.id));
+        delBtn.setAttribute('aria-label', 'Hapus tugas ' + t.name);
         const acts = T.row(
           t.running
             ? T.btn('⏹ Stop', () => stopTask(t.id), true)
             : T.btn('▶ Start', () => startTask(t.id), true),
-          T.btn('✕', () => delTask(t.id))
+          delBtn
         );
         acts.style.marginTop = '8px';
         card.appendChild(acts);

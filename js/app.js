@@ -24,12 +24,12 @@
    - Filter "Favorit" di #/semua + tombol ♥ di palette
    - Halaman Metodologi (#/metodologi, anchor per tool)
    ============================================================ */
-import { manifest, VERSION } from './manifest.js?v=6.12.1';
-import * as T from './core.js?v=6.12.1';
-import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML } from './beranda.js?v=6.12.1';
-import { recentRailHTML, prevToolChip, catMoreLink } from './detail-riwayat.js?v=6.12.1';
-import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js?v=6.12.1';
-import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js?v=6.12.1';
+import { manifest, VERSION } from './manifest.js?v=6.12.2';
+import * as T from './core.js?v=6.12.2';
+import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML } from './beranda.js?v=6.12.2';
+import { recentRailHTML, prevToolChip, catMoreLink } from './detail-riwayat.js?v=6.12.2';
+import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js?v=6.12.2';
+import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js?v=6.12.2';
 
 const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
 const SB_ANON = 'sb_publishable_rxxzONDsxTmmsHiQgaptjg_7zbG5qeT';

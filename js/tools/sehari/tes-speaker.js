@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.1';
+import { h as T } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tes-speaker", "name": "Tes Speaker", "cat": "sehari", "icon": "🔊", "desc": "Bunyi kiri dan kanan terpisah, plus nada berbagai tinggi suara.", "keywords": "speaker,suara,kiri kanan,earphone,nada,frekuensi", "since": "6.11.0"};
 

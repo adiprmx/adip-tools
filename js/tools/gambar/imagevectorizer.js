@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "imagevectorizer", "name": "Auto Trace", "cat": "gambar", "icon": "✒️", "desc": "Ubah foto/logo jadi vektor SVG, 100% di perangkat (potrace).", "keywords": "vektor,trace,svg,potrace,logo,outline"};
 
@@ -284,7 +284,7 @@ export function render(root) {
       cur = { svg, w, h, mode: isColor ? 'color' : 'bw', name: (file.name.replace(/\.[^.]+$/, '') || 'trace') + '.svg' };
       drawResult();
     } catch (e) {
-      T.show(out, '<span class="err">Trace tidak berhasil (' + T.esc(e && e.message ? e.message : 'error') + '). Coba gambar lain atau turunkan detail.</span>');
+      T.show(out, '<span class="err">Trace tidak berhasil. Coba gambar lain atau turunkan detail.</span>');
     }
   }
 

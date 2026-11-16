@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "unix-timestamp", "name": "Unix Timestamp", "cat": "converter", "icon": "🕰️", "desc": "Unix timestamp ↔ tanggal (WIB).", "keywords": "unix,timestamp,waktu,epoch"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.2';
 
 // Perbaiki JSON rusak dengan toleransi: komentar, koma berlebih,
 // kutip tunggal, dan kunci tanpa kutip. Scanner karakter, bukan regex
@@ -285,7 +285,7 @@ export function render(root) {
         let pos = '';
         const m = /position (\d+)/.exec(String(e.message));
         if (m) pos = ' (posisi karakter ke-' + m[1] + ')';
-        T.show(box, errBox('JSON tidak valid' + pos + ': ' + e.message + ' Coba tombol Perbaiki bila JSON-nya hampir benar.'));
+        T.show(box, errBox('JSON tidak valid' + pos + '. Coba tombol Perbaiki bila JSON-nya hampir benar.'));
         return null;
       }
     };
@@ -317,7 +317,7 @@ export function render(root) {
         ta.value = JSON.stringify(obj, null, +indentSel.value);
         T.show(box, '<span class="ok">✓ JSON berhasil diperbaiki.</span> <span class="dim">Yang diperbaiki: komentar dibuang, koma berlebih dibuang, kutip tunggal diubah jadi kutip ganda, kunci tanpa kutip diberi kutip. Hasil sudah ditulis kembali ke kolom input.</span>' + preHtml(JSON.stringify(obj, null, +indentSel.value)));
       } catch (e) {
-        T.show(box, errBox('Belum bisa diperbaiki otomatis: ' + e.message + ' Perbaiki manual bagian yang salah, lalu coba lagi.'));
+        T.show(box, errBox('Belum bisa diperbaiki otomatis. Perbaiki manual bagian yang salah, lalu coba lagi.'));
       }
     };
     const runSort = () => {
@@ -340,7 +340,7 @@ export function render(root) {
         if (!hits.length) { T.show(box, '<span class="dim">Tidak ada nilai yang cocok dengan jalur itu.</span>'); return; }
         T.show(box, '<div class="hint" style="margin-bottom:6px">' + hits.length + ' nilai ditemukan.</div>' + preHtml(hits.length === 1 ? JSON.stringify(hits[0], null, 2) : JSON.stringify(hits, null, 2)));
       } catch (e) {
-        T.show(box, errBox(e.message));
+        T.show(box, errBox('Jalur JSONPath-nya tidak benar. Periksa penulisannya, lalu coba lagi.'));
       }
     };
     const schemaTa = T.ta(4, 'Tempel JSON Schema di sini…\nContoh: {"type":"object","required":["nama"],"properties":{"nama":{"type":"string"},"umur":{"type":"integer","minimum":0}}}');
@@ -349,7 +349,7 @@ export function render(root) {
       const parsed = parseInput();
       if (!parsed) return;
       let schema;
-      try { schema = JSON.parse(schemaTa.value); } catch (e) { T.show(box, errBox('Schema bukan JSON valid: ' + e.message)); return; }
+      try { schema = JSON.parse(schemaTa.value); } catch (e) { T.show(box, errBox('Schema bukan JSON yang benar. Periksa penulisannya, lalu coba lagi.')); return; }
       const errors = [];
       validateSchema(parsed.obj, schema, '$', errors);
       if (!errors.length) { T.show(box, '<span class="ok">✓ Sesuai schema.</span>'); return; }

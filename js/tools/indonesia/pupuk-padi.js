@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node). Dosis per hektar per musim tanam.
 // Skema NPK mengikuti Permentan 13/2022: NPK 225 + Urea 50 + SP-36 75 + KCl 50 kg/ha.

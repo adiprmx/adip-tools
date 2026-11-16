@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "surat-pernyataan", "name": "Pembuat Surat Pernyataan", "cat": "produktivitas", "icon": "📜", "desc": "Bikin surat pernyataan bermaterai: kebenaran data, belum menikah, atau tidak terikat kontrak, lengkap dengan tempat tanda tangan.", "keywords": "surat pernyataan,pernyataan bermaterai,surat pernyataan belum menikah,surat pernyataan kebenaran data,materai", "since": "6.11.0"};
 

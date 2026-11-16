@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.1';
+import { h as T, utils, esc } from '../../core.js?v=6.12.2';
 
 utils.bmi = function (beratKg, tinggiCm) {
     const b = Number(beratKg), h = Number(tinggiCm);

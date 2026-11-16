@@ -10,21 +10,80 @@
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FINE_POINTER = matchMedia('(pointer: fine)').matches;
 
-/* ---------- 1. RIPPLE: gelombang klik di tombol & kartu ---------- */
+/* ---------- 1. RIPPLE: gelombang klik di tombol & kartu ----------
+   Perbaikan akar bug ripple x tab flex (v6.12.2, P2-A1; temuan P1-B4):
+   overflow:hidden mengubah min-width otomatis flex item dari min-content
+   menjadi 0, sehingga baris tab flex (core.js tabs(): flex:1,
+   min-width:auto) REFLOW di tengah klik — tombol menyusut (terukur
+   160px -> 64px di kalkulator-waktu), pointer mendarat di luar tombol,
+   tab gagal berpindah / salah tab. Dulu overflow dipasang permanen
+   sejak pointerdown pertama; sekarang lebar tombol DIKUNCI dulu
+   (min-width inline = lebar saat ini) sebelum overflow diubah, dan
+   keduanya dikembalikan ke nilai inline semula setelah animasi
+   selesai DAN pointer sudah diangkat — jadi tidak ada reflow di
+   tengah klik, dan tidak ada efek samping layout permanen.
+   Visual ripple tidak berubah: span + animasi sama persis. */
 function initRipple() {
   const SEL = '.btn,.icobtn,.tcard,.cattile,.hcard,.allbtn,.contd,.schip,.back,.tab';
-  const prepped = new WeakSet(); // sekali per elemen, tanpa bocor
+  // el -> { n: ripple aktif, down: pointer yang masih menekan,
+  //         prevOverflow, prevMinWidth: nilai inline sebelum dikunci }
+  const locks = new WeakMap();
+  const maybeUnlock = (el) => {
+    const l = locks.get(el);
+    if (!l || l.n > 0 || l.down > 0) return;
+    el.style.overflow = l.prevOverflow;
+    el.style.minWidth = l.prevMinWidth;
+    locks.delete(el);
+  };
   document.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const t = e.target;
     if (!t || !t.closest) return;
     const el = t.closest(SEL);
     if (!el || el.disabled) return;
-    if (!prepped.has(el)) {
-      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+    if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+    let l = locks.get(el);
+    if (!l) {
+      // Kunci lebar SEBELUM mengubah overflow (offsetWidth dibaca dulu,
+      // saat layout masih asli) — inilah yang mencegah reflow.
+      l = {
+        n: 0, down: 0,
+        prevOverflow: el.style.overflow,
+        prevMinWidth: el.style.minWidth
+      };
+      el.style.minWidth = el.offsetWidth + 'px';
       el.style.overflow = 'hidden';
-      prepped.add(el);
+      locks.set(el, l);
     }
+    l.n++;
+    l.down++;
+    // Satu "tekanan" selesai tepat sekali: pointerup / pointercancel /
+    // pengaman timeout 5 dtk (bila pointerup hilang, mis. pointer
+    // dilepas di luar jendela). Unlock via rAF — event click sudah
+    // ter-dispatch sebelum rAF, jadi reflow kembalian tidak bisa
+    // mengganggu klik yang sedang berjalan.
+    const press = { settled: false };
+    // pointerId tekanan ini: tiap tekanan hanya diselesaikan oleh
+    // pointer-nya sendiri (P2-R1-F1 — dulu satu pointerup dari pointer
+    // mana pun me-settle SEMUA press yang tertunda, melepas kunci
+    // lebar saat jari ke-2 masih menekan). Listener TIDAK memakai
+    // { once: true } karena event pointer lain akan menghabiskan
+    // listener sekali-pakai itu sebelum pointer pemiliknya terangkat;
+    // sebagai gantinya listener dilepas manual di settle().
+    const pid = e.pointerId;
+    function onUp(ev) { if (ev.pointerId === pid) settle(); }
+    function onCancel(ev) { if (ev.pointerId === pid) settle(); }
+    function settle() {
+      if (press.settled) return;
+      press.settled = true;
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onCancel);
+      l.down--;
+      requestAnimationFrame(() => maybeUnlock(el));
+    }
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onCancel);
+    setTimeout(settle, 5000);
     const r = el.getBoundingClientRect();
     const d = Math.max(r.width, r.height) * 2.2;
     const s = document.createElement('span');
@@ -39,7 +98,9 @@ function initRipple() {
       [{ transform: 'scale(0)', opacity: 0.4 }, { transform: 'scale(1)', opacity: 0 }],
       { duration: 550, easing: 'cubic-bezier(.22,1,.36,1)' }
     );
-    anim.onfinish = () => s.remove();
+    const animDone = () => { s.remove(); l.n--; maybeUnlock(el); };
+    anim.onfinish = animDone;
+    anim.oncancel = animDone;
   }, { passive: true });
 }
 

@@ -1,4 +1,4 @@
-import { h as T, num, fmt } from '../../core.js?v=6.12.1';
+import { h as T, num, fmt } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "konversi-resep", "name": "Konversi Resep", "cat": "sehari", "icon": "🍳", "desc": "Sesuaikan takaran bahan resep untuk porsi yang beda.", "keywords": "resep,konversi,porsi,masak,bahan,skala"};
 
@@ -18,6 +18,7 @@ export function render(root) {
       const sI = T.select(SATUAN.map((s) => [s, s]), sat || 'g');
       sI.style.flex = '0.9';
       const del = T.btn('✕', () => { wrap.remove(); const i = rows.findIndex((r) => r.wrap === wrap); if (i >= 0) rows.splice(i, 1); });
+      del.setAttribute('aria-label', 'Hapus bahan');
       wrap.appendChild(nI); wrap.appendChild(jI); wrap.appendChild(sI); wrap.appendChild(del);
       const r = { wrap, nI, jI, sI };
       rows.push(r);

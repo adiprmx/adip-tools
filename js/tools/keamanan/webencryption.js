@@ -1,4 +1,4 @@
-import { h as T, fileInput, errBox } from '../../core.js?v=6.12.1';
+import { h as T, fileInput, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "webencryption", "name": "Web Encryption", "cat": "keamanan", "icon": "🔐", "desc": "Kunci HTML jadi file berpassword (AES-256).", "keywords": "enkripsi,aes,password,html,kunci,proteksi"};
 
@@ -122,7 +122,7 @@ export function render(root) {
       resWrap.hidden = false;
       T.show(box, '<span class="ok">Enkripsi berhasil. Uji file hasil dengan password sebelum dipublikasikan.</span>');
       resWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } catch (e) { T.show(box, errBox('Enkripsi gagal: ' + (e && e.message ? e.message : 'kesalahan browser'))); }
+    } catch (e) { T.show(box, errBox('Enkripsi gagal. Coba lagi.')); }
     finally { bEnc.disabled = false; }
   };
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "latihan-deret-angka", "name": "Latihan Deret Angka", "cat": "pelajar", "icon": "🔢", "desc": "Latihan soal deret angka TIU/psikotes tanpa habis — soal baru tiap kali, lengkap dengan timer dan pembahasan polanya.", "keywords": "deret angka,tiu,cpns,psikotes,latihan soal,barisan bilangan"};
 

@@ -1,4 +1,4 @@
-import { h as T, esc, errBox, preHtml } from '../../core.js?v=6.12.1';
+import { h as T, esc, errBox, preHtml } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "keyboard-telegram", "name": "Pembuat Tombol Inline Telegram", "cat": "developer", "icon": "⌨️", "desc": "Susun tombol inline bot Telegram dan salin JSON inline_keyboard siap pakai.", "keywords": "telegram,inline keyboard,tombol,bot api,json,callback", "since": "6.11.0"};
 
@@ -101,6 +101,7 @@ export function render(root) {
       value.placeholder = type.value === 'callback_data' ? 'data_callback' : 'https://contoh.com';
     });
     const del = T.btn('✕', () => { el.remove(); update(); });
+    del.setAttribute('aria-label', 'Hapus tombol');
     del.style.flexShrink = '0';
     el.appendChild(text);
     el.appendChild(type);

@@ -1,4 +1,4 @@
-import { h as T, utils, fileInput, fmtBytes, tabs, errBox } from '../../core.js?v=6.12.1';
+import { h as T, utils, fileInput, fmtBytes, tabs, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "virusscan", "name": "Virus Scan", "cat": "keamanan", "icon": "🛡️", "desc": "Pindai URL, file, hash, domain & IP dengan heuristik lokal.", "keywords": "virus,scan,malware,phising,keamanan,hash,sha256"};
 
@@ -199,7 +199,7 @@ export function render(root) {
         last = { jenis: 'File', target: file.name + ' (' + hash.slice(0, 16) + '…)', skor, temuan, info };
         pushHist({ jenis: 'File', target: file.name.slice(0, 60), skor, waktu: Date.now() });
         dlRow.hidden = false;
-      } catch (e) { T.show(box, errBox('Gagal membaca file: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('File ini tidak bisa dibaca. Pastikan filenya tidak rusak lalu coba lagi.')); }
     };
     const dlRow = T.el('<div hidden style="margin-top:10px"></div>');
     dlRow.appendChild(T.btn('Unduh Laporan', () => { if (last) simpanLaporan('virus-scan-file.txt', laporanText(last.jenis, last.target, last.skor, last.temuan, last.info)); }));

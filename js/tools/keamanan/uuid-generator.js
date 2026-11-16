@@ -1,4 +1,4 @@
-import { h as T, utils, kv, errBox, esc } from '../../core.js?v=6.12.1';
+import { h as T, utils, kv, errBox, esc } from '../../core.js?v=6.12.2';
 
 // UUID v4 (acak), v7 (waktu + acak, terurut), v5 (dari namespace + nama,
 // SHA-1, hasil sama untuk input yang sama). Plus inspeksi UUID yang ditempel.
@@ -118,7 +118,7 @@ export function render(root) {
         try {
           last = [await uuid5(ns, name)];
         } catch (e) {
-          T.show(out, errBox('Gagal membuat UUID v5: ' + (e && e.message ? e.message : e)));
+          T.show(out, errBox('UUID v5 tidak bisa dibuat. Periksa nama dan namespace-nya, lalu coba lagi.'));
           return;
         }
       } else {

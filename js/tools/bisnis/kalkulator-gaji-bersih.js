@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Tarif Efektif Rata-rata (TER) bulanan, Lampiran PP 58/2023.
 // Tiap baris: [batas atas bruto sebulan, tarif %]. Batas atas termasuk di baris itu.
@@ -85,7 +85,7 @@ export function render(root) {
     '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">' +
     '<input class="inp" data-k="nama" data-i="' + i + '" placeholder="Nama" value="' + T.esc(r.nama) + '" style="flex:2"/>' +
     '<input class="inp" data-k="jumlah" data-i="' + i + '" placeholder="Rp" value="' + T.esc(r.jumlah) + '" inputmode="decimal" style="flex:1"/>' +
-    '<button class="btn" data-del="' + i + '" style="flex-shrink:0">✕</button>' +
+    '<button class="btn" data-del="' + i + '" aria-label="Hapus baris ' + (i + 1) + '" style="flex-shrink:0">✕</button>' +
     '</div>').join('');
 
   const bindRows = (boxEl, rows, rerender) => {

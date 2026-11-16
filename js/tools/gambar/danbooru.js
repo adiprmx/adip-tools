@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "danbooru", "name": "Danbooru Search", "cat": "gambar", "icon": "🎨", "desc": "Cari ilustrasi anime dari Danbooru berdasarkan tag.", "keywords": "danbooru,anime,ilustrasi,tag,gambar,fanart"};
 
@@ -61,7 +61,7 @@ export function render(root) {
         if (timeoutHabis) T.show(out, errBox('Waktu habis — Danbooru tidak merespons dalam 15 detik. Coba lagi.'));
         return;
       }
-      T.show(out, errBox('Gagal mencari: ' + e.message + '. Cek koneksi / tag-nya.'));
+      T.show(out, errBox('Gagal mencari. Cek koneksi internet atau coba tag lain.'));
     } finally { clearTimeout(timerFetch); }
   };
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "terbit-terbenam", "name": "Terbit & Terbenam", "cat": "liveapi", "icon": "🌅", "desc": "Jadwal matahari terbit & terbenam + hitung mundur.", "keywords": "matahari,terbit,terbenam,sunrise,sunset,jadwal,shubuh,maghrib"};
 export function render(root) {
@@ -74,8 +74,7 @@ export function render(root) {
         } catch (e) {
           T.show(box,
             '<p class="center">🌤️ <b>Waduh, jadwal mataharinya gagal dimuat.</b></p>' +
-            '<p class="center mut">Cek koneksi internet kamu, terus coba lagi ya.</p>' +
-            '<p class="center hint">(' + T.esc(e.message || e) + ')</p>');
+            '<p class="center mut">Cek koneksi internet kamu, terus coba lagi ya.</p>');
           const wr = T.el('<div class="center" style="margin-top:8px"></div>');
           wr.appendChild(T.btn('🔄 Coba lagi', () => pakaiKota(), true));
           box.appendChild(wr);
@@ -132,7 +131,7 @@ export function render(root) {
         (err) => {
           const msg = err && err.code === 1
             ? 'Izin lokasi ditolak — gapapa, pilih aja kotamu dari daftar di atas.'
-            : 'Gagal baca lokasi (' + (err && err.message ? err.message : 'unknown') + ') — pilih kota dari daftar aja.';
+            : 'Lokasi tidak bisa dibaca — pilih kota dari daftar saja.';
           T.show(box, '<p class="center mut">📍 ' + T.esc(msg) + '</p>');
         },
         { timeout: 10000 }

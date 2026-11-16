@@ -1,4 +1,4 @@
-import { h as T, kv, canvasToBlob, errBox } from '../../core.js?v=6.12.1';
+import { h as T, kv, canvasToBlob, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"pembuat-stempel","name":"Pembuat Stempel","cat":"desain","icon":"🔖","desc":"Bikin stempel bulat atau kotak untuk toko dan usaha sendiri.","keywords":"stempel,cap,toko,usaha,logo,bulat","since":"6.11.0"};
 

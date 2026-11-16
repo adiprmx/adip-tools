@@ -1,15 +1,15 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "ocrintel", "name": "OCR", "cat": "produktivitas", "icon": "🔠", "desc": "Ekstrak teks dari gambar 100% lokal — tanpa upload, tanpa server.", "keywords": "ocr,teks,gambar,scan,ekstrak,tesseract,pdf,tabel,tiff"};
 
 const HIST_KEY = 'at-ocrintel-history-v1';
 const MAX_MB = 8;
 const MAKS_HALAMAN = 15;
-const TS_CDN = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+const TS_CDN = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
-const UTIF_CDN = 'https://cdn.jsdelivr.net/npm/utif@3/UTIF.js';
+const UTIF_CDN = 'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js';
 
 const BAHASA = [
   ['eng+ind', '🌐 Auto (Indonesia + Inggris)'],
@@ -478,7 +478,7 @@ export function render(root) {
         tampilHist();
       }
     } catch (e) {
-      T.show(out, errBox('Gagal OCR: ' + e.message));
+      T.show(out, errBox('Teks tidak bisa dibaca dari gambar ini. Pastikan gambarnya jelas dan tidak buram, lalu coba lagi.'));
     }
     memproses = false;
     if (pendingFile) {
@@ -508,7 +508,7 @@ export function render(root) {
       T.dl('ocr-searchable-' + Date.now() + '.pdf', new Blob([bytes], { type: 'application/pdf' }), 'application/pdf');
       T.toast('PDF searchable terunduh ✅');
     } catch (e) {
-      T.show(out, errBox('Gagal membuat PDF: ' + e.message));
+      T.show(out, errBox('PDF tidak bisa dibuat. Coba lagi.'));
     }
   };
 

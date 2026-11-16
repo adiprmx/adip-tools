@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.1';
+import { h as T, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "penerjemah", "name": "Penerjemah", "cat": "liveapi", "icon": "🌏", "desc": "Terjemahkan teks Indonesia↔Inggris secara instan.", "keywords": "terjemah,translate,inggris,indonesia,bahasa"};
 
@@ -57,7 +57,7 @@ export function render(root) {
       } else if (e && e.quota) {
         T.show(box, '<span class="err">Kuota harian API habis, coba lagi besok.</span>');
       } else {
-        T.show(box, '<span class="err">Gagal menerjemahkan. Periksa koneksi internet lalu coba lagi.</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+        T.show(box, '<span class="err">Gagal menerjemahkan. Periksa koneksi internet lalu coba lagi.</span>');
       }
       const wr = T.el('<div class="mt8"></div>');
       wr.appendChild(T.btn('🔄 Coba lagi', proses));

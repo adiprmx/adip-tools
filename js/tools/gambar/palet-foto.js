@@ -1,4 +1,4 @@
-import { h as T, loadImage, fileInput, LOCAL_NOTE, canvasToBlob } from '../../core.js?v=6.12.1';
+import { h as T, loadImage, fileInput, LOCAL_NOTE, canvasToBlob } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "palet-foto", "name": "Palet Warna dari Foto", "cat": "gambar", "icon": "🎨", "desc": "Ambil 6 warna dominan dari fotomu, atau klik piksel mana pun.", "keywords": "palet,warna,foto,hex,dominan,swatch,desain,eyedropper"};
 

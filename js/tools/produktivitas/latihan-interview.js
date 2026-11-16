@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Bank pertanyaan interview umum + petunjuk menjawab (poin, bukan naskah hafalan).
 utils.SOAL_INTERVIEW = [

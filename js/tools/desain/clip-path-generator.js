@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"clip-path-generator","name":"Clip-Path Generator","cat":"desain","icon":"✂️","desc":"Potong bentuk pakai clip-path CSS.","keywords":"clip-path,polygon,css,bentuk,potong"};
 
@@ -57,6 +57,7 @@ export function render(root) {
       row.appendChild(numCell(p[0], i, 0));
       row.appendChild(numCell(p[1], i, 1));
       const del = T.el('<button type="button" class="btn" style="margin-left:auto;padding:6px 10px">✕</button>');
+      del.setAttribute('aria-label', 'Hapus titik ' + (i + 1));
       del.addEventListener('click', () => {
         if (pts.length <= 3) { T.toast('Minimal 3 titik biar jadi bentuk'); return; }
         pts.splice(i, 1);

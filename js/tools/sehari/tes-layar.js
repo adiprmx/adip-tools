@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tes-layar", "name": "Tes Layar", "cat": "sehari", "icon": "🖥️", "desc": "Info resolusi dan layar, perkiraan refresh rate, dan tes gradasi warna.", "keywords": "layar,resolusi,refresh rate,hz,gradasi,monitor", "since": "6.11.0"};
 

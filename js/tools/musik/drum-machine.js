@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "drum-machine", "name": "Drum Machine", "cat": "musik", "icon": "🎛️", "desc": "Step sequencer drum sederhana.", "keywords": "drum,beat,musik"};
 export function render(root) {
@@ -39,12 +39,17 @@ export function render(root) {
     const grid = T.el('<div class="drumgrid" style="grid-template-columns:52px repeat(16,1fr)"></div>');
     const cellRefs = [];
     TRACKS.forEach((tr, r) => {
-      grid.appendChild(T.el('<div class="mut" style="font-size:12px;display:flex;align-items:center">' + T.esc(tr.name) + '</div>'));
+      // Label track menempel di kiri saat grid di-scroll horizontal di HP.
+      grid.appendChild(T.el('<div class="mut" style="font-size:12px;display:flex;align-items:center;position:sticky;left:0;background:var(--bg);z-index:1">' + T.esc(tr.name) + '</div>'));
       cellRefs.push([]);
       for (let s = 0; s < STEPS; s++) {
-        const cell = T.el('<div class="cell' + (s % 4 === 0 ? ' play' : '') + '" style="' + (s % 4 === 0 ? '' : '') + '"></div>');
+        const cell = T.el('<button type="button" class="cell' + (s % 4 === 0 ? ' play' : '') + '" aria-label="' + T.esc(tr.name) + ', langkah ' + (s + 1) + '" aria-pressed="false"></button>');
         if (s % 4 === 0) cell.style.borderColor = '#52525b';
-        cell.addEventListener('click', () => { state[r][s] = !state[r][s]; cell.classList.toggle('on', state[r][s]); });
+        cell.addEventListener('click', () => {
+          state[r][s] = !state[r][s];
+          cell.classList.toggle('on', state[r][s]);
+          cell.setAttribute('aria-pressed', state[r][s] ? 'true' : 'false');
+        });
         grid.appendChild(cell);
         cellRefs[r].push(cell);
       }
@@ -99,11 +104,14 @@ export function render(root) {
       paint();
     };
     const clear = () => { state.forEach((r) => r.fill(false)); paint(); };
-    const paint = () => cellRefs.forEach((row, r) => row.forEach((cell, s) => cell.classList.toggle('on', state[r][s])));
+    const paint = () => cellRefs.forEach((row, r) => row.forEach((cell, s) => {
+      cell.classList.toggle('on', state[r][s]);
+      cell.setAttribute('aria-pressed', state[r][s] ? 'true' : 'false');
+    }));
     preset();
     root.appendChild(T.field('Tempo (BPM)', bpmIn));
     root.appendChild(grid);
     root.appendChild(T.row(playBtn, T.btn('Pola dasar', preset), T.btn('Bersihkan', clear)));
-    root.appendChild(T.el('<p class="hint">Ketuk kotak untuk mengaktifkan/mematikan suara. Semua suara disintesis langsung, tanpa sample.</p>'));
+    root.appendChild(T.el('<p class="hint">Ketuk kotak untuk mengaktifkan/mematikan suara. Semua suara disintesis langsung, tanpa sample. Di layar kecil, geser grid ke kanan untuk langkah 9–16; kotak juga bisa dipilih pakai Tab lalu Enter atau Spasi.</p>'));
   
 }

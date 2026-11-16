@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* textfxanimation — "Text FX Animation": 5 preset efek teks -> XML Alight Motion.
    Setia pada rujukan (all-tools-nexora, izin Developer Dika): 5 preset memakai
@@ -243,6 +243,14 @@ export function render(root) {
       project: inpProject.value, filename: inpFile.value,
     };
   }
+  /* Pesan error buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
+     Error lain (dari browser/library) diganti pesan ramah. */
+  const pesanErr = (e) => {
+    const m = (e && e.message) || '';
+    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    return 'XML tidak bisa dibuat. Coba lagi.';
+  };
+
   function doGenerate() {
     try {
       const r = generate(collect());
@@ -250,7 +258,7 @@ export function render(root) {
       status.innerHTML = 'XML siap — <b>' + T.esc(r.layers) + ' layer</b> · preset ' + T.esc(r.preset) + ' · durasi ' + r.totalMs + ' ms · <span class="dim">' + T.esc(r.filename) + '</span>';
       AL.history.push('textfxanimation', { filename: r.filename, project: inpProject.value, preset: r.preset, xml: r.xml });
       hist.refresh();
-    } catch (e) { status.innerHTML = '<span class="err">' + T.esc(e.message) + '</span>'; }
+    } catch (e) { status.innerHTML = '<span class="err">' + T.esc(pesanErr(e)) + '</span>'; }
   }
   root.appendChild(T.row(T.btn('Generate XML', doGenerate, true)));
   root.appendChild(status);

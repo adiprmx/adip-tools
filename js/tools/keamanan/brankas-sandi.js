@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* Enkripsi AES-GCM via WebCrypto — pendekatan meniru catatan-terkunci.js.
  * Satu vault terenkripsi menyimpan {cek, entri[]}; password tidak pernah
@@ -89,7 +89,7 @@ export function render(root) {
             master = a;
             draw();
             T.toast('Brankas jadi! Master password-nya dicatat ya.');
-          } catch (e) { T.show(msg, '<span class="err">Tidak bisa: ' + T.esc(e.message || e) + '</span>'); }
+          } catch (e) { T.show(msg, '<span class="err">Brankas tidak bisa dibuat. Coba lagi.</span>'); }
         }, 30);
       }, true)));
       b.appendChild(msg);
@@ -155,10 +155,12 @@ export function render(root) {
           baris.lastElementChild.appendChild(pwSpan);
           const bLihat = T.btn('👁️', null, false);
           bLihat.classList.add('small');
+          bLihat.setAttribute('aria-label', 'Lihat sandi ' + (e.s || '(tanpa nama)'));
           bLihat.addEventListener('click', () => {
             kelihatan = !kelihatan;
             pwSpan.textContent = kelihatan ? e.p : '••••••••';
             bLihat.textContent = kelihatan ? '🙈' : '👁️';
+            bLihat.setAttribute('aria-label', (kelihatan ? 'Sembunyikan sandi ' : 'Lihat sandi ') + (e.s || '(tanpa nama)'));
           });
           const bSalin = T.copyBtn(() => e.p, 'Salin');
           bSalin.classList.add('small');
@@ -179,7 +181,7 @@ export function render(root) {
               await simpan(data);
               gambarDaftar(data);
               T.toast('Entri dihapus.');
-            } catch (err) { T.show(msg, '<span class="err">Gagal menghapus: ' + T.esc(err.message || err) + '</span>'); }
+            } catch (err) { T.show(msg, '<span class="err">Entri tidak bisa dihapus. Coba lagi.</span>'); }
           });
           baris.appendChild(T.row(bLihat, bSalin, bHapus));
           w.appendChild(baris);
@@ -214,7 +216,7 @@ export function render(root) {
           inS.value = ''; inU.value = ''; inP.value = '';
           gambarDaftar(data);
           T.toast('Entri tersimpan & terenkripsi.');
-        } catch (e) { T.show(msg, '<span class="err">Gagal menyimpan: ' + T.esc(e.message || e) + '</span>'); }
+        } catch (e) { T.show(msg, '<span class="err">Tidak bisa menyimpan. Coba lagi.</span>'); }
       }, true)));
       b.appendChild(msg);
 
@@ -238,7 +240,7 @@ export function render(root) {
           master = a;
           n1.value = ''; n2.value = '';
           T.show(msg2, '<span class="ok">✅ Master password diganti, brankas di-enkripsi ulang.</span>');
-        } catch (e) { T.show(msg2, '<span class="err">Tidak bisa: ' + T.esc(e.message || e) + '</span>'); }
+        } catch (e) { T.show(msg2, '<span class="err">Master password tidak bisa diganti. Coba lagi.</span>'); }
       })));
       b.appendChild(msg2);
 

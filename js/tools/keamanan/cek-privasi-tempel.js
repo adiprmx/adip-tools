@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.12.1';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "cek-privasi-tempel", "name": "Cek Privasi sebelum Tempel ke AI", "cat": "keamanan", "icon": "🛡️", "desc": "Pindai teks sebelum ditempel ke chatbot, tandai data pribadi yang tidak sengaja ikut.", "keywords": "privasi,cek,nik,ai,chatgpt,gemini,data,pribadi,sensor"};
 export function render(root) {

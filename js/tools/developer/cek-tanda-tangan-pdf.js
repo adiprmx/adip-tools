@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.1';
+import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.2';
 
 // Periksa KEBERADAAN tanda tangan digital di PDF, bukan keasliannya.
 // Tiga lapis pemeriksaan: pdf.js (file PDF valid + info dasar),
@@ -90,7 +90,7 @@ export function render(root) {
       try {
         bytes = new Uint8Array(await file.arrayBuffer());
       } catch (e) {
-        T.show(out, errBox('File tidak bisa dibaca: ' + (e && e.message ? e.message : e)));
+        T.show(out, errBox('File tidak bisa dibaca. Pastikan filenya tidak rusak lalu coba lagi.'));
         return;
       }
       if (bytes.length < 5 || bytesToLatin1(bytes.subarray(0, 5)) !== '%PDF-') {
@@ -110,7 +110,7 @@ export function render(root) {
           pageCount = doc.numPages;
           try { const md = await doc.getMetadata(); metaTitle = md && md.info ? (md.info.Title || null) : null; } catch (e) { /* metadata opsional */ }
         } catch (e) {
-          T.show(out, errBox('File PDF ini rusak atau tidak bisa dibuka: ' + (e && e.message ? e.message : e)));
+          T.show(out, errBox('File PDF ini rusak atau tidak bisa dibuka. Coba file PDF lain.'));
           return;
         }
       }

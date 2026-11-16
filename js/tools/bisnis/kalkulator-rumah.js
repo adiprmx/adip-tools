@@ -1,4 +1,4 @@
-import { h as T, kv, tabs } from '../../core.js?v=6.12.1';
+import { h as T, kv, tabs } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"kalkulator-rumah","name":"Kalkulator Beli Rumah","cat":"bisnis","icon":"🏠","desc":"Harga rumah yang terjangkau dari penghasilan, DP, dan cicilan maksimal 30 persen.","keywords":"rumah,kpr,cicilan,dp,uang muka,hipotek,beli rumah,properti","since":"6.11.0"};
 

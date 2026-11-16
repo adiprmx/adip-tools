@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv, money } from '../../core.js?v=6.12.1';
+import { h as T, utils, U, kv, money } from '../../core.js?v=6.12.2';
 
 U.diskonBertingkat = (harga, arrDiskon) => {
     let sisa = +harga || 0;
@@ -23,6 +23,7 @@ export function render(root) {
       const inp = T.input('number', 'cth: 50', val == null ? '' : String(val));
       inp.style.flex = '1';
       const del = T.btn('✕', () => { r.remove(); hitung(); });
+      del.setAttribute('aria-label', 'Hapus diskon');
       r.appendChild(T.el('<span class="mut" style="flex:none">Diskon</span>'));
       r.appendChild(inp); r.appendChild(T.el('<span class="mut">%</span>')); r.appendChild(del);
       inp.addEventListener('input', hitung);

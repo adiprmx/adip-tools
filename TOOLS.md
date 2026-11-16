@@ -1,6 +1,6 @@
 # Daftar Tools Adip Tools
 
-> 606 tool · v6.12.1 · dibuat otomatis dari js/manifest.js — jangan edit manual.
+> 606 tool · v6.12.2 · dibuat otomatis dari js/manifest.js — jangan edit manual.
 
 ## Ringkasan kategori
 
@@ -338,7 +338,7 @@
 23. **PDF Lab** — Toolkit PDF lokal: gabung, pisah, watermark & lainnya.
 24. **Pelacak Langganan** — Catat semua langganan bulananmu, lihat total per bulan & tahun, dan tahu mana yang paling menguras.
 25. **Pelacak Tujuan** — Tulis tujuan tahunanmu, pecah jadi milestone, pantau bar progresnya.
-26. **Pembuat CV Lamaran** — Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 5 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.
+26. **Pembuat CV Lamaran** — Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 6 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.
 27. **Perencana Mingguan** — Susun blok waktu kegiatan untuk 7 hari ke depan, biar minggumu punya arah.
 28. **Pomodoro Timer** — Timer fokus 25/5.
 29. **Prioritas Harian** — Pilih top-3 tugas hari ini, coret satu per satu, pulang dengan tenang.

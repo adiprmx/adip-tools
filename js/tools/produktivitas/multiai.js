@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"multiai","name":"Multi-AI","cat":"produktivitas","icon":"🤖","desc":"Tanya banyak AI sekaligus + generate gambar & suara via Puter.","keywords":"ai,chat,multi,gpt,claude,puter,tts,gambar"};
 
@@ -28,7 +28,7 @@ function errPesan(e) {
   if (/safety|moderation|policy|filtered/.test(raw)) return 'Ditolak aturan keamanan AI.';
   if (/model not found|unknown model|model.*unavailable|unsupported model|no provider/.test(raw)) return 'Model tidak tersedia.';
   if (/network|failed to fetch|offline/.test(raw)) return 'Koneksi ke Puter terputus.';
-  return String((r.message || e || 'Gagal')).slice(0, 200);
+  return 'Puter belum bisa memproses permintaan ini. Coba lagi beberapa saat.';
 }
 function d401(raw) { return /401|403|unauthor|auth|sign.?in|login|cancel|closed|denied/.test(raw); }
 

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.1';
+import { h as T } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"kanban-board","name":"Kanban Board","cat":"produktivitas","icon":"🗂️","desc":"Atur kerjaanmu: Todo → Doing → Done. Tersimpan otomatis di HP.","keywords":"kanban,todo,task,kerjaan,produktivitas,board,doing,done"};
 export function render(root) {
@@ -52,6 +52,7 @@ export function render(root) {
       const acts = T.el('<div style="display:flex;gap:4px"></div>');
       if (ci > 0) {
         const b = T.btn('←', () => move(col, card.id, -1));
+        b.setAttribute('aria-label', 'Pindah kartu ke kiri');
         b.style.padding = '2px 10px';
         b.style.fontSize = '12px';
         b.title = 'Pindah ke kiri';
@@ -59,6 +60,7 @@ export function render(root) {
       }
       if (ci < COLS.length - 1) {
         const b = T.btn('→', () => move(col, card.id, 1));
+        b.setAttribute('aria-label', 'Pindah kartu ke kanan');
         b.style.padding = '2px 10px';
         b.style.fontSize = '12px';
         b.title = 'Pindah ke kanan';
@@ -67,6 +69,7 @@ export function render(root) {
       const sp = T.el('<div style="flex:1"></div>');
       acts.appendChild(sp);
       const x = T.btn('✕', () => del(col, card.id));
+      x.setAttribute('aria-label', 'Hapus kartu ' + card.text);
       x.style.padding = '2px 10px';
       x.style.fontSize = '12px';
       x.title = 'Hapus kartu';

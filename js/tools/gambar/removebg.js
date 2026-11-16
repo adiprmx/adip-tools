@@ -1,4 +1,4 @@
-import { h as T, utils, imglyRemoval } from '../../core.js?v=6.12.1';
+import { h as T, utils, imglyRemoval } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "removebg", "name": "Remove BG", "cat": "gambar", "icon": "🪄", "desc": "Hapus background foto otomatis, 100% di perangkat.", "keywords": "hapus background,remove bg,transparan,foto,produk"};
 
@@ -123,7 +123,7 @@ export function render(root) {
       finish(objUrl || URL.createObjectURL(fileOrBlob));
     } catch (e) {
       // Fallback chroma-key lokal
-      T.show(out, '<span class="dim">AI gagal (' + T.esc(e && e.message ? e.message : 'error') + ') — mencoba <b>mode chroma-key lokal</b>…</span>');
+      T.show(out, '<span class="dim">AI gagal memisahkan latar — mencoba cara lain…</span>');
       try {
         const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = objUrl || URL.createObjectURL(fileOrBlob); });
         const c = document.createElement('canvas');

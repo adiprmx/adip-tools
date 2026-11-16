@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node).
 // Koefisien per m2 (AHSP/SNI): dinding bata merah 1/2 bata 1:4 = bata 70 buah,

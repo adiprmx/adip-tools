@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.2';
 
 const KEY = 'pengingat-obat:v1';
 const TAKEN_KEY = 'pengingat-obat-taken:v1';

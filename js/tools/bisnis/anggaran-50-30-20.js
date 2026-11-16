@@ -1,4 +1,4 @@
-import { h as T, kv, tabs } from '../../core.js?v=6.12.1';
+import { h as T, kv, tabs } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"anggaran-50-30-20","name":"Anggaran 50/30/20","cat":"bisnis","icon":"💰","desc":"Bagi penghasilan jadi kebutuhan, keinginan, dan tabungan, lalu cek apakah pengeluaranmu sudah sesuai.","keywords":"anggaran,budget,50 30 20,keuangan,penghasilan,tabungan,kebutuhan","since":"6.11.0"};
 

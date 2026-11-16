@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
-export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 5 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja,sertifikat"};
+export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 6 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja,sertifikat"};
 
 let _printCssDone = false;
 
@@ -44,6 +44,44 @@ function kosong() {
   };
 }
 
+// Normalisasi data simpanan (P3-R1-F1): localStorage bisa berisi bentuk apa
+// pun — ditulis tangan, ekstensi, atau versi lain — dan semua pemakaian di
+// bawah mengasumsikan bentuk dari kosong(). Field yang bentuknya salah
+// diganti nilai default supaya langkah 2-5 tidak crash. Mengembalikan true
+// bila ada yang diperbaiki, supaya simpanan bisa ditulis kembali bersih.
+const TEMPLATE_SAH = ['formal', 'simpel', 'modern', 'kolom', 'dua-kolom', 'ats'];
+function normalisasiData(d) {
+  const dflt = kosong();
+  let diperbaiki = false;
+  ['nama', 'gelar', 'tempatLahir', 'tanggalLahir', 'alamat', 'telepon', 'email', 'ringkasan'].forEach((k) => {
+    if (typeof d[k] !== 'string') { d[k] = dflt[k]; diperbaiki = true; }
+  });
+  if (typeof d.template !== 'string' || !TEMPLATE_SAH.includes(d.template)) { d.template = 'formal'; diperbaiki = true; }
+  const ARRAY_OBJ = {
+    pendidikan: ['sekolah', 'jurusan', 'tahun'],
+    pengalaman: ['tempat', 'jabatan', 'tahun', 'tugas'],
+    sertifikat: ['nama', 'tahun']
+  };
+  Object.keys(ARRAY_OBJ).forEach((k) => {
+    if (!Array.isArray(d[k])) { d[k] = dflt[k]; diperbaiki = true; return; }
+    const bersih = d[k].filter((x) => x && typeof x === 'object' && !Array.isArray(x));
+    if (bersih.length !== d[k].length) diperbaiki = true;
+    bersih.forEach((x) => {
+      ARRAY_OBJ[k].forEach((f) => {
+        if (x[f] != null && typeof x[f] !== 'string') { x[f] = ''; diperbaiki = true; }
+      });
+    });
+    d[k] = bersih;
+  });
+  if (!Array.isArray(d.keahlian)) { d.keahlian = dflt.keahlian; diperbaiki = true; }
+  else {
+    const bersih = d.keahlian.filter((x) => typeof x === 'string');
+    if (bersih.length !== d.keahlian.length) diperbaiki = true;
+    d.keahlian = bersih;
+  }
+  return diperbaiki;
+}
+
 export function render(root) {
 
     ensurePrintCss();
@@ -53,6 +91,11 @@ export function render(root) {
       const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
       if (saved && typeof saved === 'object') data = Object.assign(kosong(), saved);
     } catch (e) { /* abaikan data rusak */ }
+    // Perbaiki bentuk simpanan di titik muat (P3-R1-F1), lalu tulis kembali
+    // yang sudah bersih agar tidak kambuh di kunjungan berikutnya.
+    if (normalisasiData(data)) {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (e) { /* penyimpanan penuh */ }
+    }
 
     let langkah = 1;
     const box = T.out();
@@ -66,6 +109,34 @@ export function render(root) {
     const esc = (s) => T.esc(String(s == null ? '' : s));
     const baris = (v) => String(v == null ? '' : v).trim();
 
+    // PERBAIKAN BUG LAMA (berlaku semua template): CSS print hanya memakai
+    // visibility:hidden, yang tidak meruntuhkan tinggi dokumen — hasil
+    // cetak/PDF selalu punya halaman 2 kosong. Sebelum print, sembunyikan
+    // dari layout semua elemen di luar rantai #cv-print; pulihkan sesudahnya.
+    function siapkanCetak() {
+      const target = document.getElementById('cv-print');
+      if (!target) return [];
+      const disembunyikan = [];
+      let el = target;
+      while (el && el !== document.body) {
+        const parent = el.parentElement;
+        if (!parent) break;
+        Array.from(parent.children).forEach((sib) => {
+          if (sib !== el && sib.style.display !== 'none') {
+            disembunyikan.push([sib, sib.style.display]);
+            sib.style.display = 'none';
+          }
+        });
+        el = parent;
+      }
+      return disembunyikan;
+    }
+    let _cetak = null;
+    window.addEventListener('beforeprint', () => { _cetak = siapkanCetak(); });
+    window.addEventListener('afterprint', () => {
+      if (_cetak) { _cetak.forEach((pas) => { pas[0].style.display = pas[1]; }); _cetak = null; }
+    });
+
     /* ---------- render CV ---------- */
     function cvHtml() {
       const nama = baris(data.nama) || '(Nama lengkap)';
@@ -76,6 +147,65 @@ export function render(root) {
       const sert = (data.sertifikat || []).filter((s) => baris(s.nama));
       const ahli = data.keahlian.map(baris).filter(Boolean);
       const tpl = data.template || 'formal';
+
+      // Template dua kolom panel: samping berwarna (kontak, keahlian,
+      // pendidikan singkat), kolom utama berisi nama, profil & pengalaman.
+      // Berbeda dari 'kolom' (garis pemisah, tanpa panel & tanpa pendidikan
+      // di samping). Tanpa foto: tool ini memang tidak punya kolom foto.
+      if (tpl === 'dua-kolom') {
+        const jdlSamping = (t) => '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:18px 0 6px">' + t + '</div>';
+        const jdlUtama = (t) => '<div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px">' + t + '</div>';
+        let samping = '';
+        if (kontak.length || ttl) {
+          samping += '<div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 6px">Kontak</div>' +
+            '<div style="font-size:12px;line-height:1.7;color:#333;overflow-wrap:anywhere">' +
+            kontak.map(esc).join('<br/>') + (ttl ? (kontak.length ? '<br/>' : '') + esc(ttl) : '') + '</div>';
+        }
+        if (ahli.length) {
+          samping += jdlSamping('Keahlian') + '<div style="font-size:12px;line-height:1.7;overflow-wrap:anywhere">' + ahli.map((a) => '• ' + esc(a)).join('<br/>') + '</div>';
+        }
+        if (pend.length) {
+          samping += jdlSamping('Pendidikan');
+          pend.forEach((p) => {
+            samping += '<div style="font-size:12px;line-height:1.5;margin-bottom:6px;overflow-wrap:anywhere"><b>' + esc(p.sekolah || '(Sekolah)') + '</b>' +
+              (baris(p.tahun) ? '<br/><span style="color:#555">' + esc(p.tahun) + '</span>' : '') + '</div>';
+          });
+        }
+        let utama = '';
+        utama += '<div style="font-size:26px;font-weight:700;letter-spacing:.5px;line-height:1.2;overflow-wrap:anywhere">' + esc(nama) + '</div>' +
+          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          '<div style="border-bottom:2px solid #111;margin:10px 0 14px"></div>';
+        if (baris(data.ringkasan)) utama += jdlUtama('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0 0 14px;overflow-wrap:anywhere">' + esc(data.ringkasan) + '</p>';
+        if (peng.length) {
+          utama += jdlUtama('Pengalaman');
+          peng.forEach((p) => {
+            utama += '<div style="font-size:13px;line-height:1.5;margin-bottom:8px;overflow-wrap:anywhere"><b>' + esc(p.jabatan || '(Jabatan)') + '</b> - ' + esc(p.tempat || '(Tempat)') +
+              (baris(p.tahun) ? ' <span style="color:#555">(' + esc(p.tahun) + ')</span>' : '') +
+              (baris(p.tugas) ? '<br/>' + esc(p.tugas) : '') + '</div>';
+          });
+          utama += '<div style="height:6px"></div>';
+        }
+        if (pend.length) {
+          utama += jdlUtama('Pendidikan');
+          pend.forEach((p) => {
+            utama += '<div style="font-size:13px;line-height:1.5;margin-bottom:6px;overflow-wrap:anywhere"><b>' + esc(p.sekolah || '(Sekolah)') + '</b>' +
+              (baris(p.tahun) ? ' <span style="color:#555">(' + esc(p.tahun) + ')</span>' : '') +
+              (baris(p.jurusan) ? '<br/>' + esc(p.jurusan) : '') + '</div>';
+          });
+          utama += '<div style="height:6px"></div>';
+        }
+        if (sert.length) {
+          utama += jdlUtama('Pelatihan & Sertifikat');
+          sert.forEach((s) => {
+            utama += '<div style="font-size:13px;line-height:1.5;margin-bottom:4px;overflow-wrap:anywhere">• ' + esc(s.nama) +
+              (baris(s.tahun) ? ' <span style="color:#555">(' + esc(s.tahun) + ')</span>' : '') + '</div>';
+          });
+        }
+        return '<div class="cv-dua-kolom" style="display:flex;gap:0;align-items:stretch">' +
+          '<div class="cv2-samping" style="width:200px;flex-shrink:0;background:#f2f0ed;border-radius:8px;padding:16px;print-color-adjust:exact;-webkit-print-color-adjust:exact">' + samping + '</div>' +
+          '<div class="cv2-utama" style="flex:1;min-width:0;padding:4px 0 0 20px">' + utama + '</div>' +
+          '</div>';
+      }
 
       // Tampilan dua kolom: kontak + keahlian di kiri, isi utama di kanan.
       if (tpl === 'kolom') {
@@ -291,6 +421,11 @@ export function render(root) {
 
     function tampilkanLangkah() {
       navLangkah();
+      // PERBAIKAN BUG LAMA (bukan bagian template, tapi pemilih template di
+      // langkah 4 tidak bisa dijangkau tanpanya): T.out() membuat div dengan
+      // atribut hidden, dan tampilkanLangkah() tidak pernah membukanya —
+      // akibatnya SELURUH form langkah 1-4 tidak tampil di v6.12.1.
+      box.hidden = false;
       box.innerHTML = '';
       previewBox.innerHTML = '';
       if (langkah === 1) {
@@ -340,6 +475,7 @@ export function render(root) {
           ['simpel', 'Simpel, rapi tanpa garis'],
           ['modern', 'Modern, aksen garis tebal di kiri'],
           ['kolom', 'Dua kolom, kontak & keahlian di kiri'],
+          ['dua-kolom', 'Dua kolom, panel samping berwarna'],
           ['ats', 'ATS, polos dan mudah dibaca sistem HRD']
         ], data.template);
         tpl.addEventListener('change', () => { data.template = tpl.value; simpan(); });

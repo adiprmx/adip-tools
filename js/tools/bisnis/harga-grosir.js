@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "harga-grosir", "name": "Harga Grosir Bertingkat", "cat": "bisnis", "icon": "🏪", "desc": "Susun harga grosir per jumlah pembelian, dan cek laba tiap tingkatannya.", "keywords": "harga grosir,grosir,bertingkat,tier,partai,diskon jumlah,reseller grosir", "since": "6.11.0"};
 export function render(root) {

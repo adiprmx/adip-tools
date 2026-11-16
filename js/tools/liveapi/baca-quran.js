@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.1';
+import { h as T, errBox } from '../../core.js?v=6.12.2';
 
 // Baca Al-Quran lewat API gratis AlQuran Cloud (tanpa key).
 // Terverifikasi 14 Nov 2026: /v1/surah (114 surah), /v1/surah/1 (teks Arab),
@@ -31,7 +31,10 @@ export function render(root) {
   const tampilTerakhir = () => {
     const last = loadLast();
     if (!last) return '';
-    return '<p class="center hint">Terakhir dibaca: <b>' + T.esc(last.nama) + '</b> (surah ' + last.nomor + ')' +
+    // Nomor dari cache dipaksa angka 1–114 — cache beracun diabaikan total.
+    const nomor = Number(last.nomor);
+    if (!Number.isInteger(nomor) || nomor < 1 || nomor > 114) return '';
+    return '<p class="center hint">Terakhir dibaca: <b>' + T.esc(last.nama) + '</b> (surah ' + nomor + ')' +
       (last.at ? ' · ' + new Date(last.at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '') + '</p>';
   };
 
@@ -45,11 +48,13 @@ export function render(root) {
       T.show(daftarBox, '<p class="center hint">Tidak ada surah yang cocok dengan pencarian itu. Coba kata lain atau nomor surah.</p>');
       return;
     }
-    T.show(daftarBox, '<p class="hint" style="margin-top:12px">' + list.length + ' surah</p>' + list.map((s) =>
-      '<div class="kv" data-surah="' + s.number + '" style="cursor:pointer" role="button" tabindex="0">' +
-      '<span class="k"><b>' + s.number + '. ' + T.esc(s.englishName) + '</b><br><span class="hint">' + T.esc(s.englishNameTranslation) + ' · ' + s.numberOfAyahs + ' ayat · ' + (s.revelationType === 'Meccan' ? 'Makkiyah' : 'Madaniyah') + '</span></span>' +
-      '<span class="v" style="font-size:20px" dir="rtl" lang="ar">' + T.esc(s.name) + '</span></div>'
-    ).join(''));
+    T.show(daftarBox, '<p class="hint" style="margin-top:12px">' + list.length + ' surah</p>' + list.map((s) => {
+      // Angka dari API dipaksa number — string apa pun jadi 0, bukan markup.
+      const no = Number(s.number) || 0, jml = Number(s.numberOfAyahs) || 0;
+      return '<div class="kv" data-surah="' + no + '" style="cursor:pointer" role="button" tabindex="0">' +
+      '<span class="k"><b>' + no + '. ' + T.esc(s.englishName) + '</b><br><span class="hint">' + T.esc(s.englishNameTranslation) + ' · ' + jml + ' ayat · ' + (s.revelationType === 'Meccan' ? 'Makkiyah' : 'Madaniyah') + '</span></span>' +
+      '<span class="v" style="font-size:20px" dir="rtl" lang="ar">' + T.esc(s.name) + '</span></div>';
+    }).join(''));
     daftarBox.querySelectorAll('[data-surah]').forEach((el) => {
       const buka = () => bacaSurah(+el.getAttribute('data-surah'));
       el.addEventListener('click', buka);
@@ -94,20 +99,23 @@ export function render(root) {
       const a = arab && arab.data;
       const ter = indo && indo.data;
       if (!a || !Array.isArray(a.ayahs) || !a.ayahs.length) throw new Error('bad-data');
-      saveLast({ nomor: a.number, nama: a.englishName, at: Date.now() });
+      // Angka dari API dipaksa number sebelum disimpan/dirender.
+      const noSurah = Number(a.number) || 0, jmlAyat = Number(a.numberOfAyahs) || 0;
+      saveLast({ nomor: noSurah, nama: a.englishName, at: Date.now() });
       const terMap = {};
-      if (ter && Array.isArray(ter.ayahs)) ter.ayahs.forEach((ay) => { terMap[ay.numberInSurah] = ay.text; });
+      if (ter && Array.isArray(ter.ayahs)) ter.ayahs.forEach((ay) => { terMap[Number(ay.numberInSurah) || 0] = ay.text; });
       T.show(box,
-        '<p class="center"><b>' + a.number + '. ' + T.esc(a.englishName) + '</b> · ' + T.esc(a.englishNameTranslation) + '</p>' +
+        '<p class="center"><b>' + noSurah + '. ' + T.esc(a.englishName) + '</b> · ' + T.esc(a.englishNameTranslation) + '</p>' +
         '<p class="center" style="font-size:28px" dir="rtl" lang="ar">' + T.esc(a.name) + '</p>' +
-        '<p class="center hint">' + a.numberOfAyahs + ' ayat · ' + (a.revelationType === 'Meccan' ? 'Makkiyah' : 'Madaniyah') + '</p>' +
+        '<p class="center hint">' + jmlAyat + ' ayat · ' + (a.revelationType === 'Meccan' ? 'Makkiyah' : 'Madaniyah') + '</p>' +
         '<p style="margin:10px 0"><button class="btn" id="bq-kembali">← Kembali ke daftar</button></p>' +
-        a.ayahs.map((ay) =>
-          '<div style="border-top:1px solid #ffffff14;padding:14px 0">' +
-          '<p style="text-align:right;font-size:22px;line-height:2" dir="rtl" lang="ar">' + T.esc(String(ay.text || '').trim()) + ' <span style="font-size:14px">﴿' + ay.numberInSurah + '﴾</span></p>' +
-          (terMap[ay.numberInSurah] ? '<p class="hint" style="margin-top:6px">' + ay.numberInSurah + '. ' + T.esc(terMap[ay.numberInSurah]) + '</p>' : '') +
-          '</div>'
-        ).join('') +
+        a.ayahs.map((ay) => {
+          const noAyat = Number(ay.numberInSurah) || 0;
+          return '<div style="border-top:1px solid #ffffff14;padding:14px 0">' +
+          '<p style="text-align:right;font-size:22px;line-height:2" dir="rtl" lang="ar">' + T.esc(String(ay.text || '').trim()) + ' <span style="font-size:14px">﴿' + noAyat + '﴾</span></p>' +
+          (terMap[noAyat] ? '<p class="hint" style="margin-top:6px">' + noAyat + '. ' + T.esc(terMap[noAyat]) + '</p>' : '') +
+          '</div>';
+        }).join('') +
         '<p class="hint">Teks Arab dan terjemahan Indonesia dari AlQuran Cloud.</p>');
       const kembali = box.querySelector('#bq-kembali');
       if (kembali) kembali.addEventListener('click', () => { sedangBuka = 0; T.show(box, tampilTerakhir()); tampilDaftar(cariI.value); });

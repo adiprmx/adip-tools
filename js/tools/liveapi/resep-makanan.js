@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.1';
+import { h as T, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"resep-makanan","name":"Resep Makanan","cat":"liveapi","icon":"🍳","desc":"Cari resep masakan dari seluruh dunia, lengkap dengan bahan & cara masak.","keywords":"resep,masakan,makanan,masak,bahan,cara masak,themealdb","since":"6.12.0"};
 
@@ -40,7 +40,7 @@ export function render(root) {
   const tampilDetail = (m) => {
     const bl = bahan(m);
     let html = '<div class="center">';
-    if (m.strMealThumb) html += '<img src="' + esc(m.strMealThumb) + '" alt="" style="max-width:100%;border-radius:10px;margin-bottom:8px" loading="lazy" onerror="this.style.display=\'none\'">';
+    if (m.strMealThumb) html += '<img src="' + esc(m.strMealThumb) + '" alt="" style="max-width:100%;border-radius:10px;margin-bottom:8px" loading="lazy" data-err="hide">';
     html += '<div style="font-weight:700;font-size:16px">' + esc(m.strMeal || 'Tanpa nama') + '</div>' +
       '<div class="dim">' + esc([m.strCategory, m.strArea].filter(Boolean).join(' · ') || '-') + '</div></div>';
     if (bl.length) {
@@ -59,6 +59,7 @@ export function render(root) {
       html += '<div style="margin-top:6px"><a href="' + esc(m.strSource) + '" target="_blank" rel="noopener">Sumber resep asli ↗</a></div>';
     }
     T.show(detail, html);
+    T.wireImgErr(detail);
     T.scrollToPreview && T.scrollToPreview(detail);
   };
 
@@ -67,7 +68,7 @@ export function render(root) {
     list.appendChild(T.el('<div class="dim" style="margin-bottom:8px">Ketuk hasil untuk lihat resep lengkap:</div>'));
     meals.forEach((m) => {
       const thumb = m.strMealThumb
-        ? '<img src="' + esc(m.strMealThumb) + '" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0" loading="lazy" onerror="this.remove()">'
+        ? '<img src="' + esc(m.strMealThumb) + '" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0" loading="lazy" data-err="remove">'
         : '<div style="width:56px;height:56px;border-radius:8px;background:#27272a;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px">🍽️</div>';
       const item = T.el(
         '<button type="button" style="display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:#18181b;border:1px solid #ffffff14;border-radius:10px;padding:8px;margin-bottom:8px;cursor:pointer;color:inherit">' +
@@ -77,6 +78,7 @@ export function render(root) {
         '</button>'
       );
       item.addEventListener('click', () => tampilDetail(m));
+      T.wireImgErr(item);
       list.appendChild(item);
     });
     T.show(box, '');
@@ -88,7 +90,7 @@ export function render(root) {
     if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
     else if (/429/.test(e.message || '')) msg = 'Terlalu banyak permintaan — tunggu sebentar lalu coba lagi.';
     else msg = 'Gagal memuat resep. Periksa koneksi internet lalu coba lagi.';
-    T.show(box, '<span class="err">' + esc(msg) + '</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+    T.show(box, '<span class="err">' + esc(msg) + '</span>');
     const wrap = T.el('<div style="margin-top:8px"></div>');
     wrap.appendChild(T.btn('🔄 Coba lagi', ulang));
     box.appendChild(wrap);

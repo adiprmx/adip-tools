@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"matriks-eisenhower","name":"Matriks Eisenhower","cat":"produktivitas","icon":"🎯","desc":"Pilah tugas: kerjakan, jadwalkan, delegasikan, atau buang.","keywords":"eisenhower,matriks,prioritas,tugas,penting,mendesak,produktivitas"};
 
@@ -36,6 +36,7 @@ export function render(root) {
         mover.title = 'Pindah kuadran';
         mover.addEventListener('change', () => { t.q = mover.value; save(); draw(); });
         const del = T.btn('✕', () => { tasks = tasks.filter((x) => x.id !== t.id); save(); draw(); });
+        del.setAttribute('aria-label', 'Hapus tugas ' + t.text);
         line.appendChild(txt); line.appendChild(doneBtn); line.appendChild(mover); line.appendChild(del);
         sec.appendChild(line);
       });

@@ -1,4 +1,4 @@
-import { h as T, _NI, tabs } from '../../core.js?v=6.12.1';
+import { h as T, _NI, tabs } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tebak-chord", "name": "Tebak Chord dari Nada", "cat": "musik", "icon": "🔍", "desc": "Ketik nada-nada, tebak nama chordnya — plus kuis dengar chord 3 level.", "keywords": "chord,nada,tebak,nama chord,identifikasi,interval,kuis,latihan telinga"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node): pola napas = daftar fase (nama, detik).
 utils.POLA_NAPAS = {

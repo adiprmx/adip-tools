@@ -7,7 +7,7 @@
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
@@ -799,7 +799,6 @@ function tFetch(url, {timeout = 15000, ...opts} = {}) {
 // method/body/headers opsional untuk probe read-only (OPTIONS, POST GraphQL).
 const HEADER_EVIDENCE = ['content-security-policy', 'strict-transport-security', 'x-frame-options', 'x-content-type-options', 'referrer-policy', 'permissions-policy'];
 async function fetchProxied(url, {timeout = 15000, method = 'GET', body = null, headers = null} = {}) {
-  let lastErr = '';
   try {
     const r = await tFetch(PROXY_CA(url), {timeout, method, body, headers: headers || undefined});
     const h = {};
@@ -813,16 +812,14 @@ async function fetchProxied(url, {timeout = 15000, method = 'GET', body = null, 
     const headersOk = !!blob || HEADER_EVIDENCE.some((k) => !!h[k]);
     const text = await r.text();
     return {ok: true, status: r.status, headers: h, headersOk, text, via: 'corsanyway'};
-  } catch (e1) {
-    lastErr = String((e1 && e1.message) || e1);
-  }
+  } catch (e1) { /* proxy pertama gagal — lanjut ke proxy cadangan */ }
   try { // fallback terakhir: allorigins /get (body + status, tanpa header)
     const r = await tFetch(PROXY_AO(url), {timeout});
     const j = await r.json();
     if (!j || typeof j.contents !== 'string') throw new Error('proxy gagal');
     return {ok: true, status: (j.status && j.status.http_code) || 200, headers: {}, headersOk: false, text: j.contents, via: 'allorigins'};
   } catch (e2) {
-    return {ok: false, error: 'Semua proxy gagal mengambil halaman (CorsAnyway: ' + lastErr.slice(0, 60) + '; AllOrigins: ' + String((e2 && e2.message) || e2).slice(0, 60) + '). Proxy publik kadang sedang sibuk — coba lagi beberapa saat lagi.'};
+    return {ok: false, error: 'Semua proxy gagal mengambil halaman. Proxy publik kadang sedang sibuk — coba lagi beberapa saat lagi.'};
   }
 }
 async function doh(name, type) {
@@ -953,7 +950,7 @@ async function mRdap(ctx) {
         'Perpanjang domain & aktifkan auto-renew.', 'expires: ' + expires.slice(0,10)));
     }
     if (!f.length) f.push(mkInfo('rdap','Data RDAP OK','Umur & masa berlaku domain normal.'));
-  } catch (e) { f.push(mkInfo('rdap','RDAP tidak dapat dicek','Server RDAP tak merespons: ' + String(e.message||e).slice(0,80))); }
+  } catch (e) { f.push(mkInfo('rdap','RDAP tidak dapat dicek','Umur domain tidak bisa dicek. Coba lagi nanti.')); }
   return f;
 }
 
@@ -1637,7 +1634,7 @@ async function runScan(target, onProg) {
       const f = await m.run(ctx);
       ctx.findings.push(...(f || []));
     } catch (e) {
-      ctx.findings.push(mkInfo(m.id, 'Modul "' + m.name + '" gagal', 'Error: ' + String((e && e.message) || e).slice(0, 120)));
+      ctx.findings.push(mkInfo(m.id, 'Modul "' + m.name + '" gagal', 'Pemeriksaan ini tidak bisa diselesaikan. Coba scan ulang.'));
     }
     onProg(m.id, 'done');
   }
@@ -1757,7 +1754,7 @@ export function render(root) {
     if (scanning) return;
     let target;
     try { target = normalizeTarget(inp.value); }
-    catch (e) { T.show(box, '<div style="color:#f87171;font-size:13px;margin:8px 0">❌ ' + T.esc(e.message) + '</div>'); return; }
+    catch (e) { T.show(box, '<div style="color:#f87171;font-size:13px;margin:8px 0">❌ Alamat websitenya tidak benar. Periksa lagi penulisannya lalu coba lagi.</div>'); return; }
     const now = Date.now();
     if (now < lastCooldownUntil) {
       T.show(box, '<div style="color:#eab308;font-size:13px;margin:8px 0">⏳ Tunggu ' + Math.ceil((lastCooldownUntil - now) / 1000) + ' detik sebelum scan lagi.</div>');
@@ -1786,7 +1783,7 @@ export function render(root) {
       if (prev) showDiff(prev, res);
       lastCooldownUntil = Date.now() + COOLDOWN_MS;
     } catch (e) {
-      T.show(resBox, '<div style="color:#f87171;font-size:13px">❌ Scan gagal: ' + T.esc(String((e && e.message) || e).slice(0, 200)) + '</div>');
+      T.show(resBox, '<div style="color:#f87171;font-size:13px">❌ Scan gagal. Periksa koneksimu lalu coba lagi.</div>');
     }
     scanning = false; btnScan.disabled = false; btnScan.textContent = '🔍 Pindai Sekarang';
   }

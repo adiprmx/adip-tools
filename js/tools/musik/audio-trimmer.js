@@ -1,5 +1,5 @@
-import { h as T, utils, fmtBytes, errBox } from '../../core.js?v=6.12.1';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.1';
+import { h as T, utils, fmtBytes, errBox } from '../../core.js?v=6.12.2';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.2';
 
 export const meta = {"id": "audio-trimmer", "name": "Audio Trimmer", "cat": "musik", "icon": "✂️", "desc": "Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.", "keywords": "audio,potong,mp3,m4a,ogg,wav,trim,fade,video,ekstrak"};
 export function render(root) {
@@ -68,9 +68,15 @@ export function render(root) {
 
     // Ekstrak trek audio dari file video (MP4/WebM/dll) jadi WAV lewat
     // ffmpeg, supaya bisa dipotong seperti file audio biasa.
+    // Bila gagal, penyebabnya dibedakan: video tanpa trek audio (kode
+    // TANPA_AUDIO, dibuktikan lewat probe stream) vs mesin tidak didukung
+    // (kode NO_FFMPEG) vs gagal umum — supaya pesan ke pengguna tepat,
+    // bukan tebakan dari teks log (baris log terakhir ffmpeg tidak andal:
+    // untuk video tanpa suara ia berakhir "Invalid argument", sama seperti
+    // file rusak).
     const ekstrakDariVideo = async (f, onTahap) => {
       const sup = supportsFFmpeg();
-      if (!sup.ok) throw new Error(sup.reason);
+      if (!sup.ok) { const e = new Error(sup.reason); e.code = 'NO_FFMPEG'; throw e; }
       busy = true;
       try {
         const { ffmpeg, fetchFile } = await loadFFmpeg((st) => { if (onTahap) onTahap(st.label, st.pct || 0); });
@@ -80,9 +86,26 @@ export function render(root) {
         if (onTahap) onTahap('Menyalin video ke mesin…', 0);
         await ffmpeg.writeFile(inName, await fetchFile(f));
         if (onTahap) onTahap('Mengekstrak audio dari video…', 0);
-        await runFFmpeg(ffmpeg, ['-i', inName, '-vn', '-ac', '2', '-ar', '44100', '-c:a', 'pcm_s16le', outName], (p) => {
-          if (onTahap) onTahap('Mengekstrak audio dari video… ' + Math.round(p * 100) + '%', Math.round(p * 100));
-        });
+        try {
+          await runFFmpeg(ffmpeg, ['-i', inName, '-vn', '-ac', '2', '-ar', '44100', '-c:a', 'pcm_s16le', outName], (p) => {
+            if (onTahap) onTahap('Mengekstrak audio dari video… ' + Math.round(p * 100) + '%', Math.round(p * 100));
+          });
+        } catch (err) {
+          if (isCancelled(err)) throw err;
+          // Ekstrak gagal: cek apakah videonya memang tidak punya trek
+          // audio. Probe singkat (0,1 dtk, hanya kode keluar): stream
+          // video bisa dibaca tapi stream audio tidak ada/tidak bisa
+          // dibaca = video tanpa suara. File rusak gagal di kedua probe.
+          const probeOk = async (map) => {
+            try { await runFFmpeg(ffmpeg, ['-i', inName, '-map', map, '-t', '0.1', '-f', 'null', '/dev/null']); return true; }
+            catch (e2) { return false; }
+          };
+          const adaVideo = await probeOk('0:v');
+          const adaAudio = await probeOk('0:a');
+          await cleanupFFmpeg(ffmpeg, [inName, outName]);
+          if (adaVideo && !adaAudio) { const e3 = new Error('Video ini tidak punya trek audio.'); e3.code = 'TANPA_AUDIO'; throw e3; }
+          throw err;
+        }
         const data = await ffmpeg.readFile(outName);
         await cleanupFFmpeg(ffmpeg, [inName, outName]);
         return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
@@ -108,7 +131,16 @@ export function render(root) {
         } else {
           buf = await c.decodeAudioData(await f.arrayBuffer());
         }
-      } catch (e) { wrap.innerHTML = '<p class="err">' + (isVideo ? 'Gagal mengekstrak audio dari video. Coba file MP4/WebM lain, atau pastikan mesin ffmpeg bisa dimuat.' : 'Gagal membaca file audio. Coba file MP3/WAV/OGG lain.') + '</p>'; return; }
+      } catch (e) {
+        if (isVideo && e && e.code === 'TANPA_AUDIO') {
+          wrap.innerHTML = '<p class="err">Video ini tidak punya suara — tidak ada trek audio yang bisa diekstrak. Coba video lain yang ada suaranya.</p>';
+        } else if (isVideo && e && e.code === 'NO_FFMPEG') {
+          wrap.innerHTML = errBox(e.message);
+        } else {
+          wrap.innerHTML = '<p class="err">' + (isVideo ? 'Gagal mengekstrak audio dari video. Coba file MP4/WebM lain, atau pastikan mesin ffmpeg bisa dimuat.' : 'Gagal membaca file audio. Coba file MP3/WAV/OGG lain.') + '</p>';
+        }
+        return;
+      }
       wrap.innerHTML = '';
       const info = T.el('<p class="mut" style="font-size:13px"></p>');
       const canvas = T.el('<canvas class="prev" style="width:100%;cursor:pointer"></canvas>');

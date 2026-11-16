@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.12.1';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "kunci-rsa", "name": "Buat Pasangan Kunci RSA", "cat": "keamanan", "icon": "🔑", "desc": "Buat pasangan kunci publik & privat RSA langsung di perangkat, tanpa dikirim ke mana-mana.", "keywords": "rsa,kunci,public,private,keypair,ssh,pem,kriptografi"};
 export function render(root) {
@@ -44,7 +44,7 @@ export function render(root) {
         privTa.value = privPem;
         T.show(box, '<div style="color:#22c55e;font-size:14px;line-height:1.6">✅ Pasangan kunci ' + bits + ' bit berhasil dibuat. Kunci privat hanya ada di perangkat ini — simpan baik-baik dan jangan dibagikan ke siapa pun.</div>');
       } catch (e) {
-        T.show(box, '<div style="color:#ef4444;font-size:14px;line-height:1.6">⚠️ Gagal membuat kunci: ' + T.esc(e && e.message ? e.message : String(e)) + '</div>');
+        T.show(box, '<div style="color:#ef4444;font-size:14px;line-height:1.6">⚠️ Kunci tidak bisa dibuat. Coba lagi.</div>');
       }
     }
 

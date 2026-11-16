@@ -1,4 +1,4 @@
-import { h as T, errBox, LOCAL_NOTE, fmtBytes, fileInput } from '../../core.js?v=6.12.1';
+import { h as T, errBox, LOCAL_NOTE, fmtBytes, fileInput } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "heic-ke-jpg", "name": "HEIC ke JPG", "cat": "gambar", "icon": "🍎", "desc": "Ubah foto iPhone (HEIC) jadi JPG/PNG, bisa banyak foto sekaligus.", "keywords": "heic,heif,iphone,jpg,png,foto,convert", "since": "6.11.0"};
 export function render(root) {
@@ -6,14 +6,54 @@ export function render(root) {
     const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';
     const MAKS_FILE = 50 * 1024 * 1024;
     const MAKS_JUMLAH = 20;
+    const BATAS_MUAT_LIB = 45 * 1000; // muat library dari CDN, maks 45 dtk
+    const BATAS_DECODE = 120 * 1000; // decode satu foto, maks 120 dtk
+
+    // Muat <script> dengan timeout sendiri: T.loadScript tidak punya timeout,
+    // jadi bila CDN menggantung (tidak load, tidak error) tool macet selamanya
+    // di "Memuat pengubah HEIC…" tanpa pesan apa pun.
+    const percobaanMuat = {}; // src -> jumlah percobaan
+    const muatScript = (src, batasMs) => {
+      percobaanMuat[src] = (percobaanMuat[src] || 0) + 1;
+      // Percobaan ulang pakai URL berbeda: browser menggabungkan request yang
+      // URL-nya sama dan masih menggantung, jadi retry dengan URL sama tidak
+      // pernah sampai ke jaringan (terbukti di uji Playwright P3).
+      const url = percobaanMuat[src] === 1 ? src : src + '?coba=' + percobaanMuat[src];
+      return new Promise((selesai) => {
+        const s = document.createElement('script');
+        s.src = url; s.async = true;
+        // SRI: hash dicari dari URL dasar (tanpa ?coba=N) — isi file yang
+        // dilayani retry identik, dan browser memeriksa hash terhadap isi.
+        const hash = T.scriptIntegrity ? T.scriptIntegrity(src) : null;
+        if (hash) { s.integrity = hash; s.crossOrigin = 'anonymous'; }
+        const timer = setTimeout(() => { s.remove(); selesai(false); }, batasMs);
+        s.onload = () => { clearTimeout(timer); selesai(true); };
+        s.onerror = () => { clearTimeout(timer); selesai(false); };
+        document.head.appendChild(s);
+      });
+    };
+    // Janji dengan timeout: bila janji asli tidak kunjung selesai, ditolak
+    // dengan Error('timeout') supaya UI bisa lanjut dan memberi pesan.
+    const denganTimeout = (janji, batasMs) => Promise.race([
+      janji,
+      new Promise((_, tolak) => setTimeout(() => tolak(new Error('timeout')), batasMs)),
+    ]);
 
     let heicSiap = null, zipSiap = null;
     const pastHeic = () => {
-      if (!heicSiap) heicSiap = T.loadScript(HEIC_CDN).then((ok) => ok && typeof window.heic2any === 'function');
+      if (!heicSiap) heicSiap = muatScript(HEIC_CDN, BATAS_MUAT_LIB).then((ok) => {
+        const siap = ok && typeof window.heic2any === 'function';
+        if (!siap) heicSiap = null; // gagal -> klik berikutnya mencoba lagi
+        return siap;
+      });
       return heicSiap;
     };
     const pastZip = () => {
-      if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
+      if (!zipSiap) zipSiap = muatScript(ZIP_CDN, BATAS_MUAT_LIB).then((ok) => {
+        const siap = ok && typeof window.JSZip === 'function';
+        if (!siap) zipSiap = null;
+        return siap;
+      });
       return zipSiap;
     };
 
@@ -87,23 +127,27 @@ export function render(root) {
       const mime = keJpg ? 'image/jpeg' : 'image/png';
       const q = parseInt(qRange.value, 10) / 100;
       const gagal = [];
+      let gagalLama = 0; // gagal karena decode melewati BATAS_DECODE
       for (let i = 0; i < antrean.length; i++) {
         const f = antrean[i];
         T.show(statusBox, '<span class="dim">Memproses ' + (i + 1) + ' dari ' + antrean.length + ': ' + T.esc(f.name || '') + '…</span>');
         try {
-          const keluar = await window.heic2any({ blob: f, toType: mime, quality: q });
+          const keluar = await denganTimeout(window.heic2any({ blob: f, toType: mime, quality: q }), BATAS_DECODE);
           const blob = Array.isArray(keluar) ? keluar[0] : keluar;
           if (!blob) throw new Error('kosong');
           const base = (f.name || 'foto').replace(/\.[^.]*$/, '');
           hasil.push({ blob, name: base + (keJpg ? '.jpg' : '.png'), asal: f.name });
         } catch (e) {
+          if (e && e.message === 'timeout') gagalLama++;
           gagal.push(f.name || 'foto ' + (i + 1));
         }
       }
       memproses = false;
       T.hide(statusBox);
       if (!hasil.length) {
-        T.show(statusBox, errBox('Tidak ada foto yang berhasil diubah. Beberapa varian HEIC memang tidak bisa dibaca alat ini. Coba kirim ulang fotonya dari iPhone sebagai JPG (Pengaturan > Kamera > Format > Paling Kompatibel).'));
+        T.show(statusBox, errBox(gagalLama > 0
+          ? 'Tidak ada foto yang berhasil diubah. Fotonya mungkin terlalu besar sehingga prosesnya terlalu lama, atau varian HEIC-nya tidak bisa dibaca alat ini. Coba foto yang lebih kecil, atau kirim ulang fotonya dari iPhone sebagai JPG (Pengaturan > Kamera > Format > Paling Kompatibel).'
+          : 'Tidak ada foto yang berhasil diubah. Beberapa varian HEIC memang tidak bisa dibaca alat ini. Coba kirim ulang fotonya dari iPhone sebagai JPG (Pengaturan > Kamera > Format > Paling Kompatibel).'));
         return;
       }
       T.show(hasilBox, '');
@@ -114,7 +158,7 @@ export function render(root) {
         hasilBox.appendChild(row);
       });
       if (gagal.length) {
-        hasilBox.appendChild(T.el('<p class="dim" style="font-size:12px">' + gagal.length + ' foto gagal diubah: ' + T.esc(gagal.join(', ')) + '. Varian HEIC-nya tidak bisa diubah oleh alat ini.</p>'));
+        hasilBox.appendChild(T.el('<p class="dim" style="font-size:12px">' + gagal.length + ' foto gagal diubah: ' + T.esc(gagal.join(', ')) + (gagalLama > 0 ? '. Prosesnya terlalu lama atau varian HEIC-nya tidak bisa diubah oleh alat ini.' : '. Varian HEIC-nya tidak bisa diubah oleh alat ini.') + '</p>'));
       }
       if (hasil.length > 1) {
         const zipB = T.btn('Unduh semua (ZIP)', async () => {

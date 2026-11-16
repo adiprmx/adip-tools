@@ -1,4 +1,4 @@
-import { h as T, esc, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, esc, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "harga-crypto", "name": "Harga Crypto", "cat": "liveapi", "icon": "🪙", "desc": "Harga crypto live (IDR & USD) + perubahan 24 jam.", "keywords": "crypto,harga,bitcoin,ethereum,solana,bnb,dogecoin,idr,usd"};
 
@@ -86,7 +86,7 @@ export function render(root) {
       if (e.message === 'RATE_LIMIT') {
         T.show(box, '<span class="err">Terlalu sering, coba lagi ~1 menit.</span><br><span class="dim">API membatasi jumlah permintaan per menit.</span>');
       } else {
-        T.show(box, '<span class="err">Gagal memuat harga crypto. Periksa koneksi internet lalu coba lagi.</span><br><span class="dim">(' + esc(e.message || String(e)) + ')</span>');
+        T.show(box, '<span class="err">Gagal memuat harga crypto. Periksa koneksi internet lalu coba lagi.</span>');
         const wr = T.el('<div class="mt8"></div>');
         wr.appendChild(T.btn('🔄 Coba lagi', () => muat(true)));
         box.appendChild(wr);

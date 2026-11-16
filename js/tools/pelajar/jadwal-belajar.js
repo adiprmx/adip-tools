@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"jadwal-belajar","name":"Jadwal Belajar","cat":"pelajar","icon":"🗓️","desc":"Susun jadwal belajar mingguan otomatis dari daftar mapelmu.","keywords":"jadwal,belajar,rencana,mingguan,mapel,waktu,rutin"};
 
@@ -21,6 +21,7 @@ export function render(root) {
       if (i >= 0) mapelRows.splice(i, 1);
       wrap.remove();
     });
+    r.del.setAttribute('aria-label', 'Hapus mata pelajaran');
     const wrap = T.el('<div style="border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px"></div>');
     wrap.appendChild(T.grid2(T.field('Mata pelajaran', r.nama), T.field('Target (jam/minggu)', r.jam)));
     const d = T.el('<div style="text-align:right"></div>');

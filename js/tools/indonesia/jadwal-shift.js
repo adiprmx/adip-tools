@@ -1,4 +1,4 @@
-import { h as T, utils, todayISO } from '../../core.js?v=6.12.1';
+import { h as T, utils, todayISO } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "jadwal-shift", "name": "Jadwal Shift", "cat": "indonesia", "icon": "🔄", "desc": "Susun jadwal shift karyawan: definisikan pola, rotasi otomatis per tanggal.", "keywords": "jadwal,shift,karyawan,kerja,roster,piket,rotasi,giliran"};
 export function render(root) {
@@ -33,6 +33,7 @@ export function render(root) {
       const label = T.input('text', 'Nama shift', p.label); label.style.flex = '1';
       const jam = T.input('text', 'Jam', p.jam); jam.style.flex = '1.4';
       const del = T.btn('✕', () => { if (cfg.pola.length > 1) { cfg.pola.splice(i, 1); save(); renderPola(); } else T.toast('Minimal 1 shift'); });
+      del.setAttribute('aria-label', 'Hapus shift ' + (p.label || p.kode));
       del.style.flexShrink = '0';
       kode.addEventListener('input', () => { p.kode = kode.value.trim().toUpperCase() || '?'; save(); });
       label.addEventListener('input', () => { p.label = label.value.trim(); save(); });
@@ -52,6 +53,7 @@ export function render(root) {
       const w = T.el('<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center"></div>');
       const inp = T.input('text', 'Nama karyawan', n); inp.style.flex = '1';
       const del = T.btn('✕', () => { if (cfg.karyawan.length > 1) { cfg.karyawan.splice(i, 1); save(); renderKry(); } else T.toast('Minimal 1 karyawan'); });
+      del.setAttribute('aria-label', 'Hapus karyawan ' + (n || (i + 1)));
       del.style.flexShrink = '0';
       inp.addEventListener('input', () => { cfg.karyawan[i] = inp.value; save(); });
       w.appendChild(inp); w.appendChild(del);

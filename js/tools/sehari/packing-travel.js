@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.1';
+import { h as T } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "packing-travel", "name": "Checklist Packing Traveling", "cat": "sehari", "icon": "🧳", "desc": "Daftar bawaan traveling, tersimpan otomatis.", "keywords": "packing,traveling,checklist,koper,liburan", "file": "tools/sehari/packing-travel.js"};
 
@@ -74,6 +74,7 @@ export function render(root) {
           cat.items = cat.items.filter((x) => x !== it);
           saveState(state); draw();
         });
+        del.setAttribute('aria-label', 'Hapus ' + it.t);
         del.style.cssText = 'flex:none;padding:4px 10px;font-size:12px;opacity:.6';
         rowEl.appendChild(cb); rowEl.appendChild(label); rowEl.appendChild(del);
         sec.appendChild(rowEl);
@@ -89,6 +90,7 @@ export function render(root) {
         addInp.value = '';
         saveState(state); draw();
       });
+      addBtn.setAttribute('aria-label', 'Tambah item ke ' + cat.name);
       addInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') addBtn.click(); });
       addRow.appendChild(addInp); addRow.appendChild(addBtn);
       sec.appendChild(addRow);

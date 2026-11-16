@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.12.1';
+import { h as T, utils, money, kv } from '../../core.js?v=6.12.2';
 
 // PPh 23, Pasal 23 UU PPh jo PMK 141/PMK.03/2015:
 // 2% untuk sewa (selain tanah/bangunan) dan imbalan jasa;

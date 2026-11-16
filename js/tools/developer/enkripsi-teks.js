@@ -1,4 +1,4 @@
-import { h as T, tabs, errBox, esc } from '../../core.js?v=6.12.1';
+import { h as T, tabs, errBox, esc } from '../../core.js?v=6.12.2';
 
 // Enkripsi teks AES-GCM (WebCrypto). Kunci diturunkan dari kata sandi
 // dengan PBKDF2 (250.000 iterasi, SHA-256). Format hasil:
@@ -80,7 +80,7 @@ export function render(root) {
         encRes.value = encLast;
         T.show(encOut, '<span class="ok">✓ Terkunci.</span> <span class="dim">Simpan teks ini bersama kata sandinya. Tanpa kata sandi yang benar, teks tidak bisa dibuka lagi.</span>');
       } catch (e) {
-        T.show(encOut, errBox('Gagal mengunci: ' + (e && e.message ? e.message : e)));
+        T.show(encOut, errBox('Teks tidak bisa dikunci. Coba lagi.'));
       }
     };
     pEnc.appendChild(T.field('Teks', encInp));

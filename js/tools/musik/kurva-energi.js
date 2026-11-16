@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.1';
+import { h as T } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "kurva-energi", "name": "Kurva Energi Set", "cat": "musik", "icon": "📈", "desc": "Visualisasi alur energi set DJ: bar chart + statistik peak, valley, rata-rata.", "keywords": "kurva,energi,energy,set,dj,alur,peak,valley,chart"};
 
@@ -52,6 +52,7 @@ export function render(root) {
       const bar = T.el('<div data-i="' + i + '" title="' + T.esc(t.judul) + ' — energy ' + t.energy + '" style="width:100%;max-width:64px;height:' + (t.energy * 10) + '%;background:' + heat(t.energy) + ';border-radius:6px 6px 0 0;min-height:6px"></div>');
       const lbl = T.el('<div style="font-size:10px;color:#a1a1aa;margin-top:6px;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + T.esc(t.judul) + '</div>');
       const del = T.el('<button data-i="' + i + '" style="background:none;border:none;color:#71717a;font-size:12px;cursor:pointer;padding:2px" title="Hapus">✕</button>');
+      del.setAttribute('aria-label', 'Hapus lagu ' + t.judul);
       del.addEventListener('click', () => { tracks.splice(i, 1); paint(); });
       col.appendChild(val); col.appendChild(bar); col.appendChild(lbl); col.appendChild(del);
       wrap.appendChild(col);

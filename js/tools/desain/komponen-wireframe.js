@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "komponen-wireframe", "name": "Komponen Wireframe", "cat": "desain", "icon": "🧩", "desc": "Wireframe grayscale siap pakai: tombol, kartu, navbar, dll.", "keywords": "wireframe,komponen,desain,html,ui,mockup"};
 

@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.1';
+import { h as T, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "autopdf", "name": "Auto PDF", "cat": "produktivitas", "icon": "📄", "desc": "Ubah teks panjang jadi dokumen PDF rapi.", "keywords": "pdf,teks,dokumen,naskah,cetak"};
 
@@ -155,7 +155,7 @@ export function render(root) {
       }, true);
       box.appendChild(T.row(bDl));
       frame.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    } catch (e) { T.show(box, errBox('PDF tidak bisa dibuat: ' + e.message)); }
+    } catch (e) { T.show(box, errBox('PDF tidak bisa dibuat. Periksa isi dokumennya, lalu coba lagi.')); }
   };
 
   const bAdd = T.btn('+ Tambah Bagian', () => addSection('', ''));

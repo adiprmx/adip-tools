@@ -1,5 +1,5 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
-import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
+import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop pas foto, ganti latar, lembar cetak 4R, cek kelayakan.","keywords":"pas foto,crop,ktp,lamaran,rasio,latar merah,lembar cetak"};
 
@@ -83,8 +83,8 @@ export function render(root) {
   frame.addEventListener('pointercancel', endDrag);
 
   /* ---- Ganti latar: segmentasi orang (MediaPipe, pin versi) ---- */
-  const MP_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/selfie_segmentation.js';
-  const MP_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/';
+  const MP_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js';
+  const MP_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/';
   let mpSiap = null, seg = null;
   async function loadSeg() {
     if (seg) return seg;

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"review-mingguan","name":"Review Mingguan","cat":"produktivitas","icon":"📝","desc":"Refleksi mingguan: 3 yang beres, 3 pelajaran, 3 fokus.","keywords":"review,mingguan,refleksi,weekly,jurnal,evaluasi,fokus,retro"};
 
@@ -94,6 +94,7 @@ export function render(root) {
           delete data[w]; save(); drawRiwayat();
         }
       });
+      del.setAttribute('aria-label', 'Hapus review minggu ' + w);
       del.style.cssText = 'padding:4px 9px';
       head.appendChild(del);
       card.appendChild(head);

@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.1';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "bingkai-foto", "name": "Bingkai Foto", "cat": "gambar", "icon": "🖼️", "desc": "Tambah bingkai warna ke foto, atur tebal & sudutnya.", "keywords": "bingkai,frame,border,foto,warna,tebal,sudut,png"};
 export function render(root) {
@@ -69,7 +69,7 @@ export function render(root) {
             canvas.width = bw + Math.round(parseInt(thickR.value, 10) * s) * 2;
             canvas.height = bh + Math.round(parseInt(thickR.value, 10) * s) * 2;
             drawFramed(ctx, bw, bh);
-        } catch (e) { T.toast('Gambar tidak bisa dibuat: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dibuat. Coba foto lain.'); }
     }
 
     async function onFile() {
@@ -88,7 +88,7 @@ export function render(root) {
             render2();
             T.show(box, '');
             box.appendChild(canvas);
-        } catch (e) { T.toast('Gambar tidak bisa dimuat: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambar tidak bisa dimuat. Coba foto lain.'); }
     }
     fileI.addEventListener('change', onFile);
 
@@ -106,7 +106,7 @@ export function render(root) {
             if (!blob) { T.toast('Gambarnya tidak bisa dibuat. Coba lagi.'); return; }
             T.dl('foto-bingkai.png', blob, 'image/png');
             T.toast('Berhasil diunduh');
-        } catch (e) { T.toast('Tidak bisa: ' + (e && e.message ? e.message : e)); }
+        } catch (e) { T.toast('Gambarnya tidak bisa diunduh. Coba lagi.'); }
     }, true);
 
     root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));

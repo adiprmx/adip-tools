@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "json-yaml", "name": "JSON ↔ YAML", "cat": "converter", "icon": "⇄", "desc": "Konversi JSON ke YAML dan sebaliknya.", "keywords": "json,yaml"};
 export function render(root) {
@@ -19,14 +19,14 @@ export function render(root) {
       try {
         const obj = JSON.parse(inp.value);
         outp.value = window.jsyaml.dump(obj, { indent: 2 });
-      } catch (e) { T.show(errBox, '<span class="err">JSON-nya tidak benar: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(errBox, '<span class="err">JSON-nya tidak benar. Periksa lagi tanda kurung dan komanya.</span>'); }
     };
     const keJson = () => {
       T.hide(errBox);
       try {
         const obj = window.jsyaml.load(inp.value);
         outp.value = JSON.stringify(obj, null, 2);
-      } catch (e) { T.show(errBox, '<span class="err">YAML-nya tidak benar: ' + T.esc(e.message) + '</span>'); }
+      } catch (e) { T.show(errBox, '<span class="err">YAML-nya tidak benar. Periksa lagi penulisannya.</span>'); }
     };
 
     T.show(status, '<span class="dim">⏳ Menyiapkan alat YAML…</span>');

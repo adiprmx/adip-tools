@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.1';
+import { h as T } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "setlist-dj", "name": "Perencana Setlist DJ", "cat": "musik", "icon": "🎧", "desc": "Susun urutan lagu DJ: key Camelot, BPM, durasi, energy + saran transisi.", "keywords": "setlist,dj,perencana,camelot,key,transisi,bpm,energy,set"};
 
@@ -66,9 +66,9 @@ export function render(root) {
         '<td style="padding:8px 6px;border-bottom:1px solid #ffffff10;font-variant-numeric:tabular-nums">' + s.dur + ' mnt</td>' +
         '<td style="padding:8px 6px;border-bottom:1px solid #ffffff10;font-variant-numeric:tabular-nums">' + s.energy + '/10</td>' +
         '<td style="padding:8px 6px;border-bottom:1px solid #ffffff10;white-space:nowrap;text-align:right">' +
-          '<button data-act="up" ' + (i === 0 ? 'disabled' : '') + ' style="background:#18181b;border:1px solid #ffffff20;border-radius:6px;color:#fafafa;padding:2px 8px;margin-right:4px;cursor:pointer" title="Pindah ke atas">▲</button>' +
-          '<button data-act="down" ' + (i === songs.length - 1 ? 'disabled' : '') + ' style="background:#18181b;border:1px solid #ffffff20;border-radius:6px;color:#fafafa;padding:2px 8px;margin-right:4px;cursor:pointer" title="Pindah ke bawah">▼</button>' +
-          '<button data-act="del" style="background:#18181b;border:1px solid #ef4444;color:#ef4444;border-radius:6px;padding:2px 8px;cursor:pointer" title="Hapus">✕</button>' +
+          '<button data-act="up" ' + (i === 0 ? 'disabled' : '') + ' style="background:#18181b;border:1px solid #ffffff20;border-radius:6px;color:#fafafa;padding:2px 8px;margin-right:4px;cursor:pointer" title="Pindah ke atas" aria-label="Pindah lagu ke atas">▲</button>' +
+          '<button data-act="down" ' + (i === songs.length - 1 ? 'disabled' : '') + ' style="background:#18181b;border:1px solid #ffffff20;border-radius:6px;color:#fafafa;padding:2px 8px;margin-right:4px;cursor:pointer" title="Pindah ke bawah" aria-label="Pindah lagu ke bawah">▼</button>' +
+          '<button data-act="del" style="background:#18181b;border:1px solid #ef4444;color:#ef4444;border-radius:6px;padding:2px 8px;cursor:pointer" title="Hapus" aria-label="Hapus lagu ' + T.esc(s.judul || (i + 1)) + '">✕</button>' +
         '</td></tr>';
       if (i < songs.length - 1) {
         const c = compat(s.key, songs[i + 1].key);
@@ -123,6 +123,15 @@ export function render(root) {
     try { T.beep(660, 0.12); } catch (e) { /* audio tidak tersedia */ }
   }, true);
 
+  // Tombol JANGAN dibungkus T.field: <label for> pada button menimpa
+  // teks tombol sebagai nama aksesibel (P2-R1-F2 — dulu accessible name
+  // tombol ini "&nbsp;"). Spacer <span> non-label menjaga tombol tetap
+  // sejajar dengan input Energy, dengan gaya yang sama persis seperti
+  // label (.fld > label: 13px, 650).
+  const addWrap = T.el('<div class="fld"></div>');
+  addWrap.appendChild(T.el('<span aria-hidden="true" style="font-size:13px;font-weight:650">&nbsp;</span>'));
+  addWrap.appendChild(addBtn);
+
   root.appendChild(T.el('<div class="h3">🎧 Perencana Setlist DJ</div>'));
   root.appendChild(T.el('<div class="hint" style="margin-bottom:10px">Susun urutan main. Saran transisi dihitung dari key Camelot antar lagu berurutan.</div>'));
   root.appendChild(T.grid2(
@@ -135,7 +144,7 @@ export function render(root) {
   ));
   root.appendChild(T.grid2(
     T.field('Energy (1–10)', enIn),
-    T.field('&nbsp;', addBtn)
+    addWrap
   ));
   root.appendChild(T.el('<div class="h3" style="margin-top:16px">📋 Daftar lagu</div>'));
   root.appendChild(tableBox);

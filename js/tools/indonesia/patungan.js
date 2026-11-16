@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv, money } from '../../core.js?v=6.12.1';
+import { h as T, utils, U, kv, money } from '../../core.js?v=6.12.2';
 
 U.hitungPatungan = (total, pajakPct, servicePct, orang) => {
     total = +total || 0; pajakPct = +pajakPct || 0; servicePct = +servicePct || 0;

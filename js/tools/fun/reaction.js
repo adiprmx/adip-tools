@@ -1,15 +1,18 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "reaction", "name": "Tes Refleks", "cat": "fun", "icon": "⚡", "desc": "Ukur kecepatan refleks.", "keywords": "refleks,reaksi,cepat,tes"};
 export function render(root) {
 
-    const area = T.el('<div class="out center" style="min-height:150px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;user-select:none"></div>');
+    const area = T.el('<button type="button" class="out center" style="min-height:150px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;user-select:none;width:100%;font-family:inherit;color:inherit" aria-live="polite"></button>');
     const statBox = T.out();
     let state = 'idle', t0 = 0, timer = null, tries = [];
     T.onLeave(() => { if (timer) clearTimeout(timer); });
     const paint = (bg, teks, sub) => {
       area.style.background = bg;
       area.innerHTML = '<div class="big">' + teks + '</div>' + (sub ? '<div class="dim" style="margin-top:6px">' + sub + '</div>' : '');
+      // Nama tombol mengikuti status ("Tunggu…", "KLIK!", "213 ms", …)
+      // agar pembaca layar tahu kondisi tes saat ini.
+      area.setAttribute('aria-label', 'Tes refleks: ' + teks + (sub ? (/[…!]$/.test(teks) ? ' ' : '. ') + sub : ''));
     };
     const ringkas = () => {
       const ok = tries.filter((x) => x != null);
@@ -59,7 +62,7 @@ export function render(root) {
         ringkas();
       }
     });
-    root.appendChild(T.el('<div class="hint" style="margin-bottom:8px">Klik area di bawah untuk mulai. Begitu berubah hijau, klik secepat mungkin! 5x percobaan.</div>'));
+    root.appendChild(T.el('<div class="hint" style="margin-bottom:8px">Klik area di bawah untuk mulai. Begitu berubah hijau, klik secepat mungkin! 5x percobaan. Bisa juga pakai keyboard: Enter atau Spasi.</div>'));
     root.appendChild(area);
     root.appendChild(statBox);
     T.hide(statBox);

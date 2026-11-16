@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"documentai","name":"Document AI","cat":"produktivitas","icon":"📄","desc":"Analisis dokumen dengan LLM milikmu (OpenAI-compatible).","keywords":"ai,dokumen,llm,ringkasan,analisis,openai,pdf,gambar,vision,tabel"};
 
@@ -268,7 +268,7 @@ export function render(root) {
       tampilKartuFile();
     } catch (e) {
       docFile = null; tampilKartuFile();
-      fileInfo.textContent = 'Gagal: ' + (e.message || e);
+      fileInfo.textContent = 'File ini tidak bisa dibaca. Pastikan formatnya didukung lalu coba lagi.';
     }
     segarkanTombol();
   });
@@ -429,7 +429,7 @@ export function render(root) {
         const dims = log.querySelectorAll('.dim');
         dims[dims.length - 1].outerHTML = '<div style="font-size:13px;margin:6px 0;line-height:1.65"><b>AI:</b><br>' + md(an) + '</div>';
       } catch (e) {
-        log.innerHTML += '<div class="err" style="font-size:12.5px">Gagal: ' + T.esc(String((e.message || e)).slice(0, 200)) + '</div>';
+        log.innerHTML += '<div class="err" style="font-size:12.5px">Jawabannya tidak bisa dimuat. Periksa koneksimu lalu coba tanya lagi.</div>';
       }
       tanyaBtn.disabled = false;
     });
@@ -515,7 +515,7 @@ export function render(root) {
       paintHasil();
     } catch (e) {
       stopTahap();
-      const m = e.name === 'AbortError' ? 'Timeout — dokumen terlalu besar / koneksi lambat.' : (e.message === 'NO_KEY' ? 'Isi & simpan API key dulu.' : (e.message || e));
+      const m = e.name === 'AbortError' ? 'Timeout — dokumen terlalu besar / koneksi lambat.' : (e.message === 'NO_KEY' ? 'Isi & simpan API key dulu.' : 'Terjadi kendala saat menganalisis. Coba lagi, atau pakai dokumen yang lebih kecil.');
       T.show(out, '<span class="err">' + T.esc(String(m)) + '</span>');
     } finally { busy = false; segarkanTombol(); }
   }, true);

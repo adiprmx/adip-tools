@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.1';
+import { h as T, utils, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "buat-invoice", "name": "Invoice Usaha dengan PPN", "cat": "bisnis", "icon": "🧮", "desc": "Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.", "keywords": "invoice,buat invoice,nota,tagihan,ppn 11%,klien,cetak"};
 
@@ -50,7 +50,7 @@ export function render(root) {
           '<input class="inp" data-k="desc" data-i="' + i + '" placeholder="Deskripsi item" value="' + T.esc(r.desc) + '" style="flex:3"/>' +
           '<input class="inp" data-k="qty" data-i="' + i + '" placeholder="Qty" value="' + T.esc(r.qty) + '" inputmode="decimal" style="flex:1"/>' +
           '<input class="inp" data-k="harga" data-i="' + i + '" placeholder="Harga @ Rp" value="' + T.esc(r.harga) + '" inputmode="decimal" style="flex:1.5"/>' +
-          (items.length > 1 ? '<button class="btn" data-del="' + i + '" style="flex-shrink:0">✕</button>' : '') +
+          (items.length > 1 ? '<button class="btn" data-del="' + i + '" aria-label="Hapus item ' + (i + 1) + '" style="flex-shrink:0">✕</button>' : '') +
           '</div>').join('') +
         '<button class="btn" data-add="1">＋ Tambah item</button>');
       itemsBox.querySelectorAll('input[data-k]').forEach((el) => {

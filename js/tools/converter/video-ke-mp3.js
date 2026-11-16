@@ -1,5 +1,5 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.1';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.1';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.2';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.2';
 
 export const meta = {"id": "video-ke-mp3", "name": "Video ke MP3", "cat": "converter", "icon": "🎵", "desc": "Ambil suara dari video jadi file MP3.", "keywords": "video,mp3,audio,ekstrak,musik,suara,lagu", "since": "6.11.0"};
 

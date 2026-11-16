@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.1';
+import { h as T, utils, esc } from '../../core.js?v=6.12.2';
 
 utils.weatherId = function (code) {
     const m = {
@@ -57,7 +57,7 @@ export function render(root) {
         try { updateTime = new Date(data.time_last_update_utc).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { updateTime = ''; }
         konversi();
       } catch (e) {
-        T.show(kursBox, '<span class="err">Gagal memuat kurs. Periksa koneksi internet lalu coba lagi.</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+        T.show(kursBox, '<span class="err">Gagal memuat kurs. Periksa koneksi internet lalu coba lagi.</span>');
         const wrap = T.el('<div style="margin-top:8px"></div>');
         wrap.appendChild(T.btn('🔄 Coba lagi', muatKurs));
         kursBox.appendChild(wrap);
@@ -91,7 +91,7 @@ export function render(root) {
         cacheCuaca.set(kunci, { at: Date.now(), nama: namaKota, c });
         tampilCuaca(namaKota, c);
       } catch (e) {
-        T.show(cuacaBox, '<span class="err">Gagal memuat cuaca. Periksa koneksi internet atau coba kota lain.</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+        T.show(cuacaBox, '<span class="err">Gagal memuat cuaca. Periksa koneksi internet atau coba kota lain.</span>');
         const wr = T.el('<div class="mt8"></div>');
         wr.appendChild(T.btn('🔄 Coba lagi', cariCuaca));
         cuacaBox.appendChild(wr);

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* Enkripsi AES-GCM via WebCrypto. Diekspor agar bisa diuji round-trip di luar browser. */
 const _te = new TextEncoder(), _td = new TextDecoder();
@@ -69,7 +69,9 @@ export function render(root) {
     const bShow = T.btn('👁️', () => {
       pwInp.type = pwInp.type === 'password' ? 'text' : 'password';
       bShow.textContent = pwInp.type === 'password' ? '👁️' : '🙈';
+      bShow.setAttribute('aria-label', pwInp.type === 'password' ? 'Lihat sandi' : 'Sembunyikan sandi');
     });
+    bShow.setAttribute('aria-label', 'Lihat sandi');
     bShow.classList.add('small');
     const msg = T.out();
 
@@ -90,7 +92,7 @@ export function render(root) {
           jdlInp.value = ''; isiInp.value = ''; pwInp.value = '';
           T.show(msg, '<span class="ok">✅ Catatan terkunci & tersimpan. Password-nya dicatat baik-baik ya!</span>');
           gambarDaftar();
-        } catch (e) { T.show(msg, '<span class="err">Gagal mengenkripsi: ' + T.esc(e.message || e) + '</span>'); }
+        } catch (e) { T.show(msg, '<span class="err">Catatan tidak bisa dikunci. Coba lagi.</span>'); }
       }, 30);
     }, true)));
     root.appendChild(msg);

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.2';
 
 export const meta = {
   id: 'fake-threads-post',

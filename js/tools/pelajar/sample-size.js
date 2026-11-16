@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"sample-size","name":"Ukuran Sampel Survei","cat":"pelajar","icon":"📋","desc":"Berapa responden yang dibutuhkan dari jumlah populasi, margin error, dan tingkat kepercayaan.","keywords":"sampel,survei,responden,populasi,margin error,statistik,skripsi,penelitian","since":"6.11.0"};
 

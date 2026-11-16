@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "posisi-iss", "name": "Posisi ISS", "cat": "liveapi", "icon": "🛰️", "desc": "Lacak posisi Stasiun Luar Angkasa Internasional secara live.", "keywords": "iss,satelit,posisi,stasiun luar angkasa,nasa,live"};
 export function render(root) {
@@ -87,8 +87,7 @@ export function render(root) {
       } catch (e) {
         T.show(box,
           '<p class="center">🛰️ <b>Waduh, ISS-nya lagi nggak bisa dihubungi.</b></p>' +
-          '<p class="center mut">Kemungkinan internet kamu lagi bermasalah atau server pelacaknya lagi istirahat. Coba lagi bentar ya.</p>' +
-          '<p class="center hint">(' + T.esc(e.message || e) + ')</p>');
+          '<p class="center mut">Kemungkinan internet kamu lagi bermasalah atau server pelacaknya lagi istirahat. Coba lagi bentar ya.</p>');
         const wr = T.el('<div class="center" style="margin-top:8px"></div>');
         wr.appendChild(T.btn('🔄 Coba lagi', muat, true));
         box.appendChild(wr);

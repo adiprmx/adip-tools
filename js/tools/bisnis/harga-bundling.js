@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "harga-bundling", "name": "Harga Bundling", "cat": "bisnis", "icon": "📦", "desc": "Gabung 2 sampai 3 produk jadi satu paket, hitung harga paket dan labanya dibanding jual satuan.", "keywords": "bundling,paket,harga paket,combo,promo paket,diskon paket", "since": "6.11.0"};
 export function render(root) {

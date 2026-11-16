@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "htmlvideo", "name": "HTML/WebGL ke MP4", "cat": "desain", "icon": "🎬", "desc": "Render animasi canvas / HTML jadi video MP4 8 detik.", "keywords": "mp4,video,render,animasi,canvas,webcodecs,html,webgl,threejs"};
 
@@ -229,7 +229,7 @@ export function render(root) {
 
   async function doRender() {
     const { fn, err } = compileDraw();
-    if (err) { T.show(out, '<span class="err">Kode JS error: ' + T.esc(err) + '</span>'); return; }
+    if (err) { T.show(out, '<span class="err">Kode JS-nya ada yang salah. Periksa lagi tulisannya lalu coba render ulang.</span>'); return; }
     const fps = Number(fpsSel.value);
     const [W, H] = resSel.value.split('x').map(Number);
     const n = framesFor(fps);
@@ -273,7 +273,7 @@ export function render(root) {
       T.scrollToPreview(out);
     } catch (e) {
       prog.hidden = true;
-      T.show(out, '<span class="err">Render gagal: ' + T.esc(e && e.message ? e.message : 'error') + '</span>');
+      T.show(out, '<span class="err">Render gagal. Coba lagi.</span>');
     }
     livePreview();
   }
@@ -366,7 +366,7 @@ export function render(root) {
       htmlOut.appendChild(videoResultBox(title, blob, 'html-' + W + 'x' + H + '.mp4', 'video/mp4', rep));
       T.scrollToPreview(htmlOut);
     } catch (e) {
-      T.show(htmlOut, '<span class="err">Render gagal: ' + T.esc(e && e.message ? e.message : 'error') + '</span>');
+      T.show(htmlOut, '<span class="err">Render gagal. Coba lagi.</span>');
     } finally {
       progHtml.hidden = true;
       if (frame) frame.remove();

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node).
 // RPM = penghasilan per 1.000 penonton. Tidak ada angka resmi dari platform,

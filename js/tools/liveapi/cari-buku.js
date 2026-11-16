@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.1';
+import { h as T, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"cari-buku","name":"Pencari Buku","cat":"liveapi","icon":"📚","desc":"Cari jutaan buku dari Open Library berdasarkan judul atau penulis.","keywords":"buku,cari,open library,judul,penulis,cover,isbn"};
 
@@ -10,7 +10,7 @@ export function render(root) {
   const tampilDetail = (d) => {
     T.hide(detail);
     const cover = d.cover_i
-      ? '<img src="https://covers.openlibrary.org/b/id/' + d.cover_i + '-M.jpg" alt="cover" style="max-width:120px;height:auto;border-radius:8px;display:block;margin-bottom:8px" onerror="this.style.display=\'none\'">'
+      ? '<img src="https://covers.openlibrary.org/b/id/' + d.cover_i + '-M.jpg" alt="cover" style="max-width:120px;height:auto;border-radius:8px;display:block;margin-bottom:8px" data-err="hide">'
       : '';
     const rows = [
       ['Judul', d.title || '-'],
@@ -26,6 +26,7 @@ export function render(root) {
       html += '<div class="kv"><span class="k">' + esc(r[0]) + '</span><span class="v">' + esc(r[1]) + '</span></div>';
     });
     T.show(detail, html);
+    T.wireImgErr(detail);
   };
 
   const cari = async () => {
@@ -51,7 +52,7 @@ export function render(root) {
       list.appendChild(T.el('<div class="dim" style="margin-bottom:8px">Ketuk hasil untuk detail:</div>'));
       docs.forEach((d) => {
         const thumb = d.cover_i
-          ? '<img src="https://covers.openlibrary.org/b/id/' + d.cover_i + '-S.jpg" alt="" style="width:40px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0" loading="lazy" onerror="this.remove()">'
+          ? '<img src="https://covers.openlibrary.org/b/id/' + d.cover_i + '-S.jpg" alt="" style="width:40px;height:56px;object-fit:cover;border-radius:4px;flex-shrink:0" loading="lazy" data-err="remove">'
           : '<div style="width:40px;height:56px;border-radius:4px;background:#27272a;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px">📕</div>';
         const item = T.el(
           '<button type="button" style="display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:#18181b;border:1px solid #ffffff14;border-radius:10px;padding:8px;margin-bottom:8px;cursor:pointer;color:inherit">' +
@@ -61,6 +62,7 @@ export function render(root) {
           '</button>'
         );
         item.addEventListener('click', () => { tampilDetail(d); T.scrollToPreview && T.scrollToPreview(detail); });
+        T.wireImgErr(item);
         list.appendChild(item);
       });
       T.show(box, '');
@@ -71,7 +73,7 @@ export function render(root) {
       if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
       else if (status === 429) msg = 'Rate limit tercapai (429). Tunggu sebentar lalu coba lagi.';
       else msg = 'Gagal mencari buku. Periksa koneksi internet lalu coba lagi.';
-      T.show(box, '<span class="err">' + esc(msg) + '</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+      T.show(box, '<span class="err">' + esc(msg) + '</span>');
       const wrap = T.el('<div style="margin-top:8px"></div>');
       wrap.appendChild(T.btn('🔄 Coba lagi', cari));
       box.appendChild(wrap);

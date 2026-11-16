@@ -1,4 +1,4 @@
-import { h as T, utils, esc, fileInput, fmtBytes, LOCAL_NOTE, kvRows } from '../../core.js?v=6.12.1';
+import { h as T, utils, esc, fileInput, fmtBytes, LOCAL_NOTE, kvRows } from '../../core.js?v=6.12.2';
 
 // Parser EXIF JPEG minimal, ditulis sendiri (tanpa pustaka luar).
 // Membaca IFD0 + ExifIFD + GPS IFD. Mengembalikan null bila tidak ada EXIF.

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 /* 12 pasangan Google Fonts (judul + isi) siap pakai, lengkap dengan preview & salin CSS. */
 
@@ -51,6 +51,30 @@ export function render(root) {
   const search = T.input('text', 'Cari font… mis. serif, mono, poppins');
   const list = T.el('<div style="margin-top:12px"></div>');
 
+  /* Latar kartu pratinjau: gelap (token situs #161311, teks terang) atau
+     terang (#fafafa, teks gelap) — supaya pasangan font bisa dinilai di
+     kedua latar. Pilihan tersimpan di localStorage. */
+  const LS_LATAR = 'paduan-font-latar';
+  let latarGelap = true; // default gelap = tampilan situs saat ini
+  try {
+    const simpan = localStorage.getItem(LS_LATAR);
+    if (simpan === 'terang' || simpan === 'gelap') latarGelap = simpan === 'gelap';
+  } catch (e) { /* localStorage tidak tersedia: pakai default gelap */ }
+  const sakelarLatar = T.btn('', () => {
+    latarGelap = !latarGelap;
+    try { localStorage.setItem(LS_LATAR, latarGelap ? 'gelap' : 'terang'); } catch (e) {}
+    segarkanSakelar();
+    paint();
+  });
+  function segarkanSakelar() {
+    sakelarLatar.textContent = latarGelap ? '🌙 Latar gelap' : '☀️ Latar terang';
+    sakelarLatar.setAttribute('aria-pressed', latarGelap ? 'true' : 'false');
+    sakelarLatar.setAttribute('aria-label', latarGelap
+      ? 'Latar kartu pratinjau sedang gelap. Tekan untuk mengubah ke latar terang.'
+      : 'Latar kartu pratinjau sedang terang. Tekan untuk mengubah ke latar gelap.');
+  }
+  segarkanSakelar();
+
   /* Pratinjau pasangan terpilih di contoh halaman nyata (navigasi, hero,
      paragraf, tombol, footer) supaya kelihatan rasanya di pemakaian asli. */
   let terpilih = PAIRS[0];
@@ -93,16 +117,21 @@ export function render(root) {
 
   function card(p) {
     const c = T.el('<div class="card" style="margin-bottom:12px;padding:14px"></div>');
+    /* Latar kartu mengikuti sakelar: gelap = token situs #161311, terang = #fafafa. */
+    c.style.background = latarGelap ? '#161311' : '#fafafa';
+    c.style.borderColor = latarGelap ? '#251f18' : '#e4e4e7';
     const hPrev = T.el('<div></div>');
     hPrev.textContent = 'Desain yang Berbicara';
-    hPrev.style.cssText = "font-family:'" + p.h + "'," + p.hf + ";font-weight:" + p.hw + ";font-size:26px;line-height:1.25";
+    hPrev.style.cssText = "font-family:'" + p.h + "'," + p.hf + ";font-weight:" + p.hw + ";font-size:26px;line-height:1.25;color:" + (latarGelap ? '#f4f4f5' : '#18181b');
     const bPrev = T.el('<div></div>');
     bPrev.textContent = 'Tipografi yang bagus bikin pembaca betah. Pasangan ini dipilih biar judul dan isi saling melengkapi.';
-    bPrev.style.cssText = "font-family:'" + p.b + "'," + p.bf + ";font-weight:" + p.bw + ";font-size:14px;line-height:1.6;margin-top:8px;color:#d4d4d8";
+    bPrev.style.cssText = "font-family:'" + p.b + "'," + p.bf + ";font-weight:" + p.bw + ";font-size:14px;line-height:1.6;margin-top:8px;color:" + (latarGelap ? '#d4d4d8' : '#3f3f46');
     const names = T.el('<div class="hint" style="margin:10px 0 2px"></div>');
     names.textContent = 'Judul: ' + p.h + ' · Isi: ' + p.b;
+    if (!latarGelap) names.style.color = '#52525b';
     const note = T.el('<div class="hint" style="margin-bottom:8px"></div>');
     note.textContent = p.note;
+    if (!latarGelap) note.style.color = '#52525b';
     const r = T.el('<div class="row"></div>');
     r.appendChild(T.copyBtn(() => cssFor(p), 'Salin CSS'));
     const lihatB = T.btn('Lihat di contoh halaman', () => {
@@ -146,6 +175,12 @@ export function render(root) {
   root.appendChild(T.field('Judul di contoh halaman (bisa diganti)', teksJudul, 'Tulis judulmu sendiri untuk melihat rasanya dengan font ini.'));
   root.appendChild(T.field('Paragraf di contoh halaman (bisa diganti)', teksIsi));
   root.appendChild(T.field('Warna contoh halaman', temaContoh));
+  const barLatar = T.el('<div class="row" style="margin-top:12px;align-items:center"></div>');
+  barLatar.appendChild(sakelarLatar);
+  const ketLatar = T.el('<span class="hint" style="margin:0"></span>');
+  ketLatar.textContent = 'Ubah latar kartu untuk menilai pasangan font di latar terang dan gelap.';
+  barLatar.appendChild(ketLatar);
+  root.appendChild(barLatar);
   root.appendChild(list);
   gambarContoh();
   paint();

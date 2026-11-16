@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "worldclassics", "name": "World Classics Reader", "cat": "pelajar", "icon": "📜", "desc": "Baca sastra klasik Tiongkok/Jepang/Korea (public domain) dari Wikisource + terjemahan Indonesia.", "keywords": "klasik,sastra,wenyan,baca,buku,tiongkok,jepang,korea,wikisource,terjemahan"};
 
@@ -168,7 +168,7 @@ export function render(root) {
       hasilBox.querySelectorAll('[data-s]').forEach((b) => { b.onclick = () => bukaKarya(list[+b.getAttribute('data-s')].title); });
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(hasilBox, errBox('Gagal mencari: ' + e.message));
+      T.show(hasilBox, errBox('Gagal mencari. Periksa koneksi internet lalu coba lagi.'));
     }
   };
 
@@ -196,7 +196,7 @@ export function render(root) {
       bukaBab(0);
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(babBox, errBox('Gagal membuka karya: ' + e.message));
+      T.show(babBox, errBox('Gagal membuka karya. Periksa koneksi internet lalu coba lagi.'));
     }
   };
 
@@ -264,7 +264,7 @@ export function render(root) {
       tampilBaca(html, namaBab, catatan);
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(bacaBox, errBox('Gagal memuat bab: ' + e.message));
+      T.show(bacaBox, errBox('Gagal memuat bab. Periksa koneksi internet lalu coba lagi.'));
     }
   };
 
@@ -315,7 +315,7 @@ export function render(root) {
           : '') + '</p>');
     } catch (e) {
       if (e.name === 'AbortError') return;
-      T.show(statusBox, errBox('Terjemahan gagal: ' + e.message + ' Teks asli tetap dapat dibaca.'));
+      T.show(statusBox, errBox('Terjemahan gagal. Teks asli tetap dapat dibaca.'));
     } finally {
       btn.disabled = false;
     }

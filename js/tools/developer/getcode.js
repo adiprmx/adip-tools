@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.1';
+import { h as T, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "getcode", "name": "Get Code HTML", "cat": "developer", "icon": "💻", "desc": "Ambil & ekstrak source HTML dari URL mana pun.", "keywords": "html,source,kode,extract,view-source,scrape"};
 
@@ -79,7 +79,7 @@ export function render(root) {
         addLog(r.label, true, 'Berhasil (' + (new Blob([text]).size / 1024).toFixed(1) + ' KB)');
         break;
       } catch (e) {
-        lastErr = e.name === 'AbortError' ? 'timeout' : e.message;
+        lastErr = e.name === 'AbortError' ? 'waktu habis' : 'tidak bisa dijangkau';
         addLog(r.label, false, lastErr);
       }
     }

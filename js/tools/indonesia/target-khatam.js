@@ -1,4 +1,4 @@
-import { h as T, kv, errBox, todayISO } from '../../core.js?v=6.12.1';
+import { h as T, kv, errBox, todayISO } from '../../core.js?v=6.12.2';
 
 // Halaman awal tiap juz, mushaf standar Madinah 604 halaman.
 // Diverifikasi dari AlQuran Cloud API (ayat pertama surah pembuka juz)

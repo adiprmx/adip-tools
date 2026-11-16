@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.1';
+import { h as T, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"saran-random","name":"Saran Acak","cat":"liveapi","icon":"💡","desc":"Kata-kata bijak & saran acak dari Advice Slip.","keywords":"saran,nasehat,kata bijak,motivasi,advice,random"};
 
@@ -32,7 +32,7 @@ export function render(root) {
       if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
       else if (status === 429) msg = 'Rate limit tercapai (429). Tunggu sebentar lalu coba lagi.';
       else msg = 'Gagal memuat saran. Periksa koneksi internet lalu coba lagi.';
-      T.show(box, '<span class="err">' + esc(msg) + '</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+      T.show(box, '<span class="err">' + esc(msg) + '</span>');
       const wrap = T.el('<div style="margin-top:8px"></div>');
       wrap.appendChild(T.btn('🔄 Coba lagi', muat));
       box.appendChild(wrap);

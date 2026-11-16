@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"aiimage","name":"AI Image","cat":"gambar","icon":"🎨","desc":"Generate & edit gambar AI pakai akun Puter milikmu.","keywords":"ai,gambar,generator,edit foto,puter,image"};
 

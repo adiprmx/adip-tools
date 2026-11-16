@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.1';
+import { h as T, utils, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "pantun", "name": "Pantun Pembuka & Penutup", "cat": "sehari", "icon": "🎭", "desc": "Pantun pembuka & penutup buat presentasi.", "keywords": "pantun,presentasi,pembuka"};
 export function render(root) {

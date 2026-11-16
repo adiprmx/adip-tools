@@ -258,16 +258,87 @@ export function beep(freq, dur, type, delay) {
   } catch (e) { /* audio tidak tersedia */ }
 }
 
+// Pasang handler error pada <img data-err="hide|remove"> TANPA atribut
+// handler inline di string HTML (atribut handler inline diblokir CSP
+// script-src tanpa 'unsafe-inline'). Panggil sesaat setelah HTML dimasukkan ke DOM —
+// event error gambar selalu asinkron, jadi wiring sinkron tidak pernah
+// ketinggalan. Dipakai meta-generator, apod-harian, cari-buku,
+// resep-makanan (P5 v6.12.2).
+export function wireImgErr(container) {
+  if (!container || !container.querySelectorAll) return;
+  container.querySelectorAll('img[data-err]').forEach((im) => {
+    if (im.dataset.errWired) return;
+    im.dataset.errWired = '1';
+    im.addEventListener('error', () => {
+      if (im.dataset.err === 'remove') im.remove();
+      else im.style.display = 'none';
+    });
+  });
+}
+
 // Muat script CDN sekali, resolve true/false.
 // Janji disimpan (bukan status string): pemanggil bersamaan ikut menunggu
 // janji yang sama, dan kegagalan tidak di-cache — tombol "Coba Lagi" bisa
 // mencoba jaringan lagi (T02 B2, v6.12.0).
+/* ---- Subresource Integrity (SRI) untuk script CDN klasik (P5 v6.12.2) ----
+   Hash SHA-384 dari isi file yang diunduh langsung dari CDN pada 16 Nov 2026
+   (bukti: p5-sri-hashes.json di folder ronde). loadScript() memasang
+   integrity + crossorigin="anonymous" bila URL-nya ada di peta ini; URL yang
+   tidak ada di peta tetap dimuat seperti biasa (tanpa integrity).
+   TIDAK tercakup (keterbatasan browser, bukan kelalaian): import() ESM
+   dinamis (ffmpeg, mp4-muxer, tasks-vision, smol-toml, fast-xml-parser,
+   background-removal, potrace) — tidak ada mekanisme integrity untuk
+   dynamic import; worker (pdf.worker.min.js, tesseract) — Worker tidak
+   mendukung integrity; SDK Puter (js.puter.com/v2/ — tanpa versi, isinya
+   bisa berubah sewaktu-waktu); file yang diambil via fetch (WASM, font,
+   core ffmpeg) — pemuatannya ada di dalam pustaka pihak ketiga. Bila versi
+   pustaka di-bump, hash WAJIB dihitung ulang (p5-sri-hash.py). */
+const SRI_HASH = {
+  'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js': 'sha384-J/3LshwuX+2viPOY3En4QiZvdvlffDhZYH5MsMuLGdwcoGcYSA7EV1jXFsys0gIb',
+  'https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js': 'sha384-qGFE4FIJLgCFuYs3nzg39XpCtvT5AZUhaBdjB3e1+vpKQa03AkyWOyBSFb9OcQ/g',
+  'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/core.js': 'sha384-3A37xiTEGc3Zqy86dMabK6n4gI2IlaxQCzFvIqYkGIQo9cjViBef01VB+M2rxrGN',
+  'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/md5.js': 'sha384-d1CObtu+m84BOBkhvh9UQrgQroe5v+Evl4ljDWwExrtFCXWmms0hzTsuP3d7N/fs',
+  'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/ripemd160.js': 'sha384-5JJi32IV0QXIQJZgizc0cpkpnC5VB+JdRI3EOP8Gqjd1DjvqqNVYhzI9vrdrnFjx',
+  'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/sha224.js': 'sha384-WIvzLGDZGRa/39EpDkqPhFiganB9X/V33oSv5/sX86gQqYH2z+j2FuIOJh5m7Gm+',
+  'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/sha256.js': 'sha384-LPPFe0O6zZ1MvB0WgJxODyqtDrbtP7yQfidEE/rU29peFuxGudufuPYIxWrD9vnj',
+  'https://cdn.jsdelivr.net/npm/exifreader@4.23.5/dist/exif-reader.js': 'sha384-lV3Kc4L1YkqB4DCasecdSWo5RQEXp9Mc9eeiV6opSzVKpk2Id2jELgNodSyTCDqq',
+  'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js': 'sha384-OTofQ0MEeiSgh62havBcemCIK0gqj809wX6UA0uPISNMRnR6NZyCdGzX3SbLrgwL',
+  'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js': 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H',
+  'https://cdn.jsdelivr.net/npm/js-sha3@0.9.3/build/sha3.min.js': 'sha384-+JAeTqUiH9WuByObPHouP4rQKYUTLQ9AQW4HHJZ4uNmkA2+nkDpbssQNGsVXnJpe',
+  'https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js': 'sha384-+pxiN6T7yvpryuJmE1gM9PX7yQit15auDb+ZwwvJOd/4be2Cie5/IuVXgQb/S9du',
+  'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js': 'sha384-Kk5SjBOKprEnGfyBWfD2zROFd1Cu8kwOXxG2GIhYPcoDL2rBJS9P8Ud1ZMy4412a',
+  'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js': 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk',
+  'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js': 'sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx',
+  'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js': 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG',
+  'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js': 'sha384-DdGlNq+wVXAn83gXqwyeFHB7iyXy6L0rLrNzgDmhKWPjiJLg9vj6qosYmZmkMfQ+',
+  'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js': 'sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi',
+  'https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js': 'sha384-3TaxGqyHrMuRIWY5Z5WHNIzgNRqGIUJE+mk6tm+g1wkm9Ux2kUyOLfy9AsNWXA6u',
+  'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js': 'sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI',
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js': 'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e',
+  'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js': 'sha384-0RsG1yo/crf/1Qc14sho26SXXOTngNCjgJw7fuvXBt9W/OChF/Ijx+aUuBDqQwEk',
+  'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js': 'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F',
+  'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js': 'sha384-RyBmXHdfZ/Uon+ud+/AqSyWpUWnKYt2tkRG/P4gWoRUGDU+qIAV3tGBPNlYTBZEF',
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js': 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H',
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js': 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk',
+  'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js': 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG',
+  'https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js': 'sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi',
+  'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js': 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk',
+};
+// Cari hash untuk sebuah URL script (query string diabaikan — retry
+// heic-ke-jpg menambahkan ?coba=N ke URL yang isinya identik).
+export function scriptIntegrity(src) {
+  if (!src) return null;
+  return SRI_HASH[String(src).split('?')[0]] || null;
+}
+
 const _loaded = {};
 export function loadScript(src) {
   if (_loaded[src]) return _loaded[src];
   const p = new Promise((resolve) => {
     const s = document.createElement('script');
     s.src = src; s.async = true;
+    const hash = scriptIntegrity(src);
+    if (hash) { s.integrity = hash; s.crossOrigin = 'anonymous'; }
     s.onload = () => resolve(true);
     s.onerror = () => { delete _loaded[src]; resolve(false); };
     document.head.appendChild(s);
@@ -281,7 +352,8 @@ export const h = {
   el, esc, btn, field, input, select, ta, out, show, hide,
   copy, copyBtn, dl, dlBtn, toast, row, grid2, onLeave,
   fmt, rp, num, actx, beep, loadScript, sysbar, scrollToPreview,
-  calcResult, nextSteps, zipFiles, dlZip, zipBtn, crc32,
+  calcResult, nextSteps, zipFiles, dlZip, zipBtn, crc32, wireImgErr,
+  scriptIntegrity,
 };
 
 /* ---- Status bar HP per platform & merk (dipakai tool fake sosmed) ----
@@ -416,6 +488,17 @@ export function tabs(buttons, pages) {
     buttons.forEach(([label, i]) => {
       const b = T.btn(label, () => set(i));
       b.style.flex = '1';
+      // Jaring pengaman (v6.12.2, P2-A1): min-width EKSPLISIT min-content.
+      // Aturan "min-width otomatis -> 0 bila overflow non-visible" hanya
+      // berlaku saat min-width:auto; nilai eksplisit min-content KEBAL
+      // terhadap perubahan overflow, jadi tombol tab tidak bisa menyusut
+      // bila ada kode lain yang mengubah overflow-nya (akar bug ripple x
+      // tab). Nilai ini SAMA dengan lantai otomatis semula, jadi layout
+      // diam tidak berubah sama sekali — JANGAN ganti ke px tetap:
+      // min-width 80px sempat dicoba dan MERUSAK layout (baris tab
+      // kalkulator-waktu yang semula wrap 2 baris jadi 1 baris rapat,
+      // label "Tambah/kurang" terpotong jadi "Tambah/kura").
+      b.style.minWidth = 'min-content';
       bar.appendChild(b);
     });
     set(0);

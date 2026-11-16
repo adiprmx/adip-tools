@@ -1,4 +1,4 @@
-import { h as T, errBox, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, errBox, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tuner-gitar", "name": "Tuner Gitar", "cat": "musik", "icon": "🎸", "desc": "Stem gitar pakai mikrofon, deteksi nada otomatis.", "keywords": "tuner,gitar,stem,nada,mic,mikrofon"};
 export function render(root) {
@@ -119,7 +119,7 @@ export function render(root) {
         if (nm === 'NotAllowedError' || nm === 'SecurityError') msg = 'Izin mikrofon DITOLAK. Ketuk "Mulai" lagi lalu pilih "Izinkan" saat browser meminta akses mikrofon — tanpa izin, tuner tidak bisa mendengar senar gitar.';
         else if (nm === 'NotFoundError' || nm === 'OverconstrainedError') msg = 'Tidak ditemukan mikrofon di perangkat ini. Pastikan mic terhubung, lalu coba lagi.';
         else if (nm === 'NotReadableError') msg = 'Mikrofon sedang dipakai aplikasi lain. Tutup aplikasi itu, lalu coba lagi.';
-        else msg = 'Mikrofon tidak bisa diakses' + (e && e.message ? ': ' + e.message : '') + '. Coba lagi.';
+        else msg = 'Mikrofon tidak bisa diakses. Coba lagi.';
         T.show(box, errBox(msg));
         return;
       }
@@ -142,7 +142,7 @@ export function render(root) {
         stream.getTracks().forEach((t) => { try { t.stop(); } catch (e2) {} });
         stream = null;
         startBtn.disabled = false;
-        T.show(box, errBox('Audio tidak bisa disiapkan: ' + (e && e.message ? e.message : e)));
+        T.show(box, errBox('Audio tidak bisa disiapkan. Coba lagi.'));
         return;
       }
       active = true;

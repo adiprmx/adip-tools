@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "tes-mikrofon", "name": "Tes Mikrofon", "cat": "sehari", "icon": "🎙️", "desc": "Lihat level suara mikrofon dan rekam sebentar untuk didengar ulang.", "keywords": "mikrofon,mic,suara,rekam,audio", "since": "6.11.0"};
 
@@ -116,7 +116,7 @@ export function render(root) {
       } else if (e && e.name === 'NotFoundError') {
         T.show(stateBox, '<div class="big warn">Tidak ada mikrofon yang terdeteksi</div><p class="mut" style="font-size:13px">Perangkat ini tidak menemukan mikrofon yang bisa dipakai.</p>');
       } else {
-        T.show(stateBox, '<div class="big warn">Mikrofon tidak bisa dibuka</div><p class="mut" style="font-size:13px">' + T.esc((e && e.message) || 'Terjadi kesalahan.') + '</p>');
+        T.show(stateBox, '<div class="big warn">Mikrofon tidak bisa dibuka</div><p class="mut" style="font-size:13px">Coba tutup aplikasi lain yang memakai mikrofon, lalu coba lagi.</p>');
       }
       return;
     }

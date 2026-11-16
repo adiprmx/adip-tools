@@ -517,10 +517,23 @@ table.tbl th { background: var(--surface-2); font-weight: 650; }
 }
 .pkey.black { background: #141210; color: #f6f1e8; border-color: #4a3d2f; flex-basis: 34px; height: 82px; margin: 0 -9px; z-index: 1; }
 .pkey:active { transform: scale(0.95); }
-.drumgrid { display: grid; gap: 5px; }
-.drumgrid .cell { aspect-ratio: 1; border-radius: 7px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; }
+/* Grid drum: 16 langkah dalam satu baris per track. Di layar kecil grid
+   di-scroll horizontal (label track sticky di kiri, lihat drum-machine.js)
+   agar tiap sel tetap >=28px — WCAG 2.2 target minimum 24px. Di desktop
+   lebar kolom 1fr tidak berubah dari sebelumnya. */
+.drumgrid { display: grid; gap: 5px; overflow-x: auto; }
+.drumgrid .cell { aspect-ratio: 1; min-width: 28px; min-height: 28px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; }
 .drumgrid .cell.on { background: var(--acc); border-color: var(--acc); }
 .drumgrid .cell.play { outline: 2px solid var(--info); }
+/* Fokus keyboard harus menang atas outline penanda ketukan (.play):
+   spesifisitasnya sama (0,3,0), jadi aturan ini diletakkan sesudahnya. */
+.drumgrid .cell:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+@media (min-width: 640px) {
+  /* Layar lebar: kolom 1fr sudah memberi sel ~27px, jadi batas minimum
+     boleh turun ke 24px — grid 16 kolom muat tanpa scroll, persis
+     seperti sebelum perbaikan. Di bawah 640px sel tetap 28px + scroll. */
+  .drumgrid .cell { min-width: 24px; min-height: 24px; }
+}
 .wheel { width: 230px; height: 230px; margin: 8px auto; display: block; max-width: 100%; }
 .tapzone {
   background: var(--surface-2); border: 2px dashed #4a3d2f; border-radius: var(--r-card);

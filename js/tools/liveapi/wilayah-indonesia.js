@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.1';
+import { h as T, esc } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"wilayah-indonesia","name":"Wilayah Indonesia","cat":"liveapi","icon":"🗺️","desc":"Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.","keywords":"wilayah,provinsi,kabupaten,kota,kecamatan,kelurahan,desa,kode wilayah,indonesia","since":"6.12.0"};
 
@@ -66,7 +66,7 @@ export function render(root) {
     let msg;
     if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
     else msg = 'Gagal memuat data wilayah. Periksa koneksi internet lalu coba lagi.';
-    T.show(box, '<span class="err">' + esc(msg) + '</span><br><span class="dim">(' + esc(e.message || e) + ')</span>');
+    T.show(box, '<span class="err">' + esc(msg) + '</span>');
     const wrap = T.el('<div style="margin-top:8px"></div>');
     wrap.appendChild(T.btn('🔄 Coba lagi', ulang));
     box.appendChild(wrap);

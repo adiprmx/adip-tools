@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 utils.md5 = async function (str) { return _md5(str); };
 
@@ -277,7 +277,7 @@ export function render(root) {
           await new Promise((res) => setTimeout(res, 0));
         }
       } catch (e) {
-        T.show(fileOut, '<span class="err">Gagal membaca file: ' + esc(e && e.message ? e.message : e) + '</span>');
+        T.show(fileOut, '<span class="err">File ini tidak bisa dibaca. Pastikan filenya tidak rusak lalu coba lagi.</span>');
         return;
       }
       T.show(fileOut, '<span class="dim">Menghitung hash…</span>');

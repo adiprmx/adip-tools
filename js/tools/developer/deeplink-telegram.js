@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js?v=6.12.1';
+import { h as T, esc, errBox } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "deeplink-telegram", "name": "Pembuat Deep Link Telegram", "cat": "developer", "icon": "🔗", "desc": "Buat tautan t.me bot dengan parameter start, siap dibagikan.", "keywords": "telegram,deeplink,deep link,t.me,start parameter,bot", "since": "6.11.0"};
 

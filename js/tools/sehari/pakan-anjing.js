@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.12.1';
+import { h as T, kv, utils } from '../../core.js?v=6.12.2';
 
 // Porsi makan anjing dari kebutuhan kalori. RER = 70 x berat^0,75,
 // lalu dikali faktor sesuai umur dan kondisi (NRC 2006, WSAVA).

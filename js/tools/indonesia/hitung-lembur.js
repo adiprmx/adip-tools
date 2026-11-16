@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.1';
+import { h as T, kv } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "hitung-lembur", "name": "Upah Lembur Kerja & Libur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur hari kerja & hari libur (1,5×–4×).", "keywords": "lembur,upah,gaji,kerja,kemenaker", "file": "tools/indonesia/hitung-lembur.js"};
 export function render(root) {

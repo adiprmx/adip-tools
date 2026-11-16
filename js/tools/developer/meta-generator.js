@@ -1,4 +1,4 @@
-import { h as T, kv, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.1';
+import { h as T, kv, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.2';
 
 /* Batas karakter yang dipakai Google sebagai acuan umum. */
 export const TITLE_IDEAL = [50, 60];
@@ -78,7 +78,7 @@ export function render(root) {
         twBox.innerHTML = '<div class="hint">Pratinjau kartu X muncul di sini setelah judul atau deskripsi diisi.</div>';
       } else {
         const imgHtml = ogI
-          ? '<img src="' + esc(ogI) + '" style="' + (besar ? 'width:100%;height:180px;object-fit:cover;display:block' : 'width:120px;height:120px;object-fit:cover;flex-shrink:0') + '" alt="" onerror="this.style.display=\'none\'">'
+          ? '<img src="' + esc(ogI) + '" style="' + (besar ? 'width:100%;height:180px;object-fit:cover;display:block' : 'width:120px;height:120px;object-fit:cover;flex-shrink:0') + '" alt="" data-err="hide">'
           : '<div style="' + (besar ? 'width:100%;height:120px' : 'width:120px;height:120px;flex-shrink:0') + ';background:#16181c;display:flex;align-items:center;justify-content:center;color:#71767b;font-size:12px">tanpa gambar</div>';
         const bodyHtml = '<div style="padding:10px 12px"><div style="font-size:14px;color:#e7e9ea">' + esc(ogT || '(tanpa judul)') + '</div>' +
           '<div style="font-size:13px;color:#71767b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + esc(ogD || '(tanpa deskripsi)') + '</div>' +
@@ -87,6 +87,7 @@ export function render(root) {
           '<div class="hint" style="margin-bottom:6px">Pratinjau kartu X / Twitter:</div>' +
           '<div style="border-radius:12px;overflow:hidden;max-width:420px;border:1px solid #2f3336;background:#000;' + (besar ? '' : 'display:flex') + '">' + imgHtml + bodyHtml + '</div>' +
           (besar && !ogI ? '<div class="hint" style="margin-top:6px;color:#fbbf24">Kartu besar dipilih tapi gambar belum diisi. Isi og:image supaya kartu tampil dengan gambar.</div>' : '');
+        T.wireImgErr(twBox);
       }
     };
 

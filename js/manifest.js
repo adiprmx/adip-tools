@@ -1,8 +1,8 @@
-/* ADIP Tools v6.12.1 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.12.2 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.12.1';
+export const VERSION = '6.12.2';
 export const manifest = [
   {"id":"anggaran-50-30-20","name":"Anggaran 50/30/20","cat":"bisnis","icon":"💰","desc":"Bagi penghasilan jadi kebutuhan, keinginan, dan tabungan, lalu cek apakah pengeluaranmu sudah sesuai.","keywords":"anggaran,budget,50 30 20,keuangan,penghasilan,tabungan,kebutuhan","file":"tools/bisnis/anggaran-50-30-20.js","since":"6.11.0"},
   {"id":"banding-gaji","name":"Banding Gaji","cat":"bisnis","icon":"⚖️","desc":"Bandingkan dua tawaran gaji sampai total setahunnya.","keywords":"banding,gaji,tawaran,offer,total,tahunan,bpjs,bonus,thr","file":"tools/bisnis/banding-gaji.js","since":"6.11.0"},
@@ -498,7 +498,7 @@ export const manifest = [
   {"id":"pdflab","name":"PDF Lab","cat":"produktivitas","icon":"🧪","desc":"Toolkit PDF lokal: gabung, pisah, watermark & lainnya.","keywords":"pdf,merge,split,watermark,metadata,form,gabung,kompres,compress","file":"tools/produktivitas/pdflab.js"},
   {"id":"pelacak-langganan","name":"Pelacak Langganan","cat":"produktivitas","icon":"💳","desc":"Catat semua langganan bulananmu, lihat total per bulan & tahun, dan tahu mana yang paling menguras.","keywords":"langganan,subscription,biaya,bulanan,hemat,pengeluaran,streaming","file":"tools/produktivitas/pelacak-langganan.js"},
   {"id":"pelacak-tujuan","name":"Pelacak Tujuan","cat":"produktivitas","icon":"🎯","desc":"Tulis tujuan tahunanmu, pecah jadi milestone, pantau bar progresnya.","keywords":"tujuan,goals,milestone,target,resolusi,progres,tahunan","file":"tools/produktivitas/pelacak-tujuan.js"},
-  {"id":"pembuat-cv","name":"Pembuat CV Lamaran","cat":"produktivitas","icon":"📄","desc":"Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 5 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.","keywords":"cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja,sertifikat","file":"tools/produktivitas/pembuat-cv.js"},
+  {"id":"pembuat-cv","name":"Pembuat CV Lamaran","cat":"produktivitas","icon":"📄","desc":"Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 6 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.","keywords":"cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja,sertifikat","file":"tools/produktivitas/pembuat-cv.js"},
   {"id":"perencana-mingguan","name":"Perencana Mingguan","cat":"produktivitas","icon":"🗓️","desc":"Susun blok waktu kegiatan untuk 7 hari ke depan, biar minggumu punya arah.","keywords":"perencana mingguan,weekly planner,time block,jadwal,minggu,planning,rencana","file":"tools/produktivitas/perencana-mingguan.js"},
   {"id":"pomodoro","name":"Pomodoro Timer","cat":"produktivitas","icon":"🍅","desc":"Timer fokus 25/5.","keywords":"pomodoro,fokus,timer,belajar","file":"tools/produktivitas/pomodoro.js"},
   {"id":"prioritas-harian","name":"Prioritas Harian","cat":"produktivitas","icon":"🎯","desc":"Pilih top-3 tugas hari ini, coret satu per satu, pulang dengan tenang.","keywords":"prioritas,harian,todo,todolist,tugas,top 3,produktivitas,fokus","file":"tools/produktivitas/prioritas-harian.js"},

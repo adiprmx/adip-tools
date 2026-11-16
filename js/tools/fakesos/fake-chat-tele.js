@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.1';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.2';
 
 export const meta = {
   id: 'fake-chat-tele',
@@ -12,10 +12,10 @@ export const meta = {
 
 /* Palet Telegram asli (riset 15 Nov 2026, telegram-desktop colors.palette):
    terang: keluar #effdde, masuk #ffffff | gelap (Night): keluar #2b5278, masuk #182533,
-   latar gelap #0e1621, aksen #2aabee, centang dibaca hijau #5dc452 (terang) / biru #7da8d9 (gelap). */
+   latar gelap #0e1621, aksen #2aabee, centang dibaca hijau #5dc452 (terang) / biru #7da8d3 (gelap). */
 const THEMES = {
   terang: { bg: '#DCE6EC', inB: '#FFFFFF', outB: '#EFFDDE', fg: '#000000', hdBg: '#FFFFFF', hdFg: '#000000', sub: '#707579', on: '#2AABEE', timeIn: '#999999', timeOut: '#3A8E26', check: '#5DC452', chipBg: 'rgba(0,0,0,.30)', inputBg: '#FFFFFF', inputFg: '#000000', ph: '#999999', pat: 'rgba(0,0,0,0.045)' },
-  gelap: { bg: '#0E1621', inB: '#182533', outB: '#2B5278', fg: '#FFFFFF', hdBg: '#17212B', hdFg: '#FFFFFF', sub: '#7F91A4', on: '#6EB5FF', timeIn: '#6D7F8F', timeOut: '#7DA8D9', check: '#7DA8D9', chipBg: 'rgba(255,255,255,.14)', inputBg: '#17212B', inputFg: '#FFFFFF', ph: '#6D7F8F', pat: 'rgba(255,255,255,0.03)' },
+  gelap: { bg: '#0E1621', inB: '#182533', outB: '#2B5278', fg: '#FFFFFF', hdBg: '#17212B', hdFg: '#FFFFFF', sub: '#7F91A4', on: '#6EB5FF', timeIn: '#6D7F8F', timeOut: '#7da8d3', check: '#7da8d3', chipBg: 'rgba(255,255,255,.14)', inputBg: '#17212B', inputFg: '#FFFFFF', ph: '#6D7F8F', pat: 'rgba(255,255,255,0.03)' },
 };
 
 const AVA_COLORS = ['#FF845E', '#D97E00', '#35A857', '#2AABEE', '#7F66D9', '#E15D8F', '#E15D8F'];

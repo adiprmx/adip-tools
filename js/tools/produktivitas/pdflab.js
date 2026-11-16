@@ -1,4 +1,4 @@
-import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.12.1';
+import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.12.2';
 
 // ---------- Util murni tab Banding (tanpa DOM, bisa diuji dari Node) ----------
 
@@ -300,7 +300,7 @@ export function render(root) {
         T.show(box, '<span class="ok">' + n + ' halaman dimuat. Atur urutan, rotasi, atau hapus halaman.</span>');
         renderGrid();
         bApply.hidden = false;
-      } catch (e) { T.show(box, errBox('Gagal membaca PDF: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('File PDF ini tidak bisa dibaca. Pastikan filenya tidak rusak dan benar-benar PDF, lalu coba lagi.')); }
     }, true);
     const bApply = T.btn('Terapkan & Unduh', async () => {
       if (!doc || !order.length) { T.show(box, errBox('Tidak ada halaman tersisa.')); return; }
@@ -314,7 +314,7 @@ export function render(root) {
         }
         dlPdf(await out.save(), 'pdf-diatur.pdf');
         T.show(box, '<span class="ok">PDF baru terunduh (' + order.length + ' halaman).</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Tidak bisa menyimpan PDF yang sudah diatur. Coba lagi, atau muat ulang filenya.')); }
     });
     bApply.hidden = true;
     const bReset = T.btn('Reset', () => { if (doc) { order = Array.from({ length: doc.getPageCount() }, (_, i) => i); rots = {}; renderGrid(); } });
@@ -365,7 +365,7 @@ export function render(root) {
         }
         dlPdf(await out.save(), 'pdf-gabungan.pdf');
         T.show(box, '<span class="ok">Berhasil: ' + files.length + ' file → ' + total + ' halaman.</span>');
-      } catch (e) { T.show(box, errBox('Gagal menggabungkan: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Tidak bisa menggabungkan file-file ini. Pastikan semuanya file PDF yang tidak rusak, lalu coba lagi.')); }
     }, true);
     pMerge.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Gabungkan beberapa PDF jadi satu, sesuai urutan.</p>'));
     pMerge.appendChild(fi);
@@ -397,7 +397,7 @@ export function render(root) {
           dlPdf(await out.save(), 'pdf-pisah-' + (++k) + '.pdf');
         }
         T.show(box, '<span class="ok">Berhasil: ' + groups.length + ' file terunduh.</span>');
-      } catch (e) { T.show(box, errBox(e.message)); }
+      } catch (e) { T.show(box, errBox('Tidak bisa memisahkan PDF ini. Pastikan filenya tidak rusak dan nomor halamannya benar, lalu coba lagi.')); }
     }, true);
     pSplit.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ambil halaman tertentu jadi file baru. Tanda <b>;</b> memisahkan jadi file berbeda.</p>'));
     pSplit.appendChild(fi);
@@ -472,7 +472,7 @@ export function render(root) {
         const made = out.getPageCount();
         dlPdf(await out.save(), 'gambar-ke-pdf.pdf');
         T.show(box, '<span class="ok">Berhasil: ' + made + ' halaman terunduh.' + (gagal.length ? ' ' + gagal.length + ' file dilewati karena tidak bisa dibaca browser ini: ' + gagal.slice(0, 3).map(T.esc).join(', ') + (gagal.length > 3 ? ' dan lainnya' : '') + '.' : '') + '</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message + ' (pastikan file benar-benar gambar)')); }
+      } catch (e) { T.show(box, errBox('Tidak bisa membuat PDF dari gambar ini. Pastikan filenya benar-benar gambar (JPG, PNG, atau WEBP), lalu coba lagi.')); }
     }, true);
     pImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah kumpulan gambar jadi satu PDF. PNG, JPG, WEBP, dan BMP bisa langsung. HEIC (foto iPhone) dan TIFF diubah dulu di perangkat — pertama kali butuh internet untuk mengunduh pengubahnya.</p>'));
     pImg.appendChild(fi);
@@ -572,7 +572,7 @@ export function render(root) {
         }
         dlPdf(await doc.save(), 'pdf-watermark.pdf');
         T.show(box, '<span class="ok">Watermark diterapkan di ' + targets.length + ' halaman.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Watermark tidak bisa ditempel. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     modeSel.addEventListener('change', () => {
       const imgMode = modeSel.value === 'image';
@@ -686,7 +686,7 @@ export function render(root) {
         }
         dlPdf(await doc.save(), 'pdf-teks.pdf');
         T.show(box, '<span class="ok">Diterapkan di ' + targets.length + ' halaman.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Teks/bentuk tidak bisa ditempel. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pTx.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel teks, sorotan stabilo, kotak, atau lingkaran di posisi tertentu pada halaman.</p>'));
     pTx.appendChild(fi);
@@ -725,7 +725,7 @@ export function render(root) {
           '<div class="kv"><span class="k">Subjek</span><span class="v">' + T.esc(doc.getSubject() || '(kosong)') + '</span></div>' +
           '<div class="kv"><span class="k">Kata kunci</span><span class="v">' + T.esc((doc.getKeywords() || []).join(', ') || '(kosong)') + '</span></div>' +
           '<div class="kv"><span class="k">Halaman</span><span class="v">' + doc.getPageCount() + '</span></div>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Info file ini tidak bisa dibaca. Pastikan filenya benar-benar PDF dan tidak rusak.')); }
     });
     const bGo = T.btn('Simpan & Unduh', async () => {
       const f = fi.files && fi.files[0];
@@ -747,7 +747,7 @@ export function render(root) {
         }
         dlPdf(await doc.save(), 'pdf-metadata.pdf');
         T.show(box, '<span class="ok">' + (clearChk.checked ? 'Metadata dihapus.' : 'Metadata tersimpan.') + '</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Metadata tidak bisa disimpan. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pMeta.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Lihat & ubah info dokumen PDF (judul, penulis, dsb).</p>'));
     pMeta.appendChild(fi);
@@ -819,7 +819,7 @@ export function render(root) {
         if (nT) parts.push(nT + ' teks'); if (nC) parts.push(nC + ' centang'); if (nS) parts.push(nS + ' pilihan');
         T.show(box, '<span class="ok">' + fields.length + ' field ditemukan (' + parts.join(', ') + ').</span>');
         bGo.hidden = false;
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Form di PDF ini tidak bisa dibaca. Pastikan filenya punya form isian dan tidak rusak.')); }
     }, true);
     const bGo = T.btn('Isi & Unduh', async () => {
       if (!doc) return;
@@ -844,7 +844,7 @@ export function render(root) {
         if (flatChk.checked) form.flatten();
         dlPdf(await doc.save(), 'pdf-form-terisi.pdf');
         T.show(box, '<span class="ok">Form terisi & terunduh.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Form tidak bisa disimpan. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     const bFlat = T.btn('Ratakan Form Saja & Unduh', async () => {
       const f = fi.files && fi.files[0];
@@ -856,7 +856,7 @@ export function render(root) {
         d.getForm().flatten();
         dlPdf(await d.save(), 'pdf-form-rata.pdf');
         T.show(box, '<span class="ok">Form diratakan & terunduh. Isian tidak bisa diubah lagi.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Form tidak bisa diratakan. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     });
     bGo.hidden = true;
     const chkRow = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;margin:8px 0;cursor:pointer"></label>');
@@ -919,7 +919,7 @@ export function render(root) {
             ? 'Berhasil: ' + fmtSize(before) + ' menjadi ' + fmtSize(after) + ' (lebih kecil ' + pct + '%). ' + st.replaced + ' dari ' + st.total + ' gambar dikecilkan' + (st.skipped ? ', ' + st.skipped + ' gambar dilewati (bukan JPG atau tidak bisa dikecilkan)' : '') + '. Teks tetap bisa dipilih.'
             : 'Hasil ' + fmtSize(after) + ' vs asli ' + fmtSize(before) + ', tidak lebih kecil. Gambar di PDF ini sudah padat. File tetap terunduh; coba kualitas lebih rendah atau mode "Ubah halaman jadi gambar".';
           T.show(box, '<span class="ok">' + msg + '</span>');
-        } catch (e) { T.show(box, errBox('Gagal mengompres: ' + e.message)); }
+        } catch (e) { T.show(box, errBox('Tidak bisa mengompres PDF ini. Pastikan filenya tidak rusak, lalu coba lagi.')); }
         return;
       }
       const okJs = await ensurePdfJs();
@@ -960,7 +960,7 @@ export function render(root) {
             ? 'Berhasil: ' + fmtSize(before) + ' menjadi ' + fmtSize(after) + ' (lebih kecil ' + pct + '%, ' + n + ' halaman).'
             : 'Hasil ' + fmtSize(after) + ' vs asli ' + fmtSize(before) + ', tidak lebih kecil (PDF aslinya sudah padat). File tetap terunduh; coba kualitas lebih rendah bila perlu.';
         T.show(box, '<span class="ok">' + msg + '</span>');
-      } catch (e) { T.show(box, errBox('Gagal mengompres: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Tidak bisa mengompres PDF ini. Pastikan filenya tidak rusak, lalu coba lagi.')); }
     }, true);
     modeSel.addEventListener('change', () => {
       const m = modeSel.value;
@@ -1003,7 +1003,7 @@ export function render(root) {
         const blob = await zip.generateAsync({ type: 'blob' });
         dlBlob(blob, 'pdf-gambar.zip');
         T.show(box, '<span class="ok">ZIP terunduh (' + shots.length + ' gambar).</span>');
-      } catch (e) { T.show(box, errBox('Gagal membuat ZIP: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('ZIP tidak bisa dibuat. Coba lagi, atau unduh gambarnya satu per satu.')); }
     });
     bZip.hidden = true;
     const bGo = T.btn('Ubah ke Gambar', async () => {
@@ -1047,7 +1047,7 @@ export function render(root) {
         }
         bZip.hidden = false;
         T.show(box, '<span class="ok">' + n + ' halaman diubah jadi ' + fmt.toUpperCase() + '. Unduh satu per satu atau semuanya sekaligus.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Halaman tidak bisa diubah jadi gambar. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pPdfImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah tiap halaman PDF jadi gambar JPG atau PNG. Cocok untuk dibagikan atau dimasukkan ke dokumen lain.</p>'));
     pPdfImg.appendChild(fi);
@@ -1110,7 +1110,7 @@ export function render(root) {
         });
         dlPdf(await doc.save(), 'pdf-nomor.pdf');
         T.show(box, '<span class="ok">Nomor ditempel di ' + targets.length + ' halaman.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Nomor halaman tidak bisa ditempel. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pNum.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel nomor halaman di setiap halaman PDF. Untuk skripsi atau laporan, halaman awal bisa memakai angka Romawi.</p>'));
     pNum.appendChild(fi);
@@ -1173,7 +1173,7 @@ export function render(root) {
         }
         T.show(box, '<span class="ok">Tanda tangan dimuat. Muat pratinjau untuk mengatur posisi, atau langsung tempel.</span>');
         if (pageCanvas) drawPrev();
-      } catch (e) { T.show(box, errBox('Gagal membaca gambar: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Gambar tanda tangan ini tidak bisa dibaca. Pastikan filenya benar-benar gambar (PNG atau JPG), lalu coba lagi.')); }
     });
     const bFromTool = T.btn('Pakai yang Terakhir Dibuat', async () => {
       let dataUrl = null;
@@ -1183,7 +1183,7 @@ export function render(root) {
         await setSigFromDataUrl(dataUrl);
         T.show(box, '<span class="ok">Tanda tangan dari tool Tanda Tangan dimuat.</span>');
         if (pageCanvas) drawPrev();
-      } catch (e) { T.show(box, errBox(e.message)); }
+      } catch (e) { T.show(box, errBox('Tanda tangan yang tersimpan tidak bisa dimuat. Coba buat ulang di tool Tanda Tangan.')); }
     });
     const bMake = T.btn('Buat di Tool Tanda Tangan', () => { location.hash = '#/t/tanda-tangan'; });
 
@@ -1237,7 +1237,7 @@ export function render(root) {
         prevWrap.hidden = false;
         drawPrev();
         T.show(box, '<span class="ok">Pratinjau halaman ' + targets[0] + ' dimuat. Seret tanda tangan bila posisinya kurang pas.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Pratinjau halaman tidak bisa dimuat. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     });
     const canvasPos = (e) => {
       const r = prevCanvas.getBoundingClientRect();
@@ -1303,7 +1303,7 @@ export function render(root) {
         }
         dlPdf(await doc.save(), 'pdf-ttd.pdf');
         T.show(box, '<span class="ok">Tanda tangan ditempel di ' + targets.length + ' halaman.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Tanda tangan tidak bisa ditempel. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pSign.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel gambar tanda tangan ke halaman PDF. Buat tanda tangan di tool Tanda Tangan, atau unggah gambar yang sudah ada.</p>'));
     pSign.appendChild(fi);
@@ -1359,7 +1359,7 @@ export function render(root) {
         }
         dlPdf(await doc.save(), 'pdf-crop.pdf');
         T.show(box, '<span class="ok">Halaman dipotong di ' + targets.length + ' halaman. Isi di luar area potong masih ada di dalam file, hanya tidak ditampilkan.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Halaman tidak bisa dipotong. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pCrop.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Potong pinggiran halaman PDF, misal untuk menghilangkan margin kosong hasil pindaian.</p>'));
     pCrop.appendChild(fi);
@@ -1445,7 +1445,7 @@ export function render(root) {
         if (!boxes) { T.show(box, '<span class="dim">Tidak ada yang ditutupi. Coba kata lain atau periksa halaman target.</span>'); return; }
         dlPdf(await doc.save(), 'pdf-sensor.pdf');
         T.show(box, '<span class="ok">' + boxes + ' kotak hitam ditempel. Ingat, ini hanya menutupi tampilan: teks di baliknya masih ada di dalam file dan bisa dibaca alat lain.' + (rotated ? ' Sebagian halaman diputar, jadi posisi kotak bisa bergeser.' : '') + '</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Kata tidak bisa ditutupi. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pRedact.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tutupi kata atau area sensitif dengan kotak hitam sebelum PDF dibagikan.</p>'));
     pRedact.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Penting: kotak hitam hanya menutupi tampilan. Teks di baliknya masih ada di dalam file dan bisa dibaca dengan alat lain. Untuk menghapus permanen, pakai alat redact khusus di komputer.</p>'));
@@ -1500,7 +1500,7 @@ export function render(root) {
         pre.hidden = false;
         bDl.hidden = false; bCopy.hidden = false;
         T.show(box, '<span class="ok">Teks dari ' + targets.length + ' halaman berhasil diambil.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Teks tidak bisa diambil dari PDF ini. Mungkin halamannya hanya berisi gambar (hasil scan) — coba tool OCR.')); }
     }, true);
     pPdfText.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ambil semua teks dari PDF untuk disalin atau disimpan. PDF hasil pindaian (foto halaman) tidak punya teks, jadi hasilnya kosong.</p>'));
     pPdfText.appendChild(fi);
@@ -1528,7 +1528,7 @@ export function render(root) {
         const blob = await zip.generateAsync({ type: 'blob' });
         dlBlob(blob, 'pdf-gambar-ekstrak.zip');
         T.show(box, '<span class="ok">ZIP terunduh (' + pics.length + ' gambar).</span>');
-      } catch (e) { T.show(box, errBox('Gagal membuat ZIP: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('ZIP tidak bisa dibuat. Coba lagi, atau unduh gambarnya satu per satu.')); }
     });
     bZip.hidden = true;
     const bGo = T.btn('Cari Gambar', async () => {
@@ -1587,7 +1587,7 @@ export function render(root) {
         if (!pics.length) { T.show(box, '<span class="dim">Tidak ada gambar yang ditemukan di PDF ini.</span>'); return; }
         bZip.hidden = false;
         T.show(box, '<span class="ok">' + pics.length + ' gambar ditemukan.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Gambar tidak bisa diambil dari PDF ini. Pastikan filenya tidak rusak, lalu coba lagi.')); }
     }, true);
     pImgOut.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ambil semua gambar yang tertanam di PDF, satu per satu atau sekaligus dalam ZIP. Gambar yang sama di beberapa halaman hanya diambil sekali.</p>'));
     pImgOut.appendChild(fi);
@@ -1639,7 +1639,7 @@ export function render(root) {
         dlPdf(best, 'pdf-target.pdf');
         const reached = best.length <= target;
         T.show(box, '<span class="ok">' + fmtSize(origBytes.length) + ' menjadi ' + fmtSize(best.length) + (reached ? ' (target tercapai).' : ' (target ' + fmtSize(target) + ' tidak tercapai, ini hasil terkecil yang didapat; teks tetap bisa dipilih).') + '</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Tidak bisa mengompres PDF ini ke ukuran target. Pastikan filenya tidak rusak, lalu coba lagi.')); }
     }, true);
     pTarget.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tentukan ukuran target, alat ini mencoba beberapa tingkat kualitas sampai file di bawah target. Teks tetap bisa dipilih. Tidak semua file bisa sampai target, hasilnya tetap diunduh yang terkecil.</p>'));
     pTarget.appendChild(fi);
@@ -1722,7 +1722,7 @@ export function render(root) {
         form.updateFieldAppearances(font);
         dlPdf(await doc.save(), 'pdf-form-baru.pdf');
         T.show(box, '<span class="ok">Form dibuat (' + rows.length + ' kolom) & terunduh. Buka di pembaca PDF untuk mengisinya.</span>');
-      } catch (e) { T.show(box, errBox(e.message)); }
+      } catch (e) { T.show(box, errBox('Form baru tidak bisa dibuat. Periksa isi kolomnya, lalu coba lagi.')); }
     }, true);
     pFormNew.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Buat kolom isian di PDF yang masih kosong: kolom teks untuk diisi tulisan, kotak centang untuk dicentang, dan pilihan dropdown. Hasilnya bisa diisi di pembaca PDF atau di tab Form.</p>'));
     pFormNew.appendChild(fi);
@@ -1792,7 +1792,7 @@ export function render(root) {
         }
         dlPdf(await out.save(), 'pdf-susun.pdf');
         T.show(box, '<span class="ok">Berhasil disusun & terunduh.' + (mode === 'booklet' ? ' Cetak bolak-balik lalu lipat di tengah.' : '') + '</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Halaman tidak bisa disusun. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pArrange.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Susun ulang halaman: beberapa halaman dalam satu lembar untuk hemat kertas, booklet untuk dilipat jadi buku kecil, atau balik urutan. Ukuran lembar mengikuti halaman pertama.</p>'));
     pArrange.appendChild(fi);
@@ -1873,7 +1873,7 @@ export function render(root) {
           '<div class="kv"><span class="k">Diubah</span><span class="v">' + fmtDate(doc.getModificationDate()) + '</span></div>' +
           '<div class="kv"><span class="k">Huruf yang dipakai</span><span class="v">' + (fonts.size ? [...fonts].map(T.esc).join(', ') : '(tidak terdeteksi)') + '</span></div>' +
           '<div style="margin-top:12px;font-size:13px"><b>Penanda (daftar isi)</b></div>' + outlineHtml);
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Info file ini tidak bisa dibaca. Pastikan filenya benar-benar PDF dan tidak rusak.')); }
     }, true);
     pInfo.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Lihat isi dalam PDF: info dokumen, huruf yang dipakai, dan daftar penanda.</p>'));
     pInfo.appendChild(fi);
@@ -1974,7 +1974,7 @@ export function render(root) {
         bDl.hidden = false; bCopy.hidden = false;
         const namaA = fileName(fA), namaB = fileName(fB);
         T.show(box, '<span class="ok">Selesai: ' + sama + ' baris sama, ' + hapus + ' baris hanya ada di ' + T.esc(namaA) + ', ' + tambah + ' baris hanya ada di ' + T.esc(namaB) + '.' + (diff.terpotong ? ' Dokumen terlalu panjang, hanya 2000 baris pertama per file yang dibandingkan.' : '') + '</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Kedua file tidak bisa dibandingkan. Pastikan keduanya file PDF atau teks yang tidak rusak, lalu coba lagi.')); }
     }, true);
     pDiff.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bandingkan isi teks dua PDF, baris per baris. Yang dibandingkan adalah teksnya, bukan tampilan visual halamannya. PDF hasil pindaian (foto halaman) tidak punya teks, jadi tidak bisa dibandingkan.</p>'));
     pDiff.appendChild(T.field('PDF pertama (A)', fiA));
@@ -2064,7 +2064,7 @@ export function render(root) {
         stage.style.display = 'block';
         bApply.hidden = false;
         T.show(box, '<span class="ok">Halaman ' + pageNo + ' dari ' + pageCount + ' siap dicorat-coret. Goresan disimpan sebagai garis vektor di PDF.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Halaman tidak bisa dimuat untuk dicorat-coret. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     const bUndo = T.btn('Urungkan', () => { strokes.pop(); gambarUlang(); });
     const bClear = T.btn('Hapus semua', () => { strokes = []; gambarUlang(); });
@@ -2086,7 +2086,7 @@ export function render(root) {
         }
         dlPdf(await doc.save(), 'pdf-corat-coret.pdf');
         T.show(box, '<span class="ok">Coretan ditempel di halaman ' + pageNo + ' & terunduh.</span>');
-      } catch (e) { T.show(box, errBox('Gagal: ' + e.message)); }
+      } catch (e) { T.show(box, errBox('Coretan tidak bisa ditempel ke PDF. Coba lagi.')); }
     }, true);
     bApply.hidden = true;
     pDraw.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Corat-coret langsung di atas halaman PDF dengan jari atau stylus — untuk menandai, melingkari, atau memberi catatan. Satu halaman per unduhan.</p>'));

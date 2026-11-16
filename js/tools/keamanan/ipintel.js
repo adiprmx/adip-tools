@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.12.2';
 
 export const meta = {"id": "ipintel", "name": "IP & ASN Intelligence", "cat": "keamanan", "icon": "🌐", "desc": "Lookup IP: ASN, organisasi jaringan, negara, dan status bogon.", "keywords": "ip,asn,lookup,jaringan,negara,bogon,whois"};
 
@@ -157,7 +157,7 @@ export function render(root) {
       if (e.name === 'AbortError') return;
       const msg = /429|rate limit/i.test(e.message)
         ? 'Batas permintaan API tercapai (rate limit). Tunggu sebentar lalu coba lagi.'
-        : 'Gagal: ' + e.message + ' (kedua penyedia tidak merespons)';
+        : 'Tidak bisa mengambil data IP: kedua penyedia tidak merespons. Periksa koneksimu lalu coba lagi.';
       T.show(out, errBox(msg));
     } finally {
       btnAnalisis.disabled = false;

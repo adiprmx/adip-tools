@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.1';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.2';
 
 // Canvas -> file BMP 24-bit (tanpa kompresi). Hanya butuh getImageData,
 // jadi bisa diuji di Node dengan canvas tiruan.
@@ -253,6 +253,13 @@ export function render(root) {
         if (!files.length) { T.toast('Pilih gambar dulu'); return; }
         hasilBatch = [];
         cur = null;
+        // Pesan gagal buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
+        // Error lain (dari browser/library) diganti pesan ramah.
+        const pesanGagal = (er) => {
+          const m = (er && er.message) || '';
+          if (/^(pengubah HEIC|pembaca TIFF|file HEIC tidak terbaca|file TIFF tidak terbaca|gagal membuat ICO|gagal membuat SVG|gagal membaca gambar|browser ini belum bisa menyimpan AVIF|gagal convert)/.test(m)) return m;
+          return 'tidak bisa diproses';
+        };
         const gagal = [];
         const q = parseInt(qRange.value, 10) / 100;
         for (let i = 0; i < files.length; i++) {
@@ -272,7 +279,7 @@ export function render(root) {
             const base = (files[i].name || 'gambar').replace(/\.[^.]*$/, '');
             hasilBatch.push({ blob: r.blob, name: base + '.' + r.ext, asal: files[i].name, w: canvas.width, h: canvas.height });
           } catch (e) {
-            gagal.push((files[i].name || 'gambar ' + (i + 1)) + ' (' + (e.message || 'gagal') + ')');
+            gagal.push((files[i].name || 'gambar ' + (i + 1)) + ' (' + pesanGagal(e) + ')');
           }
         }
         T.hide(statusBox);

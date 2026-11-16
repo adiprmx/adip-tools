@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node).
 // Kebutuhan pendinginan = luas (m2) x 500 BTU (teduh) s.d. x 600 BTU (kena matahari).

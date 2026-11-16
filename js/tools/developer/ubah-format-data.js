@@ -1,4 +1,4 @@
-import { h as T, errBox, esc } from '../../core.js?v=6.12.1';
+import { h as T, errBox, esc } from '../../core.js?v=6.12.2';
 
 // JSON <-> YAML <-> TOML <-> XML.
 // YAML: js-yaml (dipakai repo). TOML: smol-toml (ESM, via dynamic import).
@@ -114,7 +114,7 @@ export function render(root) {
         lastResult = '';
         const msg = (e && e.message) || String(e);
         if (LIB_FAIL_MSG[msg]) T.show(status, errBox(LIB_FAIL_MSG[msg]));
-        else T.show(status, errBox('Gagal mengubah: ' + msg));
+        else T.show(status, errBox('Gagal mengubah: datanya tidak bisa dibaca. Periksa lagi isinya, lalu coba lagi.'));
       }
     };
 

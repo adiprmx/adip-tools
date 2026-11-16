@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.1';
+import { h as T, utils } from '../../core.js?v=6.12.2';
 
 export const meta = {"id":"flashcard","name":"Flashcard","cat":"pelajar","icon":"🃏","desc":"Hafalkan apa pun dengan kartu bolak-balik.","keywords":"flashcard,kartu,hafalan,belajar,kuis,memori"};
 
@@ -31,7 +31,7 @@ export function render(root) {
   // ---------- Mode belajar ----------
   let idx = 0, order = [], flipped = false, shuffleMode = false;
   const studyCard = T.el(
-    '<div class="card tapzone" style="min-height:130px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;margin-bottom:8px"></div>');
+    '<button type="button" class="card tapzone" style="min-height:130px;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;margin-bottom:8px;width:100%;font-family:inherit;color:inherit"></button>');
   const counter = T.el('<p class="center mut" style="font-size:12.5px"></p>');
   const studyBox = T.el('<div></div>');
 
@@ -52,6 +52,9 @@ export function render(root) {
     const c = cards()[order[idx]];
     studyCard.innerHTML = '';
     studyCard.appendChild(T.el('<div class="center">' + T.esc(flipped ? c.back : c.front) + '</div>'));
+    studyCard.setAttribute('aria-label', flipped
+      ? 'Jawaban: ' + c.back + '. Tekan untuk kembali ke pertanyaan.'
+      : 'Pertanyaan: ' + c.front + '. Tekan untuk melihat jawaban.');
     studyCard.style.transform = '';
     counter.textContent = 'kartu ' + (idx + 1) + '/' + order.length + (isContoh() ? ' · contoh' : '');
     const next = T.btn('Lanjut →', () => {
@@ -68,12 +71,17 @@ export function render(root) {
     studyBox.appendChild(studyCard);
     studyBox.appendChild(counter);
     studyBox.appendChild(T.row(next, shuffleBtn));
-    studyBox.appendChild(T.el('<p class="hint center">Ketuk kartunya buat balik depan ↔ belakang.</p>'));
+    studyBox.appendChild(T.el('<p class="hint center">Ketuk kartunya buat balik depan ↔ belakang. Bisa juga pakai Enter atau Spasi.</p>'));
   };
   studyCard.addEventListener('click', () => {
+    // drawStudy() mencabut lalu memasang ulang kartu ke DOM, jadi fokus
+    // hilang — kembalikan ke kartu bila sebelumnya sedang fokus di sini,
+    // supaya pengguna keyboard bisa terus membalik tanpa Tab ulang.
+    const hadFocus = document.activeElement === studyCard;
     flipped = !flipped;
     T.beep(520, 0.05, 'sine');
     drawStudy();
+    if (hadFocus) studyCard.focus();
   });
 
   // ---------- Daftar & tambah kartu ----------

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, loadImage } from '../../core.js?v=6.12.1';
+import { h as T, utils, errBox, esc, loadImage } from '../../core.js?v=6.12.2';
 
 function wifiString(ssid, pass, enc) {
     const e = (v) => String(v == null ? '' : v).replace(/([\\;,":])/g, '\\$1');
@@ -75,7 +75,7 @@ export function render(root) {
         if (!ok) return;
         const ecc = logoImg ? 'H' : eccSel.value;
         QRCode.toCanvas(cv, txt, { width: +sizeSel.value, margin: +frameSel.value, errorCorrectionLevel: ecc, color: { dark: fg.value, light: bg.value } }, (err) => {
-          if (err) { T.show(statusBox, errBox('Gagal membuat QR: ' + err.message)); return; }
+          if (err) { T.show(statusBox, errBox('QR tidak bisa dibuat. Datanya mungkin terlalu panjang — coba persingkat, lalu coba lagi.')); return; }
           tempelLogo();
           qrWrap.innerHTML = '';
           cv.style.maxWidth = '100%'; cv.style.height = 'auto';
@@ -155,7 +155,7 @@ export function render(root) {
         QRCode.toString(txt, { type: 'svg', width: +sizeSel.value, margin: +frameSel.value, errorCorrectionLevel: ecc, color: { dark: fg.value, light: bg.value } }).then((svg) => {
           T.dl('qr-code.svg', svg, 'image/svg+xml');
           T.toast('SVG berhasil diunduh');
-        }).catch((err) => T.show(statusBox, errBox('Gagal membuat SVG: ' + err.message)));
+        }).catch((err) => T.show(statusBox, errBox('SVG tidak bisa dibuat. Datanya mungkin terlalu panjang — coba persingkat, lalu coba lagi.')));
       });
     }), T.btn('Hapus logo', () => {
       logoImg = null;

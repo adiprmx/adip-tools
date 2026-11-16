@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.1';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.2';
 
 // Logika murni (bisa di-test di Node)
 utils.modalUsaha = function (items, profit, nowMs) {
@@ -24,6 +24,7 @@ export function render(root) {
     const qty = T.input('text', 'Qty', qtyV || '1'); qty.inputMode = 'decimal';
     const price = T.input('text', 'Harga satuan (Rp)', priceV || ''); price.inputMode = 'decimal';
     const del = T.btn('✕', () => { row.remove(); refreshTotal(); });
+    del.setAttribute('aria-label', 'Hapus item');
     const row = T.el('<div class="card" style="padding:10px;margin-bottom:8px"></div>');
     row.appendChild(T.field('Item modal', nama));
     row.appendChild(T.grid2(T.field('Qty', qty), T.field('Harga satuan (Rp)', price)));
