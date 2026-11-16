@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.2';
+import { h as T, esc } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "penerjemah", "name": "Penerjemah", "cat": "liveapi", "icon": "🌏", "desc": "Terjemahkan teks Indonesia↔Inggris secara instan.", "keywords": "terjemah,translate,inggris,indonesia,bahasa"};
 
@@ -13,7 +13,7 @@ async function translateApi(q, langpair, signal) {
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const data = await res.json();
   if (data.quotaFinished === true) {
-    const e = new Error('Kuota harian API habis, coba lagi besok');
+    const e = new Error('Jatah terjemahan hari ini habis, coba lagi besok');
     e.quota = true;
     throw e;
   }
@@ -55,7 +55,7 @@ export function render(root) {
       if (e && e.name === 'AbortError') {
         T.show(box, '<span class="err">Waktu habis (15 detik). Periksa koneksi internet lalu coba lagi.</span>');
       } else if (e && e.quota) {
-        T.show(box, '<span class="err">Kuota harian API habis, coba lagi besok.</span>');
+        T.show(box, '<span class="err">Jatah terjemahan hari ini habis, coba lagi besok.</span>');
       } else {
         T.show(box, '<span class="err">Gagal menerjemahkan. Periksa koneksi internet lalu coba lagi.</span>');
       }

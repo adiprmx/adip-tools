@@ -1,4 +1,4 @@
-import { h as T, utils, U, money } from '../../core.js?v=6.12.2';
+import { h as T, utils, U, money } from '../../core.js?v=6.13.0';
 
 U.hitungTHR = (gaji, bulanKerja) => {
     gaji = +gaji || 0; bulanKerja = +bulanKerja || 0;

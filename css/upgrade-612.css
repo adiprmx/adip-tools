@@ -135,12 +135,22 @@ table.tbl {
 /* ---------- 6. Pasangan kunci-nilai (.kv) tahan teks panjang ----------
    .kv memakai justify-content:space-between tanpa min-width:0 —
    nilai panjang (URL, hash, angka) bisa mendorong label keluar
-   atau meluber. overflow-wrap memecah kata panjang; label tetap
-   di kiri, nilai tetap rata kanan. */
-.kv .k,
-.kv .v {
+   atau meluber. min-width:0 di kedua sisi membiarkan label
+   menyempit lebih dulu.
+   overflow-wrap:anywhere di sini SENGAJA DICABUT (P1-3, polish
+   v6.13.0): aturan itu memecah angka di tengah kelompok ribuan
+   ("Rp180.862.57/9", "Am/an") — dan karena file ini dimuat
+   setelah style.css, aturan penangkal di style.css kalah cascade.
+   Nilai panjang yang tidak bisa membungkus (URL/hash) kini
+   menggeser horizontal di dalam .out, bukan terbelah. Aturan
+   pematah nilai yang berlaku ada di style.css (.kv > :last-child).
+   min-width:0 HANYA untuk label (.k): nilai (.v) wajib
+   min-width:auto (default flex) supaya tidak terjepit di bawah
+   lebar isinya — bila .v ikut min-width:0, angka utuh meluber
+   keluar kotaknya dan menimpa label (terbukti di verifikasi:
+   vScrollW 89–103px vs vW 72–93px). */
+.kv .k {
   min-width: 0;
-  overflow-wrap: anywhere;
 }
 
 /* ---------- 7. Kepala invoice boleh membungkus di HP ----------

@@ -262,7 +262,9 @@ a { color: inherit; }
 
 /* ---------- grid kategori: 4 kolom ubin solid ---------- */
 .catgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-@media (min-width: 700px) { .catgrid { grid-template-columns: repeat(7, 1fr); } }
+/* 15 tile kategori: 5 kolom = 3 baris penuh (7 kolom menyisakan 1 tile
+   sendirian di baris terakhir — P3-5). */
+@media (min-width: 700px) { .catgrid { grid-template-columns: repeat(5, 1fr); } }
 .cattile {
   display: flex; flex-direction: column; align-items: center; gap: 7px;
   border-radius: 16px; padding: 15px 6px 13px;
@@ -296,7 +298,7 @@ a { color: inherit; }
 .tcard {
   position: relative; display: flex; flex-direction: column; gap: 10px;
   border-radius: var(--r-card); padding: 14px 13px 13px;
-  text-decoration: none; min-height: 128px;
+  text-decoration: none; min-height: 128px; min-width: 0;
   transition: transform 0.22s var(--spring), border-color 0.15s, box-shadow 0.22s var(--spring);
 }
 .tcard:hover { border-color: rgba(255, 255, 255, 0.16); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.38); }
@@ -362,6 +364,8 @@ a { color: inherit; }
 }
 .empty .sugx .schip:hover { color: var(--txt); border-color: var(--acc-line); }
 .empty .sugx .schip:active { transform: scale(0.94); }
+/* .schip juga dipakai sebagai <a> di halaman "tidak ditemukan" (P3-2). */
+.empty .sugx a.schip { text-decoration: none; }
 
 /* ---------- halaman tool ---------- */
 .back {
@@ -389,7 +393,7 @@ a { color: inherit; }
   border: 1px solid var(--acc-line); border-radius: 999px; padding: 4px 11px;
   color: var(--acc); background: var(--acc-soft);
 }
-.tool-head .meta .ds { color: var(--mut); font-size: 14px; line-height: 1.55; }
+.tool-head .meta .ds { color: var(--mut); font-size: 14px; line-height: 1.55; overflow-wrap: break-word; }
 .tool-head .tacts { display: flex; gap: 8px; flex: none; }
 .tool-head .tacts .fav.on { color: var(--acc); border-color: var(--acc-line); }
 .tool {
@@ -423,8 +427,34 @@ a { color: inherit; }
 .inp:focus { border-color: var(--acc-line); box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.45); }
 textarea.inp { resize: vertical; min-height: 96px; line-height: 1.55; }
 select.inp { appearance: none; -webkit-appearance: none; }
+/* Input file: tombol pilih file senada .btn (P2-1) — tanpa ini tampil
+   mentah bawaan OS (abu-abu, font Arial) di tengah UI gelap. */
+input[type=file] { font-family: inherit; font-size: 13.5px; color: var(--mut); }
+input[type=file]::file-selector-button {
+  font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--txt);
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: var(--r-ctl); padding: 10px 16px; margin-right: 10px; cursor: pointer;
+}
+input[type=file]::file-selector-button:hover { border-color: #4a3d2f; }
+input[type=file]::-webkit-file-upload-button {
+  font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--txt);
+  background: var(--surface-2); border: 1px solid var(--line);
+  border-radius: var(--r-ctl); padding: 10px 16px; margin-right: 10px; cursor: pointer;
+}
+input[type=file]::-webkit-file-upload-button:hover { border-color: #4a3d2f; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .row > * { flex: 1 1 0; min-width: 0; }
+/* Di HP: maks 2 tombol per baris supaya label tidak patah per suku kata
+   (P1-4 — "Sal/in/Ca/m/pu/ra/n" 7 baris). Bukan .row > * agar input/field
+   dalam .row tidak ikut berubah. */
+@media (max-width: 480px) { .row > .btn { flex: 1 1 40%; } }
+/* Bar tab (T.tabs, core.js): label tidak boleh patah — tab membungkus
+   sebagai kesatuan ke baris berikut (P3-4: "Teks & Bentuk" 2 baris di
+   360px DAN 1440px). Label tab terpanjang di repo 19 karakter, jadi
+   nowrap aman di semua lebar. */
+.tabbar .btn { white-space: nowrap; }
+/* Di HP kecilkan font tab supaya lebih banyak tab muat per baris. */
+@media (max-width: 480px) { .tabbar .btn { font-size: 12px; } }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
 
@@ -468,11 +498,29 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 }
 .out:not([hidden]) { animation: out-in 0.22s var(--ease); }
 .out pre { white-space: pre-wrap; font-family: var(--font-m); font-size: 13px; }
+/* Tabel di dalam .out: jangan patahkan kata di tengah angka — tabel
+   menggeser horizontal di dalam .out bila isinya lebih lebar (P1-2). */
+.out table { word-break: normal; overflow-wrap: normal; }
 .out .retry { margin-top: 14px; }
 .kv { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
 .kv:last-child { border-bottom: none; }
 .kv .k { color: var(--mut); font-size: 13px; }
 .kv .v { font-weight: 650; text-align: right; }
+/* Nilai .kv tidak boleh terbelah di tengah angka/kata ("Am/an",
+   "Rp180.862.57/9" — P1-3): reset BOTH word-break dan overflow-wrap
+   warisan .out. Akar sebenarnya adalah overflow-wrap:anywhere di
+   upgrade-612.css (file itu dimuat setelah style.css sehingga
+   menang cascade) — sudah dicabut di sana; aturan ini yang
+   berlaku sekarang. Dengan keduanya normal, angka tanpa spasi
+   tidak pernah terbelah dan frasa hanya membungkus di batas kata.
+   white-space:nowrap sengaja TIDAK dipakai: terbukti membuat nilai
+   ber-parenthetical ("Rp2.400.000 (30% penghasilan)", "20,50%
+   (di atas diskonto)") meluber terpotong di tepi .out. Label
+   (anak pertama) yang menyempit bila ruang sempit; nilai tidak
+   menyusut (flex-shrink:0) supaya "15 / 30" tidak membungkus
+   di spasi. */
+.kv > :first-child { min-width: 0; }
+.kv > :last-child { word-break: normal; overflow-wrap: normal; flex-shrink: 0; }
 .big { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; font-family: var(--font-m); }
 .ok { color: var(--ok); } .warn { color: var(--warn); } .err { color: var(--err); } .info { color: var(--info); }
 .mut { color: var(--mut); } .dim { color: var(--dim); }
@@ -506,9 +554,16 @@ footer.foot b { color: var(--mut); }
    Kelas kustom modul tools (kontrak render — jangan hapus)
    ============================================================ */
 canvas.prev { max-width: 100%; border-radius: var(--r-ctl); border: 1px solid var(--line); display: block; }
-table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+/* Tabel hasil: lebar mengikuti isi (tidak diremuk di HP — P1-2); .out dan
+   wrapper overflow-x:auto yang menampungnya menyediakan geser horizontal.
+   min-width:100% menjaga tabel sempit tetap selebar kontainer. */
+table.tbl { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 13px; }
 table.tbl th, table.tbl td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; }
-table.tbl th { background: var(--surface-2); font-weight: 650; }
+table.tbl th { background: var(--surface-2); font-weight: 650; white-space: nowrap; }
+/* Sel juga nowrap: lebar tabel sudah max-content (selebar isi penuh), jadi
+   ini tidak melebarkan tabel — hanya mencegah bungkus marginal akibat
+   pembulatan sub-piksel ("Tahun 1", "10 thn" jadi 2 baris). */
+table.tbl td { white-space: nowrap; }
 .piano { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0; }
 .pkey {
   flex: 1 0 46px; height: 124px; border-radius: 7px; border: 1px solid var(--line);

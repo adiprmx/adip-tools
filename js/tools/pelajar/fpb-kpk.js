@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "fpb-kpk", "name": "FPB & KPK", "cat": "pelajar", "icon": "➗", "desc": "Cari FPB dan KPK dari 2–3 bilangan, lengkap dengan pohon faktor dan langkah pengerjaannya.", "keywords": "fpb,kpk,faktorisasi,pohon faktor,matematika,sd,smp,pr"};
 

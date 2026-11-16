@@ -1,4 +1,4 @@
-import { h as T, utils, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.12.2';
+import { h as T, utils, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.13.0';
 
 // Logika murni (bisa di-test di Node): dithering Floyd-Steinberg pada array abu-abu.
 // data: Uint8ClampedArray nilai 0-255, w x h. level: jumlah tingkat (2 = 1-bit).

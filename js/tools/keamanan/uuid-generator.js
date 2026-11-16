@@ -1,7 +1,7 @@
-import { h as T, utils, kv, errBox, esc } from '../../core.js?v=6.12.2';
+import { h as T, utils, kv, errBox, esc } from '../../core.js?v=6.13.0';
 
-// UUID v4 (acak), v7 (waktu + acak, terurut), v5 (dari namespace + nama,
-// SHA-1, hasil sama untuk input yang sama). Plus inspeksi UUID yang ditempel.
+// UUID v1 (waktu), v3 (MD5 dari nama), v4 (acak), v5 (SHA-1 dari nama),
+// v7 (waktu + acak, terurut), dan ULID. Plus inspeksi UUID/ULID yang ditempel.
 const NAMESPACES = {
   dns: '6ba7b810-9dad-11d1-80b4-00c04fd430c8',
   url: '6ba7b811-9dad-11d1-80b4-00c04fd430c8',
@@ -23,6 +23,77 @@ function setVersionVariant(b, ver) {
   b[6] = (b[6] & 0x0f) | (ver << 4);
   b[8] = (b[8] & 0x3f) | 0x80;
   return b;
+}
+
+// MD5 (RFC 1321) — crypto.subtle tidak menyediakan MD5, jadi dihitung manual.
+// Dipakai untuk UUID v3. Vektor uji: MD5('') = d41d8cd98f00b204e9800998ecf8427e,
+// MD5('abc') = 900150983cd24fb0d6963f7d28e17f72.
+function md5Bytes(input) {
+  const s = [7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+             5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
+             4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+             6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21];
+  const K = [];
+  for (let i = 0; i < 64; i++) K.push(Math.floor(Math.abs(Math.sin(i + 1)) * 4294967296) >>> 0);
+  const rotl = (x, c) => (x << c) | (x >>> (32 - c));
+  let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+  const bitLen = input.length * 8;
+  const paddedLen = (((input.length + 8) >> 6) + 1) << 6;
+  const msg = new Uint8Array(paddedLen);
+  msg.set(input);
+  msg[input.length] = 0x80;
+  const dv = new DataView(msg.buffer);
+  dv.setUint32(paddedLen - 8, bitLen >>> 0, true);
+  dv.setUint32(paddedLen - 4, Math.floor(bitLen / 4294967296) >>> 0, true);
+  for (let off = 0; off < paddedLen; off += 64) {
+    const M = [];
+    for (let j = 0; j < 16; j++) M.push(dv.getUint32(off + j * 4, true));
+    let A = a0, B = b0, C = c0, D = d0;
+    for (let i = 0; i < 64; i++) {
+      let F, g;
+      if (i < 16) { F = (B & C) | (~B & D); g = i; }
+      else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) % 16; }
+      else if (i < 48) { F = B ^ C ^ D; g = (3 * i + 5) % 16; }
+      else { F = C ^ (B | ~D); g = (7 * i) % 16; }
+      F = (F + A + K[i] + M[g]) | 0;
+      A = D; D = C; C = B;
+      B = (B + rotl(F, s[i])) | 0;
+    }
+    a0 = (a0 + A) | 0; b0 = (b0 + B) | 0; c0 = (c0 + C) | 0; d0 = (d0 + D) | 0;
+  }
+  const out = new Uint8Array(16);
+  const odv = new DataView(out.buffer);
+  odv.setUint32(0, a0, true); odv.setUint32(4, b0, true); odv.setUint32(8, c0, true); odv.setUint32(12, d0, true);
+  return out;
+}
+
+// UUID v1: timestamp 100-nanodetik sejak 15 Okt 1582 + urutan jam acak +
+// node 48-bit ACAK (bit multicast dinyalakan supaya jelas bukan MAC perangkat
+// yang sebenarnya — v1 klasik memakai MAC asli, di sini sengaja tidak).
+function uuid1() {
+  const t = (BigInt(Date.now()) + 12219292800000n) * 10000n;
+  const b = new Uint8Array(16);
+  crypto.getRandomValues(b);
+  b[0] = Number((t >> 24n) & 0xffn);
+  b[1] = Number((t >> 16n) & 0xffn);
+  b[2] = Number((t >> 8n) & 0xffn);
+  b[3] = Number(t & 0xffn);
+  b[4] = Number((t >> 40n) & 0xffn);
+  b[5] = Number((t >> 32n) & 0xffn);
+  b[6] = Number((t >> 56n) & 0x0fn);
+  b[10] = b[10] | 0x01; // bit multicast: node acak, bukan MAC perangkat
+  return bytesToUuid(setVersionVariant(b, 1));
+}
+
+// UUID v3: MD5(namespace + nama), hasil sama untuk input yang sama.
+// Vektor RFC 4122: v3 DNS "www.example.com" = 5df41881-3aed-3515-88a7-2f4a814cf09e.
+function uuid3(namespaceUuid, name) {
+  const ns = uuidToBytes(namespaceUuid);
+  const nm = new TextEncoder().encode(String(name));
+  const data = new Uint8Array(16 + nm.length);
+  data.set(ns, 0); data.set(nm, 16);
+  const digest = md5Bytes(data);
+  return bytesToUuid(setVersionVariant(digest, 3));
 }
 
 function uuid4() {
@@ -49,11 +120,56 @@ async function uuid5(namespaceUuid, name) {
   return bytesToUuid(setVersionVariant(digest.slice(0, 16), 5));
 }
 
+// ULID: 26 karakter Crockford Base32 — 10 karakter waktu (48 bit milidetik)
+// + 16 karakter acak (80 bit). Terurut waktu seperti v7, tanpa tanda hubung.
+const ULID_ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+function ulid() {
+  let ms = BigInt(Date.now());
+  let waktu = '';
+  for (let i = 0; i < 10; i++) { waktu = ULID_ALPHABET[Number(ms & 31n)] + waktu; ms >>= 5n; }
+  const rand = new Uint8Array(10);
+  crypto.getRandomValues(rand);
+  let r = 0n;
+  for (const byte of rand) r = (r << 8n) | BigInt(byte);
+  let acak = '';
+  for (let i = 0; i < 16; i++) { acak = ULID_ALPHABET[Number(r & 31n)] + acak; r >>= 5n; }
+  return waktu + acak;
+}
+function decodeUlid(s) {
+  const v = String(s || '').trim().toUpperCase();
+  if (!/^[0-9A-HJKMNP-TV-Z]{26}$/.test(v)) return null;
+  let ms = 0n;
+  for (let i = 0; i < 10; i++) ms = (ms << 5n) | BigInt(ULID_ALPHABET.indexOf(v[i]));
+  return new Date(Number(ms));
+}
+
+// Format salin massal: 'baris' (satu per baris), 'json' (array JSON),
+// 'petik' (satu per baris, berpetik + koma), 'csv' (satu baris, koma).
+function formatSalinMassal(list, format) {
+  if (format === 'json') return JSON.stringify(list, null, 2);
+  if (format === 'petik') return list.map((u) => '"' + u + '",').join('\n');
+  if (format === 'csv') return list.join(', ');
+  return list.join('\n');
+}
+
+// Logika murni (bisa di-test di Node).
+utils.uuidMd5Hex = (teks) => Array.from(md5Bytes(new TextEncoder().encode(String(teks)))).map((x) => x.toString(16).padStart(2, '0')).join('');
+utils.uuidV1 = () => uuid1();
+utils.uuidV3 = (ns, nama) => uuid3(ns, nama);
+utils.uuidUlid = () => ulid();
+utils.uuidDecodeUlid = (s) => decodeUlid(s);
+utils.uuidFormatMassal = (list, format) => formatSalinMassal(list, format);
+
 const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+const ULID_RE = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
 function inspectUuid(s) {
   const v = String(s || '').trim();
   if (!v) return { error: 'Tempel dulu UUID-nya.' };
-  if (!UUID_RE.test(v)) return { error: 'Format UUID tidak valid. Bentuknya: 8-4-4-4-12 karakter heksadesimal, dipisah tanda hubung.' };
+  if (ULID_RE.test(v)) {
+    const time = decodeUlid(v);
+    return { ulid: true, uuid: v.toUpperCase(), version: null, variant: 'ULID (bukan UUID)', time, isNil: false, isMax: false };
+  }
+  if (!UUID_RE.test(v)) return { error: 'Format UUID tidak valid. Bentuknya: 8-4-4-4-12 karakter heksadesimal, dipisah tanda hubung. (ULID 26 karakter juga bisa dibaca.)' };
   const b = uuidToBytes(v);
   const version = (b[6] >> 4) & 0x0f;
   const variantBits = b[8] >> 6;
@@ -75,16 +191,27 @@ function inspectUuid(s) {
   return { uuid: v.toLowerCase(), version, variant, time, isNil, isMax };
 }
 
-export const meta = {"id": "uuid-generator", "name": "UUID Generator", "cat": "keamanan", "icon": "🆔", "desc": "Buat UUID v4, v7 & v5, massal sampai 1.000.", "keywords": "uuid,acak,id,v7,v5,inspect"};
+export const meta = {"id": "uuid-generator", "name": "UUID Generator", "cat": "keamanan", "icon": "🆔", "desc": "Buat UUID v1, v3, v4, v5, v7 & ULID, massal sampai 1.000, plus baca UUID/ULID.", "keywords": "uuid,acak,id,v1,v3,v7,v5,ulid,inspect,md5"};
 export function render(root) {
 
     const verSel = T.select([
       ['4', 'v4 (acak)'],
       ['7', 'v7 (waktu + acak, terurut)'],
-      ['5', 'v5 (dari nama + namespace)'],
+      ['1', 'v1 (waktu + node acak)'],
+      ['3', 'v3 (dari nama + namespace, MD5)'],
+      ['5', 'v5 (dari nama + namespace, SHA-1)'],
+      ['ulid', 'ULID (26 karakter, terurut waktu)'],
     ], '4');
     const nInp = T.input('text', 'Jumlah (1-1000)', '5');
     nInp.inputMode = 'numeric';
+    const tanpaHubung = document.createElement('input');
+    tanpaHubung.type = 'checkbox'; tanpaHubung.id = 'uuid-tanpa-hubung';
+    const formatSel = T.select([
+      ['baris', 'Satu per baris'],
+      ['json', 'Array JSON'],
+      ['petik', 'Berpetik + koma (satu per baris)'],
+      ['csv', 'Satu baris, dipisah koma'],
+    ], 'baris');
     const nsSel = T.select([
       ['dns', 'DNS'],
       ['url', 'URL'],
@@ -94,19 +221,25 @@ export function render(root) {
     ], 'dns');
     const nsCustom = T.input('text', 'UUID namespace sendiri…');
     const nameInp = T.input('text', 'Nama (misal: example.com)');
-    const v5Wrap = T.el('<div></div>');
-    v5Wrap.appendChild(T.field('Namespace', nsSel));
-    v5Wrap.appendChild(T.field('UUID namespace', nsCustom));
-    v5Wrap.appendChild(T.field('Nama', nameInp, 'Untuk v5, jumlah diabaikan: satu nama menghasilkan satu UUID.'));
-    v5Wrap.hidden = true;
+    const namaWrap = T.el('<div></div>');
+    namaWrap.appendChild(T.field('Namespace', nsSel));
+    namaWrap.appendChild(T.field('UUID namespace', nsCustom));
+    namaWrap.appendChild(T.field('Nama', nameInp, 'Untuk v3/v5, jumlah diabaikan: satu nama menghasilkan satu UUID.'));
+    namaWrap.hidden = true;
     nsCustom.parentElement.hidden = true;
-    verSel.addEventListener('change', () => { v5Wrap.hidden = verSel.value !== '5'; });
+    const segarkanNama = () => {
+      const perluNama = verSel.value === '5' || verSel.value === '3';
+      namaWrap.hidden = !perluNama;
+    };
+    verSel.addEventListener('change', segarkanNama);
     nsSel.addEventListener('change', () => { nsCustom.parentElement.hidden = nsSel.value !== 'custom'; });
     const out = T.out();
     let last = [];
     const gen = async () => {
       const ver = verSel.value;
-      if (ver === '5') {
+      const rapat = tanpaHubung.checked;
+      const rapikan = (u) => (rapat && ver !== 'ulid' ? u.replace(/-/g, '') : u);
+      if (ver === '5' || ver === '3') {
         const name = nameInp.value;
         if (!name) { T.show(out, errBox('Isi dulu namanya.')); return; }
         let ns = NAMESPACES[nsSel.value];
@@ -116,28 +249,39 @@ export function render(root) {
         }
         T.show(out, '<span class="dim">Menghitung…</span>');
         try {
-          last = [await uuid5(ns, name)];
+          last = [rapikan(ver === '5' ? await uuid5(ns, name) : uuid3(ns, name))];
         } catch (e) {
-          T.show(out, errBox('UUID v5 tidak bisa dibuat. Periksa nama dan namespace-nya, lalu coba lagi.'));
+          T.show(out, errBox('UUID v' + ver + ' tidak bisa dibuat. Periksa nama dan namespace-nya, lalu coba lagi.'));
           return;
         }
       } else {
         const n = Math.max(1, Math.min(1000, parseInt(nInp.value, 10) || 5));
         nInp.value = n;
         last = [];
-        for (let i = 0; i < n; i++) last.push(ver === '7' ? uuid7() : uuid4());
+        for (let i = 0; i < n; i++) {
+          last.push(rapikan(ver === '7' ? uuid7() : ver === '1' ? uuid1() : ver === 'ulid' ? ulid() : uuid4()));
+        }
       }
       T.show(out, last.map((u) =>
         '<div class="kv"><span class="v" style="font-family:ui-monospace,monospace;font-size:13px;user-select:all;text-align:left">' + u + '</span></div>'
-      ).join(''));
+      ).join('') +
+      (ver === '1' ? '<p class="hint">v1 di sini memakai node 48-bit acak (bukan MAC perangkatmu) — aman dibagikan, tidak membocorkan identitas perangkat.</p>' : ''));
     };
 
     // ---- Inspeksi ----
-    const inspInp = T.input('text', 'Tempel UUID di sini untuk dibaca…');
+    const inspInp = T.input('text', 'Tempel UUID / ULID di sini untuk dibaca…');
     const inspBox = T.out();
     const inspect = () => {
       const r = inspectUuid(inspInp.value);
       if (r.error) { T.show(inspBox, errBox(r.error)); return; }
+      if (r.ulid) {
+        let html = '<div style="margin-bottom:8px"><span class="ok">✓ ULID valid.</span></div>' +
+          kv('Jenis', 'ULID (26 karakter, terurut waktu)');
+        if (r.time && !isNaN(r.time.getTime())) html += kv('Waktu di dalamnya', esc(r.time.toLocaleString('id-ID')));
+        else html += kv('Waktu di dalamnya', 'tidak bisa dibaca');
+        T.show(inspBox, html);
+        return;
+      }
       const verName = { 1: 'v1 (waktu + MAC)', 3: 'v3 (MD5 dari nama)', 4: 'v4 (acak)', 5: 'v5 (SHA-1 dari nama)', 7: 'v7 (waktu + acak)' }[r.version] || ('v' + r.version);
       let html = '<div style="margin-bottom:8px"><span class="ok">✓ UUID valid.</span>' +
         (r.isNil ? ' <span class="dim">Ini UUID nil (semua nol).</span>' : '') +
@@ -150,15 +294,21 @@ export function render(root) {
       T.show(inspBox, html);
     };
 
+    const lblRapat = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0 10px"></label>');
+    lblRapat.appendChild(tanpaHubung);
+    lblRapat.appendChild(document.createTextNode('Tanpa tanda hubung (32 karakter rapat, tidak berlaku untuk ULID)'));
+
     root.appendChild(T.field('Versi UUID', verSel));
     root.appendChild(T.field('Jumlah UUID', nInp));
-    root.appendChild(v5Wrap);
-    root.appendChild(T.row(T.btn('Generate', gen, true), T.btn('Salin Semua', () => { if (last.length) T.copy(last.join('\n')); else T.toast('Generate dulu'); })));
+    root.appendChild(namaWrap);
+    root.appendChild(lblRapat);
+    root.appendChild(T.field('Format salin massal', formatSel, 'Bentuk teks saat menekan "Salin Semua"'));
+    root.appendChild(T.row(T.btn('Generate', gen, true), T.btn('Salin Semua', () => { if (last.length) T.copy(formatSalinMassal(last, formatSel.value)); else T.toast('Generate dulu'); })));
     root.appendChild(out);
     root.appendChild(T.el('<div style="height:16px"></div>'));
-    root.appendChild(T.field('Baca UUID', inspInp, 'Tempel UUID apa pun untuk tahu versi, varian, dan waktunya (untuk v1 & v7).'));
+    root.appendChild(T.field('Baca UUID / ULID', inspInp, 'Tempel UUID atau ULID apa pun untuk tahu versi, varian, dan waktunya (untuk v1, v7 & ULID).'));
     root.appendChild(T.row(T.btn('Baca', inspect)));
     root.appendChild(inspBox);
     gen();
-  
+
 }

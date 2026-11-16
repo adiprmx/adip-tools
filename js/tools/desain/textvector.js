@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 /* textvector — "Text to Vector": teks -> path vektor -> XML Alight Motion + preview SVG.
    Dua mode:
@@ -53,7 +53,7 @@ function ensureOpentype() {
   if (typeof window !== 'undefined' && window.opentype) return Promise.resolve(window.opentype);
   if (!_otPromise) {
     _otPromise = T.loadScript(OT_CDN).then((ok) => {
-      if (!ok || typeof window === 'undefined' || !window.opentype) throw new Error('gagal memuat opentype.js');
+      if (!ok || typeof window === 'undefined' || !window.opentype) throw new Error('Alat baca font gagal dimuat. Cek koneksi lalu coba lagi.');
       return window.opentype;
     }).catch((e) => { _otPromise = null; throw e; });
   }
@@ -324,7 +324,7 @@ export function generate(o, otFont) {
       shapes.push({ label: s.slice(0, 18), x: sh.x, y: sh.y, contours: sh.contours });
     });
   });
-  if (!shapes.length) throw new Error('Tidak ada path yang berhasil dibuat — coba teks atau font lain.');
+  if (!shapes.length) throw new Error('Tidak ada bentuk yang berhasil dibuat — coba teks atau font lain.');
   const genMode = nPrecise && nTraced ? 'campuran' : nPrecise ? 'presisi' : 'kompatibilitas';
 
   const totalMs = Math.max(200, Math.round((+o.durSec || 5) * 1000));
@@ -413,7 +413,7 @@ export function render(root) {
      Error lain (dari browser/library) diganti pesan ramah. */
   const pesanErr = (e) => {
     const m = (e && e.message) || '';
-    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    if (/^(Teks|Tidak ada bentuk|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|Alat baca font gagal dimuat|font )/.test(m)) return m;
     return 'XML tidak bisa dibuat. Coba lagi.';
   };
 

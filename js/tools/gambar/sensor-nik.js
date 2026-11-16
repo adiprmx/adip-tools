@@ -1,4 +1,4 @@
-import { h as T, kv, fileInput, loadImage, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.12.2';
+import { h as T, kv, fileInput, loadImage, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"sensor-nik","name":"Sensor NIK di Foto","cat":"gambar","icon":"🫣","desc":"Tutup nomor identitas di foto dokumen dengan blur atau kotak hitam.","keywords":"sensor,nik,ktp,blur,privasi,dokumen,foto","since":"6.11.0"};
 

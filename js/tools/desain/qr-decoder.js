@@ -1,4 +1,4 @@
-import { h as T, errBox, LOCAL_NOTE, loadImage, fmtBytes } from '../../core.js?v=6.12.2';
+import { h as T, errBox, LOCAL_NOTE, loadImage, fmtBytes } from '../../core.js?v=6.13.0';
 
 // Deteksi jenis isi kode QR. Murni, bisa diuji tanpa browser.
 export function deteksiIsi(teks) {

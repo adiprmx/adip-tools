@@ -1,4 +1,4 @@
-import { h as T, tabs } from '../../core.js?v=6.12.2';
+import { h as T, tabs } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "tebak-tebakan", "name": "Tebak-tebakan Receh", "cat": "fun", "icon": "🤣", "desc": "71 tebak-tebakan + mode kuis, 5 kategori: logika, hewan, benda, kata, receh.", "keywords": "tebak-tebakan,teka-teki,lucu,receh,kuis,game,hiburan,kategori"};
 

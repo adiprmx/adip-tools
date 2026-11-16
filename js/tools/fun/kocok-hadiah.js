@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 // Logika murni (bisa di-test di Node): kocok Secret Santa (derangement),
 // tidak ada yang mendapat dirinya sendiri.

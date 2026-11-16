@@ -1,12 +1,14 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 6 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja,sertifikat"};
 
-let _printCssDone = false;
+/* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
+   ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
+   body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
+let _printCss = null;
 
 function ensurePrintCss() {
-  if (_printCssDone) return;
-  _printCssDone = true;
+  if (_printCss) return;
   const st = document.createElement('style');
   st.textContent =
     '@page{size:A4;margin:12mm}' +
@@ -17,6 +19,11 @@ function ensurePrintCss() {
     '#cv-print .cv-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
     '}';
   document.head.appendChild(st);
+  _printCss = st;
+}
+
+function hapusPrintCss() {
+  if (_printCss) { _printCss.remove(); _printCss = null; }
 }
 
 const LS_KEY = 'at-pembuat-cv-v1';
@@ -85,6 +92,7 @@ function normalisasiData(d) {
 export function render(root) {
 
     ensurePrintCss();
+    T.onLeave(hapusPrintCss);
 
     let data = kosong();
     try {

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.12.2';
+import { h as T } from '../../core.js?v=6.13.0';
 
 const KEY = 'adip-tools-tasbih-digital';
 const DZIKIR = [

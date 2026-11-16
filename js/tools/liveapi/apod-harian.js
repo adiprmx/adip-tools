@@ -1,4 +1,4 @@
-import { h as T, esc, utils } from '../../core.js?v=6.12.2';
+import { h as T, esc, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"apod-harian","name":"Foto Antariksa Harian","cat":"liveapi","icon":"🪐","desc":"Foto astronomi harian resmi dari NASA (APOD).","keywords":"nasa,apod,antariksa,astronomi,foto,planet,luar angkasa"};
 

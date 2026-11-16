@@ -1,4 +1,4 @@
-import { h as T, errBox, LOCAL_NOTE, fmtBytes, fileInput } from '../../core.js?v=6.12.2';
+import { h as T, errBox, LOCAL_NOTE, fmtBytes, fileInput } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "heic-ke-jpg", "name": "HEIC ke JPG", "cat": "gambar", "icon": "🍎", "desc": "Ubah foto iPhone (HEIC) jadi JPG/PNG, bisa banyak foto sekaligus.", "keywords": "heic,heif,iphone,jpg,png,foto,convert", "since": "6.11.0"};
 export function render(root) {

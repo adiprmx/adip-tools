@@ -1,4 +1,4 @@
-import { h as T, kv, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.12.2';
+import { h as T, kv, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"code-to-image","name":"Kode ke Gambar","cat":"desain","icon":"🖥️","desc":"Ubah potongan kode jadi gambar PNG dengan warna sintaks.","keywords":"kode,code,snippet,gambar,png,screenshot","since":"6.11.0"};
 

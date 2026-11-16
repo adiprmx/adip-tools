@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 utils.invoiceCalc = function (items, discPct, taxPct) {
     let sub = 0;
@@ -9,11 +9,13 @@ utils.invoiceCalc = function (items, discPct, taxPct) {
     return { subtotal: sub, diskon: disc, pajak: tax, total: afterDisc + tax };
   };
 
-let _printCssDone = false;
+/* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
+   ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
+   body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
+let _printCss = null;
 
 function ensurePrintCss() {
-    if (_printCssDone) return;
-    _printCssDone = true;
+    if (_printCss) return;
     const st = document.createElement('style');
     st.textContent =
       '@media print{' +
@@ -26,12 +28,18 @@ function ensurePrintCss() {
       '#invoice-print .inv-tot{text-align:right;margin-top:12px}' +
       '}';
     document.head.appendChild(st);
+    _printCss = st;
   }
+
+function hapusPrintCss() {
+  if (_printCss) { _printCss.remove(); _printCss = null; }
+}
 
 export const meta = {"id": "invoice", "name": "Invoice dengan Diskon & Pajak", "cat": "bisnis", "icon": "📑", "desc": "Bikin invoice rapi dengan diskon & pajak, siap cetak.", "keywords": "invoice,tagihan,nota,kwitansi,cetak"};
 export function render(root) {
 
       ensurePrintCss();
+      T.onLeave(hapusPrintCss);
       const usahaI = T.input('text', 'Nama usaha', '');
       const noI = T.input('text', 'No. invoice', 'INV-' + Date.now().toString().slice(-6));
       const tglI = T.input('date', '');

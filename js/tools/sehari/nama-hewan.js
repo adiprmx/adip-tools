@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.12.2';
+import { h as T, kv, utils } from '../../core.js?v=6.13.0';
 
 // Nama hewan peliharaan beserta artinya. Arti nama diambil dari arti
 // kata yang umum dikenal (bahasa Latin, Swahili, Jepang, Italia, dan lain-lain).

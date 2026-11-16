@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.2';
+import { h as T, errBox } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "placeholderstudio", "name": "Placeholder Studio", "cat": "desain", "icon": "🖼️", "desc": "Generator gambar placeholder custom.", "keywords": "placeholder,gambar,dummy,wireframe,mockup"};
 
@@ -111,7 +111,7 @@ export function render(root) {
       dlRow.hidden = false;
       return;
     }
-    T.show(box, '<span class="dim">Me-render gambar…</span>');
+    T.show(box, '<span class="dim">Membuat gambar…</span>');
     const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
     const image = new Image();
     image.onload = () => {
@@ -203,9 +203,9 @@ export function render(root) {
     T.show(urlOut, ''); urlOut.innerHTML = ''; urlOut.appendChild(box2);
   }, true)));
   urlPane.appendChild(urlOut);
-  urlPane.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">URL dibuat dari layanan publik placeholderimage.co (tanpa API key) — gambar di-render oleh layanan tersebut saat URL dibuka, bukan di perangkatmu.</p>'));
+  urlPane.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">URL dibuat dari layanan publik placeholderimage.co (tanpa API key) — gambar dibuat oleh layanan tersebut saat URL dibuka, bukan di perangkatmu.</p>'));
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bikin gambar placeholder custom — di-render lokal di perangkatmu, siap unduh. Atau pakai mode <b>URL Publik</b> untuk link placeholder siap tempel.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bikin gambar placeholder custom — dibuat langsung di perangkatmu, siap unduh. Atau pakai mode <b>URL Publik</b> untuk link placeholder siap tempel.</p>'));
   const tabBar = T.el('<div style="display:flex;gap:6px;margin-bottom:12px"></div>');
   const bLocal = T.btn('🖼 Lokal', null); bLocal.classList.add('primary');
   const bUrl = T.btn('🔗 URL Publik', null);

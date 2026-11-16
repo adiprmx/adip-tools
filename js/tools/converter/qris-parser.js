@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {id:"qris-parser", name:"Bedah Kode QRIS", cat:"converter", icon:"🧾", desc:"Lihat isi kode QRIS bagian per bagian, plus cek CRC-nya.", keywords:"qris,emvco,parser,crc,payload"};
 export function render(root) {

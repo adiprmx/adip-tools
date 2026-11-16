@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"elevenlabs","name":"ElevenLabs Studio","cat":"musik","icon":"🎙️","desc":"Text-to-speech suara AI via API key ElevenLabs milikmu.","keywords":"elevenlabs,tts,suara,ai,voice,text to speech"};
 
@@ -27,16 +27,16 @@ function withTimeout(ms) {
 }
 function errHttp(r, konteks) {
   if (r.status === 401) throw new Error('API key ditolak (401). Cek lagi key-nya.');
-  if (r.status === 402) throw new Error('Kuota/credit ElevenLabs habis (402). Cek pemakaian di dashboard ElevenLabs.');
-  if (r.status === 429) throw new Error('Rate limit / kuota habis (429). Coba lagi nanti.');
-  if (r.status === 400) throw new Error('Request tidak valid (400). ' + (konteks || ''));
+  if (r.status === 402) throw new Error('Kuota ElevenLabs habis (402). Cek pemakaian di dashboard ElevenLabs.');
+  if (r.status === 429) throw new Error('Permintaan terlalu sering (429). Coba lagi nanti.');
+  if (r.status === 400) throw new Error('Permintaan tidak valid (400). ' + (konteks || ''));
   throw new Error('HTTP ' + r.status);
 }
 /* Pesan error buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
    Error lain (dari jaringan/browser) diganti pesan ramah. */
 function pesanErr(e) {
   const m = (e && e.message) || '';
-  if (/^(API key ditolak|Kuota\/credit|Rate limit|Request tidak valid|Daftar voice kosong|Transkrip kosong)/.test(m)) return m;
+  if (/^(API key ditolak|Kuota ElevenLabs habis|Permintaan terlalu sering|Permintaan tidak valid|Daftar voice kosong|Transkrip kosong)/.test(m)) return m;
   return 'Terjadi kendala. Periksa koneksi internet lalu coba lagi.';
 }
 // Slider pengaturan suara -> voice_settings ElevenLabs.
@@ -187,7 +187,7 @@ export function render(root) {
       return true;
     } catch (e) {
       to.done();
-      const m = e.name === 'AbortError' ? 'Timeout 20 detik.' : pesanErr(e);
+      const m = e.name === 'AbortError' ? 'Waktu habis (20 detik).' : pesanErr(e);
       T.show(out, '<span class="err">' + T.esc(String(m)) + '</span>');
       return false;
     }
@@ -242,7 +242,7 @@ export function render(root) {
       cekKuota();
     } catch (e) {
       to.done();
-      const m = e.name === 'AbortError' ? 'Timeout 60 detik — coba teks lebih pendek.' : pesanErr(e);
+      const m = e.name === 'AbortError' ? 'Waktu habis (60 detik) — coba teks lebih pendek.' : pesanErr(e);
       T.show(tOut, '<span class="err">' + T.esc(String(m)) + '</span>');
     } finally { tBusy = false; }
   }
@@ -306,7 +306,7 @@ export function render(root) {
       cekKuota();
     } catch (e) {
       to.done();
-      const m = e.name === 'AbortError' ? 'Timeout 90 detik — coba file lebih pendek.' : pesanErr(e);
+      const m = e.name === 'AbortError' ? 'Waktu habis (90 detik) — coba file lebih pendek.' : pesanErr(e);
       T.show(uOut, '<span class="err">' + T.esc(String(m)) + '</span>');
     } finally { uBusy = false; }
   }
@@ -402,7 +402,7 @@ export function render(root) {
       cekKuota();
     } catch (e) {
       to.done();
-      const m = e.name === 'AbortError' ? 'Timeout 3 menit — coba file lebih pendek.' : pesanErr(e);
+      const m = e.name === 'AbortError' ? 'Waktu habis (3 menit) — coba file lebih pendek.' : pesanErr(e);
       T.show(sOut, '<span class="err">' + T.esc(String(m)) + '</span>');
     } finally { sBusy = false; }
   }
@@ -456,7 +456,7 @@ export function render(root) {
       cekKuota();
     } catch (e) {
       to.done();
-      const m = e.name === 'AbortError' ? 'Timeout 60 detik.' : pesanErr(e);
+      const m = e.name === 'AbortError' ? 'Waktu habis (60 detik).' : pesanErr(e);
       T.show(fxOut, '<span class="err">' + T.esc(String(m)) + '</span>');
     } finally { fxBusy = false; }
   }

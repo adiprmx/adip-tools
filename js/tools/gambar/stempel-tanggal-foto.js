@@ -1,4 +1,4 @@
-import { h as T, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.12.2';
+import { h as T, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "stempel-tanggal-foto", "name": "Stempel Tanggal di Foto", "cat": "gambar", "icon": "📷", "desc": "Tambah stempel tanggal oranye ala kamera film ke fotomu.", "keywords": "stempel tanggal,kamera film,analog,disposable,vintage,foto,tanggal", "since": "6.11.0"};
 

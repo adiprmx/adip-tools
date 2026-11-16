@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.2';
+import { h as T, esc } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"galeri-seni","name":"Galeri Seni Dunia","cat":"liveapi","icon":"🖼️","desc":"Jelajahi karya seni acak dari Art Institute of Chicago.","keywords":"seni,galeri,lukisan,museum,art,acak,karya,chicago"};
 

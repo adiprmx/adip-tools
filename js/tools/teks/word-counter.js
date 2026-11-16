@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.12.2';
+import { h as T, kv, utils } from '../../core.js?v=6.13.0';
 
 /* Fungsi murni (bisa diuji dari node tanpa DOM). */
 export const STOPWORDS_ID = ['yang', 'dan', 'di', 'ke', 'dari', 'untuk', 'dengan', 'ini', 'itu', 'adalah', 'atau', 'juga', 'pada', 'dalam', 'sebagai', 'tidak', 'akan', 'sudah', 'ada', 'oleh', 'karena', 'saat', 'jika', 'agar', 'dapat', 'bisa', 'saya', 'kami', 'kita', 'mereka', 'dia', 'ia', 'nya', 'lah', 'pun', 'telah', 'lebih', 'sangat', 'seperti', 'antara', 'setelah', 'sebelum', 'selama', 'tanpa', 'tentang', 'kepada', 'menjadi', 'merupakan', 'dimana', 'kapan', 'bagaimana', 'kenapa', 'mengapa'];

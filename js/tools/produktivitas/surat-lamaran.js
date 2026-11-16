@@ -1,12 +1,14 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "surat-lamaran", "name": "Pembuat Surat Lamaran", "cat": "produktivitas", "icon": "✉️", "desc": "Bikin surat lamaran kerja formal Bahasa Indonesia dari form singkat, siap salin atau cetak.", "keywords": "surat lamaran,lamaran kerja,lamar kerja,contoh surat lamaran,fresh graduate"};
 
-let _printCssDone = false;
+/* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
+   ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
+   body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
+let _printCss = null;
 
 function ensurePrintCss() {
-  if (_printCssDone) return;
-  _printCssDone = true;
+  if (_printCss) return;
   const st = document.createElement('style');
   st.textContent =
     '@page{size:A4;margin:18mm 20mm}' +
@@ -17,6 +19,11 @@ function ensurePrintCss() {
     '#surat-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
     '}';
   document.head.appendChild(st);
+  _printCss = st;
+}
+
+function hapusPrintCss() {
+  if (_printCss) { _printCss.remove(); _printCss = null; }
 }
 
 const LAMPIRAN_DEFAULT = [
@@ -33,6 +40,7 @@ const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', '
 export function render(root) {
 
     ensurePrintCss();
+    T.onLeave(hapusPrintCss);
 
     const namaI = T.input('text', 'Nama lengkap', '');
     const tempatI = T.input('text', 'Tempat (untuk tanggal surat)', '');

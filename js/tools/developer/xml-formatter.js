@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.12.2';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.13.0';
 
 function xmlPretty(src) {
     const doc = new DOMParser().parseFromString(String(src || ''), 'text/xml');

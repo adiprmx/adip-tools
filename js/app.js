@@ -24,12 +24,12 @@
    - Filter "Favorit" di #/semua + tombol ♥ di palette
    - Halaman Metodologi (#/metodologi, anchor per tool)
    ============================================================ */
-import { manifest, VERSION } from './manifest.js?v=6.12.2';
-import * as T from './core.js?v=6.12.2';
-import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML } from './beranda.js?v=6.12.2';
-import { recentRailHTML, prevToolChip, catMoreLink } from './detail-riwayat.js?v=6.12.2';
-import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js?v=6.12.2';
-import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js?v=6.12.2';
+import { manifest, VERSION } from './manifest.js?v=6.13.0';
+import * as T from './core.js?v=6.13.0';
+import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML } from './beranda.js?v=6.13.0';
+import { recentRailHTML, prevToolChip, catMoreLink } from './detail-riwayat.js?v=6.13.0';
+import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js?v=6.13.0';
+import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js?v=6.13.0';
 
 const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
 const SB_ANON = 'sb_publishable_rxxzONDsxTmmsHiQgaptjg_7zbG5qeT';
@@ -892,7 +892,13 @@ function methodPage() {
 /* ---------------- HALAMAN TOOL ---------------- */
 let toolCb = [];
 function onToolLeave(cb) { toolCb.push(cb); }
-function runLeaveCbs() { toolCb.forEach((cb) => { try { cb(); } catch {} }); toolCb = []; }
+/* Kuras JUGA leaveCbs core.js (T.onLeave): 107 tool mendaftarkan cleanup
+   lewat T.onLeave, tapi sebelum v6.13.0 tidak ada yang menguras array itu —
+   cleanup mereka mati semua. try/catch per callback dipertahankan. */
+function runLeaveCbs() {
+  toolCb.forEach((cb) => { try { cb(); } catch {} }); toolCb = [];
+  T.leaveCbs.forEach((cb) => { try { cb(); } catch {} }); T.leaveCbs.length = 0;
+}
 /* token navigasi per pemanggilan toolPage (T02 B1): import tool A yang lambat
    tidak boleh me-render ke halaman tool B bila user sudah pindah. */
 let toolSeq = 0;
@@ -905,7 +911,8 @@ async function toolPage(id) {
     setTabActive(null);
     document.title = 'Tidak ditemukan - ADIP Tools';
     app.innerHTML = `<div class="wrap view"><div class="empty"><b>Tools tidak ditemukan.</b>
-      <p>Mungkin alamatnya berubah.</p></div><a class="back" href="#/">← Beranda</a></div>`;
+      <p>Mungkin alamatnya berubah.</p>
+      <div class="sugx"><a class="schip" href="#/">Cari tools</a><a class="schip" href="#/semua">Lihat semua tools</a></div></div><a class="back" href="#/">← Beranda</a></div>`;
     return;
   }
   setTabActive(null);

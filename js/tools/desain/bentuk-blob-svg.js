@@ -1,4 +1,4 @@
-import { h as T, utils, copyBtn, dl } from '../../core.js?v=6.12.2';
+import { h as T, utils, copyBtn, dl } from '../../core.js?v=6.13.0';
 
 // Logika murni (bisa di-test di Node): bangkitkan path blob organik.
 // Titik-titik acak di sekeliling lingkaran, dihaluskan dengan kurva bezier.

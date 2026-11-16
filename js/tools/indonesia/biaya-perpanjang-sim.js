@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.12.2';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "biaya-perpanjang-sim", "name": "Biaya Perpanjang SIM", "cat": "indonesia", "icon": "🪪", "desc": "Hitung total biaya perpanjangan SIM: PNBP + cek kesehatan + psikotes, bisa diedit.", "keywords": "sim,perpanjang,surat,izin,mengemudi,pnbp,biaya,kesehatan,psikotes"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, preHtml } from '../../core.js?v=6.12.2';
+import { h as T, preHtml } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "escape-markdown-telegram", "name": "Escape MarkdownV2 Telegram", "cat": "developer", "icon": "🔤", "desc": "Tambah backslash ke karakter khusus supaya teks aman dikirim dengan MarkdownV2.", "keywords": "telegram,markdownv2,escape,backslash,bot api,format", "since": "6.11.0"};
 

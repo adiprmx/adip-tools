@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.12.2';
+import { h as T, utils, esc } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"ip-saya","name":"IP & Lokasi Saya","cat":"liveapi","icon":"🌐","desc":"Cek alamat IP publik & perkiraan lokasimu.","keywords":"ip,lokasi,saya,alamat,isp,internet"};
 export function render(root) {

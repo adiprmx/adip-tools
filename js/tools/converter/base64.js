@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Ubah teks jadi kode Base64 dan sebaliknya, termasuk versi aman untuk link.", "keywords": "base64,encode,decode"};
 export function render(root) {

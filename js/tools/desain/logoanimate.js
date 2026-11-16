@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 /* logoanimate — "Logo Animate": template animasi logo 8,33 detik -> XML Alight Motion.
    100% client-side. Koreografi template orisinal (bukan salinan template pihak lain).
@@ -104,7 +104,7 @@ export function render(root) {
      Error lain (dari browser/library) diganti pesan ramah. */
   const pesanErr = (e) => {
     const m = (e && e.message) || '';
-    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    if (/^(Teks|Tidak ada bentuk|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|Alat baca font gagal dimuat|font )/.test(m)) return m;
     return 'XML tidak bisa dibuat. Coba lagi.';
   };
 

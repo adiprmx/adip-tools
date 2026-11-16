@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 utils.md5 = async function (str) { return _md5(str); };
 
@@ -226,7 +226,7 @@ export function render(root) {
     };
     const tampilHasil = (target, r) => {
       if (!r.hasil.length) {
-        T.show(target, '<span class="err">Tidak ada hash yang bisa dihitung. ' + (r.cjFail || r.sha3Fail ? 'Pustaka dari CDN gagal dimuat, cek koneksi lalu coba lagi.' : '') + '</span>');
+        T.show(target, '<span class="err">Tidak ada hash yang bisa dihitung. ' + (r.cjFail || r.sha3Fail ? 'Komponen penghitung hash gagal dimuat, cek koneksi lalu coba lagi.' : '') + '</span>');
         return;
       }
       const { hasil } = r;
@@ -234,8 +234,8 @@ export function render(root) {
         '<div class="kv"><span class="k">' + n + '</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(h) + '</span></div>'
       ).join('') + '<div style="margin-top:10px">' +
         hasil.map(([n, h], i) => '<button type="button" class="btn small" data-h="' + i + '" style="margin:0 6px 6px 0">Salin ' + n + '</button>').join('') + '</div>';
-      if (r.cjFail) html += '<div class="hint" style="margin-top:8px">SHA-224 / RIPEMD-160 gagal: pustaka crypto-js tidak bisa dimuat dari CDN.</div>';
-      if (r.sha3Fail) html += '<div class="hint" style="margin-top:8px">SHA3 gagal: pustaka js-sha3 tidak bisa dimuat dari CDN.</div>';
+      if (r.cjFail) html += '<div class="hint" style="margin-top:8px">SHA-224 / RIPEMD-160 gagal: komponen penghitungnya tidak bisa dimuat.</div>';
+      if (r.sha3Fail) html += '<div class="hint" style="margin-top:8px">SHA3 gagal: komponen penghitungnya tidak bisa dimuat.</div>';
       const harapkan = cekInp.value.trim().toLowerCase().replace(/\s+/g, '');
       if (harapkan) {
         const cocok = hasil.find(([, h]) => h.toLowerCase() === harapkan);

@@ -1,4 +1,4 @@
-import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.12.2';
+import { h as T, fileInput, tabs, errBox } from '../../core.js?v=6.13.0';
 
 // ---------- Util murni tab Banding (tanpa DOM, bisa diuji dari Node) ----------
 
@@ -46,6 +46,346 @@ function diffBaris(a, b) {
 
 export const meta = {"id": "pdflab", "name": "PDF Lab", "cat": "produktivitas", "icon": "🧪", "desc": "Toolkit PDF lokal: gabung, pisah, watermark & lainnya.", "keywords": "pdf,merge,split,watermark,metadata,form,gabung,kompres,compress"};
 export { diffBaris, normalisasiBaris };
+
+// ---------- Redact sejati: hapus teks dari content stream ----------
+// Cara kerja: baca content stream halaman (decode Flate bila perlu), jalankan
+// interpreter mini untuk melacak posisi tiap potongan teks (matriks teks +
+// matriks CTM), lalu ganti byte string yang beririsan dengan kotak redact
+// menjadi spasi (panjang byte tetap, jadi layout tidak berubah). Teks yang
+// sudah diganti spasi tidak bisa dibaca lagi oleh alat ekstrak teks mana pun.
+//
+// Batasan jujur: teks di dalam Form XObject, anotasi, dan metadata tidak
+// disentuh; stream dengan DecodeParms (predictor) dilewati; halaman yang
+// diputar (rotation != 0) tidak diproses (koordinatnya tidak bisa diandalkan).
+
+function kaliMatriks(m1, m2) {
+  // [a b c d e f] × [a b c d e f] (PDF: titik dikali matriks kanan dulu)
+  return [
+    m1[0] * m2[0] + m1[1] * m2[2],
+    m1[0] * m2[1] + m1[1] * m2[3],
+    m1[2] * m2[0] + m1[3] * m2[2],
+    m1[2] * m2[1] + m1[3] * m2[3],
+    m1[4] * m2[0] + m1[5] * m2[2] + m2[4],
+    m1[4] * m2[1] + m1[5] * m2[3] + m2[5],
+  ];
+}
+function terapkanMatriks(m, x, y) {
+  return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+}
+const MATRIKS_IDENTITAS = [1, 0, 0, 1, 0, 0];
+
+// Baca satu token dari string latin1 content stream. Kembalikan
+// {token, next} atau null bila habis. Token string menyimpan rentang byte
+// isinya (untuk di-blank-kan nanti).
+function bacaTokenStream(s, i) {
+  const n = s.length;
+  const isWS = (c) => c === ' ' || c === '\n' || c === '\r' || c === '\t' || c === '\f' || c === '\0';
+  const isDelim = (c) => c === '(' || c === ')' || c === '<' || c === '>' || c === '[' || c === ']' || c === '{' || c === '}' || c === '/' || c === '%';
+  while (i < n) {
+    const c = s[i];
+    if (isWS(c)) { i++; continue; }
+    if (c === '%') { while (i < n && s[i] !== '\n' && s[i] !== '\r') i++; continue; }
+    break;
+  }
+  if (i >= n) return null;
+  const c = s[i];
+  if (c === '(') {
+    let j = i + 1, depth = 1;
+    while (j < n && depth > 0) {
+      const ch = s[j];
+      if (ch === '\\') { j += 2; continue; }
+      if (ch === '(') depth++;
+      else if (ch === ')') depth--;
+      j++;
+    }
+    return { token: { t: 'str', awal: i, akhir: j, isiAwal: i + 1, isiAkhir: j - 1 }, next: j };
+  }
+  if (c === '<') {
+    if (s[i + 1] === '<') {
+      let j = i + 2, depth = 1;
+      while (j < n && depth > 0) {
+        if (s[j] === '<' && s[j + 1] === '<') { depth++; j += 2; continue; }
+        if (s[j] === '>' && s[j + 1] === '>') { depth--; j += 2; continue; }
+        j++;
+      }
+      return { token: { t: 'dict', awal: i, akhir: j }, next: j };
+    }
+    let j = i + 1;
+    while (j < n && s[j] !== '>') j++;
+    return { token: { t: 'hex', awal: i, akhir: j + 1, isiAwal: i + 1, isiAkhir: j }, next: j + 1 };
+  }
+  if (c === '[') {
+    const elems = [];
+    let j = i + 1;
+    for (;;) {
+      const r = bacaTokenStream(s, j);
+      if (!r) return { token: { t: 'arr', awal: i, akhir: n, elems }, next: n };
+      if (r.token.t === 'tutup') return { token: { t: 'arr', awal: i, akhir: r.next, elems }, next: r.next };
+      elems.push(r.token);
+      j = r.next;
+    }
+  }
+  if (c === ']') return { token: { t: 'tutup' }, next: i + 1 };
+  if (c === '/') {
+    let j = i + 1;
+    while (j < n && !isWS(s[j]) && !isDelim(s[j])) j++;
+    return { token: { t: 'nama', v: s.slice(i + 1, j) }, next: j };
+  }
+  // Angka atau operator (kata).
+  let j = i;
+  while (j < n && !isWS(s[j]) && !isDelim(s[j])) j++;
+  const kata = s.slice(i, j);
+  if (/^[+-]?(\d+\.?\d*|\.\d+)$/.test(kata)) return { token: { t: 'num', v: parseFloat(kata) }, next: j };
+  return { token: { t: 'op', v: kata }, next: j };
+}
+
+// Urai content stream jadi daftar {op, args}. Token tak dikenal diabaikan.
+function uraiContentStream(s) {
+  const ops = [];
+  const stack = [];
+  let i = 0;
+  for (;;) {
+    const r = bacaTokenStream(s, i);
+    if (!r) break;
+    i = r.next;
+    const tk = r.token;
+    if (tk.t === 'op') {
+      ops.push({ op: tk.v, args: stack.splice(0) });
+    } else if (tk.t !== 'tutup') stack.push(tk);
+  }
+  return ops;
+}
+
+// Panjang karakter (perkiraan jumlah glyph) dari token string.
+// String UTF-16BE (awalan FE FF) dihitung per 2 byte.
+function panjangGlyph(token, s) {
+  const isi = s.slice(token.isiAwal, token.isiAkhir);
+  if (token.t === 'hex') {
+    const hex = isi.replace(/\s/g, '');
+    if (hex.length >= 4 && hex.slice(0, 4).toLowerCase() === 'feff') return Math.max(0, Math.floor(hex.length / 4) - 1);
+    return Math.floor(hex.length / 2);
+  }
+  // Literal: hitung byte isi, escape dihitung 1 glyph.
+  let n = 0;
+  for (let i = 0; i < isi.length; i++) {
+    if (isi[i] === '\\') { i++; n++; continue; }
+    n++;
+  }
+  if (n >= 2 && isi.charCodeAt(0) === 0xFE && isi.charCodeAt(1) === 0xFF) return Math.max(0, Math.floor(n / 2) - 1);
+  return n;
+}
+
+// Blank-kan isi token string menjadi spasi (panjang byte tetap).
+// UTF-16BE: tiap unit 2 byte jadi 0x00 0x20.
+function blankToken(out, token, s) {
+  const isi = s.slice(token.isiAwal, token.isiAkhir);
+  if (token.t === 'hex') {
+    const hex = isi.replace(/\s/g, '');
+    const is16 = hex.length >= 4 && hex.slice(0, 4).toLowerCase() === 'feff';
+    let idx = 0; // indeks digit hex (spasi diabaikan)
+    for (let p = token.isiAwal; p < token.isiAkhir; p++) {
+      const ch = s[p];
+      if (ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t' || ch === '\f' || ch === '\0') continue;
+      if (is16 && idx < 4) { idx++; continue; } // BOM dibiarkan
+      if (is16) {
+        // Tiap unit 4 digit jadi "0020".
+        const pos = (idx - 4) % 4;
+        out[p] = pos === 2 ? 50 : 48; // '2' di posisi ke-2, '0' sisanya
+      } else {
+        // Tiap pasang digit jadi "20" (= 0x20 spasi).
+        out[p] = idx % 2 === 0 ? 50 : 48;
+      }
+      idx++;
+    }
+    return;
+  }
+  const is16 = isi.length >= 2 && isi.charCodeAt(0) === 0xFE && isi.charCodeAt(1) === 0xFF;
+  for (let p = token.isiAwal; p < token.isiAkhir; p++) {
+    const ch = s[p];
+    if (ch === '\\') { out[p] = 92; continue; } // backslash dipertahankan (escape tetap valid)
+    if (is16) {
+      const rel = p - token.isiAwal;
+      if (rel < 2) continue; // BOM dibiarkan
+      out[p] = rel % 2 === 0 ? 0 : 0x20;
+    } else out[p] = 0x20;
+  }
+}
+
+// Uji irisan dua kotak [x0,y0,x1,y1].
+function kotakBersinggungan(a, b) {
+  return a[0] < b[2] && a[2] > b[0] && a[1] < b[3] && a[3] > b[1];
+}
+
+// Hapus teks dari SATU content stream (sudah ter-decode, latin1).
+// rects: [{x,y,w,h}] dalam poin PDF (asal kiri-bawah).
+// Kembalikan {teks, dihapus, total} — teks = stream baru (latin1).
+export function redactStreamTeks(streamLatin1, rects) {
+  const s = streamLatin1;
+  const ops = uraiContentStream(s);
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i) & 0xFF;
+  let ctm = MATRIKS_IDENTITAS.slice();
+  const tumpukanCtm = [];
+  let dalamTeks = false;
+  let tm = MATRIKS_IDENTITAS.slice();
+  let tlm = MATRIKS_IDENTITAS.slice();
+  let ukuranFont = 12, leading = 0, spasiKar = 0, spasiKata = 0, skalaH = 100, naik = 0;
+  let dihapus = 0, total = 0;
+  const kotak = rects.map((r) => [r.x, r.y, r.x + r.w, r.y + r.h]);
+
+  const posisiTeks = () => {
+    const m = kaliMatriks(tm, ctm);
+    return { m, asal: terapkanMatriks(m, 0, naik) };
+  };
+  const geserTm = (tx, ty) => {
+    const geser = [1, 0, 0, 1, tx, ty];
+    tlm = kaliMatriks(geser, tlm);
+    tm = tlm.slice();
+  };
+  // Satu potongan teks (Tj/TJ/'/"): perkirakan kotaknya, blank-kan bila
+  // beririsan dengan kotak redact, lalu majukan matriks teks.
+  const tampilkan = (tokenStr) => {
+    total++;
+    const n = panjangGlyph(tokenStr, s);
+    if (!n) return;
+    const { m, asal } = posisiTeks();
+    const wEm = n * 0.55 * (ukuranFont * skalaH / 100);
+    const p1 = terapkanMatriks(m, wEm, naik);
+    const p2 = terapkanMatriks(m, 0, naik + ukuranFont);
+    const p3 = terapkanMatriks(m, wEm, naik + ukuranFont);
+    const xs = [asal[0], p1[0], p2[0], p3[0]], ys = [asal[1], p1[1], p2[1], p3[1]];
+    const tol = ukuranFont * 0.5;
+    const box = [Math.min(...xs) - tol, Math.min(...ys) - ukuranFont * 0.25, Math.max(...xs) + tol, Math.max(...ys) + ukuranFont * 0.25];
+    if (kotak.some((r) => kotakBersinggungan(box, r))) {
+      blankToken(out, tokenStr, s);
+      dihapus++;
+    }
+    // Majukan matriks teks sejauh lebar potongan (dalam satuan em).
+    const txEm = wEm / (ukuranFont * skalaH / 100) + (n * spasiKar) / (ukuranFont || 1);
+    tm = kaliMatriks([1, 0, 0, 1, txEm, 0], tm);
+  };
+
+  for (const { op, args } of ops) {
+    const num = (i, def) => (args[i] && args[i].t === 'num' ? args[i].v : def);
+    switch (op) {
+      case 'q': tumpukanCtm.push(ctm.slice()); break;
+      case 'Q': if (tumpukanCtm.length) ctm = tumpukanCtm.pop(); break;
+      case 'cm':
+        if (args.length >= 6) ctm = kaliMatriks([num(0, 1), num(1, 0), num(2, 0), num(3, 1), num(4, 0), num(5, 0)], ctm);
+        break;
+      case 'BT': dalamTeks = true; tm = MATRIKS_IDENTITAS.slice(); tlm = MATRIKS_IDENTITAS.slice(); break;
+      case 'ET': dalamTeks = false; break;
+      case 'Tm':
+        if (args.length >= 6) { tm = [num(0, 1), num(1, 0), num(2, 0), num(3, 1), num(4, 0), num(5, 0)]; tlm = tm.slice(); }
+        break;
+      case 'Td': geserTm(num(0, 0), num(1, 0)); break;
+      case 'TD': leading = -num(1, 0); geserTm(num(0, 0), num(1, 0)); break;
+      case 'T*': geserTm(0, -leading); break;
+      case 'Tf': ukuranFont = num(1, 12); break;
+      case 'TL': leading = num(0, 0); break;
+      case 'Tc': spasiKar = num(0, 0); break;
+      case 'Tw': spasiKata = num(0, 0); break;
+      case 'Tz': skalaH = num(0, 100); break;
+      case 'Ts': naik = num(0, 0); break;
+      case 'Tj': {
+        const t = args[0];
+        if (dalamTeks && t && (t.t === 'str' || t.t === 'hex')) tampilkan(t);
+        break;
+      }
+      case 'TJ': {
+        const arr = args[0];
+        if (dalamTeks && arr && arr.t === 'arr') {
+          for (const el of arr.elems) {
+            if (el.t === 'str' || el.t === 'hex') tampilkan(el);
+            else if (el.t === 'num') {
+              // Angka kerning: geser mundur sejauh num/1000 em.
+              tm = kaliMatriks([1, 0, 0, 1, -el.v / 1000, 0], tm);
+            }
+          }
+        }
+        break;
+      }
+      case "'": {
+        const t = args[0];
+        if (dalamTeks && t && (t.t === 'str' || t.t === 'hex')) { geserTm(0, -leading); tampilkan(t); }
+        break;
+      }
+      case '"': {
+        const t = args[2];
+        spasiKata = num(0, 0); spasiKar = num(1, 0);
+        if (dalamTeks && t && (t.t === 'str' || t.t === 'hex')) { geserTm(0, -leading); tampilkan(t); }
+        break;
+      }
+      default: break;
+    }
+  }
+  let teks = '';
+  for (let i = 0; i < out.length; i++) teks += String.fromCharCode(out[i]);
+  return { teks, dihapus, total };
+}
+
+// Hapus teks dari SEMUA content stream satu halaman pdf-lib.
+// Kembalikan {dihapus, total, dilewati} — dilewati = stream yang tidak bisa diproses.
+export async function redactHalamanPdf(PDFLib, doc, idxHalaman, rects) {
+  const page = doc.getPage(idxHalaman);
+  if (page.getRotation().angle % 180 !== 0) return { dihapus: 0, total: 0, dilewati: 1, diputar: true };
+  const contents = page.node.get(PDFLib.PDFName.of('Contents'));
+  if (!contents) return { dihapus: 0, total: 0, dilewati: 0 };
+  const refs = [];
+  const resolved = doc.context.lookup(contents);
+  if (resolved instanceof PDFLib.PDFArray) {
+    for (let i = 0; i < resolved.size(); i++) refs.push(resolved.get(i));
+  } else refs.push(contents);
+  let dihapus = 0, total = 0, dilewati = 0;
+  const bisaFlate = typeof DecompressionStream !== 'undefined' && typeof CompressionStream !== 'undefined';
+  for (const ref of refs) {
+    try {
+      const stream = doc.context.lookup(ref);
+      if (!(stream instanceof PDFLib.PDFRawStream)) { dilewati++; continue; }
+      const dict = stream.dict;
+      if (dict.get(PDFLib.PDFName.of('DecodeParms'))) { dilewati++; continue; }
+      const filter = dict.get(PDFLib.PDFName.of('Filter'));
+      const fStr = filter ? filter.toString() : '';
+      const isFlate = /FlateDecode/.test(fStr);
+      const isArrayFilter = filter instanceof PDFLib.PDFArray;
+      if (isArrayFilter || (filter && !isFlate)) { dilewati++; continue; }
+      let raw = stream.getContents();
+      let latin1;
+      if (isFlate) {
+        if (!bisaFlate) { dilewati++; continue; }
+        const ds = new DecompressionStream('deflate');
+        const dec = await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer();
+        const b = new Uint8Array(dec);
+        latin1 = '';
+        for (let i = 0; i < b.length; i++) latin1 += String.fromCharCode(b[i]);
+      } else {
+        latin1 = '';
+        for (let i = 0; i < raw.length; i++) latin1 += String.fromCharCode(raw[i]);
+      }
+      const hasil = redactStreamTeks(latin1, rects);
+      dihapus += hasil.dihapus;
+      total += hasil.total;
+      if (!hasil.dihapus) continue;
+      const baru = new Uint8Array(hasil.teks.length);
+      for (let i = 0; i < hasil.teks.length; i++) baru[i] = hasil.teks.charCodeAt(i) & 0xFF;
+      let simpan = baru;
+      if (isFlate) {
+        const cs = new CompressionStream('deflate');
+        simpan = new Uint8Array(await new Response(new Blob([baru]).stream().pipeThrough(cs)).arrayBuffer());
+      }
+      const dictBaru = dict.clone ? dict.clone() : dict;
+      dictBaru.set(PDFLib.PDFName.of('Filter'), PDFLib.PDFName.of(isFlate ? 'FlateDecode' : 'FlateDecode'));
+      try { dictBaru.delete(PDFLib.PDFName.of('DecodeParms')); } catch (e) {}
+      // Bila stream awalnya tidak terkompres, simpan terkompres (lebih kecil & konsisten).
+      if (!isFlate) {
+        const cs = new CompressionStream('deflate');
+        simpan = new Uint8Array(await new Response(new Blob([baru]).stream().pipeThrough(cs)).arrayBuffer());
+      }
+      doc.context.assign(ref, PDFLib.PDFRawStream.of(dictBaru, simpan));
+    } catch (e) { dilewati++; }
+  }
+  return { dihapus, total, dilewati };
+}
 
 export function render(root) {
 
@@ -151,12 +491,138 @@ export function render(root) {
     return canvasToBlobP(canvas, type, q).then((b) => b.arrayBuffer()).then((ab) => new Uint8Array(ab));
   }
 
-  // Kompres Sejati: kecilkan gambar JPEG yang tertanam di PDF tanpa menyentuh
-  // teks, jadi teks tetap bisa dipilih. Gambar non-JPEG dan gambar CMYK
-  // dilewati apa adanya. Mengembalikan statistik pengerjaan.
+  // ---- Dekode gambar FlateDecode (PNG mentah di dalam PDF) jadi RGBA ----
+  // Dukung DeviceRGB/DeviceGray/DeviceCMYK/Indexed 8-bit + predictor PNG/TIFF.
+  // Kembalikan {data: Uint8ClampedArray RGBA, w, h} atau null bila tak didukung.
+  async function decodeGambarFlate(L, doc, dict, raw) {
+    const num = (nama) => {
+      const v = doc.context.lookup(dict.get(L.PDFName.of(nama)));
+      return v && typeof v.asNumber === 'function' ? v.asNumber() : null;
+    };
+    const w = num('Width'), h = num('Height'), bpc = num('BitsPerComponent');
+    if (!w || !h || bpc !== 8 || w * h > 12000000) return null;
+    const csRaw = doc.context.lookup(dict.get(L.PDFName.of('ColorSpace')));
+    let cs = null, lookup = null, baseKomponen = 3;
+    if (csRaw instanceof L.PDFName) cs = csRaw.toString();
+    else if (csRaw instanceof L.PDFArray) {
+      const n0 = doc.context.lookup(csRaw.get(0));
+      if (n0 && n0.toString() === '/Indexed') {
+        cs = '/Indexed';
+        const base = doc.context.lookup(csRaw.get(1));
+        const namaBase = base && base.toString ? base.toString() : '';
+        baseKomponen = namaBase === '/DeviceGray' ? 1 : 3;
+        const hivalObj = csRaw.get(2);
+        const hival = hivalObj && typeof hivalObj.asNumber === 'function' ? hivalObj.asNumber() : 0;
+        const lk = doc.context.lookup(csRaw.get(3));
+        if (lk instanceof L.PDFRawStream) lookup = lk.getContents();
+        else if (lk && typeof lk.toString === 'function') {
+          const t = lk.toString();
+          if (t[0] === '<') {
+            const hex = t.replace(/[^0-9a-fA-F]/g, '');
+            lookup = new Uint8Array(hex.length / 2);
+            for (let i = 0; i < lookup.length; i++) lookup[i] = parseInt(hex.substr(i * 2, 2), 16);
+          }
+        }
+        if (!lookup || lookup.length < (hival + 1) * baseKomponen) return null;
+      }
+    }
+    if (cs !== '/DeviceRGB' && cs !== '/DeviceGray' && cs !== '/DeviceCMYK' && cs !== '/Indexed') return null;
+    const komponen = cs === '/DeviceRGB' ? 3 : cs === '/DeviceCMYK' ? 4 : 1;
+    // Dekompres Flate.
+    let flat;
+    try {
+      const ds = new DecompressionStream('deflate');
+      flat = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer());
+    } catch (e) { return null; }
+    // Predictor (DecodeParms): 1=tidak ada, 2=TIFF, 10-15=PNG.
+    let predictor = 1, colors = komponen, columns = w;
+    const parmsRaw = doc.context.lookup(dict.get(L.PDFName.of('DecodeParms')));
+    const parms = parmsRaw instanceof L.PDFArray ? doc.context.lookup(parmsRaw.get(0)) : parmsRaw;
+    if (parms && typeof parms.get === 'function') {
+      const pv = doc.context.lookup(parms.get(L.PDFName.of('Predictor')));
+      if (pv && typeof pv.asNumber === 'function') predictor = pv.asNumber();
+      const cv = doc.context.lookup(parms.get(L.PDFName.of('Colors')));
+      if (cv && typeof cv.asNumber === 'function') colors = cv.asNumber();
+      const colv = doc.context.lookup(parms.get(L.PDFName.of('Columns')));
+      if (colv && typeof colv.asNumber === 'function') columns = colv.asNumber();
+    }
+    if (columns !== w) return null;
+    const barisByte = colors * columns;
+    let px;
+    if (predictor === 1) {
+      if (flat.length < barisByte * h) return null;
+      px = flat.subarray(0, barisByte * h);
+    } else if (predictor === 2) {
+      if (flat.length < barisByte * h) return null;
+      px = new Uint8Array(barisByte * h);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < barisByte; x++) {
+          const kiri = x >= colors ? px[y * barisByte + x - colors] : 0;
+          px[y * barisByte + x] = (flat[y * barisByte + x] + kiri) & 0xFF;
+        }
+      }
+    } else if (predictor >= 10 && predictor <= 15) {
+      const bpp = colors;
+      if (flat.length < (barisByte + 1) * h) return null;
+      px = new Uint8Array(barisByte * h);
+      const paeth = (a, b, c) => {
+        const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+        return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+      };
+      for (let y = 0; y < h; y++) {
+        const f = flat[y * (barisByte + 1)];
+        const src = flat.subarray(y * (barisByte + 1) + 1, (y + 1) * (barisByte + 1));
+        const dst = px.subarray(y * barisByte, (y + 1) * barisByte);
+        const atas = y > 0 ? px.subarray((y - 1) * barisByte, y * barisByte) : null;
+        for (let x = 0; x < barisByte; x++) {
+          const kiri = x >= bpp ? dst[x - bpp] : 0;
+          const at = atas ? atas[x] : 0;
+          const kiriAtas = atas && x >= bpp ? atas[x - bpp] : 0;
+          let v = src[x];
+          if (f === 1) v = (v + kiri) & 0xFF;
+          else if (f === 2) v = (v + at) & 0xFF;
+          else if (f === 3) v = (v + Math.floor((kiri + at) / 2)) & 0xFF;
+          else if (f === 4) v = (v + paeth(kiri, at, kiriAtas)) & 0xFF;
+          dst[x] = v;
+        }
+      }
+    } else return null;
+    // Ke RGBA.
+    const rgba = new Uint8ClampedArray(w * h * 4);
+    for (let i = 0; i < w * h; i++) {
+      const o = i * 4;
+      if (cs === '/DeviceRGB') {
+        rgba[o] = px[i * 3]; rgba[o + 1] = px[i * 3 + 1]; rgba[o + 2] = px[i * 3 + 2]; rgba[o + 3] = 255;
+      } else if (cs === '/DeviceGray') {
+        const g = px[i];
+        rgba[o] = g; rgba[o + 1] = g; rgba[o + 2] = g; rgba[o + 3] = 255;
+      } else if (cs === '/DeviceCMYK') {
+        const c = px[i * 4] / 255, m = px[i * 4 + 1] / 255, y2 = px[i * 4 + 2] / 255, k = px[i * 4 + 3] / 255;
+        rgba[o] = Math.round(255 * (1 - c) * (1 - k));
+        rgba[o + 1] = Math.round(255 * (1 - m) * (1 - k));
+        rgba[o + 2] = Math.round(255 * (1 - y2) * (1 - k));
+        rgba[o + 3] = 255;
+      } else {
+        const idx = px[i] * baseKomponen;
+        if (baseKomponen === 1) {
+          const g = lookup[idx] || 0;
+          rgba[o] = g; rgba[o + 1] = g; rgba[o + 2] = g; rgba[o + 3] = 255;
+        } else {
+          rgba[o] = lookup[idx] || 0; rgba[o + 1] = lookup[idx + 1] || 0; rgba[o + 2] = lookup[idx + 2] || 0; rgba[o + 3] = 255;
+        }
+      }
+    }
+    return { data: rgba, w, h };
+  }
+
+  // Kompres Sejati: kecilkan gambar yang tertanam di PDF tanpa menyentuh
+  // teks, jadi teks tetap bisa dipilih. Mendukung gambar JPEG (termasuk CMYK,
+  // diubah jadi RGB) dan gambar FlateDecode (RGB/Gray/CMYK/Indexed 8-bit).
+  // Gambar 1-bit/CCITT dan yang tidak bisa didekode dilewati apa adanya.
+  // Mengembalikan statistik pengerjaan.
   async function trueCompressDoc(doc, quality, scale, onStep) {
     const L = window.PDFLib;
-    const stats = { total: 0, replaced: 0, skipped: 0 };
+    const stats = { total: 0, replaced: 0, skipped: 0, nonJpeg: 0 };
     const jobs = [];
     for (const [ref, obj] of doc.context.indirectObjects.entries()) {
       if (!(obj instanceof L.PDFRawStream)) continue;
@@ -166,35 +632,54 @@ export function render(root) {
       stats.total++;
       const filter = dict.get(L.PDFName.of('Filter'));
       const fStr = filter ? filter.toString() : '';
-      const cs = dict.get(L.PDFName.of('ColorSpace'));
-      const csStr = cs ? cs.toString() : '';
-      if (!/DCTDecode/.test(fStr) || /CMYK/i.test(csStr)) { stats.skipped++; continue; }
-      jobs.push({ ref, dict, obj });
+      const isDct = /DCTDecode/.test(fStr) && !(filter instanceof L.PDFArray);
+      const isFlate = /FlateDecode/.test(fStr) && !(filter instanceof L.PDFArray);
+      if (!isDct && !isFlate) { stats.skipped++; continue; }
+      jobs.push({ ref, dict, obj, jenis: isDct ? 'dct' : 'flate' });
     }
     for (let i = 0; i < jobs.length; i++) {
-      const { ref, dict, obj } = jobs[i];
+      const { ref, dict, obj, jenis } = jobs[i];
       if (onStep) onStep(i + 1, jobs.length);
       try {
         const raw = obj.getContents();
-        const img = await decodeImageBytes(raw, 'image/jpeg');
-        const w = Math.max(1, Math.round(img.naturalWidth * scale));
-        const h = Math.max(1, Math.round(img.naturalHeight * scale));
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        const cx = c.getContext('2d');
-        cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, w, h);
-        cx.drawImage(img, 0, 0, w, h);
+        let c;
+        if (jenis === 'dct') {
+          // Browser bisa mendekode JPEG CMYK menjadi RGB di canvas.
+          const img = await decodeImageBytes(raw, 'image/jpeg');
+          const w = Math.max(1, Math.round(img.naturalWidth * scale));
+          const h = Math.max(1, Math.round(img.naturalHeight * scale));
+          c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          const cx = c.getContext('2d');
+          cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, w, h);
+          cx.drawImage(img, 0, 0, w, h);
+        } else {
+          const dec = await decodeGambarFlate(L, doc, dict, raw);
+          if (!dec) { stats.skipped++; continue; }
+          const w = Math.max(1, Math.round(dec.w * scale));
+          const h = Math.max(1, Math.round(dec.h * scale));
+          const sumber = document.createElement('canvas');
+          sumber.width = dec.w; sumber.height = dec.h;
+          sumber.getContext('2d').putImageData(new ImageData(dec.data, dec.w, dec.h), 0, 0);
+          c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          const cx = c.getContext('2d');
+          cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, w, h);
+          cx.drawImage(sumber, 0, 0, w, h);
+        }
         const small = await canvasToBytes(c, 'image/jpeg', quality);
         if (small.length < raw.length) {
-          dict.set(L.PDFName.of('Width'), L.PDFNumber.of(w));
-          dict.set(L.PDFName.of('Height'), L.PDFNumber.of(h));
+          dict.set(L.PDFName.of('Width'), L.PDFNumber.of(c.width));
+          dict.set(L.PDFName.of('Height'), L.PDFNumber.of(c.height));
           dict.set(L.PDFName.of('ColorSpace'), L.PDFName.of('DeviceRGB'));
           dict.set(L.PDFName.of('BitsPerComponent'), L.PDFNumber.of(8));
           dict.set(L.PDFName.of('Filter'), L.PDFName.of('DCTDecode'));
           try { dict.delete(L.PDFName.of('DecodeParms')); } catch (e) {}
+          try { dict.delete(L.PDFName.of('SMaskInData')); } catch (e) {}
           doc.context.assign(ref, L.PDFRawStream.of(dict, small));
           stats.replaced++;
-        }
+          if (jenis === 'flate') stats.nonJpeg++;
+        } else stats.skipped++;
       } catch (e) { stats.skipped++; }
     }
     return stats;
@@ -228,6 +713,12 @@ export function render(root) {
         if (m) {
           let a = +m[1], b = +m[2];
           if (a > b) [a, b] = [b, a];
+          // Jepit ke jumlah halaman SEBELUM loop: "1-100000000" pada PDF
+          // 3 halaman dulu membangun Set 100 juta entri (freeze ~5 dtk)
+          // lalu 99,999997%-nya langsung dibuang filter di bawah.
+          a = Math.max(a, 1);
+          b = Math.min(b, maxPage);
+          if (a > maxPage) continue;
           for (let i = a; i <= b; i++) pages.add(i);
         } else if (/^\d+$/.test(p)) pages.add(+p);
         else throw new Error('Rentang tidak valid: "' + p + '"');
@@ -378,7 +869,17 @@ export function render(root) {
   const pSplit = T.el('<div></div>');
   {
     const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
+    const modeSel = T.select([['rentang', 'Pilih halaman sendiri'], ['ukuran', 'Bagi per ukuran file (MB)']], 'rentang');
     const rInp = T.input('text', 'Contoh: 1-3,5; 6-10  (tanda ; = file baru)');
+    const rentangWrap = T.field('Rentang halaman', rInp, 'Contoh: 1-3,5; 6-10 → 2 file');
+    const mbSel = T.select([['5', '5 MB per file (kirim WA/email)'], ['10', '10 MB per file'], ['25', '25 MB per file (batas lampiran Gmail)']], '10');
+    const mbWrap = T.field('Ukuran maksimal tiap file', mbSel, 'Halaman dikelompokkan berurutan supaya tiap file tidak melebihi ukuran ini. Satu halaman yang sendirian sudah lebih besar dari batas tetap jadi satu file.');
+    mbWrap.hidden = true;
+    modeSel.addEventListener('change', () => {
+      const bySize = modeSel.value === 'ukuran';
+      rentangWrap.hidden = bySize;
+      mbWrap.hidden = !bySize;
+    });
     const box = T.out();
     const bGo = T.btn('Pisahkan & Unduh', async () => {
       const f = fi.files && fi.files[0];
@@ -388,6 +889,46 @@ export function render(root) {
       try {
         const src = await window.PDFLib.PDFDocument.load(new Uint8Array(await f.arrayBuffer()), { ignoreEncryption: true });
         const n = src.getPageCount();
+        if (modeSel.value === 'ukuran') {
+          const maksByte = parseInt(mbSel.value, 10) * 1024 * 1024;
+          // Kelompokkan halaman secara serakah: tambah halaman selama hasil
+          // simpan sementara masih di bawah batas.
+          const groups = [];
+          let cur = [];
+          for (let i = 1; i <= n; i++) {
+            cur.push(i);
+            const coba = await window.PDFLib.PDFDocument.create();
+            const pages = await coba.copyPages(src, cur.map((x) => x - 1));
+            pages.forEach((p) => coba.addPage(p));
+            const len = (await coba.save()).length;
+            if (len > maksByte && cur.length > 1) {
+              groups.push(cur.slice(0, -1));
+              cur = [i];
+            }
+          }
+          if (cur.length) groups.push(cur);
+          if (groups.length === 1) {
+            T.show(box, '<span class="dim">PDF ini sudah di bawah ' + mbSel.value + ' MB (' + fmtSize(f.size) + '), tidak perlu dibagi.</span>');
+            return;
+          }
+          const okZip = await ensureJsZip();
+          if (!okZip) { T.show(box, errBox('Gagal memuat pustaka ZIP dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+          const zip = new window.JSZip();
+          const info = [];
+          for (let gi = 0; gi < groups.length; gi++) {
+            const out = await window.PDFLib.PDFDocument.create();
+            const pages = await out.copyPages(src, groups[gi].map((x) => x - 1));
+            pages.forEach((p) => out.addPage(p));
+            const bytes = await out.save();
+            const namaFile = 'pdf-bagian-' + (gi + 1) + '.pdf';
+            zip.file(namaFile, bytes);
+            info.push(namaFile + ' (hal. ' + groups[gi][0] + '–' + groups[gi][groups[gi].length - 1] + ', ' + fmtSize(bytes.length) + ')');
+          }
+          const blob = await zip.generateAsync({ type: 'blob' });
+          dlBlob(blob, 'pdf-bagi-' + mbSel.value + 'mb.zip');
+          T.show(box, '<span class="ok">Berhasil: ' + groups.length + ' file dalam satu ZIP — ' + info.map(T.esc).join('; ') + '.</span>');
+          return;
+        }
         const groups = parseGroups(rInp.value, n);
         let k = 0;
         for (const g of groups) {
@@ -399,9 +940,11 @@ export function render(root) {
         T.show(box, '<span class="ok">Berhasil: ' + groups.length + ' file terunduh.</span>');
       } catch (e) { T.show(box, errBox('Tidak bisa memisahkan PDF ini. Pastikan filenya tidak rusak dan nomor halamannya benar, lalu coba lagi.')); }
     }, true);
-    pSplit.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ambil halaman tertentu jadi file baru. Tanda <b>;</b> memisahkan jadi file berbeda.</p>'));
+    pSplit.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ambil halaman tertentu jadi file baru. Tanda <b>;</b> memisahkan jadi file berbeda. Atau bagi otomatis per ukuran supaya gampang dikirim lewat WA/email.</p>'));
     pSplit.appendChild(fi);
-    pSplit.appendChild(T.field('Rentang halaman', rInp, 'Contoh: 1-3,5; 6-10 → 2 file'));
+    pSplit.appendChild(T.field('Cara membagi', modeSel));
+    pSplit.appendChild(rentangWrap);
+    pSplit.appendChild(mbWrap);
     pSplit.appendChild(T.row(bGo));
     pSplit.appendChild(box);
   }
@@ -916,7 +1459,7 @@ export function render(root) {
           dlPdf(bytes, 'pdf-kompres.pdf');
           const pct = Math.round((1 - after / before) * 100);
           const msg = after < before
-            ? 'Berhasil: ' + fmtSize(before) + ' menjadi ' + fmtSize(after) + ' (lebih kecil ' + pct + '%). ' + st.replaced + ' dari ' + st.total + ' gambar dikecilkan' + (st.skipped ? ', ' + st.skipped + ' gambar dilewati (bukan JPG atau tidak bisa dikecilkan)' : '') + '. Teks tetap bisa dipilih.'
+            ? 'Berhasil: ' + fmtSize(before) + ' menjadi ' + fmtSize(after) + ' (lebih kecil ' + pct + '%). ' + st.replaced + ' dari ' + st.total + ' gambar dikecilkan' + (st.nonJpeg ? ' (termasuk ' + st.nonJpeg + ' gambar non-JPEG/CMYK)' : '') + (st.skipped ? ', ' + st.skipped + ' gambar dilewati (format tidak didukung atau tidak bisa dikecilkan)' : '') + '. Teks tetap bisa dipilih.'
             : 'Hasil ' + fmtSize(after) + ' vs asli ' + fmtSize(before) + ', tidak lebih kecil. Gambar di PDF ini sudah padat. File tetap terunduh; coba kualitas lebih rendah atau mode "Ubah halaman jadi gambar".';
           T.show(box, '<span class="ok">' + msg + '</span>');
         } catch (e) { T.show(box, errBox('Tidak bisa mengompres PDF ini. Pastikan filenya tidak rusak, lalu coba lagi.')); }
@@ -1076,6 +1619,9 @@ export function render(root) {
     const romRow = T.field('Halaman Romawi sampai halaman ke', romInp, 'Halaman awal pakai i, ii, iii sampai nomor ini.');
     romRow.hidden = true;
     fmtSel.addEventListener('change', () => { romRow.hidden = fmtSel.value !== 'romanfirst'; });
+    const dariHalInp = T.input('text', '1', '1'); dariHalInp.inputMode = 'decimal';
+    const skipSampulChk = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="pdfnum-skip"> Lewati halaman pertama (sampul tidak diberi nomor)</label>');
+    const skipSampulCek = skipSampulChk.querySelector('#pdfnum-skip');
     const sizeSel = T.select([['10', '10'], ['12', '12'], ['14', '14'], ['18', '18']], '12');
     const pgInp = T.input('text', 'semua, atau mis. 1-3,5', 'semua');
     const box = T.out();
@@ -1087,7 +1633,11 @@ export function render(root) {
       try {
         const doc = await loadPdfDoc(f);
         const n = doc.getPageCount();
-        const targets = parsePages(pgInp.value, n);
+        let targets = parsePages(pgInp.value, n);
+        const dariHal = Math.max(1, Math.floor(parseNum(dariHalInp.value, 1)));
+        targets = targets.filter((p1) => p1 >= dariHal);
+        if (skipSampulCek.checked) targets = targets.filter((p1) => p1 !== 1);
+        if (!targets.length) { T.show(box, errBox('Tidak ada halaman yang diberi nomor. Periksa "mulai dari halaman ke" dan halaman target.')); return; }
         const font = await doc.embedFont(window.PDFLib.StandardFonts.Helvetica);
         const size = +sizeSel.value;
         const start = Math.max(1, Math.floor(parseNum(startInp.value, 1)));
@@ -1101,7 +1651,7 @@ export function render(root) {
           let label;
           if (fmtSel.value === 'roman') label = toRoman(start + j);
           else if (fmtSel.value === 'romanfirst' && j < romCount) label = toRoman(j + 1);
-          else if (fmtSel.value === 'numof') label = 'Halaman ' + arabic + ' dari ' + n;
+          else if (fmtSel.value === 'numof') label = 'Halaman ' + arabic + ' dari ' + targets.length;
           else label = String(arabic);
           const tw = font.widthOfTextAtSize(label, size);
           const x = pos[1] === 'l' ? m : pos[1] === 'c' ? (width - tw) / 2 : width - tw - m;
@@ -1109,13 +1659,14 @@ export function render(root) {
           page.drawText(label, { x, y, size, font, color: window.PDFLib.rgb(0.4, 0.4, 0.4) });
         });
         dlPdf(await doc.save(), 'pdf-nomor.pdf');
-        T.show(box, '<span class="ok">Nomor ditempel di ' + targets.length + ' halaman.</span>');
+        T.show(box, '<span class="ok">Nomor ditempel di ' + targets.length + ' halaman' + (dariHal > 1 ? ' (mulai halaman ' + dariHal + ')' : '') + (skipSampulCek.checked ? ' — halaman pertama dilewati' : '') + '.</span>');
       } catch (e) { T.show(box, errBox('Nomor halaman tidak bisa ditempel. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pNum.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel nomor halaman di setiap halaman PDF. Untuk skripsi atau laporan, halaman awal bisa memakai angka Romawi.</p>'));
     pNum.appendChild(fi);
     pNum.appendChild(T.grid2(T.field('Posisi', posSel), T.field('Format nomor', fmtSel)));
     pNum.appendChild(T.grid2(T.field('Mulai dari nomor', startInp), T.field('Ukuran', sizeSel)));
+    pNum.appendChild(T.grid2(T.field('Mulai tempel dari halaman ke', dariHalInp, 'Halaman sebelum ini tidak diberi nomor.'), T.field('', skipSampulChk)));
     pNum.appendChild(romRow);
     pNum.appendChild(T.field('Halaman target', pgInp));
     pNum.appendChild(T.row(bGo));
@@ -1375,9 +1926,9 @@ export function render(root) {
   const pRedact = T.el('<div></div>');
   {
     const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
-    const modeSel = T.select([['text', 'Cari kata lalu tutupi'], ['area', 'Tutup area (kotak manual)']], 'text');
+    const modeSel = T.select([['text', 'Cari kata lalu hapus'], ['area', 'Hapus area (kotak manual)']], 'text');
     const wordsTa = T.ta(2, 'Kata atau kalimat, pisahkan dengan koma. Contoh: Budi Santoso, 08123456789', '');
-    const wordsWrap = T.field('Kata yang ditutupi', wordsTa, 'Tiap kata dicari di halaman target. Satu baris teks yang mengandung kata itu ikut tertutup seluruhnya.');
+    const wordsWrap = T.field('Kata yang dihapus', wordsTa, 'Tiap kata dicari di halaman target. Satu baris teks yang mengandung kata itu ikut terhapus seluruhnya.');
     const xInp = T.input('text', '10', '10'); xInp.inputMode = 'decimal';
     const yInp = T.input('text', '10', '10'); yInp.inputMode = 'decimal';
     const wInp = T.input('text', '50', '50'); wInp.inputMode = 'decimal';
@@ -1392,17 +1943,28 @@ export function render(root) {
     });
     const pgInp = T.input('text', 'semua, atau mis. 1-3,5', 'semua');
     const box = T.out();
-    const bGo = T.btn('Tutupi & Unduh', async () => {
-      const f = fi.files && fi.files[0];
-      if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
-      const ok = await needLib(); if (!ok) return;
-      T.show(box, '<span class="dim">Menutupi…</span>');
+    const bGo = T.btn('Hapus & Unduh', async () => {
+      // Guard klik ganda: tombol dimatikan SEBELUM await pertama — bila
+      // dimatikan sesudah await needLib(), klik kedua lolos karena tombol
+      // belum sempat nonaktif (dua proses redact berjalan bersamaan).
+      if (bGo.disabled) return;
+      bGo.disabled = true;
       try {
+        const f = fi.files && fi.files[0];
+        if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
+        const ok = await needLib(); if (!ok) return;
+        T.show(box, '<span class="dim">Menghapus…</span>');
         const doc = await loadPdfDoc(f);
         const n = doc.getPageCount();
         const targets = parsePages(pgInp.value, n);
         const black = window.PDFLib.rgb(0, 0, 0);
-        let boxes = 0, rotated = false;
+        // Kumpulkan kotak per halaman (dalam poin PDF, asal kiri-bawah).
+        const rectsPerHal = new Map(); // p1 -> [{x,y,w,h}]
+        const tambahKotak = (p1, r) => {
+          if (!rectsPerHal.has(p1)) rectsPerHal.set(p1, []);
+          rectsPerHal.get(p1).push(r);
+        };
+        let rotated = false, terms = [];
         if (modeSel.value === 'area') {
           const xp = clamp(parseNum(xInp.value, 10), 0, 100);
           const yp = clamp(parseNum(yInp.value, 10), 0, 100);
@@ -1411,18 +1973,16 @@ export function render(root) {
           for (const p1 of targets) {
             const page = doc.getPage(p1 - 1);
             const { width, height } = page.getSize();
-            page.drawRectangle({
+            tambahKotak(p1, {
               x: width * xp / 100,
               y: height * (100 - yp - hp) / 100,
               width: width * wp / 100,
               height: height * hp / 100,
-              color: black,
             });
-            boxes++;
           }
         } else {
-          const terms = wordsTa.value.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
-          if (!terms.length) { T.show(box, errBox('Isi dulu kata yang mau ditutupi.')); return; }
+          terms = wordsTa.value.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
+          if (!terms.length) { T.show(box, errBox('Isi dulu kata yang mau dihapus.')); return; }
           const okJs = await ensurePdfJs();
           if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
           const bytes = new Uint8Array(await f.arrayBuffer());
@@ -1436,21 +1996,117 @@ export function render(root) {
               const s = String(item.str || '');
               if (!terms.some((t) => s.toLowerCase().includes(t.toLowerCase()))) continue;
               const tr = item.transform;
-              const w = item.width || 0, h = item.height || 0;
-              page.drawRectangle({ x: tr[4] - 1, y: tr[5] - 1, width: w + 2, height: h + 2, color: black });
-              boxes++;
+              tambahKotak(p1, { x: tr[4] - 1, y: tr[5] - 1, width: (item.width || 0) + 2, height: (item.height || 0) + 2 });
             }
           }
         }
-        if (!boxes) { T.show(box, '<span class="dim">Tidak ada yang ditutupi. Coba kata lain atau periksa halaman target.</span>'); return; }
-        dlPdf(await doc.save(), 'pdf-sensor.pdf');
-        T.show(box, '<span class="ok">' + boxes + ' kotak hitam ditempel. Ingat, ini hanya menutupi tampilan: teks di baliknya masih ada di dalam file dan bisa dibaca alat lain.' + (rotated ? ' Sebagian halaman diputar, jadi posisi kotak bisa bergeser.' : '') + '</span>');
-      } catch (e) { T.show(box, errBox('Kata tidak bisa ditutupi. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
+        let totalKotak = 0;
+        rectsPerHal.forEach((rs) => { totalKotak += rs.length; });
+        if (!totalKotak) { T.show(box, '<span class="dim">Tidak ada yang dihapus. Coba kata lain atau periksa halaman target.</span>'); return; }
+        // 1) Hapus teks dari content stream (redact sejati) per halaman.
+        let dihapus = 0, dilewati = 0, diputar = false;
+        for (const [p1, rs] of rectsPerHal) {
+          const r = await redactHalamanPdf(window.PDFLib, doc, p1 - 1, rs.map((k) => ({ x: k.x, y: k.y, w: k.width, h: k.height })));
+          dihapus += r.dihapus;
+          dilewati += r.dilewati;
+          if (r.diputar) diputar = true;
+        }
+        // 2) Tempel kotak hitam di atasnya (kepastian visual).
+        for (const [p1, rs] of rectsPerHal) {
+          const page = doc.getPage(p1 - 1);
+          for (const k of rs) page.drawRectangle({ x: k.x, y: k.y, width: k.width, height: k.height, color: black });
+        }
+        // 2b) Bersihkan kata dari metadata dokumen (/Info + XMP): nama yang
+        // disensor tidak boleh tertinggal di Title/Author/Subject/Keywords/
+        // Creator — sebelumnya metadata tidak pernah disentuh sehingga klaim
+        // "sudah tidak terbaca lagi di dalam file" salah (nama masih terbaca
+        // di dialog Properties semua pembaca PDF).
+        let metaDibersihkan = 0;
+        if (modeSel.value === 'text' && terms.length) {
+          const bersihkanNilai = (s) => {
+            let out = String(s || '');
+            for (const t of terms) out = out.replace(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
+            return out.replace(/\s{2,}/g, ' ').trim();
+          };
+          const kolom = [
+            [() => doc.getTitle(), (v) => doc.setTitle(v)],
+            [() => doc.getAuthor(), (v) => doc.setAuthor(v)],
+            [() => doc.getSubject(), (v) => doc.setSubject(v)],
+            [() => doc.getCreator(), (v) => doc.setCreator(v)],
+          ];
+          for (const [baca, tulis] of kolom) {
+            try {
+              const lama = baca() || '';
+              if (!terms.some((t) => lama.toLowerCase().includes(t.toLowerCase()))) continue;
+              tulis(bersihkanNilai(lama));
+              metaDibersihkan++;
+            } catch (e) { /* kolom tidak ada / tidak bisa dibaca */ }
+          }
+          try {
+            const kw = doc.getKeywords() || '';
+            if (terms.some((t) => kw.toLowerCase().includes(t.toLowerCase()))) {
+              const bersih = bersihkanNilai(kw);
+              doc.setKeywords(bersih ? bersih.split(/\s+/) : []);
+              metaDibersihkan++;
+            }
+          } catch (e) {}
+          // XMP bisa berisi salinan metadata yang sama — hapus alirannya.
+          try {
+            if (doc.catalog.get(window.PDFLib.PDFName.of('Metadata')) !== undefined) {
+              doc.catalog.delete(window.PDFLib.PDFName.of('Metadata'));
+              metaDibersihkan++;
+            }
+          } catch (e) {}
+        }
+        const hasilBytes = await doc.save();
+        dlPdf(hasilBytes, 'pdf-sensor.pdf');
+        // 3) Verifikasi jujur: baca ulang hasil, pastikan kata target hilang
+        //    dari teks halaman DAN metadata.
+        let verif = '';
+        try {
+          const okJs = await ensurePdfJs();
+          if (okJs) {
+            const jsDoc2 = await window.pdfjsLib.getDocument({ data: new Uint8Array(hasilBytes).slice(0) }).promise;
+            if (modeSel.value === 'text') {
+              const masihAda = [];
+              for (const p1 of targets) {
+                const jpage = await jsDoc2.getPage(p1);
+                const tc = await jpage.getTextContent();
+                const semua = tc.items.map((it) => String(it.str || '')).join(' ');
+                for (const t of terms) {
+                  if (semua.toLowerCase().includes(t.toLowerCase()) && masihAda.indexOf(t) === -1) masihAda.push(t);
+                }
+              }
+              try {
+                const meta2 = await jsDoc2.getMetadata();
+                const info2 = (meta2 && meta2.info) || {};
+                const nilaiMeta = [info2.Title, info2.Author, info2.Subject, info2.Keywords, info2.Creator].map((v) => String(v || '').toLowerCase());
+                for (const t of terms) {
+                  if (nilaiMeta.some((v) => v.includes(t.toLowerCase())) && masihAda.indexOf(t) === -1) masihAda.push(t);
+                }
+              } catch (e) { /* metadata tidak terbaca: abaikan */ }
+              verif = masihAda.length
+                ? ' Perhatian: ' + masihAda.map((t) => '"' + t + '"').join(', ') + ' masih terbaca di hasil (kemungkinan tersimpan dengan cara yang tidak bisa dihapus tool ini) — bagian itu tetap tertutup kotak hitam.'
+                : ' Terverifikasi: kata yang dihapus sudah tidak terbaca lagi di dalam file (teks halaman & metadata sudah diperiksa).';
+            } else {
+              verif = dihapus > 0 ? ' ' + dihapus + ' potongan teks di dalam kotak terhapus dari file.' : '';
+            }
+          }
+        } catch (e) { /* verifikasi gagal: jangan batalkan unduhan */ }
+        const dasar = dihapus > 0
+          ? totalKotak + ' area ditutupi kotak hitam & ' + dihapus + ' potongan teks dihapus permanen dari file.'
+          : totalKotak + ' area ditutupi kotak hitam.';
+        const catatan = (diputar || rotated ? ' Sebagian halaman diputar, jadi teks di halaman itu hanya ditutupi kotak hitam (tidak dihapus dari file).' : '') +
+          (dilewati ? ' ' + dilewati + ' bagian file tidak bisa diproses (format khusus) dan hanya ditutupi kotak hitam.' : '') +
+          (metaDibersihkan ? ' Metadata dokumen (' + metaDibersihkan + ' kolom) ikut dibersihkan dari kata itu.' : '');
+        T.show(box, '<span class="ok">' + dasar + verif + catatan + '</span>');
+      } catch (e) { T.show(box, errBox('Kata tidak bisa dihapus. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
+      finally { bGo.disabled = false; }
     }, true);
-    pRedact.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tutupi kata atau area sensitif dengan kotak hitam sebelum PDF dibagikan.</p>'));
-    pRedact.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Penting: kotak hitam hanya menutupi tampilan. Teks di baliknya masih ada di dalam file dan bisa dibaca dengan alat lain. Untuk menghapus permanen, pakai alat redact khusus di komputer.</p>'));
+    pRedact.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Hapus kata atau area sensitif dari PDF sebelum dibagikan — teksnya benar-benar dihapus dari dalam file (bukan cuma ditutupi), lalu ditambah kotak hitam supaya tidak ada bekasnya. Hasilnya diperiksa ulang otomatis sebelum dilaporkan.</p>'));
+    pRedact.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Batasan: teks di dalam gambar hasil pindaian (scan), anotasi, dan halaman yang diputar tidak bisa dihapus total — bagian itu hanya ditutupi kotak hitam. Metadata dokumen (judul, penulis, subjek, kata kunci) ikut dibersihkan dari kata yang dihapus bila memakai mode cari kata. Bila kata masih terbaca setelah proses, tool akan bilang terus terang.</p>'));
     pRedact.appendChild(fi);
-    pRedact.appendChild(T.field('Cara menutupi', modeSel));
+    pRedact.appendChild(T.field('Cara menghapus', modeSel));
     pRedact.appendChild(wordsWrap);
     pRedact.appendChild(areaRow);
     pRedact.appendChild(areaRow2);
@@ -2099,10 +2755,118 @@ export function render(root) {
     pDraw.appendChild(T.row(bUndo, bClear, bApply));
   }
 
-  const pages = [pOrg, pMerge, pSplit, pImg, pWm, pTx, pMeta, pForm, pCompress, pPdfImg, pNum, pSign, pCrop, pRedact, pPdfText, pImgOut, pTarget, pFormNew, pArrange, pInfo, pDiff, pDraw];
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">22 operasi PDF langsung di perangkatmu. Diproses di browser, file tidak diupload ke mana pun.</p>'));
+  /* ============ TAB 23: Lampiran (file di dalam PDF) ============ */
+  // Daftar lampiran dari name tree /EmbeddedFiles (pdf-lib 1.17.1 TIDAK punya
+  // doc.getAttachments() — baca manual lewat low-level API; nama bisa berupa
+  // string literal atau heks UTF-16BE, dan name tree bisa bercabang Kids).
+  function daftarLampiranPdf(doc) {
+    const L = window.PDFLib;
+    const ctx = doc.context;
+    const hasil = [];
+    const kunjungi = (node) => {
+      if (!node || !node.get) return;
+      const namesArr = ctx.lookup(node.get(L.PDFName.of('Names')));
+      if (namesArr && typeof namesArr.size === 'function') {
+        for (let i = 0; i + 1 < namesArr.size(); i += 2) {
+          const namaObj = ctx.lookup(namesArr.get(i));
+          const nama = (namaObj && typeof namaObj.decodeText === 'function') ? namaObj.decodeText() : String(namaObj);
+          const spec = ctx.lookup(namesArr.get(i + 1));
+          if (!spec || !spec.get) continue;
+          const ef = spec.get(L.PDFName.of('EF'));
+          if (!ef || !ef.get) continue;
+          const fRef = ef.get(L.PDFName.of('F')) || ef.get(L.PDFName.of('UF'));
+          const stream = fRef ? ctx.lookup(fRef) : null;
+          let data = null, mime = '';
+          if (stream && typeof stream.getContents === 'function') {
+            try { data = stream.getContents(); } catch (e) { data = null; }
+            const sub = stream.dict && stream.dict.get(L.PDFName.of('Subtype'));
+            if (sub) mime = String(sub).slice(1).replace('#2F', '/');
+          }
+          hasil.push({ name: nama, data, mimeType: mime });
+        }
+      }
+      const kids = ctx.lookup(node.get(L.PDFName.of('Kids')));
+      if (kids && typeof kids.size === 'function') {
+        for (let i = 0; i < kids.size(); i++) kunjungi(ctx.lookup(kids.get(i)));
+      }
+    };
+    const names = ctx.lookup(doc.catalog.get(L.PDFName.of('Names')));
+    if (names && names.get) kunjungi(ctx.lookup(names.get(L.PDFName.of('EmbeddedFiles'))));
+    return hasil;
+  }
+  const pLampiran = T.el('<div></div>');
+  {
+    const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
+    const lampInp = document.createElement('input');
+    lampInp.type = 'file'; lampInp.multiple = true; lampInp.style.margin = '6px 0';
+    const box = T.out();
+    const daftarBox = T.out();
+    const MAKS_LAMPIRAN_BYTE = 25 * 1024 * 1024;
+    const bLihat = T.btn('Lihat lampiran yang sudah ada', async () => {
+      const f = fi.files && fi.files[0];
+      if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
+      const ok = await needLib(); if (!ok) return;
+      T.show(box, '<span class="dim">Membaca PDF…</span>');
+      try {
+        const doc = await loadPdfDoc(f);
+        const list = daftarLampiranPdf(doc);
+        T.hide(box);
+        if (!list.length) {
+          T.show(daftarBox, '<p class="dim" style="font-size:13px">PDF ini tidak punya lampiran file.</p>');
+          return;
+        }
+        T.show(daftarBox, '');
+        daftarBox.appendChild(T.el('<div style="font-size:13px;font-weight:600;margin:8px 0 6px">' + list.length + ' lampiran di dalam PDF ini</div>'));
+        list.forEach((a) => {
+          const nama = a.name || 'lampiran';
+          const ukuran = a.data ? fmtSize(a.data.length) : '';
+          const row = T.el('<div class="row" style="align-items:center;justify-content:space-between"></div>');
+          row.appendChild(T.el('<div style="word-break:break-word"><b>' + T.esc(nama) + '</b>' + (ukuran ? '<div class="dim" style="font-size:12px">' + ukuran + (a.mimeType ? ' · ' + T.esc(a.mimeType) : '') + '</div>' : '') + '</div>'));
+          row.appendChild(T.btn('Unduh', () => {
+            if (!a.data) { T.toast('Lampiran ini tidak bisa dibaca'); return; }
+            dlBlob(new Blob([a.data], { type: a.mimeType || 'application/octet-stream' }), nama);
+          }, true));
+          daftarBox.appendChild(row);
+        });
+      } catch (e) { T.show(box, errBox('Lampiran tidak bisa dibaca. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
+    });
+    const bGo = T.btn('Tempel & Unduh', async () => {
+      const f = fi.files && fi.files[0];
+      if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
+      const lamps = [...(lampInp.files || [])];
+      if (!lamps.length) { T.show(box, errBox('Pilih dulu file yang mau dilampirkan.')); return; }
+      const total = lamps.reduce((s, x) => s + x.size, 0);
+      if (total > MAKS_LAMPIRAN_BYTE) { T.show(box, errBox('Total lampiran ' + fmtSize(total) + ' melebihi batas ' + fmtSize(MAKS_LAMPIRAN_BYTE) + '. Kurangi jumlah/ukuran file lampiran.')); return; }
+      const ok = await needLib(); if (!ok) return;
+      T.show(box, '<span class="dim">Menempel lampiran…</span>');
+      try {
+        const doc = await loadPdfDoc(f);
+        const sekarang = new Date();
+        for (const lf of lamps) {
+          const bytes = new Uint8Array(await lf.arrayBuffer());
+          doc.attach(bytes, lf.name || 'lampiran', {
+            mimeType: lf.type || 'application/octet-stream',
+            description: 'Dilampirkan lewat PDF Lab',
+            creationDate: sekarang,
+            modificationDate: sekarang,
+          });
+        }
+        dlPdf(await doc.save(), 'pdf-lampiran.pdf');
+        T.show(box, '<span class="ok">Berhasil: ' + lamps.length + ' file (' + fmtSize(total) + ') ditempel ke dalam PDF. Buka PDF di pembaca PDF (Acrobat/Chrome) lalu cek panel lampiran.</span>');
+      } catch (e) { T.show(box, errBox('Lampiran tidak bisa ditempel. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
+    }, true);
+    pLampiran.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel file pendukung (foto, dokumen, spreadsheet) ke DALAM PDF supaya terkirim jadi satu berkas. Bisa juga melihat & mengunduh lampiran yang sudah ada di PDF.</p>'));
+    pLampiran.appendChild(fi);
+    pLampiran.appendChild(T.field('File yang dilampirkan (bisa banyak)', lampInp, 'Total maksimal ' + fmtSize(MAKS_LAMPIRAN_BYTE) + '.'));
+    pLampiran.appendChild(T.row(bGo, bLihat));
+    pLampiran.appendChild(box);
+    pLampiran.appendChild(daftarBox);
+  }
+
+  const pages = [pOrg, pMerge, pSplit, pImg, pWm, pTx, pMeta, pForm, pCompress, pPdfImg, pNum, pSign, pCrop, pRedact, pPdfText, pImgOut, pTarget, pFormNew, pArrange, pInfo, pDiff, pDraw, pLampiran];
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">23 operasi PDF langsung di perangkatmu. Diproses di browser, file tidak diupload ke mana pun.</p>'));
   const tabBar = tabs(
-    [['Atur', 0], ['Gabung', 1], ['Pisah', 2], ['Gambar→PDF', 3], ['Watermark', 4], ['Teks & Bentuk', 5], ['Metadata', 6], ['Form', 7], ['Kompres', 8], ['PDF→Gambar', 9], ['Nomor', 10], ['Tanda Tangan', 11], ['Potong', 12], ['Sensor', 13], ['PDF ke Teks', 14], ['Ambil Gambar', 15], ['Target KB', 16], ['Form Baru', 17], ['Susun', 18], ['Info', 19], ['Banding', 20], ['Corat-coret', 21]],
+    [['Atur', 0], ['Gabung', 1], ['Pisah', 2], ['Gambar→PDF', 3], ['Watermark', 4], ['Teks & Bentuk', 5], ['Metadata', 6], ['Form', 7], ['Kompres', 8], ['PDF→Gambar', 9], ['Nomor', 10], ['Tanda Tangan', 11], ['Potong', 12], ['Sensor', 13], ['PDF ke Teks', 14], ['Ambil Gambar', 15], ['Target KB', 16], ['Form Baru', 17], ['Susun', 18], ['Info', 19], ['Banding', 20], ['Corat-coret', 21], ['Lampiran', 22]],
     pages
   );
   root.appendChild(tabBar);

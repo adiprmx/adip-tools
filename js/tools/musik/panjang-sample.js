@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "panjang-sample", "name": "Panjang Sample", "cat": "musik", "icon": "🎚️", "desc": "Bar × BPM jadi detik, atau sebaliknya.", "keywords": "sample,bar,bpm,durasi,detik,loop,musik"};
 export function render(root) {
@@ -36,7 +36,6 @@ export function render(root) {
         const iBpm = T.input('number', 'cth: 128', bpm);
         const iBar = T.input('number', 'cth: 4', bar);
         const iBeats = T.input('number', 'cth: 4', beats);
-        [iBpm, iBar, iBeats].forEach((i) => i.addEventListener('input', hitungDetik));
         wadah.appendChild(T.field('Tempo (BPM)', iBpm));
         wadah.appendChild(T.field('Jumlah bar', iBar));
         wadah.appendChild(T.field('Ketuk per bar', iBeats, 'Umumnya 4. Waltz pakai 3.'));
@@ -54,12 +53,14 @@ export function render(root) {
             '<p class="center">' + mnt + ':' + String(Math.floor(dtk)).padStart(2, '0') + ' menit · ' + fmtID(detik * 1000, 0) + ' ms</p>' +
             '<p class="center hint">1 bar = ' + fmtID((k * 60) / b) + ' detik · 1 ketuk = ' + fmtID(60 / b) + ' detik</p>');
         };
+        // G-01 (P5): forEach WAJIB sesudah deklarasi const hitungDetik —
+        // sebelumnya di atas deklarasi → ReferenceError TDZ, tool 100% mati.
+        [iBpm, iBar, iBeats].forEach((i) => i.addEventListener('input', hitungDetik));
         hitungDetik();
       } else {
         const iTarget = T.input('number', 'cth: 10', target);
         const iBpm = T.input('number', 'cth: 128', bpm);
         const iBeats = T.input('number', 'cth: 4', beats);
-        [iTarget, iBpm, iBeats].forEach((i) => i.addEventListener('input', hitungBar));
         wadah.appendChild(T.field('Target durasi (detik)', iTarget, 'Misal: butuh loop yang pas 10 detik.'));
         wadah.appendChild(T.field('Tempo (BPM)', iBpm));
         wadah.appendChild(T.field('Ketuk per bar', iBeats));
@@ -78,6 +79,9 @@ export function render(root) {
             '<p class="center">Dibulatkan ke atas: <b>' + bulat + ' bar</b> = ' + fmtID(aktual) + ' detik pas</p>' +
             '<p class="center hint">Rumus: bar × ketuk × 60 ÷ BPM = detik</p>');
         };
+        // G-01 (P5): forEach WAJIB sesudah deklarasi const hitungBar —
+        // pola TDZ yang sama seperti cabang keDetik.
+        [iTarget, iBpm, iBeats].forEach((i) => i.addEventListener('input', hitungBar));
         hitungBar();
       }
     };

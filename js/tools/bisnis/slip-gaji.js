@@ -1,12 +1,14 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.2';
+import { h as T, utils, kv } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "slip-gaji", "name": "Slip Gaji", "cat": "bisnis", "icon": "🧾", "desc": "Bikin slip gaji rapi: gaji, tunjangan, potongan — siap cetak.", "keywords": "slip gaji,payroll,gaji karyawan,tunjangan,potongan,cetak gaji"};
 
-let _printCssDone = false;
+/* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
+   ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
+   body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
+let _printCss = null;
 
 function ensurePrintCss() {
-  if (_printCssDone) return;
-  _printCssDone = true;
+  if (_printCss) return;
   const st = document.createElement('style');
   st.textContent =
     '@media print{' +
@@ -21,11 +23,17 @@ function ensurePrintCss() {
     '#slipgaji-print .sig div{text-align:center;width:40%}' +
     '}';
   document.head.appendChild(st);
+  _printCss = st;
+}
+
+function hapusPrintCss() {
+  if (_printCss) { _printCss.remove(); _printCss = null; }
 }
 
 export function render(root) {
 
     ensurePrintCss();
+    T.onLeave(hapusPrintCss);
 
     const namaI = T.input('text', 'Nama karyawan', '');
     const periodeI = T.input('text', 'Periode (cth: Oktober 2026)', '');

@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.2';
+import { h as T, errBox } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "nokiamsg", "name": "Nokia Message", "cat": "fun", "icon": "📱", "desc": "Bikin gambar SMS ala HP Nokia jadul.", "keywords": "nokia,sms,jadul,meme,pesan,gambar"};
 

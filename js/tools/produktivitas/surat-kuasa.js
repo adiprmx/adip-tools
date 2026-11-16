@@ -1,12 +1,14 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "surat-kuasa", "name": "Pembuat Surat Kuasa", "cat": "produktivitas", "icon": "🤝", "desc": "Bikin surat kuasa dari form singkat: pemberi dan penerima kuasa, keperluan, dan masa berlaku, siap salin atau cetak.", "keywords": "surat kuasa,kuasa,pemberi kuasa,penerima kuasa,contoh surat kuasa", "since": "6.11.0"};
 
-let _printCssDone = false;
+/* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
+   ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
+   body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
+let _printCss = null;
 
 function ensurePrintCss() {
-  if (_printCssDone) return;
-  _printCssDone = true;
+  if (_printCss) return;
   const st = document.createElement('style');
   st.textContent =
     '@page{size:A4;margin:18mm 20mm}' +
@@ -17,6 +19,11 @@ function ensurePrintCss() {
     '#surat-kuasa-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
     '}';
   document.head.appendChild(st);
+  _printCss = st;
+}
+
+function hapusPrintCss() {
+  if (_printCss) { _printCss.remove(); _printCss = null; }
 }
 
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -47,6 +54,7 @@ function tambahBulan(iso, n) {
 export function render(root) {
 
     ensurePrintCss();
+    T.onLeave(hapusPrintCss);
 
     const namaPemberiI = T.input('text', 'Nama pemberi kuasa', '');
     const alamatPemberiI = T.ta(2, 'Alamat pemberi kuasa', '');

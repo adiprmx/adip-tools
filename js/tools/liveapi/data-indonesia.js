@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.2';
+import { h as T, esc } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"data-indonesia","name":"Data Indonesia","cat":"liveapi","icon":"🇮🇩","desc":"Angka resmi Indonesia: penduduk, ekonomi, harapan hidup & lainnya dari Bank Dunia.","keywords":"indonesia,data,penduduk,pdb,ekonomi,harapan hidup,pengangguran,inflasi,bank dunia","since":"6.12.0"};
 

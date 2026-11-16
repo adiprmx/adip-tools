@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 /* trimpath — "Trimpath Generator": animasi garis draw-on per huruf -> XML Alight Motion.
    Path huruf dibuat sendiri via vectorizer lokal (marching squares), jadi semua
@@ -118,7 +118,7 @@ export function generate(o) {
       strokeArgb: AL.argb(col), strokeW,
     }));
   });
-  if (!layers.length) throw new Error('Tidak ada path yang berhasil dibuat — coba teks lain.');
+  if (!layers.length) throw new Error('Tidak ada bentuk yang berhasil dibuat — coba teks lain.');
   layers.push(AL.nullLayer({ id: parentId, label: 'Trim Path', startMs: 0, endMs: plan.total, x: CW / 2, y: CH / 2, hidden: true }));
 
   const xml = AL.buildScene({ title: AL.projectName(o.project, 'Trim Path'), totalMs: plan.total, width: CW, height: CH, inner: layers.join('\n') });
@@ -200,12 +200,12 @@ export function render(root) {
      Error lain (dari browser/library) diganti pesan ramah. */
   const pesanErr = (e) => {
     const m = (e && e.message) || '';
-    if (/^(Teks|Tidak ada path|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|gagal memuat opentype|font )/.test(m)) return m;
+    if (/^(Teks|Tidak ada bentuk|Vektorisasi butuh|Trim path butuh|XML tidak valid|Root XML|Tag <scene>|Gagal memvalidasi|Alat baca font gagal dimuat|font )/.test(m)) return m;
     return 'XML tidak bisa dibuat. Coba lagi.';
   };
 
   function doGenerate() {
-    status.textContent = '⏳ Men-trace huruf…';
+    status.textContent = '⏳ Membuat garis huruf…';
     setTimeout(() => {
       try {
         const r = generate(collect());

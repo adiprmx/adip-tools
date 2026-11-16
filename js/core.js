@@ -89,8 +89,28 @@ export function dl(filename, content, mime) {
 }
 
 const fmtN = new Intl.NumberFormat('id-ID');
-export function fmt(n) { return fmtN.format(n); }
-export function rp(n) { return 'Rp' + fmtN.format(Math.round(Number(n) || 0)); }
+// P4-08: Intl mencetak nilai finite raksasa penuh digit demi digit
+// (1e300 = 300+ karakter di UI). Di atas 1e21, pakai notasi eksponen
+// singkat ("1e+300") — informasinya utuh, panjangnya terkunci.
+// Ambang 1e21 aman untuk semua tampilan wajar (rumah/sewa maks ~1e16).
+const fmtEksponen = (v) => String(v).replace('.', ',');
+// Angka di luar jangkauan (Infinity/NaN) tidak boleh tampil sebagai "∞"
+// atau "NaN" yang menyesatkan (P4-04: sisa kelas RT2-08 di jalur T.fmt —
+// T.rp sudah dimitigasi di P2, T.fmt disamakan di sini).
+export function fmt(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return 'di luar jangkauan';
+  if (Math.abs(v) >= 1e21) return fmtEksponen(v);
+  return fmtN.format(v);
+}
+// Angka di luar jangkauan (Infinity/NaN) tidak boleh tampil sebagai "Rp∞"
+// atau "Rp0" yang menyesatkan — tampilkan pesan jujur.
+export function rp(n) {
+  const v = Number(n);
+  if (!Number.isFinite(v)) return 'di luar jangkauan';
+  if (Math.abs(v) >= 1e21) return 'Rp' + fmtEksponen(Math.round(v));
+  return 'Rp' + fmtN.format(Math.round(v || 0));
+}
 
 // Parse angka ala Indonesia: "1.500.000,50" -> 1500000.5 ; "1.500" -> 1500 ; "1.5" -> 1.5
 export function num(v) {
@@ -470,7 +490,7 @@ export function preHtml(text, cls) {
     return '<pre class="' + (cls || '') + '" style="white-space:pre-wrap;word-break:break-word;background:#12100d;border:1px solid #2e2823;border-radius:8px;padding:12px;font-size:12.5px;line-height:1.5;overflow-x:auto">' + esc(text) + '</pre>';
   }
 
-export function errBox(msg) { return '<div style="color:#ef4444;font-size:13px;line-height:1.5">' + esc(msg) + '</div>'; }
+export function errBox(msg) { return '<div style="color:var(--err);font-size:13px;line-height:1.5">' + esc(msg) + '</div>'; }
 
 export function kvRows(pairs) {
     return '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
@@ -481,6 +501,7 @@ export function kvRows(pairs) {
 export function tabs(buttons, pages) {
     // buttons: [[label, idx]], pages: [el...]
     const bar = T.el('<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"></div>');
+    bar.classList.add('tabbar'); // kait CSS: font tab 12px di HP (P3-4)
     const set = (i) => {
       pages.forEach((p, j) => { p.hidden = j !== i; });
       bar.querySelectorAll('button').forEach((b, j) => b.classList.toggle('primary', j === i));

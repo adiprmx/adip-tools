@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.12.2';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js?v=6.13.0';
 
 export const meta = {
   id: 'fake-chat-tele',
@@ -38,7 +38,10 @@ function telePattern(color) {
     '<circle cx="100" cy="102" r="3"/><circle cx="30" cy="104" r="3"/>' +
     '<path d="M60 92l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>' +
     '</g></svg>';
-  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+  /* Kutip TUNGGAL di url(...) — nilainya disisipkan ke atribut style="..."
+     yang berkutip ganda; kutip ganda di sini dulu membuat shorthand background
+     gugur di parser HTML sehingga pola tile tidak pernah tampil. */
+  return "url('data:image/svg+xml," + encodeURIComponent(svg) + "')";
 }
 
 const SVG_BACK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';

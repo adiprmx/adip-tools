@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 /* Enkripsi AES-GCM via WebCrypto. Diekspor agar bisa diuji round-trip di luar browser. */
 const _te = new TextEncoder(), _td = new TextDecoder();
@@ -57,7 +57,7 @@ export function render(root) {
     const judulOf = (k) => { try { return decodeURIComponent(k); } catch (e) { return k; } };
 
     if (!window.crypto || !window.crypto.subtle) {
-      root.appendChild(T.el('<div class="err" style="font-size:13px;line-height:1.6">⚠️ Browser/HP kamu tidak mendukung WebCrypto (butuh koneksi HTTPS). Tool ini tidak bisa dipakai di sini.</div>'));
+      root.appendChild(T.el('<div class="err" style="font-size:13px;line-height:1.6">⚠️ Browser/HP kamu tidak mendukung enkripsi di sini (butuh koneksi aman). Tool ini tidak bisa dipakai di sini.</div>'));
       return;
     }
 

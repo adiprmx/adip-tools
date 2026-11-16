@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.12.2';
+import { h as T, errBox } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "getcode", "name": "Get Code HTML", "cat": "developer", "icon": "💻", "desc": "Ambil & ekstrak source HTML dari URL mana pun.", "keywords": "html,source,kode,extract,view-source,scrape"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "htmlvideo", "name": "HTML/WebGL ke MP4", "cat": "desain", "icon": "🎬", "desc": "Render animasi canvas / HTML jadi video MP4 8 detik.", "keywords": "mp4,video,render,animasi,canvas,webcodecs,html,webgl,threejs"};
 
@@ -258,7 +258,7 @@ export function render(root) {
       prog.hidden = true;
       return;
     }
-    if (!hasWC) { T.show(out, '<span class="err">Browser ini tidak mendukung WebCodecs maupun MediaRecorder — render tidak bisa jalan.</span>'); prog.hidden = true; livePreview(); return; }
+    if (!hasWC) { T.show(out, '<span class="err">Browser ini tidak mendukung WebCodecs maupun MediaRecorder — video tidak bisa dibuat.</span>'); prog.hidden = true; livePreview(); return; }
 
     try {
       const blob = await encodeFrames(fps, W, H, n,

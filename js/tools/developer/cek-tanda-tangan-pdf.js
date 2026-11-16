@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.12.2';
+import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js?v=6.13.0';
 
 // Periksa KEBERADAAN tanda tangan digital di PDF, bukan keasliannya.
 // Tiga lapis pemeriksaan: pdf.js (file PDF valid + info dasar),

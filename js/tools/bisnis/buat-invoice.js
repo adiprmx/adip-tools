@@ -1,12 +1,14 @@
-import { h as T, utils, kv } from '../../core.js?v=6.12.2';
+import { h as T, utils, kv } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "buat-invoice", "name": "Invoice Usaha dengan PPN", "cat": "bisnis", "icon": "🧮", "desc": "Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.", "keywords": "invoice,buat invoice,nota,tagihan,ppn 11%,klien,cetak"};
 
-let _printCssDone = false;
+/* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
+   ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
+   body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
+let _printCss = null;
 
 function ensurePrintCss() {
-  if (_printCssDone) return;
-  _printCssDone = true;
+  if (_printCss) return;
   const st = document.createElement('style');
   st.textContent =
     '@media print{' +
@@ -21,11 +23,17 @@ function ensurePrintCss() {
     '#binvoice-print .tot{text-align:right;margin-top:12px;font-size:15px}' +
     '}';
   document.head.appendChild(st);
+  _printCss = st;
+}
+
+function hapusPrintCss() {
+  if (_printCss) { _printCss.remove(); _printCss = null; }
 }
 
 export function render(root) {
 
     ensurePrintCss();
+    T.onLeave(hapusPrintCss);
 
     const usahaI = T.input('text', 'Nama usaha kamu', '');
     const alamatI = T.input('text', 'Alamat usaha', '');

@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.12.2';
+import { h as T, utils, money, kv } from '../../core.js?v=6.13.0';
 
 // PBB Perdesaan dan Perkotaan (PBB-P2), UU 1/2022 Pasal 40-42:
 // PBB = (NJOP - NJOPTKP) x persentase NJOP x tarif.

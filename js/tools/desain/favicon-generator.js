@@ -1,4 +1,4 @@
-import { h as T, utils, tabs, fileInput, loadImage, LOCAL_NOTE } from '../../core.js?v=6.12.2';
+import { h as T, utils, tabs, fileInput, loadImage, LOCAL_NOTE } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"favicon-generator","name":"Paket Favicon Lengkap","cat":"desain","icon":"⭐","desc":"Bikin favicon dari gambar atau emoji: multi-ukuran + ZIP + PWA.","keywords":"favicon,icon,emoji,png,apple-touch,logo,website,pwa,manifest"};
 

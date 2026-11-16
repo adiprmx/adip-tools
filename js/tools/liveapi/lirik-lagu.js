@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.12.2';
+import { h as T, esc } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"lirik-lagu","name":"Lirik Lagu","cat":"liveapi","icon":"🎤","desc":"Cari lirik lagu dari penyanyi & judul lagu favoritmu.","keywords":"lirik,lagu,musik,penyanyi,lyrics,teks lagu","since":"6.12.0"};
 

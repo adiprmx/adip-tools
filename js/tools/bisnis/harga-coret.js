@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.12.2';
+import { h as T, kv } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "harga-coret", "name": "Harga Coret Promo", "cat": "bisnis", "icon": "🏷️", "desc": "Hitung harga setelah diskon dan cek laba per unitnya, supaya promo tidak bikin rugi.", "keywords": "harga coret,diskon,promo,sale,potongan harga,laba promo", "since": "6.11.0"};
 export function render(root) {

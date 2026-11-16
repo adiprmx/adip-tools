@@ -7,7 +7,7 @@
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
-import { h as T, utils } from '../../core.js?v=6.12.2';
+import { h as T, utils } from '../../core.js?v=6.13.0';
 
 export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
@@ -52,11 +52,11 @@ export function ssrfCheck(hostname) {
 export function normalizeTarget(raw) {
   let s = (raw || '').trim();
   if (!s) throw new Error('Masukkan URL dulu ya.');
-  if (/^(javascript|data|file|ftp|vbscript):/i.test(s)) throw new Error('Skema URL tidak didukung — pakai http/https.');
+  if (/^(javascript|data|file|ftp|vbscript):/i.test(s)) throw new Error('Alamat harus diawali http:// atau https://.');
   if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) s = 'https://' + s;
   let u;
   try { u = new URL(s); } catch (e) { throw new Error('URL tidak valid.'); }
-  if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error('Hanya http/https yang didukung.');
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new Error('Alamat harus memakai http:// atau https://.');
   if (u.username || u.password) throw new Error('URL dengan kredensial tidak didukung.');
   if (u.port && u.port !== '80' && u.port !== '443') throw new Error('Port non-standar tidak didukung.');
   const chk = ssrfCheck(u.hostname);
@@ -929,7 +929,7 @@ async function mRdap(ctx) {
   const tld = ctx.host.split('.').pop();
   try {
     const urls = await rdapServerFor(tld);
-    if (!urls || !urls.length) return [mkInfo('rdap','RDAP tidak tersedia untuk .' + tld,'TLD ini tidak punya server RDAP publik yang diketahui.')];
+    if (!urls || !urls.length) return [mkInfo('rdap','Umur domain tidak bisa dicek untuk .' + tld,'Akhiran domain ini tidak menyediakan data umur domain publik.')];
     const r = await tFetch(urls[0].replace(/\/$/,'') + '/domain/' + ctx.host, {timeout: 12000});
     if (!r.ok) throw new Error('RDAP ' + r.status);
     const {created, expires} = parseRdapEvents(await r.json());
@@ -949,8 +949,8 @@ async function mRdap(ctx) {
         'Domain kedaluwarsa bisa diambil alih pihak lain dan dipakai untuk phishing.',
         'Perpanjang domain & aktifkan auto-renew.', 'expires: ' + expires.slice(0,10)));
     }
-    if (!f.length) f.push(mkInfo('rdap','Data RDAP OK','Umur & masa berlaku domain normal.'));
-  } catch (e) { f.push(mkInfo('rdap','RDAP tidak dapat dicek','Umur domain tidak bisa dicek. Coba lagi nanti.')); }
+    if (!f.length) f.push(mkInfo('rdap','Umur & masa berlaku domain OK','Umur & masa berlaku domain normal.'));
+  } catch (e) { f.push(mkInfo('rdap','Umur domain tidak dapat dicek','Umur domain tidak bisa dicek. Coba lagi nanti.')); }
   return f;
 }
 

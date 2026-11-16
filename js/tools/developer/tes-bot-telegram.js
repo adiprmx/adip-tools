@@ -1,4 +1,4 @@
-import { h as T, esc, errBox, kvRows, preHtml } from '../../core.js?v=6.12.2';
+import { h as T, esc, errBox, kvRows, preHtml } from '../../core.js?v=6.13.0';
 
 export const meta = {"id": "tes-bot-telegram", "name": "Tes Token Bot Telegram", "cat": "developer", "icon": "🤖", "desc": "Cek token bot Telegram: tampilkan nama dan username bot bila token benar.", "keywords": "telegram,bot,token,getme,cek token,bot api", "since": "6.11.0"};
 

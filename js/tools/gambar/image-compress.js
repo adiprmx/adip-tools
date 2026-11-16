@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.12.2';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.13.0';
 
 // Cari kualitas tertinggi (0..1) yang hasilnya <= targetBytes.
 // ukur(q) -> Promise<number|null> ukuran byte pada kualitas q.
@@ -217,6 +217,7 @@ export function render(root) {
         if (target === -1) return;
         hasilBatch = [];
         cur = null;
+        dlB.disabled = true; // belum ada hasil baru (P2-2)
         // Pesan gagal buatan tool ini sudah Bahasa Indonesia — tampilkan apa adanya.
         // Error lain (dari browser/library) diganti pesan ramah.
         const pesanGagal = (er) => {
@@ -236,6 +237,7 @@ export function render(root) {
         T.hide(statusBox);
         if (!hasilBatch.length) { T.toast('Tidak ada gambar yang berhasil diproses'); return; }
         cur = hasilBatch[0];
+        dlB.disabled = false; // hasil sudah ada, tombol Unduh aktif (P2-2)
 
         if (hasilBatch.length === 1) {
           // Tampilan lama: ringkasan + pratinjau + tombol Unduh Hasil.
@@ -290,11 +292,12 @@ export function render(root) {
         T.scrollToPreview(infoBox);
       }
 
+      // "Unduh Hasil" sekunder + nonaktif sampai hasil benar-benar ada (P2-2).
       const dlB = T.btn('Unduh Hasil', () => {
         if (!cur) { T.toast('Proses dulu gambarnya'); return; }
         T.dl(cur.name, cur.blob, cur.blob.type);
         T.toast('Berhasil diunduh');
-      }, true);
+      }, false, true);
 
       root.appendChild(T.el(`<p class="note">🔒 ${LOCAL_NOTE}</p>`));
       root.appendChild(T.field('Pilih gambar (bisa banyak sekaligus)', fileI, 'Maksimal ' + MAKS_JUMLAH + ' foto sekali proses. Foto iPhone (HEIC) dan TIFF juga bisa.'));

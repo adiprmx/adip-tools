@@ -1,4 +1,4 @@
-import { h as T, kv, tabs } from '../../core.js?v=6.12.2';
+import { h as T, kv, tabs } from '../../core.js?v=6.13.0';
 
 export const meta = {"id":"kalkulator-pecahan","name":"Kalkulator Pecahan","cat":"pelajar","icon":"🍕","desc":"Tambah, kurang, kali, bagi pecahan lengkap dengan langkah dan bentuk campurannya.","keywords":"pecahan,fraksi,matematika,pembilang,penyebut,sederhanakan,pelajar","since":"6.11.0"};
 

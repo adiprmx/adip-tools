@@ -1,5 +1,5 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.12.2';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.12.2';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.13.0';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.13.0';
 
 export const meta = {"id": "video-ke-gif", "name": "Video ke GIF", "cat": "converter", "icon": "🎞️", "desc": "Potong sepotong video jadi gambar bergerak GIF.", "keywords": "video,gif,animasi,bergerak,stiker,meme", "since": "6.11.0"};
 
