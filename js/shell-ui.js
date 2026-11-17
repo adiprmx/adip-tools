@@ -12,10 +12,10 @@
      dengan logika identik; guard beranda.js (rail null/bukan
      elemen) dipertahankan karena tidak mengubah perilaku untuk
      rail asli.
-   - footerHTML : footer 1 baris yang dulu disalin 7× di app.js
-     (6 salinan identik + beranda dengan kelas rise + Metodologi
-     tanpa tautan ke dirinya sendiri). Satu fungsi, tiga varian
-     lewat opsi — keluarannya byte-identik dengan tiap salinan lama.
+   - footerHTML : footer terstruktur (v6.15.0 P3 — dulu 1 baris
+     yang disalin 7× di app.js: 6 salinan identik + beranda dengan
+     kelas rise + Metodologi tanpa tautan ke dirinya sendiri).
+     Satu fungsi, tiga varian lewat opsi (rise, methodLink).
    ============================================================ */
 import { esc } from './core.js';
 import { CATS, catLabel } from './catalog.js';
@@ -38,14 +38,21 @@ function watchFadeX(rail) {
   upd();
 }
 
-/* Footer 3 kelompok (v6.14.0, P2-B2 — riset §5.3.8):
+/* Footer terstruktur (v6.15.0, P3 — temuan audit 6):
    (1) identitas + kalimat nilai (hitungan dari manifest, bukan
-   angka hafalan), (2) 15 tautan kategori, (3) tautan layanan.
+   angka hafalan), (2) 15 tautan kategori sebagai daftar grid,
+   (3) tautan layanan, (4) baris penutup © sebagai penanda akhir
+   halaman. Kategori dulu baris teks mengalir dengan pemisah
+   titik — gumpalan itu yang bikin footer lama terasa belum
+   selesai; kini tiap tautan punya barisnya sendiri + target
+   sentuh 44px (gaya di css/polish-p3.css). Desktop: .foot-main
+   dua kolom (identitas + layanan di kiri, kategori di kanan).
+   HP: satu kolom berurutan.
    Opsi dipertahankan:
    - methodLink (default true): tautan "Metodologi". Halaman
      Metodologi sendiri memakainya false (tanpa tautan ke diri).
-   - rise (default null): nomor animasi masuk; beranda memakai 9
-     (kelas 'foot rise' + style --i:9).
+   - rise (default null): nomor animasi masuk; beranda memakai 10
+     (kelas 'foot rise' + style --i:10).
    Privasi menaut ke PRIVACY.md di repo (file itu tidak ada di
    public/, jadi tautan relatif akan 404); repo publik, branch
    default main (terverifikasi via GitHub API 17 Nov 2026). */
@@ -53,11 +60,8 @@ function footerHTML(n, { methodLink = true, rise = null } = {}) {
   const cls = rise === null ? 'foot' : 'foot rise';
   const style = rise === null ? '' : ` style="--i:${rise}"`;
   const cats = CATS.filter(([id]) => id !== 'semua')
-    .map(([id, label]) => `<a href="#/k/${id}">${esc(label)}</a>`)
-    .join(' <span class="sep" aria-hidden="true">·</span> '); /* spasi di
-      kedua sisi separator = titik putus baris; tanpanya + nowrap di
-      tautan, baris kategori jadi satu baris 974px di HP (terbukti
-      17 Nov: footer scrollWidth 976px di viewport 360). */
+    .map(([id, label]) => `<li><a href="#/k/${id}">${esc(label)}</a></li>`)
+    .join('');
   const links = [
     ...(methodLink ? ['<a href="#/metodologi">Metodologi</a>'] : []),
     '<a href="#/t/bantuan">Bantuan</a>',
@@ -66,9 +70,15 @@ function footerHTML(n, { methodLink = true, rise = null } = {}) {
     '<a href="#/semua">Semua tools</a>',
   ].join('');
   return `<footer class="${cls}"${style}>
-    <div class="foot-id"><b>ADIP Tools</b><br>${n} alat gratis berbahasa Indonesia. Hitungan jalan di browser kamu; tanpa daftar, tanpa iklan.</div>
-    <nav class="foot-cats" aria-label="Kategori tools">${cats}</nav>
-    <nav class="foot-links" aria-label="Layanan">${links}</nav>
+    <div class="foot-main">
+      <div class="foot-id"><b>ADIP Tools</b><br>${n} alat gratis berbahasa Indonesia. Hitungan jalan di browser kamu; tanpa daftar, tanpa iklan.</div>
+      <nav class="foot-cats" aria-label="Kategori tools">
+        <p class="foot-h">Kategori</p>
+        <ul>${cats}</ul>
+      </nav>
+      <nav class="foot-links" aria-label="Layanan">${links}</nav>
+    </div>
+    <div class="foot-end">© 2026 ADIP Tools</div>
   </footer>`;
 }
 

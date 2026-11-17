@@ -17,6 +17,9 @@
       tool baru hanya kelihatan lewat chip filter di #/semua.
       (v6.14.0 P2-B1: dulu carousel, kini grid statis .hgrid —
       semua 8 tool terlihat tanpa geser; V-07.)
+      (v6.15.0 P1: kurasi satu tool per kategori dari batch yang
+      sama + kartu lebar berdeskripsi .baru-grid/.baru-card —
+      lihat curateNewTools/baruCardHTML. Label versi tidak berubah.)
    B. Meta kategori — deskripsi satu baris + 3 tool unggulan per
       kategori, untuk halaman #/k/<id> yang saat ini cuma judul +
       jumlah + grid tanpa pengantar.
@@ -45,14 +48,15 @@
    - Hanya memakai kelas CSS yang SUDAH ADA di css/style.css
      (.sec, .sechead, .hscroll, .hcard, .glass, .rise, .allbtn)
      + kelas baru P2-B1 (.hgrid, .coba-grid — lihat seksi
-     "DASHBOARD v6.14.0" di akhir style.css) + inline style
-     meniru pola app.js.
+     "DASHBOARD v6.14.0" di akhir style.css) + kelas baru P1
+     v6.15.0 (.baru-grid, .baru-card — css/polish-p1.css, khusus
+     showcase "Baru ditambahkan") + inline style meniru pola app.js.
    - Aksen PUTIH saja (chip BARU memakai gaya inline yang sama
      persis dengan cardEl di app.js). Copy bahasa Indonesia
      sehari-hari; tanpa klaim popularitas yang tidak terukur.
    ============================================================ */
 import { esc } from './core.js';
-import { SEARCH_DENY, byId } from './catalog.js';
+import { SEARCH_DENY, byId, catLabel } from './catalog.js';
 import { getRecent } from './store.js';
 import { hcardHTML, watchFadeX } from './shell-ui.js';
 import { rankedSearchPlus } from './search-plus.js';
@@ -110,10 +114,64 @@ export function latestSinceTools(manifest, limit = 8) {
   return manifest.filter((m) => visible(m) && m.since === v).slice(0, limit);
 }
 
+/* v6.15.0 P1 (temuan 1) — KURASI CAMPURAN KATEGORI.
+   Masalahnya: newTools() mengambil 8 tool pertama dari batch
+   dalam urutan manifest, dan 8 pertama batch 6.13.0 kebetulan
+   semuanya Bisnis — seksi terasa seperti filler walau batch-nya
+   sendiri punya 21 tool dalam 8 kategori.
+   Perbaikannya (satu-satunya perubahan perilaku di ronde ini,
+   diizinkan koordinator): dari batch yang SAMA, ambil satu tool
+   per kategori dalam urutan manifest, lalu isi sisa slot dengan
+   tool batch berikutnya dalam urutan manifest. Deterministik,
+   tanpa klaim "terbaik"/"paling populer", dan label versi
+   ("dari versi 6.13.0") tetap benar karena semua tool yang
+   tampil memang berasal dari batch itu. Bila batch punya
+   kategori lebih sedikit dari limit, pengisian sisa menjamin
+   seksi tetap terisi penuh (mis. batch 6.12.0 hanya 4 kategori).
+   newTools()/latestSinceTools() dipertahankan sebagai API modul
+   (tidak ada pemanggil lain saat ini, tapi keduanya diekspor). */
+export function curateNewTools(manifest, version, limit = 8) {
+  if (!Array.isArray(manifest) || !version) return [];
+  const batch = manifest.filter((m) => visible(m) && m.since === version);
+  const picked = [];
+  const cats = new Set();
+  for (const m of batch) {
+    if (picked.length >= limit) break;
+    if (cats.has(m.cat)) continue;
+    cats.add(m.cat);
+    picked.push(m);
+  }
+  if (picked.length < limit) {
+    for (const m of batch) {
+      if (picked.length >= limit) break;
+      if (!picked.includes(m)) picked.push(m);
+    }
+  }
+  return picked;
+}
+
+/* Kartu lebar "Baru ditambahkan" (v6.15.0 P1): ikon + nama +
+   deskripsi nyata dari manifest (2 baris, di-clamp CSS) +
+   label kategori. Deskripsi membuat tiap kartu menjelaskan
+   dirinya sendiri — kartu seperti ini tidak bisa terasa
+   seperti filler. Gaya di css/polish-p1.css. */
+export function baruCardHTML(m) {
+  return `
+  <a class="baru-card glass" href="#/t/${m.id}" aria-label="${esc(m.name)}">
+    <span class="bic" aria-hidden="true">${m.icon}</span>
+    <span class="btx">
+      <span class="bnm">${esc(m.name)}</span>
+      <span class="bds">${esc(m.desc || '')}</span>
+      <span class="bct">${catLabel(m.cat)}</span>
+    </span>
+  </a>`;
+}
+
 /* HTML isi section "Baru ditambahkan" (tanpa tag <section> — wadah
    section-nya milik template home() di app.js). Mode 'strict' =
    tool baru di versi ini; mode 'latest' = fallback batch terbaru
-   dengan label versi aslinya. */
+   dengan label versi aslinya. v6.15.0 P1: kartu lebar
+   berdeskripsi (.baru-grid/.baru-card), bukan lagi .hgrid. */
 export function baruSectionHTML(tools, { version = '', mode = 'strict' } = {}) {
   if (!tools || !tools.length) return '';
   const sub = mode === 'strict'
@@ -121,20 +179,22 @@ export function baruSectionHTML(tools, { version = '', mode = 'strict' } = {}) {
     : `dari versi ${version}`;
   return `
     <div class="sechead"><h2>✨ Baru ditambahkan</h2><span class="n">${esc(sub)}</span></div>
-    <div class="hgrid">${tools.map(hcardHTML).join('')}</div>`;
+    <div class="baru-grid">${tools.map(baruCardHTML).join('')}</div>`;
 }
 
 /* Render showcase ke wadah <section id="baruSec"> di beranda.
    Mengembalikan true bila section terisi, false bila disembunyikan
-   (tidak ada tool baru sama sekali — wadah display:none). */
+   (tidak ada tool baru sama sekali — wadah display:none).
+   v6.15.0 P1: pemilihan tool lewat curateNewTools (satu per
+   kategori dari batch yang sama) — lihat catatan di sana. */
 export function renderBaru(host, manifest, version, { limit = 8 } = {}) {
   if (!host) return false;
-  let tools = newTools(manifest, version, limit);
+  let tools = curateNewTools(manifest, version, limit);
   let mode = 'strict';
   let v = version;
   if (!tools.length) {
     v = latestSince(manifest);
-    tools = v ? latestSinceTools(manifest, limit) : [];
+    tools = v ? curateNewTools(manifest, v, limit) : [];
     mode = 'latest';
   }
   if (!tools.length) {

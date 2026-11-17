@@ -1,6 +1,6 @@
 import { h as T, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id":"perekam-layar","name":"Perekam Layar","cat":"musik","icon":"🖥️","desc":"Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.","keywords":"rekam layar,screen recorder,tangkap layar,video layar,webm","since":"6.13.0"};
+export const meta = {"id":"perekam-layar","name":"Perekam Layar","cat":"gambar","icon":"🖥️","desc":"Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.","keywords":"rekam layar,screen recorder,tangkap layar,video layar,webm","since":"6.13.0"};
 
 /* Perekam layar: getDisplayMedia + MediaRecorder. Audio layar (bila dipilih)
    dan mikrofon digabung jadi satu rekaman. Semua diproses di browser. */

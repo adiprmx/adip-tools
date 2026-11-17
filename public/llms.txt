@@ -1,6 +1,6 @@
 # ADIP Tools
 
-> Kumpulan 627 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi 6.14.0.
+> Kumpulan 627 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi 6.15.0.
 
 ## Keamanan
 
@@ -244,7 +244,6 @@
 - [Metronom](https://tools.adipmusic.my.id/#/t/metronome): Metronom dengan birama.
 - [Panjang Sample](https://tools.adipmusic.my.id/#/t/panjang-sample): Bar × BPM jadi detik, atau sebaliknya.
 - [Pencari Rima](https://tools.adipmusic.my.id/#/t/pencari-rima): Cari kata yang berima buat nulis lirik lagu.
-- [Perekam Layar](https://tools.adipmusic.my.id/#/t/perekam-layar): Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.
 - [Perekam Suara](https://tools.adipmusic.my.id/#/t/perekam-suara): Rekam suara dari mikrofon, potong, lalu unduh WebM atau WAV.
 - [Piano Browser](https://tools.adipmusic.my.id/#/t/piano): Main piano di browser.
 - [Durasi Playlist](https://tools.adipmusic.my.id/#/t/playlist-duration): Total durasi dari daftar lagu.
@@ -291,6 +290,7 @@
 - [Meme Generator](https://tools.adipmusic.my.id/#/t/meme): Bikin meme teks atas-bawah + unduh PNG.
 - [Auto Cut](https://tools.adipmusic.my.id/#/t/nexoraautocut): Hapus background lalu pecah jadi layer PNG per objek.
 - [Palet Warna dari Foto](https://tools.adipmusic.my.id/#/t/palet-foto): Ambil 6 warna dominan dari fotomu, atau klik piksel mana pun.
+- [Perekam Layar](https://tools.adipmusic.my.id/#/t/perekam-layar): Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.
 - [Pixel Art](https://tools.adipmusic.my.id/#/t/pixel-art): Ubah foto jadi pixel art retro.
 - [Remove BG](https://tools.adipmusic.my.id/#/t/removebg): Hapus background foto otomatis, 100% di perangkat.
 - [Sensor NIK di Foto](https://tools.adipmusic.my.id/#/t/sensor-nik): Tutup nomor identitas di foto dokumen dengan blur atau kotak hitam.

@@ -35,6 +35,31 @@
      Di bawah 1024px tab bar tetap jadi navigasi utama HP. */
   .tabs { display: none; }
 }
+/* D-07 (koordinator, v6.15.0, temuan O-1 QA P4): navbar shell
+   disisipkan di dalam .wrap halaman (renderNavbar), jadi di
+   halaman tool ia terjepit kolom sempit 760px — brand membungkus
+   2 baris dan tautan "Metodologi" terpotong di desktop. Navbar
+   adalah chrome shell, bukan konten: beri lebar halaman lain.
+   Rumus WAJIB `min(1120px, 100vw)` — BUKAN `100vw - 32px`:
+   header beranda selebar viewport penuh di bawah 1152px karena
+   `.top` memakai `margin: 0 -16px`, jadi `100vw - 32px` membuat
+   header tool 32px lebih sempit di 1024–1151px (temuan LOW-1
+   Red ronde 1; hanya hairline 1px yang terlihat menjorok, tapi
+   konsistensi piksel menuntut rumus yang sama dengan beranda).
+   Margin auto TIDAK BISA memusatkan elemen yang lebih lebar dari
+   pembungkusnya (CSS 2.1 §10.3.3: auto diperlakukan sebagai 0
+   bila width > containing block — terbukti empiris: header
+   bergeser ke kanan dan meluber 36px di 1440px), jadi pakai
+   margin negatif eksplisit dari selisih lebar pembungkus (100%)
+   dan lebar target. Di bawah 1024px nav desktop tersembunyi
+   dan brand muat, jadi aturan ini hanya desktop. */
+@media (min-width: 1024px) {
+  .wrap.narrow > .top-shell {
+    --nav-w: min(1120px, 100vw);
+    width: var(--nav-w);
+    margin-inline: calc((100% - var(--nav-w)) / 2);
+  }
+}
 .navlink {
   display: inline-flex; align-items: center; gap: 6px;
   min-height: var(--tap); padding: 8px 12px; border-radius: var(--r-ctl);

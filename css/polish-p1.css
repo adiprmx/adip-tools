@@ -1,0 +1,186 @@
+/* ============================================================
+   ADIP Tools v6.15.0 — polish-p1.css (P1: hero + "Baru ditambahkan")
+   Ronde POLES VISUAL. File dedikasi P1 (D-01): SEMUA gaya baru
+   paket ini tinggal di sini, bukan menumpuk di style.css.
+   Dimuat TERAKHIR di index.html (sesudah fx-p3.css) supaya
+   override di sini menang atas aturan lama dengan spesifisitas
+   yang sama.
+
+   Design lock "Arang & Coral" TETAP: semua warna memakai
+   variabel css/style.css (:root) — bg #161311, aksen coral
+   #ff6f61, Bricolage Grotesque. Tanpa warna baru, tanpa
+   liquid glass, tanpa aksen putih, tanpa gradasi dekoratif.
+
+   Design Read: refinement beranda yang sudah ada untuk
+   pemakai HP sehari-hari, dalam bahasa Arang & Coral yang
+   terkunci. Dial antislop: ENERGY 2 / RHYTHM 2 / MOTION 1
+   (tenang; tanpa gerak baru — gerak adalah wilayah P4).
+
+   KEPUTUSAN DESAIN (R-31, satu baris alasan per keputusan):
+   (a) Garis coral di bawah "apa?" DIHAPUS, bukan diganti
+       sorot blok. Alasannya: satu-satunya tugas garis itu
+       adalah penekanan, dan warna coral kata "apa?" sendiri
+       sudah mengerjakan tugas itu; di 360px garis 2px di
+       bawah kata terbaca seperti coretan pemeriksa ejaan,
+       kebalikan dari penekanan. Sorot blok ditolak karena
+       kata duduk di dalam span mask overflow hidden tanpa
+       padding horizontal, jadi sorot ber-padding akan
+       terpotong di tepinya selama animasi naik, dan sorot
+       di belakang teks coral menambah aksen kedua yang
+       berebut perhatian dengan kata itu sendiri.
+   (b) Daftar bukti hero jadi CHIP berikon, bukan satu baris
+       teks. Alasannya: tiga baris teks polos dengan garis
+       pemisah terbaca seperti catatan kaki, sementara chip
+       memberi tiap bukti bentuk yang bisa dipindai sekilas
+       dan membungkus rapi di 360px (flex-wrap) maupun
+       sebaris di 1440px. Ikon memakai emoji, mengikuti
+       sistem ikon situs ini sendiri (semua ikon tool dan
+       kategori adalah emoji); tiap ikon relevan dengan
+       isinya (alasan per ikon ada di js/onboarding.js).
+       Teks ketiga bukti TIDAK diubah (copy pemilik).
+       Chip adalah <li>, bukan tombol: bukti dibaca, bukan
+       diklik, jadi tidak ada kontrol mati (R-26).
+   (c) "Baru ditambahkan" jadi KARTU LEBAR berdeskripsi, grid
+       1 kolom di HP dan 2 kolom di desktop. Alasannya:
+       kartu dengan deskripsi nyata dari manifest tidak bisa
+       terasa seperti filler, dan kartu lebar membedakan
+       seksi ini dari grid .hcard identik di seksi lain
+       (R-14). Etalase horizontal ditolak karena mengulang
+       pola rail Populer, termasuk masalah intip kartu
+       terpotong (temuan 8). Pemilihan tool dikurasi satu
+       per kategori dari batch 6.13.0 yang sama (lihat
+       curateNewTools di js/beranda.js); label "dari versi
+       6.13.0" tetap benar dan tidak diubah.
+   ============================================================ */
+
+/* ---------- (a) hapus garis bawah hero ---------- */
+/* Menimpa .hero h1 .w:last-child::after di fx-hero.css
+   (spesifisitas sama, file ini dimuat belakangan sehingga
+   menang). Animasi ul-draw/ul-sheen ikut mati karena
+   elemennya tidak dirender; tidak ada gerak baru. */
+.hero h1 .w:last-child::after {
+  display: none;
+}
+
+/* ---------- (b) bukti hero jadi chip berikon ---------- */
+/* Menimpa .hero-proof di onboarding.css (spesifisitas sama,
+   file ini dimuat belakangan). Semua aturan lama yang
+   relevan ditulis ulang di sini, termasuk blok media
+   560px, supaya tidak ada pemisah hairline tersisa. */
+.hero-proof {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.hero-proof li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-pill);
+  background: var(--wash);
+  color: var(--mut);
+}
+.hero-proof li:first-child {
+  padding-top: 7px;
+  border-top: 1px solid var(--hair);
+}
+.hero-proof .hp-ic {
+  font-size: 14px;
+  line-height: 1;
+  flex: none;
+}
+@media (min-width: 560px) {
+  .hero-proof {
+    gap: 8px;
+    align-items: center;
+  }
+  .hero-proof li {
+    padding-left: 12px;
+    border-left: 1px solid var(--hair);
+  }
+  .hero-proof li:first-child {
+    padding-left: 12px;
+    border-left: 1px solid var(--hair);
+  }
+}
+
+/* ---------- (c) kartu lebar "Baru ditambahkan" ---------- */
+/* Grid: 1 kolom di HP (kartu selebar konten, deskripsi muat
+   2 baris penuh), 2 kolom mulai 700px (breakpoint yang sama
+   dengan .hgrid lama, supaya ritme beranda konsisten). */
+.baru-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 700px) {
+  .baru-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.baru-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: var(--r-card);
+  text-decoration: none;
+  transition: transform 0.14s var(--ease), border-color 0.15s;
+}
+.baru-card:hover {
+  border-color: var(--hair-hover);
+}
+.baru-card:active {
+  transform: scale(0.98);
+}
+.baru-card:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+.baru-card .bic {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-ctl);
+  flex: none;
+  background: var(--wash);
+  border: 1px solid var(--hair);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.baru-card .btx {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.baru-card .bnm {
+  font-family: var(--font-d);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--txt);
+}
+.baru-card .bds {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--mut);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.baru-card .bct {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: 2px;
+}

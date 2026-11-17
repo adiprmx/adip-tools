@@ -1,0 +1,167 @@
+/* ============================================================
+   ADIP Tools v6.15.0 — polish-p3.css (P3: footer + ritme)
+   Ronde poles visual, temuan audit 6 + 7.
+
+   Design Read: redesign-preserve atas beranda direktori tools
+   gelap untuk pengguna HP Indonesia, bahasa visual Arang dan
+   Coral yang terkunci; dial ENERGY 2 / RHYTHM 2 / MOTION 1.
+   Hanya memakai token v6.14.0 (css/style.css). Tidak ada token
+   baru, tidak ada sistem baru.
+
+   Isi:
+   A. Footer terstruktur (temuan 6): kolom di desktop, kelompok
+      rapi di HP, baris penutup, ruang mati dikurangi.
+   B. Ritme seksi (temuan 7): skala jarak antar seksi, satu garis
+      pemisah, pasangan tombol bawah yang dibedakan. Komponen
+      milik P1/P2/Koleksi tidak disentuh, hanya margin antar
+      seksi dan satu tombol yang bukan milik siapa pun.
+   C. Perbaikan tombol kembali-ke-atas (penyebab 44px ruang mati
+      di bawah footer, lihat catatan di bawah).
+   ============================================================ */
+
+/* ---------- A. FOOTER ---------- */
+
+/* Garis atas menandai footer sebagai zona penutup halaman. Jarak
+   atas 48px dipertahankan dari components.css: ketukan penutup
+   terbesar di halaman. */
+footer.foot {
+  border-top: 1px solid var(--hair);
+}
+
+/* HP: satu kolom berurutan (identitas, kategori, layanan).
+   Desktop (mulai 768px): dua kolom, identitas + layanan di kiri,
+   kategori di kanan. 768px (bukan 700px): kolom kategori butuh
+   ruang supaya label terpanjang ("Produktivitas") muat tanpa
+   terpotong; di 700px kolom kanan hanya selebar 350px. */
+.foot-main { display: block; }
+@media (min-width: 768px) {
+  .foot-main {
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) 1fr;
+    grid-template-areas: "id cats" "links cats";
+    column-gap: 40px;
+    row-gap: 24px;
+  }
+  .foot-id { grid-area: id; }
+  .foot-cats { grid-area: cats; margin-top: 0; }
+  .foot-links { grid-area: links; margin-top: 0; }
+}
+
+/* Kategori sebagai daftar grid, bukan baris teks mengalir: tiap
+   tautan punya barisnya sendiri + target sentuh 44px (R-03).
+   2 kolom di HP; di desktop kolom mengalir otomatis (minmax
+   150px: label terpanjang muat tanpa terpotong). */
+.foot-cats {
+  margin-top: 28px;
+  padding-top: 0;
+  border-top: 0;
+  line-height: 1.55;
+}
+.foot-h {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mut);
+  margin: 0 0 10px;
+}
+.foot-cats ul {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 16px;
+}
+@media (min-width: 768px) {
+  .foot-cats ul { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+.foot-cats li { min-width: 0; }
+.foot-cats a {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-size: 13.5px;
+}
+
+/* Layanan: baris mengalir di HP (5 tautan pendek, daftar vertikal
+   hanya menambah tinggi footer), kolom vertikal di desktop di
+   bawah identitas. Tanpa garis atas: pemisah kelompok cukup satu,
+   yaitu garis atas footer. */
+.foot-links {
+  margin-top: 28px;
+  padding-top: 0;
+  border-top: 0;
+}
+@media (min-width: 768px) {
+  .foot-links {
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-start;
+  }
+}
+
+/* Baris penutup: penanda akhir halaman yang pasti. Footer lama
+   berakhir tanpa penutup sehingga terasa belum selesai. */
+.foot-end {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hair);
+  font-size: 12px;
+  color: var(--dim);
+}
+
+/* Ruang bawah halaman: 120px jadi 104px + safe-area. Tab bar
+   bawah menempati 89px dari tepi viewport (terukur di 360px:
+   tinggi 77px + offset 12px), jadi 104px masih menyisakan jarak
+   aman dan memangkas 16px ruang mati. Jangan turun lagi:
+   perangkat berponi menambah safe-area-inset-bottom. */
+.wrap { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+/* Desktop (mulai 1024px) tidak punya tab bar bawah (D-08), jadi
+   tidak ada yang perlu dihindari: ruang bawah cukup 48px. */
+@media (min-width: 1024px) {
+  .wrap { padding-bottom: 48px; }
+}
+
+/* ---------- B. RITME SEKSI ---------- */
+
+/* Skala jarak antar seksi beranda (temuan 7): jarak yang sama
+   persis (30px) di semua seksi membuat halaman terbaca sebagai
+   satu strip datar. Skala menanjak memberi tiap seksi napasnya
+   sendiri tanpa mengubah komponen di dalamnya. Koleksi tidak
+   disentuh (tetap 30px, patokan kualitas). */
+.wrap > section.sec[aria-label="Baru ditambahkan"] { margin-top: 34px; }
+.wrap > section.sec[aria-label="Kategori"] { margin-top: 38px; }
+/* Riwayat: ketukan terbesar + garis pemisah. Urutan beranda:
+   pembuka pribadi (Favorit) lalu penemuan (Populer, Baru,
+   Kategori, Koleksi) lalu kembali ke milik pengguna (Riwayat).
+   Garis ini menandai pergantian babak itu, bukan hiasan. */
+.wrap > section.sec[aria-label="Riwayat"] {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hair);
+}
+
+/* Tombol keluar: napas lebih besar sebelum "Semua tools"
+   (26px jadi 36px), jeda sebelum akhir halaman. */
+.wrap > .allbtn { margin-top: 36px; }
+/* "Coba tool acak": pasangan yang lebih tenang, latar transparan
+   (bukan kartu solid kedua). "Semua tools" adalah jalan utama ke
+   direktori; acak adalah jalan samping yang ringan. Hierarki
+   nyata, bukan dekorasi. */
+#acakBtn { background: transparent; }
+
+/* Halaman tool: "Sejenis" diberi napas lebih besar (32px jadi
+   40px), jeda antara alat dan rekomendasi. */
+.related { margin-top: 40px; }
+
+/* ---------- C. TOMBOL KEMBALI KE ATAS ---------- */
+
+/* BUG (temuan saat mengukur ruang mati, 17 Nov): tombol
+   kembali-ke-atas (.btt) seharusnya melayang (position: fixed,
+   components.css baris 109), tapi pemilih [data-tip] di baris
+   289 file yang sama, spesifisitas sama (0,1,0) dan dimuat
+   belakangan, menimpa position menjadi relative. Akibatnya
+   tombol jatuh ke alur normal di bawah footer: tidak pernah
+   melayang, dan menambah 44px ruang mati di ujung setiap halaman
+   (terukur: ruang di bawah footer 164px, bukan 120px).
+   Perbaikan: kembalikan fixed dengan spesifisitas lebih tinggi.
+   Tooltip [data-tip]::after tetap jalan (fixed adalah posisi
+   yang sah untuk jangkar tooltip). */
+.btt[data-tip] { position: fixed; }

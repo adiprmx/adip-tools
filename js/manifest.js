@@ -1,8 +1,8 @@
-/* ADIP Tools v6.14.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.15.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.14.0';
+export const VERSION = '6.15.0';
 export const manifest = [
   {"id":"anggaran-50-30-20","name":"Anggaran 50/30/20","cat":"bisnis","icon":"💰","desc":"Bagi penghasilan jadi kebutuhan, keinginan, dan tabungan, lalu cek apakah pengeluaranmu sudah sesuai.","keywords":"anggaran,budget,50 30 20,keuangan,penghasilan,tabungan,kebutuhan","file":"tools/bisnis/anggaran-50-30-20.js","since":"6.11.0"},
   {"id":"banding-gaji","name":"Banding Gaji","cat":"bisnis","icon":"⚖️","desc":"Bandingkan dua tawaran gaji sampai total setahunnya.","keywords":"banding,gaji,tawaran,offer,total,tahunan,bpjs,bonus,thr","file":"tools/bisnis/banding-gaji.js","since":"6.11.0"},
@@ -291,6 +291,7 @@ export const manifest = [
   {"id":"meme","name":"Meme Generator","cat":"gambar","icon":"😂","desc":"Bikin meme teks atas-bawah + unduh PNG.","keywords":"meme,lucu,gambar,teks","file":"tools/gambar/meme.js"},
   {"id":"nexoraautocut","name":"Auto Cut","cat":"gambar","icon":"🧩","desc":"Hapus background lalu pecah jadi layer PNG per objek.","keywords":"cutout,layer,hapus background,autocut,alight,zip","file":"tools/gambar/nexoraautocut.js"},
   {"id":"palet-foto","name":"Palet Warna dari Foto","cat":"gambar","icon":"🎨","desc":"Ambil 6 warna dominan dari fotomu, atau klik piksel mana pun.","keywords":"palet,warna,foto,hex,dominan,swatch,desain,eyedropper","file":"tools/gambar/palet-foto.js"},
+  {"id":"perekam-layar","name":"Perekam Layar","cat":"gambar","icon":"🖥️","desc":"Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.","keywords":"rekam layar,screen recorder,tangkap layar,video layar,webm","file":"tools/gambar/perekam-layar.js","since":"6.13.0"},
   {"id":"pixel-art","name":"Pixel Art","cat":"gambar","icon":"👾","desc":"Ubah foto jadi pixel art retro.","keywords":"pixel,pixelate,retro,foto,efek","file":"tools/gambar/pixel-art.js"},
   {"id":"removebg","name":"Remove BG","cat":"gambar","icon":"🪄","desc":"Hapus background foto otomatis, 100% di perangkat.","keywords":"hapus background,remove bg,transparan,foto,produk","file":"tools/gambar/removebg.js"},
   {"id":"sensor-nik","name":"Sensor NIK di Foto","cat":"gambar","icon":"🫣","desc":"Tutup nomor identitas di foto dokumen dengan blur atau kotak hitam.","keywords":"sensor,nik,ktp,blur,privasi,dokumen,foto","file":"tools/gambar/sensor-nik.js","since":"6.11.0"},
@@ -439,7 +440,6 @@ export const manifest = [
   {"id":"metronome","name":"Metronom","cat":"musik","icon":"🥁","desc":"Metronom dengan birama.","keywords":"metronom,tempo,ketuk","file":"tools/musik/metronome.js"},
   {"id":"panjang-sample","name":"Panjang Sample","cat":"musik","icon":"🎚️","desc":"Bar × BPM jadi detik, atau sebaliknya.","keywords":"sample,bar,bpm,durasi,detik,loop,musik","file":"tools/musik/panjang-sample.js"},
   {"id":"pencari-rima","name":"Pencari Rima","cat":"musik","icon":"🎤","desc":"Cari kata yang berima buat nulis lirik lagu.","keywords":"rima,sajak,lirik,lagu,puisi,kata,berima,rap","file":"tools/musik/pencari-rima.js"},
-  {"id":"perekam-layar","name":"Perekam Layar","cat":"musik","icon":"🖥️","desc":"Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.","keywords":"rekam layar,screen recorder,tangkap layar,video layar,webm","file":"tools/musik/perekam-layar.js","since":"6.13.0"},
   {"id":"perekam-suara","name":"Perekam Suara","cat":"musik","icon":"🎙️","desc":"Rekam suara dari mikrofon, potong, lalu unduh WebM atau WAV.","keywords":"rekam,suara,mikrofon,audio,voice,note","file":"tools/musik/perekam-suara.js","since":"6.11.0"},
   {"id":"piano","name":"Piano Browser","cat":"musik","icon":"🎹","desc":"Main piano di browser.","keywords":"piano,main,musik","file":"tools/musik/piano.js"},
   {"id":"playlist-duration","name":"Durasi Playlist","cat":"musik","icon":"📃","desc":"Total durasi dari daftar lagu.","keywords":"playlist,durasi,lagu","file":"tools/musik/playlist-duration.js"},

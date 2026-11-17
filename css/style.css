@@ -130,9 +130,11 @@ a { color: inherit; }
 }
 
 /* ---------- transisi antar halaman ----------
-   Animasi masuk .view tinggal di fx-entrance.css (fx-view, 0.38s) —
-   aturan view-in di sini dicabut P3 (duplikat mati: kalah cascade).
-   Transisi ViewTransition API ada di bawah (vt-out/vt-in). */
+   Animasi masuk .view tinggal di fx-entrance.css (fx-view, 0.3s;
+   P4 v6.15.0, dulu 0.38s) — aturan view-in di sini dicabut P3
+   (duplikat mati: kalah cascade).
+   Transisi ViewTransition API ada di bawah (vt-out/vt-in);
+   durasinya di-override fx-p3.css §A (P4: 0.18s/0.3s). */
 
 /* ---------- entrance beranda: fade cepat, stagger rapat ----------
    Aturan .rise tinggal di fx-entrance.css (fx-rise + ritardando
@@ -144,13 +146,13 @@ a { color: inherit; }
 /* ---------- headline: masked reveal ala editorial (bukan fade generik) ---------- */
 .hero h1 .w { display: inline-block; }
 .hero h1 .mask { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0.08em 0 0.12em; margin: -0.08em 0 -0.12em; }
-.hero h1 .mi { display: inline-block; transform: translateY(115%) rotate(2.5deg); transform-origin: 0% 100%; animation: mi-up 1.05s var(--lux) forwards; animation-delay: calc(0.12s + var(--i, 0) * 130ms); }
+.hero h1 .mi { display: inline-block; transform: translateY(115%) rotate(2.5deg); transform-origin: 0% 100%; animation: mi-up 0.3s var(--lux) forwards; animation-delay: calc(0.05s + var(--i, 0) * 60ms); } /* D-06 v6.15.0: 1.05s -> 0.3s, jeda maks 0.11s */
 @keyframes mi-up { to { transform: none; } }
 /* sapaan: fade naik yang tenang (typewriter dicabut — terlalu klise) */
-.hero .hi { opacity: 0; animation: hi-in 0.9s var(--lux) 0.72s forwards; }
+.hero .hi { opacity: 0; animation: hi-in 0.3s var(--lux) 0.1s forwards; } /* D-06 v6.15.0: 0.9s+0.72s -> 0.3s+0.1s */
 @keyframes hi-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 /* search: masuk dengan koreografi */
-.hero .hsearch { opacity: 0; animation: hs-in 1s var(--lux) 0.55s forwards; }
+.hero .hsearch { opacity: 0; animation: hs-in 0.3s var(--lux) 0.15s forwards; } /* D-06 v6.15.0: 1s+0.55s -> 0.3s+0.15s */
 @keyframes hs-in { from { opacity: 0; transform: translateY(18px) scale(0.985); } to { opacity: 1; transform: none; } }
 /* transisi antar halaman: View Transitions API */
 ::view-transition-old(root) { animation: vt-out 0.32s var(--snappy); }

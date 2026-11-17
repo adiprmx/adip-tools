@@ -1,0 +1,102 @@
+/* ============================================================
+   ADIP Tools v6.15.0 - P2: halaman tool + kategori + Populer
+   (temuan audit visual 4, 5, 8 + keputusan koordinator D-04)
+
+   Design Read: perbaikan atas UI yang sudah ada, untuk pengunjung
+   yang kebanyakan buka dari HP, dalam bahasa visual Arang & Coral
+   yang terkunci (bg #161311, coral #ff6f61, Bricolage Grotesque).
+   Dial: ENERGY 2 / RHYTHM 1 / MOTION 1 - tanpa warna baru, tanpa
+   aksen baru, tanpa gerak baru; yang berubah hanya kerapian.
+
+   Alasan tiap aturan (R-31):
+   - (a) Deskripsi kepala tool tampil penuh, selebar halaman: di
+     kolom sempit 146px, deskripsi median pun butuh 4 baris dan
+     yang terpanjang 9 baris - mustahil tampil penuh tanpa
+     memanjangkan kepala halaman. Pindah ke bawah baris judul
+     (lebar penuh 328px di HP): median 2 baris, terpanjang 4.
+     Deskripsi TIDAK dihapus: kotak pengantar di dalam tool tidak
+     dijamin ada di semua tool, deskripsi kepala adalah satu-satunya
+     penjelasan yang pasti tampil.
+   - (b) Grid kategori 3 kolom di HP: label terpanjang
+     ("Produktivitas", 78px pada 12px) tidak muat satu baris di
+     kolom 4 (teks cuma ~62px) kecuali font dikecilkan sampai 10px
+     - terlalu kecil untuk dibaca nyaman. 3 kolom memberi teks
+     ~90px: semua 15 label muat satu baris pada 12px, tanpa
+     mengganti nama kategori dan tanpa mengecilkan huruf. 15 ubin
+     = tepat 5 baris penuh. min-width: 0 membuat kolom sama lebar
+     (tanpa itu, kolom melebar mengikuti label terpanjang).
+   - (c) Rail Populer: kartu 132px di HP supaya kartu ketiga
+     mengintip ~60px (ikon + awal judul terlihat jelas), bukan
+     28px yang terpotong setengah ikon. scroll-padding membuat
+     kartu yang berhenti snap sejajar dengan tepi konten (16px),
+     bukan menempel tepi layar. Petunjuk "geser →" di judul seksi
+     memberi tahu pengguna bahwa baris ini bisa digeser; teks
+     statis, bukan tombol mati, dan hanya tampil di HP.
+   - (D-04) "Coba dulu": min-width: 0 pada kartu grid supaya tiga
+     kartu selalu muat penuh di viewport apa pun lebar fontnya  - 
+     tanpa itu, judul terpanjang bisa mendorong kolom melebar dan
+     kartu ketiga terpotong (temuan di screenshot audit 08).
+   ============================================================ */
+
+/* ---------- (a) Temuan 4: deskripsi kepala tool ---------- */
+/* Kepala tool jadi dua susun: baris atas (ikon + judul + aksi),
+   lalu tag + deskripsi selebar penuh di bawahnya. Struktur HTML
+   diubah di app.js (toolPage); kelas .th-top baru di sana. */
+.tool-head { flex-direction: column; gap: 12px; }
+.tool-head .th-top { display: flex; gap: 14px; align-items: flex-start; }
+.tool-head .meta { margin-top: 0; }
+/* Hapus batas 2 baris (P2-B1 v6.14.0): deskripsi tampil utuh. */
+.tool-head .meta .ds {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+/* ---------- (b) Temuan 5: label kategori ---------- */
+/* Kolom sama lebar di semua ukuran: tanpa ini, kolom grid melebar
+   mengikuti label terpanjang ("Produktivitas" 92px vs "Dev & Web"
+   62px pada 360px - terukur di browser). */
+.catgrid > .cattile { min-width: 0; }
+
+@media (max-width: 699px) {
+  /* 3 kolom di HP: teks ~90px, semua label muat satu baris 12px. */
+  .catgrid { grid-template-columns: repeat(3, 1fr); }
+  .cattile .cl {
+    white-space: nowrap;
+    overflow: hidden;
+    /* Pengaman saja: tidak terpicu oleh 15 label yang ada
+       (terpanjang 78px < 90px); mencegah teks lolos wadah bila
+       suatu hari ada kategori bernama lebih panjang. */
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 340px) {
+  /* HP sangat sempit (320px): teks ~77px, "Produktivitas" 78px
+     pada 12px - turun satu tingkat supaya tetap satu baris. */
+  .cattile .cl { font-size: 11px; }
+}
+
+/* ---------- (c) Temuan 8: rail Populer ---------- */
+/* Kartu yang berhenti snap sejajar tepi konten (16px), bukan
+   menempel tepi layar. Berlaku untuk semua rail (.hscroll). */
+.hscroll { scroll-padding-inline: 16px; }
+
+@media (max-width: 699px) {
+  /* 132px: kartu ketiga mengintip ~60px (ikon utuh + awal judul),
+     cukup untuk terbaca sebagai "masih ada lagi". Hanya kartu di
+     rail; kartu di grid (.hgrid/.coba-grid) tidak tersentuh. */
+  .hscroll .hcard { flex-basis: 132px; }
+}
+
+/* Petunjuk geser di judul seksi Populer: hanya di HP. Di tablet
+   ke atas, rail sudah menampilkan hampir semua kartu. */
+@media (min-width: 700px) {
+  .sechead .rail-hint { display: none; }
+}
+
+/* ---------- (c) D-04: "Coba dulu" di halaman kategori ---------- */
+/* Tiga kartu selalu muat penuh: tanpa min-width: 0, judul terpanjang
+   ("Kalkulator…") bisa mendorong kolom grid melebar melewati
+   viewport dan kartu ketiga terpotong. */
+.coba-grid > .hcard { min-width: 0; }

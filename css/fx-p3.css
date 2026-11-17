@@ -1,12 +1,16 @@
 /* ============================================================
    fx-p3.css — sistem animasi P3 (Adip Tools v6.14.0)
+   + P4 v6.15.0: durasi ViewTransition di §A (temuan 9).
    Dimuat TERAKHIR di index.html, setelah components.css.
 
    Isi file ini — semua gerak transform/opacity saja:
    A. ViewTransition: satu gerakan mendarat per navigasi.
+      P4: vt-out 0.18s / vt-in 0.3s (override style.css).
    B. Skeleton: bentuk meniru konten (garis, kartu, baris).
       Satu-satunya sistem skeleton yang hidup; .skel i lama
       (style.css + fx-joy.css §3) dicabut di ronde ini.
+      P4 TIDAK mengubah §B: sapuan skeleton adalah indikator
+      tunggu, bukan fade navigasi. Ia berhenti saat konten tiba.
    C. Micro-interaction komponen P2 yang belum punya.
    D. Grid mantap: entrance kartu hanya paint pertama.
    E. Reduced motion: semua gerak baru mati di sini.
@@ -25,6 +29,16 @@
    Kelas ditambahkan app.js route() (flag vtNext) dan menempel
    di .view itu saja sampai navigasi berikut. */
 .view.fx-vt-in { animation: none; }
+
+/* P4 (v6.15.0, temuan 9): persingkat crossfade ViewTransition.
+   style.css menetapkan vt-out 0.32s / vt-in 0.55s; file ini
+   dimuat TERAKHIR sehingga override durasi saja menang tanpa
+   menyentuh keyframes di style.css (file bersama, bukan milik P4).
+   Keluar tetap lebih cepat dari masuk (0.18 < 0.3): snapshot lama
+   hilang duluan, jendela tumpang-tindih teks menyusut dari ~320ms
+   jadi ~180ms dan halaman baru mendarat dalam ~300ms. */
+::view-transition-old(root) { animation-duration: 0.18s; }
+::view-transition-new(root) { animation-duration: 0.3s; }
 
 /* ---------- B. Skeleton: bentuk meniru konten ----------
    Prinsip (taste skill §4.5): skeletal loader meniru bentuk

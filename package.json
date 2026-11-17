@@ -1,1 +1,17 @@
-{"description":"ADIP Tools — 627 tools gratis berbahasa Indonesia (vanilla JS + Vite).","devDependencies":{"playwright":"1.63.0","vite":"^8.3.8"},"name":"adip-tools","private":true,"scripts":{"build":"vite build","check":"node scripts/check-tools.js","dev":"vite","preview":"vite preview","sync-manifest":"node scripts/sync-manifest.js"},"version":"6.14.0"}
+{
+  "description": "ADIP Tools — 627 tools gratis berbahasa Indonesia (vanilla JS + Vite).",
+  "devDependencies": {
+    "playwright": "1.63.0",
+    "vite": "^8.3.8"
+  },
+  "name": "adip-tools",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "check": "node scripts/check-tools.js",
+    "dev": "vite",
+    "preview": "vite preview",
+    "sync-manifest": "node scripts/sync-manifest.js"
+  },
+  "version": "6.15.0"
+}

@@ -96,13 +96,20 @@ export const HERO_SUB = 'Kalkulator gaji, kompres foto, bikin QR, sampai tools D
 
 /* Baris tiga bukti singkat (§5.2 P1-A). Angka diambil dari
    manifest (parameter n), bukan ditulis mati. Kata "tools"
-   dipakai konsisten mengikuti aturan suara copy §1.2. */
+   dipakai konsisten mengikuti aturan suara copy §1.2.
+   v6.15.0 P1 (temuan 3): tiap bukti jadi chip berikon (gaya di
+   css/polish-p1.css). Teks TIDAK diubah; ikon emoji mengikuti
+   sistem ikon situs ini (semua ikon tool/kategori emoji) dan
+   relevan dengan isinya: laptop = hitungan jalan di perangkat
+   kamu, gembok terbuka = tidak ada yang terkunci di balik akun,
+   tombol FREE = gratis. Chip adalah <li>, bukan tombol: bukti
+   dibaca, bukan diklik. */
 export function heroProofHTML(n) {
   const count = Number(n) || 0;
   return `<ul class="hero-proof" aria-label="Tentang situs ini">
-    <li>Hitungan jalan di browser kamu</li>
-    <li>Tanpa daftar</li>
-    <li>${count} tools, gratis</li>
+    <li><span class="hp-ic" aria-hidden="true">💻</span>Hitungan jalan di browser kamu</li>
+    <li><span class="hp-ic" aria-hidden="true">🔓</span>Tanpa daftar</li>
+    <li><span class="hp-ic" aria-hidden="true">🆓</span>${count} tools, gratis</li>
   </ul>`;
 }
 

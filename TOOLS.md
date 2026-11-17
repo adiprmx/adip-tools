@@ -1,6 +1,6 @@
 # Daftar Tools Adip Tools
 
-> 627 tool · v6.14.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
+> 627 tool · v6.15.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
 
 ## Ringkasan kategori
 
@@ -12,13 +12,13 @@
 | Developer | 50 |
 | Produktivitas | 46 |
 | Fun & Hiburan | 43 |
-| Gambar | 42 |
+| Gambar | 43 |
 | Desain | 39 |
 | Pelajar | 34 |
 | Converter | 33 |
 | Live API | 32 |
-| Musik | 32 |
 | Keamanan | 31 |
+| Musik | 31 |
 | Teks | 28 |
 | Fake Sosmed | 23 |
 | **Total** | **627** |
@@ -374,7 +374,7 @@
 42. **Kalkulator Winrate ML** — Berapa win beruntun biar WR Mobile Legends-mu nyentuh target?
 43. **Zodiak Hari Ini** — Cek zodiakmu + ramalan receh hari ini. Cuma hiburan!
 
-## Gambar (42)
+## Gambar (43)
 
 1. **AI Image** — Generate & edit gambar AI pakai akun Puter milikmu.
 2. **AI Video** — Generate video AI (teks/gambar jadi video) pakai akun Puter milikmu.
@@ -405,19 +405,20 @@
 27. **Meme Generator** — Bikin meme teks atas-bawah + unduh PNG.
 28. **Auto Cut** — Hapus background lalu pecah jadi layer PNG per objek.
 29. **Palet Warna dari Foto** — Ambil 6 warna dominan dari fotomu, atau klik piksel mana pun.
-30. **Pixel Art** — Ubah foto jadi pixel art retro.
-31. **Remove BG** — Hapus background foto otomatis, 100% di perangkat.
-32. **Sensor NIK di Foto** — Tutup nomor identitas di foto dokumen dengan blur atau kotak hitam.
-33. **Smart Cutout** — Ketuk objek di foto → AI pisahkan otomatis, 100% lokal.
-34. **Split Grid Instagram** — Potong foto jadi grid siap posting berurutan ke IG.
-35. **Stempel Tanggal di Foto** — Tambah stempel tanggal oranye ala kamera film ke fotomu.
-36. **Stiker WA Maker** — Ubah foto jadi stiker WhatsApp 512×512 siap pakai.
-37. **SVG ke PNG** — Ubah gambar SVG jadi PNG, atur skala dan latarnya.
-38. **Teks di Foto** — Tambahkan tulisan ke foto.
-39. **Twibbon Maker** — Bikin twibbon: bingkai + pita teks buat fotomu.
-40. **Ubah Ukuran Foto** — Ubah ukuran foto: pas foto, KTP, feed IG, atau ukuran bebas.
-41. **Watermark Foto** — Tempel watermark teks ke foto, unduh PNG.
-42. **Thumbnail YouTube** — Download thumbnail YouTube dari URL.
+30. **Perekam Layar** — Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.
+31. **Pixel Art** — Ubah foto jadi pixel art retro.
+32. **Remove BG** — Hapus background foto otomatis, 100% di perangkat.
+33. **Sensor NIK di Foto** — Tutup nomor identitas di foto dokumen dengan blur atau kotak hitam.
+34. **Smart Cutout** — Ketuk objek di foto → AI pisahkan otomatis, 100% lokal.
+35. **Split Grid Instagram** — Potong foto jadi grid siap posting berurutan ke IG.
+36. **Stempel Tanggal di Foto** — Tambah stempel tanggal oranye ala kamera film ke fotomu.
+37. **Stiker WA Maker** — Ubah foto jadi stiker WhatsApp 512×512 siap pakai.
+38. **SVG ke PNG** — Ubah gambar SVG jadi PNG, atur skala dan latarnya.
+39. **Teks di Foto** — Tambahkan tulisan ke foto.
+40. **Twibbon Maker** — Bikin twibbon: bingkai + pita teks buat fotomu.
+41. **Ubah Ukuran Foto** — Ubah ukuran foto: pas foto, KTP, feed IG, atau ukuran bebas.
+42. **Watermark Foto** — Tempel watermark teks ke foto, unduh PNG.
+43. **Thumbnail YouTube** — Download thumbnail YouTube dari URL.
 
 ## Desain (39)
 
@@ -569,41 +570,6 @@
 31. **Tes Kecepatan Internet** — Tes kecepatan unduh dan latensi koneksimu saat ini.
 32. **Wilayah Indonesia** — Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.
 
-## Musik (32)
-
-1. **Audio Trimmer** — Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.
-2. **Camelot Wheel** — Kunci lagu untuk DJ mixing.
-3. **Kalkulator Chop Sample** — Bagi sample jadi chop: durasi per chop + konversi ke beat.
-4. **Chord Progression** — Progresi akor sesuai nada dasar & mood, bisa dibunyikan.
-5. **Chord Transposer** — Naik-turunkan kunci chord lagu.
-6. **Diagram Chord Gitar** — Lihat diagram jari chord gitar + dengar bunyinya.
-7. **Drum Machine** — Step sequencer drum sederhana.
-8. **ElevenLabs Studio** — Text-to-speech suara AI via API key ElevenLabs milikmu.
-9. **Frekuensi Nada** — Hitung frekuensi Hz dari nama nada + dengarkan.
-10. **Kalkulator Capo** — Bentuk jari + capo = nada apa yang terdengar?
-11. **Kartu Lirik Lagu** — Buat kartu lirik lagu 9:16 untuk dibagikan ke status.
-12. **Konverter Audio** — Ubah audio antar MP3, WAV, FLAC, OGG, dan M4A.
-13. **Kurva Energi Set** — Visualisasi alur energi set DJ: bar chart + statistik peak, valley, rata-rata.
-14. **Latihan Interval** — Asah kuping: tebak jarak 2 nada dalam 10 ronde.
-15. **Metronom** — Metronom dengan birama.
-16. **Panjang Sample** — Bar × BPM jadi detik, atau sebaliknya.
-17. **Pencari Rima** — Cari kata yang berima buat nulis lirik lagu.
-18. **Perekam Layar** — Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.
-19. **Perekam Suara** — Rekam suara dari mikrofon, potong, lalu unduh WebM atau WAV.
-20. **Piano Browser** — Main piano di browser.
-21. **Durasi Playlist** — Total durasi dari daftar lagu.
-22. **Generator Ritme Euclidean** — Pola ritme algoritmik E(k,n) ala Bjorklund + preview.
-23. **Perencana Setlist DJ** — Susun urutan lagu DJ: key Camelot, BPM, durasi, energy + saran transisi.
-24. **Setlist Timer** — Timer setlist manggung: countdown per lagu + total durasi.
-25. **Skala Musik** — Lihat & dengarkan nada-nada dalam tiap skala.
-26. **Tap BPM** — Ketuk layar untuk deteksi tempo.
-27. **Tebak Chord dari Nada** — Ketik nada-nada, tebak nama chordnya, plus kuis dengar chord 3 level.
-28. **Text-to-Speech** — Bacakan teks bahasa Indonesia.
-29. **Tuner Gitar** — Stem gitar pakai mikrofon, deteksi nada otomatis.
-30. **Ukuran File Audio** — Bitrate × durasi jadi ukuran file, atau sebaliknya.
-31. **Delay/Reverb Time dari BPM** — Waktu delay & reverb yang nempel sama BPM.
-32. **White Noise** — Suara fokus & tidur.
-
 ## Keamanan (31)
 
 1. **Analisis URL** — Bedah URL & deteksi pola mencurigakan.
@@ -637,6 +603,40 @@
 29. **Web Encryption** — Kunci HTML jadi file berpassword (AES-256).
 30. **Website Security Scanner** — Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.
 31. **WiFi QR Generator** — QR WiFi siap scan, tamu konek tanpa ketik password.
+
+## Musik (31)
+
+1. **Audio Trimmer** — Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.
+2. **Camelot Wheel** — Kunci lagu untuk DJ mixing.
+3. **Kalkulator Chop Sample** — Bagi sample jadi chop: durasi per chop + konversi ke beat.
+4. **Chord Progression** — Progresi akor sesuai nada dasar & mood, bisa dibunyikan.
+5. **Chord Transposer** — Naik-turunkan kunci chord lagu.
+6. **Diagram Chord Gitar** — Lihat diagram jari chord gitar + dengar bunyinya.
+7. **Drum Machine** — Step sequencer drum sederhana.
+8. **ElevenLabs Studio** — Text-to-speech suara AI via API key ElevenLabs milikmu.
+9. **Frekuensi Nada** — Hitung frekuensi Hz dari nama nada + dengarkan.
+10. **Kalkulator Capo** — Bentuk jari + capo = nada apa yang terdengar?
+11. **Kartu Lirik Lagu** — Buat kartu lirik lagu 9:16 untuk dibagikan ke status.
+12. **Konverter Audio** — Ubah audio antar MP3, WAV, FLAC, OGG, dan M4A.
+13. **Kurva Energi Set** — Visualisasi alur energi set DJ: bar chart + statistik peak, valley, rata-rata.
+14. **Latihan Interval** — Asah kuping: tebak jarak 2 nada dalam 10 ronde.
+15. **Metronom** — Metronom dengan birama.
+16. **Panjang Sample** — Bar × BPM jadi detik, atau sebaliknya.
+17. **Pencari Rima** — Cari kata yang berima buat nulis lirik lagu.
+18. **Perekam Suara** — Rekam suara dari mikrofon, potong, lalu unduh WebM atau WAV.
+19. **Piano Browser** — Main piano di browser.
+20. **Durasi Playlist** — Total durasi dari daftar lagu.
+21. **Generator Ritme Euclidean** — Pola ritme algoritmik E(k,n) ala Bjorklund + preview.
+22. **Perencana Setlist DJ** — Susun urutan lagu DJ: key Camelot, BPM, durasi, energy + saran transisi.
+23. **Setlist Timer** — Timer setlist manggung: countdown per lagu + total durasi.
+24. **Skala Musik** — Lihat & dengarkan nada-nada dalam tiap skala.
+25. **Tap BPM** — Ketuk layar untuk deteksi tempo.
+26. **Tebak Chord dari Nada** — Ketik nada-nada, tebak nama chordnya, plus kuis dengar chord 3 level.
+27. **Text-to-Speech** — Bacakan teks bahasa Indonesia.
+28. **Tuner Gitar** — Stem gitar pakai mikrofon, deteksi nada otomatis.
+29. **Ukuran File Audio** — Bitrate × durasi jadi ukuran file, atau sebaliknya.
+30. **Delay/Reverb Time dari BPM** — Waktu delay & reverb yang nempel sama BPM.
+31. **White Noise** — Suara fokus & tidur.
 
 ## Teks (28)
 

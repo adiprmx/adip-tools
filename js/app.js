@@ -405,7 +405,7 @@ function home() {
     <div id="contd"></div>${baru ? `\n    ${mulaiDariSiniHTML(manifest)}` : ''}
     <section class="sec rise" style="--i:2" id="favSec" aria-label="Favorit"></section>
     <section class="sec rise" style="--i:3" aria-label="Populer">
-      <div class="sechead"><h2>🔥 Populer</h2></div>
+      <div class="sechead"><h2>🔥 Populer</h2><span class="n rail-hint">geser →</span></div>
       <div class="hscroll" id="popRail"></div>
     </section>
     <section class="sec rise" style="--i:4" id="baruSec" aria-label="Baru ditambahkan"></section>
@@ -728,15 +728,17 @@ async function toolPage(id) {
   <div class="wrap narrow view">
     <a class="back" href="#/">← Beranda</a><span id="prevChip"></span>
     <div class="tool-head">
-      <span class="tic" aria-hidden="true">${m.icon}</span>
-      <div class="th">
-        <h2>${T.esc(m.name)}</h2>
-        <div class="meta">
-          <span class="tag">${catLabel(m.cat)}</span>
-          <span class="ds">${T.esc(m.desc || '')}</span>
+      <div class="th-top">
+        <span class="tic" aria-hidden="true">${m.icon}</span>
+        <div class="th">
+          <h2>${T.esc(m.name)}</h2>
         </div>
+        <div class="tacts"><button class="fav icobtn${isFav(m.id) ? ' on' : ''}" data-id="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>${shareButtonHTML(m)}</div>
       </div>
-      <div class="tacts"><button class="fav icobtn${isFav(m.id) ? ' on' : ''}" data-id="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>${shareButtonHTML(m)}</div>
+      <div class="meta">
+        <span class="tag">${catLabel(m.cat)}</span>
+        <span class="ds">${T.esc(m.desc || '')}</span>
+      </div>
     </div>
     <div class="tool glass" id="toolbox"><div class="skel" role="status" aria-label="Memuat alat"><span class="sk-line w45"></span><span class="sk-line h-inp"></span><span class="sk-line w70"></span><span class="sk-line h-inp"></span><span class="sk-line h-area"></span></div></div>
     <div id="methLink"></div>
