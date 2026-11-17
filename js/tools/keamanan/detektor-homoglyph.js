@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 /* Daftar karakter yang tampak seperti huruf Latin padahal bukan.
    Sumber: Unicode confusables yang umum dipakai untuk menipu (Cyrillic,

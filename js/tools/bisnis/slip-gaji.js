@@ -1,6 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
-export const meta = {"id": "slip-gaji", "name": "Slip Gaji", "cat": "bisnis", "icon": "🧾", "desc": "Bikin slip gaji rapi: gaji, tunjangan, potongan — siap cetak.", "keywords": "slip gaji,payroll,gaji karyawan,tunjangan,potongan,cetak gaji"};
+export const meta = {"id": "slip-gaji", "name": "Slip Gaji", "cat": "bisnis", "icon": "🧾", "desc": "Bikin slip gaji rapi: gaji, tunjangan, potongan. Siap cetak.", "keywords": "slip gaji,payroll,gaji karyawan,tunjangan,potongan,cetak gaji"};
 
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan

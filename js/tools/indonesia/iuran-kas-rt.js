@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js?v=6.13.0';
+import { h as T, utils, beep, actx, onLeave } from '../../core.js';
 
 export const meta = {"id": "iuran-kas-rt", "name": "Iuran Kas RT", "cat": "indonesia", "icon": "🧾", "desc": "Hitung iuran per KK, catat siapa sudah bayar, pantau total terkumpul & penunggak.", "keywords": "iuran,kas,rt,rw,kk,bayar,tagihan,penunggak,dana"};
 export function render(root) {

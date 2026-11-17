@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
 export const meta = {"id": "tes-dead-pixel", "name": "Tes Dead Pixel", "cat": "sehari", "icon": "🔍", "desc": "Layar penuh warna bergantian untuk mencari piksel yang mati atau macet.", "keywords": "dead pixel,piksel,layar,monitor,stuck pixel", "since": "6.11.0"};
 

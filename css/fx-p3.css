@@ -1,0 +1,135 @@
+/* ============================================================
+   fx-p3.css — sistem animasi P3 (Adip Tools v6.14.0)
+   Dimuat TERAKHIR di index.html, setelah components.css.
+
+   Isi file ini — semua gerak transform/opacity saja:
+   A. ViewTransition: satu gerakan mendarat per navigasi.
+   B. Skeleton: bentuk meniru konten (garis, kartu, baris).
+      Satu-satunya sistem skeleton yang hidup; .skel i lama
+      (style.css + fx-joy.css §3) dicabut di ronde ini.
+   C. Micro-interaction komponen P2 yang belum punya.
+   D. Grid mantap: entrance kartu hanya paint pertama.
+   E. Reduced motion: semua gerak baru mati di sini.
+
+   Catatan cascade: file ini MENANG atas components.css bila
+   selektornya sama — sengaja, dan HANYA untuk daftar transisi
+   di §C (menambah `transform` ke transisi yang sudah ada).
+   Tidak ada aturan layout di sini; components.css tetap
+   pemilik layout komponen. Token selalu dari style.css.
+   ============================================================ */
+
+/* ---------- A. ViewTransition ----------
+   .view yang lahir di dalam transisi tidak ikut fx-view:
+   snapshot baru sudah difade-in vt-in (style.css) — animasi
+   masuk kedua di dalam snapshot hanya menggandakan gerakan.
+   Kelas ditambahkan app.js route() (flag vtNext) dan menempel
+   di .view itu saja sampai navigasi berikut. */
+.view.fx-vt-in { animation: none; }
+
+/* ---------- B. Skeleton: bentuk meniru konten ----------
+   Prinsip (taste skill §4.5): skeletal loader meniru bentuk
+   layout akhirnya — bukan spinner, bukan teks "Loading...".
+   Satu sapuan shimmer untuk semua bentuk (transform saja,
+   tanpa background-position yang memicu paint tiap frame).
+   Dipakai di toolPage (formulir tool, satu-satunya tunggu
+   async yang nyata di situs ini); kelas .sk-card/.sk-hcard/
+   .sk-row tersedia se-situs untuk titik async berikut. */
+
+.sk-line, .sk-ic, .sk-hic {
+  position: relative; overflow: hidden; flex: none;
+  background: var(--surface-2);
+}
+.sk-line::after, .sk-ic::after, .sk-hic::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.08) 50%, transparent 75%);
+  transform: translateX(-102%);
+  animation: fx-sk-sweep 1.9s var(--ease) infinite;
+}
+@keyframes fx-sk-sweep {
+  0%   { transform: translateX(-102%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(102%); opacity: 0; }
+}
+/* sapuan bergelombang di formulir tool (5 baris, toolPage) */
+.skel > .sk-line:nth-child(2)::after { animation-delay: 0.18s; }
+.skel > .sk-line:nth-child(3)::after { animation-delay: 0.36s; }
+.skel > .sk-line:nth-child(4)::after { animation-delay: 0.54s; }
+.skel > .sk-line:nth-child(5)::after { animation-delay: 0.72s; }
+
+/* garis teks + varian ukuran (meniru .inp / tombol / area hasil) */
+.sk-line { display: block; height: 14px; width: 100%; border-radius: 6px; }
+.sk-line.w25 { width: 25%; }
+.sk-line.w45 { width: 45%; }
+.sk-line.w60 { width: 60%; }
+.sk-line.w70 { width: 70%; }
+.sk-line.h-inp { height: 48px; border-radius: var(--r-ctl); }
+.sk-line.h-btn { height: var(--tap); border-radius: var(--r-ctl); }
+.sk-line.h-area { height: 120px; border-radius: 8px; }
+.sk-line.push { margin-top: auto; }
+
+/* kartu: meniru .tcard (ikon 44 + judul + 2 baris + label bawah) */
+.sk-card {
+  display: flex; flex-direction: column; gap: 10px;
+  border-radius: var(--r-card); padding: 14px 13px 13px;
+  min-height: 128px; min-width: 0;
+  background: var(--surface); border: 1px solid var(--hair);
+}
+.sk-ic { width: 44px; height: 44px; border-radius: var(--r-ctl); }
+.sk-ic.sm { width: 36px; height: 36px; border-radius: 10px; }
+
+/* kartu rail: meniru .hcard (ikon 42 + nama + label) */
+.sk-hcard {
+  flex: 0 0 148px;
+  display: flex; flex-direction: column; gap: 9px;
+  border-radius: var(--r-tile); padding: 14px 13px;
+  background: var(--surface); border: 1px solid var(--hair);
+}
+.sk-hic { width: 42px; height: 42px; border-radius: var(--r-ctl); }
+
+/* baris daftar: ikon + dua garis bertumpuk */
+.sk-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px; }
+.sk-row .sk-col { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 0; }
+
+/* ---------- C. Micro-interaction komponen P2 ----------
+   Yang sudah punya press/hover TIDAK diulang di sini:
+   .btn/.icobtn/.tcard/.hcard/.cattile/.fav/.tab/.schip-di-empty
+   (fx-micro.css), .fchip (upgrade-612.css), .dlg-btn/.btt/.schip
+   (components.css), .allbtn/.morebtn (fx-micro .allbtn),
+   .colcard/.contd (style.css). Di bawah ini hanya yang belum. */
+
+/* navlink + item dropdown: tekan terasa (transisi components.css
+   belum mencakup transform — daftar ini menimpanya dengan sengaja). */
+.navlink { transition: transform 0.12s var(--ease), color 0.15s, background 0.15s; }
+.navlink:active { transform: scale(0.96); }
+.drop-item { transition: transform 0.12s var(--ease), color 0.15s, background 0.15s; }
+.drop-item:active { transform: scale(0.97); }
+/* ikon item dropdown ikut membesar sedikit saat hover — sekeluarga
+   dengan ikon kartu (.tcard:hover .tic, fx-micro.css). */
+.drop-item .di-ic { transition: transform 0.2s var(--spring); }
+.drop-item:hover .di-ic, .drop-item:focus-visible .di-ic { transform: scale(1.12); }
+
+/* chip di luar empty state (pencarian terakhir, lompat Metodologi,
+   filter kategori, saran "Maksud Anda"): angkat 1px saat hover.
+   Transisi .schip di components.css sudah mencakup transform. */
+.schip:hover { transform: translateY(-1px); }
+
+/* ---------- D. Grid mantap ----------
+   .tgrid.fx-steady (dipasang app.js paint() mulai paint ke-2):
+   kartu TIDAK memutar ulang entrance tiap paint ulang pencarian
+   (debounce 180ms) atau filter — 48 kartu yang naik-turun tiap
+   ketikan adalah kedip, bukan umpan balik. Hitungan "N hasil"
+   sudah mengabarkan perubahan. Paint pertama tetap ber-stagger. */
+.tgrid.fx-steady > .tcard { animation: none; }
+
+/* ---------- E. Reduced motion ----------
+   Pertahanan lapis kedua: blok global style.css (durasi 0,01ms)
+   sudah mematikan hampir semua gerak, tapi dua hal tidak
+   terjangkau selektor `*` dan butuh aturan eksplisit di sini:
+   pseudo-element ViewTransition + sapuan skeleton. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none !important; }
+  .sk-line::after, .sk-ic::after, .sk-hic::after { animation: none !important; }
+  .navlink, .drop-item, .drop-item .di-ic, .schip { transition: none !important; }
+}

@@ -1,4 +1,4 @@
-import { h as T, errBox, esc } from '../../core.js?v=6.13.0';
+import { h as T, errBox, esc } from '../../core.js';
 
 // Bandingkan dua JSON secara rekursif. Hasil: daftar jalur yang
 // ditambah, dihapus, atau berubah nilainya, plus ringkasan jumlah.

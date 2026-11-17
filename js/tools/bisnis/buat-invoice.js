@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 export const meta = {"id": "buat-invoice", "name": "Invoice Usaha dengan PPN", "cat": "bisnis", "icon": "🧮", "desc": "Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.", "keywords": "invoice,buat invoice,nota,tagihan,ppn 11%,klien,cetak"};
 

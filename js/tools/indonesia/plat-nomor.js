@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
 // Kode plat nomor kendaraan Indonesia: kode -> [wilayah, contoh daerah]
 const PLAT = {

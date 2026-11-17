@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "htmlvideo", "name": "HTML/WebGL ke MP4", "cat": "desain", "icon": "🎬", "desc": "Render animasi canvas / HTML jadi video MP4 8 detik.", "keywords": "mp4,video,render,animasi,canvas,webcodecs,html,webgl,threejs"};
 

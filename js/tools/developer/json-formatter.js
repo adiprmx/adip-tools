@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, esc, preHtml } from '../../core.js?v=6.13.0';
+import { h as T, utils, errBox, esc, preHtml } from '../../core.js';
 
 // Perbaiki JSON rusak dengan toleransi: komentar, koma berlebih,
 // kutip tunggal, dan kunci tanpa kutip. Scanner karakter, bukan regex
@@ -1006,7 +1006,7 @@ export const SCHEMA_PRESET = {
   },
 };
 
-export const meta = {"id": "json-formatter", "name": "JSON Formatter", "cat": "developer", "icon": "🧩", "desc": "Rapikan, perbaiki, telusuri & validasi JSON — angka besar tetap utuh, schema lengkap ($ref, format, allOf/anyOf/oneOf).", "keywords": "json,format,rapi,validasi,tree,jsonpath,schema,angka besar,ref,statistik"};
+export const meta = {"id": "json-formatter", "name": "JSON Formatter", "cat": "developer", "icon": "🧩", "desc": "Rapikan, perbaiki, telusuri & validasi JSON. Angka besar tetap utuh, schema lengkap ($ref, format, allOf/anyOf/oneOf).", "keywords": "json,format,rapi,validasi,tree,jsonpath,schema,angka besar,ref,statistik"};
 export function render(root) {
 
     const ta = T.ta(8, 'Paste JSON di sini…');

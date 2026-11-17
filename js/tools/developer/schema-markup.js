@@ -1,4 +1,4 @@
-import { h as T, kv, esc, errBox, preHtml } from '../../core.js?v=6.13.0';
+import { h as T, kv, esc, errBox, preHtml } from '../../core.js';
 
 /* Fungsi murni (bisa diuji dari node tanpa DOM). data: objek field per tipe.
    Mengembalikan { json } bila valid, atau { error } bila ada field wajib kosong. */

@@ -1,5 +1,5 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.13.0';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.13.0';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "potong-video", "name": "Potong Video", "cat": "converter", "icon": "✂️", "desc": "Potong durasi video dan ubah bentuk layarnya.", "keywords": "video,potong,trim,crop,layar,rasio,pendek", "since": "6.11.0"};
 

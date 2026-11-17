@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id":"kalkulator-sewa-properti","name":"Kalkulator Sewa Properti","cat":"bisnis","icon":"🔑","desc":"Analisis properti sewa: yield kotor dan bersih, uang masuk per bulan setelah cicilan KPR, hasil dari uang tunai, titik impas hunian, lama balik modal, dan proyeksi 10 tahun.","keywords":"properti,sewa,kos,kontrakan,yield,rental,investasi,balik modal,investasi properti,cash on cash,roi,kpr,proyeksi,titik impas","since":"6.11.0"};
 

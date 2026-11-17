@@ -1,4 +1,4 @@
-import { h as T, utils, kv, dlNodePng } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv, dlNodePng } from '../../core.js';
 
 export const meta = {"id": "surat-jalan", "name": "Pembuat Surat Jalan", "cat": "bisnis", "icon": "🚚", "desc": "Bikin surat jalan pengiriman barang untuk UMKM: pengirim, penerima, daftar barang, tanda tangan, siap cetak.", "keywords": "surat jalan,pengiriman,barang,umkm,ekspedisi,tanda terima,cetak", "since": "6.13.0"};
 

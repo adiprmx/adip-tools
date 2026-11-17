@@ -1,4 +1,4 @@
-import { h as T, utils, errBox } from '../../core.js?v=6.13.0';
+import { h as T, utils, errBox } from '../../core.js';
 
 function wifiString(ssid, pass, enc, hidden) {
   const e = (v) => String(v == null ? '' : v).replace(/([\\;,":])/g, '\\$1');
@@ -8,7 +8,7 @@ function wifiString(ssid, pass, enc, hidden) {
   return s + ';;';
 }
 
-export const meta = {"id": "wifi-qr", "name": "WiFi QR Generator", "cat": "keamanan", "icon": "📶", "desc": "QR WiFi siap scan — tamu konek tanpa ketik password.", "keywords": "wifi,qr,ssid,password,scan,kode wifi,wireless,hotspot"};
+export const meta = {"id": "wifi-qr", "name": "WiFi QR Generator", "cat": "keamanan", "icon": "📶", "desc": "QR WiFi siap scan, tamu konek tanpa ketik password.", "keywords": "wifi,qr,ssid,password,scan,kode wifi,wireless,hotspot"};
 export function render(root) {
 
     const QR_CDN = 'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js';

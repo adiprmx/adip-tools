@@ -57,19 +57,19 @@
 }
 
 /* ---------- transisi route ---------- */
-.view { animation: fx-view 0.38s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)); }
+.view { animation: fx-view 0.38s var(--snappy); }
 
 /* ---------- stagger section: ritardando kuadratik ----------
    --i: 0→1→2… ; jeda = 70ms*i + 9ms*i² (melebar halus, menenangkan) */
 .rise {
   opacity: 0;
-  animation: fx-rise 0.55s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) forwards;
+  animation: fx-rise 0.55s var(--snappy) forwards;
   animation-delay: calc(var(--i, 0) * 70ms + var(--i, 0) * var(--i, 0) * 9ms);
 }
 
 /* ---------- grid kartu: accelerando ----------
    jeda menyempit tiap kartu — seperti ombak yang menyatu */
-.tgrid > .tcard { animation: fx-card 0.5s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both; }
+.tgrid > .tcard { animation: fx-card 0.5s var(--snappy) both; }
 .tgrid > .tcard:nth-child(1)  { animation-delay: 0.02s; }
 .tgrid > .tcard:nth-child(2)  { animation-delay: 0.06s; }
 .tgrid > .tcard:nth-child(3)  { animation-delay: 0.10s; }
@@ -88,7 +88,7 @@
 .tgrid > .tcard:nth-child(16) { animation-delay: 0.326s; }
 
 /* ---------- ubin kategori ---------- */
-.catgrid > .cattile { animation: fx-tile 0.45s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both; }
+.catgrid > .cattile { animation: fx-tile 0.45s var(--snappy) both; }
 .catgrid > .cattile:nth-child(1)  { animation-delay: 0.02s; }
 .catgrid > .cattile:nth-child(2)  { animation-delay: 0.06s; }
 .catgrid > .cattile:nth-child(3)  { animation-delay: 0.095s; }
@@ -105,7 +105,7 @@
 .catgrid > .cattile:nth-child(14) { animation-delay: 0.275s; }
 
 /* ---------- carousel populer: meluncur searah scroll ---------- */
-.hcard { animation: fx-hcard 0.45s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both; }
+.hcard { animation: fx-hcard 0.45s var(--snappy) both; }
 .hcard:nth-child(1) { animation-delay: 0.02s; }
 .hcard:nth-child(2) { animation-delay: 0.07s; }
 .hcard:nth-child(3) { animation-delay: 0.115s; }
@@ -117,8 +117,26 @@
 
 /* ---------- kepala halaman ---------- */
 .pagetitle, .cat-head, .tool-head {
-  animation: fx-head 0.5s var(--snappy, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  animation: fx-head 0.5s var(--snappy) both;
 }
+
+/* ---------- kartu lebar Koleksi (P2-B1): stagger mengikuti seksi ----------
+   Seksi Koleksi adalah .rise --i:6 (jeda 744ms = 70*6 + 9*36) — kartu
+   diberi jeda yang sama supaya stagger terlihat SAAT seksi mendarat,
+   bukan selesai duluan di balik opacity:0 induknya. Bila urutan seksi
+   beranda berubah, sesuaikan angka ini dengan rumus .rise di atas. */
+.colgrid > .colcard { animation: fx-card 0.5s var(--snappy) both; }
+.colgrid > .colcard:nth-child(1) { animation-delay: 0.78s; }
+.colgrid > .colcard:nth-child(2) { animation-delay: 0.82s; }
+.colgrid > .colcard:nth-child(3) { animation-delay: 0.86s; }
+.colgrid > .colcard:nth-child(4) { animation-delay: 0.90s; }
+
+/* ---------- hcard di GRID (bukan rail): naik, bukan meluncur ----------
+   .hcard di .hgrid (Baru ditambahkan) + .coba-grid (Coba dulu) adalah
+   grid statis P2-B1 — gerakan meluncur dari kanan milik rail
+   (.hscroll) yang bisa digeser. Di grid, kartu naik seperti kartu
+   lain (fx-card); jeda stagger .hcard tetap dipakai. */
+.hgrid > .hcard, .coba-grid > .hcard { animation-name: fx-card; }
 
 /* ikon kepala tool: pop pegas (menggantikan tic-pop yang lama) */
 .tool-head .tic { animation: fx-iconpop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
@@ -128,6 +146,7 @@
 @media (prefers-reduced-motion: reduce) {
   .view, .rise,
   .tgrid > .tcard, .catgrid > .cattile, .hcard,
+  .colgrid > .colcard,
   .pagetitle, .cat-head, .tool-head, .tool-head .tic,
   .hero h1 .w {
     animation: none !important;

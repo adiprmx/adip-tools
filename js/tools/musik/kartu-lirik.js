@@ -1,4 +1,4 @@
-import { h as T, utils, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js?v=6.13.0';
+import { h as T, utils, fileInput, loadImage, canvasToBlob, LOCAL_NOTE } from '../../core.js';
 
 // Logika murni (bisa di-test di Node): rata-rata warna dari piksel (data RGBA).
 utils.warnaRataRata = function (data) {

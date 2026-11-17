@@ -12,63 +12,57 @@
      Populer, grid Kategori, rantai "Lanjut ke": SUDAH ADA.
 
    YANG MASIH KURANG dan dibangun di sini:
-   A. Showcase "Baru ditambahkan" di beranda — carousel tool baru
+   A. Showcase "Baru ditambahkan" di beranda — grid tool baru
       (since === VERSION). Beranda saat ini TIDAK punya section ini;
       tool baru hanya kelihatan lewat chip filter di #/semua.
+      (v6.14.0 P2-B1: dulu carousel, kini grid statis .hgrid —
+      semua 8 tool terlihat tanpa geser; V-07.)
    B. Meta kategori — deskripsi satu baris + 3 tool unggulan per
       kategori, untuk halaman #/k/<id> yang saat ini cuma judul +
       jumlah + grid tanpa pengantar.
    C. (OPSIONAL) "Coba tool acak" — tombol jelajah di beranda.
 
-   KONTRAK:
+   TAMBAHAN v6.14.0 (P0-C, modernisasi shell):
+   D. Helper view beranda yang dulu tinggal di app.js pindah ke sini:
+      renderContinue ("Lanjutkan"), renderPopuler (rail Populer),
+      renderRecent (carousel Riwayat), greet, rotasi placeholder
+      hero. app.js kini hanya memanggilnya dari home().
+   E. Duplikasi dicabut: hcardHTML + watchFadeX kini satu sumber di
+      shell-ui.js; label kategori + SEARCH_DENY kini satu sumber di
+      catalog.js. attachRailFade dipertahankan sebagai alias
+      re-export supaya pemanggil lama tidak rusak.
+   F. renderPopuler() kini menerima daftar istilah populer sebagai
+      parameter (bukan membaca state Supabase di app.js) — app.js
+      yang mengambil istilahnya lewat supabase.js lalu mengopernya.
+
+   KONTRAK (diperbarui v6.14.0):
    - Murni + tanpa side effect di top-level: semua fungsi menerima
      manifest sebagai parameter, supaya bisa dites tanpa browser.
+     (Pengecualian v6.14.0: renderContinue/renderRecent membaca
+     riwayat dari store.js dan renderPopuler menerima istilah
+     populer sebagai parameter — ketiganya render ke DOM beranda,
+     sesuai tugas barunya sebagai pemilik view beranda.)
    - Hanya memakai kelas CSS yang SUDAH ADA di css/style.css
      (.sec, .sechead, .hscroll, .hcard, .glass, .rise, .allbtn)
-     + inline style meniru pola app.js. Tanpa CSS baru.
+     + kelas baru P2-B1 (.hgrid, .coba-grid — lihat seksi
+     "DASHBOARD v6.14.0" di akhir style.css) + inline style
+     meniru pola app.js.
    - Aksen PUTIH saja (chip BARU memakai gaya inline yang sama
      persis dengan cardEl di app.js). Copy bahasa Indonesia
      sehari-hari; tanpa klaim popularitas yang tidak terukur.
    ============================================================ */
-import { esc } from './core.js?v=6.13.0';
+import { esc } from './core.js';
+import { SEARCH_DENY, byId } from './catalog.js';
+import { getRecent } from './store.js';
+import { hcardHTML, watchFadeX } from './shell-ui.js';
+import { rankedSearchPlus } from './search-plus.js';
 
-/* selaras dengan SEARCH_DENY di app.js */
-const SEARCH_DENY = ['muse-test'];
+/* Alias kompatibilitas: fade tepi carousel kini satu sumber di
+   shell-ui.js (watchFadeX); nama lama tetap diekspor supaya
+   pemanggil yang memakai attachRailFade tidak rusak. */
+export { watchFadeX as attachRailFade } from './shell-ui.js';
+
 const visible = (m) => Boolean(m) && !SEARCH_DENY.includes(m.id);
-
-/* label kategori — salinan CATS di app.js (fallback bila pemanggil
-   tidak mengoper label sendiri). Bila label berubah di app.js,
-   ubah juga di sini. */
-const CAT_LABEL = {
-  keamanan: 'Keamanan', converter: 'Converter', developer: 'Dev & Web',
-  desain: 'Desain', indonesia: 'Indonesia', musik: 'Musik', gambar: 'Gambar',
-  teks: 'Teks', bisnis: 'Bisnis', sehari: 'Sehari-hari', fun: 'Fun',
-  produktivitas: 'Produktivitas', pelajar: 'Pelajar', liveapi: 'Live API',
-  fakesos: 'Fake Sosmed',
-};
-const catLabel = (id) => CAT_LABEL[id] || 'Lainnya';
-
-/* kartu horizontal — salinan hcardHTML di app.js (dipakai Populer,
-   Riwayat, "Lanjut ke"). Disalin supaya modul ini mandiri dan tidak
-   bergantung pada fungsi privat app.js. */
-const hcardHTML = (m) => `
-  <a class="hcard glass" href="#/t/${m.id}" aria-label="${esc(m.name)}">
-    <span class="hic" aria-hidden="true">${m.icon}</span>
-    <span class="hnm">${esc(m.name)}</span>
-    <span class="hct">${esc(catLabel(m.cat))}</span>
-  </a>`;
-
-/* fade tepi carousel — cerminan watchFadeX di app.js. Disalin supaya
-   modul ini mandiri; perilakunya identik (kelas .fx-r/.fx-l). */
-export function attachRailFade(rail) {
-  if (!rail || typeof rail.addEventListener !== 'function') return;
-  const upd = () => {
-    rail.classList.toggle('fx-r', rail.scrollWidth - rail.scrollLeft - rail.clientWidth > 4);
-    rail.classList.toggle('fx-l', rail.scrollLeft > 4);
-  };
-  rail.addEventListener('scroll', upd, { passive: true });
-  upd();
-}
 
 /* ================= A. SHOWCASE "BARU DITAMBAHKAN" =================
    Fakta audit: field `since` di manifest HANYA diisi untuk rilis
@@ -127,7 +121,7 @@ export function baruSectionHTML(tools, { version = '', mode = 'strict' } = {}) {
     : `dari versi ${version}`;
   return `
     <div class="sechead"><h2>✨ Baru ditambahkan</h2><span class="n">${esc(sub)}</span></div>
-    <div class="hscroll" id="baruRail">${tools.map(hcardHTML).join('')}</div>`;
+    <div class="hgrid">${tools.map(hcardHTML).join('')}</div>`;
 }
 
 /* Render showcase ke wadah <section id="baruSec"> di beranda.
@@ -150,9 +144,6 @@ export function renderBaru(host, manifest, version, { limit = 8 } = {}) {
   }
   host.style.display = '';
   host.innerHTML = baruSectionHTML(tools, { version: v, mode });
-  const rail = typeof host.querySelector === 'function'
-    ? host.querySelector('#baruRail') : null;
-  if (rail) attachRailFade(rail);
   return true;
 }
 
@@ -171,7 +162,7 @@ export const CAT_META = {
   desain: { desc: 'Bikin tampilan lebih bagus: warna, QR, gradasi, sampai mockup HP.', unggulan: ['qr-generator', 'palette', 'gradient'] },
   indonesia: { desc: 'Hitungan khas Indonesia: THR, pajak, weton, sampai biaya SIM dan STNK.', unggulan: ['weton', 'thr', 'pph21'] },
   musik: { desc: 'Buat yang main musik atau DJ: tempo, chord, sampai rencana setlist.', unggulan: ['camelot', 'metronome', 'tap-bpm'] },
-  gambar: { desc: 'Olah foto langsung di browser: kompres, potong, hapus latar — tanpa upload.', unggulan: ['image-compress', 'removebg', 'crop-pas-foto'] },
+  gambar: { desc: 'Olah foto langsung di browser: kompres, potong, hapus latar. Tanpa upload.', unggulan: ['image-compress', 'removebg', 'crop-pas-foto'] },
   teks: { desc: 'Ubah dan hitung teks: jumlah kata, format WA, sampai bikin hashtag.', unggulan: ['word-counter', 'wa-formatter', 'generator-hashtag'] },
   bisnis: { desc: 'Hitung usaha dan gaji: harga jual, invoice, sampai gaji bersih setelah potongan.', unggulan: ['kalkulator-gaji-bersih', 'buat-invoice', 'harga-jual'] },
   sehari: { desc: 'Keperluan sehari-hari: kesehatan, rumah, hewan peliharaan, sampai tes HP.', unggulan: ['bmi', 'kalori-makanan', 'stopwatch'] },
@@ -179,7 +170,7 @@ export const CAT_META = {
   produktivitas: { desc: 'Biar kerja lebih rapi: CV, timer fokus, PDF, sampai catatan harian.', unggulan: ['pembuat-cv', 'pomodoro', 'pdflab'] },
   pelajar: { desc: 'Bantu belajar: kalkulator, flashcard, sampai latihan SKD CPNS.', unggulan: ['kalkulator-umum', 'flashcard', 'ipk'] },
   liveapi: { desc: 'Data langsung dari internet: jadwal sholat, gempa, kurs, cuaca, dan lainnya.', unggulan: ['jadwal-sholat', 'gempa-bmkg', 'kurs-cuaca'] },
-  fakesos: { desc: 'Bikin tangkapan layar bohongan buat lucu-lucuan — jangan dipakai untuk menipu.', unggulan: ['fake-chat-wa', 'fake-post-ig', 'fake-tweet'] },
+  fakesos: { desc: 'Bikin tangkapan layar bohongan buat lucu-lucuan. Jangan dipakai untuk menipu.', unggulan: ['fake-chat-wa', 'fake-post-ig', 'fake-tweet'] },
 };
 
 export function catMeta(catId) {
@@ -203,7 +194,7 @@ export function catIntroHTML(catId, manifest) {
   const top = catUnggulan(catId, manifest);
   const strip = top.length ? `
     <div class="sechead" style="margin-top:18px"><h2>Coba dulu</h2><span class="n">mulai dari sini</span></div>
-    <div class="hscroll" id="catTopRail">${top.map(hcardHTML).join('')}</div>` : '';
+    <div class="coba-grid">${top.map(hcardHTML).join('')}</div>` : '';
   return `
     <p class="rise" style="--i:1;font-size:14px;line-height:1.6;color:var(--mut);margin:-6px 0 16px">${esc(meta.desc)}</p>${strip}`;
 }
@@ -215,9 +206,6 @@ export function renderCatIntro(host, catId, manifest) {
   const html = catIntroHTML(catId, manifest);
   if (!html) { host.innerHTML = ''; return false; }
   host.innerHTML = html;
-  const rail = typeof host.querySelector === 'function'
-    ? host.querySelector('#catTopRail') : null;
-  if (rail) attachRailFade(rail);
   return true;
 }
 
@@ -239,4 +227,92 @@ export function acakButtonHTML(riseIndex = 7) {
       <span>🎲 Coba tool acak</span>
       <span class="ago" aria-hidden="true">→</span>
     </button>`;
+}
+
+/* ================= D. HELPER VIEW BERANDA (pindah dari app.js, v6.14.0) =================
+   Fungsi-fungsi di bawah ini HANYA dipakai view beranda home() — dipindah
+   ke sini supaya app.js tinggal mengorkestrasi view, bukan menampung
+   semua helpernya. Isi fungsi verbatim dari app.js v6.13.0, kecuali
+   renderPopuler() yang kini menerima daftar istilah populer sebagai
+   parameter (lihat catatan F di header). */
+
+/* ---------------- sapaan waktu ---------------- */
+export function greet() {
+  const h = new Date().getHours();
+  if (h >= 4 && h < 11) return 'Selamat pagi';
+  if (h >= 11 && h < 15) return 'Selamat siang';
+  if (h >= 15 && h < 19) return 'Selamat sore';
+  return 'Selamat malam';
+}
+const timeAgo = (ts) => {
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60) return 'baru saja';
+  if (s < 3600) return Math.floor(s / 60) + ' mnt lalu';
+  if (s < 86400) return Math.floor(s / 3600) + ' jam lalu';
+  return Math.floor(s / 86400) + ' hari lalu';
+};
+
+/* placeholder hero: contoh nyata, rotasi 3 dtk */
+export const PH_EXAMPLES = [
+  'Coba "gaji"...', 'Coba "weton"...', 'Coba "gaji pokok"...', 'Coba "kompres foto"...',
+  'Coba "qr"...', 'Coba "password"...', 'Coba "camelot"...', 'Coba "THR"...',
+];
+/* satu timer bersama (T02 B5): kunjungan beranda berulang tidak menumpuk interval.
+   Router memanggil stopPlaceholderRotation() tiap ganti view. */
+let phTimer = null;
+export function startPlaceholderRotation(input) {
+  clearInterval(phTimer);
+  let i = 0;
+  phTimer = setInterval(() => { if (document.body.contains(input)) { i = (i + 1) % PH_EXAMPLES.length; input.placeholder = PH_EXAMPLES[i]; } }, 3000);
+}
+export function stopPlaceholderRotation() {
+  clearInterval(phTimer);
+}
+
+/* kartu "Lanjutkan": alat terakhir dibuka */
+export function renderContinue() {
+  const host = document.getElementById('contd');
+  if (!host) return;
+  const r = getRecent()[0];
+  const m = r && byId(r.id);
+  if (!m) { host.innerHTML = ''; return; }
+  host.innerHTML = `
+    <a class="contd glass rise" style="--i:1" href="#/t/${m.id}">
+      <span class="cic" aria-hidden="true">${m.icon}</span>
+      <span class="ctx">
+        <span class="clbl">Lanjutkan</span>
+        <span class="cnm">${esc(m.name)}</span>
+        <span class="cts">dibuka ${timeAgo(r.t)}</span>
+      </span>
+      <span class="cgo" aria-hidden="true">→</span>
+    </a>`;
+}
+
+/* Populer: istilah populer -> tool teratas tiap istilah.
+   `terms` = istilah dari Supabase (supabase.js); kosong/undefined =
+   daftar fallback yang sama seperti dulu. */
+export function renderPopuler(terms, manifest) {
+  const rail = document.getElementById('popRail');
+  if (!rail) return;
+  const list = (terms && terms.length) ? terms : ['kalkulator thr', 'weton jawa', 'kompres gambar', 'password aman', 'camelot wheel', 'qr code'];
+  const seen = new Set(), tools = [];
+  for (const t of list) {
+    const hit = rankedSearchPlus(t, manifest)[0];
+    if (hit && !seen.has(hit.id) && !SEARCH_DENY.includes(hit.id)) { seen.add(hit.id); tools.push(hit); }
+    if (tools.length >= 8) break;
+  }
+  rail.innerHTML = tools.map(hcardHTML).join('');
+  watchFadeX(rail);
+}
+
+/* Riwayat: carousel tool terakhir dibuka */
+export function renderRecent() {
+  const rail = document.getElementById('recRail');
+  const sec = document.getElementById('recSec');
+  if (!rail || !sec) return;
+  const recs = getRecent().map((x) => byId(x.id)).filter(Boolean).slice(0, 10);
+  if (!recs.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  rail.innerHTML = recs.map(hcardHTML).join('');
+  watchFadeX(rail);
 }

@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.13.0';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"html-ke-pdf","name":"HTML ke PDF","cat":"converter","icon":"📄","desc":"Ubah kode HTML jadi file PDF ukuran A4.","keywords":"html,pdf,konversi,dokumen,cetak,a4","since":"6.11.0"};
 

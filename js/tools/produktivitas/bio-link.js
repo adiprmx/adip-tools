@@ -1,4 +1,4 @@
-import { h as T, utils, esc, fileInput } from '../../core.js?v=6.13.0';
+import { h as T, utils, esc, fileInput } from '../../core.js';
 
 // Logika murni (bisa di-test di Node): susun satu file HTML halaman tautan.
 utils.buatBioLinkHTML = function (d) {

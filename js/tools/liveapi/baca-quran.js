@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.13.0';
+import { h as T, errBox } from '../../core.js';
 
 // Baca Al-Quran lewat API gratis AlQuran Cloud (tanpa key).
 // Terverifikasi 14 Nov 2026: /v1/surah (114 surah), /v1/surah/1 (teks Arab),

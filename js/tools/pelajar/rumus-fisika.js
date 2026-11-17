@@ -1,6 +1,6 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
-export const meta = {"id":"rumus-fisika","name":"Rumus Fisika","cat":"pelajar","icon":"🔬","desc":"Isi yang diketahui, kosongkan satu — jawabannya dihitung + langkahnya.","keywords":"fisika,rumus,glb,glbb,gaya,usaha,daya,energi kinetik,gerak lurus,percepatan"};
+export const meta = {"id":"rumus-fisika","name":"Rumus Fisika","cat":"pelajar","icon":"🔬","desc":"Isi yang diketahui, kosongkan satu, jawabannya dihitung + langkahnya.","keywords":"fisika,rumus,glb,glbb,gaya,usaha,daya,energi kinetik,gerak lurus,percepatan"};
 
 // Angka ala Indonesia: 12.5 -> "12,5"
 const fn = (x) => Number(x).toLocaleString('id-ID', { maximumFractionDigits: 4 });

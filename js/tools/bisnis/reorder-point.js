@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id": "reorder-point", "name": "Titik Pesan Ulang Stok", "cat": "bisnis", "icon": "📋", "desc": "Ketahui di stok berapa harus pesan lagi, supaya barang tidak habis sebelum kiriman datang.", "keywords": "reorder point,rop,stok,pesan ulang,inventory,safety stock,lead time", "since": "6.11.0"};
 export function render(root) {

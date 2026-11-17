@@ -15,7 +15,7 @@ import json, os, re, shutil, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JS = os.path.join(ROOT, 'js')
-VERSION = '6.13.0'
+VERSION = '6.14.0'
 
 # --- PENGAMAN (T05, 15 Nov 2026) -------------------------------------------
 # Skrip ini adalah generator SATU KALI untuk migrasi Fase 2 (100 tool).
@@ -199,7 +199,10 @@ for t in tools:
 
     # pastikan shared yang dibutuhkan ada di import (transitif via shared lain sudah di core.js)
     lines = []
-    lines.append(f"import {{ {', '.join(core_imports)} }} from '../../core.js?v={VERSION}';")
+    # Import core TANPA ?v= (v6.14.0+): Vite memberi hash nama file secara
+    # otomatis; ?v= di specifier import membuat Vite menganggapnya modul
+    # berbeda (duplikasi instance core.js -> leaveCbs/actx ganda).
+    lines.append(f"import {{ {', '.join(core_imports)} }} from '../../core.js';")
     lines.append('')
     for d in priv:
         lines.append(d['source'])

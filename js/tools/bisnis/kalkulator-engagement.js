@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 export const meta = {"id": "kalkulator-engagement", "name": "Kalkulator Engagement Rate", "cat": "bisnis", "icon": "❤️", "desc": "Hitung engagement rate konten TikTok, Instagram, dan YouTube dari like, komen, share, dan views.", "keywords": "engagement rate,er,konten,tiktok,instagram,youtube,kreator,endorse,like,komen,share", "since": "6.13.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, tabs, errBox, esc } from '../../core.js?v=6.13.0';
+import { h as T, tabs, errBox, esc } from '../../core.js';
 
 // Enkripsi teks AES-GCM (WebCrypto). Kunci diturunkan dari kata sandi
 // dengan PBKDF2 (250.000 iterasi, SHA-256). Format hasil:

@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "konversi-nilai", "name": "Konversi Nilai", "cat": "pelajar", "icon": "🔄", "desc": "Angka, huruf, atau skala 4.0 — ubah dua arah.", "keywords": "nilai,konversi,grade,huruf,skala,ipk,angka,rapor"};
+export const meta = {"id": "konversi-nilai", "name": "Konversi Nilai", "cat": "pelajar", "icon": "🔄", "desc": "Angka, huruf, atau skala 4.0, ubah dua arah.", "keywords": "nilai,konversi,grade,huruf,skala,ipk,angka,rapor"};
 export function render(root) {
 
     const SKALA = [

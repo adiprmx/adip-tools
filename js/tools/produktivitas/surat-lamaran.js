@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "surat-lamaran", "name": "Pembuat Surat Lamaran", "cat": "produktivitas", "icon": "✉️", "desc": "Bikin surat lamaran kerja formal Bahasa Indonesia dari form singkat, siap salin atau cetak.", "keywords": "surat lamaran,lamaran kerja,lamar kerja,contoh surat lamaran,fresh graduate"};
 

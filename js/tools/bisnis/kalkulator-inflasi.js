@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 export const meta = {"id": "kalkulator-inflasi", "name": "Kalkulator Inflasi Rupiah", "cat": "bisnis", "icon": "💸", "desc": "Nilai rupiah dulu vs sekarang dari data inflasi BPS 2010–2025, plus proyeksi daya beli ke depan.", "keywords": "inflasi,bps,nilai rupiah,daya beli,harga dulu,harga sekarang,ihk", "since": "6.13.0"};
 

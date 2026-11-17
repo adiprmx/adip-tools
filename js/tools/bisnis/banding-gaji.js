@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, money, kv } from '../../core.js';
 
 // Batas upah untuk hitung iuran (terverifikasi Nov 2026):
 // BPJS Kesehatan maks Rp12.000.000 (Perpres 82/2018 jo Perpres 64/2020),

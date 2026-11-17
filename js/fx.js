@@ -3,8 +3,9 @@
    Murni enhancement: tidak mengubah markup/logika app, hanya
    menempel via event delegation di document. Semua efek
    nonaktif bila prefers-reduced-motion aktif.
-   Wiring (oleh parent): <script type="module" src="js/fx.js?v=...">
-   diletakkan setelah script app.js di index.html.
+   Wiring (oleh parent): <script type="module" src="js/fx.js">
+   diletakkan setelah script app.js di index.html (Vite membundel
+   keduanya; nama file ber-hash menggantikan ?v= manual).
    ============================================================ */
 
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -24,7 +25,7 @@ const FINE_POINTER = matchMedia('(pointer: fine)').matches;
    tengah klik, dan tidak ada efek samping layout permanen.
    Visual ripple tidak berubah: span + animasi sama persis. */
 function initRipple() {
-  const SEL = '.btn,.icobtn,.tcard,.cattile,.hcard,.allbtn,.contd,.schip,.back,.tab';
+  const SEL = '.btn,.icobtn,.tcard,.cattile,.hcard,.colcard,.morebtn,.allbtn,.contd,.schip,.back,.tab';
   // el -> { n: ripple aktif, down: pointer yang masih menekan,
   //         prevOverflow, prevMinWidth: nilai inline sebelum dikunci }
   const locks = new WeakMap();
@@ -110,7 +111,7 @@ function initRipple() {
    (Hanya kartu/ubin: base style mereka = state akhir, aman dibebaskan.
     .rise/.w punya opacity:0 bawaan → JANGAN dibebaskan.) ---------- */
 function initFreeEntrance() {
-  const SEL = '.tcard,.hcard,.cattile';
+  const SEL = '.tcard,.hcard,.cattile,.colcard';
   const ENTRANCE = new Set(['fx-card', 'fx-hcard', 'fx-tile', 'rise-in']);
   document.addEventListener('animationend', (e) => {
     const t = e.target;
@@ -218,11 +219,38 @@ function initConfetti() {
   });
 }
 
+/* ---------- 4. COUNT-UP PILL NAVBAR: "627 tools" naik dari 0 ----------
+   P3 (v6.14.0): count-up lama di home() (app.js) MATI sejak P2-B2 —
+   renderNavbar() menghapus header.top home() yang berisi
+   [data-countup] SEBELUM rAF pertamanya jalan (app.js route()
+   sinkron: home() lalu enhanceRoute()). Count-up kini tinggal di
+   sini, menyasar pill SHELL (.top-shell .topcount b) yang selalu
+   ada di semua route. Angka dibaca dari teks pill itu sendiri
+   (data nyata manifest, bukan hardcode). Jalan SEKALI per muat
+   halaman: navbar di-render ulang tiap route, pill berikutnya
+   tampil statis di angka akhir (bukan mengulang hitungan).
+   Durasi + easing sama dengan count-up lama (900ms, easeOutQuart).
+   Hormat reduced-motion via gerbang !RM di bawah. ---------- */
+function initPillCountUp() {
+  const b = document.querySelector('.top-shell .topcount b');
+  if (!b) return;
+  const target = parseInt(b.textContent.replace(/\D/g, ''), 10) || 0;
+  if (target <= 0) return;
+  const t0 = performance.now(), dur = 900;
+  const tick = (t) => {
+    const p = Math.min(1, (t - t0) / dur);
+    b.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 /* ---------- jalan ---------- */
 if (!RM) {
   initFreeEntrance();
   initRipple();
   initTilt();
   initConfetti();
+  initPillCountUp();
 }
 // RM aktif → modul no-op total, tidak ada listener terpasang.

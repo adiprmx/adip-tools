@@ -1,6 +1,6 @@
 # Daftar Tools Adip Tools
 
-> 627 tool · v6.13.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
+> 627 tool · v6.14.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
 
 ## Ringkasan kategori
 
@@ -30,8 +30,8 @@
 3. **Perbandingan Harga** — Mana lebih hemat per unit?
 4. **Beli vs Sewa** — Bandingkan total biaya beli vs sewa + titik impasnya.
 5. **Kalkulator BEP UMKM** — Hitung titik impas: berapa unit & rupiah.
-6. **Berat Volumetrik Paket** — Hitung berat volumetrik paket dan bandingkan dengan berat timbangan — yang lebih besar itulah yang ditagih kurir.
-7. **Hitung Biaya PayLater** — Lihat total yang benar-benar dibayar kalau belanja pakai PayLater — pokok, bunga, biaya, dan denda kalau telat.
+6. **Berat Volumetrik Paket** — Hitung berat volumetrik paket dan bandingkan dengan berat timbangan. Yang lebih besar itulah yang ditagih kurir.
+7. **Hitung Biaya PayLater** — Lihat total yang benar-benar dibayar kalau belanja pakai PayLater: pokok, bunga, biaya, dan denda kalau telat.
 8. **Break-Even Point** — Jual berapa unit biar modal balik? Cari titik impasmu.
 9. **Invoice Usaha dengan PPN** — Invoice usaha: item dinamis, PPN 11% opsional, preview siap cetak.
 10. **Kalkulator Cat** — Kebutuhan cat dari luas ruangan.
@@ -70,7 +70,7 @@
 43. **Kalkulator PPN** — Bedah harga jadi DPP + PPN, include maupun exclude.
 44. **Kalkulator Pre-Order** — Tentukan harga jual per slot & estimasi laba pre-order batch.
 45. **Kalkulator ROI** — Ukur balik modal: ROI %, profit, dan payback period.
-46. **Kalkulator Beli Rumah** — Harga rumah yang terjangkau dari penghasilan: batas cicilan bisa diatur, biaya awal ikut dihitung, sisa penghasilan, banding tenor — plus cek cicilan rumah incaran.
+46. **Kalkulator Beli Rumah** — Harga rumah yang terjangkau dari penghasilan: batas cicilan bisa diatur, biaya awal ikut dihitung, sisa penghasilan, banding tenor, plus cek cicilan rumah incaran.
 47. **Kalkulator Runway Usaha** — Kas usaha cukup berapa bulan? Hitung runway dari kas dan burn rate, plus skenario potong biaya.
 48. **Kalkulator Sewa Properti** — Analisis properti sewa: yield kotor dan bersih, uang masuk per bulan setelah cicilan KPR, hasil dari uang tunai, titik impas hunian, lama balik modal, dan proyeksi 10 tahun.
 49. **Kalkulator Tabungan** — Kapan target tabunganmu tercapai?
@@ -80,7 +80,7 @@
 53. **Konverter Gaji** — Ubah gaji per jam, hari, minggu, bulan, atau tahun.
 54. **Simulasi KPR** — Simulasi cicilan KPR: anuitas/flat, bunga fixed lalu floating, extra payment, biaya awal, cek keterjangkauan & banding skenario.
 55. **Pembuat Kwitansi** — Bikin kwitansi pembayaran yang rapi dengan terbilang otomatis, siap cetak atau dibagikan.
-56. **Laba Rugi Sederhana** — Catat pemasukan, HPP & operasional — langsung ketahuan laba bersihmu.
+56. **Laba Rugi Sederhana** — Catat pemasukan, HPP & operasional, langsung ketahuan laba bersihmu.
 57. **Margin vs Markup** — Bedain margin & markup, plus cari harga jual dari target.
 58. **Generator Nama Brand** — Racik kata jadi nama brand yang catchy.
 59. **Hitung Penghasilan Ojol** — Berapa yang benar-benar masuk kantong setelah potongan aplikasi?
@@ -89,8 +89,8 @@
 62. **ROAS Iklan** — Cek apakah uang iklan balik modal: ROAS, untung iklan, dan berapa penjualan supaya iklan impas.
 63. **Simulasi Deposito** — Simulasi bunga deposito: bruto, pajak 20%, dan hasil bersih yang kamu terima.
 64. **Simulasi Franchise** — Hitung BEP franchise: biaya awal, royalti, omzet → balik modal berapa bulan?
-65. **Simulasi Cicilan KUR** — Hitung cicilan KUR per bulan dari plafon, jenis KUR, dan tenor — sebelum ke bank.
-66. **Slip Gaji** — Bikin slip gaji rapi: gaji, tunjangan, potongan — siap cetak.
+65. **Simulasi Cicilan KUR** — Hitung cicilan KUR per bulan dari plafon, jenis KUR, dan tenor, sebelum ke bank.
+66. **Slip Gaji** — Bikin slip gaji rapi: gaji, tunjangan, potongan. Siap cetak.
 67. **Struk Belanja** — Bikin struk belanja untuk toko sendiri, siap dibagikan sebagai gambar.
 68. **Pembuat Surat Jalan** — Bikin surat jalan pengiriman barang untuk UMKM: pengirim, penerima, daftar barang, tanda tangan, siap cetak.
 69. **Target Omzet** — Dari target laba dan biaya tetap, ketahuan omzet dan jumlah unit yang harus terjual tiap hari.
@@ -162,7 +162,7 @@
 62. **Tes Layar Sentuh** — Gambar jejak sentuhan, cek area layar yang mati dan sentuhan banyak jari.
 63. **Tes Webcam** — Lihat pratinjau kamera dan cek resolusi yang benar-benar dipakai.
 64. **Timer Kontraksi** — Catat durasi & jarak kontraksi melahirkan + cek aturan 5-1-1 kapan ke rumah sakit.
-65. **Timer Masak** — Timer masak untuk telur, mie, nasi — bunyi saat matang.
+65. **Timer Masak** — Timer masak untuk telur, mie, nasi, bunyi saat matang.
 66. **Umur Anjing ke Umur Manusia** — Umur anjing diubah ke umur manusia, disesuaikan ukuran rasnya.
 67. **Umur Kucing ke Umur Manusia** — Umur kucing diubah ke umur manusia, lengkap dengan tahap hidupnya.
 68. **Waktu Steril Hewan** — Kapan waktu steril yang dianjurkan untuk kucing dan anjing, dari tanggal lahir.
@@ -170,7 +170,7 @@
 
 ## Indonesia (55)
 
-1. **Anggaran Lebaran** — Rencana biaya mudik: transport, THR, parcel, zakat — plus tips hemat.
+1. **Anggaran Lebaran** — Rencana biaya mudik: transport, THR, parcel, zakat, plus tips hemat.
 2. **Anggaran Nikah** — Bagi-bagi budget nikah per pos, biar nggak jebol di tengah jalan.
 3. **Arisan Picker** — Kocok nama anggota arisan.
 4. **Biaya Balik Nama** — Estimasi biaya balik nama motor & mobil.
@@ -202,7 +202,7 @@
 30. **Dana Darurat** — Hitung target dana darurat ideal + progres menabungmu.
 31. **Kalkulator Emas** — Hitung harga emas dari berat, atau berat emas dari budget-mu.
 32. **Kalkulator Gadai** — Simulasi gadai: taksiran barang → plafon pinjaman, sewa modal, total tebus.
-33. **Kalkulator Kurban** — Patungan sapi (maks 7 orang) atau kambing — iuran per orang otomatis.
+33. **Kalkulator Kurban** — Patungan sapi (maks 7 orang) atau kambing, iuran per orang otomatis.
 34. **Upah Lembur per Jam** — Hitung upah lembur: jam ke-1 1,5×, jam berikutnya 2×.
 35. **Kalkulator Pesangon** — Estimasi uang pesangon (UP + UPMK + UPH) ala PP 35/2021.
 36. **Kalkulator Biaya QRIS** — Hitung potongan MDR QRIS per jenis merchant.
@@ -216,7 +216,7 @@
 44. **Hitung Pupuk Padi** — Dosis pupuk per hektar untuk padi sawah, sesuai luas lahanmu.
 45. **Simulasi BPJS Ketenagakerjaan** — Hitung iuran JHT dan Jaminan Pensiun dari gajimu, plus perkiraan saldo dan uang pensiun nanti.
 46. **Rencana Tabungan Haji & Umroh** — Hitung berapa lama nabung untuk haji reguler, haji plus, atau umroh dari setoran bulananmu.
-47. **Hitung Tagihan Listrik** — Hitung tagihan listrik bulanan dari alat elektronik di rumahmu — ketahuan alat mana yang paling boros.
+47. **Hitung Tagihan Listrik** — Hitung tagihan listrik bulanan dari alat elektronik di rumahmu, ketahuan alat mana yang paling boros.
 48. **Target Khatam** — Rencana khatam Al-Quran: dari posisi sekarang dan tanggal target, hitung berapa halaman per hari plus jadwal hariannya.
 49. **Tasbih Digital** — Hitung dzikir dengan ketukan: pilih bacaan, pasang target, dan lihat jumlah hari ini.
 50. **Kalkulator THR** — THR proporsional sesuai masa kerja.
@@ -244,12 +244,12 @@
 14. **Generator .env** — Susun file .env dari template: Node.js, Laravel, Django, Next.js.
 15. **Get Code HTML** — Ambil & ekstrak source HTML dari URL mana pun.
 16. **Hash File** — Hitung checksum file & cocokkan dengan hash.
-17. **HTML ke Markdown** — Ubah HTML jadi Markdown (heading, daftar, tabel, tautan, kode) — 100% di browser, hasil bisa disalin/unduh.
+17. **HTML ke Markdown** — Ubah HTML jadi Markdown (heading, daftar, tabel, tautan, kode). 100% di browser, hasil bisa disalin/unduh.
 18. **Generator Tabel HTML** — Bikin tabel HTML dari data baris.
 19. **HTTP Status Lookup** — Cari arti 35 kode status HTTP + contoh pemakaiannya.
 20. **Info Perangkat** — Spesifikasi HP atau laptopmu, dibaca langsung dari browser.
 21. **JSON Diff** — Bandingkan dua JSON, lihat apa yang beda.
-22. **JSON Formatter** — Rapikan, perbaiki, telusuri & validasi JSON — angka besar tetap utuh, schema lengkap ($ref, format, allOf/anyOf/oneOf).
+22. **JSON Formatter** — Rapikan, perbaiki, telusuri & validasi JSON. Angka besar tetap utuh, schema lengkap ($ref, format, allOf/anyOf/oneOf).
 23. **JSON ke Tabel** — Paste JSON jadi tabel yang enak dibaca.
 24. **JWT Parser** — Baca, buat & verifikasi token JWT (HS/RS/PS/ES) + buat kunci.
 25. **Kalkulator Bandwidth** — Estimasi waktu transfer file & kecepatan minimum yang dibutuhkan.
@@ -283,7 +283,7 @@
 
 1. **Auto PDF** — Ubah teks panjang jadi dokumen PDF rapi.
 2. **Bantuan & Pertanyaan Umum** — Jawaban singkat untuk pertanyaan yang paling sering ditanyakan soal Adip Tools.
-3. **Beri Masukan** — Laporkan masalah atau beri saran untuk Adip Tools — lewat email atau GitHub.
+3. **Beri Masukan** — Laporkan masalah atau beri saran untuk Adip Tools, lewat email atau GitHub.
 4. **Bio Link** — Susun halaman tautanmu sendiri, unduh sebagai file HTML.
 5. **Catatan Cepat** — Catat ide secepat kilat, cari lagi kapan pun.
 6. **Daftar Bacaan** — Kumpulkan buku & artikel yang mau dibaca, lacak statusnya sampai selesai.
@@ -295,8 +295,8 @@
 12. **Jurnal Harian** — Tulis jurnal per tanggal, buka lagi kapan pun kangen masa lalu.
 13. **Jurnal Syukur** — Tulis 3 hal yang kamu syukuri hari ini, simpel dan menenangkan.
 14. **Kalender Konten** — Jadwalkan ide konten per tanggal & platform.
-15. **Kalkulator Catatan** — Tulis belanjaan per baris — paham rb, jt, persen, dan diskon — langsung dapat totalnya.
-16. **Kalkulator Hari Kerja** — Hitung jumlah hari kerja antara dua tanggal — sudah dikurangi Sabtu, Minggu, dan libur nasional Indonesia.
+15. **Kalkulator Catatan** — Tulis belanjaan per baris, paham rb, jt, persen, dan diskon, langsung dapat totalnya.
+16. **Kalkulator Hari Kerja** — Hitung jumlah hari kerja antara dua tanggal, sudah dikurangi Sabtu, Minggu, dan libur nasional Indonesia.
 17. **Kanban Board** — Atur kerjaanmu: Todo → Doing → Done. Tersimpan otomatis di HP.
 18. **Latihan Interview** — Latihan menjawab pertanyaan interview kerja yang paling sering keluar.
 19. **Matriks Eisenhower** — Pilah tugas: kerjakan, jadwalkan, delegasikan, atau buang.
@@ -304,7 +304,7 @@
 21. **Biaya Meeting** — Hitung berapa rupiah yang 'terbakar' tiap detik meeting berjalan.
 22. **Metode 52-17** — Timer fokus 52 menit + istirahat 17 menit, siklusnya jalan otomatis.
 23. **Multi-AI** — Tanya banyak AI sekaligus + generate gambar & suara via Puter.
-24. **OCR** — Ekstrak teks dari gambar 100% lokal — tanpa upload, tanpa server.
+24. **OCR** — Ekstrak teks dari gambar 100% lokal, tanpa upload, tanpa server.
 25. **PDF Lab** — Toolkit PDF lokal: gabung, pisah, watermark & lainnya.
 26. **Pelacak Langganan** — Catat semua langganan bulananmu, lihat total per bulan & tahun, dan tahu mana yang paling menguras.
 27. **Pelacak Tujuan** — Tulis tujuan tahunanmu, pecah jadi milestone, pantau bar progresnya.
@@ -324,7 +324,7 @@
 41. **Pembuat Surat Resmi / Dinas** — Bikin surat dinas atau surat resmi umum: kop instansi, nomor surat, perihal, isi, dan tembusan, siap salin atau cetak.
 42. **Tanda Tangan Digital** — Tanda tangan di layar pakai jari atau stylus, unduh sebagai gambar transparan untuk ditempel di dokumen.
 43. **Target Menulis** — Pasang target kata, pantau bar progresnya sampai garis finis.
-44. **Time Tracker** — Catat waktu kerjamu per tugas — start, stop, ketahuan totalnya.
+44. **Time Tracker** — Catat waktu kerjamu per tugas: start, stop, ketahuan totalnya.
 45. **Target Minum dari Berat Badan** — Target minum harian dari berat badanmu (30 ml × kg).
 46. **Wishlist** — Daftar barang impian + progress nabung.
 
@@ -415,7 +415,7 @@
 37. **SVG ke PNG** — Ubah gambar SVG jadi PNG, atur skala dan latarnya.
 38. **Teks di Foto** — Tambahkan tulisan ke foto.
 39. **Twibbon Maker** — Bikin twibbon: bingkai + pita teks buat fotomu.
-40. **Ubah Ukuran Foto** — Ubah ukuran foto — pas foto, KTP, feed IG, atau ukuran bebas.
+40. **Ubah Ukuran Foto** — Ubah ukuran foto: pas foto, KTP, feed IG, atau ukuran bebas.
 41. **Watermark Foto** — Tempel watermark teks ke foto, unduh PNG.
 42. **Thumbnail YouTube** — Download thumbnail YouTube dari URL.
 
@@ -455,7 +455,7 @@
 32. **SVG ke Alight XML** — Konversi SVG jadi project XML Alight Motion.
 33. **Teks Gradien** — Bikin teks berwarna gradasi + salin sebagai HTML/CSS.
 34. **Animasi Teks 2D** — 10 preset animasi teks 2D kinetik → export XML Alight Motion.
-35. **Animasi Teks 3D** — 7 preset teks 3D — extrude, long shadow, offset — → XML Alight Motion.
+35. **Animasi Teks 3D** — 7 preset teks 3D: extrude, long shadow, offset. Hasilnya diekspor ke XML Alight Motion.
 36. **Animasi FX Teks** — 5 pilihan efek teks (Pink Glow, Reveal Up, Glow Out-In, Neon Block, Star Reveal) → XML Alight Motion, dengan peran warna per pilihan.
 37. **Teks ke Vektor** — Ubah teks menjadi path vektor → XML Alight Motion (kurva Bézier presisi dari data font, atau trace lokal).
 38. **Generator Trim Path** — Animasi garis draw-on (trim path) per huruf → XML Alight Motion.
@@ -479,16 +479,16 @@
 14. **Kalkulator Trigonometri** — Sin cos tan (& kawan-kawan) dari derajat, atau cari sudutnya dari nilai.
 15. **Kalkulator Umum** — Hitung biasa sampai ilmiah: tambah kurang kali bagi, persen, sin cos tan, log, akar, pangkat, plus riwayat.
 16. **Kombinasi & Permutasi** — Hitung C(n,r) dan P(n,r) lengkap dengan langkah perhitungannya.
-17. **Konversi Nilai** — Angka, huruf, atau skala 4.0 — ubah dua arah.
+17. **Konversi Nilai** — Angka, huruf, atau skala 4.0, ubah dua arah.
 18. **Kuis Maker** — Bikin kuis pilihan ganda, simpan, lalu kerjakan dengan nilai otomatis.
-19. **Latihan Deret Angka** — Latihan soal deret angka TIU/psikotes tanpa habis — soal baru tiap kali, lengkap dengan timer dan pembahasan polanya.
+19. **Latihan Deret Angka** — Latihan soal deret angka TIU/psikotes tanpa habis. Soal baru tiap kali, lengkap dengan timer dan pembahasan polanya.
 20. **Kalkulator Matriks** — Matriks 2×2 & 3×3: determinan, invers, transpos + langkahnya.
 21. **Kalkulator Nilai Akhir** — Hitung nilai akhir dari bobot tiap komponen + predikat A–E.
 22. **Cek Nilai SKD CPNS** — Masukkan soal benar TWK/TIU dan skor TKP, langsung ketahuan lolos passing grade atau tidak per subtes.
 23. **Persamaan Kuadrat & SPLDV** — Cari akar persamaan kuadrat dan selesaikan dua persamaan dua variabel.
 24. **Plot Fungsi** — Gambar grafik f(x) + tabel nilai x dari -10 sampai 10.
 25. **Kalkulator Eksponen** — Hitung pangkat & akar plus kartu sifat-sifat eksponen.
-26. **Rumus Fisika** — Isi yang diketahui, kosongkan satu — jawabannya dihitung + langkahnya.
+26. **Rumus Fisika** — Isi yang diketahui, kosongkan satu, jawabannya dihitung + langkahnya.
 27. **Rumus Saku** — Kantong rumus cepat Matematika, Kimia, dan Statistika untuk dihafal.
 28. **Ukuran Sampel Survei** — Berapa responden yang dibutuhkan dari jumlah populasi, margin error, dan tingkat kepercayaan.
 29. **Simulasi SKD CPNS** — Tryout singkat 30 soal ala CAT BKN: TWK, TIU, TKP dengan timer dan skor passing grade.
@@ -522,7 +522,7 @@
 20. **Konverter Angka** — Biner, oktal, desimal, hex, dan romawi.
 21. **Potong Video** — Potong durasi video dan ubah bentuk layarnya.
 22. **Bedah Kode QRIS** — Lihat isi kode QRIS bagian per bagian, plus cek CRC-nya.
-23. **Slug Generator** — Ubah judul jadi slug — potongan link yang rapi.
+23. **Slug Generator** — Ubah judul jadi slug, potongan link yang rapi.
 24. **Terbilang Indonesia** — Angka jadi kata bahasa Indonesia.
 25. **Ukuran Baju** — Konversi ukuran baju internasional.
 26. **Ukuran Cincin** — Konversi ukuran cincin internasional.
@@ -549,7 +549,7 @@
 11. **Profil GitHub** — Lihat profil GitHub siapapun: avatar, bio, followers, repo.
 12. **Harga Crypto** — Harga crypto live (IDR & USD) + perubahan 24 jam.
 13. **Hari Libur Indonesia** — Daftar hari libur nasional Indonesia per tahun.
-14. **Info Hari Ini** — Info tanggal hari ini — 100% dihitung lokal di HP-mu.
+14. **Info Hari Ini** — Info tanggal hari ini, 100% dihitung lokal di HP-mu.
 15. **Info Makanan Kemasan** — Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.
 16. **IP & Lokasi Saya** — Cek alamat IP publik & perkiraan lokasimu.
 17. **Jadwal Sholat** — Jadwal sholat harian per kota + countdown ke waktu berikutnya.
@@ -597,7 +597,7 @@
 24. **Setlist Timer** — Timer setlist manggung: countdown per lagu + total durasi.
 25. **Skala Musik** — Lihat & dengarkan nada-nada dalam tiap skala.
 26. **Tap BPM** — Ketuk layar untuk deteksi tempo.
-27. **Tebak Chord dari Nada** — Ketik nada-nada, tebak nama chordnya — plus kuis dengar chord 3 level.
+27. **Tebak Chord dari Nada** — Ketik nada-nada, tebak nama chordnya, plus kuis dengar chord 3 level.
 28. **Text-to-Speech** — Bacakan teks bahasa Indonesia.
 29. **Tuner Gitar** — Stem gitar pakai mikrofon, deteksi nada otomatis.
 30. **Ukuran File Audio** — Bitrate × durasi jadi ukuran file, atau sebaliknya.
@@ -636,14 +636,14 @@
 28. **Virus Scan** — Pindai URL, file, hash, domain & IP dengan heuristik lokal.
 29. **Web Encryption** — Kunci HTML jadi file berpassword (AES-256).
 30. **Website Security Scanner** — Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.
-31. **WiFi QR Generator** — QR WiFi siap scan — tamu konek tanpa ketik password.
+31. **WiFi QR Generator** — QR WiFi siap scan, tamu konek tanpa ketik password.
 
 ## Teks (28)
 
 1. **ASCII Art** — Teks jadi seni ASCII.
 2. **Teks Terbalik** — Teks jadi huruf terbalik atau urutannya dibalik.
 3. **Teks ke Braille** — Konversi dua arah teks Latin ↔ huruf braille Unicode.
-4. **Cari & Ganti Teks** — Ganti massal kata atau frasa di teks — mode biasa atau pola regex — dengan hitungan penggantian dan pratinjau hasil.
+4. **Cari & Ganti Teks** — Ganti massal kata atau frasa di teks, mode biasa atau pola regex, dengan hitungan penggantian dan pratinjau hasil.
 5. **Hapus Duplikat & Urutkan** — Hapus duplikat & urutkan baris.
 6. **Dikte Suara** — Ubah ucapan jadi teks langsung di browser.
 7. **Eja dengan Alfabet NATO** — Ubah huruf jadi ejaan Alfa-Bravo-Charlie supaya tidak salah dengar saat mengeja lewat telepon.

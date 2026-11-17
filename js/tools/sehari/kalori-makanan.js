@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 // Logika murni (bisa di-test di Node).
 // Kalori per porsi umum dari Tabel Kalori Makanan sehari-hari (acuan TKPI

@@ -80,15 +80,15 @@ python3 scripts/bump-version.py 6.12.0
 node scripts/check-tools.js   # wajib lolos sebelum commit/push
 ```
 
-Yang dilakukan `bump-version.py` (berurutan): ubah `VERSION` di `scripts/split-tools.py`, regenerate `js/manifest.js` lewat `sync-manifest.js`, sapu semua `?v=<versi-lama>` jadi `?v=<versi-baru>` di `js/tools/*/*.js`, `index.html`, dan `js/app.js`, lalu regenerate `TOOLS.md`. Opsi `--dry-run` hanya mencetak rencana tanpa mengubah file.
+Yang dilakukan `bump-version.py` (berurutan): ubah `VERSION` di `scripts/split-tools.py`, regenerate `js/manifest.js` lewat `sync-manifest.js`, lalu regenerate `TOOLS.md` (+ sitemap & llms.txt via cascade). Langkah sapu `?v=` lama sudah tidak menemukan apa pun sejak v6.14.0 (sistem `?v=` dicabut, diganti hash Vite) — adaptasi `bump-version.py` oleh tim P0 berikutnya. Opsi `--dry-run` hanya mencetak rencana tanpa mengubah file.
 
 ## Arsitektur singkat
 
 Detail lengkap: [docs/arsitektur.md](docs/arsitektur.md).
 
-- **Statis murni.** HTML + CSS + vanilla JS, tanpa framework, tanpa build step, tanpa backend sendiri. Hosting cukup server file statis apa pun.
+- **Statis murni.** HTML + CSS + vanilla JS, tanpa framework, tanpa backend sendiri. Build memakai Vite (`npm run build` → `dist/`): bundling + minifikasi + nama file ber-hash. Hosting cukup server file statis apa pun.
 - **Shell + hash routing.** `index.html` hanya berisi skip link + `<main id="app">` dan dua `<script type="module">`. `js/app.js` adalah router hash: `#/t/<id-tool>`, `#/k/<kategori>`, `#/semua`, `#/favorit`, `#/c/<koleksi>`, `#/metodologi`.
-- **Lazy load per tool.** Beranda hanya memuat `js/manifest.js` (metadata ringan 606 tool). Kode tool diimpor dinamis (`import()`) saat halamannya dibuka, lengkap dengan `?v=<versi>` sebagai cache-buster.
+- **Lazy load per tool.** Beranda hanya memuat `js/manifest.js` (metadata ringan 627 tool). Kode tool diimpor dinamis lewat `import.meta.glob` saat halamannya dibuka — satu chunk ber-hash per tool sebagai cache-buster.
 - **Satu file = satu tool.** Tiap tool adalah ES module mandiri di `js/tools/<kategori>/<id>.js`, mengimpor helper dari `js/core.js` (komponen UI, format angka/Rupiah, download, ZIP, toast, dan lain-lain).
 - **Client-side, dengan dua pengecualian jujur:**
   - **Live API (27 tool):** mengambil data publik dari API pihak ketiga (BMKG, Aladhan, CoinGecko, dan sejenisnya) langsung dari browser.

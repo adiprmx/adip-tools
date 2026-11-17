@@ -39,14 +39,18 @@ const CDN = 'https://cdn.jsdelivr.net/npm';
 const URL_FFMPEG_ESM = CDN + '/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js';
 const URL_CORE_JS = CDN + '/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.js';
 const URL_CORE_WASM = CDN + '/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.wasm';
-// Worker ESM yang di-vendor same-origin (lihat js/ffmpeg-worker/). URL-nya
-// WAJIB di-resolve terhadap import.meta.url loader ini (bukan path absolut
-// '/js/...' dan bukan location.href): preview GitHub Pages hidup di subpath
-// /adip-tools/, jadi path absolut '/js/...' mengarah ke root domain dan 404
-// (bug nyata 15 Nov 2026: worker 404 -> FFmpeg tidak mendengarkan error
-// worker -> load() diam selamanya -> timeout 90 detik tanpa pesan jelas).
-// import.meta.url benar di preview (subpath) maupun produksi (domain root).
-const WORKER_URL = new URL('./ffmpeg-worker/worker.js', import.meta.url).href;
+// Worker ESM yang di-vendor same-origin (lihat js/ffmpeg-worker/). Diimpor
+// lewat `?worker&url` (Vite): worker + import relatifnya (./const.js,
+// ./errors.js) DIBUNDEL jadi satu file ber-hash, dan URL-nya di-resolve
+// relatif terhadap base './' — benar di preview GitHub Pages (subpath
+// /adip-tools/) maupun produksi (domain root). JANGAN kembali ke
+// new URL('./ffmpeg-worker/worker.js', import.meta.url): di build, Vite
+// hanya menyalin worker.js sebagai aset mentah dan import ./const.js di
+// dalamnya 404 (bug yang sama dengan riwayat 15 Nov 2026: worker 404 ->
+// load() diam selamanya). Path absolut '/js/...' juga tetap dilarang
+// (404 di subpath preview).
+import workerUrl from './ffmpeg-worker/worker.js?worker&url';
+const WORKER_URL = workerUrl;
 
 // Pengganti lokal fetchFile dari @ffmpeg/util (lihat catatan di atas).
 // File/Blob -> Uint8Array via FileReader; string URL/data URI -> fetch.

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id": "diskon-aman", "name": "Diskon Aman", "cat": "bisnis", "icon": "✂️", "desc": "Cari tahu diskon maksimal sebelum rugi, plus tabel laba di tiap level diskon.", "keywords": "diskon aman,diskon maksimal,batas diskon,rugi,promo aman,margin", "since": "6.11.0"};
 export function render(root) {

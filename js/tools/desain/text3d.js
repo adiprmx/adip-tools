@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 /* text3d — "Animasi Teks 3D": 7 preset teks 3D (extrude, long shadow, offset)
    -> XML Alight Motion. 100% client-side. Struktur XML diselaraskan dengan tool
@@ -8,7 +8,7 @@ const AL = utils.alight;
 
 export const meta = {
   id: 'text3d', name: 'Animasi Teks 3D', cat: 'desain', icon: '🧊',
-  desc: '7 preset teks 3D — extrude, long shadow, offset — → XML Alight Motion.',
+  desc: '7 preset teks 3D: extrude, long shadow, offset. Hasilnya diekspor ke XML Alight Motion.',
   keywords: 'teks,3d,alight motion,xml,extrude,long shadow,offset',
 };
 

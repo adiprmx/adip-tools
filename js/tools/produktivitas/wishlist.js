@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"wishlist","name":"Wishlist","cat":"produktivitas","icon":"🎁","desc":"Daftar barang impian + progress nabung.","keywords":"wishlist,impian,nabung,target,belanja"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id": "tes-touchscreen", "name": "Tes Layar Sentuh", "cat": "sehari", "icon": "👆", "desc": "Gambar jejak sentuhan, cek area layar yang mati dan sentuhan banyak jari.", "keywords": "touchscreen,layar sentuh,sentuh,multi touch,dead spot", "since": "6.11.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.13.0';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js';
 
 export const meta = {"id": "extract-contact", "name": "Ambil Kontak", "cat": "teks", "icon": "📇", "desc": "Ambil email & nomor HP dari teks.", "keywords": "kontak,email,nomor,ekstrak"};
 export function render(root) {

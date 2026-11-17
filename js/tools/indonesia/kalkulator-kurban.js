@@ -1,6 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
-export const meta = {"id": "kalkulator-kurban", "name": "Kalkulator Kurban", "cat": "indonesia", "icon": "🐄", "desc": "Patungan sapi (maks 7 orang) atau kambing — iuran per orang otomatis.", "keywords": "kurban,qurban,sapi,kambing,idul adha,patungan,iuran"};
+export const meta = {"id": "kalkulator-kurban", "name": "Kalkulator Kurban", "cat": "indonesia", "icon": "🐄", "desc": "Patungan sapi (maks 7 orang) atau kambing, iuran per orang otomatis.", "keywords": "kurban,qurban,sapi,kambing,idul adha,patungan,iuran"};
 
 export function render(root) {
 

@@ -61,6 +61,8 @@ function validRecents(currentId, recents, byId, max) {
 /* Seksi "Baru saja dibuka": rel tool yang terakhir dibuka (maks 4 default),
    memakai kartu hcard + rel hscroll yang sama dengan seksi "Lanjut ke".
    Dipasang di bawah seksi "Lanjut ke", di atas "Sejenis".
+   v6.14.0 (P2-B1, V-08): app.js tidak lagi memakai fungsi ini — halaman
+   tool memakai recentLineHTML di bawah. Dipertahankan sebagai API modul.
    @param currentId  id tool yang sedang dibuka (dikecualikan dari daftar)
    @param recents    isi getRecent() dari app.js ([{id,t}] terbaru dulu)
    @param byId       app.js byId — cari metadata tool dari manifest
@@ -75,6 +77,20 @@ export function recentRailHTML(currentId, recents, byId, hcardHTML, max = 4) {
       <div class="sechead"><h2>Baru saja dibuka</h2></div>
       <div class="hscroll">${tools.map(hcardHTML).join('')}</div>
     </section>`;
+}
+
+/* Baris teks "Terakhir dibuka: A · B · C" (v6.14.0, P2-B1, V-08):
+   pengganti recentRailHTML di halaman tool — satu baris tautan teks
+   (maks 3), bukan carousel ketiga. Kelas .recentline di style.css.
+   @param esc  T.esc dari app.js — escape nama tool
+   @returns string HTML baris lengkap, atau '' bila tidak ada riwayat lain */
+export function recentLineHTML(currentId, recents, byId, esc, max = 3) {
+  const tools = validRecents(currentId, recents, byId, max);
+  if (!tools.length) return '';
+  const links = tools
+    .map((m) => `<a href="#/t/${m.id}">${esc(m.name)}</a>`)
+    .join('<span class="sep" aria-hidden="true">·</span>');
+  return `<p class="recentline"><b>Terakhir dibuka:</b> ${links}</p>`;
 }
 
 /* Chip "Balik ke <tool sebelumnya>": satu ketukan kembali ke tool yang

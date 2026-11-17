@@ -1,4 +1,4 @@
-import { h as T, utils, kv, tabs, parseISO, todayISO } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv, tabs, parseISO, todayISO } from '../../core.js';
 
 export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari/bulan/tahun, hitung mundur, dan hitung hari kerja dengan libur nasional 2026.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari,hitung mundur,countdown,libur nasional"};
 

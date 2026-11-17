@@ -1,6 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
-export const meta = {"id": "cari-ganti-teks", "name": "Cari & Ganti Teks", "cat": "teks", "icon": "🔁", "desc": "Ganti massal kata atau frasa di teks — mode biasa atau pola regex — dengan hitungan penggantian dan pratinjau hasil.", "keywords": "cari ganti,find replace,teks,regex,ganti kata,massal", "since": "6.13.0"};
+export const meta = {"id": "cari-ganti-teks", "name": "Cari & Ganti Teks", "cat": "teks", "icon": "🔁", "desc": "Ganti massal kata atau frasa di teks, mode biasa atau pola regex, dengan hitungan penggantian dan pratinjau hasil.", "keywords": "cari ganti,find replace,teks,regex,ganti kata,massal", "since": "6.13.0"};
 
 function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

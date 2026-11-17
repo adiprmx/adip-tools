@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"glosarium","name":"Glosarium Pribadi","cat":"pelajar","icon":"📖","desc":"Kamus istilah pribadimu: simpan, cari, dan hapus definisi.","keywords":"glosarium,kamus,istilah,definisi,hafalan,kosakata"};
 

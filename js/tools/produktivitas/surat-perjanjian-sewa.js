@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
 export const meta = {"id": "surat-perjanjian-sewa", "name": "Pembuat Surat Perjanjian Sewa", "cat": "produktivitas", "icon": "🏠", "desc": "Bikin surat perjanjian sewa rumah, kos, atau ruko: pihak pemilik & penyewa, harga, deposit, aturan, dan tanda tangan, siap cetak atau salin.", "keywords": "surat sewa,perjanjian sewa,kontrak sewa,rumah,kos,ruko,deposit,penyewa,pemilik", "since": "6.13.0"};
 

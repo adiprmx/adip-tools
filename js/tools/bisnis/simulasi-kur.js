@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
 
@@ -8,7 +8,7 @@ const JENIS = {
   'kecil': { label: 'KUR Kecil', maks: 500000000, bunga: 6, ket: 'Plafon Rp100–500 jt · bunga 6%/tahun' },
 };
 
-export const meta = {"id": "simulasi-kur", "name": "Simulasi Cicilan KUR", "cat": "bisnis", "icon": "🏦", "desc": "Hitung cicilan KUR per bulan dari plafon, jenis KUR, dan tenor — sebelum ke bank.", "keywords": "kur,cicilan,kredit usaha rakyat,bunga,anuitas,simulasi,plafon"};
+export const meta = {"id": "simulasi-kur", "name": "Simulasi Cicilan KUR", "cat": "bisnis", "icon": "🏦", "desc": "Hitung cicilan KUR per bulan dari plafon, jenis KUR, dan tenor, sebelum ke bank.", "keywords": "kur,cicilan,kredit usaha rakyat,bunga,anuitas,simulasi,plafon"};
 export function render(root) {
 
     const jenisI = T.select([['super','KUR Super Mikro (s.d. Rp10 jt)'],['mikro','KUR Mikro (Rp10–100 jt)'],['kecil','KUR Kecil (Rp100–500 jt)']], 'mikro');

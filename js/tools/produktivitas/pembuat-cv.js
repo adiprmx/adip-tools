@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "produktivitas", "icon": "📄", "desc": "Isi form bertahap, langsung jadi CV 1 halaman rapi dengan 6 pilihan tampilan dan cek kelengkapan, siap cetak atau simpan PDF.", "keywords": "cv,lamaran kerja,daftar riwayat hidup,resume,ats,lamar kerja,sertifikat"};
 

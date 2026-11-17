@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "tagihan-listrik", "name": "Hitung Tagihan Listrik", "cat": "indonesia", "icon": "💡", "desc": "Hitung tagihan listrik bulanan dari alat elektronik di rumahmu — ketahuan alat mana yang paling boros.", "keywords": "listrik,tagihan,pln,kwh,watt,tarif,hemat,token,boros"};
+export const meta = {"id": "tagihan-listrik", "name": "Hitung Tagihan Listrik", "cat": "indonesia", "icon": "💡", "desc": "Hitung tagihan listrik bulanan dari alat elektronik di rumahmu, ketahuan alat mana yang paling boros.", "keywords": "listrik,tagihan,pln,kwh,watt,tarif,hemat,token,boros"};
 export function render(root) {
   const TARIF = [
     ['415', '450 VA (subsidi) — Rp415/kWh'],

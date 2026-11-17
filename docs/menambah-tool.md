@@ -23,7 +23,7 @@ Kategori baru butuh perubahan di tiga tempat sekaligus (label di `js/app.js` `CA
 Template minimal (contoh nyata: `js/tools/teks/balik-teks.js`):
 
 ```js
-import { h as T, utils } from '../../core.js?v=6.12.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {
   id: "hitung-ongkir-contoh",
@@ -49,7 +49,7 @@ export function render(root, onLeave, T, m) {
 
 Catatan template:
 
-- **`?v=6.12.0` di import core.js wajib ada** dan harus sama dengan versi saat ini — ini cache-buster. `bump-version.py` menyapunya otomatis saat bump versi, jadi pakai versi yang sedang berlaku saat menulis file.
+- **JANGAN tambah `?v=` di import core.js** (sistem `?v=` manual dicabut v6.14.0 — Vite memberi hash nama file otomatis; query di specifier import membuat Vite menganggapnya modul berbeda dan `core.js` terduplikasi).
 - **`since`** (opsional): isi dengan versi saat tool ditambahkan. Tool dengan `since` sama dengan versi berjalan mendapat badge "BARU" di beranda.
 - **`keywords`**: kata kunci pencarian, pisahkan koma. Pengguna mencari dengan kata sehari-hari, jadi tulis sinonimnya juga.
 - **`render(root, onLeave, T, m)`**: `root` elemen wadah, `onLeave` untuk mendaftarkan fungsi bersih-bersih saat pengguna pindah halaman (hentikan timer, tutup stream, revoke URL objek), `T` namespace helper, `m` entri manifest tool ini.
@@ -109,7 +109,7 @@ Lalu uji manual di browser lokal: buka `#/t/<id-tool>`, cek tampilannya di lebar
 ## Checklist sebelum selesai
 
 - [ ] File di `js/tools/<kategori>/<id>.js`, `meta.id` = nama file, `meta.cat` = folder
-- [ ] Import core.js memakai `?v=<versi-saat-ini>`
+- [ ] Import core.js TANPA query apa pun (`?v=` dilarang — bikin instans core.js ganda di Vite)
 - [ ] `meta` lengkap: id, name, cat, icon, desc, keywords (+ `since` untuk tool baru)
 - [ ] Input pengguna di-escape (`T.esc`) sebelum masuk HTML
 - [ ] Copy Indonesia sehari-hari, tanpa istilah teknis, tanpa angka karangan

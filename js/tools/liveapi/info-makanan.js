@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.13.0';
+import { h as T, esc } from '../../core.js';
 
 export const meta = {"id":"info-makanan","name":"Info Makanan Kemasan","cat":"liveapi","icon":"🍫","desc":"Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.","keywords":"makanan,barcode,nutrisi,gizi,kalori,kemasan,openfoodfacts,skor"};
 

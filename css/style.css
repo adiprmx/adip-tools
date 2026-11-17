@@ -13,8 +13,10 @@
      Populer (carousel) + Kategori (grid 4 kolom) + Riwayat
    - Direktori vertikal di view #/semua dan #/k/<id>
    - Bottom tab bar solid + indikator halus
-   Z-index: grain 200 · toast 99 · palette 80 · tabs 60 · header 40.
-   Shape: kartu 18px, kontrol 12px, pill HANYA chip/tab/tag.
+   Z-index: grain 200 · skip 100 · toast 99 · tip/onb 90 · dlg 85 ·
+   palette 80 · tabs 60 · btt 55 · header 40.
+   Shape: kartu 18px, ubin 16px, kontrol 12px, pill 999px HANYA
+   chip/tab/tag. Target sentuh minimum 44px (--tap, R-03).
    Kontrak: kelas di bawah "PRIMITIF" dipakai core.js + 110 tools.
    Jangan hapus, boleh restyle mengikuti tema.
    ============================================================ */
@@ -44,7 +46,22 @@
   --ok: #7ccf8f;
   --warn: #fbbf24;
   --err: #f87171;
+  --err-light: #fca5a5;
   --info: #8ab8ff;
+  /* P4-TOKEN (v6.14.0): token hasil penyatuan nilai hardcode.
+     Setiap nilai = literal lama yang sama persis (nol perubahan
+     visual). Pemakai lama dicatat di p4-token.md §token. */
+  --panel: #211b16;
+  --line-strong: #4a3d2f;
+  --hair-hover: rgba(255, 255, 255, 0.16);
+  --wash: rgba(255, 255, 255, 0.05);
+  --scrim: rgba(10, 8, 6, 0.62);
+  --scrim-soft: rgba(10, 8, 6, 0.55);
+  --sh-pop: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --sh-lift: 0 10px 26px rgba(0, 0, 0, 0.38);
+  --r-tile: 16px;
+  --r-pill: 999px;
+  --tap: 44px;
   --r-card: 18px;
   --r-ctl: 12px;
   --font-d: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -52,12 +69,25 @@
   --font-m: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+  /* --ease-spring: dulu hanya ada sebagai fallback di .dlg
+     (components.css) karena tokennya tak pernah didefinisikan —
+     nilainya = fallback itu persis (overshoot 1.56, beda dari
+     --spring 1.45). */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --snappy: cubic-bezier(0.22, 1, 0.36, 1);
   --lux: cubic-bezier(0.19, 1, 0.22, 1);
   --z-header: 40;
+  --z-btt: 55;
   --z-tabs: 60;
   --z-pal: 80;
+  --z-dlg: 85;
+  --z-tip: 90;
+  /* --z-tip dan --z-onb bernilai sama (90) tapi lapisannya
+     independen (tooltip di konteks header vs lembar
+     onboarding). Sengaja dua token, bukan satu. */
+  --z-onb: 90;
   --z-toast: 99;
+  --z-skip: 100;
   --z-grain: 200;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -90,13 +120,25 @@ a { color: inherit; }
 
 .wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 120px; }
 .wrap.narrow { max-width: 640px; }
+/* P2-B1 (v6.14.0, V-01): kolom 680px di layar 1440px adalah temuan utama
+   "jadul" — longgarkan bertahap: tablet 92% viewport, desktop 1120px.
+   Halaman tool tetap sempit (760px) supaya nyaman dibaca. */
+@media (min-width: 700px) { .wrap { max-width: 92%; } }
+@media (min-width: 1024px) {
+  .wrap { max-width: 1120px; }
+  .wrap.narrow { max-width: 760px; }
+}
 
-/* ---------- transisi antar halaman ---------- */
-@keyframes view-in { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: none; } }
-.view { animation: view-in 0.3s var(--snappy); }
+/* ---------- transisi antar halaman ----------
+   Animasi masuk .view tinggal di fx-entrance.css (fx-view, 0.38s) —
+   aturan view-in di sini dicabut P3 (duplikat mati: kalah cascade).
+   Transisi ViewTransition API ada di bawah (vt-out/vt-in). */
 
-/* ---------- entrance beranda: fade cepat, stagger rapat ---------- */
-.rise { opacity: 0; animation: rise-in 0.5s var(--snappy) forwards; animation-delay: calc(var(--i, 0) * 55ms); }
+/* ---------- entrance beranda: fade cepat, stagger rapat ----------
+   Aturan .rise tinggal di fx-entrance.css (fx-rise + ritardando
+   kuadratik) — aturan di sini dicabut P3 (duplikat mati).
+   Keyframes rise-in DIPERTAHANKAN: dipakai fx-joy.css (.schip
+   empty state) + daftar ENTRANCE di js/fx.js. */
 @keyframes rise-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
 
 /* ---------- headline: masked reveal ala editorial (bukan fade generik) ---------- */
@@ -136,12 +178,12 @@ a { color: inherit; }
 .top-right { display: flex; align-items: center; gap: 8px; }
 .topcount {
   font-family: var(--font-m); font-size: 12px; color: var(--dim);
-  border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px;
+  border: 1px solid var(--line); border-radius: var(--r-pill); padding: 7px 12px;
   white-space: nowrap; background: rgba(255, 255, 255, 0.02);
 }
 .topcount b { color: var(--txt); }
 .icobtn {
-  width: 40px; height: 40px; border-radius: 12px; flex: none;
+  width: var(--tap); height: var(--tap); border-radius: var(--r-ctl); flex: none;
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--surface); border: 1px solid var(--hair);
   color: var(--mut); font-size: 18px; cursor: pointer;
@@ -150,8 +192,10 @@ a { color: inherit; }
 .icobtn:hover { color: var(--txt); border-color: var(--acc-line); }
 .icobtn:active { transform: scale(0.92); }
 
-/* ---------- hero: sapaan + headline + search ---------- */
-.hero { padding: 22px 0 0; }
+/* ---------- hero: sapaan + headline + search ----------
+   P2-B1 (v6.14.0, §5.2 P1-D): di desktop yang lega, hero dibatasi
+   680px dan rata kiri — pencarian tetap fokus, bukan melebar penuh. */
+.hero { padding: 22px 0 0; max-width: 680px; }
 .hero .hi { color: var(--faint); font-size: 14px; margin-bottom: 8px; }
 .hero h1 {
   font-family: var(--font-d); font-weight: 800;
@@ -186,7 +230,7 @@ a { color: inherit; }
   text-decoration: none;
   transition: transform 0.12s var(--ease), border-color 0.15s;
 }
-.contd:hover { border-color: rgba(255, 255, 255, 0.16); }
+.contd:hover { border-color: var(--hair-hover); }
 .contd:active { transform: scale(0.97); }
 .contd .cic {
   width: 50px; height: 50px; border-radius: 14px; flex: none;
@@ -205,12 +249,16 @@ a { color: inherit; }
 .contd .cts { font-size: 12.5px; color: var(--faint); }
 .contd .cgo { font-size: 24px; color: var(--dim); flex: none; padding-right: 2px; }
 
-/* ---------- section: label editorial kecil ---------- */
+/* ---------- section: judul seksi yang nyata ----------
+   P2-B1 (v6.14.0, V-06): label eyebrow 11.5px uppercase samar diganti
+   judul sungguhan 17px — hierarki beranda terbaca tanpa mengecilkan
+   mata. Label kecil uppercase HANYA tersisa di metadata kartu
+   (.tcard .ct, .hcard .hct) dan pill tag, bukan judul seksi. */
 .sec { margin-top: 30px; }
 .sechead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; padding: 0 2px; }
 .sechead h2 {
-  font-family: var(--font-b); font-weight: 700; font-size: 11.5px;
-  letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  font-family: var(--font-d); font-weight: 750; font-size: 17px;
+  letter-spacing: -0.01em; color: var(--txt);
 }
 .sechead .n { font-family: var(--font-m); font-size: 12px; color: var(--faint); margin-left: auto; }
 
@@ -225,15 +273,15 @@ a { color: inherit; }
 .hcard {
   flex: 0 0 148px; scroll-snap-align: start;
   display: flex; flex-direction: column; gap: 9px;
-  border-radius: 16px; padding: 14px 13px;
+  border-radius: var(--r-tile); padding: 14px 13px;
   text-decoration: none;
   transition: transform 0.14s var(--ease), border-color 0.15s;
 }
-.hcard:hover { border-color: rgba(255, 255, 255, 0.16); }
+.hcard:hover { border-color: var(--hair-hover); }
 .hcard:active { transform: scale(0.97); }
 .hcard .hic {
-  width: 42px; height: 42px; border-radius: 12px; flex: none;
-  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--hair);
+  width: 42px; height: 42px; border-radius: var(--r-ctl); flex: none;
+  background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 21px;
 }
 .hcard .hnm {
@@ -267,14 +315,14 @@ a { color: inherit; }
 @media (min-width: 700px) { .catgrid { grid-template-columns: repeat(5, 1fr); } }
 .cattile {
   display: flex; flex-direction: column; align-items: center; gap: 7px;
-  border-radius: 16px; padding: 15px 6px 13px;
+  border-radius: var(--r-tile); padding: 15px 6px 13px;
   font-family: inherit; color: var(--txt); cursor: pointer; text-decoration: none;
   transition: transform 0.22s var(--spring), border-color 0.15s, box-shadow 0.22s var(--spring);
 }
 .cattile:active { transform: scale(0.94); }
-.cattile:hover { border-color: rgba(255, 255, 255, 0.16); transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); }
-.cattile:hover .ci { animation: ci-bounce 0.42s var(--ease); }
-@keyframes ci-bounce { 35% { transform: translateY(-5px) scale(1.1); } 70% { transform: translateY(1px); } }
+.cattile:hover { border-color: var(--hair-hover); transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); }
+/* ikon ubin saat hover: ci-wiggle di fx-micro.css (satu pemilik;
+   ci-bounce di sini dicabut P3 — kalah cascade). */
 .cattile .ci { font-size: 26px; line-height: 1; }
 .cattile .cl { font-size: 12px; font-weight: 700; letter-spacing: -0.005em; text-align: center; line-height: 1.25; }
 .cattile .cn { font-family: var(--font-m); font-size: 11.5px; font-weight: 600; color: var(--faint); }
@@ -287,7 +335,7 @@ a { color: inherit; }
   letter-spacing: -0.015em; color: var(--txt);
   transition: transform 0.12s var(--ease), border-color 0.15s;
 }
-.allbtn:hover { border-color: rgba(255, 255, 255, 0.16); }
+.allbtn:hover { border-color: var(--hair-hover); }
 .allbtn:active { transform: scale(0.97); }
 .allbtn .ago { color: var(--dim); font-size: 22px; }
 .allbtn .an { font-family: var(--font-m); font-size: 12px; color: var(--dim); font-weight: 400; }
@@ -295,17 +343,18 @@ a { color: inherit; }
 /* ---------- grid kartu tools (view kategori / semua / favorit) ---------- */
 .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (min-width: 700px) { .tgrid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .tgrid { grid-template-columns: repeat(4, 1fr); } }
 .tcard {
   position: relative; display: flex; flex-direction: column; gap: 10px;
   border-radius: var(--r-card); padding: 14px 13px 13px;
   text-decoration: none; min-height: 128px; min-width: 0;
   transition: transform 0.22s var(--spring), border-color 0.15s, box-shadow 0.22s var(--spring);
 }
-.tcard:hover { border-color: rgba(255, 255, 255, 0.16); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.38); }
+.tcard:hover { border-color: var(--hair-hover); transform: translateY(-3px); box-shadow: var(--sh-lift); }
 .tcard:active { transform: translateY(-1px) scale(0.97); }
 .tcard .tic {
-  width: 44px; height: 44px; border-radius: 12px; flex: none;
-  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--hair);
+  width: 44px; height: 44px; border-radius: var(--r-ctl); flex: none;
+  background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 22px;
 }
 .tcard .nm {
@@ -324,7 +373,7 @@ a { color: inherit; }
 }
 .tcard .fav {
   position: absolute; top: 6px; right: 6px;
-  width: 36px; height: 36px; border-radius: 10px;
+  width: var(--tap); height: var(--tap); border-radius: var(--r-ctl);
   display: flex; align-items: center; justify-content: center;
   background: none; border: 0; cursor: pointer;
   color: var(--dim); font-size: 17px; opacity: 0.5;
@@ -340,8 +389,8 @@ a { color: inherit; }
 /* ---------- kepala halaman kategori ---------- */
 .cat-head { display: flex; align-items: center; gap: 14px; padding: 8px 0 18px; }
 .cat-head .ctic {
-  width: 56px; height: 56px; border-radius: 16px; flex: none;
-  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--hair);
+  width: 56px; height: 56px; border-radius: var(--r-tile); flex: none;
+  background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 27px;
 }
 .cat-head h2 { font-family: var(--font-d); font-size: 26px; font-weight: 800; letter-spacing: -0.025em; }
@@ -358,8 +407,9 @@ a { color: inherit; }
 .empty .sugx { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
 .empty .sugx .schip {
   font: inherit; font-size: 13px; font-weight: 600; color: var(--mut); cursor: pointer;
-  border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px;
-  background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--r-pill); padding: 8px 14px;
+  background: var(--surface); min-height: var(--tap);
+  display: inline-flex; align-items: center; justify-content: center;
   transition: transform 0.1s var(--ease), color 0.15s, border-color 0.15s;
 }
 .empty .sugx .schip:hover { color: var(--txt); border-color: var(--acc-line); }
@@ -371,29 +421,35 @@ a { color: inherit; }
 .back {
   display: inline-flex; align-items: center; gap: 6px; margin: 20px 0 2px;
   color: var(--mut); text-decoration: none; font-size: 14px; font-weight: 600;
-  padding: 8px 4px;
+  padding: 8px 4px; min-height: var(--tap);
   transition: color 0.15s, transform 0.1s var(--ease);
 }
 .back:hover { color: var(--acc); }
 .back:active { transform: scale(0.96); }
 .tool-head { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0 20px; }
 .tool-head .tic {
-  width: 58px; height: 58px; border-radius: 16px; flex: none;
-  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--hair);
+  width: 58px; height: 58px; border-radius: var(--r-tile); flex: none;
+  background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 28px;
 }
 .tool-head .th { flex: 1; min-width: 0; }
 .tool-head h2 {
-  font-family: var(--font-d); font-size: 25px; letter-spacing: -0.025em;
+  /* C1 (P4-TOKEN): 25px -> 26px, selaras .pagetitle/.cat-head h2.
+     Satu-satunya perubahan ukuran di ronde ini, disengaja. */
+  font-family: var(--font-d); font-size: 26px; letter-spacing: -0.025em;
   font-weight: 800; line-height: 1.15;
 }
 .tool-head .meta { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 10px; }
 .tool-head .meta .tag {
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
-  border: 1px solid var(--acc-line); border-radius: 999px; padding: 4px 11px;
+  border: 1px solid var(--acc-line); border-radius: var(--r-pill); padding: 4px 11px;
   color: var(--acc); background: var(--acc-soft);
 }
-.tool-head .meta .ds { color: var(--mut); font-size: 14px; line-height: 1.55; overflow-wrap: break-word; }
+.tool-head .meta .ds {
+  color: var(--mut); font-size: 14px; line-height: 1.55; overflow-wrap: break-word;
+  /* P2-B1 (v6.14.0, §5.3.5.2): deskripsi kepala tool dibatasi 2 baris. */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
 .tool-head .tacts { display: flex; gap: 8px; flex: none; }
 .tool-head .tacts .fav.on { color: var(--acc); border-color: var(--acc-line); }
 .tool {
@@ -402,12 +458,12 @@ a { color: inherit; }
 }
 @media (min-width: 560px) { .tool { padding: 24px 22px; } }
 
-/* skeleton */
-@keyframes shimmer { from { opacity: 0.35; } to { opacity: 1; } }
-.skel { display: flex; flex-direction: column; gap: 12px; animation: shimmer 0.7s ease-in-out infinite alternate; }
-.skel i { display: block; background: var(--surface-2); border-radius: 8px; height: 48px; }
-.skel i.short { height: 22px; width: 45%; }
-.skel i.tall { height: 120px; }
+/* skeleton: wadah saja (flex kolom, jarak 12px). Barisnya adalah
+   .sk-line di fx-p3.css §B (satu-satunya sistem skeleton yang
+   hidup). Aturan lama .skel i + shimmer/skel-slide dicabut P3:
+   tiga sistem bersaing (kedip blink, geser background-position,
+   sapuan ::after) — yang hidup hanya sapuannya, kini di fx-p3. */
+.skel { display: flex; flex-direction: column; gap: 12px; }
 
 .related { margin-top: 32px; }
 
@@ -435,13 +491,13 @@ input[type=file]::file-selector-button {
   background: var(--surface-2); border: 1px solid var(--line);
   border-radius: var(--r-ctl); padding: 10px 16px; margin-right: 10px; cursor: pointer;
 }
-input[type=file]::file-selector-button:hover { border-color: #4a3d2f; }
+input[type=file]::file-selector-button:hover { border-color: var(--line-strong); }
 input[type=file]::-webkit-file-upload-button {
   font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--txt);
   background: var(--surface-2); border: 1px solid var(--line);
   border-radius: var(--r-ctl); padding: 10px 16px; margin-right: 10px; cursor: pointer;
 }
-input[type=file]::-webkit-file-upload-button:hover { border-color: #4a3d2f; }
+input[type=file]::-webkit-file-upload-button:hover { border-color: var(--line-strong); }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .row > * { flex: 1 1 0; min-width: 0; }
 /* Di HP: maks 2 tombol per baris supaya label tidak patah per suku kata
@@ -465,11 +521,11 @@ input[type=file]::-webkit-file-upload-button:hover { border-color: #4a3d2f; }
   transition: transform 0.1s var(--ease), background 0.15s, border-color 0.15s;
   min-height: 48px;
 }
-.btn:hover { border-color: #4a3d2f; }
+.btn:hover { border-color: var(--line-strong); }
 .btn:active { transform: scale(0.97); }
 .btn.primary { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
 .btn.primary:hover { filter: brightness(1.05); }
-.btn.danger { border-color: #7f2d22; color: #fca5a5; }
+.btn.danger { border-color: #7f2d22; color: var(--err-light); }
 .btn.small { padding: 9px 14px; min-height: 0; font-size: 13px; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 .btn.done { border-color: var(--ok); color: var(--ok); }
@@ -537,7 +593,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(14px);
   background: #221c17; color: var(--txt); font-weight: 650; font-size: 14px;
   border: 1px solid var(--line);
-  padding: 12px 20px; border-radius: 12px; opacity: 0; pointer-events: none;
+  padding: 12px 20px; border-radius: var(--r-ctl); opacity: 0; pointer-events: none;
   transition: opacity 0.2s, transform 0.2s var(--ease); z-index: var(--z-toast);
   max-width: 92vw; text-align: center;
 }
@@ -570,7 +626,7 @@ table.tbl td { white-space: nowrap; }
   background: #f6f1e8; color: #161311; font-weight: 700; font-size: 12px;
   display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; cursor: pointer;
 }
-.pkey.black { background: #141210; color: #f6f1e8; border-color: #4a3d2f; flex-basis: 34px; height: 82px; margin: 0 -9px; z-index: 1; }
+.pkey.black { background: #141210; color: #f6f1e8; border-color: var(--line-strong); flex-basis: 34px; height: 82px; margin: 0 -9px; z-index: 1; }
 .pkey:active { transform: scale(0.95); }
 /* Grid drum: 16 langkah dalam satu baris per track. Di layar kecil grid
    di-scroll horizontal (label track sticky di kiri, lihat drum-machine.js)
@@ -591,7 +647,7 @@ table.tbl td { white-space: nowrap; }
 }
 .wheel { width: 230px; height: 230px; margin: 8px auto; display: block; max-width: 100%; }
 .tapzone {
-  background: var(--surface-2); border: 2px dashed #4a3d2f; border-radius: var(--r-card);
+  background: var(--surface-2); border: 2px dashed var(--line-strong); border-radius: var(--r-card);
   min-height: 150px; display: flex; align-items: center; justify-content: center;
   font-size: 18px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none;
   text-align: center; padding: 20px; transition: transform 0.1s var(--ease), border-color 0.15s;
@@ -612,7 +668,7 @@ pre.ascii { font-size: 11px; line-height: 1.35; }
 .diffbox { border: 1px solid var(--line); border-radius: var(--r-ctl); overflow: hidden; font-family: var(--font-m); font-size: 12.5px; }
 .diffbox div { padding: 7px 11px; white-space: pre-wrap; word-break: break-word; }
 .diff-add { background: rgba(124, 207, 143, 0.12); color: #a9e5bb; }
-.diff-del { background: rgba(248, 113, 113, 0.12); color: #fca5a5; }
+.diff-del { background: rgba(248, 113, 113, 0.12); color: var(--err-light); }
 .diff-same { color: var(--dim); }
 .fancy-out, .zalgo-out { display: flex; flex-direction: column; gap: 8px; }
 .fancy-out .frow, .zalgo-out .frow {
@@ -622,7 +678,7 @@ pre.ascii { font-size: 11px; line-height: 1.35; }
 }
 .fancy-out .ftxt { flex: 1; font-size: 16px; word-break: break-word; }
 .opts { display: flex; gap: 6px 16px; flex-wrap: wrap; }
-.chk { display: flex; align-items: center; gap: 9px; font-size: 14px; cursor: pointer; min-height: 44px; }
+.chk { display: flex; align-items: center; gap: 9px; font-size: 14px; cursor: pointer; min-height: var(--tap); }
 .chk input { width: 20px; height: 20px; accent-color: var(--acc); }
 ul.list, ol.list { padding-left: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 14px; }
 .warna { display: inline-flex; align-items: center; gap: 9px; }
@@ -633,7 +689,7 @@ mark { background: var(--acc); color: var(--acc-ink); border-radius: 3px; paddin
 .monoall { font-family: var(--font-m); user-select: all; -webkit-user-select: all; }
 h3.h3 { margin: 0 0 10px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
 hr.divi { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
-.pick { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 7px 0; cursor: pointer; min-height: 44px; }
+.pick { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 7px 0; cursor: pointer; min-height: var(--tap); }
 .pick input { width: 20px; height: 20px; accent-color: var(--acc); flex: none; }
 .mt8 { margin-top: 8px; }
 
@@ -664,13 +720,13 @@ table.inv-item th { font-weight: 700; }
   padding: 10vh 16px 16px;
 }
 .pal-backdrop {
-  position: absolute; inset: 0; background: rgba(10, 8, 6, 0.62);
+  position: absolute; inset: 0; background: var(--scrim);
   animation: pal-fade 0.18s var(--ease);
 }
 .pal {
   position: relative; width: 100%; max-width: 580px;
-  background: #211b16;
-  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--r-card);
   overflow: hidden;
   animation: pal-in 0.32s var(--spring);
 }
@@ -696,14 +752,14 @@ table.inv-item th { font-weight: 700; }
 }
 .pal-item {
   display: flex; width: 100%; align-items: center; gap: 13px;
-  padding: 10px 12px; border-radius: 12px;
+  padding: 10px 12px; border-radius: var(--r-ctl);
   background: none; border: 0; color: var(--txt);
   font: inherit; text-align: left; cursor: pointer;
   transition: background 0.1s var(--ease);
 }
 .pal-item .pic {
   width: 40px; height: 40px; border-radius: 11px; flex: none;
-  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--hair);
+  background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 19px;
 }
 .pal-item .ptx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
@@ -715,7 +771,7 @@ table.inv-item th { font-weight: 700; }
 }
 .pal-item .pct {
   flex: none; font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
-  color: var(--dim); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px;
+  color: var(--dim); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 10px;
 }
 .pal-item.act { background: var(--acc-soft); }
 .pal-item.act .pic { border-color: var(--acc-line); }
@@ -742,7 +798,7 @@ table.inv-item th { font-weight: 700; }
   max-width: 460px; margin-left: auto; margin-right: auto;
   z-index: var(--z-tabs); display: flex; gap: 4px; padding: 6px;
   background: #1c1713;
-  border: 1px solid rgba(255, 255, 255, 0.09); border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09); border-radius: var(--r-card);
   animation: tabs-in 0.3s var(--ease);
 }
 @keyframes tabs-in { from { opacity: 0; transform: translateY(14px); } }
@@ -785,65 +841,90 @@ table.inv-item th { font-weight: 700; }
    untuk denyut pelan yang nyaris tak terasa.
    ============================================================ */
 
-/* stagger masuk kartu di grid (12 pertama, sisanya bareng) */
-.tgrid > .tcard { animation: rise-in 0.34s var(--ease) both; }
-.tgrid > .tcard:nth-child(1) { animation-delay: 0.01s; }
-.tgrid > .tcard:nth-child(2) { animation-delay: 0.04s; }
-.tgrid > .tcard:nth-child(3) { animation-delay: 0.07s; }
-.tgrid > .tcard:nth-child(4) { animation-delay: 0.1s; }
-.tgrid > .tcard:nth-child(5) { animation-delay: 0.13s; }
-.tgrid > .tcard:nth-child(6) { animation-delay: 0.16s; }
-.tgrid > .tcard:nth-child(7) { animation-delay: 0.19s; }
-.tgrid > .tcard:nth-child(8) { animation-delay: 0.22s; }
-.tgrid > .tcard:nth-child(9) { animation-delay: 0.25s; }
-.tgrid > .tcard:nth-child(10) { animation-delay: 0.28s; }
-.tgrid > .tcard:nth-child(11) { animation-delay: 0.31s; }
-.tgrid > .tcard:nth-child(12) { animation-delay: 0.34s; }
-
-/* ubin kategori ikut stagger */
-.catgrid > .cattile { animation: rise-in 0.34s var(--ease) both; }
-.catgrid > .cattile:nth-child(2) { animation-delay: 0.04s; }
-.catgrid > .cattile:nth-child(3) { animation-delay: 0.08s; }
-.catgrid > .cattile:nth-child(4) { animation-delay: 0.12s; }
-.catgrid > .cattile:nth-child(5) { animation-delay: 0.16s; }
-.catgrid > .cattile:nth-child(6) { animation-delay: 0.2s; }
-.catgrid > .cattile:nth-child(7) { animation-delay: 0.24s; }
-.catgrid > .cattile:nth-child(8) { animation-delay: 0.28s; }
+/* stagger masuk kartu di grid + ubin kategori: tinggal di
+   fx-entrance.css (fx-card/fx-tile, accelerando 16/14 item) —
+   duplikat rise-in di sini dicabut P3 (kalah cascade). */
 
 /* headline: tanda tanya coral berdenyut pelan */
 .hero h1 .qm { display: inline-block; animation: qm-pulse 2.8s ease-in-out infinite; transform-origin: bottom center; }
 @keyframes qm-pulse { 50% { opacity: 0.62; transform: translateY(-3px) rotate(-4deg); } }
 
-/* titik live di badge jumlah tools */
-.livedot {
-  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
-  background: var(--acc); margin-right: 7px; vertical-align: 1px;
-  animation: live-ping 2.2s ease-out infinite;
-}
-@keyframes live-ping {
-  0% { box-shadow: 0 0 0 0 rgba(255, 122, 89, 0.45); }
-  70% { box-shadow: 0 0 0 8px rgba(255, 122, 89, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 122, 89, 0); }
-}
+/* V-10 (v6.14.0, P2-B1): titik live dihapus — jumlah tools statis,
+   bukan sinyal live. Span .livedot juga dicabut dari home() (app.js). */
 
 /* logo: goyang dikit pas di-hover */
 .brand:hover .mark { animation: mark-wig 0.45s var(--ease); }
 @keyframes mark-wig { 25% { transform: rotate(-9deg) scale(1.07); } 60% { transform: rotate(6deg); } }
 
-/* ikon halaman tool: pop pas masuk */
-.tool-head .tic { animation: tic-pop 0.5s var(--spring); }
-@keyframes tic-pop { 0% { transform: scale(0.4) rotate(-14deg); opacity: 0; } 60% { transform: scale(1.12) rotate(4deg); opacity: 1; } }
-
-/* skeleton: shimmer yang jalan, bukan kedip */
-.skel { animation: none; }
-.skel i {
-  background: linear-gradient(100deg, var(--surface-2) 30%, rgba(255,255,255,0.06) 50%, var(--surface-2) 70%);
-  background-size: 200% 100%;
-  animation: skel-slide 1.4s linear infinite;
-}
-@keyframes skel-slide { to { background-position: -200% 0; } }
+/* ikon halaman tool: pop pegas — fx-iconpop di fx-entrance.css
+   (satu pemilik; tic-pop di sini dicabut P3 — kalah cascade). */
 
 /* hormati yang tidak suka gerak */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* ========== DASHBOARD v6.14.0 (P2-B1) ==========
+   Kelas baru untuk redesign beranda. Keluarga layout beranda kini
+   lima macam (V-07): kartu lanjutkan, grid tcard (Favorit), rail
+   hcard (Populer, Riwayat), grid hcard (Baru ditambahkan), ubin
+   kategori, dan kartu lebar (Koleksi) — tidak ada lagi tiga rail
+   identik berurutan. */
+
+/* Grid kartu ringkas (hcard) untuk "Baru ditambahkan": semua 8 tool
+   terlihat tanpa geser, 2 kolom di HP, 4 kolom di tablet ke atas. */
+.hgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media (min-width: 700px) { .hgrid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Grid statis 3 kolom untuk "Coba dulu" di halaman kategori
+   (§5.3.6.3): isinya selalu tepat 3, jadi bukan carousel. */
+.coba-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+/* Kartu lebar Koleksi: ikon + nama + deskripsi nyata + jumlah tool.
+   1 kolom di HP, 2 kolom di tablet ke atas (4 koleksi = 2x2). */
+.colgrid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 700px) { .colgrid { grid-template-columns: repeat(2, 1fr); } }
+.colcard {
+  display: flex; gap: 13px; align-items: flex-start; text-decoration: none;
+  border-radius: var(--r-card); padding: 15px 16px;
+  transition: transform 0.22s var(--spring), border-color 0.15s, box-shadow 0.22s var(--spring);
+}
+.colcard:hover { border-color: var(--hair-hover); transform: translateY(-3px); box-shadow: var(--sh-lift); }
+.colcard:active { transform: translateY(-1px) scale(0.98); }
+.colcard .cic {
+  width: 46px; height: 46px; border-radius: 13px; flex: none;
+  background: var(--wash); border: 1px solid var(--hair);
+  display: flex; align-items: center; justify-content: center; font-size: 23px;
+}
+.colcard .ctx { flex: 1; min-width: 0; }
+.colcard .cnm {
+  display: block;
+  font-family: var(--font-d); font-weight: 700; font-size: 15px;
+  letter-spacing: -0.01em; line-height: 1.3; color: var(--txt);
+}
+.colcard .cds {
+  color: var(--mut); font-size: 13px; line-height: 1.5; margin-top: 3px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.colcard .cnt { display: block; font-family: var(--font-m); font-size: 11.5px; color: var(--faint); margin-top: 8px; }
+.colcard .cnt .arr { color: var(--dim); }
+
+/* Tautan "Lihat semua ..." di bawah seksi: target sentuh 44px. */
+.secmore {
+  display: inline-flex; align-items: center; min-height: var(--tap);
+  margin-top: 4px; padding: 0 2px;
+  font-size: 13px; font-weight: 600; color: var(--mut); text-decoration: none;
+  transition: color 0.15s;
+}
+.secmore:hover { color: var(--acc); }
+
+/* Baris teks "Terakhir dibuka: A · B · C" di halaman tool (§5.3.5.3):
+   pengganti carousel ketiga — satu baris tautan teks, bukan seksi. */
+.recentline {
+  margin-top: 26px; padding: 14px 2px 0; border-top: 1px solid var(--hair);
+  font-size: 13px; line-height: 1.7; color: var(--faint);
+}
+.recentline b { color: var(--dim); font-weight: 600; }
+.recentline a { color: var(--mut); text-decoration: none; font-weight: 600; }
+.recentline a:hover { color: var(--acc); }
+.recentline .sep { color: var(--faint); margin: 0 5px; }

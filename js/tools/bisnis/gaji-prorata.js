@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, money, kv } from '../../core.js';
 
 // Jumlah hari kerja dalam satu bulan (Senin-Jumat untuk sistem 5 hari,
 // Senin-Sabtu untuk sistem 6 hari). Libur nasional belum dikurangi.

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 /* textvector — "Text to Vector": teks -> path vektor -> XML Alight Motion + preview SVG.
    Dua mode:

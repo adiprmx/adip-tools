@@ -1,4 +1,4 @@
-import { h as T, kv, errBox } from '../../core.js?v=6.13.0';
+import { h as T, kv, errBox } from '../../core.js';
 
 export const meta = {"id":"konverter-subtitle","name":"Konverter Subtitle","cat":"teks","icon":"💬","desc":"Ubah subtitle SRT ke VTT atau sebaliknya, plus geser waktunya.","keywords":"subtitle,srt,vtt,film,video,waktu","since":"6.11.0"};
 

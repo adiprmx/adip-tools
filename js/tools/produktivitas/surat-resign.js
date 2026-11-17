@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "surat-resign", "name": "Pembuat Surat Pengunduran Diri", "cat": "produktivitas", "icon": "📝", "desc": "Bikin surat resign formal dari form singkat: jabatan, tanggal terakhir kerja, dan ucapan terima kasih, siap salin atau cetak.", "keywords": "surat resign,surat pengunduran diri,resign,keluar kerja,contoh surat resign", "since": "6.11.0"};
 

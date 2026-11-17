@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "tebak-angka", "name": "Tebak Angka", "cat": "fun", "icon": "🔢", "desc": "Komputer mikir satu angka. 3 level: 1-50, 1-100, 1-500.", "keywords": "tebak,angka,game,kuis,skor,level"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils, imglyRemoval } from '../../core.js?v=6.13.0';
+import { h as T, utils, imglyRemoval } from '../../core.js';
 
 export const meta = {"id": "nexoraautocut", "name": "Auto Cut", "cat": "gambar", "icon": "🧩", "desc": "Hapus background lalu pecah jadi layer PNG per objek.", "keywords": "cutout,layer,hapus background,autocut,alight,zip"};
 

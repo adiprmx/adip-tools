@@ -1,4 +1,4 @@
-import { h as T, utils, kv, tabs } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv, tabs } from '../../core.js';
 
 export const meta = {"id": "format-hp", "name": "Format Nomor HP", "cat": "indonesia", "icon": "📱", "desc": "08xx ↔ +62 ↔ 62xx, satu nomor atau banyak sekaligus, lengkap dengan operator, link WA + pesan awal, dan deteksi nomor rumah.", "keywords": "hp,nomor,telepon,62,whatsapp,operator,telkomsel,indosat,xl,tri,axis,smartfren,massal,rumah,kode area"};
 

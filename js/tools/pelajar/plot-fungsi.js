@@ -1,8 +1,11 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "plot-fungsi", "name": "Plot Fungsi", "cat": "pelajar", "icon": "📉", "desc": "Gambar grafik f(x) + tabel nilai x dari -10 sampai 10.", "keywords": "fungsi,grafik,plot,matematika,kurva,fx"};
 
-/** Parser aman: hanya angka, x, operator, dan sin/cos/tan/sqrt. Balikin fungsi x => y. */
+/** Parser aman: hanya angka, x, operator, dan sin/cos/tan/sqrt. Balikin fungsi x => y.
+    Tanpa kompilasi dinamis — evaluator AST sendiri (recursive descent), jadi
+    aman di bawah CSP tanpa 'unsafe-eval' (remediasi E1). Validasi input, pesan
+    error, dan bahasa rumus yang diterima dipertahankan sama seperti sebelumnya. */
 export function compileFx(src) {
   let s = String(src == null ? '' : src).trim().toLowerCase();
   if (!s) throw new Error('Tulis dulu rumusnya — contoh: x*x+2*x');
@@ -14,18 +17,139 @@ export function compileFx(src) {
   const bare = s.replace(/sin|cos|tan|sqrt|x/g, ' ');
   if (/[^0-9+\-*/^().\s]/.test(bare))
     throw new Error('Ada karakter asing. Boleh pakai: angka, x, + - * / ^ ( ), spasi.');
-  let js = s
-    .replace(/\bsin\b/g, 'Math.sin').replace(/\bcos\b/g, 'Math.cos')
-    .replace(/\btan\b/g, 'Math.tan').replace(/\bsqrt\b/g, 'Math.sqrt')
-    .replace(/(\d|\))x/g, '$1*x').replace(/x(\d|\()/g, 'x*$1').replace(/\)(\d|\()/g, ')*$1')
-    .replace(/(\d|\))Math/g, '$1*Math')
-    .replace(/\^/g, '**');
-  let fn;
-  try { fn = new Function('x', '"use strict"; return (' + js + ');'); }
+  let ast;
+  try { ast = parseFx(s); }
   catch (e) { throw new Error('Rumusnya nggak valid — cek lagi tanda kurungnya.'); }
+  const fn = (x) => evalFx(ast, x);
   try { for (const p of [0, 1, -1, 2.5]) fn(p); }
   catch (e) { throw new Error('Rumusnya error pas dihitung — cek lagi ya.'); }
   return fn;
+}
+
+/* Tokenizer rumus: angka, x, sin/cos/tan/sqrt, + - * / ^ ( ).
+   Perkalian implisit disisipkan persis seperti aturan regex lama:
+   angka/) sebelum x, x sebelum angka/(, ) sebelum angka/(, angka/) sebelum
+   fungsi. Angka yang berakhiran titik ("5.") TIDAK menyisipkan * — sama
+   seperti regex lama yang mensyaratkan digit/) tepat sebelum x/fungsi. */
+function tokenFx(s) {
+  const out = [];
+  let i = 0;
+  while (i < s.length) {
+    const ch = s[i];
+    if (ch === ' ' || ch === '\t') { i++; continue; }
+    if (/[0-9.]/.test(ch)) {
+      const m = /^(?:\d+\.?\d*|\.\d+)/.exec(s.slice(i));
+      if (!m) throw new Error('angka');
+      out.push({ t: 'num', v: parseFloat(m[0]), raw: m[0] });
+      i += m[0].length;
+      continue;
+    }
+    if (/[a-z]/.test(ch)) {
+      const m = /^[a-z]+/.exec(s.slice(i));
+      out.push({ t: m[0] === 'x' ? 'x' : 'fn', v: m[0] });
+      i += m[0].length;
+      continue;
+    }
+    // `**` (gaya Python/JS) = pangkat, sama seperti `^` — diterima mesin lama.
+    if (ch === '*' && s[i + 1] === '*') { out.push({ t: '^' }); i += 2; continue; }
+    if ('+-*/^()'.includes(ch)) { out.push({ t: ch }); i++; continue; }
+    throw new Error('karakter');
+  }
+  const hasil = [];
+  for (let k = 0; k < out.length; k++) {
+    const a = out[k - 1], b = out[k];
+    if (a) {
+      const aNum = a.t === 'num' && /\d$/.test(a.raw), aTtp = a.t === ')', aX = a.t === 'x';
+      const bX = b.t === 'x', bNum = b.t === 'num', bBuka = b.t === '(', bFn = b.t === 'fn';
+      if (((aNum || aTtp) && (bX || bFn)) || (aX && (bNum || bBuka)) || (aTtp && (bNum || bBuka)))
+        hasil.push({ t: '*' });
+    }
+    hasil.push(b);
+  }
+  return hasil;
+}
+
+/* Recursive descent: expr (+ -) > term (* /) > unary (- +) > power (^, kanan) > primary.
+   ^ mengikat lebih kuat dari minus di kirinya (-x^2 = -(x^2)) dan pangkat boleh
+   diawali minus (2^-2) — keduanya valid secara matematika; mesin JS lama menolaknya
+   hanya karena sintaks `**` (satu-satunya perbedaan perilaku yang disengaja). */
+function parseFx(s) {
+  const toks = tokenFx(s);
+  let pos = 0;
+  const lihat = () => toks[pos];
+  const makan = (t) => { if (lihat() && lihat().t === t) { pos++; return true; } return false; };
+  function expr() {
+    let node = term();
+    for (;;) {
+      if (makan('+')) node = { op: '+', a: node, b: term() };
+      else if (makan('-')) node = { op: '-', a: node, b: term() };
+      else return node;
+    }
+  }
+  function term() {
+    let node = unary();
+    for (;;) {
+      if (makan('*')) node = { op: '*', a: node, b: unary() };
+      else if (makan('/')) node = { op: '/', a: node, b: unary() };
+      else return node;
+    }
+  }
+  function unary() {
+    if (makan('-')) return { op: 'neg', a: unary() };
+    if (makan('+')) return unary();
+    return power();
+  }
+  function power() {
+    const basis = primary();
+    if (makan('^')) return { op: '^', a: basis, b: unary() };
+    return basis;
+  }
+  function primary() {
+    const tk = lihat();
+    if (!tk) throw new Error('habis');
+    if (tk.t === 'num') { pos++; return { op: 'num', v: tk.v }; }
+    if (tk.t === 'x') { pos++; return { op: 'x' }; }
+    if (tk.t === 'fn') {
+      pos++;
+      if (!makan('(')) throw new Error('kurung');
+      // sin() tanpa argumen = NaN (seperti Math.sin()) — grafik kosong,
+      // bukan error; sama seperti perilaku lama.
+      if (makan(')')) return { op: 'num', v: NaN };
+      const arg = expr();
+      if (!makan(')')) throw new Error('kurung');
+      return { op: 'fn', f: tk.v, a: arg };
+    }
+    if (makan('(')) {
+      const node = expr();
+      if (!makan(')')) throw new Error('kurung');
+      return node;
+    }
+    throw new Error('token');
+  }
+  const ast = expr();
+  if (pos !== toks.length) throw new Error('sisa');
+  return ast;
+}
+
+function evalFx(node, x) {
+  switch (node.op) {
+    case 'num': return node.v;
+    case 'x': return x;
+    case 'neg': return -evalFx(node.a, x);
+    case '+': return evalFx(node.a, x) + evalFx(node.b, x);
+    case '-': return evalFx(node.a, x) - evalFx(node.b, x);
+    case '*': return evalFx(node.a, x) * evalFx(node.b, x);
+    case '/': return evalFx(node.a, x) / evalFx(node.b, x);
+    case '^': return evalFx(node.a, x) ** evalFx(node.b, x);
+    case 'fn': {
+      const v = evalFx(node.a, x);
+      if (node.f === 'sin') return Math.sin(v);
+      if (node.f === 'cos') return Math.cos(v);
+      if (node.f === 'tan') return Math.tan(v);
+      return Math.sqrt(v);
+    }
+    default: return NaN;
+  }
 }
 
 export function render(root) {

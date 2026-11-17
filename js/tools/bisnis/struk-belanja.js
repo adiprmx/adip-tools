@@ -1,4 +1,4 @@
-import { h as T, kv, dlNodePng, errBox } from '../../core.js?v=6.13.0';
+import { h as T, kv, dlNodePng, errBox } from '../../core.js';
 
 export const meta = {"id":"struk-belanja","name":"Struk Belanja","cat":"bisnis","icon":"🧾","desc":"Bikin struk belanja untuk toko sendiri, siap dibagikan sebagai gambar.","keywords":"struk,belanja,toko,nota,receipt,kasir","since":"6.11.0"};
 

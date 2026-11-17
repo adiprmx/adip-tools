@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
 /* Konverter HTML -> Markdown, 100% client-side via DOMParser.
    HTML input TIDAK PERNAH dimasukkan ke dokumen hidup — hanya diurai
@@ -206,7 +206,7 @@ function estimasiKedalamanHtml(html) {
   return maks;
 }
 
-export const meta = {"id": "html-ke-markdown", "name": "HTML ke Markdown", "cat": "developer", "icon": "🔀", "desc": "Ubah HTML jadi Markdown (heading, daftar, tabel, tautan, kode) — 100% di browser, hasil bisa disalin/unduh.", "keywords": "html,markdown,konverter,md,readme,notion,cms", "since": "6.13.0"};
+export const meta = {"id": "html-ke-markdown", "name": "HTML ke Markdown", "cat": "developer", "icon": "🔀", "desc": "Ubah HTML jadi Markdown (heading, daftar, tabel, tautan, kode). 100% di browser, hasil bisa disalin/unduh.", "keywords": "html,markdown,konverter,md,readme,notion,cms", "since": "6.13.0"};
 export function render(root) {
 
     const inp = T.ta(10, 'Tempel kode HTML di sini, cth:\n<h1>Judul</h1>\n<p>Teks <strong>tebal</strong> dan <a href="https://example.com">tautan</a>.</p>\n<ul><li>Satu</li><li>Dua</li></ul>');

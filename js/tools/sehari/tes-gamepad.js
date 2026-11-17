@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id": "tes-gamepad", "name": "Tes Gamepad", "cat": "sehari", "icon": "🎮", "desc": "Cek stik atau gamepad: tombol, analog, dan getaran.", "keywords": "gamepad,stik,joystick,controller,tombol", "since": "6.11.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js?v=6.13.0';
+import { h as T, esc } from '../../core.js';
 
 export const meta = {"id":"fakta-kucing","name":"Fakta Kucing","cat":"liveapi","icon":"🐱","desc":"Fakta acak tentang kucing dalam bahasa Inggris asli.","keywords":"kucing,fakta,cat,fun,random"};
 

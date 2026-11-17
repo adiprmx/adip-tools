@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"rumus-saku","name":"Rumus Saku","cat":"pelajar","icon":"🧮","desc":"Kantong rumus cepat Matematika, Kimia, dan Statistika untuk dihafal.","keywords":"rumus,matematika,kimia,statistik,hafalan,contekan,referensi"};
 

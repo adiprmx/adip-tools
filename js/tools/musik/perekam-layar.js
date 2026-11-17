@@ -1,4 +1,4 @@
-import { h as T, fmtBytes, errBox } from '../../core.js?v=6.13.0';
+import { h as T, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"perekam-layar","name":"Perekam Layar","cat":"musik","icon":"🖥️","desc":"Rekam layar laptop atau HP beserta suaranya, lihat hasilnya, lalu unduh sebagai video WebM.","keywords":"rekam layar,screen recorder,tangkap layar,video layar,webm","since":"6.13.0"};
 

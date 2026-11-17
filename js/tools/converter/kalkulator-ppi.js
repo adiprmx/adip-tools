@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "kalkulator-ppi", "name": "Kalkulator PPI", "cat": "converter", "icon": "🖥️", "desc": "Hitung kerapatan piksel layar + jarak pandang idealnya.", "keywords": "ppi,resolusi,layar,piksel,dpi,monitor,hp,tv,jarak pandang"};
 export function render(root) {

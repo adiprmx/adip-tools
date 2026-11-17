@@ -1,4 +1,4 @@
-import { h as T, kv, esc, errBox } from '../../core.js?v=6.13.0';
+import { h as T, kv, esc, errBox } from '../../core.js';
 
 export const UTM_KEY = 'adiptools-utm-history';
 

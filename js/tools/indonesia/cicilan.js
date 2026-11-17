@@ -1,4 +1,4 @@
-import { h as T, utils, U, money } from '../../core.js?v=6.13.0';
+import { h as T, utils, U, money } from '../../core.js';
 
 // Tenor maksimal 600 bulan (50 tahun, selaras dengan lunasi-utang): jadwal
 // angsuran dibangun per bulan, jadi tenor 999.999.999 bulan membekukan tab

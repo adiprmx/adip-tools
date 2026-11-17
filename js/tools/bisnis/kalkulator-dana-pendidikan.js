@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 export const meta = {"id": "kalkulator-dana-pendidikan", "name": "Kalkulator Dana Pendidikan", "cat": "bisnis", "icon": "🎓", "desc": "Proyeksi biaya sekolah anak TK sampai kuliah dengan inflasi pendidikan, plus tabungan bulanan yang perlu disiapkan.", "keywords": "dana pendidikan,biaya sekolah,anak,tabungan pendidikan,inflasi pendidikan,tk,sd,smp,sma,kuliah,ukt", "since": "6.13.0"};
 

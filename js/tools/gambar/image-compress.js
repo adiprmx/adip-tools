@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js?v=6.13.0';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js';
 
 // Cari kualitas tertinggi (0..1) yang hasilnya <= targetBytes.
 // ukur(q) -> Promise<number|null> ukuran byte pada kualitas q.

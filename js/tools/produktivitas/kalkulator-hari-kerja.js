@@ -1,6 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
-export const meta = {"id": "kalkulator-hari-kerja", "name": "Kalkulator Hari Kerja", "cat": "produktivitas", "icon": "🗓️", "desc": "Hitung jumlah hari kerja antara dua tanggal — sudah dikurangi Sabtu, Minggu, dan libur nasional Indonesia.", "keywords": "hari kerja,business days,libur nasional,tanggal,cuti,deadline,hrd,payroll,sabtu minggu", "since": "6.13.0"};
+export const meta = {"id": "kalkulator-hari-kerja", "name": "Kalkulator Hari Kerja", "cat": "produktivitas", "icon": "🗓️", "desc": "Hitung jumlah hari kerja antara dua tanggal, sudah dikurangi Sabtu, Minggu, dan libur nasional Indonesia.", "keywords": "hari kerja,business days,libur nasional,tanggal,cuti,deadline,hrd,payroll,sabtu minggu", "since": "6.13.0"};
 
 // Data libur 2026: SAMA dengan yang dipakai tool hari-libur (tidak bisa
 // diimpor langsung karena daftarnya tersimpan di dalam render() tool itu,

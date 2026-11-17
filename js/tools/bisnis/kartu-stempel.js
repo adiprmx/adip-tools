@@ -1,4 +1,4 @@
-import { h as T, utils, dlNodePng } from '../../core.js?v=6.13.0';
+import { h as T, utils, dlNodePng } from '../../core.js';
 
 // Logika murni (bisa di-test di Node).
 utils.nomorSeri = function (awalan, mulai, jumlah) {

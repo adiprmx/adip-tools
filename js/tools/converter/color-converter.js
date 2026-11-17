@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 // OKLCH -> RGB (invers matriks Bjorn Ottosson). L 0-1, C >= 0, H derajat.
 export function oklchToRgb(L, C, H) {

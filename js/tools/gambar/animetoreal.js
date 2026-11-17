@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"animetoreal","name":"Anime to Real","cat":"gambar","icon":"🧑‍🎨","desc":"Ubah ilustrasi anime jadi foto realistik via akun Puter milikmu.","keywords":"anime,realistik,foto,ai,konversi,puter"};
 

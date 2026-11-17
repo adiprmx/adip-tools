@@ -36,26 +36,11 @@
 .pal-item:hover .pic,
 .pal-item.act .pic { transform: translateX(3px) scale(1.06); }
 
-/* ---------- 3. Skeleton: shimmer elegan yang menyapu ---------- */
-.skel i {
-  animation: none; /* ganti kedip bawaan */
-  position: relative; overflow: hidden;
-}
-.skel i::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg, transparent 25%, rgba(255, 255, 255, 0.08) 50%, transparent 75%);
-  transform: translateX(-102%);
-  animation: skel-sweep 1.9s var(--ease) infinite;
-}
-.skel i:nth-child(2)::after { animation-delay: 0.18s; }
-.skel i:nth-child(3)::after { animation-delay: 0.36s; }
-.skel i:nth-child(4)::after { animation-delay: 0.54s; }
-@keyframes skel-sweep {
-  0%   { transform: translateX(-102%); opacity: 0; }
-  12%  { opacity: 1; }
-  88%  { opacity: 1; }
-  100% { transform: translateX(102%); opacity: 0; }
-}
+/* ---------- 3. Skeleton: PINDAH ke fx-p3.css §B (P3, v6.14.0) ----------
+   Sistem skeleton lama (.skel i + sapuan skel-sweep) dicabut: toolPage
+   kini memakai .sk-line (span, meniru formulir), dan satu sistem
+   skeleton yang hidup tinggal di fx-p3.css (fx-sk-sweep, matematika
+   sapuan yang sama). Tidak ada lagi .skel i di markup mana pun. */
 
 /* ---------- 4. Empty state: bernapas pelan + chip stagger ---------- */
 .empty b { animation: empty-breathe 4.2s ease-in-out infinite; }
@@ -82,7 +67,6 @@
 @media (prefers-reduced-motion: reduce) {
   .toast, .toast.show,
   .pal-item::before, .pal-item .pic,
-  .skel i::after,
   .empty b, .empty .sugx .schip,
   .tab.on .ti {
     animation: none !important;

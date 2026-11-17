@@ -53,7 +53,7 @@ async function main() {
     }
     lines.push('');
   }
-  fs.writeFileSync(path.join(ROOT, 'llms.txt'), lines.join('\n'));
+  fs.writeFileSync(path.join(ROOT, 'public', 'llms.txt'), lines.join('\n'));
   console.log(`llms.txt ditulis: ${manifest.length} tool, ${order.filter((c) => (byCat.get(c) || []).length).length} kategori`);
 }
 

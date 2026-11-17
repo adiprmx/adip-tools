@@ -1,5 +1,5 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.13.0';
-import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js?v=6.13.0';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "konverter-audio", "name": "Konverter Audio", "cat": "musik", "icon": "🔄", "desc": "Ubah audio antar MP3, WAV, FLAC, OGG, dan M4A.", "keywords": "audio,konversi,mp3,wav,flac,ogg,m4a,aac,format", "since": "6.11.0"};
 

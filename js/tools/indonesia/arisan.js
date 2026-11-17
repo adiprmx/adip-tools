@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "arisan", "name": "Arisan Picker", "cat": "indonesia", "icon": "🎰", "desc": "Kocok nama anggota arisan.", "keywords": "arisan,kocok,nama,acak"};
 export function render(root) {

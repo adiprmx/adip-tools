@@ -1,6 +1,6 @@
-import { h as T, _NI, tabs } from '../../core.js?v=6.13.0';
+import { h as T, _NI, tabs } from '../../core.js';
 
-export const meta = {"id": "tebak-chord", "name": "Tebak Chord dari Nada", "cat": "musik", "icon": "🔍", "desc": "Ketik nada-nada, tebak nama chordnya — plus kuis dengar chord 3 level.", "keywords": "chord,nada,tebak,nama chord,identifikasi,interval,kuis,latihan telinga"};
+export const meta = {"id": "tebak-chord", "name": "Tebak Chord dari Nada", "cat": "musik", "icon": "🔍", "desc": "Ketik nada-nada, tebak nama chordnya, plus kuis dengar chord 3 level.", "keywords": "chord,nada,tebak,nama chord,identifikasi,interval,kuis,latihan telinga"};
 
 const NS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const PATTERNS = [

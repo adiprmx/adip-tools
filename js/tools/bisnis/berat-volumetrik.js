@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
 
@@ -8,7 +8,7 @@ const LAYANAN = {
   'kargo': { label: 'Kargo', bagi: 4000 },
 };
 
-export const meta = {"id": "berat-volumetrik", "name": "Berat Volumetrik Paket", "cat": "bisnis", "icon": "📦", "desc": "Hitung berat volumetrik paket dan bandingkan dengan berat timbangan — yang lebih besar itulah yang ditagih kurir.", "keywords": "berat volumetrik,paket,ongkir,ekspedisi,jne,j&t,kargo,dimensi"};
+export const meta = {"id": "berat-volumetrik", "name": "Berat Volumetrik Paket", "cat": "bisnis", "icon": "📦", "desc": "Hitung berat volumetrik paket dan bandingkan dengan berat timbangan. Yang lebih besar itulah yang ditagih kurir.", "keywords": "berat volumetrik,paket,ongkir,ekspedisi,jne,j&t,kargo,dimensi"};
 export function render(root) {
 
     const pI = T.input('number', 'cth: 40', '');

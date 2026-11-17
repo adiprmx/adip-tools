@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
 export const meta = {"id":"bantuan","name":"Bantuan & Pertanyaan Umum","cat":"produktivitas","icon":"❓","desc":"Jawaban singkat untuk pertanyaan yang paling sering ditanyakan soal Adip Tools.","keywords":"bantuan,faq,pertanyaan,help,cara pakai,gratis,privasi,aman,error","since":"6.12.0"};
 

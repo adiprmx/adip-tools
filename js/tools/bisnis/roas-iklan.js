@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id": "roas-iklan", "name": "ROAS Iklan", "cat": "bisnis", "icon": "📣", "desc": "Cek apakah uang iklan balik modal: ROAS, untung iklan, dan berapa penjualan supaya iklan impas.", "keywords": "roas,iklan,ads,bep iklan,balik modal,facebook ads,tiktok ads,meta ads", "since": "6.11.0"};
 export function render(root) {

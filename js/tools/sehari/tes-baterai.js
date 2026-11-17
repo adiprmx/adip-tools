@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id": "tes-baterai", "name": "Tes Baterai", "cat": "sehari", "icon": "🔋", "desc": "Lihat sisa baterai, status pengisian, dan perkiraan waktu pakai.", "keywords": "baterai,charging,daya,level,charge", "since": "6.11.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, utils, errBox, kv, onLeave } from '../../core.js?v=6.13.0';
+import { h as T, utils, errBox, kv, onLeave } from '../../core.js';
 
 export const meta = {"id": "danbooru", "name": "Danbooru Search", "cat": "gambar", "icon": "🎨", "desc": "Cari ilustrasi anime dari Danbooru berdasarkan tag.", "keywords": "danbooru,anime,ilustrasi,tag,gambar,fanart"};
 

@@ -28,8 +28,11 @@
 .fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .fchip {
   font: inherit; font-size: 13px; font-weight: 600; color: var(--mut);
-  cursor: pointer; border: 1px solid var(--line); border-radius: 999px;
+  cursor: pointer; border: 1px solid var(--line); border-radius: var(--r-pill);
   padding: 8px 14px; background: var(--surface);
+  /* B-05 (v6.14.0, P2-B1): chip 38px -> min 44px (R-03). Konstanta
+     inline CHIP/CHIP_ON di app.js ikut diupdate — inline menang. */
+  min-height: var(--tap); display: inline-flex; align-items: center; justify-content: center;
   transition: transform 0.1s var(--ease), color 0.15s, border-color 0.15s;
 }
 .fchip:hover { color: var(--txt); border-color: var(--acc-line); }
@@ -61,13 +64,13 @@ input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 44px;
+  height: var(--tap);
   background: transparent;
   cursor: pointer;
 }
 input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--surface-2);
   border: 1px solid var(--line);
 }
@@ -83,7 +86,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 input[type="range"]::-moz-range-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--surface-2);
   border: 1px solid var(--line);
 }
@@ -189,7 +192,7 @@ table.tbl {
   position: absolute;
   left: 12px;
   top: -100px;
-  z-index: 100;
+  z-index: var(--z-skip);
   padding: 10px 16px;
   border-radius: 10px;
   background: var(--surface);

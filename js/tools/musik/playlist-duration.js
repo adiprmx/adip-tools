@@ -1,4 +1,4 @@
-import { h as T, utils, U, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, U, kv } from '../../core.js';
 
 U.parseDuration = (s) => {
     const parts = String(s).trim().split(':').map((p) => p.trim());

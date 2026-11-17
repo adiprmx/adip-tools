@@ -1,4 +1,4 @@
-import { h as T, kv, fileInput, fmtBytes, errBox } from '../../core.js?v=6.13.0';
+import { h as T, kv, fileInput, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"zip-file","name":"Buat & Buka ZIP","cat":"converter","icon":"🗜️","desc":"Gabung banyak file jadi satu ZIP, atau buka isi file ZIP.","keywords":"zip,arsip,kompres,ekstrak,file,buka","since":"6.11.0"};
 

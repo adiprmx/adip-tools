@@ -1,6 +1,14 @@
 /* ============================================================
    ADIP Tools v6.0 — app shell + router (liquid glass edition)
-   Tetap murni: vanilla JS, tanpa framework, tanpa build step.
+   Tetap murni: vanilla JS, tanpa framework. Build: Vite v6.14.0+
+   (bundling + hash nama file menggantikan ?v= manual — lihat
+   vite.config.js dan laporan P0-A di ~/workspace/adip-tools-upgrade/).
+
+   PENTING (loader tool): tool dimuat lewat import.meta.glob di bawah.
+   Vite mengubah glob ini menjadi dynamic import per tool (satu chunk
+   ber-hash per tool di build, file sumber langsung di dev). Kunci glob
+   adalah './' + m.file dari manifest — JANGAN ubah format field `file`
+   di manifest tanpa menyesuaikan glob ini.
 
    STRUKTUR BARU v6 (anti scroll-fatigue):
    - Beranda PENDEK: hero sapaan + search besar, kartu "Lanjutkan",
@@ -23,239 +31,63 @@
    - Rantai "Lanjut ke" di halaman tool (peta NEXT)
    - Filter "Favorit" di #/semua + tombol ♥ di palette
    - Halaman Metodologi (#/metodologi, anchor per tool)
+
+   STRUKTUR MODUL v6.14.0 (P0-C — refactor shell, NOL perubahan
+   perilaku/tampilan; lihat laporan p0-shell.md):
+   - app.js ......... orkestrasi: view, palette, tab bar, boot.
+   - routes.js ...... tabel route (SATU sumber kebenaran) + matcher.
+   - catalog.js ..... data kurasi (CATS, COLLECTIONS, NEXT, METHOD).
+   - store.js ....... favorit + riwayat (localStorage).
+   - supabase.js .... tracking + istilah Populer (best-effort).
+   - shell-ui.js .... helper tampilan bersama (hcard, fade, footer).
+   - beranda.js ..... view beranda + helpernya (renderContinue dkk).
    ============================================================ */
-import { manifest, VERSION } from './manifest.js?v=6.13.0';
-import * as T from './core.js?v=6.13.0';
-import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML } from './beranda.js?v=6.13.0';
-import { recentRailHTML, prevToolChip, catMoreLink } from './detail-riwayat.js?v=6.13.0';
-import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js?v=6.13.0';
-import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js?v=6.13.0';
+import { manifest, VERSION } from './manifest.js';
+import * as T from './core.js';
+import { CATS, CAT_ICON, catLabel, byId, visibleTools, isNew, COLLECTIONS, collectionById, NEXT, METHOD, METHOD_IDS } from './catalog.js';
+import { getFav, isFav, toggleFav, getRecent, touchRecent } from './store.js';
+import { fetchPopularTerms, trackSearch, trackSearchDebounced } from './supabase.js';
+import { hcardHTML, watchFadeX, footerHTML } from './shell-ui.js';
+import { matchRoute, queryParam } from './routes.js';
+import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML, greet, PH_EXAMPLES, startPlaceholderRotation, stopPlaceholderRotation, renderContinue, renderPopuler, renderRecent } from './beranda.js';
+import { isNewVisitor, maybeShowOnboarding, heroProofHTML, mulaiDariSiniHTML, HERO_SUB } from './onboarding.js';
+import { recentLineHTML, prevToolChip, catMoreLink } from './detail-riwayat.js';
+import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js';
+import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, addRecentSearch } from './search-plus.js';
+/* P2-B2 (v6.14.0): komponen UI hasil audit — navbar shell,
+   breadcrumb, dialog, toolbar #/semua, dsb. (js/components.js).
+   Satu-satunya titik sambung: initComponents di boot +
+   enhanceRoute di route() + renderToolError di catch toolPage. */
+import { initComponents, enhanceRoute, renderToolError } from './components.js';
 
-const SB_URL = 'https://jebafddwupyqpwevhsqn.supabase.co';
-const SB_ANON = 'sb_publishable_rxxzONDsxTmmsHiQgaptjg_7zbG5qeT';
-const SEARCH_DENY = ['muse-test'];
+/* Peta lazy-load semua tool (Vite: import.meta.glob).
+   - Dev: tiap nilai adalah () => import('<file sumber>') — dilayani Vite
+     langsung dari js/tools/, HMR per file tetap jalan.
+   - Build: tiap tool jadi satu chunk ber-hash (assets/<id>-<hash>.js);
+     core.js + ffmpeg-loader.js otomatis jadi chunk bersama (shared).
+   - Kunci: './tools/<kategori>/<id>.js' = './' + m.file dari manifest.
+   - JANGAN ganti dengan import() string dinamis: Vite tidak bisa
+     me-resolve path dinamis murni dan tool tidak akan masuk build. */
+const toolModules = import.meta.glob('./tools/**/*.js');
 
-const CATS = [
-  ['semua','Semua'],['keamanan','Keamanan'],['converter','Converter'],['developer','Dev & Web'],
-  ['desain','Desain'],['indonesia','Indonesia'],['musik','Musik'],['gambar','Gambar'],
-  ['teks','Teks'],['bisnis','Bisnis'],['sehari','Sehari-hari'],['fun','Fun'],
-  ['produktivitas','Produktivitas'],['pelajar','Pelajar'],['liveapi','Live API'],
-  ['fakesos','Fake Sosmed'],
-];
-const CAT_ICON = {
-  keamanan: '🔐', converter: '🔁', developer: '🧑‍💻', desain: '🎨', indonesia: '🇮🇩',
-  musik: '🎧', gambar: '🖼️', teks: '🔤', bisnis: '💼', sehari: '🏠',
-  fun: '🎲', produktivitas: '⚡', pelajar: '📚', liveapi: '🌐', semua: '🧰',
-  fakesos: '🎭',
-};
-const catLabel = (id) => (CATS.find((c) => c[0] === id) || ['?','Lainnya'])[1];
-const byId = (id) => manifest.find((m) => m.id === id);
-const visibleTools = () => manifest.filter((m) => !SEARCH_DENY.includes(m.id));
-/* tool baru = field `since` di meta-nya sama dengan versi saat ini */
-const isNew = (m) => Boolean(m.since) && m.since === VERSION;
+/* Data katalog (CATS, COLLECTIONS, NEXT, METHOD + aksesor) tinggal di
+   catalog.js; Supabase di supabase.js; favorit/riwayat di store.js. */
 
-/* ---------------- koleksi berdasarkan masalah (v6.12.0, ide UX #8) ----------------
-   Koleksi mengelompokkan tool lintas kategori berdasarkan masalah yang mau
-   diselesaikan user, bukan kategori teknis. ID tool di bawah diverifikasi
-   ada di manifest; collectionPage() tetap memfilter yang hilang. */
-const COLLECTIONS = [
-  { id: 'lamaran-kerja', icon: '💼', name: 'Buat lamaran kerja', desc: 'CV, surat lamaran, pas foto, sampai semua berkas jadi satu PDF.', tools: ['pembuat-cv', 'surat-lamaran', 'crop-pas-foto', 'image-compress', 'ubah-ukuran-foto', 'pdflab', 'tanda-tangan', 'cek-privasi-tempel'] },
-  { id: 'jualan-online', icon: '🛍️', name: 'Buat jualan online', desc: 'Hitung harga jual, diskon, fee marketplace, sampai invoice rapi.', tools: ['daftar-harga', 'harga-jual', 'kalkulator-hpp', 'food-cost', 'fee-lazada', 'diskon-aman', 'harga-coret', 'harga-bundling', 'harga-grosir', 'buat-invoice', 'generator-hashtag', 'komisi-reseller'] },
-  { id: 'tugas-sekolah', icon: '📚', name: 'Buat tugas sekolah', desc: 'Sitasi, flashcard, kuis, jadwal belajar, sampai hitung nilai.', tools: ['citation', 'flashcard', 'kuis-maker', 'jadwal-belajar', 'pomodoro', 'hitung-mundur-ujian', 'ipk', 'nilai-akhir', 'konversi-nilai', 'kalkulator-umum', 'word-counter', 'glosarium', 'kuis-matematika-cepat', 'trivia-umum', 'benar-atau-salah', 'tebak-tahun'] },
-  { id: 'berkas-cpns', icon: '🏛️', name: 'Siapin berkas CPNS', desc: 'Pas foto sesuai syarat, berkas pas ukuran, plus latihan SKD.', tools: ['crop-pas-foto', 'image-compress', 'ubah-ukuran-foto', 'pdflab', 'tanda-tangan', 'nilai-skd-cpns', 'simulasi-skd-cpns', 'latihan-deret-angka'] },
-];
-const collectionById = (id) => COLLECTIONS.find((c) => c.id === id);
-
-/* ---------------- rantai antar-tool (v6.12.0, ide UX #7) ----------------
-   Langkah berikut yang relevan setelah memakai satu tool. Ditampilkan shell
-   di bawah kotak tool (tanpa mengubah file tool). Tool yang mau menaruh
-   rantai di dalam area hasilnya bisa pakai T.nextSteps() di core.js. */
-const NEXT = {
-  'image-compress': ['ubah-ukuran-foto', 'image-convert', 'removebg'],
-  'ubah-ukuran-foto': ['image-compress', 'crop-pas-foto', 'image-convert'],
-  'image-convert': ['image-compress', 'ubah-ukuran-foto', 'pdflab'],
-  'crop-pas-foto': ['image-compress', 'ubah-ukuran-foto', 'pdflab'],
-  'removebg': ['image-convert', 'kolase-foto', 'ubah-ukuran-foto'],
-  'kolase-foto': ['image-compress', 'ubah-ukuran-foto'],
-  'pdflab': ['tanda-tangan', 'image-compress', 'image-convert'],
-  'pembuat-cv': ['surat-lamaran', 'crop-pas-foto', 'pdflab'],
-  'surat-lamaran': ['pembuat-cv', 'tanda-tangan', 'pdflab'],
-  'tanda-tangan': ['pdflab', 'surat-pernyataan'],
-  'surat-resign': ['surat-pernyataan', 'kalkulator-pesangon', 'gaji-prorata'],
-  'kalkulator-pesangon': ['gaji-prorata', 'cuti-prorata'],
-  'gaji-prorata': ['cuti-prorata', 'kalkulator-lembur'],
-  'cuti-prorata': ['gaji-prorata', 'kalkulator-pesangon'],
-  'kalkulator-lembur': ['gaji-prorata', 'kalkulator-gaji-bersih'],
-  'kalkulator-gaji-bersih': ['pph21', 'thr', 'banding-gaji'],
-  'pph21': ['kalkulator-gaji-bersih', 'denda-pajak'],
-  'thr': ['kalkulator-gaji-bersih', 'gaji-prorata'],
-  'banding-gaji': ['konverter-gaji', 'kalkulator-gaji-bersih'],
-  'konverter-gaji': ['banding-gaji', 'gaji-prorata'],
-  'kpr': ['cicilan', 'kalkulator-tabungan', 'beli-vs-sewa'],
-  'cicilan': ['biaya-paylater', 'kpr', 'beli-vs-sewa'],
-  'beli-vs-sewa': ['kpr', 'cicilan'],
-  'biaya-paylater': ['cicilan', 'kalkulator-dana-darurat'],
-  'kalkulator-tabungan': ['kalkulator-dana-darurat', 'anggaran-50-30-20'],
-  'kalkulator-dana-darurat': ['anggaran-50-30-20', 'kalkulator-tabungan'],
-  'anggaran-50-30-20': ['kalkulator-dana-darurat', 'kalkulator-tabungan'],
-  'zakat': ['kalkulator-emas'],
-  'kalkulator-emas': ['zakat', 'kalkulator-tabungan'],
-  'pbb': ['pph23', 'denda-pajak'],
-  'pph23': ['pbb', 'denda-pajak'],
-  'denda-pajak': ['pph21', 'pph23'],
-  'harga-jual': ['kalkulator-hpp', 'diskon-aman', 'harga-coret'],
-  'kalkulator-hpp': ['food-cost', 'harga-jual', 'bep-umkm'],
-  'food-cost': ['harga-jual', 'kalkulator-hpp'],
-  'fee-lazada': ['harga-jual', 'komisi-reseller', 'diskon-aman'],
-  'diskon-aman': ['harga-coret', 'harga-jual'],
-  'harga-coret': ['diskon-aman', 'harga-bundling'],
-  'harga-bundling': ['harga-coret', 'diskon-aman'],
-  'harga-grosir': ['harga-bundling', 'komisi-reseller'],
-  'komisi-reseller': ['fee-lazada', 'target-omzet'],
-  'bep-umkm': ['estimasi-modal-usaha', 'target-omzet'],
-  'estimasi-modal-usaha': ['bep-umkm', 'target-omzet'],
-  'target-omzet': ['reorder-point', 'komisi-reseller'],
-  'reorder-point': ['target-omzet', 'harga-grosir'],
-  'buat-invoice': ['daftar-harga', 'harga-jual', 'fee-lazada'],
-  'date-duration': ['kalkulator-umur', 'hitung-hpl'],
-  'kalkulator-umur': ['date-duration', 'hitung-hpl'],
-  'hitung-hpl': ['kalkulator-umur', 'date-duration'],
-  'weton': ['kalender-jawa'],
-  'kalender-jawa': ['weton'],
-  'nilai-skd-cpns': ['simulasi-skd-cpns'],
-  'simulasi-skd-cpns': ['nilai-skd-cpns', 'flashcard'],
-  'latihan-deret-angka': ['simulasi-skd-cpns', 'kalkulator-umum'],
-  'ipk': ['nilai-akhir', 'konversi-nilai'],
-  'nilai-akhir': ['ipk', 'konversi-nilai'],
-  'flashcard': ['kuis-maker', 'jadwal-belajar', 'pomodoro'],
-  'kuis-maker': ['flashcard', 'glosarium'],
-  'glosarium': ['flashcard', 'kuis-maker'],
-  'jadwal-belajar': ['pomodoro', 'flashcard', 'hitung-mundur-ujian'],
-  'pomodoro': ['jadwal-belajar', 'hitung-mundur-ujian'],
-  'hitung-mundur-ujian': ['jadwal-belajar', 'pomodoro'],
-  'citation': ['word-counter', 'kuis-maker'],
-  'kalkulator-umum': ['kalkulator-pecahan', 'kalkulator-logaritma', 'kalkulator-trigonometri'],
-  'kalkulator-pecahan': ['kalkulator-umum', 'persamaan-kuadrat'],
-  'persamaan-kuadrat': ['kalkulator-umum', 'matriks-kalkulator'],
-  'matriks-kalkulator': ['kalkulator-umum', 'statistika-dasar'],
-  'statistika-dasar': ['sample-size', 'matriks-kalkulator'],
-  'sample-size': ['statistika-dasar'],
-  'kalkulator-logaritma': ['rumus-eksponen', 'kalkulator-umum'],
-  'rumus-eksponen': ['kalkulator-logaritma'],
-  'kalkulator-trigonometri': ['plot-fungsi', 'kalkulator-umum'],
-  'plot-fungsi': ['kalkulator-trigonometri', 'rumus-fisika'],
-  'rumus-fisika': ['bangun-datar', 'plot-fungsi'],
-  'bangun-datar': ['rumus-fisika', 'rumus-saku'],
-  'rumus-saku': ['tabel-periodik', 'bangun-datar'],
-  'tabel-periodik': ['rumus-saku'],
-  'fpb-kpk': ['kalkulator-pecahan', 'tabel-perkalian'],
-  'tabel-perkalian': ['fpb-kpk'],
-  'kombinasi-permutasi': ['statistika-dasar', 'kalkulator-umum'],
-  'typing-test': ['baca-cepat-bionik'],
-  'baca-cepat-bionik': ['typing-test'],
-  /* --- tool baru v6.12.0 --- */
-  'fake-chat-tele': ['fake-chat-messenger', 'fake-dm-discord', 'fake-dm-ig'],
-  'fake-chat-messenger': ['fake-chat-tele', 'fake-dm-discord', 'fake-dm-ig'],
-  'fake-dm-discord': ['fake-chat-tele', 'fake-chat-messenger', 'fake-dm-ig'],
-  'fake-reddit-post': ['fake-threads-post', 'fake-tweet', 'fake-post-ig'],
-  'fake-threads-post': ['fake-reddit-post', 'fake-tweet', 'fake-post-ig'],
-  'fake-notes-iphone': ['fake-call-history-iphone', 'fake-notif-hp'],
-  'fake-call-history-iphone': ['fake-notes-iphone', 'fake-call'],
-  'tebak-angka': ['kuis-matematika-cepat', 'trivia-umum', 'tebak-tahun'],
-  'kuis-matematika-cepat': ['tebak-angka', 'trivia-umum', 'benar-atau-salah'],
-  'trivia-umum': ['benar-atau-salah', 'tebak-tahun', 'tebak-tebakan'],
-  'benar-atau-salah': ['trivia-umum', 'tebak-tahun', 'tebak-tebakan'],
-  'tebak-tahun': ['trivia-umum', 'benar-atau-salah', 'tebak-tebakan'],
-  'tebak-tebakan': ['trivia-umum', 'benar-atau-salah', 'tebak-tahun'],
-  'resep-makanan': ['food-cost', 'kalkulator-hpp', 'kalori-makanan'],
-  'kamus-inggris': ['tebak-kata', 'word-counter', 'glosarium'],
-  'wilayah-indonesia': ['data-indonesia', 'weton', 'kalender-jawa'],
-  'data-indonesia': ['wilayah-indonesia', 'ump-provinsi', 'kalkulator-emas'],
-  'lirik-lagu': ['tebak-chord', 'piano', 'metronome'],
-  'bantuan': ['beri-masukan'],
-  'beri-masukan': ['bantuan'],
-};
-
-/* ---------------- metodologi (v6.12.0, ide UX #13) ----------------
-   Rumus & asumsi tiap kalkulator — ditulis dari kode tool-nya sendiri
-   (bukan dari ingatan). Tool di halaman tool mendapat tautan "Cara hitungnya"
-   bila id-nya ada di sini. */
-const METHOD = [
-  { id: 'thr', rumus: 'Masa kerja 12 bulan atau lebih → THR 1× gaji sebulan. Kurang dari 12 bulan → (masa kerja ÷ 12) × gaji.', batas: 'Gaji yang dipakai adalah gaji pokok + tunjangan tetap yang kamu isi. Aturan THR Keagamaan: pekerja dengan masa kerja 1 bulan ke atas berhak THR; kebijakan kantormu bisa berbeda — tanya HRD.' },
-  { id: 'pph21', rumus: 'Januari–November: PPh 21 = bruto sebulan × TER (Tarif Efektif Rata-rata, PP 58/2023), tanpa mengurangi biaya jabatan atau PTKP dulu. Desember: dihitung ulang setahun penuh dengan tarif progresif 5%–35% atas Penghasilan Kena Pajak (bruto − biaya jabatan 5%, maks Rp500rb/bulan − iuran pensiun − PTKP), dikurangi pajak yang sudah dibayar. PTKP TK/0 Rp54 juta/tahun (PMK 101/2016).', batas: 'Hanya untuk pegawai tetap. Bonus, THR, dan penghasilan lain di bulan itu ikut menambah bruto. Bukan pengganti perhitungan resmi kantor pajak.' },
-  { id: 'kalkulator-gaji-bersih', rumus: 'Gaji bersih = bruto − BPJS Kesehatan 1% − JHT 2% − PPh 21 (TER) − potongan lain. Persentase BPJS/JHT bisa diubah dan tersimpan di perangkatmu. Mode gross-up mencari bruto lewat iterasi sampai hasil bersihnya sama dengan target yang kamu mau.', batas: 'Persentase BPJS/JHT default mengikuti aturan umum; cek slip gajimu bila kantormu memakai tarif berbeda. TER berlaku untuk pegawai tetap.' },
-  { id: 'kpr', rumus: 'Anuitas: cicilan = pokok × r ÷ (1 − (1+r)^−n), dengan r = bunga tahunan ÷ 12. Bunga tiap bulan dihitung dari sisa pokok, jadi porsi pokok membesar seiring waktu. Flat: total bunga = pokok × bunga% × tahun, cicilan = (pokok + total bunga) ÷ bulan. Pembayaran ekstra diasumsikan langsung memotong pokok.', batas: 'Simulasi bunga tetap. Bank biasanya memakai bunga fixed beberapa tahun pertama lalu floating — cicilan aktual bisa berubah. Belum termasuk denda pelunasan dipercepat; cek ketentuan bankmu.' },
-  { id: 'cicilan', rumus: 'Sama seperti Simulasi KPR: anuitas memakai cicilan = pokok × r ÷ (1 − (1+r)^−n), r = bunga tahunan ÷ 12; flat memakai total bunga = pokok × bunga% × (bulan ÷ 12). Pembayaran ekstra masuk ke pokok sehingga tenor memendek dan total bunga berkurang.', batas: 'Bunga tetap selama tenor. Biaya admin, provisi, dan asuransi tidak dihitung.' },
-  { id: 'kalkulator-pesangon', rumus: 'Versi sederhana PP 35/2021. UP (Uang Pesangon): 1–9× upah sesuai masa kerja (di bawah 1 tahun 1×, 8 tahun ke atas 9×). UPMK (Uang Penghargaan Masa Kerja): 0–10× upah, mulai dari masa kerja 3 tahun. UPH (Uang Penggantian Hak): 15% × (UP + UPMK). Pengali UP menurut alasan: PHK biasa 1×, efisiensi 0,5×, pensiun 1,75×, meninggal 2×.', batas: 'Ilustrasi saja — UPH di dunia nyata juga mencakup cuti yang belum diambil dan ongkos pulang. Konsultasikan ke HRD atau serikat pekerja untuk angka pastinya.' },
-  { id: 'kalkulator-lembur', rumus: 'Upah per jam = gaji ÷ 173. Jam lembur ke-1 dibayar 1,5× upah per jam, jam berikutnya 2×.', batas: 'Rumus umum; ketentuan lembur di hari libur dan detailnya bisa beda per perusahaan — cek PP/PKB tempatmu kerja.' },
-  { id: 'gaji-prorata', rumus: 'Upah harian = gaji ÷ 21 (sistem 5 hari kerja) atau ÷ 25 (sistem 6 hari kerja), sesuai PP 36/2021 Pasal 17. Gaji prorata = upah harian × jumlah hari kerja dalam periode itu, dihitung dari kalender bulan berjalan.', batas: 'Libur nasional belum dikurangi dari hitungan hari kerja. Bila kantormu memakai cara lain (mis. gaji ÷ 30 hari kalender), hasilnya bisa beda.' },
-  { id: 'kalkulator-hpp', rumus: 'HPP per unit = (biaya material + tenaga kerja + overhead) ÷ jumlah unit. Saran harga jual = HPP ÷ (1 − margin%) — margin dihitung dari harga jual, bukan dari modal.', batas: 'Hanya menghitung biaya yang kamu isi. Biaya tak terduga, susut, dan pajak belum masuk — tambahkan sendiri ke overhead bila perlu.' },
-  { id: 'bmi', rumus: 'BMI = berat (kg) ÷ tinggi (m)². Kategori memakai standar WHO untuk Asia: di bawah 18,5 kurus; 18,5–22,9 normal; 23–24,9 kelebihan berat; 25–29,9 obesitas I; 30 ke atas obesitas II. BMR memakai rumus Mifflin-St Jeor; TDEE = BMR × faktor aktivitas (1,2–1,9). Target turun berat memakai defisit 500 kkal/hari (sekitar 0,5 kg/minggu).', batas: 'BMI tidak membedakan otot dan lemak — orang berotot bisa terbaca "kelebihan berat" padahal sehat. BMR/TDEE adalah perkiraan; konsultasikan ke tenaga kesehatan untuk target yang personal.' },
-  { id: 'hitung-hpl', rumus: 'Tiga mode. Dari HPHT memakai rumus Naegele: HPHT + 7 hari − 3 bulan + 1 tahun. Dari USG: tanggal USG + sisa hari sampai 40 minggu (280 hari). Dari transfer embrio IVF: tanggal transfer + (280 − 14 − umur embrio) hari. Perkembangan janin per minggu memakai perkiraan rata-rata umum.', batas: 'HPL adalah perkiraan — hanya sebagian kecil persalinan yang tepat di tanggal HPL. Usia kehamilan dari USG trimester awal lebih akurat daripada dari HPHT bila siklus haid tidak teratur.' },
-  { id: 'zakat', rumus: 'Nisab zakat maal = 85 gram emas × harga emas per gram yang kamu isi. Bila total harta mencapai nisab, zakatnya 2,5% dari harta. Zakat fitrah = 2,5 kg beras per jiwa × harga beras.', batas: 'Harga emas default Rp2.517.000/gram (harga Antam 15 Nov 2026) — harga emas berubah tiap hari, cek harga saat ini agar nisabnya akurat. Harta yang dihitung adalah yang sudah dimiliki setahun (haul); konsultasikan ke lembaga zakat bila ragu.' },
-];
-const METHOD_IDS = new Set(METHOD.map((x) => x.id));
-
-/* ---------------- sapaan waktu ---------------- */
-function greet() {
-  const h = new Date().getHours();
-  if (h >= 4 && h < 11) return 'Selamat pagi';
-  if (h >= 11 && h < 15) return 'Selamat siang';
-  if (h >= 15 && h < 19) return 'Selamat sore';
-  return 'Selamat malam';
+/* ---------------- populer: istilah Supabase -> rail beranda ----------------
+   Pengambilan istilah tinggal di supabase.js; di sini hanya state-nya
+   (istilah terakhir yang berhasil diambil) + pemicu awal. Percabangan
+   meniru sbFetchPopular() lama: sukses -> simpan + render ulang rail;
+   respons tidak OK -> diam (rail tetap fallback); galat jaringan ->
+   render ulang rail (fallback). */
+let popularTerms = [];
+function sbFetchPopular() {
+  fetchPopularTerms()
+    .then((terms) => { if (terms) { popularTerms = terms; renderPopuler(popularTerms, manifest); } })
+    .catch(() => { renderPopuler(popularTerms, manifest); });
 }
-const timeAgo = (ts) => {
-  const s = (Date.now() - ts) / 1000;
-  if (s < 60) return 'baru saja';
-  if (s < 3600) return Math.floor(s / 60) + ' mnt lalu';
-  if (s < 86400) return Math.floor(s / 3600) + ' jam lalu';
-  return Math.floor(s / 86400) + ' hari lalu';
-};
 
-/* ---------------- supabase: tracking + populer ---------------- */
-function sbHeaders() {
-  return { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json' };
-}
-const SB_POPULAR = [];
-async function sbFetchPopular() {
-  try {
-    const r = await fetch(SB_URL + '/rest/v1/tool_search_terms?select=term&order=count.desc&limit=8', { headers: sbHeaders() });
-    if (!r.ok) return;
-    const data = await r.json();
-    if (Array.isArray(data)) SB_POPULAR.push(...data.map((x) => String(x.term || x).trim()).filter(Boolean));
-  } catch (e) { /* silent */ }
-  renderPopuler();
-}
-async function sbTrack(q) {
-  try {
-    await fetch(SB_URL + '/rest/v1/rpc/track_search', {
-      method: 'POST', headers: sbHeaders(),
-      body: JSON.stringify({ p_term: q.toLowerCase().slice(0, 40) }),
-    });
-  } catch (e) { /* silent */ }
-}
-let sbT;
-function sbTrackDeb(q) { clearTimeout(sbT); sbT = setTimeout(() => sbTrack(q), 1200); }
-
-/* ---------------- favorit + riwayat ---------------- */
-const FKEY = 'adip_fav', RKEY = 'adip_recent';
-const loadJson = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : fb; } catch { return fb; } };
-const saveJson = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-// migrasi otomatis format lama [id] -> [{id,t}]
-const getFav = () => loadJson(FKEY, []).map((x) => (typeof x === 'string' ? { id: x, t: 0 } : x));
-const isFav = (id) => getFav().some((x) => x.id === id);
-function toggleFav(id) {
-  let f = getFav();
-  if (f.some((x) => x.id === id)) f = f.filter((x) => x.id !== id);
-  else { f.unshift({ id, t: Date.now() }); if (f.length > 50) f.length = 50; }
-  saveJson(FKEY, f);
-}
-const getRecent = () => loadJson(RKEY, []).map((x) => (typeof x === 'string' ? { id: x, t: 0 } : x));
-function touchRecent(id) {
-  let r = getRecent().filter((x) => x.id !== id);
-  r.unshift({ id, t: Date.now() }); if (r.length > 20) r.length = 20;
-  saveJson(RKEY, r);
-}
+/* Favorit + riwayat (getFav/isFav/toggleFav/getRecent/touchRecent)
+   tinggal di store.js — format localStorage tidak berubah. */
 let toastT;
 function toast(msg) {
   const app = document.getElementById('app');
@@ -274,8 +106,11 @@ function bindFav(root) {
       b.classList.toggle('on', on);
       b.setAttribute('aria-label', on ? 'Hapus dari favorit' : 'Tambah ke favorit');
       b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
-      toast(on ? 'Masuk favorit' : 'Dihapus dari favorit');
+      toast(on ? 'Disimpan ke favorit.' : 'Dihapus dari favorit.'); /* copy FINAL TOAST-FAV-ADD/REMOVE (p1p2-copy.md §5) — "Masuk favorit" pra-P2 dicabut (P2-QA). */
       if (document.body.dataset.route === 'fav') favPage();
+      /* P2-B1 (v6.14.0): toggle ♥ di beranda ikut me-render ulang
+         seksi Favorit beranda supaya isinya selalu sinkron. */
+      if (document.body.dataset.route === 'home') renderFavSection();
     });
   });
 }
@@ -322,25 +157,10 @@ function searchScore(q, m) {
   const kwHit = kws.reduce((a, k) => Math.max(a, Math.max(fuzzyScore(q, k), wordScore(q, k))), 0) * 0.8;
   return Math.max(nameHit, descHit, kwHit);
 }
-const FAV_BOOST = 8, REC_BOOST = 6, TITLE_BONUS = 12;
 function searchCtx() { return { favIds: new Set(getFav().map((x) => x.id)), recIds: new Set(getRecent().map((x) => x.id)) }; }
-function rankedSearch(q) {
-  const ql = q.trim().toLowerCase();
-  if (!ql) return visibleTools();
-  const terms = ql.split(/\s+/);
-  const ctx = searchCtx();
-  return visibleTools()
-    .map((m) => ({ m, s: Math.max(...terms.map((t) => searchScore(t, m))) }))
-    .filter((x) => x.s > 15)
-    .map((x) => ({
-      m: x.m,
-      s: x.s + (ctx.favIds.has(x.m.id) ? FAV_BOOST : 0) + (ctx.recIds.has(x.m.id) ? REC_BOOST : 0)
-        + (x.m.name.toLowerCase().includes(ql) ? TITLE_BONUS : 0),
-    }))
-    .sort((a, b) => b.s - a.s)
-    .slice(0, 24)
-    .map((x) => x.m);
-}
+/* rankedSearch + FAV/REC/TITLE_BOOST DIHAPUS v6.14.0 (P0-C): 0 pemanggil
+   (palette memakai rankedSearchPlus dari search-plus.js). Helper skor
+   (searchScore/fuzzyScore/wordScore) DIPERTAHANKAN untuk kerja pencarian P2. */
 
 /* ---------------- command palette ---------------- */
 let palEl = null, palItems = [], palSel = 0;
@@ -411,7 +231,7 @@ function openPalette() {
         <span class="ptx"><span class="pnm">${hiMark(m.name, q)}</span>
         <span class="pds">${T.esc(m.desc || '')}</span></span>
         <span class="pct">${catLabel(m.cat)}</span>
-        <button class="pal-fav" data-fid="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}" style="flex:none;width:34px;height:34px;border:0;background:none;cursor:pointer;font-size:18px;border-radius:8px;color:${isFav(m.id) ? 'var(--acc)' : 'var(--dim)'};opacity:${isFav(m.id) ? '1' : '0.6'}">♥</button>
+        <button class="pal-fav" data-fid="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}" style="flex:none;width:44px;height:44px;border:0;background:none;cursor:pointer;font-size:18px;border-radius:8px;color:${isFav(m.id) ? 'var(--acc)' : 'var(--dim)'};opacity:${isFav(m.id) ? '1' : '0.6'}">♥</button>
       </div>`).join('');
     list.innerHTML = html;
     list.querySelectorAll('.pal-item').forEach((b) => {
@@ -426,7 +246,10 @@ function openPalette() {
         b.style.color = on ? 'var(--acc)' : 'var(--dim)';
         b.style.opacity = on ? '1' : '0.6';
         b.setAttribute('aria-label', on ? 'Hapus dari favorit' : 'Tambah ke favorit');
-        toast(on ? 'Masuk favorit' : 'Dihapus dari favorit');
+        toast(on ? 'Disimpan ke favorit.' : 'Dihapus dari favorit.'); /* copy FINAL TOAST-FAV-ADD/REMOVE — selaras dengan bindFav. */
+        /* P2-B1 (v6.14.0): palette melayang di atas beranda — seksi
+           Favorit di belakangnya ikut diperbarui. */
+        if (document.body.dataset.route === 'home') renderFavSection();
       });
     });
     scrollPal();
@@ -478,59 +301,67 @@ function setTabActive(name) {
   else { ind.style.opacity = '1'; ind.style.transform = `translateX(${i * 100}%)`; }
 }
 
-/* ---------------- kartu ---------------- */
-function cardEl(m, hl) {
+/* ---------------- kartu ----------------
+   hideCat (v6.14.0, V-05): di halaman kategori + Sejenis, label
+   kategori di kartu mubazir (semua kartu satu kategori) — sembunyikan
+   labelnya, tapi badge BARU tetap tampil bila ada. */
+function cardEl(m, hl, { hideCat = false } = {}) {
   const a = document.createElement('a');
   a.className = 'tcard glass';
   a.href = '#/t/' + m.id;
   a.setAttribute('aria-label', m.name);
   const fav = isFav(m.id);
+  const newBadge = isNew(m) ? `<span class="newb" style="color:var(--txt);border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);border-radius:999px;padding:2px 7px${hideCat ? '' : ';margin-left:6px'}">BARU</span>` : '';
+  const ctInner = (hideCat ? '' : catLabel(m.cat)) + newBadge;
   a.innerHTML = `
     <span class="tic" aria-hidden="true">${m.icon}</span>
     <span class="nm">${hl ? hiMark(m.name, hl) : T.esc(m.name)}</span>
     <span class="ds">${T.esc(m.desc || '')}</span>
-    <span class="ct">${catLabel(m.cat)}${isNew(m) ? '<span class="newb" style="color:var(--txt);border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);border-radius:999px;padding:2px 7px;margin-left:6px">BARU</span>' : ''}</span>
+    ${ctInner ? `<span class="ct">${ctInner}</span>` : ''}
     <button class="fav${fav ? ' on' : ''}" data-id="${m.id}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>`;
   a.addEventListener('click', () => touchRecent(m.id));
   bindFav(a);
   return a;
 }
-const hcardHTML = (m) => `
-  <a class="hcard glass" href="#/t/${m.id}" aria-label="${T.esc(m.name)}">
-    <span class="hic" aria-hidden="true">${m.icon}</span>
-    <span class="hnm">${T.esc(m.name)}</span>
-    <span class="hct">${catLabel(m.cat)}</span>
-  </a>`;
+/* hcardHTML + watchFadeX + footerHTML tinggal di shell-ui.js. */
 
-/* fade tepi carousel saat konten terpotong */
-function watchFadeX(rail) {
-  const upd = () => {
-    rail.classList.toggle('fx-r', rail.scrollWidth - rail.scrollLeft - rail.clientWidth > 4);
-    rail.classList.toggle('fx-l', rail.scrollLeft > 4);
-  };
-  rail.addEventListener('scroll', upd, { passive: true });
-  upd();
+/* ---------------- BERANDA (v6: pendek, tanpa direktori vertikal) ----------------
+   v6.14.0 (P2-B1): urutan seksi pengunjung kembali — Lanjutkan,
+   Favorit (grid, baru), Populer (rail), Baru ditambahkan (grid),
+   Kategori (ubin), Koleksi (kartu lebar), Riwayat (rail).
+   Pengunjung baru: Mulai dari sini menggantikan Lanjutkan/Favorit/
+   Riwayat (ketiganya kosong). */
+
+/* Seksi "Favorit" di beranda (§5.3.3): grid tcard (bukan rail —
+   keluarga layout kedua di beranda, V-07), maks 8 kartu + tautan
+   "Lihat semua favorit" bila lebih dari 8. Disembunyikan seluruhnya
+   bila belum ada favorit (state kosong hidup di #/favorit, bukan
+   di beranda). Dipanggil ulang dari bindFav()/palette tiap toggle
+   ♥ di beranda supaya isinya selalu sinkron. */
+function renderFavSection() {
+  const sec = document.getElementById('favSec');
+  if (!sec) return;
+  const favs = getFav().map((x) => byId(x.id)).filter(Boolean);
+  if (!favs.length) { sec.style.display = 'none'; sec.innerHTML = ''; return; }
+  sec.style.display = '';
+  const shown = favs.slice(0, 8);
+  sec.innerHTML = `
+      <div class="sechead"><h2>Favorit</h2><span class="n">${favs.length}</span></div>
+      <div class="tgrid" id="favHomeGrid"></div>
+      ${favs.length > 8 ? `<a class="secmore" href="#/favorit">Lihat semua favorit →</a>` : ''}`;
+  const grid = sec.querySelector('#favHomeGrid');
+  shown.forEach((m) => grid.appendChild(cardEl(m, null)));
 }
-
-/* placeholder hero: contoh nyata, rotasi 3 dtk */
-const PH_EXAMPLES = [
-  'Coba "gaji"...', 'Coba "weton"...', 'Coba "gaji pokok"...', 'Coba "kompres foto"...',
-  'Coba "qr"...', 'Coba "password"...', 'Coba "camelot"...', 'Coba "THR"...',
-];
-/* satu timer bersama (T02 B5): kunjungan beranda berulang tidak menumpuk interval */
-let phTimer = null;
-function rotatePh(input) {
-  clearInterval(phTimer);
-  let i = 0;
-  phTimer = setInterval(() => { if (document.body.contains(input)) { i = (i + 1) % PH_EXAMPLES.length; input.placeholder = PH_EXAMPLES[i]; } }, 3000);
-}
-
-/* ---------------- BERANDA (v6: pendek, tanpa direktori vertikal) ---------------- */
 function home() {
   document.body.dataset.route = 'home';
   setTabActive('home');
   document.title = 'Butuh apa? - ADIP Tools';
   const n = manifest.length;
+  /* P1 (v6.14.0): beranda dua keadaan. Pengunjung baru (tanpa
+     riwayat, tanpa favorit) melihat subheadline + bukti singkat
+     + seksi "Mulai dari sini" + lembar orientasi; pengunjung
+     kembali melihat hero persis seperti sebelumnya. */
+  const baru = isNewVisitor();
   const app = document.getElementById('app');
   const cats = CATS.filter((c) => c[0] !== 'semua');
   const tiles = cats
@@ -542,58 +373,64 @@ function home() {
         <span class="cn">${cnt}</span>
       </a>`;
     }).join('');
+  /* P2-B1 (v6.14.0, V-07): Koleksi bukan lagi ubin copy-paste
+     kategori — kartu lebar dengan deskripsi nyata + jumlah tool. */
   const colTiles = COLLECTIONS
-    .map((c) => `<a class="cattile glass" href="#/c/${c.id}">
-      <span class="ci" aria-hidden="true">${c.icon}</span>
-      <span class="cl">${c.name}</span>
-      <span class="cn">${c.tools.filter((id) => byId(id)).length}</span>
+    .map((c) => `<a class="colcard glass" href="#/c/${c.id}">
+      <span class="cic" aria-hidden="true">${c.icon}</span>
+      <span class="ctx">
+        <span class="cnm">${T.esc(c.name)}</span>
+        <span class="cds">${T.esc(c.desc)}</span>
+        <span class="cnt">${c.tools.filter((id) => byId(id)).length} tools <span class="arr" aria-hidden="true">→</span></span>
+      </span>
     </a>`).join('');
   app.innerHTML = `
   <div class="wrap view">
     <header class="top">
       <a class="brand" href="#/"><span class="mark" aria-hidden="true">a</span><span class="wm">ADIP <em>Tools</em></span></a>
       <div class="top-right">
-        <span class="topcount"><span class="livedot" aria-hidden="true"></span><b data-countup="${n}">0</b> tools</span>
+        <span class="topcount"><b>${n}</b> tools</span>
         <button class="icobtn" id="palBtn" aria-label="Cari cepat (Ctrl+K)">⌕</button>
       </div>
     </header>
     <section class="hero rise" style="--i:0">
       <p class="hi">${greet()}, butuh bantuan apa?</p>
-      <h1><span class="w" style="--i:0"><span class="mask"><span class="mi">Butuh</span></span></span> <span class="w" style="--i:1"><span class="mask"><span class="mi"><span class="qm">apa?</span></span></span></span></h1>
+      <h1><span class="w" style="--i:0"><span class="mask"><span class="mi">Butuh</span></span></span> <span class="w" style="--i:1"><span class="mask"><span class="mi"><span class="qm">apa?</span></span></span></span></h1>${baru ? `\n      <p class="hero-sub">${HERO_SUB}</p>` : ''}
       <div class="hsearch glass">
         <span class="glyph" aria-hidden="true">⌕</span>
-        <input id="q" type="search" placeholder="${PH_EXAMPLES[0]}" autocomplete="off" aria-label="Cari tools">
+        <input id="q" type="search" placeholder="${T.esc(PH_EXAMPLES[0])}" autocomplete="off" aria-label="Cari tools">
       </div>
-      <p class="dim" style="font-size:11.5px;margin:8px 2px 0">Kata yang kamu cari dicatat tanpa nama untuk daftar Populer.</p>
+      <p class="dim" style="font-size:11.5px;margin:8px 2px 0">Kata yang kamu cari dicatat tanpa nama untuk daftar Populer.</p>${baru ? `\n      ${heroProofHTML(n)}` : ''}
     </section>
-    <div id="contd"></div>
-    <section class="sec rise" style="--i:2" aria-label="Populer">
+    <div id="contd"></div>${baru ? `\n    ${mulaiDariSiniHTML(manifest)}` : ''}
+    <section class="sec rise" style="--i:2" id="favSec" aria-label="Favorit"></section>
+    <section class="sec rise" style="--i:3" aria-label="Populer">
       <div class="sechead"><h2>🔥 Populer</h2></div>
       <div class="hscroll" id="popRail"></div>
     </section>
-    <section class="sec rise" style="--i:3" id="baruSec" aria-label="Baru ditambahkan"></section>
-    <section class="sec rise" style="--i:4" aria-label="Kategori">
+    <section class="sec rise" style="--i:4" id="baruSec" aria-label="Baru ditambahkan"></section>
+    <section class="sec rise" style="--i:5" aria-label="Kategori">
       <div class="sechead"><h2>Kategori</h2><span class="n">${cats.length}</span></div>
       <div class="catgrid">${tiles}</div>
     </section>
-    <section class="sec rise" style="--i:5" aria-label="Koleksi">
+    <section class="sec rise" style="--i:6" aria-label="Koleksi">
       <div class="sechead"><h2>Koleksi</h2><span class="n">berdasarkan masalah</span></div>
-      <div class="catgrid">${colTiles}</div>
+      <div class="colgrid">${colTiles}</div>
     </section>
-    <section class="sec rise" style="--i:6" id="recSec" aria-label="Riwayat">
+    <section class="sec rise" style="--i:7" id="recSec" aria-label="Riwayat">
       <div class="sechead"><h2>🕐 Riwayat</h2></div>
       <div class="hscroll" id="recRail"></div>
     </section>
-    <a class="allbtn glass rise" style="--i:7" href="#/semua">
+    <a class="allbtn glass rise" style="--i:8" href="#/semua">
       <span>Semua tools <span class="an">${n}</span></span>
       <span class="ago" aria-hidden="true">→</span>
     </a>
-    ${acakButtonHTML(8)}
-    <footer class="foot rise" style="--i:9"><b>ADIP Tools</b> · ${n} tools, gratis · Tanpa daftar · <a href="#/metodologi">Metodologi</a></footer>
+    ${acakButtonHTML(9)}
+    ${footerHTML(n, { rise: 10 })}
   </div>`;
   app.querySelector('#palBtn').addEventListener('click', openPalette);
   const inp = app.querySelector('#q');
-  rotatePh(inp);
+  startPlaceholderRotation(inp);
   let goT;
   inp.addEventListener('input', () => {
     clearTimeout(goT);
@@ -607,77 +444,31 @@ function home() {
     if (e.key === 'Enter') {
       e.preventDefault();
       const v = inp.value.trim();
-      if (v) sbTrack(v);
+      if (v) trackSearch(v);
       location.hash = '#/semua' + (v ? '?q=' + encodeURIComponent(v) : '');
     }
   });
   renderContinue();
-  renderPopuler();
+  renderFavSection();
+  renderPopuler(popularTerms, manifest);
   renderBaru(document.getElementById('baruSec'), manifest, VERSION);
   renderRecent();
+  /* P1: lembar orientasi sekali tampil (hanya pengunjung baru,
+     hanya di beranda, tidak pernah di atas deep link — semua
+     penjaga ada di dalam maybeShowOnboarding). */
+  maybeShowOnboarding(manifest);
   document.getElementById('acakBtn')?.addEventListener('click', () => {
     const m = pickRandomTool(manifest);
     if (m) location.hash = '#/t/' + m.id;
   });
-  // count-up angka tools
-  const cb = app.querySelector('[data-countup]');
-  if (cb) {
-    const target = parseInt(cb.dataset.countup, 10) || 0;
-    const t0 = performance.now(), dur = 900;
-    const tick = (t) => {
-      const p = Math.min(1, (t - t0) / dur);
-      cb.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
-      if (p < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }
+  /* P3 (v6.14.0): count-up angka tools PINDAH ke js/fx.js
+     (initPillCountUp, menyasar pill shell). Blok count-up lama di
+     sini MATI sejak P2-B2: renderNavbar() menghapus header.top
+     home() sebelum rAF pertamanya jalan, jadi ia hanya mengupdate
+     node yang sudah lepas dari DOM. */
 }
 
-/* kartu "Lanjutkan": alat terakhir dibuka */
-function renderContinue() {
-  const host = document.getElementById('contd');
-  if (!host) return;
-  const r = getRecent()[0];
-  const m = r && byId(r.id);
-  if (!m) { host.innerHTML = ''; return; }
-  host.innerHTML = `
-    <a class="contd glass rise" style="--i:1" href="#/t/${m.id}">
-      <span class="cic" aria-hidden="true">${m.icon}</span>
-      <span class="ctx">
-        <span class="clbl">Lanjutkan</span>
-        <span class="cnm">${T.esc(m.name)}</span>
-        <span class="cts">dibuka ${timeAgo(r.t)}</span>
-      </span>
-      <span class="cgo" aria-hidden="true">→</span>
-    </a>`;
-}
-
-/* Populer: istilah Supabase -> tool teratas tiap istilah */
-function renderPopuler() {
-  const rail = document.getElementById('popRail');
-  if (!rail) return;
-  const terms = SB_POPULAR.length ? SB_POPULAR : ['kalkulator thr', 'weton jawa', 'kompres gambar', 'password aman', 'camelot wheel', 'qr code'];
-  const seen = new Set(), tools = [];
-  for (const t of terms) {
-    const hit = rankedSearchPlus(t, manifest)[0];
-    if (hit && !seen.has(hit.id) && !SEARCH_DENY.includes(hit.id)) { seen.add(hit.id); tools.push(hit); }
-    if (tools.length >= 8) break;
-  }
-  rail.innerHTML = tools.map(hcardHTML).join('');
-  watchFadeX(rail);
-}
-
-/* Riwayat: carousel tool terakhir dibuka */
-function renderRecent() {
-  const rail = document.getElementById('recRail');
-  const sec = document.getElementById('recSec');
-  if (!rail || !sec) return;
-  const recs = getRecent().map((x) => byId(x.id)).filter(Boolean).slice(0, 10);
-  if (!recs.length) { sec.style.display = 'none'; return; }
-  sec.style.display = '';
-  rail.innerHTML = recs.map(hcardHTML).join('');
-  watchFadeX(rail);
-}
+/* renderContinue/renderPopuler/renderRecent tinggal di beranda.js. */
 
 /* ---------------- VIEW: semua tools + filter (#/semua) ---------------- */
 function allPage(q) {
@@ -689,8 +480,10 @@ function allPage(q) {
   /* chip filter: gaya meniru .schip (token yang sama), tanpa sentuh CSS.
      Chip hanya muncul bila ada tool baru, supaya tidak jadi tombol mati. */
   const hasNew = manifest.some(isNew);
-  const CHIP = 'font:inherit;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:var(--surface)';
-  const CHIP_ON = 'font:inherit;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:8px 14px;background:rgba(255,255,255,.08)';
+  /* B-05 (v6.14.0, P2-B1): chip 38px -> min-height 44px (R-03).
+     .fchip di upgrade-612.css ikut diupdate — inline menang. */
+  const CHIP = 'font:inherit;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:8px 14px;background:var(--surface);min-height:44px';
+  const CHIP_ON = 'font:inherit;font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:8px 14px;background:rgba(255,255,255,.08);min-height:44px';
   let filter = 'all';
   app.innerHTML = `
   <div class="wrap view">
@@ -707,12 +500,20 @@ function allPage(q) {
     </div>
     <div class="sechead" style="margin-top:18px"><h2 id="allCount"></h2></div>
     <div class="tgrid" id="allGrid"></div>
-    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis · Tanpa daftar · <a href="#/metodologi">Metodologi</a></footer>
+    ${footerHTML(n)}
   </div>`;
   const inp = app.querySelector('#aq');
   const grid = app.querySelector('#allGrid');
   const count = app.querySelector('#allCount');
+  /* P3 (v6.14.0): entrance kartu hanya pada paint pertama. */
+  let paints = 0;
   const paint = (qq) => {
+    /* Mulai paint ke-2, grid jadi "mantap" (.tgrid.fx-steady di
+       fx-p3.css): kartu tidak memutar ulang stagger 48 kartu tiap
+       ketikan (debounce 180ms) atau ganti filter — itu kedip,
+       bukan umpan balik. Hitungan "N hasil" sudah mengabarkan
+       perubahan. Load-more (components.js) ikut tenang. */
+    if (paints++ > 0) grid.classList.add('fx-steady');
     const ql = qq.trim();
     const a = ql ? assessQuery(ql, manifest, searchCtx()) : null;
     let list = a ? a.results : visibleTools();
@@ -721,14 +522,19 @@ function allPage(q) {
       const favIds = new Set(getFav().map((x) => x.id));
       list = list.filter((m) => favIds.has(m.id));
     }
-    count.textContent = ql ? `${list.length} hasil` : `${list.length} tools`;
+    /* B-01 (v6.14.0, P2-B1): bila kueri tidak yakin + tanpa saran +
+       tanpa kecocokan persis, yang tampil adalah state kosong —
+       label harus "0 hasil", bukan jumlah hasil fuzzy (24) yang
+       tidak jadi ditampilkan. */
+    const noResults = Boolean(a && !a.confident && !a.suggestion && !a.topExact);
+    count.textContent = noResults ? '0 hasil' : (ql ? `${list.length} hasil` : `${list.length} tools`);
     count.parentElement.querySelector('.sug-hint')?.remove();
     if (a && !a.confident && a.suggestion) {
       count.insertAdjacentHTML('afterend', `<p class="sug-hint" style="margin:8px 0 0;font-size:13px;color:var(--mut)">Maksud Anda: <button class="schip" data-sug="${a.suggestion.id}">${T.esc(a.suggestion.name)}</button>?</p>`);
       count.parentElement.querySelector('[data-sug]').addEventListener('click', (e) => { location.hash = '#/t/' + e.target.dataset.sug; });
     }
     grid.innerHTML = '';
-    if (a && !a.confident && !a.suggestion && !a.topExact) {
+    if (noResults) {
       grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><b>Tidak ada tool yang pas untuk "${T.esc(ql)}".</b><p>Coba kata lain, mis. "kalkulator".</p>
         <div class="sugx">${['kalkulator', 'qr', 'weton'].map((s) => `<button class="schip">${s}</button>`).join('')}</div></div>`;
       grid.querySelectorAll('.schip').forEach((b) => b.addEventListener('click', () => { inp.value = b.textContent; paint(inp.value); }));
@@ -751,10 +557,10 @@ function allPage(q) {
   let t;
   inp.addEventListener('input', () => {
     clearTimeout(t);
-    t = setTimeout(() => { if (inp.value.trim()) sbTrackDeb(inp.value.trim()); paint(inp.value); }, 180);
+    t = setTimeout(() => { if (inp.value.trim()) trackSearchDebounced(inp.value.trim()); paint(inp.value); }, 180);
   });
   inp.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && inp.value.trim()) { addRecentSearch(inp.value.trim()); sbTrack(inp.value.trim()); }
+    if (e.key === 'Enter' && inp.value.trim()) { addRecentSearch(inp.value.trim()); trackSearch(inp.value.trim()); }
   });
   const chips = app.querySelectorAll('.fchip');
   chips.forEach((b) => b.addEventListener('click', () => {
@@ -788,10 +594,10 @@ function catPage(id) {
     </div>
     <div id="catIntro"></div>
     <div class="tgrid" id="catGrid"></div>
-    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis · Tanpa daftar · <a href="#/metodologi">Metodologi</a></footer>
+    ${footerHTML(n)}
   </div>`;
   const grid = app.querySelector('#catGrid');
-  tools.forEach((m) => grid.appendChild(cardEl(m, null)));
+  tools.forEach((m) => grid.appendChild(cardEl(m, null, { hideCat: true })));
   renderCatIntro(document.getElementById('catIntro'), id, manifest);
 }
 
@@ -807,11 +613,11 @@ function favPage() {
   <div class="wrap view">
     <div class="cat-head rise" style="--i:0">
       <span class="ctic" aria-hidden="true">♥</span>
-      <div><h2>Favorit</h2><p class="csub">${favs.length} tersimpan di perangkat ini</p></div>
+      <div><h2>Favorit</h2><p class="csub">${favs.length ? `${favs.length} tersimpan di perangkat ini` : 'Belum ada yang tersimpan'}</p></div>
     </div>
     <div class="tgrid" id="favGrid"></div>
-    ${favs.length ? '' : `<div class="empty"><b>Belum ada favorit.</b><p>Ketuk ♥ di kartu tools buat nyimpen.</p></div>`}
-    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis · Tanpa daftar · <a href="#/metodologi">Metodologi</a></footer>
+    ${favs.length ? '' : `<div class="empty"><b>Belum ada favorit.</b><p>Ketuk ♥ di kartu tools buat nyimpen.</p><div class="sugx"><a class="schip" href="#/semua">Cari tools</a></div></div>`}
+    ${footerHTML(n)}
   </div>`;
   const grid = app.querySelector('#favGrid');
   favs.forEach((m) => grid.appendChild(cardEl(m, null)));
@@ -836,7 +642,7 @@ function collectionPage(id) {
     </div>
     <p class="rise" style="--i:1;font-size:14px;line-height:1.6;color:var(--mut);margin:-6px 0 16px">${T.esc(col.desc)}</p>
     <div class="tgrid" id="colGrid"></div>
-    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis · Tanpa daftar · <a href="#/metodologi">Metodologi</a></footer>
+    ${footerHTML(n)}
   </div>`;
   const grid = app.querySelector('#colGrid');
   tools.forEach((m) => grid.appendChild(cardEl(m, null)));
@@ -858,11 +664,11 @@ function methodPage() {
   <div class="wrap view">
     <a class="back" href="#/">← Beranda</a>
     <h2 class="pagetitle rise" style="--i:0">Metodologi</h2>
-    <p class="rise" style="--i:1;font-size:14px;line-height:1.7;color:var(--mut);margin:-4px 0 8px">Cara tiap hitungan bekerja, ditulis dengan jujur — termasuk asumsi dan batasannya. Kalau ada yang tidak sesuai dengan aturan terbaru, itu karena tarif dan aturan mengikuti peraturan saat tool-nya ditulis.</p>
+    <p class="rise" style="--i:1;font-size:14px;line-height:1.7;color:var(--mut);margin:-4px 0 8px">Cara tiap hitungan bekerja, ditulis dengan jujur, termasuk asumsi dan batasannya. Kalau ada yang tidak sesuai dengan aturan terbaru, itu karena tarif dan aturan mengikuti peraturan saat tool-nya ditulis.</p>
     <div class="glass rise" style="--i:1;border-radius:14px;padding:14px 16px;margin:12px 0 20px;font-size:13.5px;line-height:1.7">
       <b>Prinsip yang berlaku untuk semua kalkulator di sini:</b>
       <ul style="margin:8px 0 0;padding-left:18px;display:grid;gap:6px">
-        <li>Semua hitungan jalan 100% di browser kamu — angka yang kamu isi tidak dikirim ke mana pun.</li>
+        <li>Semua hitungan jalan 100% di browser kamu. Angka yang kamu isi tidak dikirim ke mana pun.</li>
         <li>Angka di sini adalah <b>estimasi</b> untuk membantu mengambil keputusan, bukan nasihat pajak, hukum, atau medis.</li>
         <li>Hasil dibulatkan ke rupiah terdekat; selisih beberapa rupiah dari hitungan lain adalah wajar.</li>
       </ul>
@@ -879,7 +685,7 @@ function methodPage() {
         <p class="hint" style="line-height:1.65;margin:0"><b style="color:var(--mut)">Asumsi &amp; batasan:</b> ${T.esc(x.batas)}</p>
       </article>`).join('')}
     </div>
-    <footer class="foot"><b>ADIP Tools</b> · ${n} tools, gratis · Tanpa daftar</footer>
+    ${footerHTML(n, { methodLink: false })}
   </div>`;
   // anchor per tool: #/metodologi#thr
   const anchor = (location.hash.split('#')[2] || '').replace(/[^a-z0-9-]/g, '');
@@ -912,7 +718,7 @@ async function toolPage(id) {
     document.title = 'Tidak ditemukan - ADIP Tools';
     app.innerHTML = `<div class="wrap view"><div class="empty"><b>Tools tidak ditemukan.</b>
       <p>Mungkin alamatnya berubah.</p>
-      <div class="sugx"><a class="schip" href="#/">Cari tools</a><a class="schip" href="#/semua">Lihat semua tools</a></div></div><a class="back" href="#/">← Beranda</a></div>`;
+      <div class="sugx"><a class="schip" href="#/">Cari tools</a><a class="schip" href="#/semua">Lihat semua tools</a></div></div><a class="back" href="#/">← Beranda</a>${footerHTML(manifest.length)}</div>`;
     return;
   }
   setTabActive(null);
@@ -932,16 +738,16 @@ async function toolPage(id) {
       </div>
       <div class="tacts"><button class="fav icobtn${isFav(m.id) ? ' on' : ''}" data-id="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>${shareButtonHTML(m)}</div>
     </div>
-    <div class="tool glass" id="toolbox"><div class="skel"><i class="short"></i><i></i><i class="tall"></i></div></div>
+    <div class="tool glass" id="toolbox"><div class="skel" role="status" aria-label="Memuat alat"><span class="sk-line w45"></span><span class="sk-line h-inp"></span><span class="sk-line w70"></span><span class="sk-line h-inp"></span><span class="sk-line h-area"></span></div></div>
     <div id="methLink"></div>
     <div id="nextSec"></div>
-    <div id="recentSec"></div>
     <div class="related">
       <div class="sechead"><h2>Sejenis</h2></div>
       <div class="tgrid" id="relGrid"></div>
       <div id="catMore"></div>
     </div>
-    <footer class="foot"><b>ADIP Tools</b> · ${manifest.length} tools, gratis · Tanpa daftar · <a href="#/metodologi">Metodologi</a></footer>
+    <div id="recentLine"></div>
+    ${footerHTML(manifest.length)}
   </div>`;
   touchRecent(m.id);
   /* binding di sini (bukan setelah render): tombol ♥ & bagikan tetap hidup
@@ -949,7 +755,12 @@ async function toolPage(id) {
   bindFav(app);
   bindShareButtons(app);
   try {
-    const mod = await import('./' + m.file + '?v=' + VERSION);
+    /* Loader tool via peta glob (bukan import() string dinamis — lihat
+       catatan import.meta.glob di atas). Nama file ber-hash hasil build
+       di-resolve Vite; ?v= manual sudah tidak dipakai lagi. */
+    const loadTool = toolModules['./' + m.file];
+    if (!loadTool) throw new Error('Tool tidak terdaftar di glob: ' + m.id);
+    const mod = await loadTool();
     if (mySeq !== toolSeq || document.body.dataset.route !== 'tool') return;
     const box = document.getElementById('toolbox');
     box.querySelector('.skel')?.remove();
@@ -957,14 +768,21 @@ async function toolPage(id) {
   } catch (e) {
     if (mySeq !== toolSeq) return; // jangan timpa halaman tool lain dengan pesan error tool ini
     const box = document.getElementById('toolbox');
-    if (box) box.innerHTML = `<div class="empty"><b>Gagal memuat.</b><p>Coba muat ulang halaman.</p></div>`;
+    /* P2-B2 (E-04): tombol "Coba lagi" memuat ulang halaman.
+       Alasan: impor chunk yang gagal TIDAK BISA diulang dalam
+       halaman yang sama (Chromium mengingat kegagalan impor di
+       module map — terbukti Playwright 17 Nov 2026); memanggil
+       toolPage lagi hanya menampilkan error yang sama. Reload
+       memakai hash #/t/<id> yang sama, jadi pengunjung kembali
+       ke tool ini. */
+    if (box) renderToolError(box, () => location.reload());
   }
   const grid = document.getElementById('relGrid');
   if (grid) {
     manifest
       .filter((x) => x.cat === m.cat && x.id !== m.id)
       .slice(0, 4)
-      .forEach((x) => grid.appendChild(cardEl(x, null)));
+      .forEach((x) => grid.appendChild(cardEl(x, null, { hideCat: true })));
   }
   // rantai "Lanjut ke" (ide UX #7): langkah berikut yang relevan, dari peta NEXT
   const nextHost = document.getElementById('nextSec');
@@ -981,38 +799,57 @@ async function toolPage(id) {
   // tautan metodologi untuk kalkulator yang rumusnya didokumentasikan
   const methHost = document.getElementById('methLink');
   if (methHost && METHOD_IDS.has(m.id)) {
-    methHost.innerHTML = `<a href="#/metodologi#${m.id}" style="display:block;margin-top:14px;font-size:13px;color:var(--mut)">📖 Cara hitungnya — lihat rumus, asumsi &amp; batasannya di halaman Metodologi →</a>`;
+    methHost.innerHTML = `<a href="#/metodologi#${m.id}" style="display:block;margin-top:14px;font-size:13px;color:var(--mut)">📖 Cara hitungnya: lihat rumus, asumsi &amp; batasannya di halaman Metodologi →</a>`;
   }
-  // riwayat "Baru saja dibuka" di halaman detail (T10, v6.12.0)
-  const recHost = document.getElementById('recentSec');
-  if (recHost) {
-    recHost.innerHTML = recentRailHTML(m.id, getRecent(), byId, hcardHTML);
-    const rail = recHost.querySelector('.hscroll');
-    if (rail) watchFadeX(rail);
-  }
+  /* V-08 (v6.14.0, P2-B1): riwayat di halaman tool bukan lagi
+     carousel ketiga — satu baris teks "Terakhir dibuka: A · B · C"
+     di bawah Sejenis (§5.3.5.3). */
+  const recHost = document.getElementById('recentLine');
+  if (recHost) recHost.innerHTML = recentLineHTML(m.id, getRecent(), byId, T.esc);
   const prevHost = document.getElementById('prevChip');
   if (prevHost) prevHost.innerHTML = prevToolChip(m.id, getRecent(), byId, T.esc);
   const catHost = document.getElementById('catMore');
   if (catHost) catHost.innerHTML = catMoreLink(m.cat, catLabel);
 }
 
-/* ---------------- ROUTER ---------------- */
+/* ---------------- ROUTER ----------------
+   Tabel route tinggal di routes.js (SATU sumber kebenaran: pola +
+   prioritas pencocokan); di sini hanya peta dispatch nama -> view.
+   Menambah route baru = 1 baris di ROUTES + 1 entri di VIEWS +
+   fungsi view-nya — tidak perlu bedah router. */
+const VIEWS = {
+  tool: (p) => toolPage(p.id),
+  kategori: (p) => catPage(p.id),
+  koleksi: (p) => collectionPage(p.id),
+  metodologi: () => methodPage(),
+  semua: (p, q) => allPage(queryParam(q, 'q') ?? ''),
+  favorit: () => favPage(),
+  home: () => home(),
+};
+/* P3 (v6.14.0): true hanya selama update callback transisi
+   ViewTransition berjalan — dipakai run() untuk mematikan animasi
+   masuk .view (lihat .view.fx-vt-in di fx-p3.css). */
+let vtNext = false;
 function route() {
-  clearInterval(phTimer);
+  stopPlaceholderRotation();
   runLeaveCbs(); closePalette();
   const run = () => {
     window.scrollTo(0, 0);
-    const hash = location.hash || '#/';
-    if (hash.startsWith('#/t/')) toolPage(decodeURIComponent(hash.slice(4).split('?')[0]));
-    else if (hash.startsWith('#/k/')) catPage(decodeURIComponent(hash.slice(4).split('?')[0]));
-    else if (hash.startsWith('#/c/')) collectionPage(decodeURIComponent(hash.slice(4).split('?')[0].split('#')[0]));
-    else if (hash.startsWith('#/metodologi')) methodPage();
-    else if (hash.startsWith('#/semua')) {
-      const mm = hash.match(/[?&]q=([^&]*)/);
-      allPage(mm ? decodeURIComponent(mm[1]) : '');
+    const m = matchRoute(location.hash || '#/');
+    (VIEWS[m.name] || VIEWS.home)(m.params, m.query);
+    /* P3: saat transisi ViewTransition berjalan, .view lahir tanpa
+       animasi fx-view — snapshot baru sudah difade-in vt-in, animasi
+       masuk kedua di dalam snapshot hanya menggandakan gerakan.
+       Kelas menempel di .view ini saja (dibuang saat navigasi
+       berikut), jadi tidak ada toggle-balik yang memicu animasi
+       terlambat. */
+    if (vtNext) {
+      vtNext = false;
+      document.querySelector('#app .view')?.classList.add('fx-vt-in');
     }
-    else if (hash === '#/favorit') favPage();
-    else home();
+    /* P2-B2: pasang komponen chrome (navbar shell, breadcrumb,
+       enhancement per-route) sesudah view dirender. */
+    enhanceRoute(m.name, m.params);
     /* pindah fokus ke judul halaman (T24 P1-6): pengguna keyboard tidak
        perlu Tab dari atas tiap ganti view. */
     const appEl = document.getElementById('app');
@@ -1020,12 +857,28 @@ function route() {
     if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
   };
   // transisi halaman ala aplikasi native (fallback: render biasa)
-  if (document.startViewTransition) document.startViewTransition(run);
-  else run();
+  // .ready.catch(): navigasi cepat (< ~0,5 dtk) membuat transisi di-skip
+  // dan promise ready melempar — tanpa catch, rejection tak tertangani
+  // memenuhi console (temuan P0-D1, non-pemblokir, diperbaiki 1 baris).
+  // P3: lewati ViewTransition bila pengguna minta kurangi gerak —
+  // pseudo-element ::view-transition-* tidak terjangkau aturan `*`
+  // di blok reduced-motion CSS, jadi geraknya harus dimatikan dari
+  // sini (aturan di fx-p3.css §E hanya pertahanan lapis kedua).
+  if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    try {
+      vtNext = true;
+      const t = document.startViewTransition(run);
+      t.ready.catch(() => {});
+    } catch {
+      vtNext = false;
+      run();
+    }
+  } else run();
 }
 
 /* ---------------- boot ---------------- */
 ensureTabs();
+initComponents({ openPalette, toast }); /* P2-B2: navbar, dialog, back-to-top */
 sbFetchPopular();
 window.addEventListener('hashchange', route);
 document.addEventListener('keydown', (e) => {

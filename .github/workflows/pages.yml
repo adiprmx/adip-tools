@@ -1,0 +1,70 @@
+# Deploy preview ke GitHub Pages (P0-A, v6.14.0).
+#
+# KEPUTUSAN DEPLOY (alasan lengkap: p0-setup.md §5):
+#   Sumber Pages = GitHub Actions (BUKAN branch). Parent push source via
+#   Git Data API ke branch `preview` seperti biasa; workflow ini yang
+#   build (npm ci + vite build) lalu deploy hasil build ke Pages.
+#   Built output TIDAK di-commit — commit dist/ pernah terbukti bikin
+#   deploy campur (index.html baru + js/ lama, insiden v6.13.0).
+#
+# PENYIAPAN SATU KALI (oleh owner/parent, di luar workflow ini):
+#   Settings → Pages → Build and deployment → Source: "GitHub Actions".
+#   Tanpa ini, workflow sukses tapi Pages tetap menyajikan branch lama.
+#
+# Catatan: langkah `npm run check` AKTIF (check-tools.js sudah diadaptasi
+# ke aturan hash Vite oleh P0-B, v6.14.0 — hijau 627/627).
+name: Deploy preview ke GitHub Pages
+
+on:
+  push:
+    branches: [preview]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Cek konsistensi tools
+        run: npm run check
+      - name: Build (Vite)
+        run: npm run build
+      - name: Verifikasi manifest build (semua tool terpetakan)
+        run: >
+          node -e "const m=require('./dist/.vite/manifest.json');
+          const fs=require('fs');
+          const exp=(fs.readFileSync('js/manifest.js','utf8').match(/\"id\"/g)||[]).length;
+          const n=Object.keys(m).filter(k=>k.startsWith('js/tools/')).length;
+          if(n!==exp){console.error('tool di manifest build: '+n+', harus '+exp);process.exit(1)}
+          console.log('manifest build OK: '+n+' tool')"
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy ke GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,6 +1,6 @@
-import { h as T, utils, errBox, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, errBox, kv } from '../../core.js';
 
-export const meta = {"id": "ocrintel", "name": "OCR", "cat": "produktivitas", "icon": "🔠", "desc": "Ekstrak teks dari gambar 100% lokal — tanpa upload, tanpa server.", "keywords": "ocr,teks,gambar,scan,ekstrak,tesseract,pdf,tabel,tiff"};
+export const meta = {"id": "ocrintel", "name": "OCR", "cat": "produktivitas", "icon": "🔠", "desc": "Ekstrak teks dari gambar 100% lokal, tanpa upload, tanpa server.", "keywords": "ocr,teks,gambar,scan,ekstrak,tesseract,pdf,tabel,tiff"};
 
 const HIST_KEY = 'at-ocrintel-history-v1';
 const MAX_MB = 8;

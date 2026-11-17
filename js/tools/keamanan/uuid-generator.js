@@ -1,4 +1,4 @@
-import { h as T, utils, kv, errBox, esc } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv, errBox, esc } from '../../core.js';
 
 // UUID v1 (waktu), v3 (MD5 dari nama), v4 (acak), v5 (SHA-1 dari nama),
 // v7 (waktu + acak, terurut), dan ULID. Plus inspeksi UUID/ULID yang ditempel.

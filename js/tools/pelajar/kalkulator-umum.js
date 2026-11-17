@@ -1,4 +1,4 @@
-import { h as T, utils, onLeave } from '../../core.js?v=6.13.0';
+import { h as T, utils, onLeave } from '../../core.js';
 
 export const meta = {"id": "kalkulator-umum", "name": "Kalkulator Umum", "cat": "pelajar", "icon": "🧮", "desc": "Hitung biasa sampai ilmiah: tambah kurang kali bagi, persen, sin cos tan, log, akar, pangkat, plus riwayat.", "keywords": "kalkulator,hitung,matematika,ilmiah,sin,cos,tan,log,ln,akar,pangkat,faktorial,persen,derajat,radian", "since": "6.11.0"};
 

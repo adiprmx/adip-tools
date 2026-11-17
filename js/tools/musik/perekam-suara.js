@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js?v=6.13.0';
+import { h as T, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"perekam-suara","name":"Perekam Suara","cat":"musik","icon":"🎙️","desc":"Rekam suara dari mikrofon, potong, lalu unduh WebM atau WAV.","keywords":"rekam,suara,mikrofon,audio,voice,note","since":"6.11.0"};
 

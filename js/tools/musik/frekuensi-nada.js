@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js?v=6.13.0';
+import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js';
 
 export const meta = {"id": "frekuensi-nada", "name": "Frekuensi Nada", "cat": "musik", "icon": "🎵", "desc": "Hitung frekuensi Hz dari nama nada + dengarkan.", "keywords": "frekuensi,nada,hz,audio,tuning,musik,oktaf,440"};
 

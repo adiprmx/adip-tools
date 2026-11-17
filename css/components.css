@@ -1,0 +1,332 @@
+/* ============================================================
+   ADIP Tools v6.14.0 — components.css (P2-B2: komponen UI audit)
+   Gaya untuk js/components.js: navbar shell, dropdown,
+   breadcrumb, back-to-top, dialog, pencarian terakhir, toolbar
+   #/semua, cari kategori, lompat Metodologi, kelola favorit,
+   footer 3 kelompok, tooltip.
+
+   Design Read: chrome utilitas yang MENIRU pola visual yang
+   sudah ada (.top, .pal, .schip, .fchip, .allbtn) — tidak ada
+   bahasa visual baru. Token selalu dari style.css
+   (--bg/--surface/--line/--hair/--txt/--mut/--dim/--acc/...).
+   Dial ENERGY 1 / RHYTHM 1 / MOTION 1: transisi 0,15-0,18 dtk,
+   tanpa animasi masuk yang mencolok; semua gerak mati di
+   prefers-reduced-motion.
+
+   File ini dimuat SEBELUM fx-p3.css di index.html (P3, v6.14.0):
+   aturan fx-p3.css menang cascade bila bertabrakan; aturan di sini
+   menang atas style.css/upgrade-612.css. Semua token hidup di
+   style.css :root (P4-TOKEN memindahkan --z-dlg ke sana).
+   ============================================================ */
+
+/* ============================================================
+   NAVBAR SHELL (.top-shell) + NAV DESKTOP + DROPDOWN
+   .top/.brand/.mark/.top-right/.topcount/.icobtn dipakai ulang
+   dari style.css. Nav tengah hanya ≥1024px; di bawah itu
+   navigasi mobile adalah bottom tab bar (N-02).
+   ============================================================ */
+.top-shell { gap: 12px; }
+.topnav { display: none; }
+@media (min-width: 1024px) {
+  .topnav { display: flex; align-items: center; gap: 2px; }
+  /* D-08 (koordinator, 17 Nov): tab bar bawah disembunyikan di
+     desktop — ketiga tujuannya sudah terjangkau via header:
+     Beranda (logo), Cari (tombol cari), Favorit (navlink di atas).
+     Di bawah 1024px tab bar tetap jadi navigasi utama HP. */
+  .tabs { display: none; }
+}
+.navlink {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: var(--tap); padding: 8px 12px; border-radius: var(--r-ctl);
+  font: inherit; font-size: 14px; font-weight: 650; color: var(--mut);
+  background: none; border: none; cursor: pointer; text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+}
+.navlink:hover { color: var(--txt); background: var(--wash); }
+.navlink[aria-current="page"], .navlink.on { color: var(--txt); }
+.navlink .chev { display: inline-flex; transition: transform 0.18s var(--ease); }
+.navlink[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.navdrop { position: relative; }
+
+/* panel dropdown: meniru panel palet (.pal) — var(--panel), radius
+   var(--r-card), garis halus, bayangan dalam. Lebar dijaga di dalam
+   viewport (body overflow-x:hidden akan memotong sisanya). */
+.drop {
+  position: absolute; top: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel); border: 1px solid var(--hair);
+  border-radius: var(--r-card); padding: 10px;
+  box-shadow: var(--sh-pop);
+  z-index: 1;
+  animation: drop-in 0.18s var(--ease);
+}
+@keyframes drop-in { from { opacity: 0; transform: translateX(-50%) translateY(-4px); } }
+.drop-cat { width: 560px; max-width: min(560px, calc(100vw - 24px)); }
+.drop-col { width: 300px; max-width: min(300px, calc(100vw - 24px)); }
+.drop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.drop-list { display: grid; gap: 2px; }
+.drop-foot {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--hair);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+}
+.drop-item {
+  display: flex; align-items: center; gap: 10px;
+  min-height: var(--tap); padding: 8px 10px; border-radius: var(--r-ctl);
+  font-size: 13.5px; font-weight: 600; color: var(--mut);
+  text-decoration: none; white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+}
+.drop-item:hover, .drop-item:focus-visible { color: var(--txt); background: rgba(255, 255, 255, 0.06); }
+.drop-item .di-ic { font-size: 17px; line-height: 1; flex: none; }
+.drop-item .di-lb { overflow: hidden; text-overflow: ellipsis; }
+.drop-item .di-n { margin-left: auto; font-family: var(--font-m); font-size: 11.5px; color: var(--faint); flex: none; }
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.crumbs { padding: 14px 2px 0; }
+.crumbs ol {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  list-style: none; margin: 0; padding: 0;
+  font-size: 13px; color: var(--dim);
+}
+.crumbs li { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.crumbs li + li::before { content: "/"; color: var(--faint); }
+.crumbs a { color: var(--dim); text-decoration: none; }
+.crumbs a:hover { color: var(--txt); text-decoration: underline; }
+.crumbs [aria-current="page"] span {
+  color: var(--txt);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  max-width: 55vw; display: inline-block; vertical-align: bottom;
+}
+
+/* ============================================================
+   BACK-TO-TOP
+   44px, di atas tab bar di HP (bottom 96px), pojok di desktop.
+   ============================================================ */
+.btt {
+  position: fixed; right: 16px; bottom: 96px; z-index: var(--z-btt);
+  width: var(--tap); height: var(--tap); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2); color: var(--txt);
+  border: 1px solid var(--line); cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  opacity: 0; pointer-events: none; transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s var(--ease);
+}
+.btt.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.btt:hover { border-color: var(--acc-line); }
+.btt:active { transform: scale(0.94); }
+@media (min-width: 1024px) { .btt { bottom: 24px; right: 24px; } }
+
+/* ============================================================
+   DIALOG GENERIK (D-01) — visual meniru .pal
+   ============================================================ */
+body.dlg-open { overflow: hidden; }
+.dlg-wrap {
+  position: fixed; inset: 0; z-index: var(--z-dlg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.dlg-backdrop { position: absolute; inset: 0; background: var(--scrim); }
+.dlg {
+  position: relative; width: 100%; max-width: 400px;
+  background: var(--panel); border: 1px solid var(--hair);
+  border-radius: var(--r-card); padding: 22px;
+  box-shadow: var(--sh-pop);
+  animation: dlg-in 0.32s var(--ease-spring);
+}
+@keyframes dlg-in { from { opacity: 0; transform: translateY(10px) scale(0.97); } }
+.dlg-title { font-family: var(--font-d); font-size: 18px; font-weight: 750; letter-spacing: -0.01em; }
+.dlg-body { margin-top: 8px; font-size: 14px; line-height: 1.65; color: var(--mut); }
+.dlg-actions { display: flex; gap: 10px; margin-top: 20px; }
+.dlg-btn {
+  flex: 1; min-height: var(--tap); padding: 10px 14px;
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  color: var(--txt); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: var(--r-ctl);
+  transition: transform 0.1s var(--ease), border-color 0.15s;
+}
+.dlg-btn:hover { border-color: rgba(255, 255, 255, 0.2); }
+.dlg-btn:active { transform: scale(0.97); }
+.dlg-btn.danger { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.dlg-btn.danger:hover { border-color: var(--acc); filter: brightness(1.06); }
+
+/* ============================================================
+   CHIP (base .schip — di style.css hanya ada di dalam .empty)
+   Dipakai pencarian terakhir, lompat Metodologi, dan palet.
+   Nilainya menyalin .empty .sugx .schip persis.
+   ============================================================ */
+.schip {
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--mut);
+  cursor: pointer; border: 1px solid var(--line); border-radius: var(--r-pill);
+  padding: 8px 14px; background: var(--surface); min-height: var(--tap);
+  display: inline-flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  transition: transform 0.1s var(--ease), color 0.15s, border-color 0.15s;
+}
+.schip:hover { color: var(--txt); border-color: var(--acc-line); }
+.schip:active { transform: scale(0.94); }
+
+/* ============================================================
+   PENCARIAN TERAKHIR (S-05)
+   ============================================================ */
+.rs-wrap { margin-top: 14px; }
+.rs-label { font-size: 12.5px; font-weight: 650; color: var(--faint); display: block; margin-bottom: 8px; }
+.rs-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.rs-clear {
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--dim);
+  background: none; border: none; cursor: pointer; padding: 8px 6px;
+  min-height: var(--tap); text-decoration: underline; text-underline-offset: 3px;
+}
+.rs-clear:hover { color: var(--txt); }
+.pal-rs { padding: 10px 4px 4px; }
+.pal-rs .pal-sec { margin-bottom: 8px; }
+
+/* ============================================================
+   #/semua: filter kategori + sortir + load-more
+   ============================================================ */
+.catchips {
+  display: flex; gap: 8px; margin-top: 12px;
+  overflow-x: auto; padding-bottom: 4px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.catchips::-webkit-scrollbar { display: none; }
+.cat-chip { flex: none; gap: 6px; } /* gap: tanpa ini, hitungan
+  menempel ke label (spasi di dalam flex item anonim terpotong) */
+.cat-chip .chip-n { font-family: var(--font-m); font-size: 11.5px; color: var(--faint); font-weight: 600; }
+
+/* .sechead menampung hitungan + sortir (+ sug-hint bila ada):
+   bungkus bila sempit supaya tidak meluber di 360px. */
+.sechead { flex-wrap: wrap; }
+.sechead .sug-hint { flex-basis: 100%; }
+.sortwrap {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 650; color: var(--mut); white-space: nowrap;
+}
+.sortsel {
+  width: auto; min-height: var(--tap); font-size: 14px;
+  padding-top: 10px; padding-bottom: 10px;
+}
+.moreline {
+  text-align: center; font-size: 13px; color: var(--dim);
+  font-family: var(--font-m); margin-top: 20px;
+}
+.moreline:empty { display: none; }
+/* .allbtn dirancang untuk <a class="allbtn glass">; sebagai
+   <button> mandiri butuh latar, border, dan reset font. */
+.morebtn {
+  font: inherit; cursor: pointer; width: 100%;
+  background: var(--surface); border: 1px solid var(--line);
+  justify-content: center; margin-top: 12px;
+}
+.morebtn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; } /* C2 (P4-TOKEN): selaras .btn:disabled */
+
+/* ============================================================
+   CARI DI HALAMAN KATEGORI (P-08)
+   ============================================================ */
+.catsearch { margin: 14px 0 4px; }
+.catsearch .inp { font-size: 16px; } /* 16px = tanpa zoom iOS */
+.catcount { font-size: 13px; color: var(--dim); font-family: var(--font-m); margin-top: 8px; min-height: 18px; }
+.catcount:empty { display: none; }
+
+/* ============================================================
+   DAFTAR LOMPAT METODOLOGI (P-09)
+   ============================================================ */
+.jumpchips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 4px 0 18px;
+}
+
+/* ============================================================
+   KELOLA FAVORIT (P-01/P-10) + BARIS "TERAKHIR DIBUKA"
+   ============================================================ */
+.favmanage {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--hair);
+}
+.favmanage-btn {
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--dim);
+  background: none; border: none; cursor: pointer;
+  min-height: var(--tap); padding: 8px 4px;
+}
+.favmanage-btn:hover { color: var(--txt); text-decoration: underline; text-underline-offset: 3px; }
+.favmanage-sep { color: var(--faint); }
+.prevline { font-size: 13px; color: var(--dim); margin-top: 14px; }
+.prevline a { color: var(--mut); }
+
+/* ============================================================
+   FOOTER 3 KELOMPOK (riset §5.3.8)
+   (1) identitas + kalimat nilai, (2) 15 tautan kategori,
+   (3) tautan layanan. Menang atas footer.foot 1 baris di
+   style.css karena file ini dimuat terakhir.
+   ============================================================ */
+footer.foot { text-align: left; padding: 48px 2px 8px; }
+.foot-id { font-size: 13.5px; line-height: 1.7; color: var(--dim); max-width: 560px; }
+.foot-id b { color: var(--txt); font-family: var(--font-d); font-size: 15px; letter-spacing: -0.01em; }
+.foot-cats {
+  margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--hair);
+  font-size: 13px; line-height: 2.1; color: var(--dim);
+}
+.foot-cats a { color: var(--dim); text-decoration: none; white-space: nowrap; }
+.foot-cats a:hover { color: var(--txt); text-decoration: underline; text-underline-offset: 3px; }
+.foot-cats .sep { color: var(--faint); margin: 0 6px; }
+.foot-links {
+  margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--hair);
+  display: flex; flex-wrap: wrap; gap: 8px 20px;
+  font-size: 13px;
+}
+.foot-links a { color: var(--mut); text-decoration: none; min-height: var(--tap); display: inline-flex; align-items: center; }
+.foot-links a:hover { color: var(--txt); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ============================================================
+   TOOLTIP SELEKTIF (D-03) — CSS-only, hanya 2 tempat:
+   tombol cari navbar + back-to-top. aria-label tetap membawa
+   makna (tooltip hanya pelengkap visual).
+   ============================================================ */
+[data-tip] { position: relative; }
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute; left: 50%; top: calc(100% + 8px);
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--surface-2); color: var(--txt);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 10px; font-size: 12px; font-weight: 600;
+  white-space: nowrap; pointer-events: none; z-index: var(--z-tip);
+  opacity: 0; transition: opacity 0.15s, transform 0.15s var(--ease);
+  /* display:none saat sembunyi: pseudo-element opacity:0 TETAP
+     menyumbang scroll overflow (terbukti 17 Nov: tooltip tombol
+     cari membuat header 386px di viewport 360). */
+  display: none;
+}
+[data-tip]:hover::after, [data-tip]:focus-visible::after { display: block; opacity: 1; transform: translateX(-50%) translateY(0); }
+.btt[data-tip]::after { top: auto; bottom: calc(100% + 8px); left: auto; right: 0; transform: translateY(4px); }
+.btt[data-tip]:hover::after, .btt[data-tip]:focus-visible::after { transform: translateY(0); }
+/* Tombol cari di pojok kanan header: tooltip rata kanan (bukan
+   tengah) supaya saat MUNCUL pun tidak meluber melewati tepi
+   viewport di HP. */
+#shellPalBtn[data-tip]::after { left: auto; right: 0; transform: translateY(-4px); }
+#shellPalBtn[data-tip]:hover::after, #shellPalBtn[data-tip]:focus-visible::after { transform: translateY(0); }
+
+/* ============================================================
+   FOKUS KEYBOARD (R-32) — kelas baru mengikuti pola style.css
+   ============================================================ */
+.navlink:focus-visible, .drop-item:focus-visible, .crumbs a:focus-visible,
+.schip:focus-visible, .rs-clear:focus-visible, .cat-chip:focus-visible,
+.sortsel:focus-visible, .morebtn:focus-visible, .dlg-btn:focus-visible,
+.favmanage-btn:focus-visible, .btt:focus-visible, .foot-cats a:focus-visible,
+.foot-links a:focus-visible, .jumpchip:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   REDUCED MOTION — semua gerak komponen mati
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .drop, .dlg { animation: none; }
+  .navlink .chev, .btt, [data-tip]::after { transition: none; }
+  .btt { transform: none; }
+}

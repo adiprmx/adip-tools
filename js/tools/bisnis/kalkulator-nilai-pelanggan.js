@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 export const meta = {"id": "kalkulator-nilai-pelanggan", "name": "Kalkulator Nilai Pelanggan (LTV)", "cat": "bisnis", "icon": "👥", "desc": "Hitung nilai satu pelanggan seumur hidup (LTV) untuk menentukan budget promosi yang masuk akal.", "keywords": "ltv,nilai pelanggan,customer lifetime value,pelanggan,promosi,budget iklan,repeat order", "since": "6.13.0"};
 

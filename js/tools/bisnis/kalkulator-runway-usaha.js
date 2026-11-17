@@ -1,4 +1,4 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 export const meta = {"id": "kalkulator-runway-usaha", "name": "Kalkulator Runway Usaha", "cat": "bisnis", "icon": "⏳", "desc": "Kas usaha cukup berapa bulan? Hitung runway dari kas dan burn rate, plus skenario potong biaya.", "keywords": "runway,burn rate,kas usaha,bertahan,modal,startup,umkm,potong biaya", "since": "6.13.0"};
 

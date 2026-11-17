@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "slug-generator", "name": "Slug Generator", "cat": "converter", "icon": "🏷️", "desc": "Ubah judul jadi slug — potongan link yang rapi.", "keywords": "slug,url,judul,link"};
+export const meta = {"id": "slug-generator", "name": "Slug Generator", "cat": "converter", "icon": "🏷️", "desc": "Ubah judul jadi slug, potongan link yang rapi.", "keywords": "slug,url,judul,link"};
 export function render(root) {
 
     const inp = T.input('text', 'Judul artikel, misal: 7 Cara Bikin Kopi Susu Gula Aren!');

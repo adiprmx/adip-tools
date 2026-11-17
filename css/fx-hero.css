@@ -27,11 +27,11 @@
   border-radius: 2px;
   background: linear-gradient(
     90deg,
-    var(--acc, #ff7a59) 0%,
-    var(--acc, #ff7a59) 52%,
+    var(--acc) 0%,
+    var(--acc) 52%,
     rgba(255, 255, 255, 0.9) 60%,
-    var(--acc, #ff7a59) 68%,
-    var(--acc, #ff7a59) 100%
+    var(--acc) 68%,
+    var(--acc) 100%
   );
   background-size: 230% 100%;
   background-position: 115% 0;
@@ -62,7 +62,7 @@
 }
 
 .hsearch input {
-  caret-color: var(--acc, #ff7a59);
+  caret-color: var(--acc);
 }
 
 .hsearch:focus-within .glyph {

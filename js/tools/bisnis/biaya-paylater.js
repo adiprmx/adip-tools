@@ -1,8 +1,8 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
 const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
 
-export const meta = {"id": "biaya-paylater", "name": "Hitung Biaya PayLater", "cat": "bisnis", "icon": "💳", "desc": "Lihat total yang benar-benar dibayar kalau belanja pakai PayLater — pokok, bunga, biaya, dan denda kalau telat.", "keywords": "paylater,cicilan,bunga,biaya,spaylater,denda,total bayar"};
+export const meta = {"id": "biaya-paylater", "name": "Hitung Biaya PayLater", "cat": "bisnis", "icon": "💳", "desc": "Lihat total yang benar-benar dibayar kalau belanja pakai PayLater: pokok, bunga, biaya, dan denda kalau telat.", "keywords": "paylater,cicilan,bunga,biaya,spaylater,denda,total bayar"};
 export function render(root) {
 
     const hargaI = T.input('text', 'cth: 2.000.000', '');

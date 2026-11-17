@@ -1,6 +1,6 @@
-import { h as T, kv, tabs } from '../../core.js?v=6.13.0';
+import { h as T, kv, tabs } from '../../core.js';
 
-export const meta = {"id":"kalkulator-rumah","name":"Kalkulator Beli Rumah","cat":"bisnis","icon":"🏠","desc":"Harga rumah yang terjangkau dari penghasilan: batas cicilan bisa diatur, biaya awal ikut dihitung, sisa penghasilan, banding tenor — plus cek cicilan rumah incaran.","keywords":"rumah,kpr,cicilan,dp,uang muka,hipotek,beli rumah,properti,mampu beli rumah,harga rumah maksimal,tenor,biaya awal","since":"6.11.0"};
+export const meta = {"id":"kalkulator-rumah","name":"Kalkulator Beli Rumah","cat":"bisnis","icon":"🏠","desc":"Harga rumah yang terjangkau dari penghasilan: batas cicilan bisa diatur, biaya awal ikut dihitung, sisa penghasilan, banding tenor, plus cek cicilan rumah incaran.","keywords":"rumah,kpr,cicilan,dp,uang muka,hipotek,beli rumah,properti,mampu beli rumah,harga rumah maksimal,tenor,biaya awal","since":"6.11.0"};
 
 /* Cicilan bulanan anuitas: PMT = P x r / (1 - (1+r)^-n). r = bunga per bulan.
    Bentuk stabil numerik (P4-03): 1 - (1+r)^-n dihitung sebagai

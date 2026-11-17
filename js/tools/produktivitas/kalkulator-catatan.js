@@ -1,6 +1,6 @@
-import { h as T, utils, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv } from '../../core.js';
 
-export const meta = {"id": "kalkulator-catatan", "name": "Kalkulator Catatan", "cat": "produktivitas", "icon": "📝", "desc": "Tulis belanjaan per baris — paham rb, jt, persen, dan diskon — langsung dapat totalnya.", "keywords": "kalkulator catatan,notepad calculator,belanja,total,rb,jt,diskon,persen,warung,patungan", "since": "6.13.0"};
+export const meta = {"id": "kalkulator-catatan", "name": "Kalkulator Catatan", "cat": "produktivitas", "icon": "📝", "desc": "Tulis belanjaan per baris, paham rb, jt, persen, dan diskon, langsung dapat totalnya.", "keywords": "kalkulator catatan,notepad calculator,belanja,total,rb,jt,diskon,persen,warung,patungan", "since": "6.13.0"};
 
 // Parser hitungan sendiri, tanpa eval: tokenizer + recursive descent,
 // mengikuti pola kalkulator-umum (persen setelah + / - dihitung dari angka

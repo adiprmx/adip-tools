@@ -1,4 +1,4 @@
-import { h as T, utils, money, kv } from '../../core.js?v=6.13.0';
+import { h as T, utils, money, kv } from '../../core.js';
 
 // Bulan penuh antara dua tanggal (tanggal akhir di bawah tanggal mulai = belum genap sebulan).
 function bulanPenuh(a, b) {

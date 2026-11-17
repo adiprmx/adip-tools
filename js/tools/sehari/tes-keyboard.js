@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
 export const meta = {"id": "tes-keyboard", "name": "Tes Keyboard", "cat": "sehari", "icon": "⌨️", "desc": "Tekan tiap tombol dan lihat mana yang menyala, mana yang belum dites.", "keywords": "keyboard,tombol,tes keyboard,rusak", "since": "6.11.0"};
 

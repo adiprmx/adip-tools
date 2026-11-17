@@ -1,4 +1,4 @@
-import { h as T, kv, todayISO } from '../../core.js?v=6.13.0';
+import { h as T, kv, todayISO } from '../../core.js';
 
 /* Ambang umum gula darah (mg/dL) — rujukan umum (mis. ADA), BUKAN diagnosis.
    Puasa: normal <100, waspada 100–125, tinggi ≥126.

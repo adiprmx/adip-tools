@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 // Skor risiko diabetes tipe 2 mengikuti kuesioner FINDRISC (Finnish Diabetes
 // Risk Score, Lindstrom & Tuomilehto 2003). Total skor dan perkiraan risiko

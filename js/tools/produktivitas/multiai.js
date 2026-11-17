@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"multiai","name":"Multi-AI","cat":"produktivitas","icon":"🤖","desc":"Tanya banyak AI sekaligus + generate gambar & suara via Puter.","keywords":"ai,chat,multi,gpt,claude,puter,tts,gambar"};
 

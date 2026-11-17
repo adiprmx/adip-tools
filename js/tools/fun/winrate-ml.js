@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id": "winrate-ml", "name": "Kalkulator Winrate ML", "cat": "fun", "icon": "⚔️", "desc": "Berapa win beruntun biar WR Mobile Legends-mu nyentuh target?", "keywords": "winrate,ml,mobile legends,wr,target,win beruntun,kalkulator"};
 

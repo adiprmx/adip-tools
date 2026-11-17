@@ -2,8 +2,7 @@
    ADIP Tools — js/seo-share.js (T23 SEO & Keterlihatan, v6.12.0)
    Modul SEO + tombol bagikan per tool. Vanilla ESM, tanpa import:
    manifest & label kategori diterima lewat initSeoShare() dari app.js
-   (menghindari duplikasi fetch manifest.js yang diimpor app.js dengan
-   query ?v=...).
+   (menghindari duplikasi fetch manifest.js yang diimpor app.js).
 
    Isi modul:
    (a) Meta dinamis per tool saat hash berubah — title + description +
@@ -56,7 +55,14 @@ function esc(s) {
 export function toolIdFromHash(hash) {
   const h = String(hash || '');
   if (!h.startsWith('#/t/')) return null;
-  const id = decodeURIComponent(h.slice(4).split('?')[0].split('#')[0]);
+  /* P0-D2 (F1): urutan % rusak -> null, bukan lempar URIError yang
+     mematikan syncMeta()/initSeoShare() dan menambah pageerror. */
+  let id;
+  try {
+    id = decodeURIComponent(h.slice(4).split('?')[0].split('#')[0]);
+  } catch {
+    return null;
+  }
   return /^[a-z0-9][a-z0-9-]*$/.test(id) ? id : null;
 }
 
@@ -64,7 +70,13 @@ export function toolIdFromHash(hash) {
 export function catIdFromHash(hash) {
   const h = String(hash || '');
   if (!h.startsWith('#/k/')) return null;
-  const id = decodeURIComponent(h.slice(4).split('?')[0].split('#')[0]);
+  /* P0-D2 (F1): sama seperti toolIdFromHash — % rusak -> null. */
+  let id;
+  try {
+    id = decodeURIComponent(h.slice(4).split('?')[0].split('#')[0]);
+  } catch {
+    return null;
+  }
   return /^[a-z0-9][a-z0-9-]*$/.test(id) ? id : null;
 }
 

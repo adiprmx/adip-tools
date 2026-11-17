@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE } from '../../core.js?v=6.13.0';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js';
 
 export const meta = {"id": "kunci-rsa", "name": "Buat Pasangan Kunci RSA", "cat": "keamanan", "icon": "🔑", "desc": "Buat pasangan kunci publik & privat RSA langsung di perangkat, tanpa dikirim ke mana-mana.", "keywords": "rsa,kunci,public,private,keypair,ssh,pem,kriptografi"};
 export function render(root) {

@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "surat-kuasa", "name": "Pembuat Surat Kuasa", "cat": "produktivitas", "icon": "🤝", "desc": "Bikin surat kuasa dari form singkat: pemberi dan penerima kuasa, keperluan, dan masa berlaku, siap salin atau cetak.", "keywords": "surat kuasa,kuasa,pemberi kuasa,penerima kuasa,contoh surat kuasa", "since": "6.11.0"};
 

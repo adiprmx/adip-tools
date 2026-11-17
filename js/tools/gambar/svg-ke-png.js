@@ -1,4 +1,4 @@
-import { h as T, kv, fileInput, canvasToBlob, fmtBytes, errBox } from '../../core.js?v=6.13.0';
+import { h as T, kv, fileInput, canvasToBlob, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"svg-ke-png","name":"SVG ke PNG","cat":"gambar","icon":"🖼️","desc":"Ubah gambar SVG jadi PNG, atur skala dan latarnya.","keywords":"svg,png,konversi,gambar,vektor,logo","since":"6.11.0"};
 

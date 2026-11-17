@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 export const meta = {"id":"kalkulator-btu","name":"Kebutuhan BTU AC","cat":"sehari","icon":"❄️","desc":"Berapa BTU dan PK AC yang cocok untuk ukuran ruanganmu.","keywords":"btu,ac,pk,air conditioner,ruangan,dingin","since":"6.11.0"};
 

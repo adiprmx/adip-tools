@@ -1,4 +1,4 @@
-import { h as T, kv, errBox, utils } from '../../core.js?v=6.13.0';
+import { h as T, kv, errBox, utils } from '../../core.js';
 
 export const meta = {"id": "konverter-satuan-listrik", "name": "Konverter Satuan Listrik", "cat": "converter", "icon": "⚡", "desc": "Volt, ampere, watt, dan ohm dengan satuan apa pun (mV, kW, kΩ), daya semu VA dan faktor daya, plus perkiraan biaya listrik dari daftar alat.", "keywords": "volt,ampere,watt,ohm,kwh,listrik,hukum ohm,daya,va,biaya listrik,tarif,konverter", "since": "6.11.0"};
 

@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.13.0';
+import { h as T, kv, utils } from '../../core.js';
 
 // Rentang berat dewasa per ras anjing (standar ras AKC). Skor kondisi
 // tubuh memakai skala 9 poin WSAVA (Laflamme 1997).

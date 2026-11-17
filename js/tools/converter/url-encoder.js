@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "url-encoder", "name": "URL Encoder/Decoder", "cat": "converter", "icon": "🔗", "desc": "Ubah link atau teks jadi kode URL dan sebaliknya.", "keywords": "url,encode,decode,link"};
 export function render(root) {

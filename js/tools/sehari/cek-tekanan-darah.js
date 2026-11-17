@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 // Kategori tekanan darah mengikuti pedoman AHA/ACC 2017 yang juga dipakai
 // sebagai acuan umum di Indonesia:

@@ -1,4 +1,4 @@
-import { h as T, utils, esc } from '../../core.js?v=6.13.0';
+import { h as T, utils, esc } from '../../core.js';
 
 // Logika murni (bisa di-test di Node): tebalkan awal tiap kata.
 // persen = seberapa besar bagian awal kata yang ditebalkan (0-100).

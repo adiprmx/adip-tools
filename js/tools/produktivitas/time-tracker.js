@@ -1,6 +1,6 @@
-import { h as T, p2 } from '../../core.js?v=6.13.0';
+import { h as T, p2 } from '../../core.js';
 
-export const meta = {"id":"time-tracker","name":"Time Tracker","cat":"produktivitas","icon":"⏱️","desc":"Catat waktu kerjamu per tugas — start, stop, ketahuan totalnya.","keywords":"time tracker,timer,tugas,waktu kerja,produktivitas,stopwatch,catat waktu"};
+export const meta = {"id":"time-tracker","name":"Time Tracker","cat":"produktivitas","icon":"⏱️","desc":"Catat waktu kerjamu per tugas: start, stop, ketahuan totalnya.","keywords":"time tracker,timer,tugas,waktu kerja,produktivitas,stopwatch,catat waktu"};
 export function render(root) {
 
     const KEY = 'adip-tools:timetrack';

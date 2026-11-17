@@ -1,4 +1,4 @@
-import { h as T, kv, utils, errBox, esc, preHtml } from '../../core.js?v=6.13.0';
+import { h as T, kv, utils, errBox, esc, preHtml } from '../../core.js';
 
 /* Batas karakter yang dipakai Google sebagai acuan umum. */
 export const TITLE_IDEAL = [50, 60];

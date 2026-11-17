@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "latihan-deret-angka", "name": "Latihan Deret Angka", "cat": "pelajar", "icon": "🔢", "desc": "Latihan soal deret angka TIU/psikotes tanpa habis — soal baru tiap kali, lengkap dengan timer dan pembahasan polanya.", "keywords": "deret angka,tiu,cpns,psikotes,latihan soal,barisan bilangan"};
+export const meta = {"id": "latihan-deret-angka", "name": "Latihan Deret Angka", "cat": "pelajar", "icon": "🔢", "desc": "Latihan soal deret angka TIU/psikotes tanpa habis. Soal baru tiap kali, lengkap dengan timer dan pembahasan polanya.", "keywords": "deret angka,tiu,cpns,psikotes,latihan soal,barisan bilangan"};
 
 const acak = (min, maks) => Math.floor(Math.random() * (maks - min + 1)) + min;
 const pilih = (arr) => arr[acak(0, arr.length - 1)];

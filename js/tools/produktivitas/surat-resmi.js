@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "surat-resmi", "name": "Pembuat Surat Resmi / Dinas", "cat": "produktivitas", "icon": "🏛️", "desc": "Bikin surat dinas atau surat resmi umum: kop instansi, nomor surat, perihal, isi, dan tembusan, siap salin atau cetak.", "keywords": "surat resmi,surat dinas,surat instansi,kop surat,nomor surat,tembusan", "since": "6.11.0"};
 

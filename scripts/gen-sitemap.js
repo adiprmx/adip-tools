@@ -26,7 +26,7 @@ async function main() {
     '</urlset>',
     '',
   ].join('\n');
-  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), xml);
+  fs.writeFileSync(path.join(ROOT, 'public', 'sitemap.xml'), xml);
   console.log(`sitemap.xml ditulis: ${urls.length} URL (${manifest.length} tool)`);
 }
 

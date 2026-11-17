@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.13.0';
+import { h as T, kv, utils } from '../../core.js';
 
 // Umur anjing ke umur manusia, aturan AVMA/AKC: tahun pertama 15,
 // tahun kedua tambah 9, setelah itu tambah 4-7 per tahun menurut ukuran ras.

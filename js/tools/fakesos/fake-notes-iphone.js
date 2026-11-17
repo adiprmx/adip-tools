@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js?v=6.13.0';
+import { h as T, LOCAL_NOTE, dlNodePng } from '../../core.js';
 
 export const meta = {
   id: 'fake-notes-iphone',

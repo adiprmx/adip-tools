@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 /* Fungsi murni — diekspor supaya bisa diuji dari node tanpa DOM. */
 
@@ -40,6 +40,45 @@ export function paybackPeriod(investasi, arusKas) {
   return null;
 }
 
+/** Parse teks arus kas jadi daftar angka (satu angka = satu tahun).
+    Pemisah antar arus kas: baris baru (\n / \r\n / \r), tab, titik-koma, dan
+    koma daftar (koma diikuti spasi, atau diikuti angka bertitik — "30.000.000,
+    40.000.000"). Baris kosong diabaikan. Angka Indonesia tetap benar:
+    "30.000.000" -> 30000000, "1,5" -> 1,5 (koma desimal TIDAK pernah jadi
+    pemisah). Spasi: "30 000 000" (ribuan spasi: 1-3 digit + kelompok 3 digit)
+    tetap dibaca SATU angka; baris berisi beberapa angka dipisah spasi
+    ("30000000 40000000") dibaca sebagai beberapa arus kas — jadi tempelan
+    tidak pernah lagi menyatu diam-diam jadi satu angka raksasa (T.num
+    menghapus semua whitespace; parser lama hanya split('\n')).
+    Balikan: { nilai: number[]|null, salah: string|null } — `salah` berisi
+    token pertama yang bukan angka, untuk pesan ramah di UI. */
+export function parseArusKas(teks) {
+  const nilai = [];
+  const baris = String(teks == null ? '' : teks).replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+  for (const b of baris) {
+    // Tab / titik-koma / koma-daftar = pemisah (tempelan baris spreadsheet / CSV).
+    const potong = b.split(/[\t;]+|,(?=\s|\d[\d.]*\.)/);
+    for (let tok of potong) {
+      tok = tok.trim().replace(/\s+/g, ' ');
+      if (!tok) continue;
+      if (/\s/.test(tok) && !/^[+-]?\d{1,3}( \d{3})+$/.test(tok)) {
+        // Beberapa angka dipisah spasi — pisah, jangan digabung.
+        for (const sub of tok.split(' ')) {
+          if (!sub) continue;
+          const v = T.num(sub);
+          if (!isFinite(v)) return { nilai: null, salah: sub };
+          nilai.push(v);
+        }
+      } else {
+        const v = T.num(tok);
+        if (!isFinite(v)) return { nilai: null, salah: tok };
+        nilai.push(v);
+      }
+    }
+  }
+  return { nilai, salah: null };
+}
+
 const fmtPersen = (x, digit) => (x * 100).toFixed(digit == null ? 2 : digit).replace('.', ',') + '%';
 const fmtTahun = (t) => {
   const thn = Math.floor(t);
@@ -65,14 +104,10 @@ export function render(root) {
       const disk = T.num(diskI.value);
       if (!isFinite(inv) || inv <= 0) { T.toast('Isi investasi awal dengan angka lebih dari 0'); return; }
       if (!isFinite(disk) || disk < 0 || disk >= 100) { T.toast('Tingkat diskonto diisi 0 sampai di bawah 100'); return; }
-      const baris = cfI.value.split('\n').map((s) => s.trim()).filter(Boolean);
-      if (!baris.length) { T.toast('Isi dulu arus kas per tahunnya, satu baris per tahun'); return; }
-      const arusKas = [];
-      for (const b of baris) {
-        const v = T.num(b);
-        if (!isFinite(v)) { T.toast('Baris "' + b.slice(0, 20) + '" bukan angka — perbaiki dulu'); return; }
-        arusKas.push(v);
-      }
+      const hasil = parseArusKas(cfI.value);
+      if (hasil.salah != null) { T.toast('Baris "' + hasil.salah.slice(0, 20) + '" bukan angka — perbaiki dulu'); return; }
+      if (!hasil.nilai.length) { T.toast('Isi dulu arus kas per tahunnya, satu baris per tahun'); return; }
+      const arusKas = hasil.nilai;
       if (arusKas.length > 30) { T.toast('Maksimal 30 tahun ya'); return; }
       const r = disk / 100;
       const npv = hitungNPV(inv, arusKas, r);

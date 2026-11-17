@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"balik-teks","name":"Teks Terbalik","cat":"teks","icon":"🙃","desc":"Teks jadi huruf terbalik atau urutannya dibalik.","keywords":"terbalik,upside down,reverse,teks,flip"};
 

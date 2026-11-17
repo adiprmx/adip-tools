@@ -1,4 +1,4 @@
-import { h as T, kv } from '../../core.js?v=6.13.0';
+import { h as T, kv } from '../../core.js';
 
 /* Fungsi murni — diekspor supaya bisa diuji dari node tanpa DOM. */
 

@@ -1,4 +1,4 @@
-import { h as T, kv, utils } from '../../core.js?v=6.13.0';
+import { h as T, kv, utils } from '../../core.js';
 
 // Total biaya bulanan pelihara anjing. Semua angka bisa diubah, angka
 // awal hanya contoh yang bisa disesuaikan dengan harga di tempatmu.

@@ -1,4 +1,4 @@
-import { h as T, kv, errBox, esc } from '../../core.js?v=6.13.0';
+import { h as T, kv, errBox, esc } from '../../core.js';
 
 // Daftar (satu baris satu item) -> CSV / JSON / SQL / bullet / markdown.
 // Opsi: buang baris kosong, buang duplikat, urutkan abjad.

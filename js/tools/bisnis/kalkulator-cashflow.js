@@ -1,4 +1,4 @@
-import { h as T, utils, kv, rp, num } from '../../core.js?v=6.13.0';
+import { h as T, utils, kv, rp, num } from '../../core.js';
 
 // Logika murni (bisa di-test di Node): ringkasan dari baris { nama, kategori, jumlah }.
 // Tiap baris dibatasi Rp1.000 triliun supaya jumlah absurd (mis. 1e308) tidak

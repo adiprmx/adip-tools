@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js?v=6.13.0';
+import { h as T, errBox } from '../../core.js';
 
 export const meta = {"id":"simulator-serp","name":"Simulator Hasil Pencarian Google","cat":"developer","icon":"🔍","desc":"Lihat tampilan judul dan deskripsi halamanmu di hasil pencarian Google (desktop & HP), lengkap dengan cek panjang yang pas.","keywords":"serp,google,seo,judul,deskripsi,meta,title,snippet,pratinjau pencarian","since":"6.13.0"};
 
@@ -108,7 +108,7 @@ export function render(root) {
       '<span style="width:28px;height:28px;border-radius:50%;background:#f1f3f4;color:#5f6368;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none">' + T.esc(huruf) + '</span>' +
       '<div style="min-width:0"><div style="font-size:14px;color:#202124;line-height:1.3">' + T.esc(namaSitus) + '</div>' +
       '<div style="font-size:12px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + T.esc(breadcrumbDariUrl(url)) + '</div></div></div>' +
-      '<div style="margin-top:6px"><a href="#" onclick="return false" style="font-size:' + (mobile ? '18px' : '20px') + ';line-height:1.3;color:#1a0dab;text-decoration:none">' + T.esc(judulPotong.tampil) + '</a></div>' +
+      '<div style="margin-top:6px"><a href="#" style="font-size:' + (mobile ? '18px' : '20px') + ';line-height:1.3;color:#1a0dab;text-decoration:none">' + T.esc(judulPotong.tampil) + '</a></div>' +
       '<div style="font-size:14px;line-height:1.58;color:#4d5156;margin-top:2px">' + T.esc(deskTampil) + '</div>' +
       '</div>' +
       '<p class="hint" style="text-align:center">' + (judulPotong.terpotong ? '⚠️ Judul terpotong di tampilan ' + mode.nilai + '. ' : '') + (deskTerpotong ? '⚠️ Deskripsi terpotong di tampilan ' + mode.nilai + '.' : '') + '</p>'
@@ -131,6 +131,11 @@ export function render(root) {
         '<p class="hint">Patokan umum: judul 50–60 karakter, deskripsi 150–160 karakter. Google memotong berdasarkan lebar layar, jadi angka ini panduan, bukan aturan mutlak.</p>');
     }
     T.show(previewBox, hasilHtml());
+    // Tautan judul hanya pratinjau — kliknya dibatalkan via listener, bukan
+    // atribut onclick (handler inline diblokir CSP enforcing; remediasi E4).
+    // Dipasang ulang tiap render karena T.show menulis ulang innerHTML.
+    const tautan = previewBox.querySelector('a[href="#"]');
+    if (tautan) tautan.addEventListener('click', (e) => e.preventDefault());
   }
 
   const salinMeta = T.copyBtn(() => {

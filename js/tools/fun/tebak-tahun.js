@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js?v=6.13.0';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "tebak-tahun", "name": "Tebak Tahun Peristiwa", "cat": "fun", "icon": "📅", "desc": "Kuis 10 soal acak: di tahun berapa peristiwa ini terjadi? Indonesia & dunia.", "keywords": "tahun,sejarah,peristiwa,kuis,trivia,indonesia,dunia", "since": "6.12.0"};
 

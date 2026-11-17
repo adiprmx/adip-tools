@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js?v=6.13.0';
+import { h as T } from '../../core.js';
 
 // Wordlist Bahasa Indonesia umum (tanpa spasi, huruf kecil) untuk passphrase.
 const _WORDS_RAW = ('kucing anjing kelinci rumah mobil motor sepeda buku meja kursi pintu jendela lampu ' +

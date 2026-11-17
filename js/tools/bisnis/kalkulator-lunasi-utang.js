@@ -1,4 +1,4 @@
-import { h as T, kv, tabs } from '../../core.js?v=6.13.0';
+import { h as T, kv, tabs } from '../../core.js';
 
 export const meta = {"id":"kalkulator-lunasi-utang","name":"Kalkulator Lunasi Utang","cat":"bisnis","icon":"💳","desc":"Rencana melunasi utang sampai lunas: tanggal lunas, total bunga, tabel angsuran per bulan, dan bandingkan snowball vs avalanche untuk banyak utang.","keywords":"utang,lunasi utang,pelunasan,cicilan,bunga,snowball,avalanche,tabel angsuran,amortisasi,kartu kredit,pinjaman","since":"6.11.0"};
 
