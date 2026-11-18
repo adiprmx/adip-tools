@@ -27,6 +27,10 @@ export const cats = [
   ['pelajar', 'Pelajar'],
   ['liveapi', 'Live API'],
   ['fakesos', 'Fake Sosmed'],
+  ['kesehatan', 'Kesehatan'],
+  ['kreator', 'Kreator'],
+  ['masak', 'Masak'],
+  ['travel', 'Travel'],
 ];
 
 /** Registry semua tool — diisi modul tools via tools.push({...}). */
@@ -302,7 +306,9 @@ export function wireImgErr(container) {
 // mencoba jaringan lagi (T02 B2, v6.12.0).
 /* ---- Subresource Integrity (SRI) untuk script CDN klasik (P5 v6.12.2) ----
    Hash SHA-384 dari isi file yang diunduh langsung dari CDN pada 16 Nov 2026
-   (bukti: p5-sri-hashes.json di folder ronde). loadScript() memasang
+   (bukti: p5-sri-hashes.json di folder ronde). docx@8.5.0 ditambahkan
+   18 Nov 2026 (RED-02, G1) — hash diverifikasi dari 3 sumber independen
+   (jsDelivr + unpkg + tarball registry npm), ketiganya identik. loadScript() memasang
    integrity + crossorigin="anonymous" bila URL-nya ada di peta ini; URL yang
    tidak ada di peta tetap dimuat seperti biasa (tanpa integrity).
    TIDAK tercakup (keterbatasan browser, bukan kelalaian): import() ESM
@@ -321,6 +327,7 @@ const SRI_HASH = {
   'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/ripemd160.js': 'sha384-5JJi32IV0QXIQJZgizc0cpkpnC5VB+JdRI3EOP8Gqjd1DjvqqNVYhzI9vrdrnFjx',
   'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/sha224.js': 'sha384-WIvzLGDZGRa/39EpDkqPhFiganB9X/V33oSv5/sX86gQqYH2z+j2FuIOJh5m7Gm+',
   'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/sha256.js': 'sha384-LPPFe0O6zZ1MvB0WgJxODyqtDrbtP7yQfidEE/rU29peFuxGudufuPYIxWrD9vnj',
+  'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js': 'sha384-4xaIisuLEy2lo2HkB2C4rEf7v8jbTb2kuogX6TkuEt9feTWKBSFSOzsqNNbV+sKh',
   'https://cdn.jsdelivr.net/npm/exifreader@4.23.5/dist/exif-reader.js': 'sha384-lV3Kc4L1YkqB4DCasecdSWo5RQEXp9Mc9eeiV6opSzVKpk2Id2jELgNodSyTCDqq',
   'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js': 'sha384-OTofQ0MEeiSgh62havBcemCIK0gqj809wX6UA0uPISNMRnR6NZyCdGzX3SbLrgwL',
   'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js': 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H',
@@ -535,6 +542,11 @@ export const _normAcc = (a) => (a === '♯' ? '#' : a === '♭' ? 'b' : a || '')
 export const money = (inpEl, ph, val) => { const i = T.input('text', ph, val); i.inputMode = 'decimal'; return i; };
 
 export const kv = (k, v) => '<div class="kv"><span class="k">' + T.esc(k) + '</span><span class="v">' + v + '</span></div>';
+// PERINGATAN (RED-03, v6.16.0 — diputuskan TIDAK diubah): value `v` di atas
+// SENGAJA tidak di-escape — 78 pemanggilan di 33 file mengandalkan HTML di
+// value (<b>, <span class="ok">, ...). JANGAN pernah melewatkan data
+// tak terpercaya (API/user) ke `v` tanpa T.esc() dulu — itu langsung XSS.
+// Bila butuh value teks murni, escape di pemanggil: kv('Nama', T.esc(nama)).
 
 export const LOCAL_NOTE = 'Semua diproses 100% lokal di HP kamu, file tidak diupload ke mana-mana.';
 

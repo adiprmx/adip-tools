@@ -1,4 +1,4 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, esc } from '../../core.js';
 
 utils.md5 = async function (str) { return _md5(str); };
 

@@ -1,6 +1,6 @@
 import { h as T, kv, todayISO } from '../../core.js';
 
-export const meta = {"id": "catat-minum-air", "name": "Catat Minum Air & Riwayat", "cat": "sehari", "icon": "💧", "desc": "Pantau air minum harianmu, jangan sampai kurang.", "keywords": "air minum,hidrasi,catat minum,tracker air,kesehatan"};
+export const meta = {"id": "catat-minum-air", "name": "Catat Minum Air & Riwayat", "cat": "sehari", "icon": "💧", "desc": "Pantau air minum harianmu: target dari berat badan, catat tiap tegukan + riwayat.", "keywords": "air minum,hidrasi,catat minum,tracker air,kesehatan,berat badan,target,30 ml"};
 
 export function render(root) {
 
@@ -10,7 +10,21 @@ export function render(root) {
 
     const hariIni = todayISO();
     let st = load();
-    if (!st || st.tanggal !== hariIni) st = { tanggal: hariIni, target: (st && st.target) || 2000, log: [] };
+    const targetLama = (st && st.target) || 0;
+    const baru = !st || st.tanggal !== hariIni;
+    if (baru) st = { tanggal: hariIni, target: targetLama || 2000, log: [] };
+    // Pindahan sekali dari water-tracker lama (kunci adip-tools:water):
+    // total ml hari ini dibawa sebagai satu catatan.
+    if (baru) {
+      try {
+        const lama = JSON.parse(localStorage.getItem('adip-tools:water') || 'null');
+        if (lama && lama.date === hariIni) {
+          if (!targetLama && lama.target > 0) st.target = lama.target;
+          if (lama.ml > 0) st.log.push({ ml: lama.ml, ts: Date.now() });
+          save(st);
+        }
+      } catch (e) {}
+    }
 
     const targetI = T.input('number', '2000', String(st.target));
     targetI.style.width = '130px';
@@ -57,10 +71,22 @@ export function render(root) {
       else { targetI.value = st.target; T.toast('Target 1–10000 ml aja ya'); }
     });
 
+    const beratI = T.input('number', 'cth: 60', '');
+    beratI.style.width = '130px';
+    const saran = () => {
+      const bb = T.num(beratI.value);
+      if (!(bb > 0)) { T.toast('Isi berat badan dulu'); return; }
+      st.target = Math.round(bb * 30);
+      targetI.value = String(st.target);
+      paint();
+      T.toast('Target diset: ' + T.fmt(st.target) + ' ml');
+    };
+
     const add250 = T.btn('+250 ml', () => add(250), true);
     const add500 = T.btn('+500 ml', () => add(500));
     root.appendChild(T.el('<p class="note">Minum air sering kelupaan — <b>catat setiap teguk</b> biar ketahuan udah cukup atau belum.</p>'));
     root.appendChild(T.row(T.el('<span style="align-self:center" class="mut">Target hari ini (ml)</span>'), targetI));
+    root.appendChild(T.row(T.el('<span style="align-self:center" class="mut">Berat badan (kg)</span>'), beratI, T.btn('Pakai saran 30×kg', saran)));
     root.appendChild(barWrap);
     root.appendChild(bigBox);
     root.appendChild(T.row(add250, add500));

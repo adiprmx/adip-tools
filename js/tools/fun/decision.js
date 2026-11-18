@@ -1,6 +1,16 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id": "decision", "name": "Pengacak Keputusan", "cat": "fun", "icon": "🔮", "desc": "Bantu ambil keputusan.", "keywords": "keputusan,acak,pilih,random"};
+export const meta = {"id": "decision", "name": "Pengacak Keputusan", "cat": "fun", "icon": "🔮", "desc": "Bantu ambil keputusan.", "keywords": "keputusan,acak,pilih,random,pilih satu,opsi"};
+
+/** Parse textarea jadi daftar opsi bersih. */
+export function parseOpsi(teks) {
+  return String(teks || '').split('\n').map((s) => s.trim()).filter(Boolean);
+}
+
+/** Pilih 1 opsi acak dari daftar. */
+export function acakSatu(opsi) {
+  return opsi[Math.floor(Math.random() * opsi.length)];
+}
 export function render(root) {
 
     const mode = T.select([
@@ -35,23 +45,30 @@ export function render(root) {
         kandidat = ['__range__'];
         var rangeA = a, rangeB = b;
       } else {
-        kandidat = taOpsi.value.split('\n').map((s) => s.trim()).filter(Boolean);
+        kandidat = parseOpsi(taOpsi.value);
         if (!kandidat.length) { T.show(box, '<span class="err">Tulis dulu daftar opsinya.</span>'); return; }
       }
       bersih();
       const hasil = kandidat[0] === '__range__'
         ? String(rangeA + Math.floor(Math.random() * (rangeB - rangeA + 1)))
-        : kandidat[Math.floor(Math.random() * kandidat.length)];
+        : acakSatu(kandidat);
       let n = 0;
-      T.show(box, '<div class="center dim">Mengacak…</div>');
+      const total = 22;
+      T.beep(440, 0.1, 'square');
       iv = setInterval(() => {
         n++;
-        const acakTampil = kandidat[0] === '__range__'
+        const tampil = n >= total ? hasil : (kandidat[0] === '__range__'
           ? String(rangeA + Math.floor(Math.random() * (rangeB - rangeA + 1)))
-          : kandidat[Math.floor(Math.random() * kandidat.length)];
-        T.show(box, '<div class="center"><div class="dim">Mengacak…</div><div class="big">' + esc(acakTampil) + '</div></div>');
-        if (n > 12) { bersih(); T.show(box, '<div class="center"><div class="dim">Keputusannya:</div><div class="big">' + esc(hasil) + '</div></div>'); T.beep(660, 0.25, 'sine'); T.beep(880, 0.3, 'sine', 0.22); }
-      }, 80);
+          : acakSatu(kandidat));
+        const uk = n >= total ? '30px' : (16 + n) + 'px';
+        T.show(box,
+          '<div class="center"><div class="dim">' + (n >= total ? '🎯 Keputusannya:' : 'Mengacak…') + '</div>' +
+          '<div style="font-size:' + uk + ';font-weight:700;margin:14px 0;line-height:1.3">' + esc(tampil) + '</div></div>');
+        if (n >= total) {
+          bersih();
+          T.beep(660, 0.2, 'sine'); T.beep(990, 0.35, 'sine', 0.18);
+        }
+      }, 90);
     };
     root.appendChild(T.field('Mode', mode));
     root.appendChild(modeBox);

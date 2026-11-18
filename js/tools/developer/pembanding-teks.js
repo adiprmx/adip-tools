@@ -1,6 +1,6 @@
 import { h as T, utils, beep, actx, onLeave } from '../../core.js';
 
-export const meta = {"id": "pembanding-teks", "name": "Pembanding Teks & Kode", "cat": "developer", "icon": "🔀", "desc": "Bandingkan dua teks baris per baris, lihat bedanya.", "keywords": "diff,teks,bandingkan,perbandingan,kode"};
+export const meta = {"id": "pembanding-teks", "name": "Pembanding Teks & Kode", "cat": "developer", "icon": "🔀", "desc": "Bandingkan dua teks baris per baris, lihat bedanya.", "keywords": "diff,teks,bandingkan,perbandingan,kode,cepat"};
 
 // Diff baris-per-baris ala LCS. Tiap item: {t:'='|'-'|'+', x:teks}
 // '=' sama di kedua, '-' hanya di teks A, '+' hanya di teks B.
@@ -31,6 +31,7 @@ export function render(root) {
   const box = T.out();
 
   function bandingkan() {
+    if (!taA.value && !taB.value) { T.show(box, '<div class="hint">Kedua teks kosong.</div>'); return; }
     const diff = diffLines(taA.value, taB.value);
     const sama = diff.filter((d) => d.t === '=').length;
     const del = diff.filter((d) => d.t === '-').length;

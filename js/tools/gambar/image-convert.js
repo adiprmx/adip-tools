@@ -1,4 +1,4 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage, errBox } from '../../core.js';
 
 // Canvas -> file BMP 24-bit (tanpa kompresi). Hanya butuh getImageData,
 // jadi bisa diuji di Node dengan canvas tiruan.
@@ -188,7 +188,7 @@ export function sisipExifKePng(pngBytes, tiffBytes) {
   return out;
 }
 
-export const meta = {"id": "image-convert", "name": "Convert Gambar", "cat": "gambar", "icon": "🔁", "desc": "Convert gambar antar format (WebP, JPG, PNG, dan lainnya) di browser.", "keywords": "convert,gambar,webp,jpg,png,format,heic,tiff,avif,bmp,ico,svg"};
+export const meta = {"id": "image-convert", "name": "Convert Gambar", "cat": "gambar", "icon": "🔁", "desc": "Convert gambar antar format (WebP, JPG, PNG, dan lainnya) di browser — termasuk kode SVG dan foto HEIC iPhone, banyak sekaligus.", "keywords": "convert,gambar,webp,jpg,png,format,heic,tiff,avif,bmp,ico,svg,kode svg,iphone,batch,zip"};
 export function render(root) {
 
       const HEIC_CDN = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
@@ -211,6 +211,44 @@ export function render(root) {
 
       const fileI = fileInput('image/*,.heic,.heif,.tif,.tiff,.svg,.ico,.bmp,.avif');
       fileI.multiple = true;
+      // --- Tempel kode SVG (dari SVG ke PNG): tanpa file, pakai skala & latar ---
+      const svgTa = T.ta(6, '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">\n  <circle cx="50" cy="50" r="40" fill="#fff"/>\n</svg>');
+      const svgSkalaSel = T.select([['1', '1x (ukuran asli)'], ['2', '2x (lebih tajam)'], ['3', '3x'], ['4', '4x']], '2');
+      const svgLatarSel = T.select([['transparan', 'Transparan'], ['putih', 'Putih']], 'transparan');
+      const svgContohBtn = T.btn('Isi contoh', () => {
+        svgTa.value = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">\n' +
+          '  <rect x="10" y="10" width="180" height="100" rx="14" fill="none" stroke="#ffffff" stroke-width="4"/>\n' +
+          '  <circle cx="100" cy="60" r="30" fill="#ffffff"/>\n' +
+          '  <text x="100" y="66" font-size="22" text-anchor="middle" fill="#111111" font-family="sans-serif" font-weight="bold">SVG</text>\n' +
+          '</svg>';
+      });
+      // Validasi kode SVG yang ditempel: harus diawali <svg>, XML-nya utuh,
+      // dan punya ukuran (width/height atau viewBox). xmlns ditambahkan
+      // otomatis bila tidak ada.
+      const rasterSvg = (svgText) => {
+        let src = String(svgText || '').trim();
+        if (!src) throw new Error('Tempel kode SVG atau pilih file gambar dulu.');
+        if (!/^<svg[\s>]/.test(src)) throw new Error('Kode ini bukan SVG. Pastikan diawali tag <svg>.');
+        if (!/xmlns=/.test(src)) src = src.replace(/<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        const doc = new DOMParser().parseFromString(src, 'image/svg+xml');
+        if (doc.querySelector('parsererror')) throw new Error('Kode SVG-nya tidak benar (XML rusak). Periksa tag yang belum tertutup.');
+        const el = doc.documentElement;
+        const num = (v) => { const n = parseFloat(String(v || '').replace(/px$/i, '')); return isFinite(n) && n > 0 ? n : NaN; };
+        let w = num(el.getAttribute('width')), h = num(el.getAttribute('height'));
+        if (!isFinite(w) || !isFinite(h)) {
+          const vb = (el.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
+          if (vb.length === 4 && isFinite(vb[2]) && isFinite(vb[3]) && vb[2] > 0 && vb[3] > 0) { w = vb[2]; h = vb[3]; }
+        }
+        if (!isFinite(w) || !isFinite(h)) throw new Error('SVG ini tidak punya ukuran. Tambahkan width dan height, atau viewBox, di tag <svg>.');
+        return { src, w, h };
+      };
+      const SVG_MAX_DIM = 4096;
+      // Janji dengan timeout: bila janji asli tidak kunjung selesai, ditolak
+      // dengan Error('timeout') supaya UI bisa lanjut dan memberi pesan.
+      const denganTimeout = (janji, batasMs) => Promise.race([
+        janji,
+        new Promise((_, tolak) => setTimeout(() => tolak(new Error('timeout')), batasMs)),
+      ]);
       const fmtSel = T.select([['jpeg', 'JPEG (.jpg)'], ['png', 'PNG'], ['webp', 'WebP'], ['avif', 'AVIF'], ['bmp', 'BMP'], ['tiff', 'TIFF'], ['svg', 'SVG (foto dibungkus)'], ['ico', 'ICO (ikon)']], 'jpeg');
       const qRange = T.input('range'); qRange.min = '10'; qRange.max = '100'; qRange.value = '90';
       const qVal = T.el('<b>90%</b>');
@@ -287,7 +325,7 @@ export function render(root) {
         const jenis = jenisMasukan(file);
         if (jenis === 'heic') {
           if (!(await pastHeic())) throw new Error('pengubah HEIC gagal dimuat, cek koneksi');
-          const keluar = await window.heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+          const keluar = await denganTimeout(window.heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 }), 120000);
           const blob = Array.isArray(keluar) ? keluar[0] : keluar;
           if (!blob) throw new Error('file HEIC tidak terbaca');
           return gambarKeCanvas(await loadImage(blob), true);
@@ -373,8 +411,19 @@ export function render(root) {
 
       async function process() {
         T.hide(box); T.hide(infoBox); T.hide(statusBox);
-        const files = [...(fileI.files || [])].slice(0, MAKS_JUMLAH);
-        if (!files.length) { T.toast('Pilih gambar dulu'); return; }
+        let files = [...(fileI.files || [])].slice(0, MAKS_JUMLAH);
+        let svgMode = null;
+        // Tanpa file tapi ada kode SVG yang ditempel: convert kode itu
+        // (dengan skala & latar yang dipilih).
+        const kodeSvg = svgTa.value.trim();
+        if (!files.length && kodeSvg) {
+          let parsed;
+          try { parsed = rasterSvg(kodeSvg); }
+          catch (e) { T.show(statusBox, errBox(e.message)); return; }
+          svgMode = { scale: +svgSkalaSel.value || 1, bg: svgLatarSel.value };
+          files = [new File([parsed.src], 'gambar-svg.svg', { type: 'image/svg+xml' })];
+        }
+        if (!files.length) { T.toast('Pilih gambar dulu, atau tempel kode SVG'); return; }
         hasilBatch = [];
         cur = null;
         dlB.disabled = true; // belum ada hasil baru (P2-2)
@@ -382,6 +431,7 @@ export function render(root) {
         // Error lain (dari browser/library) diganti pesan ramah.
         const pesanGagal = (er) => {
           const m = (er && er.message) || '';
+          if (m === 'timeout') return 'prosesnya terlalu lama (lebih dari 2 menit)';
           if (/^(pengubah HEIC|pembaca TIFF|file HEIC tidak terbaca|file TIFF tidak terbaca|gagal membuat ICO|gagal membuat SVG|gagal membaca gambar|browser ini belum bisa menyimpan AVIF|gagal convert)/.test(m)) return m;
           return 'tidak bisa diproses';
         };
@@ -392,6 +442,20 @@ export function render(root) {
           try {
             let canvas = await fileKeCanvas(files[i]);
             const asalW = canvas.width, asalH = canvas.height;
+            // Skala SVG yang ditempel (1x-4x, dibatasi 4096 px).
+            let clampedSvg = false;
+            if (svgMode && svgMode.scale !== 1) {
+              let outW = Math.round(asalW * svgMode.scale), outH = Math.round(asalH * svgMode.scale);
+              if (outW > SVG_MAX_DIM || outH > SVG_MAX_DIM) {
+                const k = SVG_MAX_DIM / Math.max(outW, outH);
+                outW = Math.max(1, Math.round(outW * k)); outH = Math.max(1, Math.round(outH * k));
+                clampedSvg = true;
+              }
+              const besar = document.createElement('canvas');
+              besar.width = outW; besar.height = outH;
+              besar.getContext('2d').drawImage(canvas, 0, 0, outW, outH);
+              canvas = besar;
+            }
             // Ubah ukuran (jaga rasio).
             const target = hitungUkuranBaru(asalW, asalH, resizeSel.value, parseFloat(String(resizeInp.value).replace(',', '.')));
             const diubahUkuran = target.w !== asalW || target.h !== asalH;
@@ -401,8 +465,9 @@ export function render(root) {
               kecil.getContext('2d').drawImage(canvas, 0, 0, target.w, target.h);
               canvas = kecil;
             }
-            if (fmtSel.value === 'jpeg' || fmtSel.value === 'webp' || fmtSel.value === 'avif') {
+            if (fmtSel.value === 'jpeg' || fmtSel.value === 'webp' || fmtSel.value === 'avif' || (svgMode && svgMode.bg === 'putih')) {
               // Format ini tidak punya transparansi: timpa di atas latar putih.
+              // (Untuk SVG yang ditempel, latar putih juga dipakai bila dipilih.)
               const putih = document.createElement('canvas');
               putih.width = canvas.width; putih.height = canvas.height;
               const pctx = putih.getContext('2d');
@@ -435,7 +500,7 @@ export function render(root) {
             const nama = files.length > 1 || awalInp.value.trim() || akhirInp.value.trim() || nomorCek.checked
               ? namaDariPola(awalInp.value, akhirInp.value, base, i, nomorCek.checked, r.ext)
               : base + '.' + r.ext;
-            hasilBatch.push({ blob: blobHasil, name: nama, asal: files[i].name, asalSize: files[i].size, asalW, asalH, w: canvas.width, h: canvas.height, exifCatatan });
+            hasilBatch.push({ blob: blobHasil, name: nama, asal: files[i].name, asalSize: files[i].size, asalW, asalH, w: canvas.width, h: canvas.height, exifCatatan: clampedSvg ? 'Ukuran dibatasi sampai ' + SVG_MAX_DIM + ' px supaya HP tidak keberatan.' + (exifCatatan ? ' ' + exifCatatan : '') : exifCatatan });
           } catch (e) {
             gagal.push((files[i].name || 'gambar ' + (i + 1)) + ' (' + pesanGagal(e) + ')');
           }
@@ -500,6 +565,10 @@ export function render(root) {
 
       root.appendChild(T.el(`<p class="note">🔒 ${LOCAL_NOTE}</p>`));
       root.appendChild(T.field('Pilih gambar (bisa banyak sekaligus)', fileI, 'Masuk: JPG, PNG, WebP, GIF, BMP, AVIF, ICO, SVG, HEIC, TIFF. Maksimal ' + MAKS_JUMLAH + ' file.'));
+      root.appendChild(T.el('<p class="dim" style="font-size:13px;margin:6px 0 0">Atau tempel kode SVG langsung (tanpa file) — skala 2x cocok supaya hasilnya tetap tajam di layar HP:</p>'));
+      root.appendChild(T.field('Kode SVG', svgTa));
+      root.appendChild(T.row(svgContohBtn));
+      root.appendChild(T.grid2(T.field('Skala SVG', svgSkalaSel), T.field('Latar SVG', svgLatarSel)));
       root.appendChild(T.grid2(
         T.field('Format tujuan', fmtSel),
         T.field('Kualitas', (() => { const d = T.el('<div class="row"></div>'); d.appendChild(qRange); d.appendChild(qVal); return d; })(), 'Tidak berlaku untuk PNG, BMP, TIFF, SVG, dan ICO.')

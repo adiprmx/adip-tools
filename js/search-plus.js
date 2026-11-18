@@ -13,7 +13,7 @@
         cocok dengan SEMUA kata justru kalah. Contoh nyata: "cek ongkir",
         "cek resi", "cek weton", "cek plagiat", "cek nomor hp" semuanya
         menaruh "kontras" di peringkat 1; "hitung umur" menaruh
-        "biaya-paylater" di peringkat 1, bukan kalkulator-umur.
+        "biaya-paylater" di peringkat 1, bukan age-calc.
      2. Tidak ada pemetaan niat berbahasa Indonesia sehari-hari:
         "kecilin foto" (bukan image-compress), "gabung pdf" (bukan
         pdflab), "potong lagu" (bukan audio-trimmer), "hapus background"
@@ -163,7 +163,7 @@ export const PHRASE_RULES = [
   { keys: ['cek ongkir', 'ongkir jne', 'ongkir jnt', 'biaya ongkir', 'hitung ongkir'], tools: ['berat-volumetrik'] },
   { keys: ['cek nomor hp', 'nomor hp', 'no hp', 'nomor handphone', 'nomor telepon'], tools: ['format-hp'] },
   { keys: ['buat qr', 'qr code', 'kode qr', 'bikin qr'], tools: ['qr-generator'] },
-  { keys: ['hitung umur', 'umur berapa', 'tanggal lahir'], tools: ['kalkulator-umur'] },
+  { keys: ['hitung umur', 'umur berapa', 'tanggal lahir'], tools: ['age-calc'] },
   { keys: ['jadwal haid', 'hitung haid', 'masa subur', 'siklus haid', 'jadwal mens'], tools: ['siklus-haid'] },
   { keys: ['kalkulator cinta', 'cek jodoh', 'kecocokan nama'], tools: ['cocoklogi-nama'] },
   { keys: ['cocoklogi'], tools: ['cocoklogi-nama', 'meter-bucin'] },
@@ -178,9 +178,9 @@ export const PHRASE_RULES = [
   { keys: ['font aesthetic'], tools: ['paduan-font'] },
   { keys: ['hitung gaji', 'gaji bersih', 'take home pay'], tools: ['kalkulator-gaji-bersih'] },
   { keys: ['skripsi', 'tugas akhir'], tools: ['citation'] },
-  { keys: ['penghitung kalori', 'hitung kalori', 'kalkulator kalori'], tools: ['kebutuhan-kalori'] },
+  { keys: ['penghitung kalori', 'hitung kalori', 'kalkulator kalori'], tools: ['bmi'] },
   { keys: ['kpr', 'cicilan rumah', 'kredit rumah', 'cicilan kpr'], tools: ['kpr'] },
-  { keys: ['cek weton', 'hitung weton'], tools: ['weton'] },
+  { keys: ['cek weton', 'hitung weton'], tools: ['kalender-jawa'] },
   { keys: ['cek khodam'], tools: ['cek-khodam'] },
   { keys: ['video ke mp3', 'video jadi mp3', 'mp3 dari video'], tools: ['video-ke-mp3'] },
 ];

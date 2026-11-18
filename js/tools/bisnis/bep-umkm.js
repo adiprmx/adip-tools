@@ -1,6 +1,6 @@
 import { h as T } from '../../core.js';
 
-export const meta = {"id": "bep-umkm", "name": "Kalkulator BEP UMKM", "cat": "bisnis", "icon": "📊", "desc": "Hitung titik impas: berapa unit & rupiah.", "keywords": "bep,impas,umkm,usaha,modal", "file": "tools/bisnis/bep-umkm.js"};
+export const meta = {"id": "bep-umkm", "name": "Kalkulator BEP UMKM", "cat": "bisnis", "icon": "📊", "desc": "Hitung titik impas: jual berapa unit biar modal balik.", "keywords": "bep,impas,umkm,usaha,modal,break even,titik impas,modal balik,unit", "file": "tools/bisnis/bep-umkm.js"};
 
 export function render(root) {
   const tetap = T.input('text', 'cth: 3000000 (sewa + gaji + listrik)');
@@ -37,6 +37,8 @@ export function render(root) {
     }
 
     T.show(box,
+      '<div class="big center">' + T.esc(String(Math.ceil(bepUnit))) + ' <span class="mut" style="font-size:15px">unit</span></div>' +
+      '<p class="center">itu titik impasmu — di bawah ini kamu rugi, di atas ini kamu untung.</p>' +
       '<table style="width:100%;font-size:14px;border-collapse:collapse">' +
       '<tr><td style="padding:4px 0">Biaya tetap / bulan</td><td style="text-align:right">' + T.rp(t) + '</td></tr>' +
       '<tr><td style="padding:4px 0">Margin kontribusi / unit<br><span class="mut" style="font-size:12px">' + T.rp(h) + ' − ' + T.rp(v) + '</span></td><td style="text-align:right">' + T.rp(margin) + '</td></tr>' +
@@ -48,6 +50,7 @@ export function render(root) {
       '<p class="mut" style="font-size:12px;margin-top:4px">Estimasi, bukan ketentuan resmi.</p>');
   };
 
+  root.appendChild(T.el('<p class="note">Titik impas = jualanmu <b>balik modal</b>, belum untung belum rugi. Isi biayanya di bawah.</p>'));
   root.appendChild(T.field('Biaya tetap per bulan (Rp)', tetap, 'Sewa, gaji, listrik, internet — yang keluar walau tak jualan.'));
   root.appendChild(T.field('Harga jual per unit (Rp)', harga));
   root.appendChild(T.field('Biaya variabel per unit (Rp)', variabel, 'Bahan baku + kemasan per satu unit terjual.'));

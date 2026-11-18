@@ -67,7 +67,7 @@ export function render(root) {
       (j.diLuarKurup
         ? '<p class="warn">Tanggal ini di luar kurup Asapon (tahun Jawa 1867-1986). Hasil dihitung dengan pola yang sama, tapi bisa berbeda dengan penanggalan resmi untuk tahun tersebut.</p>'
         : '') +
-      '<p class="hint">Hari Jawa dimulai sejak matahari terbenam. Jadi kalau sudah lewat magrib, tanggal Jawanya sudah masuk hari berikutnya. Weton dan neptu adalah tradisi budaya Jawa, bukan ramalan nasib.</p>');
+      '<p class="hint">Hari Jawa dimulai sejak matahari terbenam. Jadi kalau sudah lewat magrib, tanggal Jawanya sudah masuk hari berikutnya. Weton dan neptu adalah tradisi budaya Jawa, bukan ramalan nasib. Neptu hari: Senin 4, Selasa 3, Rabu 7, Kamis 8, Jumat 6, Sabtu 9, Minggu 5; neptu pasaran: Legi 5, Pahing 9, Pon 7, Wage 4, Kliwon 8.</p>');
   };
 
   tglI.addEventListener('change', lihat);

@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"generator-pantun","name":"Generator Pantun","cat":"fun","icon":"🎭","desc":"Rakit pantun 4 baris acak: cinta, lucu, nasehat. 45 pantun.","keywords":"pantun,sampiran,isi,cinta,lucu,nasehat,puisi,acak"};
+export const meta = {"id":"generator-pantun","name":"Generator Pantun","cat":"fun","icon":"🎭","desc":"Rakit pantun 4 baris acak: cinta, lucu, nasehat, perpisahan. 65 pantun.","keywords":"pantun,sampiran,isi,cinta,lucu,nasehat,puisi,acak,perpisahan"};
 
 // Tiap entri: sampiran (2 baris) + isi (2 baris), rima a-b-a-b.
 const PANTUN = {
@@ -20,6 +20,11 @@ const PANTUN = {
     { s: ['Makan malam dengan rendang', 'Ditemani es teh manis'], i: ['Kamu selalu aku sayang', 'Cintaku padamu takkan pernah habis'] },
     { s: ['Naik sepeda di pagi hari', 'Sambil menikmati udara segar'], i: ['Kamu selalu di hati', 'Cintaku padamu takkan pudar'] },
     { s: ['Menjahit baju di sore hari', 'Jarum patah benang pun kusut'], i: ['Kamu selalu di hati', 'Cintaku padamu takkan pernah surut'] },
+    { s: ['Bunga mawar bunga melati', 'Mekar indah di pagi hari'], i: ['Kasih sayang takkan berganti', 'Cinta ini suci abadi'] },
+    { s: ['Burung dara terbang tinggi', 'Hinggap di dahan pohon jati'], i: ['Jika rindu tak tertahan lagi', 'Ku kirim salam lewat mimpi'] },
+    { s: ['Pergi berlayar ke laut lepas', 'Ombak tenang tiada henti'], i: ['Cintaku padamu tak pernah lepas', 'Kan menemanimu sampai mati'] },
+    { s: ['Air beriak tanda tak dalam', 'Air tenang menghanyutkan'], i: ['Sayangku ini sungguh dalam', 'Hanya untukmu seorang'] },
+    { s: ['Kue lapis manis rasanya', 'Dibeli ibu di pasar pagi'], i: ['Kasih sayang tulus adanya', 'Hanya untukmu kasih sejati'] },
   ],
   lucu: [
     { s: ['Pagi-pagi makan bubur', 'Siang hari makan padang'], i: ['Katanya pengen kurus', 'Tapi ngemil melulu, kapan langsingnya'] },
@@ -37,6 +42,11 @@ const PANTUN = {
     { s: ['Niat scroll HP lima menit', 'Sambil rebahan santai'], i: ['Tau-tau sudah subuh', 'Besok mata panda lagi'] },
     { s: ['Dapat undangan nikahan', 'Siapin baju terbaik'], i: ['Amplop isinya dua puluh ribu', 'Makan prasmanan tiga piring'] },
     { s: ['Beli sepatu lari termahal', 'Niat jogging tiap pagi'], i: ['Dipakai sekali doang', 'Sisanya jadi pajangan'] },
+    { s: ['Ada anak namanya Udin', 'Pergi ke pasar membeli ikan'], i: ['Uang jajan habis dibeliin', 'Pulang-pulang cuma bawa kenangan'] },
+    { s: ['Kucing oren duduk di pagar', 'Ekor bergoyang kanan kiri'], i: ['Lihat dompet langsung tegar', 'Tanggal tua janganlah iri'] },
+    { s: ['Makan bakso di pinggir jalan', 'Kuahnya panas mengepul'], i: ['Dompet kosong tetap jalan', 'Minta traktir kawan sekumpul'] },
+    { s: ['Ayam berkokok pagi-pagi', 'Membangunkan si pemalas'], i: ['Alarm bunyi tetap tak pergi', 'Akhirnya telat ketinggalan kelas'] },
+    { s: ['Beli es teh di pinggir jalan', 'Manis dingin di siang hari'], i: ['Lihat mantan lewat di jalan', 'Pura-pura sibuk, eh malah lari'] },
   ],
   nasehat: [
     { s: ['Air beriak tanda tak dalam', 'Air tenang menghanyutkan'], i: ['Ilmu sejati membuat rendah hati', 'Bukan untuk disombongkan'] },
@@ -54,6 +64,18 @@ const PANTUN = {
     { s: ['Bagai air di daun talas', 'Tak membekas di hati'], i: ['Dengarkan nasihat orang tua', 'Jangan diabaikan begitu saja'] },
     { s: ['Karena nila setitik', 'Rusak susu sebelanga'], i: ['Jaga lisan dan perbuatan', 'Satu salah, nama tercoreng'] },
     { s: ['Jauh berjalan banyak dilihat', 'Lama hidup banyak dirasa'], i: ['Perbanyak pengalaman hidup', 'Agar bijak dalam bertindak'] },
+    { s: ['Kalau ada sumur di ladang', 'Boleh kita menumpang mandi'], i: ['Kalau ada umur panjang', 'Boleh kita berjumpa lagi'] },
+    { s: ['Pohon kelapa di tepi pantai', 'Daunnya melambai kena angin'], i: ['Rajin belajar pangkal pandai', 'Bukan harta yang paling penting'] },
+    { s: ['Naik perahu ke tengah laut', 'Dayung diayun sampai ke tepian'], i: ['Ilmu dicari janganlah takut', 'Nanti menyesal di kemudian'] },
+    { s: ['Bunga kenanga harum baunya', 'Tumbuh subur di halaman'], i: ['Jangan suka menunda-nunda', 'Waktu berjalan tak kenal kawan'] },
+    { s: ['Kuda berlari di padang rumput', 'Kencang larinya tiada tanding'], i: ['Janganlah engkau mudah terhasut', 'Pilihlah kawan yang membimbing'] },
+  ],
+  perpisahan: [
+    { s: ['Burung camar terbang melayang', 'Hinggap sebentar di dahan cemara'], i: ['Walau berat hati berpisah sayang', 'Semoga sukses di perantauan'] },
+    { s: ['Perahu kecil berlayar ke utara', 'Ombak memecah di haluan'], i: ['Jangan lupa kawan lama', 'Walau jarak kini berjauhan'] },
+    { s: ['Mentari tenggelam di ufuk barat', 'Langit berubah jadi jingga'], i: ['Waktunya tiba kita berpisah', 'Semoga kita jumpa di lain masa'] },
+    { s: ['Kereta api melaju kencang', 'Meninggalkan stasiun tua'], i: ['Air mata tak tertahan', 'Sampai jumpa di lain suasana'] },
+    { s: ['Pergi merantau ke negeri orang', 'Meninggalkan kampung halaman'], i: ['Jaga diri baik-baik sayang', 'Kami di sini selalu menantimu pulang'] },
   ],
 };
 
@@ -62,6 +84,7 @@ const TEMA = [
   ['cinta', '❤️ Cinta'],
   ['lucu', '😂 Lucu'],
   ['nasehat', '🙏 Nasehat'],
+  ['perpisahan', '👋 Perpisahan'],
 ];
 
 export function render(root) {
@@ -85,8 +108,9 @@ export function render(root) {
     T.show(box, '<div class="center" style="padding:8px 4px">' + baris + '</div>');
   };
 
-  root.appendChild(T.el('<p class="hint">Pantun 4 baris (2 sampiran + 2 isi), dirakit acak. Buat gombal, ngakak, atau wejangan. 🎭</p>'));
+  root.appendChild(T.el('<p class="hint">Pantun 4 baris (2 sampiran + 2 isi), dirakit acak. Buat gombal, ngakak, wejangan, atau pamit. 🎭</p>'));
   root.appendChild(T.field('Tema', temaSel));
+  temaSel.addEventListener('change', baru);
   root.appendChild(box);
   root.appendChild(T.row(
     T.btn('🎭 Pantun baru', baru, true),

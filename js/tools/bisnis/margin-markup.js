@@ -1,6 +1,6 @@
 import { h as T, kv } from '../../core.js';
 
-export const meta = {"id": "margin-markup", "name": "Margin vs Markup", "cat": "bisnis", "icon": "📊", "desc": "Bedain margin & markup, plus cari harga jual dari target.", "keywords": "margin,markup,modal,harga jual,profit,untung"};
+export const meta = {"id": "margin-markup", "name": "Margin vs Markup", "cat": "bisnis", "icon": "📊", "desc": "Bedain margin & markup, plus cari harga jual dari target margin atau markup.", "keywords": "margin,markup,modal,harga jual,profit,untung,kalkulator harga jual"};
 export function render(root) {
 
     const modeSel = T.select([

@@ -1,6 +1,6 @@
 import { h as T, utils, kv, tabs, parseISO, todayISO } from '../../core.js';
 
-export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari/bulan/tahun, hitung mundur, dan hitung hari kerja dengan libur nasional 2026.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari,hitung mundur,countdown,libur nasional"};
+export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari/bulan/tahun, hitung mundur, dan hitung hari kerja dengan libur nasional 2026.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari,hitung mundur,countdown,libur nasional,cuti bersama,deadline,hrd,payroll,business days"};
 
 const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -36,6 +36,35 @@ export const LIBUR_2026 = [
   ['2026-12-24', 'Cuti Bersama Hari Raya Natal', 'Cuti bersama'],
   ['2026-12-25', 'Kelahiran Yesus Kristus (Natal)', 'Libur nasional'],
 ];
+
+/* Hitung hari kerja INKLUSIF (tanggal mulai & akhir sama-sama dihitung),
+   loop per hari — dari Kalkulator Hari Kerja. libur: Map iso -> nama.
+   Libur yang jatuh di Sabtu/Minggu tidak dihitung ganda (sudah terhitung
+   sebagai akhir pekan). Beda dengan hitungHariKerja di atas yang
+   eksklusif (tanggal akhir tidak dihitung) dan O(1). */
+export function hitungHariKerjaInklusif(mulai, akhir, libur) {
+  let total = 0;
+  let akhirPekan = 0;
+  let liburKerja = 0;
+  const liburDalamRentang = [];
+  const d = new Date(mulai.getTime());
+  while (d <= akhir) {
+    total++;
+    const dow = d.getUTCDay();
+    const iso = d.toISOString().slice(0, 10);
+    if (dow === 0 || dow === 6) {
+      akhirPekan++;
+    } else if (libur.has(iso)) {
+      liburKerja++;
+      liburDalamRentang.push({ iso, nama: libur.get(iso), tgl: new Date(d.getTime()) });
+    }
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return { total, akhirPekan, libur: liburKerja, kerja: total - akhirPekan - liburKerja, liburDalamRentang };
+}
+
+utils.hariKerjaHitung = hitungHariKerjaInklusif;
+utils.hariKerjaLibur2026 = LIBUR_2026;
 
 /* Pilihan akhir pekan: set angka hari (0=Minggu … 6=Sabtu) yang dianggap libur. */
 export const AKHIR_PEKAN = {
@@ -158,6 +187,7 @@ export function render(root) {
   const p1 = T.el('<div></div>');
   const p2 = T.el('<div></div>');
   const p3 = T.el('<div></div>');
+  const p4 = T.el('<div></div>');
 
   const pilihAkhirPekan = (nilaiAwal) => T.select([
     ['sabtu-minggu', 'Sabtu–Minggu'],
@@ -344,8 +374,128 @@ export function render(root) {
   p3.appendChild(T.row(T.btn('Mulai hitung mundur', mulaiCdFn, true), T.btn('Berhenti', () => { hentikanCd(); T.show(box3, '<p class="hint">Hitung mundur dihentikan.</p>'); })));
   p3.appendChild(box3);
 
-  root.appendChild(tabs([['Selisih tanggal', 0], ['Tambah/kurang', 1], ['Hitung mundur', 2]], [p1, p2, p3]));
+  // ---- Panel 4: hari kerja (dari Kalkulator Hari Kerja) ----
+  // Beda dengan tab "Selisih tanggal": tanggal mulai & akhir sama-sama
+  // dihitung, libur tahun selain 2026 diambil dari Nager.Date, ada opsi
+  // cuti bersama, dan daftar libur di rentang ditampilkan beserta namanya.
+  const hkMulai = T.input('date', '', todayISO());
+  const hkAkhirD = new Date();
+  hkAkhirD.setDate(hkAkhirD.getDate() + 30);
+  const hkAkhir = T.input('date', '', hkAkhirD.getFullYear() + '-' + String(hkAkhirD.getMonth() + 1).padStart(2, '0') + '-' + String(hkAkhirD.getDate()).padStart(2, '0'));
+  const hkCuti = T.input('checkbox', '');
+  hkCuti.checked = true;
+  const hkTambahan = T.ta(3, 'Satu tanggal satu baris, cth:\n2026-06-02\n2026-06-03', '');
+  const hkBox = T.out();
+  const hkCacheNager = {};
+
+  const hkMuatLiburTahun = async (th) => {
+    // 2026: data lokal SKB 3 Menteri (lengkap, tanpa internet).
+    if (th === 2026) return { map: new Map(LIBUR_2026.map(([d, n, j]) => [d, n + ' (' + j + ')'])), sumber: 'skb' };
+    if (hkCacheNager[th]) return hkCacheNager[th];
+    // Tahun lain: Nager.Date (sama seperti tool hari-libur), bisa tidak lengkap.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      const res = await fetch('https://date.nager.at/api/v3/publicholidays/' + th + '/ID', { signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error('format');
+      const out = { map: new Map(data.map((h) => [h.date, (h.localName || h.name) + ' (Libur nasional)'])), sumber: 'nager' };
+      hkCacheNager[th] = out;
+      return out;
+    } catch (e) {
+      clearTimeout(timer);
+      const out = { map: new Map(), sumber: 'gagal' };
+      hkCacheNager[th] = out;
+      return out;
+    }
+  };
+
+  const hkParseTambahan = () => {
+    const set = new Map();
+    const gagal = [];
+    hkTambahan.value.split('\n').forEach((baris) => {
+      const s = baris.trim();
+      if (!s) return;
+      let d = parseISO(s);
+      if (!d) {
+        const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+        if (m) d = parseISO(m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0'));
+      }
+      if (d) set.set(d.toISOString().slice(0, 10), 'Libur tambahan');
+      else gagal.push(s);
+    });
+    return { set, gagal };
+  };
+
+  const hkHitung = async () => {
+    const mulai = parseISO(hkMulai.value);
+    const akhir = parseISO(hkAkhir.value);
+    if (!mulai || !akhir) {
+      T.toast('Pilih tanggal mulai dan tanggal akhir dulu.'); return;
+    }
+    if (akhir < mulai) {
+      T.toast('Tanggal akhir harus sama atau sesudah tanggal mulai.'); return;
+    }
+    const rentangHari = Math.round((akhir - mulai) / 86400000) + 1;
+    if (rentangHari > 366 * 3) {
+      T.toast('Rentangnya maksimal 3 tahun — persempit tanggalnya.'); return;
+    }
+    T.show(hkBox, '<div class="dim center">Menghitung…</div>');
+    const tahunSet = new Set();
+    for (let y = mulai.getUTCFullYear(); y <= akhir.getUTCFullYear(); y++) tahunSet.add(y);
+    const libur = new Map();
+    let sumberNager = false;
+    let sumberGagal = false;
+    for (const th of tahunSet) {
+      const r = await hkMuatLiburTahun(th);
+      if (r.sumber === 'nager') sumberNager = true;
+      if (r.sumber === 'gagal') sumberGagal = true;
+      r.map.forEach((nama, iso) => {
+        if (!hkCuti.checked && /Cuti bersama/.test(nama)) return;
+        libur.set(iso, nama);
+      });
+    }
+    const tambahan = hkParseTambahan();
+    tambahan.set.forEach((nama, iso) => libur.set(iso, nama));
+    const h = hitungHariKerjaInklusif(mulai, akhir, libur);
+    let daftarLibur = '';
+    if (h.liburDalamRentang.length) {
+      daftarLibur = '<div style="margin-top:10px"><b>Hari libur di rentang ini (yang jatuh di hari kerja):</b>' +
+        h.liburDalamRentang.map((l) => '<div class="kv"><span class="k">' + T.esc(fmtTanggalPanjang(l.tgl)) + '</span><span class="v">' + T.esc(l.nama) + '</span></div>').join('') + '</div>';
+    }
+    let catatan = 'Tanggal mulai dan tanggal akhir sama-sama dihitung. Sabtu dan Minggu bukan hari kerja.';
+    if (sumberNager) catatan += ' Data libur tahun selain 2026 diambil dari Nager.Date — daftarnya bisa tidak lengkap, cek SKB 3 Menteri untuk daftar resmi.';
+    if (sumberGagal) catatan += ' Data libur untuk sebagian tahun gagal dimuat (perlu internet) — tahun itu hanya Sabtu–Minggu yang dikurangi.';
+    if (tambahan.gagal.length) catatan += ' Tanggal tambahan yang tidak dikenali dan dilewati: ' + tambahan.gagal.map((g) => T.esc(g)).join(', ') + '.';
+    T.show(hkBox,
+      '<div class="center"><div class="dim">Hari kerja dari ' + T.esc(fmtTanggalPanjang(mulai)) + ' sampai ' + T.esc(fmtTanggalPanjang(akhir)) + '</div>' +
+      '<div class="big">' + h.kerja + ' hari</div></div>' +
+      kv('Total hari kalender', h.total + ' hari') +
+      kv('Sabtu–Minggu', h.akhirPekan + ' hari') +
+      kv('Hari libur (di hari kerja)', h.libur + ' hari') +
+      daftarLibur +
+      '<p class="hint">' + catatan + '</p>');
+  };
+
+  const hkChkWrap = T.el('<label class="chk" style="display:flex;gap:8px;align-items:center"></label>');
+  hkChkWrap.appendChild(hkCuti);
+  hkChkWrap.appendChild(document.createTextNode(' Hitung cuti bersama sebagai hari libur'));
+
+  p4.appendChild(T.el('<p class="note">Butuh tahu berapa hari kerja sampai deadline, cuti, atau gajian? Pilih dua tanggal — Sabtu, Minggu, dan libur nasional Indonesia otomatis dikurangi.</p>'));
+  p4.appendChild(T.grid2(
+    T.field('Tanggal mulai', hkMulai),
+    T.field('Tanggal akhir', hkAkhir)
+  ));
+  p4.appendChild(T.field('Opsi', hkChkWrap));
+  p4.appendChild(T.field('Libur tambahan (opsional)', hkTambahan, 'Tanggal libur kantor/perusahaanmu, satu per baris. Format: 2026-06-02 atau 02/06/2026.'));
+  p4.appendChild(T.row(T.btn('Hitung Hari Kerja', hkHitung, true)));
+  p4.appendChild(hkBox);
+
+  root.appendChild(tabs([['Selisih tanggal', 0], ['Tambah/kurang', 1], ['Hitung mundur', 2], ['Hari kerja', 3]], [p1, p2, p3, p4]));
   root.appendChild(p1);
   root.appendChild(p2);
   root.appendChild(p3);
+  root.appendChild(p4);
 }

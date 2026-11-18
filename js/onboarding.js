@@ -118,7 +118,7 @@ export function heroProofHTML(n) {
 /* Empat pintu masuk (§5.2 P1-C): teratas di rail Populer
    fallback, mewakili 4 kategori berbeda. ID diverifikasi ada
    di manifest v6.13.0; yang hilang difilter, bukan dikarang. */
-export const MULAI_IDS = ['kalkulator-gaji-bersih', 'weton', 'image-compress', 'qr-generator'];
+export const MULAI_IDS = ['kalkulator-gaji-bersih', 'kalender-jawa', 'image-compress', 'qr-generator'];
 
 /* HTML seksi (string kosong bila tidak ada satu pun tool yang
    ditemukan — seksi kosong lebih jujur daripada kartu karangan).

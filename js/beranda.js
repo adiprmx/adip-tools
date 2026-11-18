@@ -220,17 +220,21 @@ export const CAT_META = {
   converter: { desc: 'Ubah format apa pun: satuan, video, file, sampai angka dan takaran masak.', unggulan: ['unit-converter', 'video-ke-mp3', 'terbilang'] },
   developer: { desc: 'Alat bantu ngoding: rapikan JSON, tes regex, sampai bongkar token JWT.', unggulan: ['json-formatter', 'regex-tester', 'jwt-parser'] },
   desain: { desc: 'Bikin tampilan lebih bagus: warna, QR, gradasi, sampai mockup HP.', unggulan: ['qr-generator', 'palette', 'gradient'] },
-  indonesia: { desc: 'Hitungan khas Indonesia: THR, pajak, weton, sampai biaya SIM dan STNK.', unggulan: ['weton', 'thr', 'pph21'] },
+  indonesia: { desc: 'Hitungan khas Indonesia: THR, pajak, weton, sampai biaya SIM dan STNK.', unggulan: ['kalender-jawa', 'thr', 'pph21'] },
   musik: { desc: 'Buat yang main musik atau DJ: tempo, chord, sampai rencana setlist.', unggulan: ['camelot', 'metronome', 'tap-bpm'] },
   gambar: { desc: 'Olah foto langsung di browser: kompres, potong, hapus latar. Tanpa upload.', unggulan: ['image-compress', 'removebg', 'crop-pas-foto'] },
   teks: { desc: 'Ubah dan hitung teks: jumlah kata, format WA, sampai bikin hashtag.', unggulan: ['word-counter', 'wa-formatter', 'generator-hashtag'] },
-  bisnis: { desc: 'Hitung usaha dan gaji: harga jual, invoice, sampai gaji bersih setelah potongan.', unggulan: ['kalkulator-gaji-bersih', 'buat-invoice', 'harga-jual'] },
+  bisnis: { desc: 'Hitung usaha dan gaji: harga jual, invoice, sampai gaji bersih setelah potongan.', unggulan: ['kalkulator-gaji-bersih', 'buat-invoice', 'margin-markup'] },
   sehari: { desc: 'Keperluan sehari-hari: kesehatan, rumah, hewan peliharaan, sampai tes HP.', unggulan: ['bmi', 'kalori-makanan', 'stopwatch'] },
   fun: { desc: 'Buat seru-seruan: kuis, tebak-tebakan, sampai roda putar buat undian.', unggulan: ['spinwheel', 'tebak-tebakan', 'zodiak-hari-ini'] },
   produktivitas: { desc: 'Biar kerja lebih rapi: CV, timer fokus, PDF, sampai catatan harian.', unggulan: ['pembuat-cv', 'pomodoro', 'pdflab'] },
   pelajar: { desc: 'Bantu belajar: kalkulator, flashcard, sampai latihan SKD CPNS.', unggulan: ['kalkulator-umum', 'flashcard', 'ipk'] },
   liveapi: { desc: 'Data langsung dari internet: jadwal sholat, gempa, kurs, cuaca, dan lainnya.', unggulan: ['jadwal-sholat', 'gempa-bmkg', 'kurs-cuaca'] },
   fakesos: { desc: 'Bikin tangkapan layar bohongan buat lucu-lucuan. Jangan dipakai untuk menipu.', unggulan: ['fake-chat-wa', 'fake-post-ig', 'fake-tweet'] },
+  kesehatan: { desc: 'Jaga badan: kenali otot dan latihan yang tepat buat tiap bagian tubuh.', unggulan: ['atlas-otot-latihan'] },
+  kreator: { desc: 'Bikin konten lebih cepat: ide hook video sampai carousel siap posting.', unggulan: ['generator-hook-tiktok', 'pembuat-carousel-tiktok-ig'] },
+  masak: { desc: 'Masak dari bahan yang ada di dapur: resep rumahan Indonesia, langkah demi langkah.', unggulan: ['masak-dari-bahan'] },
+  travel: { desc: 'Siapin perjalanan: cek negara bebas visa buat paspor Indonesia.', unggulan: ['paspor-indonesia-bebas-visa'] },
 };
 
 export function catMeta(catId) {

@@ -96,7 +96,22 @@ function makro(kkal, p, k, l) {
   };
 }
 
-export const meta = {"id": "bmi", "name": "BMI & Kalori", "cat": "sehari", "icon": "⚕️", "desc": "BMI + estimasi kebutuhan kalori.", "keywords": "bmi,berat,badan,diet,kalori"};
+// Tujuan + pembagian makro dari Kebutuhan Kalori Harian (dipakai untuk
+// target dari TDEE rata-rata 3 rumus). Perhatikan: makro "naik" di sini
+// 25/45/30, beda dengan 25/50/25 di blok makro per rumus di bawah —
+// keduanya dipertahankan apa adanya sesuai sumbernya masing-masing.
+const TUJUAN = [
+  ['turun', 'Turun berat badan'],
+  ['tetap', 'Pertahankan berat badan'],
+  ['naik', 'Naik berat badan'],
+];
+const MAKRO_TUJUAN = {
+  turun: { p: 0.35, k: 0.35, l: 0.30, label: '35% protein, 35% karbo, 30% lemak' },
+  tetap: { p: 0.30, k: 0.40, l: 0.30, label: '30% protein, 40% karbo, 30% lemak' },
+  naik: { p: 0.25, k: 0.45, l: 0.30, label: '25% protein, 45% karbo, 30% lemak' },
+};
+
+export const meta = {"id": "bmi", "name": "BMI & Kalori", "cat": "sehari", "icon": "⚕️", "desc": "BMI + kebutuhan kalori harian (3 rumus), target berat badan & pembagian nutrisi.", "keywords": "bmi,berat,badan,diet,kalori,tdee,bmr,mifflin,harris benedict,katch mcardle,makro,protein,karbo,lemak"};
 export function render(root) {
 
     const berat = T.input('number', 'Berat badan (kg)', '65');
@@ -115,6 +130,7 @@ export function render(root) {
       ['1.725', 'Berat (olahraga 6-7x/minggu)'],
       ['1.9', 'Atlet / fisik sangat berat'],
     ], '1.375');
+    const tujuan = T.select(TUJUAN, 'tetap');
     const lemakManual = T.input('number', 'Kadar lemak (%) bila tahu, cth: 22', '');
     const leher = T.input('number', 'Lingkar leher (cm)', '');
     const pinggang = T.input('number', 'Lingkar pinggang (cm)', '');
@@ -156,6 +172,29 @@ export function render(root) {
       const tdee = Math.round(bmr * Number(aktif.value));
       const targetTurun = Math.max(1200, tdee - 500);
       const targetNaik = tdee + 500;
+      // TDEE rata-rata 3 rumus + target sesuai tujuan (dari Kebutuhan
+      // Kalori Harian). BMR dihitung tanpa pembulatan dulu supaya angkanya
+      // sama persis dengan tool asal.
+      const fAktif = Number(aktif.value);
+      const mifflinMentah = 10 * b + 6.25 * h - 5 * umurN + (pria ? 5 : -161);
+      const hbMentah = pria
+        ? 88.362 + 13.397 * b + 4.799 * h - 5.677 * umurN
+        : 447.593 + 9.247 * b + 3.098 * h - 4.330 * umurN;
+      const lbmMentah = isNaN(lemakPct) ? NaN : b * (1 - lemakPct / 100);
+      const katchMentah = isNaN(lbmMentah) ? NaN : 370 + 21.6 * lbmMentah;
+      const tdeeM = Math.round(mifflinMentah * fAktif);
+      const tdeeH = Math.round(hbMentah * fAktif);
+      const tdeeK = isNaN(katchMentah) ? null : Math.round(katchMentah * fAktif);
+      const daftarTdee = tdeeK === null ? [tdeeM, tdeeH] : [tdeeM, tdeeH, tdeeK];
+      const tdeeRata = Math.round(daftarTdee.reduce((a, x) => a + x, 0) / daftarTdee.length);
+      const goal = tujuan.value;
+      const targetRata = goal === 'turun' ? tdeeRata - 500 : goal === 'naik' ? tdeeRata + 500 : tdeeRata;
+      const mGoal = MAKRO_TUJUAN[goal];
+      const goalLabel = goal === 'turun'
+        ? 'Turun sekitar 0,5 kg/minggu (kurangi 500 kkal)'
+        : goal === 'naik'
+          ? 'Naik sekitar 0,5 kg/minggu (tambah 500 kkal)'
+          : 'Berat badan tetap';
       const warna = r.kategori === 'Normal' ? 'ok' : (r.kategori.indexOf('Obesitas') === 0 ? 'err' : 'warn');
       const ideal = beratIdeal(h, pria);
       const bmiPrime = r.bmi / 25;
@@ -191,6 +230,13 @@ export function render(root) {
         '<div class="kv"><span class="k">TDEE (kebutuhan harian, ' + rumusPakai + ')</span><span class="v">' + T.fmt(tdee) + ' kkal/hari</span></div>' +
         '<div class="kv"><span class="k">Target turun BB (~0,5 kg/minggu)</span><span class="v">' + T.fmt(targetTurun) + ' kkal/hari</span></div>' +
         '<div class="kv"><span class="k">Target naik BB (~0,5 kg/minggu)</span><span class="v">' + T.fmt(targetNaik) + ' kkal/hari</span></div>' +
+        '<div class="dim" style="margin-top:12px">Target kalori dari rata-rata 3 rumus</div>' +
+        '<div class="kv"><span class="k">TDEE rata-rata 3 rumus</span><span class="v">' + T.fmt(tdeeRata) + ' kkal/hari</span></div>' +
+        '<div class="kv"><span class="k">Target: ' + esc(goalLabel) + '</span><span class="v">' + T.fmt(targetRata) + ' kkal/hari</span></div>' +
+        '<div class="kv"><span class="k">Protein (' + Math.round(mGoal.p * 100) + '%)</span><span class="v">' + Math.round(targetRata * mGoal.p / 4) + ' g/hari</span></div>' +
+        '<div class="kv"><span class="k">Karbohidrat (' + Math.round(mGoal.k * 100) + '%)</span><span class="v">' + Math.round(targetRata * mGoal.k / 4) + ' g/hari</span></div>' +
+        '<div class="kv"><span class="k">Lemak (' + Math.round(mGoal.l * 100) + '%)</span><span class="v">' + Math.round(targetRata * mGoal.l / 9) + ' g/hari</span></div>' +
+        '<p class="hint">Pembagian nutrisi: ' + mGoal.label + '. Angka 500 kkal didapat dari perkiraan umum: 1 kg lemak tubuh setara sekitar 7.700 kkal.</p>' +
         '<div class="dim" style="margin-top:12px">Pembagian makro per hari (protein / karbo / lemak)</div>' +
         makroBaris('Jaga berat (' + T.fmt(tdee) + ' kkal)', mJaga) +
         makroBaris('Turun BB (' + T.fmt(targetTurun) + ' kkal)', mTurun) +
@@ -229,6 +275,7 @@ export function render(root) {
     ));
     root.appendChild(T.field('Rumus kalori basal', rumus, 'Mifflin paling umum dipakai. Katch-McArdle butuh kadar lemak tubuh.'));
     root.appendChild(T.field('Tingkat aktivitas', aktif));
+    root.appendChild(T.field('Tujuan', tujuan, 'Untuk target kalori dari rata-rata 3 rumus di bawah.'));
     root.appendChild(T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Kadar lemak (opsional, untuk Katch-McArdle &amp; info lemak tubuh)</p>'));
     root.appendChild(T.field('Kadar lemak tubuh (%) bila sudah tahu', lemakManual, 'Misal dari timbangan badan atau hasil ukur klinik. Bila kosong, dihitung dari ukuran lingkar di bawah.'));
     root.appendChild(T.grid2(

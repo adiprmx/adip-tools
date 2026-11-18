@@ -23,6 +23,9 @@ export function render(root) {
   let ratio = RATIOS[1]; // default 3x4
   let img = null;        // HTMLImageElement
   let nw = 0, nh = 0;    // ukuran asli foto
+  let imUrl = null;      // URL pratinjau (dibuat baru per file; img.src TIDAK
+  // boleh dipakai ulang — loadImage() sudah me-revoke URL-nya, pratinjau
+  // gagal ERR_FILE_NOT_FOUND).
   let fw = 300, fh = 400; // ukuran bingkai (px layar)
   let imgW = 0, imgH = 0; // ukuran foto yang ditampilkan
   let ox = 0, oy = 0;     // posisi kiri-atas foto di dalam bingkai
@@ -227,7 +230,9 @@ export function render(root) {
     catch (e) { T.toast('File bukan gambar yang valid'); return; }
     nw = img.naturalWidth; nh = img.naturalHeight;
     maskCanvas = null;
-    im.src = img.src;
+    if (imUrl) URL.revokeObjectURL(imUrl);
+    imUrl = URL.createObjectURL(fi.files[0]);
+    im.src = imUrl;
     T.show(box, '');
     box.appendChild(wrap);
     wrap.appendChild(frame);

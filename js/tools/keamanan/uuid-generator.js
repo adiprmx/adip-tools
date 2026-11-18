@@ -143,6 +143,30 @@ function decodeUlid(s) {
   return new Date(Number(ms));
 }
 
+// Usia relatif dari sebuah waktu (dari ULID Generator): "baru saja",
+// "X detik lalu", "X menit lalu", "X jam lalu", atau "X hari lalu".
+function usiaRelatif(ms) {
+  const age = Date.now() - ms;
+  if (age < 0) return 'waktu di masa depan';
+  if (age < 1000) return 'baru saja';
+  if (age < 60000) return Math.floor(age / 1000) + ' detik lalu';
+  if (age < 3600000) return Math.floor(age / 60000) + ' menit lalu';
+  if (age < 86400000) return Math.floor(age / 3600000) + ' jam lalu';
+  return Math.floor(age / 86400000) + ' hari lalu';
+}
+
+// Validasi ULID dengan pesan kesalahan yang spesifik (dari ULID Generator):
+// panjang, karakter yang bukan Crockford Base32, dan karakter pertama > '7'.
+// Return {ok} atau {error}.
+function validasiUlid(v) {
+  if (v.length !== 26) return { error: 'ULID harus 26 karakter, yang ditempel ada ' + v.length + ' karakter.' };
+  for (const ch of v) {
+    if (!ULID_ALPHABET.includes(ch)) return { error: 'Karakter "' + ch + '" bukan bagian dari ULID. ULID hanya memakai angka dan huruf (tanpa I, L, O, U).' };
+  }
+  if (v[0] > '7') return { error: 'Karakter pertama ULID tidak boleh lebih dari 7.' };
+  return { ok: true };
+}
+
 // Format salin massal: 'baris' (satu per baris), 'json' (array JSON),
 // 'petik' (satu per baris, berpetik + koma), 'csv' (satu baris, koma).
 function formatSalinMassal(list, format) {
@@ -161,13 +185,19 @@ utils.uuidDecodeUlid = (s) => decodeUlid(s);
 utils.uuidFormatMassal = (list, format) => formatSalinMassal(list, format);
 
 const UUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-const ULID_RE = /^[0-9A-HJKMNP-TV-Z]{26}$/i;
 function inspectUuid(s) {
   const v = String(s || '').trim();
   if (!v) return { error: 'Tempel dulu UUID-nya.' };
-  if (ULID_RE.test(v)) {
+  // 26 karakter tanpa tanda hubung hampir pasti ULID — validasi dengan
+  // pesan spesifik, bukan vonis generik "format UUID tidak valid".
+  if (v.length === 26 && !v.includes('-')) {
+    const cek = validasiUlid(v.toUpperCase());
+    if (cek.error) return { error: cek.error };
     const time = decodeUlid(v);
-    return { ulid: true, uuid: v.toUpperCase(), version: null, variant: 'ULID (bukan UUID)', time, isNil: false, isMax: false };
+    let ms = 0n;
+    const vu = v.toUpperCase();
+    for (let i = 0; i < 10; i++) ms = (ms << 5n) | BigInt(ULID_ALPHABET.indexOf(vu[i]));
+    return { ulid: true, uuid: vu, version: null, variant: 'ULID (bukan UUID)', time, ms: Number(ms), random: vu.slice(10), isNil: false, isMax: false };
   }
   if (!UUID_RE.test(v)) return { error: 'Format UUID tidak valid. Bentuknya: 8-4-4-4-12 karakter heksadesimal, dipisah tanda hubung. (ULID 26 karakter juga bisa dibaca.)' };
   const b = uuidToBytes(v);
@@ -265,6 +295,7 @@ export function render(root) {
       T.show(out, last.map((u) =>
         '<div class="kv"><span class="v" style="font-family:ui-monospace,monospace;font-size:13px;user-select:all;text-align:left">' + u + '</span></div>'
       ).join('') +
+      (ver === 'ulid' ? '<p class="hint">Dibuat ' + new Date().toLocaleString('id-ID') + '. Urutan abjad sama dengan urutan waktu dibuat.</p>' : '') +
       (ver === '1' ? '<p class="hint">v1 di sini memakai node 48-bit acak (bukan MAC perangkatmu) — aman dibagikan, tidak membocorkan identitas perangkat.</p>' : ''));
     };
 
@@ -277,8 +308,10 @@ export function render(root) {
       if (r.ulid) {
         let html = '<div style="margin-bottom:8px"><span class="ok">✓ ULID valid.</span></div>' +
           kv('Jenis', 'ULID (26 karakter, terurut waktu)');
-        if (r.time && !isNaN(r.time.getTime())) html += kv('Waktu di dalamnya', esc(r.time.toLocaleString('id-ID')));
-        else html += kv('Waktu di dalamnya', 'tidak bisa dibaca');
+        if (r.time && !isNaN(r.time.getTime())) html += kv('Waktu dibuat', esc(r.time.toLocaleString('id-ID')) + ' <span class="dim">(' + esc(usiaRelatif(r.ms)) + ')</span>');
+        else html += kv('Waktu dibuat', 'tidak bisa dibaca');
+        if (r.ms != null) html += kv('Milidetik', String(r.ms));
+        if (r.random) html += kv('Bagian acak', '<span style="font-family:ui-monospace,monospace">' + esc(r.random) + '</span>');
         T.show(inspBox, html);
         return;
       }
@@ -288,7 +321,7 @@ export function render(root) {
         (r.isMax ? ' <span class="dim">Ini UUID max (semua f).</span>' : '') + '</div>' +
         kv('Versi', esc(verName)) +
         kv('Varian', esc(r.variant));
-      if (r.time && !isNaN(r.time.getTime())) html += kv('Waktu di dalamnya', esc(r.time.toLocaleString('id-ID')));
+      if (r.time && !isNaN(r.time.getTime())) html += kv('Waktu di dalamnya', esc(r.time.toLocaleString('id-ID')) + ' <span class="dim">(' + esc(usiaRelatif(r.time.getTime())) + ')</span>');
       else if (r.version === 1 || r.version === 7) html += kv('Waktu di dalamnya', 'tidak bisa dibaca');
       else html += kv('Waktu di dalamnya', 'versi ini tidak menyimpan waktu');
       T.show(inspBox, html);

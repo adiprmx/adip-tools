@@ -15,7 +15,7 @@ export function fmtSize(n) {
   return (n / 1024 / 1024).toFixed(2) + ' MB';
 }
 
-export const meta = {"id": "file-ke-base64", "name": "File ke Base64", "cat": "developer", "icon": "📦", "desc": "File apa pun jadi string Base64 + data URI.", "keywords": "base64,file,data uri,encode,konversi"};
+export const meta = {"id": "file-ke-base64", "name": "File ke Base64", "cat": "developer", "icon": "📦", "desc": "File apa pun jadi string Base64 + data URI. Gambar tampil pratinjau + ukurannya.", "keywords": "base64,file,data uri,encode,konversi,gambar,foto,embed"};
 
 export function render(root) {
 
@@ -26,8 +26,10 @@ export function render(root) {
     fileInp.addEventListener('change', () => {
       const f = fileInp.files && fileInp.files[0];
       if (!f) return;
+      const isGambar = f.type && f.type.startsWith('image/');
       const cek = cekBatas(f.size);
-      if (!cek.ok) { T.show(out, '<span class="err">⛔ ' + T.esc(cek.pesan) + '</span>'); return; }
+      // Gambar boleh lebih dari 2 MB (dengan peringatan), file lain tetap dibatasi.
+      if (!cek.ok && !isGambar) { T.show(out, '<span class="err">⛔ ' + T.esc(cek.pesan) + '</span>'); return; }
       T.show(out, '<span class="dim">⏳ Membaca file…</span>');
       const rd = new FileReader();
       rd.onload = () => {
@@ -40,13 +42,26 @@ export function render(root) {
         ta.readOnly = true;
         ta.value = tampil ? base64.slice(0, 600) + '…' : base64;
         T.show(out, '');
-        out.appendChild(T.el(
+        const infoEl = T.el(
           '<div class="kv"><span class="k">Nama file</span><span class="v">' + T.esc(f.name) + '</span></div>' +
           '<div class="kv"><span class="k">Tipe</span><span class="v">' + T.esc(f.type || 'tidak diketahui') + '</span></div>' +
           '<div class="kv"><span class="k">Ukuran file</span><span class="v">' + fmtSize(f.size) + '</span></div>' +
           '<div class="kv"><span class="k">Ukuran Base64</span><span class="v">' + fmtSize(b64size) + ' (' + T.fmt(b64len) + ' karakter)</span></div>' +
-          '<div class="kv"><span class="k">Bengkak</span><span class="v">+' + Math.round(b64size / Math.max(f.size, 1) * 100 - 100) + '% — wajar, Base64 memang ~33% lebih gemuk</span></div>'
-        ));
+          '<div class="kv"><span class="k">Bengkak</span><span class="v">+' + Math.round(b64size / Math.max(f.size, 1) * 100 - 100) + '% — wajar, Base64 memang ~33% lebih gemuk</span></div>' +
+          '<div class="kv"><span class="k">Panjang kode</span><span class="v">' + T.fmt(dataUri.length) + ' karakter</span></div>'
+        );
+        out.appendChild(infoEl);
+        const prevWrap = T.el('<div></div>');
+        out.appendChild(prevWrap);
+        if (isGambar) {
+          if (f.size > BATAS) prevWrap.appendChild(T.el('<div class="hint" style="color:#eab308">⚠️ File besar. Kode Base64-nya sangat panjang, mungkin berat saat disalin.</div>'));
+          const img = new Image();
+          img.onload = () => {
+            infoEl.insertAdjacentHTML('beforeend', '<div class="kv"><span class="k">Ukuran gambar</span><span class="v">' + img.naturalWidth + ' × ' + img.naturalHeight + ' px</span></div>');
+            prevWrap.appendChild(T.el('<div class="center" style="margin:10px 0"><img src="' + T.esc(dataUri) + '" alt="preview" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid #3f3f46"></div>'));
+          };
+          img.src = dataUri;
+        }
         out.appendChild(T.el('<div class="fld" style="margin-top:10px"><label>String Base64' + (tampil ? ' (dipotong, klik di bawah buat lihat penuh)' : '') + '</label></div>'));
         out.appendChild(ta);
         if (tampil) {
@@ -62,9 +77,11 @@ export function render(root) {
         out.appendChild(T.el('<div class="fld" style="margin-top:10px"><label>Data URI lengkap</label></div>'));
         const uriBox = T.el('<pre class="dim" style="white-space:pre-wrap;word-break:break-all;background:#12100d;border:1px solid #2e2823;border-radius:8px;padding:10px;font-size:11.5px;line-height:1.5;max-height:120px;overflow:auto">' + T.esc(dataUri.slice(0, 300)) + (dataUri.length > 300 ? '…' : '') + '</pre>');
         out.appendChild(uriBox);
+        const namaTxt = (f.name.replace(/\.[^.]*$/, '') || 'file') + '-base64.txt';
         out.appendChild(T.row(
           T.copyBtn(() => base64, '📋 Salin Base64', true),
-          T.copyBtn(() => dataUri, 'Salin Data URI')
+          T.copyBtn(() => dataUri, 'Salin Data URI'),
+          T.dlBtn(namaTxt, () => dataUri, 'text/plain', 'Unduh .txt')
         ));
         out.appendChild(T.el('<div class="hint" style="margin-top:8px">Siap ditempel ke kode: <span style="font-family:ui-monospace,monospace">src="data:…"</span>. ' + T.esc(fmtSize(f.size)) + ' file jadi ' + T.esc(fmtSize(b64size)) + ' teks — makanya jangan buat file gede ya.</div>'));
       };
@@ -72,7 +89,7 @@ export function render(root) {
       rd.readAsDataURL(f);
     });
 
-    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Pilih file apa pun — dokumen, font, audio — langsung jadi string Base64 siap tempel di kode. Maksimal <b>2 MB</b>; semua diproses lokal, file tidak di-upload ke mana pun.</p>'));
-    root.appendChild(T.field('Pilih file', fileInp, 'Batas 2 MB. File lebih besar otomatis ditolak.'));
+    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Pilih file apa pun — dokumen, font, audio, gambar — langsung jadi string Base64 siap tempel di kode. Maksimal <b>2 MB</b> (gambar boleh lebih besar, tapi kodenya sangat panjang); semua diproses lokal, file tidak di-upload ke mana pun.</p>'));
+    root.appendChild(T.field('Pilih file', fileInp, 'Batas 2 MB untuk file biasa. Gambar di atas 2 MB tetap diproses dengan peringatan.'));
     root.appendChild(out);
 }

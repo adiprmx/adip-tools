@@ -1,8 +1,11 @@
 import { h as T, utils, errBox, esc, loadImage } from '../../core.js';
 
-function wifiString(ssid, pass, enc) {
+function wifiString(ssid, pass, enc, hidden) {
     const e = (v) => String(v == null ? '' : v).replace(/([\\;,":])/g, '\\$1');
-    return 'WIFI:T:' + enc + ';S:' + e(ssid) + ';P:' + e(pass) + ';;';
+    let s = 'WIFI:T:' + enc + ';S:' + e(ssid);
+    if (enc !== 'nopass') s += ';P:' + e(pass);
+    if (hidden) s += ';H:true';
+    return s + ';;';
   }
 
 // ---------- Fungsi murni (bisa diuji di Node) ----------
@@ -53,7 +56,7 @@ export function bersihkanDaftarMassal(teks, maks) {
 
 // ---------- Akhir fungsi murni ----------
 
-export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, WiFi, lokasi, vCard, SMS & email. Mode massal, logo, bingkai, ekspor SVG.", "keywords": "qr,barcode,scan,link,wifi,svg,logo,whatsapp,telegram,lokasi,maps,vcard,sms,email,massal"};
+export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, WiFi (termasuk jaringan tersembunyi), lokasi, vCard, SMS & email. Mode massal, logo, bingkai, ekspor SVG.", "keywords": "qr,barcode,scan,link,wifi,svg,logo,whatsapp,telegram,lokasi,maps,vcard,sms,email,massal,ssid,tersembunyi,hotspot"};
 export function render(root) {
 
     const QR_CDN = 'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js';
@@ -64,9 +67,15 @@ export function render(root) {
     const wSsid = T.input('text', 'Nama WiFi (SSID)', '');
     const wPass = T.input('text', 'Password WiFi', '');
     const wEnc = T.select([['WPA', 'WPA/WPA2'], ['WEP', 'WEP'], ['nopass', 'Tanpa password']], 'WPA');
+    const wHidden = document.createElement('input');
+    wHidden.type = 'checkbox';
     const wBox = T.el('<div hidden></div>');
     wBox.appendChild(T.field('SSID', wSsid));
     wBox.appendChild(T.grid2(T.field('Password', wPass), T.field('Enkripsi', wEnc)));
+    wBox.appendChild(T.field('Jaringan tersembunyi (hidden)', wHidden, 'Centang bila WiFi-mu tidak muncul di daftar jaringan — QR tetap bisa di-scan.'));
+    wBox.appendChild(T.row(T.copyBtn(() => wifiString(wSsid.value.trim(), wPass.value, wEnc.value, wHidden.checked), 'Salin string WiFi')));
+    const aturPassWifi = () => { const f = wPass.closest('.fld'); if (f) f.style.display = wEnc.value === 'nopass' ? 'none' : ''; };
+    wEnc.addEventListener('change', aturPassWifi);
     const lokLat = T.input('text', 'cth: -6.200000', '-6.200000'); lokLat.inputMode = 'decimal';
     const lokLng = T.input('text', 'cth: 106.816666', '106.816666'); lokLng.inputMode = 'decimal';
     const lokFmt = T.select([['geo', 'geo: (buka aplikasi peta)'], ['maps', 'Link Google Maps']], 'geo');
@@ -121,7 +130,7 @@ export function render(root) {
     let libOk = null, libLoading = false, logoImg = null, logoDataUrl = null, zipSiap = null;
     let massalHasil = []; // [{teks, canvas, svg}]
     const content = () => {
-      if (modeSel.value === 'wifi') return wifiString(wSsid.value.trim(), wPass.value, wEnc.value);
+      if (modeSel.value === 'wifi') return wifiString(wSsid.value.trim(), wPass.value, wEnc.value, wHidden.checked);
       if (modeSel.value === 'lokasi') {
         const lat = lokLat.value.trim().replace(',', '.'), lng = lokLng.value.trim().replace(',', '.');
         if (!lat || !lng) return '';
@@ -282,6 +291,10 @@ export function render(root) {
     };
     const draw = () => {
       if (modeSel.value === 'massal') { gambarMassal(); return; }
+      if (modeSel.value === 'wifi') {
+        if (!wSsid.value.trim()) { T.show(statusBox, errBox('Isi dulu nama WiFi (SSID)-nya ya.')); return; }
+        if (wEnc.value !== 'nopass' && !wPass.value) { T.show(statusBox, errBox('Isi password-nya, atau pilih "Tanpa password".')); return; }
+      }
       const txt = content().trim();
       if (!txt) { qrWrap.innerHTML = '<span class="dim">Isi dulu datanya.</span>'; return; }
       ensureLib().then((ok) => {
@@ -394,6 +407,8 @@ export function render(root) {
     };
     modeSel.addEventListener('change', aturMode);
     [fText, wSsid, wPass, wEnc, lokLat, lokLng, lokFmt, vNama, vHp, vEmail, vOrg, sNomor, sPesan, eAlamat, eSubjek, eIsi, mTa, sizeSel, eccSel, frameSel, gayaSel].forEach((i) => i.addEventListener('input', queue));
+    wHidden.addEventListener('change', queue);
+    aturPassWifi();
     fg.addEventListener('input', queue);
     bg.addEventListener('input', queue);
     fg2.addEventListener('input', queue);

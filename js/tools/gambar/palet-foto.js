@@ -1,15 +1,17 @@
-import { h as T, loadImage, fileInput, LOCAL_NOTE, canvasToBlob } from '../../core.js';
+import { h as T, loadImage, fileInput, LOCAL_NOTE, canvasToBlob, preHtml } from '../../core.js';
 
-export const meta = {"id": "palet-foto", "name": "Palet Warna dari Foto", "cat": "gambar", "icon": "🎨", "desc": "Ambil 6 warna dominan dari fotomu, atau klik piksel mana pun.", "keywords": "palet,warna,foto,hex,dominan,swatch,desain,eyedropper"};
+export const meta = {"id": "palet-foto", "name": "Palet Warna dari Foto", "cat": "gambar", "icon": "🎨", "desc": "Ambil warna dominan dari fotomu (4–10 warna), atau klik piksel mana pun.", "keywords": "palet,warna,foto,hex,dominan,swatch,desain,eyedropper,ekstrak"};
 
 const toHex = (r, g, b) => '#' + [r, g, b]
   .map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
 
 export function render(root) {
   const fi = fileInput('image/*');
+  const nSel = T.select([['4', '4 warna'], ['6', '6 warna'], ['8', '8 warna'], ['10', '10 warna']], '6');
   const box = T.out();
   const fotoBox = T.out();
   const ambilBox = T.out();
+  const codeBox = T.out();
   const cvFoto = document.createElement('canvas');
   cvFoto.style.cssText = 'max-width:100%;height:auto;border-radius:12px;border:1px solid #ffffff20;display:block;cursor:crosshair;touch-action:manipulation';
   let imgNow = null;
@@ -63,25 +65,17 @@ export function render(root) {
     T.toast('Warna ' + hex + ' disalin');
   });
 
-  const ambil = async () => {
-    T.hide(box); T.hide(fotoBox); T.hide(ambilBox);
-    const f = fi.files[0];
-    if (!f) { T.toast('Pilih foto dulu'); return; }
-    let img;
-    try { img = await loadImage(f); }
-    catch (e) { T.toast('File bukan gambar yang valid'); return; }
-    imgNow = img;
-    dipetik = [];
+  function hitungDominan(img) {
     const S = 64;
     const c = document.createElement('canvas');
     c.width = S; c.height = S;
     const ctx = c.getContext('2d');
-    if (!ctx) { T.toast('Browser tidak mendukung canvas'); return; }
+    if (!ctx) return { ok: false, why: 'canvas' };
     ctx.drawImage(img, 0, 0, S, S);
     let data;
     try { data = ctx.getImageData(0, 0, S, S).data; }
-    catch (e) { T.toast('Gagal membaca pixel gambar'); return; }
-    // Kuantisasi: 3 bit per channel -> 512 bucket, ambil 6 teratas lalu rata-ratakan
+    catch (e) { return { ok: false, why: 'pixel' }; }
+    // Kuantisasi: 3 bit per channel -> 512 bucket, ambil teratas lalu rata-ratakan
     const buckets = new Map();
     for (let i = 0; i < data.length; i += 4) {
       if (data[i + 3] < 128) continue;
@@ -90,15 +84,47 @@ export function render(root) {
       if (!b) { b = { n: 0, r: 0, g: 0, bl: 0 }; buckets.set(key, b); }
       b.n++; b.r += data[i]; b.g += data[i + 1]; b.bl += data[i + 2];
     }
-    const top = [...buckets.values()].sort((a, b) => b.n - a.n).slice(0, 6);
-    if (!top.length) { T.toast('Tidak ada warna yang terbaca'); return; }
-    dominan = top.map((b) => toHex(b.r / b.n, b.g / b.n, b.bl / b.n));
+    const n = +nSel.value;
+    // Ambil lebih dulu, buang warna yang terlalu mirip, baru potong sesuai jumlah.
+    const top = [...buckets.values()].sort((a, b) => b.n - a.n).slice(0, n * 3)
+      .filter((b, i, arr) => arr.findIndex((x) => Math.abs(x.r / x.n - b.r / b.n) < 24 && Math.abs(x.g / x.n - b.g / b.n) < 24 && Math.abs(x.bl / x.n - b.bl / b.n) < 24) === i)
+      .slice(0, n);
+    return { ok: true, hexes: top.map((b) => toHex(b.r / b.n, b.g / b.n, b.bl / b.n)) };
+  }
+
+  function gambarDominan() {
+    if (!dominan.length) { T.hide(box); T.hide(codeBox); return; }
     T.show(box, '<p class="hint center">Warna dominan di foto ini (ketuk warna buat menyalin kode hex-nya).</p>' +
       '<div class="sws" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>');
     const wrap = box.querySelector('.sws');
     dominan.forEach((hex) => wrap.appendChild(kartuWarna(hex, false)));
+    T.show(codeBox, preHtml(dominan.join('\n'), ''));
+  }
+
+  const ambil = async () => {
+    T.hide(box); T.hide(fotoBox); T.hide(ambilBox); T.hide(codeBox);
+    const f = fi.files[0];
+    if (!f) { T.toast('Pilih foto dulu'); return; }
+    let img;
+    try { img = await loadImage(f); }
+    catch (e) { T.toast('File bukan gambar yang valid'); return; }
+    imgNow = img;
+    dipetik = [];
+    const hasil = hitungDominan(img);
+    if (!hasil.ok) { T.toast(hasil.why === 'canvas' ? 'Browser tidak mendukung canvas' : 'Gagal membaca pixel gambar'); return; }
+    dominan = hasil.hexes;
+    if (!dominan.length) { T.toast('Tidak ada warna yang terbaca'); return; }
+    gambarDominan();
     pasangFoto();
   };
+
+  nSel.addEventListener('change', () => {
+    if (!imgNow) return;
+    const hasil = hitungDominan(imgNow);
+    if (!hasil.ok) { T.toast('Gagal membaca pixel gambar'); return; }
+    dominan = hasil.hexes;
+    gambarDominan();
+  });
 
   const simpanKartu = async () => {
     const semua = [...dominan, ...dipetik.filter((h) => !dominan.includes(h))];
@@ -153,8 +179,12 @@ export function render(root) {
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
   root.appendChild(T.field('Pilih foto', fi));
+  root.appendChild(T.field('Jumlah warna', nSel));
   root.appendChild(T.row(T.btn('Ambil palet warna', ambil, true), T.btn('Simpan kartu PNG', simpanKartu), T.btn('Salin semua kode', salinSemua)));
   root.appendChild(box);
+  root.appendChild(codeBox);
+  root.appendChild(T.row(T.copyBtn(() => dominan.join(', ') || '', 'Salin Palet')));
+  root.appendChild(T.el('<div class="hint">Klik swatch untuk salin HEX satu per satu.</div>'));
   root.appendChild(fotoBox);
   root.appendChild(ambilBox);
   fi.addEventListener('change', ambil);

@@ -1,14 +1,16 @@
 import { h as T, utils } from '../../core.js';
 import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id":"teks-di-foto","name":"Teks di Foto","cat":"gambar","icon":"🔤","desc":"Tambahkan tulisan ke foto.","keywords":"teks,foto,caption,meme,tulisan"};
+export const meta = {"id":"teks-di-foto","name":"Teks di Foto","cat":"gambar","icon":"🔤","desc":"Tambahkan tulisan ke foto — caption, meme, atau watermark.","keywords":"teks,foto,caption,meme,tulisan,watermark,hak cipta,logo"};
 
 function lsGet(k, d) { try { const v = localStorage.getItem('adip:teks-di-foto:' + k); return v == null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem('adip:teks-di-foto:' + k, v); } catch (e) {} }
 
 /* Tambah tulisan ke foto: render langsung di canvas, teks digambar
    per baris (mendukung enter), dengan outline opsional biar kebaca
-   di atas foto yang ramai. */
+   di atas foto yang ramai. Posisi grid 3x3 (dari Watermark Foto):
+   huruf pertama = atas/tengah/bawah, huruf kedua = kiri/tengah/kanan. */
+const POSISI = ['tl', 'tc', 'tr', 'ml', 'mc', 'mr', 'bl', 'bc', 'br'];
 function drawText(img, opts) {
   const maxSide = 1600;
   const s = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
@@ -21,26 +23,33 @@ function drawText(img, opts) {
   if (teks) {
     const fs = Math.max(12, opts.size);
     x.font = '700 ' + fs + 'px system-ui, -apple-system, "Segoe UI", sans-serif';
-    x.textAlign = 'center';
+    const pos = POSISI.includes(opts.pos) ? opts.pos : 'bc';
+    const v = pos[0], hz = pos[1];
+    x.textAlign = hz === 'l' ? 'left' : hz === 'c' ? 'center' : 'right';
     x.textBaseline = 'middle';
     const lines = teks.split('\n');
     const lh = fs * 1.25;
     const pad = fs * 0.9;
     const totalH = lines.length * lh;
-    const cy = opts.pos === 'top' ? pad + totalH / 2
-      : opts.pos === 'mid' ? h / 2
+    const padX = Math.round(w * 0.03);
+    const cx = hz === 'l' ? padX : hz === 'c' ? w / 2 : w - padX;
+    const cy = v === 't' ? pad + totalH / 2
+      : v === 'm' ? h / 2
       : h - pad - totalH / 2;
     x.lineJoin = 'round';
+    const alpha = opts.opacity == null ? 1 : Math.max(0.1, Math.min(1, opts.opacity));
+    x.globalAlpha = alpha;
     lines.forEach((ln, i) => {
       const y = cy - totalH / 2 + lh / 2 + i * lh;
       if (opts.outline) {
         x.lineWidth = Math.max(2, Math.round(fs / 14));
         x.strokeStyle = 'rgba(0,0,0,0.85)';
-        x.strokeText(ln, w / 2, y);
+        x.strokeText(ln, cx, y);
       }
       x.fillStyle = opts.color;
-      x.fillText(ln, w / 2, y);
+      x.fillText(ln, cx, y);
     });
+    x.globalAlpha = 1;
   }
   return c;
 }
@@ -48,9 +57,31 @@ function drawText(img, opts) {
 export function render(root) {
   const fi = fileInput('image/*');
   const teksI = T.input('text', 'cth: Liburan seru!', lsGet('teks', ''));
-  const posSel = T.select([['top', 'Atas'], ['mid', 'Tengah'], ['bot', 'Bawah']], lsGet('pos', 'bot'));
+  // Posisi grid 3x3 (dari Watermark Foto). Nilai lama (top/mid/bot)
+  // yang tersimpan di perangkat dipetakan ke kolom tengah.
+  const POS_LABEL = [
+    ['tl', 'Kiri atas'], ['tc', 'Tengah atas'], ['tr', 'Kanan atas'],
+    ['ml', 'Kiri tengah'], ['mc', 'Tengah'], ['mr', 'Kanan tengah'],
+    ['bl', 'Kiri bawah'], ['bc', 'Tengah bawah'], ['br', 'Kanan bawah'],
+  ];
+  const POS_LAMA = { top: 'tc', mid: 'mc', bot: 'bc' };
+  let pos = POS_LAMA[lsGet('pos', 'bc')] || lsGet('pos', 'bc');
+  if (!POSISI.includes(pos)) pos = 'bc';
+  const posBtns = POS_LABEL.map(([v, l]) => {
+    const b = T.btn(l, () => { pos = v; refreshPos(); save(); redraw(); }, v === pos);
+    b.dataset.pos = v;
+    b.style.fontSize = '11px';
+    b.style.padding = '8px 4px';
+    return b;
+  });
+  const refreshPos = () => posBtns.forEach((b) => b.classList.toggle('primary', b.dataset.pos === pos));
+  const posGrid = T.el('<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div>');
+  posBtns.forEach((b) => posGrid.appendChild(b));
   const sizeR = T.input('range'); sizeR.min = '16'; sizeR.max = '160'; sizeR.value = lsGet('size', '64');
   const sizeV = T.el('<b>' + T.esc(sizeR.value) + ' px</b>');
+  const opR = T.input('range');
+  opR.min = '10'; opR.max = '100'; opR.value = lsGet('opacity', '100');
+  const opV = T.el('<b>' + T.esc(opR.value) + '%</b>');
   const colorI = T.input('color'); colorI.value = lsGet('color', '#ffffff');
   colorI.style.cssText = 'width:56px;height:38px;padding:2px;border:1px solid #ffffff20;border-radius:8px;background:transparent;cursor:pointer';
   const outC = T.input('checkbox'); outC.checked = lsGet('outline', '1') === '1';
@@ -65,10 +96,11 @@ export function render(root) {
     if (!img) return;
     resCanvas = drawText(img, {
       teks: teksI.value,
-      pos: posSel.value,
+      pos,
       size: parseInt(sizeR.value, 10) || 64,
       color: colorI.value || '#ffffff',
       outline: outC.checked,
+      opacity: parseInt(opR.value, 10) / 100,
     });
     const ctx2 = canvas.getContext('2d');
     // tampilkan di kanvas preview (skala CSS saja, resolusi tetap penuh)
@@ -99,29 +131,33 @@ export function render(root) {
   };
 
   const save = () => {
-    lsSet('teks', teksI.value); lsSet('pos', posSel.value);
+    lsSet('teks', teksI.value); lsSet('pos', pos);
     lsSet('size', sizeR.value); lsSet('color', colorI.value);
     lsSet('outline', outC.checked ? '1' : '0');
+    lsSet('opacity', opR.value);
   };
   teksI.addEventListener('input', () => { save(); redraw(); });
-  posSel.addEventListener('change', () => { save(); redraw(); });
   sizeR.addEventListener('input', () => { sizeV.textContent = sizeR.value + ' px'; save(); redraw(); });
+  opR.addEventListener('input', () => { opV.textContent = opR.value + '%'; save(); redraw(); });
   colorI.addEventListener('input', () => { save(); redraw(); });
   outC.addEventListener('change', () => { save(); redraw(); });
 
   const sizeRow = T.el('<div style="display:flex;gap:10px;align-items:center"></div>');
   sizeRow.appendChild(sizeR); sizeRow.appendChild(sizeV);
+  const opRow = T.el('<div class="row" style="align-items:center"></div>');
+  opRow.appendChild(opR); opRow.appendChild(opV);
   const outRow = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer"></label>');
   outRow.appendChild(outC);
   outRow.appendChild(T.el('<span>Garis tepi hitam — biar tulisan kebaca di foto ramai</span>'));
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Bikin caption atau meme: ketik tulisan, pilih posisi, atur ukuran dan warnanya. Enter buat baris baru.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Bikin caption atau meme: ketik tulisan, pilih posisi, atur ukuran dan warnanya. Enter buat baris baru. Turunkan ketebalannya kalau mau jadi watermark yang samar.</p>'));
   root.appendChild(T.field('Pilih foto', fi));
   root.appendChild(T.row(T.btn('Muat foto', muat, true)));
   root.appendChild(T.field('Tulisan', teksI));
-  root.appendChild(T.field('Posisi', posSel));
+  root.appendChild(T.field('Posisi', posGrid));
   root.appendChild(T.field('Ukuran huruf', sizeRow));
+  root.appendChild(T.field('Ketebalan', opRow, '100% = tulisan paling jelas, 10% = hampir tidak terlihat'));
   root.appendChild(T.field('Warna huruf', colorI));
   root.appendChild(T.field('Opsi', outRow));
   root.appendChild(T.row(T.btn('Unduh PNG', unduh, true)));

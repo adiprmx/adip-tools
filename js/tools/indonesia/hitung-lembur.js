@@ -1,6 +1,6 @@
 import { h as T, kv } from '../../core.js';
 
-export const meta = {"id": "hitung-lembur", "name": "Upah Lembur Kerja & Libur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur hari kerja & hari libur (1,5×–4×).", "keywords": "lembur,upah,gaji,kerja,kemenaker", "file": "tools/indonesia/hitung-lembur.js"};
+export const meta = {"id": "hitung-lembur", "name": "Upah Lembur Kerja & Libur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur hari kerja & hari libur (1,5×–4×).", "keywords": "lembur,upah,gaji,kerja,kemenaker,overtime,jam,lemburan", "file": "tools/indonesia/hitung-lembur.js"};
 export function render(root) {
   const gaji = T.input('number', 'cth: 5000000', '');
   const jamKerja = T.input('number', 'cth: 2', '0');
@@ -35,8 +35,16 @@ export function render(root) {
     html += kv('Gaji sebulan', T.rp(g)) + kv('Upah per jam (gaji ÷ 173)', T.rp(uj));
     html += '<table class="tbl"><tr><th>Keterangan</th><th style="text-align:right">Jam</th><th style="text-align:right">Upah</th></tr>';
     if (hk > 0) {
-      html += '<tr><td>Hari kerja — jam ke-1 <span class="mut">×1,5</span></td><td style="text-align:right">' + xr(hk1) + '</td><td style="text-align:right">' + T.rp(uj * 1.5 * hk1) + '</td></tr>';
-      if (hk2 > 0) html += '<tr><td>Hari kerja — jam ke-2+ <span class="mut">×2</span></td><td style="text-align:right">' + xr(hk2) + '</td><td style="text-align:right">' + T.rp(uj * 2 * hk2) + '</td></tr>';
+      if (Number.isInteger(hk) && hk <= 8) {
+        // Rincian per jam (dari kalkulator-lembur): jam ke-1 1,5×, sisanya 2×.
+        for (let i = 1; i <= hk; i++) {
+          const k = i === 1 ? 1.5 : 2;
+          html += '<tr><td>Hari kerja — jam ke-' + i + ' <span class="mut">×' + (i === 1 ? '1,5' : '2') + '</span></td><td style="text-align:right">1</td><td style="text-align:right">' + T.rp(uj * k) + '</td></tr>';
+        }
+      } else {
+        html += '<tr><td>Hari kerja — jam ke-1 <span class="mut">×1,5</span></td><td style="text-align:right">' + xr(hk1) + '</td><td style="text-align:right">' + T.rp(uj * 1.5 * hk1) + '</td></tr>';
+        if (hk2 > 0) html += '<tr><td>Hari kerja — jam ke-2+ <span class="mut">×2</span></td><td style="text-align:right">' + xr(hk2) + '</td><td style="text-align:right">' + T.rp(uj * 2 * hk2) + '</td></tr>';
+      }
       html += '<tr><td><b>Subtotal hari kerja</b></td><td></td><td style="text-align:right"><b>' + T.rp(bayarHk) + '</b></td></tr>';
     }
     if (hl > 0) {

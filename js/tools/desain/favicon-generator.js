@@ -1,6 +1,6 @@
 import { h as T, utils, tabs, fileInput, loadImage, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id":"favicon-generator","name":"Paket Favicon Lengkap","cat":"desain","icon":"⭐","desc":"Bikin favicon dari gambar atau emoji: multi-ukuran + ZIP + PWA.","keywords":"favicon,icon,emoji,png,apple-touch,logo,website,pwa,manifest"};
+export const meta = {"id":"favicon-generator","name":"Paket Favicon Lengkap","cat":"desain","icon":"⭐","desc":"Bikin favicon dari gambar atau emoji: bentuk bulat/kotak, multi-ukuran + ZIP + PWA.","keywords":"favicon,icon,emoji,png,apple-touch,logo,website,pwa,manifest,bentuk,bulat,squircle"};
 
 const SIZES = [16, 32, 48, 64, 128, 144, 180, 192, 256, 512];
 const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
@@ -49,6 +49,7 @@ export function render(root) {
   bg.style.cssText = 'width:100%;height:46px;border:1px solid var(--line);border-radius:10px;background:none;padding:4px;cursor:pointer';
 
   const fileI = fileInput('image/*');
+  const bentukSel = T.select([['square', 'Kotak'], ['round', 'Bulat'], ['squircle', 'Kotak rounded']], 'square');
   const namaSitus = T.input('text', 'Nama situs, mis. Toko Saya', '');
   const temaWarna = document.createElement('input');
   temaWarna.type = 'color';
@@ -70,11 +71,24 @@ export function render(root) {
     return lum > 0.55 ? '#111111' : '#ffffff';
   }
 
+  // Bentuk: potong kanvas jadi bulat / kotak rounded sebelum menggambar.
+  function bentukPath(x, size) {
+    const bentuk = bentukSel.value;
+    if (bentuk === 'round') { x.beginPath(); x.arc(size / 2, size / 2, size / 2, 0, 7); x.clip(); }
+    else if (bentuk === 'squircle') {
+      const r = size * 0.25;
+      x.beginPath();
+      x.moveTo(r, 0); x.arcTo(size, 0, size, size, r); x.arcTo(size, size, 0, size, r);
+      x.arcTo(0, size, 0, 0, r); x.arcTo(0, 0, size, 0, r); x.closePath(); x.clip();
+    }
+  }
+
   function drawEmoji(size) {
     const c = document.createElement('canvas');
     c.width = c.height = size;
     const x = c.getContext('2d');
     if (!x) return null;
+    bentukPath(x, size);
     x.fillStyle = bg.value || '#141414';
     x.fillRect(0, 0, size, size);
     const g = (glyph.value || '').trim() || '⭐';
@@ -92,6 +106,7 @@ export function render(root) {
     c.width = c.height = size;
     const x = c.getContext('2d');
     if (!x) return null;
+    bentukPath(x, size);
     const iw = imgUpload.naturalWidth, ih = imgUpload.naturalHeight;
     const sc = Math.max(size / iw, size / ih);
     const dw = iw * sc, dh = ih * sc;
@@ -133,7 +148,11 @@ export function render(root) {
   function svgEmoji() {
     const g = ((glyph.value || '').trim() || '⭐').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const bgc = bg.value || '#141414';
-    return '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="' + bgc + '"/><text x="256" y="276" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif" font-size="318" fill="' + contrast(bgc) + '" text-anchor="middle" dominant-baseline="middle">' + g + '</text></svg>';
+    const bentuk = bentukSel.value;
+    const latar = bentuk === 'round' ? '<circle cx="256" cy="256" r="256" fill="' + bgc + '"/>' :
+      bentuk === 'squircle' ? '<rect width="512" height="512" rx="128" fill="' + bgc + '"/>' :
+      '<rect width="512" height="512" fill="' + bgc + '"/>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">' + latar + '<text x="256" y="276" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif" font-size="318" fill="' + contrast(bgc) + '" text-anchor="middle" dominant-baseline="middle">' + g + '</text></svg>';
   }
 
   // SVG untuk mode gambar: foto dibungkus di dalam SVG (bukan vektor).
@@ -312,6 +331,8 @@ export function render(root) {
   root.appendChild(bar);
   root.appendChild(pageGambar);
   root.appendChild(pageEmoji);
+  root.appendChild(T.field('Bentuk ikon', bentukSel, 'Bulat atau kotak rounded — berlaku untuk semua ukuran. Ikon maskable Android tetap kotak penuh.'));
+  bentukSel.addEventListener('change', () => { if (kanvasPaket.length) build(); });
   root.appendChild(T.grid2(T.field('Nama situs (untuk manifest PWA)', namaSitus), T.field('Warna tema', temaWarna)));
   root.appendChild(T.row(T.btn('Buat favicon', build, true)));
   root.appendChild(statusBox);

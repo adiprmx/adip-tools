@@ -113,7 +113,12 @@ export function render(root) {
       } catch (e) {
         lastResult = '';
         const msg = (e && e.message) || String(e);
-        if (LIB_FAIL_MSG[msg]) T.show(status, errBox(LIB_FAIL_MSG[msg]));
+        if (LIB_FAIL_MSG[msg]) {
+          T.show(status, errBox(LIB_FAIL_MSG[msg]));
+          const retry = T.btn('🔄 Coba Lagi', () => { failed[msg] = false; run(); });
+          retry.style.marginTop = '10px';
+          status.appendChild(retry);
+        }
         else T.show(status, errBox('Gagal mengubah: datanya tidak bisa dibaca. Periksa lagi isinya, lalu coba lagi.'));
       }
     };

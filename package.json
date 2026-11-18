@@ -13,5 +13,5 @@
     "preview": "vite preview",
     "sync-manifest": "node scripts/sync-manifest.js"
   },
-  "version": "6.15.0"
+  "version": "6.16.0"
 }

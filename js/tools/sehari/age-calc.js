@@ -1,6 +1,31 @@
 import { h as T, utils, p2, parseISO, todayISO } from '../../core.js';
 
-export const meta = {"id": "age-calc", "name": "Umur di Tanggal Tertentu", "cat": "sehari", "icon": "🎂", "desc": "Umurmu di tanggal yang kamu pilih: tahun, bulan, hari.", "keywords": "umur,usia,lahir,tanggal"};
+// Logika murni (bisa di-test di Node) — dipertahankan dari kalkulator-umur.
+utils.hitungUmur = function (tglStr, nowMs) {
+  const lahir = new Date(tglStr + 'T00:00:00');
+  if (isNaN(lahir)) return null;
+  const now = nowMs ? new Date(nowMs) : new Date();
+  if (lahir > now) return null;
+  let y = now.getFullYear() - lahir.getFullYear();
+  let m = now.getMonth() - lahir.getMonth();
+  let d = now.getDate() - lahir.getDate();
+  if (d < 0) { m--; d += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+  if (m < 0) { y--; m += 12; }
+  const totalDays = Math.floor((now - lahir) / 86400000);
+  const next = new Date(lahir);
+  next.setFullYear(now.getFullYear());
+  if (next < now) next.setFullYear(now.getFullYear() + 1);
+  const sisaUltah = Math.ceil((next - now) / 86400000);
+  return {
+    tahun: y, bulan: m, hari: d,
+    totalHari: totalDays,
+    totalMinggu: Math.floor(totalDays / 7),
+    totalBulan: y * 12 + m,
+    sisaUltah
+  };
+};
+
+export const meta = {"id": "age-calc", "name": "Kalkulator Umur", "cat": "sehari", "icon": "🎂", "desc": "Hitung umur persis hari ini atau di tanggal yang kamu pilih: tahun, bulan, hari + hitung mundur ultah.", "keywords": "umur,usia,lahir,tanggal,ulang tahun,ultah,age,tanggal lahir"};
 export function render(root) {
 
     const lahir = T.input('date', 'Tanggal lahir', '2000-01-01');

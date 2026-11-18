@@ -348,7 +348,7 @@ export function render(root) {
   root.appendChild(T.field('Target gaji bersih / bulan (Rp)', targetI, 'Memakai persentase iuran dan pengaturan PPh 21 di atas'));
   root.appendChild(T.row(T.btn('Hitung gaji bruto yang dibutuhkan', hitungGrossUp, true)));
   root.appendChild(grossBox);
-  root.appendChild(T.el('<p class="hint">Iuran dihitung dari penghasilan bruto (pokok + tunjangan). Angka ilustrasi, potongan aktual bisa beda tergantung kebijakan perusahaan & batas upah BPJS. TER bulanan: PPh 21 = bruto sebulan x tarif TER sesuai kategori status PTKP, tanpa mengurangi biaya jabatan atau PTKP dulu. Di bulan Desember, PPh 21 dihitung ulang setahun penuh dengan tarif progresif dikurangi potongan Januari-November yang sudah dibayar, jadi potongan Desember bisa beda. Butuh hitung THR, lembur, atau pesangon tersendiri? Ada tool terpisah: <a href="#/t/thr">THR</a>, <a href="#/t/kalkulator-lembur">Lembur</a>, <a href="#/t/kalkulator-pesangon">Pesangon</a>.</p>'));
+  root.appendChild(T.el('<p class="hint">Iuran dihitung dari penghasilan bruto (pokok + tunjangan). Angka ilustrasi, potongan aktual bisa beda tergantung kebijakan perusahaan & batas upah BPJS. TER bulanan: PPh 21 = bruto sebulan x tarif TER sesuai kategori status PTKP, tanpa mengurangi biaya jabatan atau PTKP dulu. Di bulan Desember, PPh 21 dihitung ulang setahun penuh dengan tarif progresif dikurangi potongan Januari-November yang sudah dibayar, jadi potongan Desember bisa beda. Butuh hitung THR, lembur, atau pesangon tersendiri? Ada tool terpisah: <a href="#/t/thr">THR</a>, <a href="#/t/hitung-lembur">Lembur</a>, <a href="#/t/kalkulator-pesangon">Pesangon</a>.</p>'));
   renderTunj();
   renderPot();
   hitung();
