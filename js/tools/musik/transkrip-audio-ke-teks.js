@@ -34,6 +34,14 @@ export function render(root) {
   let lastError = '';
 
   const setStatus = (html) => T.show(statusBox, html);
+  /* Saat error muncul, status "Mendengarkan…" dan teks sementara harus
+     hilang — kalau tidak, layar menampilkan status jalan bersama kotak
+     error (temuan E2E v6.16.0). */
+  const showError = (msg) => {
+    T.hide(statusBox);
+    T.hide(interimBox);
+    T.show(outBox, errBox(msg));
+  };
   const refreshHasil = (interim) => {
     hasilTa.value = finals + (interim ? (finals ? ' ' : '') + interim : '');
   };
@@ -73,7 +81,7 @@ export function render(root) {
     } catch (e) {
       listening = false;
       updateButtons();
-      T.show(outBox, errBox('Pengenal suara tidak bisa dimulai di browser ini. Coba Chrome atau Edge versi terbaru.'));
+      showError('Pengenal suara tidak bisa dimulai di browser ini. Coba Chrome atau Edge versi terbaru.');
       return;
     }
     rec.lang = langSel.value;
@@ -97,15 +105,15 @@ export function render(root) {
       if (code === 'not-allowed' || code === 'service-not-allowed') {
         listening = false;
         updateButtons();
-        T.show(outBox, errBox('Mikrofon tidak diizinkan. Izinkan akses mikrofon di browser, lalu tekan Mulai lagi.'));
+        showError('Mikrofon tidak diizinkan. Izinkan akses mikrofon di browser, lalu tekan Mulai lagi.');
       } else if (code === 'audio-capture') {
         listening = false;
         updateButtons();
-        T.show(outBox, errBox('Tidak ada mikrofon yang terdeteksi di perangkat ini.'));
+        showError('Tidak ada mikrofon yang terdeteksi di perangkat ini.');
       } else if (code === 'network') {
         listening = false;
         updateButtons();
-        T.show(outBox, errBox('Pengenal suara butuh internet dan tidak bisa terhubung. Cek koneksi, lalu coba lagi.'));
+        showError('Pengenal suara butuh internet dan tidak bisa terhubung. Cek koneksi, lalu coba lagi.');
       }
       // 'no-speech' dan 'aborted' tidak ditampilkan: normal saat jeda
       // bicara, dan pengenal akan jalan lagi lewat onend.
@@ -121,7 +129,7 @@ export function render(root) {
         if (restarts >= 3) {
           listening = false;
           updateButtons();
-          T.show(outBox, errBox('Pengenal suara berhenti berulang kali. Coba muat ulang halaman, atau pakai Chrome versi terbaru.'));
+          showError('Pengenal suara berhenti berulang kali. Coba muat ulang halaman, atau pakai Chrome versi terbaru.');
           return;
         }
       } else {
@@ -134,7 +142,7 @@ export function render(root) {
     } catch (e) {
       listening = false;
       updateButtons();
-      T.show(outBox, errBox('Pengenal suara tidak bisa dimulai. Coba muat ulang halaman.'));
+      showError('Pengenal suara tidak bisa dimulai. Coba muat ulang halaman.');
     }
   };
 
@@ -154,7 +162,7 @@ export function render(root) {
   root.appendChild(T.el('<p class="hint">Batas yang perlu diketahui: tool ini memakai pengenal suara bawaan Chrome atau Edge, jadi hanya jalan di browser itu dan butuh internet. Suara dikirim ke layanan Google untuk dikenali, bukan diproses offline di perangkatmu. Hasilnya tidak selalu tepat, terutama bila suara tidak jelas, ada suara lain, atau pembicara berganti ganti.</p>'));
 
   if (!supported) {
-    T.show(outBox, errBox('Browser ini tidak punya pengenal suara bawaan. Tool ini hanya jalan di Chrome atau Edge di komputer dan Android. Firefox dan Safari belum mendukungnya.'));
+    showError('Browser ini tidak punya pengenal suara bawaan. Tool ini hanya jalan di Chrome atau Edge di komputer dan Android. Firefox dan Safari belum mendukungnya.');
   }
   updateButtons();
 }

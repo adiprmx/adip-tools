@@ -235,6 +235,9 @@ export const CAT_META = {
   kreator: { desc: 'Bikin konten lebih cepat: ide hook video sampai carousel siap posting.', unggulan: ['generator-hook-tiktok', 'pembuat-carousel-tiktok-ig'] },
   masak: { desc: 'Masak dari bahan yang ada di dapur: resep rumahan Indonesia, langkah demi langkah.', unggulan: ['masak-dari-bahan'] },
   travel: { desc: 'Siapin perjalanan: cek negara bebas visa buat paspor Indonesia.', unggulan: ['paspor-indonesia-bebas-visa'] },
+  sains: { desc: 'Hitung dan simulasi sains: listrik, gerak, sampai tata surya.', unggulan: ['kalkulator-hukum-ohm', 'simulator-tata-surya', 'simulator-gravitasi'] },
+  otomotif: { desc: 'Hitung kendaraanmu: bensin, cas mobil listrik, sampai harga jual mobil bekas.', unggulan: ['kalkulator-konsumsi-bbm', 'kalkulator-biaya-cas-mobil-listrik', 'kalkulator-depresiasi-mobil'] },
+  rumah: { desc: 'Hitung kebutuhan rumah: atap, keramik, tangga, sampai tangki air.', unggulan: ['kalkulator-keramik-ubin', 'kalkulator-atap', 'kalkulator-volume-tangki-air'] },
 };
 
 export function catMeta(catId) {

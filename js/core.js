@@ -31,6 +31,9 @@ export const cats = [
   ['kreator', 'Kreator'],
   ['masak', 'Masak'],
   ['travel', 'Travel'],
+  ['sains', 'Sains'],
+  ['otomotif', 'Otomotif'],
+  ['rumah', 'Rumah'],
 ];
 
 /** Registry semua tool — diisi modul tools via tools.push({...}). */
@@ -308,7 +311,18 @@ export function wireImgErr(container) {
    Hash SHA-384 dari isi file yang diunduh langsung dari CDN pada 16 Nov 2026
    (bukti: p5-sri-hashes.json di folder ronde). docx@8.5.0 ditambahkan
    18 Nov 2026 (RED-02, G1) — hash diverifikasi dari 3 sumber independen
-   (jsDelivr + unpkg + tarball registry npm), ketiganya identik. loadScript() memasang
+   (jsDelivr + unpkg + tarball registry npm), ketiganya identik.
+   pako@2.1.0, xlsx@0.18.5, dan 7z-wasm@1.2.0 ditambahkan 18 Nov 2026
+   (G2, tim B2) — hash diverifikasi identik dari jsDelivr + unpkg
+   (+ cdnjs untuk pako/xlsx). sql.js@1.13.0 dan wawoff2@2.0.1
+   ditambahkan 18 Nov 2026 (G2, tim B8) — hash diverifikasi identik
+   dari jsDelivr + unpkg oleh tim, dikonfirmasi ulang koordinator
+   dari jsDelivr. mammoth@1.6.0 dan pptxgenjs@3.12.0 ditambahkan
+   18 Nov 2026 (G2, tim B6) — hash mammoth cocok dengan laporan tim;
+   hash pptxgenjs LAPORAN TIM SALAH (pukMOP2…) — koordinator mengukur
+   ulang dari jsDelivr 2× + unpkg, ketiganya identik Cck14aA9… dan
+   itulah yang dipakai (hash salah tidak pernah masuk file tool).
+   loadScript() memasang
    integrity + crossorigin="anonymous" bila URL-nya ada di peta ini; URL yang
    tidak ada di peta tetap dimuat seperti biasa (tanpa integrity).
    TIDAK tercakup (keterbatasan browser, bukan kelalaian): import() ESM
@@ -320,6 +334,7 @@ export function wireImgErr(container) {
    core ffmpeg) — pemuatannya ada di dalam pustaka pihak ketiga. Bila versi
    pustaka di-bump, hash WAJIB dihitung ulang (p5-sri-hash.py). */
 const SRI_HASH = {
+  'https://cdn.jsdelivr.net/npm/7z-wasm@1.2.0/7zz.umd.js': 'sha384-gi7D8QKpBIrWP4tOkPvadxq2SK/IPHBqWNLFg+48XPfW7mKVb0pxrz4rT/UCLHEh',
   'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/selfie_segmentation.js': 'sha384-J/3LshwuX+2viPOY3En4QiZvdvlffDhZYH5MsMuLGdwcoGcYSA7EV1jXFsys0gIb',
   'https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js': 'sha384-qGFE4FIJLgCFuYs3nzg39XpCtvT5AZUhaBdjB3e1+vpKQa03AkyWOyBSFb9OcQ/g',
   'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/core.js': 'sha384-3A37xiTEGc3Zqy86dMabK6n4gI2IlaxQCzFvIqYkGIQo9cjViBef01VB+M2rxrGN',
@@ -338,18 +353,29 @@ const SRI_HASH = {
   'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js': 'sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx',
   'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js': 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG',
   'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js': 'sha384-DdGlNq+wVXAn83gXqwyeFHB7iyXy6L0rLrNzgDmhKWPjiJLg9vj6qosYmZmkMfQ+',
+  'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js': 'sha384-nFoSjZIoH3CCp8W639jJyQkuPHinJ2NHe7on1xvlUA7SuGfJAfvMldrsoAVm6ECz',
   'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js': 'sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi',
   'https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js': 'sha384-3TaxGqyHrMuRIWY5Z5WHNIzgNRqGIUJE+mk6tm+g1wkm9Ux2kUyOLfy9AsNWXA6u',
+  'https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js': 'sha384-rNlaE5fs9dGIjmxWDALQh/RBAaGRYT5ChrzHo6tRfgrZ36iRFAiquP5g41Jsv+0j',
   'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js': 'sha384-weMABwrltA6jWR8DDe9Jp5blk+tZQh7ugpCsF3JwSA53WZM9/14PjS5LAJNHNjAI',
   'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js': 'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e',
+  'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js': 'sha384-Cck14aA9cifjYolcnjebXRfWGkz5ltHMBiG4px/j8GS+xQcb7OhNQWZYyWjQ+UwQ',
   'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js': 'sha384-0RsG1yo/crf/1Qc14sho26SXXOTngNCjgJw7fuvXBt9W/OChF/Ijx+aUuBDqQwEk',
+  'https://cdn.jsdelivr.net/npm/sql.js@1.13.0/dist/sql-wasm.js': 'sha384-DJiKBv+LC78e5InEB+MvFIAH079ynMK/ERTtFUCpDzXhH1Bht7aVfpg3yOVsuYl9',
   'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js': 'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F',
   'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js': 'sha384-RyBmXHdfZ/Uon+ud+/AqSyWpUWnKYt2tkRG/P4gWoRUGDU+qIAV3tGBPNlYTBZEF',
+  'https://cdn.jsdelivr.net/npm/wawoff2@2.0.1/build/compress_binding.js': 'sha384-v+lcTYQTiyFQbn062qNkSVvgZJRmpif6ULKitTafXR4kAYWLh0NL9mhec65e7X4j',
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js': 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js': 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js': 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk',
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js': 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG',
   'https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js': 'sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi',
+  'https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js': 'sha384-rNlaE5fs9dGIjmxWDALQh/RBAaGRYT5ChrzHo6tRfgrZ36iRFAiquP5g41Jsv+0j',
+  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js': 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw',
+  'https://unpkg.com/7z-wasm@1.2.0/7zz.umd.js': 'sha384-gi7D8QKpBIrWP4tOkPvadxq2SK/IPHBqWNLFg+48XPfW7mKVb0pxrz4rT/UCLHEh',
   'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js': 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk',
+  'https://unpkg.com/pako@2.1.0/dist/pako.min.js': 'sha384-rNlaE5fs9dGIjmxWDALQh/RBAaGRYT5ChrzHo6tRfgrZ36iRFAiquP5g41Jsv+0j',
+  'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js': 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw',
 };
 // Cari hash untuk sebuah URL script (query string diabaikan — retry
 // heic-ke-jpg menambahkan ?coba=N ke URL yang isinya identik).
