@@ -106,7 +106,7 @@ export function render(root) {
     if (v && urlValid(v) && sourceMode === 'url') { previewAsli = v; pesan('', ''); }
     gambarAsli();
   });
-  const uf = T.field('URL gambar', urlInp, 'Link file gambar langsung — bukan halaman Pinterest/Google.');
+  const uf = T.field('URL gambar', urlInp, 'Link file gambar langsung — bukan halaman Pinterest/Google. Diambil lewat layanan perantara publik bila situsnya tidak mengizinkan akses langsung.');
   uf.appendChild(T.el('<div style="height:6px"></div>'));
   uf.appendChild(pasteBtn);
   root.appendChild(uf);
@@ -199,14 +199,14 @@ export function render(root) {
     if (!u) throw new Error('Pilih file atau tempel URL gambar dulu.');
     if (u.length > 4096 || !urlValid(u)) throw new Error('URL gambar tidak valid.');
     let r;
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
-    try { r = await fetch(u, { signal: ctrl.signal }); }
+    // URL ketikan user = host arbitrer, tidak bisa di-allowlist statis.
+    // Rantai yang sama dengan removebg: langsung dulu, gagal → proxy
+    // allowlisted (CorsAnyway, AllOrigins). Tetap jalan saat CSP enforcing.
+    try { r = await utils.fetchViaProxyChain(u, { timeout: 15000 }); }
     catch (e) {
       if (e.name === 'AbortError') throw new Error('URL tidak merespons dalam 15 detik. Unduh gambarnya lalu upload sebagai file.');
       throw new Error('URL tidak bisa diambil (kemungkinan diblokir CORS). Unduh gambarnya lalu upload sebagai file.');
-    } finally { clearTimeout(timer); }
-    if (!r.ok) throw new Error('URL gambar tidak bisa diakses (HTTP ' + r.status + ').');
+    }
     const b = await r.blob();
     if (!/^image\//.test(b.type)) throw new Error('URL itu bukan file gambar langsung (terdeteksi: ' + (b.type || 'tak dikenal') + '). Pakai link file gambar, bukan halaman web.');
     if (b.size > MAX_MB * 1024 * 1024) throw new Error('Gambar dari URL melebihi ' + MAX_MB + ' MB.');

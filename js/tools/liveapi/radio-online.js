@@ -18,18 +18,28 @@ export function render(root) {
 
   const putar = (st) => {
     hentikan();
-    audio = new Audio(st.url_resolved || st.url);
+    const src = st.url_resolved || st.url;
+    if (!src || String(src).indexOf('https://') !== 0) {
+      T.show(box, '<p class="center dim">Stasiun ini tidak bisa diputar karena alamat siarannya tidak aman. Coba stasiun lain.</p>');
+      return;
+    }
+    audio = new Audio(src);
     audio.preload = 'none';
     T.show(box,
       '<div style="border:1px solid #ff6f61;border-radius:10px;padding:12px">' +
       '<div style="font-weight:800;font-size:16px">' + esc(st.name || 'Stasiun radio') + '</div>' +
       '<div class="dim" style="font-size:12.5px;margin:2px 0 8px">' + esc([st.country, st.tags ? String(st.tags).split(',').slice(0, 3).join(', ') : ''].filter(Boolean).join(' · ') || 'Radio online') + '</div>' +
       '<div id="pemutar-radio"></div>' +
+      '<div id="radio-gagal" class="err" style="display:none;font-size:12.5px;margin-top:6px">Stasiun ini tidak bisa diputar sekarang. Coba stasiun lain.</div>' +
       '<div class="dim" style="font-size:12px;margin-top:6px">Kalau tidak ada suara dalam beberapa detik, stasiun itu mungkin sedang tidak siaran. Coba stasiun lain.</div></div>');
     const wadah = box.querySelector('#pemutar-radio');
     audio.controls = true;
     audio.style.width = '100%';
     wadah.appendChild(audio);
+    audio.addEventListener('error', () => {
+      const note = box.querySelector('#radio-gagal');
+      if (note) note.style.display = '';
+    }, { once: true });
     const janji = audio.play();
     if (janji && janji.catch) janji.catch(() => {});
   };
@@ -43,12 +53,13 @@ export function render(root) {
     let html = '<p class="hint">Ketuk stasiun untuk mendengarkan.</p>';
     layak.forEach((s) => {
       html += '<div style="border:1px solid #2e2823;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center">' +
-        (s.favicon ? '<img src="' + esc(s.favicon) + '" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;border-radius:6px;flex:none" onerror="this.style.display=\'none\'">' : '') +
+        (s.favicon ? '<img src="' + esc(s.favicon) + '" alt="" loading="lazy" style="width:40px;height:40px;object-fit:contain;border-radius:6px;flex:none" data-err="hide">' : '') +
         '<div style="flex:1;min-width:0"><div style="font-weight:700;line-height:1.3">' + esc(s.name || 'Tanpa nama') + '</div>' +
         '<div class="dim" style="font-size:12.5px;margin-top:2px">' + esc([s.country, s.codec ? String(s.codec).toUpperCase() : '', s.bitrate ? s.bitrate + ' kbps' : ''].filter(Boolean).join(' · ') || 'Radio') + '</div></div>' +
         '<button type="button" class="btn primary" data-stasiun="' + esc(s.stationuuid) + '">▶️ Putar</button></div>';
     });
     T.show(daftarBox, html);
+    T.wireImgErr(daftarBox);
     daftarBox.querySelectorAll('[data-stasiun]').forEach((b) => {
       b.addEventListener('click', () => {
         const st = layak.find((x) => x.stationuuid === b.getAttribute('data-stasiun'));

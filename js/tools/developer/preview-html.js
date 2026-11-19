@@ -1,10 +1,13 @@
 import { h as T, errBox } from '../../core.js';
+import { createPreviewFrame, openPreviewTab } from '../../preview-frame.js';
 
 export const meta = {"id":"preview-html","name":"Pratinjau HTML","cat":"developer","icon":"👁️","desc":"Tulis HTML dan lihat hasilnya langsung di bawah.","keywords":"html,preview,editor,kode,pratinjau,web","since":"6.11.0"};
 
-/* Pratinjau HTML: textarea + iframe srcdoc dengan sandbox (allow-scripts
-   saja, tanpa allow-same-origin) sehingga kode pratinjau tidak bisa
-   mengakses halaman ini. Update otomatis saat mengetik (jeda 400 ms). */
+/* Pratinjau HTML: textarea + iframe /preview.html (G-2, v6.19.1 — pengganti
+   srcdoc yang mewarisi CSP induk). Frame sandbox allow-scripts saja, tanpa
+   allow-same-origin (origin opak) sehingga kode pratinjau tidak bisa
+   mengakses halaman ini. HTML dikirim lewat postMessage. Update otomatis
+   saat mengetik (jeda 400 ms). */
 const CONTOH = '<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { font-family: sans-serif; padding: 20px; background: #f5f5f4; color: #18181b; }\n  h1 { font-size: 24px; }\n  button { padding: 10px 18px; border: none; border-radius: 8px; background: #18181b; color: #fff; cursor: pointer; }\n</style>\n</head>\n<body>\n  <h1>Halo, ini pratinjau HTML</h1>\n  <p>Edit kode di atas, hasilnya langsung berubah di sini.</p>\n  <button onclick="document.getElementById(\'pesan\').textContent = \'Tombol ditekan!\'">Tekan saya</button>\n  <p id="pesan"></p>\n</body>\n</html>';
 
 export function render(root) {
@@ -12,8 +15,8 @@ export function render(root) {
   ta.value = CONTOH;
   ta.style.fontFamily = 'ui-monospace,Menlo,Consolas,monospace';
   ta.style.fontSize = '13px';
-  const frame = document.createElement('iframe');
-  frame.setAttribute('sandbox', 'allow-scripts');
+  const pv = createPreviewFrame();
+  const frame = pv.frame;
   frame.style.cssText = 'width:100%;height:380px;border:1px solid #ffffff20;border-radius:10px;background:#fff';
   const stat = T.el('<div class="hint"></div>');
   const box = T.out();
@@ -21,7 +24,7 @@ export function render(root) {
 
   const update = () => {
     const html = ta.value;
-    frame.srcdoc = html;
+    pv.setHtml(html);
     const chars = html.length;
     stat.textContent = chars ? chars.toLocaleString('id-ID') + ' karakter · pratinjau diperbarui' : 'Pratinjau kosong, tulis HTML dulu';
   };
@@ -35,9 +38,9 @@ export function render(root) {
   const bTab = T.btn('Buka di tab baru', () => {
     const html = ta.value.trim();
     if (!html) { T.show(box, errBox('Tulis HTML dulu.')); return; }
-    const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
-    window.open(url, '_blank', 'noopener');
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    // Tab baru lewat /preview.html (G-2): blob: URL mewarisi CSP pembuatnya
+    // sehingga skrip user ikut diblokir saat CSP ditegakkan.
+    openPreviewTab(html, { onBlocked: () => T.show(box, errBox('Browser memblokir tab baru. Izinkan pop-up untuk situs ini, lalu coba lagi.')) });
   });
   const bUnduh = T.btn('Unduh .html', () => {
     const html = ta.value;
@@ -54,5 +57,6 @@ export function render(root) {
   root.appendChild(stat);
   root.appendChild(T.row(bTab, bUnduh));
   root.appendChild(box);
+  T.onLeave(() => pv.dispose());
   update();
 }

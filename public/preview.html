@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--
+  Adip Tools — halaman host pratinjau HTML user (G-2, v6.19.1).
+
+  Kenapa halaman ini ada: iframe srcdoc MEWARISI CSP dokumen induk, jadi
+  begitu CSP induk ditegakkan, <script> inline di HTML user akan diblokir.
+  Halaman ini dimuat sebagai dokumen navigasi biasa sehingga memakai CSP
+  SENDIRI (lihat entri /preview.html di vercel.json — policy permisif yang
+  mengizinkan skrip inline user), lalu HTML user dikirim lewat postMessage
+  dan ditulis ke iframe srcdoc DALAM (yang mewarisi CSP permisif halaman
+  ini, bukan CSP induk yang ketat).
+
+  Model keamanan:
+  - Frame luar dipasang parent dengan sandbox="allow-scripts" TANPA
+    allow-same-origin -> origin OPAK: kode user tidak bisa membaca
+    localStorage/cookie/DOM origin utama. Flag sandbox menurun ke iframe
+    dalam, jadi iframe dalam ikut opak. Berlaku untuk KEDUA mode
+    (preview + render): pengecualian same-origin mode render DICABUT
+    Blue-B 19 Nov 2026 (R-01) karena capture piksel yang dibelanya
+    terbukti tidak jalan di browser mana pun (P2 §8.1).
+  - Pesan hanya diterima dari parent/opener dengan origin yang sama
+    dengan origin URL halaman ini + token sekali-pakai yang dibawa di
+    query (?t=...). Token mengikat satu frame/tab ke satu pengirim.
+  - Bila dibuka sebagai tab baru (tombol "Buka di tab baru"), window.opener
+    diputus SEBELUM kode user apa pun ada, jadi kode user tidak bisa
+    mencapai tab induk lewat opener.
+  - Iframe dalam selalu sandbox="allow-scripts" (tanpa allow-same-origin
+    di mode apa pun) dan tanpa atribut allow (tanpa kamera/mik/dll).
+
+  Halaman ini TIDAK punya UI sendiri: iframe dalam mengisi seluruh viewport.
+-->
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pratinjau</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #fff; }
+  #pv { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+</style>
+</head>
+<body>
+<script src="preview.js"></script>
+</body>
+</html>

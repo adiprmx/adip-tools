@@ -216,15 +216,15 @@ function stepExtraHTML(step, manifest) {
     /* Kartu demo: tautan NYATA ke tool + tombol ♥ NYATA yang
        menyimpan/menghapus favorit tool itu juga. */
     return `<div class="onb-demo">
-      <a class="onb-demo-card" href="#/t/${m.id}">
-        <span class="onb-demo-ic" aria-hidden="true">${m.icon}</span>
+      <a class="onb-demo-card" href="#/t/${esc(m.id)}">
+        <span class="onb-demo-ic" aria-hidden="true">${esc(m.icon)}</span>
         <span class="onb-demo-tx">
           <span class="onb-demo-nm">${esc(m.name)}</span>
           <span class="onb-demo-ct">${esc(catLabel(m.cat))}</span>
         </span>
         <span class="onb-demo-go" aria-hidden="true">→</span>
       </a>
-      <button class="onb-favbtn${fav ? ' on' : ''}" type="button" data-demo-fav="${m.id}" aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}"><span aria-hidden="true">♥</span> <span data-fav-label>${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}</span></button>
+      <button class="onb-favbtn${fav ? ' on' : ''}" type="button" data-demo-fav="${esc(m.id)}" aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}"><span aria-hidden="true">♥</span> <span data-fav-label>${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}</span></button>
     </div>`;
   }
   return '';

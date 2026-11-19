@@ -49,7 +49,7 @@ import { getFav, isFav, toggleFav, getRecent, touchRecent } from './store.js';
 import { fetchPopularTerms, trackSearch, trackSearchDebounced } from './supabase.js';
 import { hcardHTML, watchFadeX, footerHTML } from './shell-ui.js';
 import { matchRoute, queryParam } from './routes.js';
-import { renderBaru, renderCatIntro, pickRandomTool, acakButtonHTML, greet, PH_EXAMPLES, startPlaceholderRotation, stopPlaceholderRotation, renderContinue, renderPopuler, renderRecent } from './beranda.js';
+import { renderBaru, renderSpotlight, renderCatIntro, pickRandomTool, acakButtonHTML, greet, PH_EXAMPLES, startPlaceholderRotation, stopPlaceholderRotation, renderContinue, renderPopuler, renderRecent } from './beranda.js';
 import { isNewVisitor, maybeShowOnboarding, heroProofHTML, mulaiDariSiniHTML, HERO_SUB } from './onboarding.js';
 import { recentLineHTML, prevToolChip, catMoreLink } from './detail-riwayat.js';
 import { initSeoShare, bindShareButtons, shareButtonHTML } from './seo-share.js';
@@ -219,7 +219,7 @@ function openPalette() {
     if (!palItems.length) {
       const sug = q.trim() ? suggestDidYouMean(q, manifest) : null;
       list.innerHTML = sug
-        ? `<div class="pal-empty">Tidak ketemu.<br>Maksud Anda: <button class="schip" data-sug="${sug.id}">${T.esc(sug.name)}</button>?</div>`
+        ? `<div class="pal-empty">Tidak ketemu.<br>Maksud Anda: <button class="schip" data-sug="${T.esc(sug.id)}">${T.esc(sug.name)}</button>?</div>`
         : '<div class="pal-empty">Tidak ketemu.<br>Coba kata lain, mis. "kalkulator".</div>';
       list.querySelector('[data-sug]')?.addEventListener('click', (e) => { touchRecent(e.target.dataset.sug); location.hash = '#/t/' + e.target.dataset.sug; closePalette(); });
       return;
@@ -227,11 +227,11 @@ function openPalette() {
     palSel = 0;
     html += palItems.map((m, i) => `
       <div class="pal-item${i === 0 ? ' act' : ''}" data-i="${i}" role="option" tabindex="-1">
-        <span class="pic">${m.icon}</span>
+        <span class="pic">${T.esc(m.icon)}</span>
         <span class="ptx"><span class="pnm">${hiMark(m.name, q)}</span>
         <span class="pds">${T.esc(m.desc || '')}</span></span>
         <span class="pct">${catLabel(m.cat)}</span>
-        <button class="pal-fav" data-fid="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}" style="flex:none;width:44px;height:44px;border:0;background:none;cursor:pointer;font-size:18px;border-radius:8px;color:${isFav(m.id) ? 'var(--acc)' : 'var(--dim)'};opacity:${isFav(m.id) ? '1' : '0.6'}">♥</button>
+        <button class="pal-fav" data-fid="${T.esc(m.id)}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}" style="flex:none;width:44px;height:44px;border:0;background:none;cursor:pointer;font-size:18px;border-radius:8px;color:${isFav(m.id) ? 'var(--acc)' : 'var(--dim)'};opacity:${isFav(m.id) ? '1' : '0.6'}">♥</button>
       </div>`).join('');
     list.innerHTML = html;
     list.querySelectorAll('.pal-item').forEach((b) => {
@@ -314,11 +314,11 @@ function cardEl(m, hl, { hideCat = false } = {}) {
   const newBadge = isNew(m) ? `<span class="newb" style="color:var(--txt);border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.06);border-radius:999px;padding:2px 7px${hideCat ? '' : ';margin-left:6px'}">BARU</span>` : '';
   const ctInner = (hideCat ? '' : catLabel(m.cat)) + newBadge;
   a.innerHTML = `
-    <span class="tic" aria-hidden="true">${m.icon}</span>
+    <span class="tic" aria-hidden="true">${T.esc(m.icon)}</span>
     <span class="nm">${hl ? hiMark(m.name, hl) : T.esc(m.name)}</span>
     <span class="ds">${T.esc(m.desc || '')}</span>
     ${ctInner ? `<span class="ct">${ctInner}</span>` : ''}
-    <button class="fav${fav ? ' on' : ''}" data-id="${m.id}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>`;
+    <button class="fav${fav ? ' on' : ''}" data-id="${T.esc(m.id)}" aria-label="${fav ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>`;
   a.addEventListener('click', () => touchRecent(m.id));
   bindFav(a);
   return a;
@@ -328,7 +328,8 @@ function cardEl(m, hl, { hideCat = false } = {}) {
 /* ---------------- BERANDA (v6: pendek, tanpa direktori vertikal) ----------------
    v6.14.0 (P2-B1): urutan seksi pengunjung kembali — Lanjutkan,
    Favorit (grid, baru), Populer (rail), Baru ditambahkan (grid),
-   Kategori (ubin), Koleksi (kartu lebar), Riwayat (rail).
+   Spotlight "Tool pilihan" (v6.19.1 P8, 1 kartu), Kategori (ubin),
+   Koleksi (kartu lebar), Riwayat (rail).
    Pengunjung baru: Mulai dari sini menggantikan Lanjutkan/Favorit/
    Riwayat (ketiganya kosong). */
 
@@ -409,24 +410,25 @@ function home() {
       <div class="hscroll" id="popRail"></div>
     </section>
     <section class="sec rise" style="--i:4" id="baruSec" aria-label="Baru ditambahkan"></section>
-    <section class="sec rise" style="--i:5" aria-label="Kategori">
+    <section class="sec rise" style="--i:5" id="spotSec" aria-label="Tool pilihan"></section>
+    <section class="sec rise" style="--i:6" aria-label="Kategori">
       <div class="sechead"><h2>Kategori</h2><span class="n">${cats.length}</span></div>
       <div class="catgrid">${tiles}</div>
     </section>
-    <section class="sec rise" style="--i:6" aria-label="Koleksi">
+    <section class="sec rise" style="--i:7" aria-label="Koleksi">
       <div class="sechead"><h2>Koleksi</h2><span class="n">berdasarkan masalah</span></div>
       <div class="colgrid">${colTiles}</div>
     </section>
-    <section class="sec rise" style="--i:7" id="recSec" aria-label="Riwayat">
+    <section class="sec rise" style="--i:8" id="recSec" aria-label="Riwayat">
       <div class="sechead"><h2>🕐 Riwayat</h2></div>
       <div class="hscroll" id="recRail"></div>
     </section>
-    <a class="allbtn glass rise" style="--i:8" href="#/semua">
+    <a class="allbtn glass rise" style="--i:9" href="#/semua">
       <span>Semua tools <span class="an">${n}</span></span>
       <span class="ago" aria-hidden="true">→</span>
     </a>
-    ${acakButtonHTML(9)}
-    ${footerHTML(n, { rise: 10 })}
+    ${acakButtonHTML(10)}
+    ${footerHTML(n, { rise: 11 })}
   </div>`;
   app.querySelector('#palBtn').addEventListener('click', openPalette);
   const inp = app.querySelector('#q');
@@ -452,6 +454,7 @@ function home() {
   renderFavSection();
   renderPopuler(popularTerms, manifest);
   renderBaru(document.getElementById('baruSec'), manifest, VERSION);
+  renderSpotlight(document.getElementById('spotSec'), manifest);
   renderRecent();
   /* P1: lembar orientasi sekali tampil (hanya pengunjung baru,
      hanya di beranda, tidak pernah di atas deep link — semua
@@ -675,11 +678,11 @@ function methodPage() {
     </div>
     <div style="display:grid;gap:12px">
       ${entries.map(({ x, m }, i) => `
-      <article class="glass rise" id="m-${m.id}" style="--i:${i};border-radius:14px;padding:16px;scroll-margin-top:16px">
+      <article class="glass rise" id="m-${T.esc(m.id)}" style="--i:${i};border-radius:14px;padding:16px;scroll-margin-top:16px">
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-          <span style="font-size:22px" aria-hidden="true">${m.icon}</span>
+          <span style="font-size:22px" aria-hidden="true">${T.esc(m.icon)}</span>
           <h3 style="font-size:16px;font-weight:750;letter-spacing:-.01em">${T.esc(m.name)}</h3>
-          <a href="#/t/${m.id}" style="margin-left:auto;font-size:12.5px;white-space:nowrap">Buka tool →</a>
+          <a href="#/t/${T.esc(m.id)}" style="margin-left:auto;font-size:12.5px;white-space:nowrap">Buka tool →</a>
         </div>
         <p style="font-size:13.5px;line-height:1.7;margin:0 0 8px">${T.esc(x.rumus)}</p>
         <p class="hint" style="line-height:1.65;margin:0"><b style="color:var(--mut)">Asumsi &amp; batasan:</b> ${T.esc(x.batas)}</p>
@@ -729,11 +732,11 @@ async function toolPage(id) {
     <a class="back" href="#/">← Beranda</a><span id="prevChip"></span>
     <div class="tool-head">
       <div class="th-top">
-        <span class="tic" aria-hidden="true">${m.icon}</span>
+        <span class="tic" aria-hidden="true">${T.esc(m.icon)}</span>
         <div class="th">
           <h2>${T.esc(m.name)}</h2>
         </div>
-        <div class="tacts"><button class="fav icobtn${isFav(m.id) ? ' on' : ''}" data-id="${m.id}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>${shareButtonHTML(m)}</div>
+        <div class="tacts"><button class="fav icobtn${isFav(m.id) ? ' on' : ''}" data-id="${T.esc(m.id)}" aria-label="${isFav(m.id) ? 'Hapus dari favorit' : 'Tambah ke favorit'}">♥</button>${shareButtonHTML(m)}</div>
       </div>
       <div class="meta">
         <span class="tag">${catLabel(m.cat)}</span>
@@ -801,7 +804,7 @@ async function toolPage(id) {
   // tautan metodologi untuk kalkulator yang rumusnya didokumentasikan
   const methHost = document.getElementById('methLink');
   if (methHost && METHOD_IDS.has(m.id)) {
-    methHost.innerHTML = `<a href="#/metodologi#${m.id}" style="display:block;margin-top:14px;font-size:13px;color:var(--mut)">📖 Cara hitungnya: lihat rumus, asumsi &amp; batasannya di halaman Metodologi →</a>`;
+    methHost.innerHTML = `<a href="#/metodologi#${T.esc(m.id)}" style="display:block;margin-top:14px;font-size:13px;color:var(--mut)">📖 Cara hitungnya: lihat rumus, asumsi &amp; batasannya di halaman Metodologi →</a>`;
   }
   /* V-08 (v6.14.0, P2-B1): riwayat di halaman tool bukan lagi
      carousel ketiga — satu baris teks "Terakhir dibuka: A · B · C"

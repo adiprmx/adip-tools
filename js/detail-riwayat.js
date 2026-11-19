@@ -88,7 +88,7 @@ export function recentLineHTML(currentId, recents, byId, esc, max = 3) {
   const tools = validRecents(currentId, recents, byId, max);
   if (!tools.length) return '';
   const links = tools
-    .map((m) => `<a href="#/t/${m.id}">${esc(m.name)}</a>`)
+    .map((m) => `<a href="#/t/${esc(m.id)}">${esc(m.name)}</a>`)
     .join('<span class="sep" aria-hidden="true">·</span>');
   return `<p class="recentline"><b>Terakhir dibuka:</b> ${links}</p>`;
 }
@@ -103,7 +103,7 @@ export function recentLineHTML(currentId, recents, byId, esc, max = 3) {
 export function prevToolChip(currentId, recents, byId, esc) {
   const prev = validRecents(currentId, recents, byId, 1)[0];
   if (!prev) return '';
-  return `<a class="back" href="#/t/${prev.id}" style="margin-left:10px">← Balik ke ${esc(prev.name)}</a>`;
+  return `<a class="back" href="#/t/${esc(prev.id)}" style="margin-left:10px">← Balik ke ${esc(prev.name)}</a>`;
 }
 
 /* Tautan "Lihat semua tool <Kategori> →" di bawah grid "Sejenis".

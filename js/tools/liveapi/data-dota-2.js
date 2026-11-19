@@ -20,7 +20,7 @@ export function render(root) {
     const singkat = String(h.name || '').replace(/^npc_dota_hero_/, '');
     const gambar = singkat ? 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/' + singkat + '.png' : '';
     let html = '<div class="center">' +
-      (gambar ? '<img src="' + esc(gambar) + '" alt="" loading="lazy" style="width:180px;max-width:100%;border-radius:8px" onerror="this.style.display=\'none\'">' : '') +
+      (gambar ? '<img src="' + esc(gambar) + '" alt="" loading="lazy" style="width:180px;max-width:100%;border-radius:8px" data-err="hide">' : '') +
       '<div style="font-weight:800;font-size:20px;margin-top:8px">' + esc(nama) + '</div>' +
       '<div class="dim">' + esc(ATRIBUT[h.primary_attr] || h.primary_attr || '-') + ' · Serangan ' + esc(SERANG[h.attack_type] || h.attack_type || '-') + '</div></div>' +
       '<div class="kv"><span class="k">Peran</span><span class="v">' + esc(peran) + '</span></div>' +
@@ -29,6 +29,7 @@ export function render(root) {
       (h.legs != null ? '<div class="kv"><span class="k">Jumlah kaki</span><span class="v">' + esc(String(h.legs)) + '</span></div>' : '') +
       '<p class="hint">Sumber: OpenDota. Angka dasar seperti darah dan serangan tidak disediakan API ini, jadi tidak ditampilkan.</p>';
     T.show(box, html);
+    T.wireImgErr(box);
   };
 
   const tampilDaftar = (filter) => {

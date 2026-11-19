@@ -5,6 +5,10 @@
  * 25 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
  * diakali dari browser (hsts-preload: API menolak CORS; TLS: browser tidak
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
+ * RDAP: server per-TLD dari bootstrap IANA (host arbitrer) — fetch langsung
+ * dulu, gagal → lewat proxy yang sama. Modul CORS: uji baca langsung TIDAK
+ * di-proxy (tujuannya menguji browser ini) — bila kebijakan keamanan situs
+ * memblokirnya, hasilnya "tidak dapat dipastikan", bukan "aman".
  * Fungsi murni di-export agar bisa di-unit-test via node.
  */
 import { h as T, utils } from '../../core.js';
@@ -930,9 +934,22 @@ async function mRdap(ctx) {
   try {
     const urls = await rdapServerFor(tld);
     if (!urls || !urls.length) return [mkInfo('rdap','Umur domain tidak bisa dicek untuk .' + tld,'Akhiran domain ini tidak menyediakan data umur domain publik.')];
-    const r = await tFetch(urls[0].replace(/\/$/,'') + '/domain/' + ctx.host, {timeout: 12000});
-    if (!r.ok) throw new Error('RDAP ' + r.status);
-    const {created, expires} = parseRdapEvents(await r.json());
+    const rdapUrl = urls[0].replace(/\/$/,'') + '/domain/' + ctx.host;
+    let rdapJson = null;
+    try {
+      const r = await tFetch(rdapUrl, {timeout: 12000});
+      if (!r.ok) throw new Error('RDAP ' + r.status);
+      rdapJson = await r.json();
+    } catch (e1) {
+      // Server RDAP ditentukan bootstrap IANA saat runtime (host arbitrer,
+      // tidak bisa di-allowlist statis) — bila fetch langsung gagal
+      // (termasuk diblokir CSP saat enforcement), ambil JSON yang sama
+      // lewat proxy allowlisted yang dipakai modul lain.
+      const pr = await fetchProxied(rdapUrl, {timeout: 15000});
+      if (!pr.ok || !pr.text) throw new Error('RDAP via proxy gagal');
+      rdapJson = JSON.parse(pr.text);
+    }
+    const {created, expires} = parseRdapEvents(rdapJson);
     const now = Date.now();
     if (created) {
       const ageD = (now - Date.parse(created)) / 864e5;
@@ -993,6 +1010,13 @@ async function mCors(ctx) {
       'Batasi ACAO ke origin yang benar-benar butuh untuk endpoint sensitif.', 'ACAO: *'));
     else if (acao) f.push(mkInfo('cors','ACAO terbatas: ' + acao.slice(0, 60),'Hanya origin tertentu yang diizinkan — konfigurasi ketat.'));
   }
+  // Uji baca langsung TIDAK BISA di-proxy: tujuannya justru menguji apakah
+  // browser ini bisa membaca situs target lintas-origin — lewat proxy,
+  // yang diuji jadi proxy-nya, bukan targetnya. Bila fetch langsung
+  // diblokir kebijakan keamanan situs (CSP enforcement), hasilnya
+  // dinyatakan TIDAK DAPAT DIPASTIKAN, bukan "aman" — memvonis aman dari
+  // blokir kebijakan adalah false-negative.
+  const w = utils.cspWatch();
   try {
     const r = await tFetch(ctx.origin + '/', {timeout: 8000});
     if (r.type === 'opaque') { if (!f.length) f.push(mkInfo('cors','CORS tidak terbuka','Respons opaque — origin lain tidak bisa membaca.')); return f; }
@@ -1003,8 +1027,14 @@ async function mCors(ctx) {
                  : 'Risiko rendah bila hanya data publik, tapi tetap pola konfigurasi longgar.',
       'Batasi ACAO ke origin yang benar-benar butuh, jangan pakai * untuk endpoint sensitif.', ''));
   } catch (e) {
-    if (!f.length) f.push(mkInfo('cors','CORS tidak terbuka lebar','Browser menolak baca lintas-origin (aman).'));
-  }
+    // Beri jeda agar event securitypolicyviolation sempat datang.
+    await new Promise((r) => setTimeout(r, 100));
+    if (!f.length) {
+      if (w.blocked()) f.push(mkInfo('cors','Uji baca lintas-origin tidak dapat dipastikan',
+        'Kebijakan keamanan situs ini memblokir uji langsung ke situs target, jadi uji ini tidak bisa memastikan apa-apa. Ini bukan berarti situs target aman — penilaiannya memakai header yang terbaca lewat proxy (bila ada di atas).'));
+      else f.push(mkInfo('cors','CORS tidak terbuka lebar','Browser menolak baca lintas-origin (aman).'));
+    }
+  } finally { w.stop(); }
   return f;
 }
 async function mRedirect(ctx) {
@@ -1328,7 +1358,7 @@ async function mCert(ctx) {
 const WAYBACK_FAIL_REASON = 'web.archive.org tidak dapat dijangkau setelah 3x percobaan';
 async function mWayback(ctx) {
   try {
-    const r = await fetchRetry('http://web.archive.org/cdx/search/cdx?url=' + encodeURIComponent(ctx.host) + '/*&output=json&limit=50&collapse=urlkey&filter=statuscode:200', {timeout: 12000});
+    const r = await fetchRetry('https://web.archive.org/cdx/search/cdx?url=' + encodeURIComponent(ctx.host) + '/*&output=json&limit=50&collapse=urlkey&filter=statuscode:200', {timeout: 12000});
     if (!r.ok) throw new Error('wayback HTTP ' + r.status);
     const p = parseWayback(await r.json());
     if (p.sensitive.length) return [mk('wayback','medium','Jejak sensitif di arsip publik (' + p.sensitive.length + ')',

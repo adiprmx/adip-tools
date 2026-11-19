@@ -29,16 +29,20 @@ export function cariLayananCari(indexJson) {
 }
 
 // Validasi alamat layanan pencari dari index.json (pola RED-G2-05):
-// hanya layanan NuGet resmi (host *.nuget.org) atau Azure Search
-// (*.search.windows.net) lewat https yang boleh di-fetch. Tanpa cek ini,
-// respons index.json yang dimanipulasi bisa mengarahkan fetch ke URL mana
-// pun, termasuk perangkat di jaringan lokal.
+// hanya layanan NuGet resmi (host nuget.org / *.nuget.org) lewat https
+// yang boleh di-fetch. Endpoint pencarian resmi NuGet adalah
+// *.nuget.org (azuresearch-usnc.nuget.org / azuresearch-ussc.nuget.org,
+// terverifikasi dari index.json asli 19 Nov 2026) — cabang
+// *.search.windows.net dihapus per R-06 (19 Nov 2026) agar allowlist tool
+// konsisten dengan policy CSP connect-src. Tanpa cek ini, respons
+// index.json yang dimanipulasi bisa mengarahkan fetch ke URL mana pun,
+// termasuk perangkat di jaringan lokal.
 export function layananCariAman(u) {
   try {
     const url = new URL(u);
     if (url.protocol !== 'https:') return false;
     const host = url.hostname.toLowerCase();
-    return host === 'nuget.org' || host.endsWith('.nuget.org') || host.endsWith('.search.windows.net');
+    return host === 'nuget.org' || host.endsWith('.nuget.org');
   } catch { return false; }
 }
 

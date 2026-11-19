@@ -61,7 +61,8 @@ export function render(root) {
           const nama = String(r.trackName || r.collectionName || 'Tanpa nama');
           const artis = String(r.artistName || '');
           const gambar = utils.urlAman(r.artworkUrl100);
-          const pratinjau = utils.urlAman(r.previewUrl);
+          const pratinjauAll = utils.urlAman(r.previewUrl);
+          const pratinjau = pratinjauAll && pratinjauAll.indexOf('https://') === 0 ? pratinjauAll : null;
           const label = LABEL_JENIS[r.kind] || String(r.kind || r.wrapperType || '');
           const link = tautanAman(r.trackViewUrl) ? r.trackViewUrl : (tautanAman(r.collectionViewUrl) ? r.collectionViewUrl : null);
           return '<div style="border-top:1px solid #ffffff14;padding:12px 0;display:flex;gap:12px">' +
@@ -78,6 +79,15 @@ export function render(root) {
         }).join('') +
         '<p class="hint">Sumber: iTunes Search API (Apple). Cuplikan audio hanya tersedia untuk sebagian lagu dan podcast.</p>');
       T.wireImgErr(box);
+      box.querySelectorAll('audio').forEach((a) => {
+        a.addEventListener('error', () => {
+          const p = document.createElement('div');
+          p.className = 'dim';
+          p.style.cssText = 'font-size:12px;margin-top:6px';
+          p.textContent = 'Cuplikan lagu ini tidak bisa diputar saat ini.';
+          a.replaceWith(p);
+        }, { once: true });
+      });
     } catch (e) {
       gagal(e.name === 'AbortError'
         ? 'Waktu habis, server iTunes tidak merespons dalam 15 detik.'

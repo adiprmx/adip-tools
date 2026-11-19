@@ -1,8 +1,11 @@
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
+import { createPreviewFrame } from '../../preview-frame.js';
 
 export const meta = {"id":"html-ke-pdf","name":"HTML ke PDF","cat":"converter","icon":"📄","desc":"Ubah kode HTML jadi file PDF ukuran A4.","keywords":"html,pdf,konversi,dokumen,cetak,a4","since":"6.11.0"};
 
-/* HTML ke PDF: pratinjau di iframe srcdoc, lalu render lewat html2canvas
+/* HTML ke PDF: pratinjau di iframe /preview.html (G-2, v6.19.1 — pengganti
+   srcdoc yang mewarisi CSP induk; frame opak, HTML dikirim postMessage),
+   lalu render lewat html2canvas
    1.4.1 + jsPDF 2.5.1 (sama seperti tool Auto PDF di repo ini). Halaman
    dipotong per A4 dari hasil render. Jujur soal batas: cocok untuk konten
    sederhana; gambar dari situs lain kadang tidak muncul karena aturan
@@ -20,8 +23,8 @@ const MAX_HTML = 200000;
 
 export function render(root) {
   const ta = T.ta(10, '<h1>Judul Dokumen</h1>\n<p>Ini contoh isi dokumen. Tulis HTML sendiri di sini, lalu buat PDF-nya.</p>\n<ul>\n  <li>Poin pertama</li>\n  <li>Poin kedua</li>\n</ul>');
-  const frame = document.createElement('iframe');
-  frame.setAttribute('sandbox', 'allow-scripts');
+  const pv = createPreviewFrame();
+  const frame = pv.frame;
   frame.style.cssText = 'width:100%;height:420px;border:1px solid #ffffff20;border-radius:10px;background:#fff';
   const prevWrap = T.el('<div style="margin-top:12px" hidden></div>');
   prevWrap.appendChild(T.el('<p class="hint" style="margin-bottom:6px">Pratinjau (tampilan ini yang masuk ke PDF):</p>'));
@@ -52,7 +55,7 @@ export function render(root) {
     const html = ta.value.trim();
     if (!html) { T.show(box, errBox('Tempel kode HTML dulu.')); return; }
     if (html.length > MAX_HTML) { T.show(box, errBox('HTML terlalu panjang (maksimal ' + (MAX_HTML / 1000) + ' ribu karakter).')); return; }
-    frame.srcdoc = html;
+    pv.setHtml(html);
     prevWrap.hidden = false;
     T.hide(box);
     T.scrollToPreview(prevWrap);
@@ -111,4 +114,5 @@ export function render(root) {
   root.appendChild(T.row(T.btn('Lihat pratinjau', pratinjau), T.btn('Buat PDF', buatPdf, true)));
   root.appendChild(prevWrap);
   root.appendChild(box);
+  T.onLeave(() => pv.dispose());
 }

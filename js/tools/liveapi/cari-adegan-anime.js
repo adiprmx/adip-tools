@@ -61,11 +61,12 @@ export function render(root) {
       T.show(box, '<p class="hint">' + hasil.length + ' kecocokan teratas. Persentase menunjukkan seberapa mirip gambarnya.</p>' +
         hasil.map((r) => {
           const persen = Math.round((Number(r.similarity) || 0) * 100);
-          const video = utils.urlAman(r.video);
+          const videoAll = utils.urlAman(r.video);
+          const video = videoAll && videoAll.indexOf('https://') === 0 ? videoAll : null;
           const gambar = utils.urlAman(r.image);
           const anilist = r.anilist ? 'https://anilist.co/anime/' + Number(r.anilist) : null;
           return '<div style="border-top:1px solid #ffffff14;padding:12px 0">' +
-            (video ? '<video src="' + esc(video) + '" controls preload="none" style="width:100%;border-radius:8px;display:block;margin-bottom:8px"></video>'
+            (video ? '<video src="' + esc(video) + '" controls preload="none"' + (gambar ? ' data-gambar="' + esc(gambar) + '"' : '') + ' style="width:100%;border-radius:8px;display:block;margin-bottom:8px"></video>'
               : (gambar ? '<img src="' + esc(gambar) + '" alt="Cuplikan adegan" loading="lazy" data-err="hide" style="width:100%;border-radius:8px;display:block;margin-bottom:8px">' : '')) +
             '<div style="font-size:13px;line-height:1.5">' +
             (r.filename ? '<div><b>' + esc(String(r.filename)) + '</b></div>' : '') +
@@ -77,6 +78,23 @@ export function render(root) {
         }).join('') +
         '<p class="hint">Sumber: trace.moe. Gambar yang kamu tempel dikirim ke layanan itu untuk dicocokkan.</p>');
       T.wireImgErr(box);
+      box.querySelectorAll('video').forEach((v) => {
+        v.addEventListener('error', () => {
+          const g = v.getAttribute('data-gambar');
+          if (g) {
+            const im = document.createElement('img');
+            im.src = g; im.alt = 'Cuplikan adegan'; im.loading = 'lazy';
+            im.style.cssText = 'width:100%;border-radius:8px;display:block;margin-bottom:8px';
+            v.replaceWith(im);
+          } else {
+            const p = document.createElement('div');
+            p.className = 'dim';
+            p.style.cssText = 'font-size:12.5px;margin-bottom:8px';
+            p.textContent = 'Video cuplikan tidak bisa diputar saat ini.';
+            v.replaceWith(p);
+          }
+        }, { once: true });
+      });
     } catch (e) {
       if (e.message === 'rate-limit') {
         T.show(box, errBox('Batas pencarian gratis tercapai untuk saat ini (sekitar 100 kali sebulan tanpa akun). Coba lagi nanti.'));

@@ -43,7 +43,7 @@ export function render(root) {
         return;
       }
       const fonetik = (d.phonetics || []).find((p) => p.text) || {};
-      const audio = (d.phonetics || []).find((p) => p.audio);
+      const audio = (d.phonetics || []).find((p) => p.audio && String(p.audio).indexOf('https://') === 0);
       let html = '<div class="center"><div class="big">' + esc(d.word || kw) + '</div>' +
         (fonetik.text ? '<div class="dim">' + esc(fonetik.text) + '</div>' : '') + '</div>';
       if (audio && audio.audio) {
@@ -61,6 +61,17 @@ export function render(root) {
         if (ant.length) html += '<div class="dim" style="margin-top:4px">Kata lawan: ' + ant.map(esc).join(', ') + '</div>';
       });
       T.show(box, html);
+      const audioEl = box.querySelector('audio');
+      if (audioEl) {
+        audioEl.addEventListener('error', () => {
+          const ganti = document.createElement('div');
+          ganti.className = 'dim center';
+          ganti.style.marginTop = '8px';
+          ganti.textContent = 'Suara pelafalan tidak bisa diputar saat ini.';
+          const wadah = audioEl.parentElement;
+          if (wadah) wadah.replaceWith(ganti); else audioEl.replaceWith(ganti);
+        }, { once: true });
+      }
     } catch (e) {
       clearTimeout(timer);
       let msg;

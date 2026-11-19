@@ -207,6 +207,12 @@ export function render(root) {
   const videoEl = document.createElement('video');
   videoEl.controls = true; videoEl.playsInline = true; videoEl.preload = 'metadata';
   videoEl.style.cssText = 'display:none;max-width:100%;border-radius:10px;margin:0 auto';
+  videoEl.addEventListener('error', () => {
+    if (!alive) return;
+    const metaEl = hasilHead.querySelector('#aivideo-meta');
+    if (metaEl) metaEl.textContent = 'Video tidak bisa diputar';
+    pesan('Video hasil tidak bisa diputar saat ini. Coba unduh videonya atau buat lagi.', 'err');
+  });
   const aksiRow = T.el('<div style="display:none;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center"></div>');
   hasilWrap.appendChild(hasilHead); hasilWrap.appendChild(hasilKosong);
   hasilWrap.appendChild(videoEl); hasilWrap.appendChild(aksiRow);

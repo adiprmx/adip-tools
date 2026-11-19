@@ -1,6 +1,6 @@
 # Daftar Tools Adip Tools
 
-> 1299 tool · v6.19.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
+> 1299 tool · v6.19.1 · dibuat otomatis dari js/manifest.js — jangan edit manual.
 
 ## Ringkasan kategori
 

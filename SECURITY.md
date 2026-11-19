@@ -99,16 +99,21 @@ Laporan audit lengkap: `~/workspace/adip-tools-upgrade/v6.12.0/t04-security-repo
 8. **(Low) Helper `kv()` tidak meng-escape nilai** (`js/core.js` ~baris 425).
    Semua pemanggil yang disampel meng-escape manual, tapi ini jebakan.
    Escape nilai di dalam `kv()` atau beri nama `kvHtml` + peringatan.
-9. **(Low) `getcode` iframe:** `sandbox="allow-same-origin"` sebaiknya
-   dicabut (origin opak lebih aman; pratinjau tidak butuh same-origin).
+9. ~~(Low) `getcode` iframe~~ — **SELESAI, item tidak lagi berlaku.**
+   Kode kini `sandbox=''` (`js/tools/developer/getcode.js:48`, origin opak
+   tanpa `allow-same-origin`); pratinjau tidak butuh same-origin.
 
 ## Risiko yang diterima (by design, didokumentasikan)
 
 - **`htmlvideo` mengeksekusi kode pengguna.** `new Function()` + iframe
-  `sandbox="allow-scripts allow-same-origin"` diperlukan agar animasi
-  pengguna bisa di-render ke video. Jangan tempel kode HTML/JS dari sumber
-  yang tidak dipercaya ke tool ini — kode tersebut berjalan dengan hak
-  akses origin situs (termasuk membaca `localStorage` berisi API key BYOK).
+  `sandbox="allow-scripts"` (origin OPAK, tanpa `allow-same-origin` sejak
+  v6.19.1 — temuan R-01). Kode pengguna berjalan TERISOLASI: tidak punya
+  akses ke origin situs dan TIDAK BISA membaca `localStorage` berisi API
+  key BYOK (dibuktikan probe browser, Red-2). Catatan: render animasi ke
+  video (`drawImage` dari iframe) diketahui rusak di Chromium + Firefox —
+  tombol render gagal jujur. Tetap jangan tempel kode HTML/JS dari sumber
+  yang tidak dipercaya: kode itu tetap dieksekusi dan bisa membuat
+  request jaringan dari dalam frame terisolasi.
 - **API key BYOK di `localStorage`.** Praktis dan terungkap di UI, tapi
   kunci bisa dibaca oleh skrip apa pun yang berhasil berjalan di origin
   ini — alasan lain menjaga kebersihan XSS tetap prioritas.

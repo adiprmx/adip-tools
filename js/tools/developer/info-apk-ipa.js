@@ -459,7 +459,7 @@ export function render(root) {
       try {
         const ikonBytes = await bacaEntriZip(u8, ikonEntri);
         const url = URL.createObjectURL(new Blob([ikonBytes], { type: 'image/png' }));
-        ikonHtml = '<img class="ai-ikon" src="' + T.esc(url) + '" alt="Ikon aplikasi" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
+        ikonHtml = '<img class="ai-ikon" src="' + T.esc(url) + '" alt="Ikon aplikasi">' +
           '<p class="hint" style="display:none">Ikon ketemu (' + T.esc(ikonEntri.nama) + ') tapi memakai format PNG khusus iOS (CgBI) yang tidak bisa ditampilkan browser.</p>' +
           '<p class="hint">' + T.esc(ikonEntri.nama) + '</p>';
       } catch (e) {
@@ -481,6 +481,13 @@ export function render(root) {
       '</div>' +
       '<h3 style="margin:14px 0 4px">Ikon</h3>' + ikonHtml +
       '<h3 style="margin:14px 0 4px">Alasan akses privasi (' + info.izin.length + ')</h3>' + izinHtml;
+    // Pengganti handler inline onerror (CSP): sembunyikan ikon rusak, tampilkan
+    // pesan format PNG khusus iOS di elemen berikutnya.
+    hasilEl.querySelector('.ai-ikon')?.addEventListener('error', (e) => {
+      const im = e.currentTarget;
+      im.style.display = 'none';
+      if (im.nextElementSibling) im.nextElementSibling.style.display = 'block';
+    });
   }
 
   fileI.addEventListener('change', bukaFile);

@@ -192,7 +192,7 @@ export function render(root) {
   root.appendChild(presetField);
   terapkanPreset(presetAwal);
   root.appendChild(T.grid2(
-    T.field('Endpoint (OpenAI-compatible)', baseInp, 'Tanpa garis miring di akhir.'),
+    T.field('Endpoint (OpenAI-compatible)', baseInp, 'Tanpa garis miring di akhir. Alamat di luar preset bawaan (Pollinations & OpenAI) mungkin tidak bisa dipakai karena kebijakan keamanan situs.'),
     T.field('Model', modelInp, 'Contoh: gpt-4o-mini, gpt-4o. Untuk gambar butuh model vision.')
   ));
 
@@ -313,6 +313,12 @@ export function render(root) {
     utils.byok.set('documentai_model', model);
     const c = new AbortController();
     const t = setTimeout(() => c.abort(), timeoutMs || 85000);
+    // Endpoint kustom user = host arbitrer, tidak bisa di-allowlist statis.
+    // API key TIDAK PERNAH di-proxy lewat function kita (risiko kredensial)
+    // — jadi endpoint di luar allowlist memang tidak bisa jalan saat CSP
+    // enforcing. Bedakan blokir kebijakan dari gagal jaringan biasa agar
+    // pesannya jujur (kode CSP_BLOCKED ditangkap penampil error).
+    const w = utils.cspWatch();
     try {
       const headers = { 'Content-Type': 'application/json' };
       if (key) headers.Authorization = 'Bearer ' + key; // Pollinations gratis: tanpa header bila key kosong
@@ -330,7 +336,17 @@ export function render(root) {
       const txt = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
       if (!txt) throw new Error('Respons LLM kosong.');
       return txt;
-    } finally { clearTimeout(t); }
+    } catch (e) {
+      if (e && e.name === 'TypeError') {
+        await new Promise((r) => setTimeout(r, 100));
+        if (w.blocked()) {
+          const ce = new Error('Alamat layanan ini tidak bisa dijangkau karena kebijakan keamanan situs. Coba pakai preset gratis (Pollinations) atau endpoint OpenAI.');
+          ce.code = 'CSP_BLOCKED';
+          throw ce;
+        }
+      }
+      throw e;
+    } finally { clearTimeout(t); w.stop(); }
   }
 
   const bangunPesan = (sumber, md2) => {
@@ -420,7 +436,8 @@ export function render(root) {
         const dims = log.querySelectorAll('.dim');
         dims[dims.length - 1].outerHTML = '<div style="font-size:13px;margin:6px 0;line-height:1.65"><b>AI:</b><br>' + md(an) + '</div>';
       } catch (e) {
-        log.innerHTML += '<div class="err" style="font-size:12.5px">Jawabannya tidak bisa dimuat. Periksa koneksimu lalu coba tanya lagi.</div>';
+        const m = e.code === 'CSP_BLOCKED' ? e.message : 'Jawabannya tidak bisa dimuat. Periksa koneksimu lalu coba tanya lagi.';
+        log.innerHTML += '<div class="err" style="font-size:12.5px">' + T.esc(m) + '</div>';
       }
       tanyaBtn.disabled = false;
     });
@@ -506,7 +523,7 @@ export function render(root) {
       paintHasil();
     } catch (e) {
       stopTahap();
-      const m = e.name === 'AbortError' ? 'Timeout — dokumen terlalu besar / koneksi lambat.' : (e.message === 'NO_KEY' ? 'Isi & simpan API key dulu.' : 'Terjadi kendala saat menganalisis. Coba lagi, atau pakai dokumen yang lebih kecil.');
+      const m = e.name === 'AbortError' ? 'Timeout — dokumen terlalu besar / koneksi lambat.' : (e.message === 'NO_KEY' ? 'Isi & simpan API key dulu.' : (e.code === 'CSP_BLOCKED' ? e.message : 'Terjadi kendala saat menganalisis. Coba lagi, atau pakai dokumen yang lebih kecil.'));
       T.show(out, '<span class="err">' + T.esc(String(m)) + '</span>');
     } finally { busy = false; segarkanTombol(); }
   }, true);

@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js';
+import { h as T, utils, errBox } from '../../core.js';
 
 // Normalisasi input jadi URL http(s) penuh. Kembalikan {url} atau {error}.
 export function normalizeUrl(input) {
@@ -14,7 +14,12 @@ export function normalizeUrl(input) {
 // Probe jujur: fetch no-cors hanya membedakan "server merespons" vs
 // "gagal jaringan". Status HTTP (404, 500, dst.) TIDAK bisa dilihat
 // dari browser karena aturan keamanan lintas situs. Bila fetch gagal,
-// dicoba memuat gambar favicon sebagai cek kedua.
+// dicoba memuat gambar favicon sebagai cek kedua (img-src mengizinkan
+// https: mana pun, jadi cek ini tetap jalan saat fetch diblokir kebijakan
+// keamanan situs). Probe ini TIDAK BISA di-proxy: tujuannya menguji
+// keterjangkauan dari koneksi pengguna sendiri.
+// Bila fetch diblokir kebijakan keamanan situs DAN cek gambar gagal,
+// hasilnya 'tidak-pasti' — jangan vonis "down", itu false-negative.
 // opts: { fetchFn, ImageCtor, timeoutMs } (bisa di-inject untuk tes).
 export async function probeSite(url, opts) {
   const o = opts || {};
@@ -23,6 +28,8 @@ export async function probeSite(url, opts) {
   const timeoutMs = o.timeoutMs || 10000;
   const mulai = Date.now();
   const ms = () => Date.now() - mulai;
+  const w = utils.cspWatch();
+  const selesai = (r) => { w.stop(); return r; };
 
   if (fetchFn) {
     try {
@@ -30,7 +37,7 @@ export async function probeSite(url, opts) {
       const timer = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
         await fetchFn(url, { mode: 'no-cors', cache: 'no-store', signal: ctrl.signal });
-        return { status: 'up', method: 'fetch', ms: ms() };
+        return selesai({ status: 'up', method: 'fetch', ms: ms() });
       } finally { clearTimeout(timer); }
     } catch (e) { /* lanjut ke probe gambar */ }
   }
@@ -46,9 +53,12 @@ export async function probeSite(url, opts) {
         img.src = url.replace(/\/?$/, '/') + 'favicon.ico?cek=' + Date.now();
       } catch (e) { clearTimeout(timer); finish(false); }
     });
-    if (imgOk) return { status: 'up', method: 'gambar', ms: ms() };
+    if (imgOk) return selesai({ status: 'up', method: 'gambar', ms: ms() });
   }
-  return { status: 'down', method: null, ms: ms() };
+  // Beri jeda agar event securitypolicyviolation sempat datang.
+  await new Promise((r) => setTimeout(r, 100));
+  if (w.blocked()) return selesai({ status: 'tidak-pasti', method: 'csp', ms: ms() });
+  return selesai({ status: 'down', method: null, ms: ms() });
 }
 
 export const meta = {"id": "apakah-situs-down", "name": "Apakah Situs Down?", "cat": "developer", "icon": "📶", "desc": "Cek apakah sebuah situs merespons atau tidak dari koneksimu.", "keywords": "down,offline,situs,website,cek,up,error,koneksi", "since": "6.18.0"};
@@ -73,6 +83,12 @@ export function render(root) {
           '<div class="kv"><span class="k">Alamat dicek</span><span class="v" style="word-break:break-all">' + T.esc(n.url) + '</span></div>' +
           '<div class="kv"><span class="k">Waktu respons</span><span class="v">' + r.ms + ' ms</span></div>' +
           '<div class="hint" style="margin-top:8px">Artinya server situs itu terjangkau dari koneksimu saat ini. Cek ini tidak bisa melihat kode statusnya, jadi situs yang menampilkan halaman error tetap terbaca merespons.</div>');
+      } else if (r.status === 'tidak-pasti') {
+        T.show(box,
+          '<div style="font-size:16px;margin-bottom:6px"><span style="color:#facc15">Tidak bisa dipastikan.</span></div>' +
+          '<div class="kv"><span class="k">Alamat dicek</span><span class="v" style="word-break:break-all">' + T.esc(n.url) + '</span></div>' +
+          '<div class="kv"><span class="k">Waktu tunggu</span><span class="v">' + r.ms + ' ms</span></div>' +
+          '<div class="hint" style="margin-top:8px">Cek langsung ke situs ini tidak bisa jalan karena kebijakan keamanan situs ini, dan cek cadangannya juga tidak memberi jawaban. Ini bukan berarti situsnya mati — coba buka langsung situsnya di browser.</div>');
       } else {
         T.show(box,
           '<div style="font-size:16px;margin-bottom:6px"><span class="err">✗ Situs tidak merespons.</span></div>' +

@@ -21,8 +21,8 @@ import { esc } from './core.js';
 import { CATS, catLabel } from './catalog.js';
 
 const hcardHTML = (m) => `
-  <a class="hcard glass" href="#/t/${m.id}" aria-label="${esc(m.name)}">
-    <span class="hic" aria-hidden="true">${m.icon}</span>
+  <a class="hcard glass" href="#/t/${esc(m.id)}" aria-label="${esc(m.name)}">
+    <span class="hic" aria-hidden="true">${esc(m.icon)}</span>
     <span class="hnm">${esc(m.name)}</span>
     <span class="hct">${catLabel(m.cat)}</span>
   </a>`;
@@ -51,8 +51,8 @@ function watchFadeX(rail) {
    Opsi dipertahankan:
    - methodLink (default true): tautan "Metodologi". Halaman
      Metodologi sendiri memakainya false (tanpa tautan ke diri).
-   - rise (default null): nomor animasi masuk; beranda memakai 10
-     (kelas 'foot rise' + style --i:10).
+   - rise (default null): nomor animasi masuk; beranda memakai 11
+     (kelas 'foot rise' + style --i:11).
    Privasi menaut ke PRIVACY.md di repo (file itu tidak ada di
    public/, jadi tautan relatif akan 404); repo publik, branch
    default main (terverifikasi via GitHub API 17 Nov 2026). */

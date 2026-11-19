@@ -38,6 +38,13 @@
       parameter (bukan membaca state Supabase di app.js) — app.js
       yang mengambil istilahnya lewat supabase.js lalu mengopernya.
 
+   TAMBAHAN v6.19.1 (P8, Spotlight):
+   G. Spotlight "Tool pilihan" — satu tool unggulan per hari, rotasi
+      deterministik tanpa backend (pool 59 unggulan CAT_META diacak
+      sekali FNV-1a -> mulberry32 -> Fisher-Yates, indeks =
+      nomorHari(WIB) mod 59). Fungsi murni pilihSpotlight/
+      spotlightOrder + renderSpotlight (pola renderBaru).
+
    KONTRAK (diperbarui v6.14.0):
    - Murni + tanpa side effect di top-level: semua fungsi menerima
      manifest sebagai parameter, supaya bisa dites tanpa browser.
@@ -156,9 +163,12 @@ export function curateNewTools(manifest, version, limit = 8) {
    dirinya sendiri — kartu seperti ini tidak bisa terasa
    seperti filler. Gaya di css/polish-p1.css. */
 export function baruCardHTML(m) {
+  // R-10 (Blue-B): icon + id ikut di-escape (defense-in-depth — manifest
+  // adalah data repo tepercaya, tapi jangan render mentah). Emoji aman:
+  // esc() hanya mengubah & < > " '.
   return `
-  <a class="baru-card glass" href="#/t/${m.id}" aria-label="${esc(m.name)}">
-    <span class="bic" aria-hidden="true">${m.icon}</span>
+  <a class="baru-card glass" href="#/t/${esc(m.id)}" aria-label="${esc(m.name)}">
+    <span class="bic" aria-hidden="true">${esc(m.icon)}</span>
     <span class="btx">
       <span class="bnm">${esc(m.name)}</span>
       <span class="bds">${esc(m.desc || '')}</span>
@@ -276,6 +286,126 @@ export function renderCatIntro(host, catId, manifest) {
   return true;
 }
 
+/* ================= SPOTLIGHT "TOOL PILIHAN" (v6.19.1 P8) =================
+   Satu tool unggulan per hari, rotasi deterministik TANPA backend:
+   pool 59 unggulan CAT_META diacak SEKALI (FNV-1a -> mulberry32 ->
+   Fisher-Yates), lalu hari ke-d mengambil indeks nomorHari mod 59.
+   Hari berurutan -> indeks berurutan -> tool SELALU berbeda
+   (jaminan STRUKTURAL, bukan probabilistik). Siklus 59 hari; tiap
+   tool tampil sekali per siklus. Tanggal dari perangkat + zona
+   Asia/Jakarta (Intl) — pengunjung di luar WIB tetap dapat hari
+   yang benar. Spesifikasi lengkap: r7-spotlight-spec.md. */
+
+export const SPOTLIGHT_SEED = 'adip-tools-spotlight-v1';
+
+/* FNV-1a 32-bit: hash string -> uint32, stabil lintas browser. */
+export function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/* mulberry32: PRNG deterministik 32-bit (pola umum, domain publik). */
+export function mulberry32(a) {
+  return function () {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* Pool: gabungan semua `unggulan` CAT_META (59 ID unik, urutan
+   kategori CAT_META). Diturunkan dari CAT_META — bukan daftar
+   kurasi kedua — supaya spotlight dan "Coba dulu" tidak menyimpang. */
+export function spotlightPoolIds() {
+  const ids = [];
+  for (const meta of Object.values(CAT_META)) {
+    for (const id of meta.unggulan) if (!ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}
+
+/* Urutan acak TETAP: sama di semua perangkat & kunjungan (hanya
+   bergantung pada pool + seed). ID yang hilang dari manifest
+   dibuang (pola catUnggulan). */
+export function spotlightOrder(manifest) {
+  if (!Array.isArray(manifest)) return [];
+  const pool = spotlightPoolIds()
+    .map((id) => manifest.find((m) => m.id === id))
+    .filter(visible);
+  const acak = pool.slice();
+  const rnd = mulberry32(fnv1a(SPOTLIGHT_SEED));
+  for (let i = acak.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [acak[i], acak[j]] = [acak[j], acak[i]];
+  }
+  return acak;
+}
+
+/* Nomor hari sejak epoch, tengah malam WIB. Input "YYYY-MM-DD". */
+export function nomorHari(tanggalWIB) {
+  const [y, m, d] = String(tanggalWIB).split('-').map(Number);
+  return Math.floor((Date.UTC(y, m - 1, d) - 7 * 3600 * 1000) / 86400000);
+}
+
+/* Tanggal hari ini (WIB) sebagai "YYYY-MM-DD". "en-CA" menghasilkan
+   format YYYY-MM-DD; zona Asia/Jakarta eksplisit. */
+export function tanggalHariIniWIB() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
+
+/* Label tanggal untuk sub-header section, mis. "Kamis, 19 November
+   2026". Diparse dari string YYYY-MM-DD yang SAMA dengan rotasi —
+   satu sumber tanggal untuk tool dan label. Tengah hari UTC =
+   19.00 WIB, jadi hari kalendernya tidak pernah bergeser. */
+export function labelTanggalWIB(tanggalWIB) {
+  const [y, m, d] = String(tanggalWIB).split('-').map(Number);
+  const tengah = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  }).format(tengah);
+}
+
+/* Tool spotlight untuk tanggal WIB tertentu (default: hari ini).
+   Mengembalikan null bila pool < 2 — section disembunyikan. */
+export function pilihSpotlight(manifest, tanggalWIB = tanggalHariIniWIB()) {
+  const urutan = spotlightOrder(manifest);
+  if (urutan.length < 2) return null;
+  return urutan[nomorHari(tanggalWIB) % urutan.length];
+}
+
+/* HTML isi section spotlight (tanpa tag <section> — wadahnya milik
+   template home() di app.js). Satu kartu lebar penuh, pakai ulang
+   anatomi .baru-card — NOL CSS baru. */
+export function spotlightSectionHTML(tool, tanggalWIB) {
+  if (!tool) return '';
+  return `
+    <div class="sechead"><h2>⭐ Tool pilihan</h2><span class="n">${esc(labelTanggalWIB(tanggalWIB))}</span></div>
+    ${baruCardHTML(tool)}`;
+}
+
+/* Render spotlight ke wadah <section id="spotSec"> di beranda.
+   Mengembalikan true bila terisi, false bila disembunyikan
+   (pola renderBaru). Parameter tanggal opsional untuk tes. */
+export function renderSpotlight(host, manifest, tanggalWIB = tanggalHariIniWIB()) {
+  if (!host) return false;
+  const tool = pilihSpotlight(manifest, tanggalWIB);
+  if (!tool) {
+    host.style.display = 'none';
+    host.innerHTML = '';
+    return false;
+  }
+  host.style.display = '';
+  host.innerHTML = spotlightSectionHTML(tool, tanggalWIB);
+  return true;
+}
+
 /* ================= C. (OPSIONAL) COBA TOOL ACAK =================
    Tombol jelajah di beranda, di bawah tombol "Semua tools".
    Opsional: koordinator boleh melewatkan wiring ini bila beranda
@@ -344,8 +474,8 @@ export function renderContinue() {
   const m = r && byId(r.id);
   if (!m) { host.innerHTML = ''; return; }
   host.innerHTML = `
-    <a class="contd glass rise" style="--i:1" href="#/t/${m.id}">
-      <span class="cic" aria-hidden="true">${m.icon}</span>
+    <a class="contd glass rise" style="--i:1" href="#/t/${esc(m.id)}">
+      <span class="cic" aria-hidden="true">${esc(m.icon)}</span>
       <span class="ctx">
         <span class="clbl">Lanjutkan</span>
         <span class="cnm">${esc(m.name)}</span>

@@ -2,6 +2,9 @@ import { h as T, utils, errBox, esc } from '../../core.js';
 
 // Logika murni (bisa di-test di Node): putuskan hasil dari dua sinyal.
 // dnsOk = domain terdaftar di DNS publik. reachable = bisa dijangkau dari koneksi pengguna.
+// cspBlocked = cek koneksi langsung diblokir kebijakan keamanan situs (bukan
+// situsnya mati / bukan diblokir provider) — hasilnya TIDAK BOLEH divonis
+// "kemungkinan diblokir", itu false-positive.
 utils.verdictNawala = function (o) {
   if (!o.dnsOk) return {
     status: 'tidak-ada',
@@ -12,6 +15,11 @@ utils.verdictNawala = function (o) {
     status: 'aman',
     judul: 'Kemungkinan tidak diblokir',
     detail: 'Dari jaringanmu saat ini situs ini bisa dijangkau. Kalau tetap tidak bisa dibuka di browser, coba hapus cache atau ganti browser.'
+  };
+  if (o.cspBlocked) return {
+    status: 'tidak-pasti',
+    judul: 'Tidak bisa dipastikan dari sini',
+    detail: 'Situsnya ada dan terdaftar, tapi cek koneksi langsung tidak bisa jalan karena kebijakan keamanan situs ini. Ini bukan berarti situsnya diblokir — coba buka langsung situsnya di browser untuk memastikan.'
   };
   return {
     status: 'mungkin-diblokir',
@@ -51,8 +59,13 @@ export function render(root) {
       box.appendChild(wr);
       return;
     } finally { clearTimeout(timer); }
-    let reachable = false;
+    // Cek ini TIDAK BISA di-proxy: tujuannya menguji keterjangkauan dari
+    // jaringan pengguna sendiri (blokir Nawala terjadi di provider) — lewat
+    // proxy, yang diuji jadi jaringan proxy-nya. Bila kebijakan keamanan
+    // situs memblokir fetch langsung, hasilnya "tidak bisa dipastikan".
+    let reachable = false, cspBlocked = false;
     if (dnsOk) {
+      const w = utils.cspWatch();
       const ac = new AbortController();
       const timer = setTimeout(() => ac.abort(), 10000);
       try {
@@ -60,9 +73,14 @@ export function render(root) {
         reachable = true;
       } catch (e) { reachable = false; }
       finally { clearTimeout(timer); }
+      if (!reachable) {
+        await new Promise((r) => setTimeout(r, 100));
+        cspBlocked = w.blocked();
+      }
+      w.stop();
     }
-    const v = utils.verdictNawala({ dnsOk, reachable });
-    const warna = v.status === 'aman' ? '#4ade80' : (v.status === 'mungkin-diblokir' ? '#facc15' : '#ef4444');
+    const v = utils.verdictNawala({ dnsOk, reachable, cspBlocked });
+    const warna = v.status === 'aman' ? '#4ade80' : (v.status === 'mungkin-diblokir' ? '#facc15' : (v.status === 'tidak-pasti' ? '#a1a1aa' : '#ef4444'));
     T.show(box,
       `<div style="font-size:16px;font-weight:600;color:${warna}">${v.judul}</div>` +
       `<p style="font-size:14px;line-height:1.6;color:#d4d4d4">${v.detail}</p>` +

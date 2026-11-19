@@ -1,4 +1,5 @@
 import { h as T, utils } from '../../core.js';
+import { createPreviewFrame } from '../../preview-frame.js';
 
 export const meta = {"id": "htmlvideo", "name": "HTML/WebGL ke MP4", "cat": "desain", "icon": "🎬", "desc": "Render animasi canvas / HTML jadi video MP4 8 detik.", "keywords": "mp4,video,render,animasi,canvas,webcodecs,html,webgl,threejs"};
 
@@ -278,14 +279,20 @@ export function render(root) {
     livePreview();
   }
 
-  /** Iframe render offscreen untuk capture HTML (same-origin agar bisa di-drawImage). */
+  /** Iframe render offscreen untuk capture HTML (G-2, v6.19.1: /preview.html
+   *  + postMessage. Sejak Blue-B 19 Nov 2026 (R-01): mode 'render' OPAK
+   *  (sandbox allow-scripts TANPA allow-same-origin, sama seperti preview)
+   *  — skrip user tidak bisa membaca localStorage/DOM origin utama.
+   *  CATATAN P2: drawImage(iframe) ditolak Chromium + Firefox
+   *  (TypeError — iframe bukan CanvasImageSource), jadi render HTML memang
+   *  gagal di semua browser hari ini; cacat pra-G-2, bukan regresi. */
   function buildRenderFrame(W, H, html) {
-    const f = document.createElement('iframe');
-    f.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    const pv = createPreviewFrame({ mode: 'render' });
+    const f = pv.frame;
     f.style.cssText = renderFrameStyle(W, H);
-    f.srcdoc = html;
     document.body.appendChild(f);
-    return f;
+    pv.setHtml(html);
+    return { frame: f, dispose: () => pv.dispose() };
   }
   function waitFrameLoad(f) {
     return new Promise((resolve) => {
@@ -327,11 +334,13 @@ export function render(root) {
     const pg = progressTick(progHtml);
     pg.lbl.textContent = 'Menyiapkan iframe HTML…';
     let frame = null;
+    let rf = null;
     try {
-      frame = buildRenderFrame(W, H, htmlTa.value);
+      rf = buildRenderFrame(W, H, htmlTa.value);
+      frame = rf.frame;
       await waitFrameLoad(frame);
       await new Promise((r) => setTimeout(r, 900)); // beri waktu JS/WebGL init
-      // Probe: pastikan canvas tidak taint (drawImage iframe same-origin)
+      // Probe: pastikan canvas tidak taint (drawImage iframe)
       const probe = document.createElement('canvas'); probe.width = W; probe.height = H;
       const pctx = probe.getContext('2d');
       try {
@@ -369,7 +378,7 @@ export function render(root) {
       T.show(htmlOut, '<span class="err">Render gagal. Coba lagi.</span>');
     } finally {
       progHtml.hidden = true;
-      if (frame) frame.remove();
+      if (rf) rf.dispose();
     }
   }
 
@@ -378,20 +387,24 @@ export function render(root) {
   const htmlTa = T.ta(10, '<h1 style="color:red">HALO</h1>', HTML_SAMPLE);
   htmlTa.style.fontFamily = 'monospace'; htmlTa.style.fontSize = '12px';
   paneHtml.appendChild(T.field('Kode HTML sumber', htmlTa));
+  // Pratinjau G-2: /preview.html + postMessage, origin opak (pengganti srcdoc).
+  const pvHtml = createPreviewFrame();
+  const frame = pvHtml.frame;
+  frame.style.cssText = 'width:100%;height:320px;border:1px solid #2e2823;border-radius:12px;background:#fff;margin-top:10px';
+  T.onLeave(() => pvHtml.dispose());
   paneHtml.appendChild(T.row(
     T.btn('👁 Pratinjau', () => {
       const bad = validateHtml(htmlTa.value);
       if (bad) { T.show(htmlOut, '<span class="err">Dokumen berisi elemen yang tidak didukung: <b>' + T.esc(bad) + '</b>. Hapus ' + T.esc(bad) + ' lalu coba lagi.</span>'); return; }
       T.hide(htmlOut);
-      frame.srcdoc = htmlTa.value;
+      pvHtml.setHtml(htmlTa.value);
     }, true),
     T.btn('🎬 Render MP4 (8 dtk)', () => renderHtml(), true)
   ));
   const progHtml = T.el('<div style="margin-top:8px" hidden><div class="dim" style="font-size:12px;margin-bottom:4px"></div><div style="height:8px;background:#1c1815;border-radius:4px;overflow:hidden"><div class="pfill" style="height:100%;width:0%;background:#fff;transition:width .1s"></div></div></div>');
   paneHtml.appendChild(progHtml);
-  const frame = T.el('<iframe sandbox="allow-scripts" style="width:100%;height:320px;border:1px solid #2e2823;border-radius:12px;background:#fff;margin-top:10px"></iframe>');
   const htmlOut = T.out();
   paneHtml.appendChild(htmlOut);
   paneHtml.appendChild(frame);
-  paneHtml.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">Render merekam iframe HTML-mu per frame selama 8 detik realtime — animasi CSS/JS, WebGL & Three.js via CDN ikut terekam. Catatan: skrip di HTML-mu berjalan dengan origin halaman ini saat render; hanya render HTML dari sumber yang kamu percaya. Font custom sebaiknya di-embed sebagai data: URL.</p>'));
+  paneHtml.appendChild(T.el('<p class="dim" style="font-size:12px;margin-top:8px">Render merekam iframe HTML-mu per frame selama 8 detik realtime — animasi CSS/JS, WebGL & Three.js via CDN ikut terekam. Skrip di HTML-mu berjalan terisolasi saat render dan tidak bisa membaca data aplikasi ini. Font custom sebaiknya di-embed sebagai data: URL.</p>'));
 }

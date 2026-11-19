@@ -538,8 +538,9 @@ export function render(root) {
     try {
       let blob = resultBlob;
       if (!blob) {
-        const r = await fetch(resultUrl, { signal: AbortSignal.timeout(30000) });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
+        // Hasil Puter bisa berupa URL https di host yang tidak tercantum di
+        // connect-src — ambil lewat rantai proxy allowlisted bila perlu.
+        const r = await utils.fetchViaProxyChain(resultUrl, { timeout: 30000 });
         blob = await r.blob();
       }
       const ext = (blob.type.includes('jpeg') ? 'jpg' : blob.type.includes('webp') ? 'webp' : blob.type.includes('gif') ? 'gif' : 'png');
@@ -559,8 +560,7 @@ export function render(root) {
       let du;
       if (resultUrl.startsWith('data:image/')) du = resultUrl;
       else {
-        const r = await fetch(resultUrl, { signal: AbortSignal.timeout(30000) });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const r = await utils.fetchViaProxyChain(resultUrl, { timeout: 30000 });
         du = await blobKeDataUrl(await r.blob());
       }
       bersihSumber();
@@ -635,8 +635,8 @@ export function render(root) {
         lastPrompt = p;
         let blob = null;
         try {
-          const r = await fetch(src, { signal: AbortSignal.timeout(30000) });
-          if (r.ok) blob = await r.blob();
+          const r = await utils.fetchViaProxyChain(src, { timeout: 30000 });
+          blob = await r.blob();
         } catch (e) { /* pakai URL langsung */ }
         tampilHasil(blob ? URL.createObjectURL(blob) : src, blob);
         const label = (catalogModel(dipakai) || {}).label || dipakai;

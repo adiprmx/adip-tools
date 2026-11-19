@@ -1748,11 +1748,124 @@ utils.byok = {
   },
 };
 
-/* Unduh dari URL (hasil AI dsb.): coba fetch→blob, fallback buka tab baru. */
+/* Rantai proxy publik yang sudah di-allowlist connect-src (dipakai getcode,
+ * website-scanner, removebg, genmail). Dipakai untuk mengambil konten dari
+ * URL arbitrer yang TIDAK BISA di-allowlist statis — fetch langsung dicoba
+ * dulu (paling cepat + privat), proxy hanya cadangan.
+ * Jina TIDAK dipakai di sini: ia mengubah isi jadi markdown/teks. */
+const PROXY_CHAIN = [
+  (u) => 'https://cors-anyway.huskymobile.com/?' + u,
+  (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+];
+// R-11 (Blue-B, 19 Nov 2026): tolak target privat/lokal SEBELUM fetch
+// (langsung maupun via proxy) — mencegah helper dipakai menjangkau LAN /
+// loopback user lalu meneruskan isinya ke proxy pihak ketiga. Hanya
+// hostname literal yang bisa dinilai di sini (tanpa resolve DNS —
+// hostname yang me-resolve ke IP privat tetap jadi risiko yang diterima,
+// H-03); proxy sendiri adalah penutup lapis berikutnya.
+// Cakupan: localhost (+ *.localhost), IP literal privat/loopback/link-local
+// IPv4 (0/8, 10/8, 127/8, 169.254/16, 172.16/12, 192.168/16), IPv6
+// (::1, ::, fe80::/10, fc00::/7, ::ffff:<v4-privat>), sufiks .local /
+// .internal / .lan. URL non-http(s) dan URL tak terurai: bukan target
+// jaringan helper ini — kembalikan false (pemanggil lain yang menilai).
+utils.isPrivateTarget = function (url) {
+  let host;
+  try {
+    const u = new URL(String(url));
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+    host = u.hostname.toLowerCase().replace(/\.$/, '');
+    // IPv6: hostname WHATWG menyertakan kurung siku ("[::1]") — kupas dulu.
+    if (host.startsWith('[') && host.endsWith(']')) host = host.slice(1, -1);
+  } catch (e) { return false; }
+  if (!host) return false;
+  if (host === 'localhost' || host.endsWith('.localhost')) return true;
+  if (host.endsWith('.local') || host.endsWith('.internal') || host.endsWith('.lan')) return true;
+  // IPv6 (kurung siku sudah dikupas di atas).
+  if (host.indexOf(':') !== -1) {
+    if (host === '::1' || host === '::') return true;
+    if (/^fe[89ab]/i.test(host) || /^fc/i.test(host) || /^fd/i.test(host)) return true;
+    // IPv4-mapped: ::ffff:127.0.0.1 (parser WHATWG menormalisasi ekornya
+    // ke hex, "::ffff:7f00:1") -> nilai dari ekor v4-nya.
+    const m = host.match(/^::ffff:(.+)$/i);
+    if (m) {
+      const tail = m[1];
+      if (/^\d+\.\d+\.\d+\.\d+$/.test(tail)) host = tail;
+      else {
+        const g = tail.split(':');
+        if (g.length !== 2 || !g.every((x) => /^[0-9a-f]{1,4}$/i.test(x))) return false;
+        const hi = parseInt(g[0], 16), lo = parseInt(g[1], 16);
+        host = [(hi >> 8) & 255, hi & 255, (lo >> 8) & 255, lo & 255].join('.');
+      }
+    } else return false;
+  }
+  const parts = host.split('.');
+  if (parts.length !== 4 || parts.some((p) => !/^\d+$/.test(p) || Number(p) > 255)) return false;
+  const o = parts.map(Number);
+  if (o[0] === 0 || o[0] === 10 || o[0] === 127) return true;
+  if (o[0] === 169 && o[1] === 254) return true;
+  if (o[0] === 172 && o[1] >= 16 && o[1] <= 31) return true;
+  if (o[0] === 192 && o[1] === 168) return true;
+  return false;
+};
+// Ambil URL arbitrer: langsung → CorsAnyway → AllOrigins. Mengembalikan
+// Response pertama yang ok; throw bila semua gagal. Hanya http(s) yang
+// lewat proxy — data:/blob: langsung di-fetch biasa.
+utils.fetchViaProxyChain = async function (url, opts) {
+  if (utils.isPrivateTarget(url)) throw new Error('URL privat/lokal tidak diizinkan');
+  const timeout = (opts && opts.timeout) || 25000;
+  const cands = [url];
+  if (/^https?:\/\//i.test(url)) for (const p of PROXY_CHAIN) cands.push(p(url));
+  let lastErr = null;
+  for (const cand of cands) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const r = await fetch(cand, { signal: ctrl.signal });
+      if (r.ok) return r;
+      lastErr = new Error('HTTP ' + r.status);
+    } catch (e) { lastErr = e; }
+    finally { clearTimeout(t); }
+  }
+  throw lastErr || new Error('fetch gagal');
+};
+
+/* Detektor blokir CSP connect-src: browser menembakkan event
+ * 'securitypolicyviolation' saat fetch diblokir kebijakan — satu-satunya
+ * cara JS membedakan "diblokir kebijakan situs" dari "gagal jaringan".
+ * Hanya hitungan 'enforce' yang dihitung: di mode Report-Only, event juga
+ * ditembakkan (disposition 'report') tapi fetch TIDAK diblokir, jadi
+ * menghitungnya akan salah vonis. Pakai: const w = utils.cspWatch();
+ * ...lakukan fetch...; bila gagal, beri jeda ~100 ms lalu baca w.blocked()
+ * (event bisa datang sedikit setelah promise ditolak); akhiri w.stop(). */
+utils.cspWatch = function () {
+  let hit = false;
+  const onV = (e) => {
+    // R-09 (Blue-B): abaikan event SINTETIS — event asli browser selalu
+    // isTrusted=true; event buatan dispatchEvent()/JS halaman isTrusted=false.
+    // Hanya tolak false eksplisit (browser lama tanpa isTrusted = undefined
+    // tetap diterima agar detektor tidak mati di sana).
+    if (e && e.isTrusted === false) return;
+    const d = (e && e.violatedDirective) || '';
+    if (d.indexOf('connect-src') !== -1 && (!e.disposition || e.disposition === 'enforce')) hit = true;
+  };
+  if (typeof document !== 'undefined' && document.addEventListener)
+    document.addEventListener('securitypolicyviolation', onV);
+  return {
+    blocked() { return hit; },
+    stop() {
+      if (typeof document !== 'undefined' && document.removeEventListener)
+        document.removeEventListener('securitypolicyviolation', onV);
+    },
+  };
+};
+
+/* Unduh dari URL (hasil AI dsb.): coba fetch→blob (via rantai proxy bila
+ * host-nya arbitrer, mis. hasil Puter / CDN), fallback buka tab baru. */
 utils.dlUrl = async function (url, filename) {
   try {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const r = (/^https?:\/\//i.test(url))
+      ? await utils.fetchViaProxyChain(url, { timeout: 30000 })
+      : await fetch(url);
     const b = await r.blob();
     dl(filename || 'hasil', b, b.type || 'application/octet-stream');
     return true;

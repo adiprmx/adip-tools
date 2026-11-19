@@ -127,11 +127,11 @@ export function render(root) {
     detail.querySelector('[data-d=copy]').onclick = () => T.copy(img);
     detail.querySelector('[data-d=x]').onclick = () => T.hide(detail);
     detail.querySelector('[data-d=dl]').onclick = async () => {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 15000);
       try {
-        const r = await fetch(img, { signal: ctrl.signal });
-        if (!r.ok) throw new Error('http ' + r.status);
+        // File gambar di CDN Danbooru (cdn.donmai.us) — host dari respons
+        // API, tidak tercantum di connect-src. Ambil lewat rantai proxy
+        // allowlisted; gagal total → buka di tab baru (seperti sebelumnya).
+        const r = await utils.fetchViaProxyChain(img, { timeout: 15000 });
         const b = await r.blob();
         const a = document.createElement('a');
         a.href = URL.createObjectURL(b);
@@ -139,7 +139,6 @@ export function render(root) {
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 2000);
       } catch (e) { window.open(img, '_blank', 'noopener'); }
-      finally { clearTimeout(timer); }
     };
     detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   };
