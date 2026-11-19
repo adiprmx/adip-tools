@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "ubah-resolusi-video", "name": "Ubah Resolusi Video", "cat": "converter", "icon": "📐", "desc": "Ubah ukuran layar video, bentuknya tetap tidak ketarik.", "keywords": "video,resolusi,ukuran,layar,720p,1080p,kecil", "since": "6.16.0"};
@@ -33,14 +33,7 @@ export function render(root) {
     barFill.style.width = Math.max(0, Math.min(100, pct || 0)) + '%';
   };
   // Durasi hasil DIUKUR dari file jadi, bukan disalin dari file awal.
-  const measureDur = (blob) => new Promise((resolve) => {
-    const url = URL.createObjectURL(blob);
-    const m = document.createElement('video');
-    m.preload = 'metadata';
-    m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
-    m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
-    m.src = url;
-  });
+  // measureDur kanonis tinggal di utils (core.js) — panggil utils.measureDur(blob, 'video').
 
   const goBtn = T.btn('Ubah ukuran', async () => {
     if (busy) return;
@@ -75,7 +68,7 @@ export function render(root) {
       await cleanupFFmpeg(ffmpeg, [inName, 'output.mp4']);
       const blob = new Blob([data], { type: 'video/mp4' });
       T.dl(base + '-' + targetH + 'p.mp4', blob, 'video/mp4');
-      const outDur = await measureDur(blob);
+      const outDur = await utils.measureDur(blob, 'video');
       const outW = srcW && srcH ? Math.round(srcW * targetH / srcH / 2) * 2 : 0;
       T.show(outBox, '<span class="ok">Selesai. Video terunduh.</span>' +
         kv('Ukuran baru', outW ? outW + ' x ' + targetH : targetH + 'p') +

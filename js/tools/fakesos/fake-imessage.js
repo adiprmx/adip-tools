@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput, utils } from '../../core.js';
 
 export const meta = {
   id: 'fake-imessage',
@@ -35,12 +35,7 @@ function escBr(s) {
   return T.esc(s).split('\n').join('<br>');
 }
 
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',55%,45%)';
-}
+// avaColor kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const wrap = T.el('<div class="fi-wrap"></div>');
@@ -182,7 +177,7 @@ export function render(root) {
 
     html += '<div class="fi-head">' +
       '<span class="fi-back">' + ICO_CHEV + badgeHtml + '</span>' +
-      '<span class="fi-title"><span class="fi-tava" style="background:' + avaColor(cname) + '">' + cinitial + '</span>' +
+      '<span class="fi-title"><span class="fi-tava" style="background:' + utils.avaColor(cname) + '">' + cinitial + '</span>' +
       '<span class="fi-cpill"><span class="fi-cname">' + T.esc(cname) + '</span>' + ICO_CHEVR + '</span></span>' +
       '<span class="fi-hicons"><span>' + ICO_FT + '</span><span>' + ICO_PHONE + '</span></span>' +
       '</div><div class="fi-hair"></div>';

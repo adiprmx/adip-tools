@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "konverter-video", "name": "Konverter Video", "cat": "converter", "icon": "🎬", "desc": "Ubah video ke MP4, WebM, MKV, MOV, atau AVI.", "keywords": "video,konversi,mp4,webm,mkv,mov,avi,format", "since": "6.16.0"};
@@ -43,14 +43,7 @@ export function render(root) {
   };
   // Durasi hasil DIUKUR dari file jadi. Bila browser tidak bisa membaca
   // formatnya (mis. AVI), pakai durasi file awal sebagai cadangan.
-  const measureDur = (blob) => new Promise((resolve) => {
-    const url = URL.createObjectURL(blob);
-    const m = document.createElement('video');
-    m.preload = 'metadata';
-    m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
-    m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
-    m.src = url;
-  });
+  // measureDur kanonis tinggal di utils (core.js) — panggil utils.measureDur(blob, 'video').
 
   const goBtn = T.btn('Ubah format', async () => {
     if (busy) return;
@@ -90,7 +83,7 @@ export function render(root) {
       await cleanupFFmpeg(ffmpeg, [inName, outName]);
       const blob = new Blob([data], { type: f.mime });
       T.dl(base + f.ext, blob, f.mime);
-      const outDur = await measureDur(blob);
+      const outDur = await utils.measureDur(blob, 'video');
       T.show(outBox, '<span class="ok">Selesai. Video ' + f.label + ' terunduh.</span>' +
         kv('Durasi', (outDur || duration) ? (outDur || duration).toFixed(1) + ' detik' : '-') +
         kv('Ukuran awal', fmtBytes(fileObj.size)) +

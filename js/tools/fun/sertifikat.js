@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js';
+import { h as T, errBox, utils } from '../../core.js';
 
 export const meta = {"id":"sertifikat","name":"Sertifikat Tolol","cat":"fun","icon":"🏆","desc":"Sertifikat meme roast: namamu + TERBUKTI TOLOL DAN TAK BEROTAK. 100% digambar di perangkat, tanpa server.","keywords":"sertifikat,meme,tolol,roast,nama,gambar,lucu"};
 
@@ -34,14 +34,7 @@ const FONT_LINE1 = (px) => `700 ${px}px "Arial Narrow","Roboto Condensed","Oswal
 const FONT_DRIP = (px) => `900 ${px}px "Arial Black","Archivo Black",Impact,Roboto,"DejaVu Sans",sans-serif`;
 const FONT_LOGO = '900 62px "Arial Black","Archivo Black",Impact,"DejaVu Sans",sans-serif';
 
-function mulberry32(a) {
-  return function () {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+// mulberry32 kanonis tinggal di utils (core.js).
 
 function rr(ctx, x, y, w, h, r) {
   const q = Math.max(0, Math.min(r, w / 2, h / 2));
@@ -180,7 +173,7 @@ function drawGarland(ctx) {
   ctx.moveTo(x0, y0);
   ctx.quadraticCurveTo(cx, cy, x1, y1);
   ctx.stroke();
-  const rnd = mulberry32(42);
+  const rnd = utils.mulberry32(42);
   const n = 7;
   for (let i = 0; i < n; i++) {
     const t = 0.04 + (i / (n - 1)) * 0.92;
@@ -239,7 +232,7 @@ function dripping(ctx, text, cx, baseY, px, strokeW) {
   ctx.fillText(text, cx, baseY);
   // tetesan: posisi pseudo-acak tapi deterministik per teks
   const seed = [...text].reduce((a, c) => a + c.charCodeAt(0), 7);
-  const rnd = mulberry32(seed);
+  const rnd = utils.mulberry32(seed);
   const n = Math.max(5, Math.floor(tw / 55));
   for (let i = 0; i < n; i++) {
     const x = cx - tw / 2 + (i + 0.2 + rnd() * 0.6) * (tw / n);
@@ -343,7 +336,7 @@ function drawStarfish(ctx) {
   ctx.stroke();
   // bintik-bintik samar di lengan
   ctx.fillStyle = 'rgba(207,127,136,0.45)';
-  const rnd = mulberry32(7);
+  const rnd = utils.mulberry32(7);
   for (let i = 0; i < 9; i++) {
     const p = pts[(i * 2) % 10];
     ctx.beginPath();

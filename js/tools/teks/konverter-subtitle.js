@@ -1,4 +1,4 @@
-import { h as T, kv, errBox } from '../../core.js';
+import { h as T, kv, errBox, utils } from '../../core.js';
 
 export const meta = {"id":"konverter-subtitle","name":"Konverter Subtitle","cat":"teks","icon":"💬","desc":"Ubah subtitle SRT ke VTT atau sebaliknya, plus geser waktunya.","keywords":"subtitle,srt,vtt,film,video,waktu","since":"6.11.0"};
 
@@ -10,16 +10,7 @@ export function parseTime(s) {
   const ms = (+m[4] + '000').slice(0, 3);
   return ((+m[1] || 0) * 3600 + (+m[2]) * 60 + (+m[3])) * 1000 + (+ms);
 }
-export function fmtSrt(ms) {
-  ms = Math.max(0, Math.round(ms));
-  const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000);
-  const s = Math.floor(ms % 60000 / 1000), r = ms % 1000;
-  const p = (n, l) => String(n).padStart(l, '0');
-  return p(h, 2) + ':' + p(m, 2) + ':' + p(s, 2) + ',' + p(r, 3);
-}
-export function fmtVtt(ms) {
-  return fmtSrt(ms).replace(',', '.');
-}
+// fmtSrt, fmtVtt kanonis tinggal di utils (core.js).
 export function parseSub(text) {
   const src = String(text || '').replace(/\r\n?/g, '\n');
   const blocks = src.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
@@ -39,12 +30,7 @@ export function parseSub(text) {
   }
   return cues;
 }
-export function toSrt(cues) {
-  return cues.map((c, i) => (i + 1) + '\n' + fmtSrt(c.start) + ' --> ' + fmtSrt(c.end) + '\n' + c.text).join('\n\n') + '\n';
-}
-export function toVtt(cues) {
-  return 'WEBVTT\n\n' + cues.map((c) => fmtVtt(c.start) + ' --> ' + fmtVtt(c.end) + '\n' + c.text).join('\n\n') + '\n';
-}
+// toSrt, toVtt kanonis tinggal di utils (core.js).
 const detectFmt = (text) => /^\s*WEBVTT/i.test(String(text || '')) ? 'VTT' : 'SRT';
 
 export function render(root) {
@@ -76,7 +62,7 @@ export function render(root) {
       text: c.text,
     })).filter((c) => c.end > c.start);
     const keVtt = arahSel.value === 'srt-vtt';
-    hasil = keVtt ? toVtt(shifted) : toSrt(shifted);
+    hasil = keVtt ? utils.toVtt(shifted) : utils.toSrt(shifted);
     namaFile = keVtt ? 'subtitle.vtt' : 'subtitle.srt';
     const masuk = detectFmt(ta.value);
     const note = (keVtt && masuk === 'VTT') || (!keVtt && masuk === 'SRT')
@@ -91,7 +77,7 @@ export function render(root) {
     ));
     const rows = shifted.slice(0, 8).map((c, i) =>
       '<tr><td style="padding:5px 8px;vertical-align:top;color:#a1a1aa">' + (i + 1) + '</td>' +
-      '<td style="padding:5px 8px;vertical-align:top;white-space:nowrap;font-variant-numeric:tabular-nums">' + fmtSrt(c.start) + ' → ' + fmtSrt(c.end) + '</td>' +
+      '<td style="padding:5px 8px;vertical-align:top;white-space:nowrap;font-variant-numeric:tabular-nums">' + utils.fmtSrt(c.start) + ' → ' + utils.fmtSrt(c.end) + '</td>' +
       '<td style="padding:5px 8px;vertical-align:top">' + T.esc(c.text).replace(/\n/g, '<br>') + '</td></tr>').join('');
     T.show(prevBox, '<p class="hint" style="margin-bottom:6px">Pratinjau ' + Math.min(8, shifted.length) + ' baris pertama:</p>' +
       '<div style="overflow-x:auto"><table style="width:100%;font-size:13px;border-collapse:collapse;line-height:1.5">' + rows + '</table></div>' +

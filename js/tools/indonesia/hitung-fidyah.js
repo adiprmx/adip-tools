@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "hitung-fidyah", "name": "Hitung Fidyah", "cat": "indonesia", "icon": "🍚", "desc": "Hitung fidyah untuk puasa yang terlewat: berapa hari × berapa rupiah, atau setara berapa kg beras.", "keywords": "fidyah,puasa,ramadan,ramadhan,beras,mud,baznas,ibu,hamil,sakit,lansia"};
 export function render(root) {
@@ -13,7 +13,7 @@ export function render(root) {
   const hitung = () => {
     const hari = Math.floor(T.num(hariI.value) || 0);
     const jiwa = Math.floor(T.num(jiwaI.value) || 0);
-    const nominal = parseRp(nominalI.value) || 0;
+    const nominal = utils.parseRp(nominalI.value) || 0;
     const mud = T.num(mudI.value) || 0;
     if (!(hari > 0)) { T.show(box, '<p class="warn">Isi jumlah hari puasa yang terlewat dulu ya.</p>'); return; }
     if (!(jiwa > 0)) { T.show(box, '<p class="warn">Jumlah jiwa harus minimal 1.</p>'); return; }

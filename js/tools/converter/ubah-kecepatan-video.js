@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "ubah-kecepatan-video", "name": "Ubah Kecepatan Video", "cat": "converter", "icon": "⏩", "desc": "Percepat atau perlambat video, suaranya ikut menyesuaikan.", "keywords": "video,kecepatan,cepat,lambat,tempo", "since": "6.16.0"};
@@ -49,14 +49,7 @@ export function render(root) {
     // itu ffmpeg membuang setengah frame saat dipercepat (terbukti di
     // uji CLI: 45 frame jadi 24, durasi 1,6 dtk bukan 1,5).
     const vfactor = (1 / speed).toFixed(4).replace(/\.?0+$/, '');
-    const measureDur = (blob) => new Promise((resolve) => {
-      const url = URL.createObjectURL(blob);
-      const m = document.createElement('video');
-      m.preload = 'metadata';
-      m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
-      m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
-      m.src = url;
-    });
+    // measureDur kanonis tinggal di utils (core.js) — panggil utils.measureDur(blob, 'video').
     const ext = (fileObj.name.match(/\.[a-z0-9]+$/i) || ['.mp4'])[0].toLowerCase();
     const inName = 'input' + ext;
     const base = fileObj.name.replace(/\.[^.]+$/, '').replace(/[^\w\- ]+/g, '').trim() || 'video';
@@ -87,7 +80,7 @@ export function render(root) {
       T.dl(base + '-' + speedSel.value.replace('.', 'p') + 'x.mp4', blob, 'video/mp4');
       // Durasi hasil DIUKUR dari file jadi, bukan dihitung dari rumus,
       // karena pembulatan frame bisa menggeser sedikit.
-      const outDur = await measureDur(blob);
+      const outDur = await utils.measureDur(blob, 'video');
       const newDur = outDur || (duration ? duration / speed : 0);
       T.show(outBox, '<span class="ok">Selesai. Video terunduh.</span>' +
         kv('Kecepatan', speedSel.value.replace('.', ',') + 'x') +

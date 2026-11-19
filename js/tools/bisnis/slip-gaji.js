@@ -5,35 +5,12 @@ export const meta = {"id": "slip-gaji", "name": "Slip Gaji", "cat": "bisnis", "i
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
-
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#slipgaji-print,#slipgaji-print *{visibility:visible !important}' +
-    '#slipgaji-print{position:absolute;inset:0;background:#fff;color:#000;padding:24px}' +
-    '#slipgaji-print h2{margin:0 0 4px}' +
-    '#slipgaji-print table{width:100%;border-collapse:collapse;margin:12px 0}' +
-    '#slipgaji-print th,#slipgaji-print td{border:1px solid #666;padding:8px;text-align:left;font-size:14px}' +
-    '#slipgaji-print td.num{text-align:right}' +
-    '#slipgaji-print .sig{display:flex;justify-content:space-between;margin-top:40px}' +
-    '#slipgaji-print .sig div{text-align:center;width:40%}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
-
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
 export function render(root) {
 
-    ensurePrintCss();
-    T.onLeave(hapusPrintCss);
+    utils.ensurePrintCss('slipgaji-print', { padding: '24px', extra: '#slipgaji-print h2{margin:0 0 4px}#slipgaji-print table{width:100%;border-collapse:collapse;margin:12px 0}#slipgaji-print th,#slipgaji-print td{border:1px solid #666;padding:8px;text-align:left;font-size:14px}#slipgaji-print td.num{text-align:right}#slipgaji-print .sig{display:flex;justify-content:space-between;margin-top:40px}#slipgaji-print .sig div{text-align:center;width:40%}' });
+    T.onLeave(() => utils.removePrintCss('slipgaji-print'));
 
     const namaI = T.input('text', 'Nama karyawan', '');
     const periodeI = T.input('text', 'Periode (cth: Oktober 2026)', '');

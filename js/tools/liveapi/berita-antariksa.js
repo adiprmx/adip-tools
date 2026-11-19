@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Berita antariksa lewat Spaceflight News API (tanpa key).
 // Terverifikasi 18 Nov 2026: api.spaceflightnewsapi.net/v4/articles/ 200, CORS *.
@@ -23,13 +23,7 @@ function tglCantik(s) {
     d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 }
 
-const imgAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// imgAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
 export const meta = {"id": "berita-antariksa", "name": "Berita Antariksa", "cat": "liveapi", "icon": "🛰️", "desc": "Berita terbaru dunia antariksa: peluncuran roket, misi, dan penemuan.", "keywords": "berita,antariksa,luar angkasa,roket,nasa,spacex,peluncuran,spaceflight", "since": "6.17.0"};
@@ -55,7 +49,7 @@ export function render(root) {
       }
       T.show(box, '<p class="hint">' + list.length + ' berita terbaru.</p>' +
         list.map((a) => {
-          const img = imgAman(a.image_url);
+          const img = utils.urlAman(a.image_url);
           const isi = (img ? '<img src="' + esc(img) + '" alt="" loading="lazy" data-err="hide" style="width:100%;height:auto;border-radius:8px;display:block;margin-bottom:8px">' : '') +
             '<div style="font-weight:700;font-size:14px;line-height:1.4">' + esc(String(a.title || 'Tanpa judul')) + '</div>' +
             (a.summary ? '<div class="dim" style="font-size:12.5px;line-height:1.5;margin-top:4px">' + esc(String(a.summary)) + '</div>' : '') +

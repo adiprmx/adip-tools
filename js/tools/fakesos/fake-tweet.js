@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput, utils } from '../../core.js';
 
 /* Logo X resmi (path merek X, viewBox 24) — fill currentColor agar ikut
    warna teks tema situs (putih di tema gelap, hitam di tema terang). */
@@ -46,12 +46,7 @@ function verBadge(ver) {
     '</svg></span>';
 }
 
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',55%,45%)';
-}
+// avaColor kanonis tinggal di utils (core.js).
 
 // Escape dulu, lalu warnai hashtag & mention ala X, lalu jaga baris baru.
 function richText(src) {
@@ -186,7 +181,7 @@ export function render(root) {
     card.innerHTML =
       sbHtml +
       '<div class="ft-tweet">' +
-        '<div class="ft-ava" style="background:' + avaColor(name) + '">' + initial + '</div>' +
+        '<div class="ft-ava" style="background:' + utils.avaColor(name) + '">' + initial + '</div>' +
         '<div class="ft-main">' +
           '<div class="ft-top"><div class="ft-namerow"><span class="ft-name">' + T.esc(name) + '</span>' + badge +
           '<span class="ft-handle">@' + T.esc(handle) + '</span><span class="ft-dot">·</span>' +

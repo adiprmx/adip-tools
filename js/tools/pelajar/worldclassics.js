@@ -25,7 +25,7 @@ const wfetch = (url, opts) => {
 
 const getBm = () => { try { return JSON.parse(localStorage.getItem(BM_KEY) || '[]'); } catch (e) { return []; } };
 const setBm = (l) => { try { localStorage.setItem(BM_KEY, JSON.stringify(l.slice(0, 50))); } catch (e) {} };
-const getHist = () => { try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch (e) { return []; } };
+// getHist kanonis tinggal di utils (core.js) — panggil utils.getHist(HIST_KEY).
 const setHist = (l) => { try { localStorage.setItem(HIST_KEY, JSON.stringify(l.slice(0, 30))); } catch (e) {} };
 
 // Bersihkan HTML Wikisource: buang script/navbox/edit-link; link wiki dipertahankan untuk navigasi dalam reader
@@ -406,16 +406,16 @@ export function render(root) {
     const ch = chapters[chIdx];
     const p = hitungProgres();
     const y = window.scrollY || 0;
-    const ada = getHist().some((x) => x.lang === lang && x.judul === judul && x.ch === chIdx);
+    const ada = utils.getHist(HIST_KEY).some((x) => x.lang === lang && x.judul === judul && x.ch === chIdx);
     if (p === 0 && y === 0 && !ada) return; // jangan catat bab yang belum dibaca sama sekali
     const item = { lang, judul, ch: chIdx, label: ch ? ch.label : '', progress: p, y, t: Date.now() };
-    const l = getHist().filter((x) => !(x.lang === lang && x.judul === judul && x.ch === chIdx));
+    const l = utils.getHist(HIST_KEY).filter((x) => !(x.lang === lang && x.judul === judul && x.ch === chIdx));
     setHist([item, ...l]);
     tampilRak();
   };
 
   const tampilRak = () => {
-    const hist = getHist(), bm = getBm();
+    const hist = utils.getHist(HIST_KEY), bm = getBm();
     if (!hist.length && !bm.length) {
       T.show(rakBox, '<details open style="border:1px solid #ffffff18;border-radius:12px;padding:10px 14px;margin-top:12px"><summary style="font-size:13px;cursor:pointer"><b>Lanjut Baca &amp; Bookmark</b></summary><p class="dim" style="font-size:12.5px">Belum ada bacaan tersimpan.</p></details>');
       return;
@@ -433,7 +433,7 @@ export function render(root) {
     T.show(rakBox, isi);
     rakBox.querySelectorAll('[data-rh]').forEach((b) => {
       b.onclick = () => {
-        const h = getHist()[+b.getAttribute('data-rh')];
+        const h = utils.getHist(HIST_KEY)[+b.getAttribute('data-rh')];
         if (!h) return;
         lang = h.lang; srcSel.value = lang;
         bukaKarya(h.judul).then(() => bukaBab(h.ch || 0, h.y || 0));

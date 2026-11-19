@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "tabungan-haji-umroh", "name": "Rencana Tabungan Haji & Umroh", "cat": "indonesia", "icon": "🕋", "desc": "Hitung berapa lama nabung untuk haji reguler, haji plus, atau umroh dari setoran bulananmu.", "keywords": "haji,umroh,tabungan,bipih,embarkasi,menabung,ibadah"};
 export function render(root) {
@@ -39,9 +39,9 @@ export function render(root) {
 
   const hitung = () => {
     const jenis = jenisI.value;
-    const target = parseRp(targetI.value) || 0;
-    const awal = parseRp(awalI.value) || 0;
-    const setoran = parseRp(setoranI.value) || 0;
+    const target = utils.parseRp(targetI.value) || 0;
+    const awal = utils.parseRp(awalI.value) || 0;
+    const setoran = utils.parseRp(setoranI.value) || 0;
     const hasil = (T.num(hasilI.value) || 0) / 100;
     if (!(target > 0)) { T.show(box, '<p class="warn">Isi dulu target biayanya ya.</p>'); return; }
     const kurang = Math.max(0, target - awal);

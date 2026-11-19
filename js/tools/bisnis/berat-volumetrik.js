@@ -1,6 +1,6 @@
 import { h as T, utils, kv } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 const LAYANAN = {
   'reguler': { label: 'Reguler darat (JNE REG, J&T, SiCepat, AnterAja, SPX)', bagi: 6000 },
@@ -31,10 +31,10 @@ export function render(root) {
     };
 
     const calc = () => {
-      const p = parseRp(pI.value), l = parseRp(lI.value), t = parseRp(tI.value);
-      const aktual = parseRp(beratI.value);
-      const bagi = parseRp(bagiI.value);
-      const tarif = tarifI.value.trim() === '' ? NaN : parseRp(tarifI.value);
+      const p = utils.parseRp(pI.value), l = utils.parseRp(lI.value), t = utils.parseRp(tI.value);
+      const aktual = utils.parseRp(beratI.value);
+      const bagi = utils.parseRp(bagiI.value);
+      const tarif = tarifI.value.trim() === '' ? NaN : utils.parseRp(tarifI.value);
       if (![p, l, t].every((v) => isFinite(v) && v > 0) || !isFinite(aktual) || aktual <= 0 || !isFinite(bagi) || bagi <= 0 || (tarifI.value.trim() !== '' && (!isFinite(tarif) || tarif < 0))) {
         T.toast('Isi panjang, lebar, tinggi, dan berat dengan angka yang benar ya.'); return;
       }

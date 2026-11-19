@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage, utils } from '../../core.js';
 
 export const meta = {"id":"twibbon-maker","name":"Twibbon Maker","cat":"gambar","icon":"🖼️","desc":"Bikin twibbon: bingkai + pita teks buat fotomu.","keywords":"twibbon,bingkai,frame,foto,kampanye,pita,teks"};
 
@@ -11,8 +11,7 @@ const TEMPLATES = [
   ['lingkaran-pita', '🎗️ Lingkaran + Pita'],
 ];
 
-function getLS(k, fb) { try { const v = localStorage.getItem(k); return v == null ? fb : v; } catch (e) { return fb; } }
-function setLS(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* abaikan */ } }
+// getLS, setLS kanonis tinggal di utils (core.js).
 
 /* Gambar foto cover-fit dengan offset & zoom ke dalam area persegi. */
 function drawCover(x, img, ox, oy, zoom, cx, cy, half) {
@@ -32,10 +31,10 @@ function fitFont(x, text, maxW, basePx, family) {
 
 export function render(root) {
   const fileI = fileInput('image/*');
-  const tmplS = T.select(TEMPLATES, getLS('tw-color') ? getLS('tw-tmpl', 'pita') : 'pita');
-  const colorI = T.input('color'); colorI.value = getLS('tw-color', '#16a34a');
+  const tmplS = T.select(TEMPLATES, utils.getLS('tw-color') ? utils.getLS('tw-tmpl', 'pita') : 'pita');
+  const colorI = T.input('color'); colorI.value = utils.getLS('tw-color', '#16a34a');
   colorI.style.cssText = 'width:100%;height:44px;padding:2px;border:1px solid #ffffff20;border-radius:10px;background:#12100d;cursor:pointer';
-  const textI = T.input('text', 'Teks di pita…', getLS('tw-text', 'Dukung Acaranya!'));
+  const textI = T.input('text', 'Teks di pita…', utils.getLS('tw-text', 'Dukung Acaranya!'));
   const zoomR = T.input('range'); zoomR.min = '1'; zoomR.max = '3'; zoomR.step = '0.01'; zoomR.value = '1';
   const zoomV = T.el('<b>100%</b>');
   const box = T.out();
@@ -131,9 +130,9 @@ export function render(root) {
     zoomV.textContent = Math.round(zoom * 100) + '%';
     draw();
   });
-  tmplS.addEventListener('change', () => { template = tmplS.value; setLS('tw-tmpl', template); draw(); });
-  colorI.addEventListener('input', () => { frameColor = colorI.value; setLS('tw-color', frameColor); draw(); });
-  textI.addEventListener('input', () => { ribbonText = textI.value; setLS('tw-text', ribbonText); draw(); });
+  tmplS.addEventListener('change', () => { template = tmplS.value; utils.setLS('tw-tmpl', template); draw(); });
+  colorI.addEventListener('input', () => { frameColor = colorI.value; utils.setLS('tw-color', frameColor); draw(); });
+  textI.addEventListener('input', () => { ribbonText = textI.value; utils.setLS('tw-text', ribbonText); draw(); });
   fileI.addEventListener('change', async () => {
     if (!fileI.files[0]) return;
     try { img = await loadImage(fileI.files[0]); }

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'generator-lingkaran-minecraft', name: 'Generator Lingkaran Minecraft', cat: 'fun', icon: '⭕', desc: 'Rencanakan lingkaran, oval, atau lengkung Minecraft blok per blok, lengkap dengan hitungan bloknya.', keywords: 'minecraft,lingkaran,circle generator,oval,lengkung,blok,pixel art,bangunan', since: '6.17.0' };
 
@@ -18,19 +18,12 @@ export function isiOval(rx, ry) {
 }
 
 // Garis tepi dari set terisi: blok yang punya tetangga (4 arah) di luar set.
-export function tepiDariIsi(sel) {
-  const tepi = new Set();
-  sel.forEach((k) => {
-    const [x, y] = k.split(',').map(Number);
-    if (!sel.has((x + 1) + ',' + y) || !sel.has((x - 1) + ',' + y) || !sel.has(x + ',' + (y + 1)) || !sel.has(x + ',' + (y - 1))) tepi.add(k);
-  });
-  return tepi;
-}
+// tepiDariIsi kanonis tinggal di utils (core.js).
 
 // Busur: lingkaran tepi yang hanya diambil pada rentang sudut (derajat, 0 = kanan, berlawanan jarum jam).
 export function busur(r, sudutAwal, sudutAkhir) {
   const isi = isiOval(r, r);
-  const tepi = tepiDariIsi(isi);
+  const tepi = utils.tepiDariIsi(isi);
   const out = new Set();
   tepi.forEach((k) => {
     const [x, y] = k.split(',').map(Number);
@@ -145,12 +138,12 @@ export function render(root) {
     if (!Number.isInteger(d) || d < 3 || d > 101) { T.toast('Diameternya 3 sampai 101 blok'); return; }
     const r = (d - 1) / 2;
     let sel, info;
-    if (mode.value === 'lingkaran-tepi') { sel = tepiDariIsi(isiOval(r, r)); info = 'Lingkaran tepi diameter ' + d + ' blok.'; }
+    if (mode.value === 'lingkaran-tepi') { sel = utils.tepiDariIsi(isiOval(r, r)); info = 'Lingkaran tepi diameter ' + d + ' blok.'; }
     else if (mode.value === 'lingkaran-isi') { sel = isiOval(r, r); info = 'Lingkaran terisi diameter ' + d + ' blok.'; }
     else if (mode.value.startsWith('oval')) {
       if (!Number.isInteger(d2) || d2 < 3 || d2 > 101) { T.toast('Diameter tegaknya 3 sampai 101 blok'); return; }
       const isi = isiOval(r, (d2 - 1) / 2);
-      sel = mode.value === 'oval-tepi' ? tepiDariIsi(isi) : isi;
+      sel = mode.value === 'oval-tepi' ? utils.tepiDariIsi(isi) : isi;
       info = 'Oval ' + d + ' × ' + d2 + ' blok.';
     } else {
       const a = T.num(sudutAI.value), b = T.num(sudutBI.value);

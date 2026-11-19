@@ -1,6 +1,6 @@
 import { h as T, utils, kv } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "biaya-paylater", "name": "Hitung Biaya PayLater", "cat": "bisnis", "icon": "💳", "desc": "Lihat total yang benar-benar dibayar kalau belanja pakai PayLater: pokok, bunga, biaya, dan denda kalau telat.", "keywords": "paylater,cicilan,bunga,biaya,spaylater,denda,total bayar"};
 export function render(root) {
@@ -13,11 +13,11 @@ export function render(root) {
     const box = T.out();
 
     const calc = () => {
-      const P = parseRp(hargaI.value);
+      const P = utils.parseRp(hargaI.value);
       const n = +tenorI.value;
-      const b = parseRp(bungaI.value);
-      const by = parseRp(biayaI.value);
-      const d = parseRp(dendaI.value);
+      const b = utils.parseRp(bungaI.value);
+      const by = utils.parseRp(biayaI.value);
+      const d = utils.parseRp(dendaI.value);
       if (!isFinite(P) || P <= 0 || !isFinite(b) || b < 0 || b >= 100 || !isFinite(by) || by < 0 || by >= 100 || !isFinite(d) || d < 0 || d >= 100) {
         T.toast('Isi harga dan persentasenya dengan benar ya.'); return;
       }

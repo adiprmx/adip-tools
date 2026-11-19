@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "video-ke-gif", "name": "Video ke GIF", "cat": "converter", "icon": "🎞️", "desc": "Potong sepotong video jadi gambar bergerak GIF.", "keywords": "video,gif,animasi,bergerak,stiker,meme", "since": "6.11.0"};
@@ -29,18 +29,15 @@ export function render(root) {
     barLabel.textContent = label;
     barFill.style.width = Math.max(0, Math.min(100, pct || 0)) + '%';
   };
-  const parseNum = (v, fallback) => {
-    const n = parseFloat(String(v || '').replace(',', '.'));
-    return Number.isFinite(n) ? n : fallback;
-  };
+  // parseNum kanonis tinggal di utils (core.js).
 
   const goBtn = T.btn('Buat GIF', async () => {
     if (busy) return;
     if (!fileObj) { T.show(outBox, errBox('Pilih dulu file videonya.')); return; }
     const sup = supportsFFmpeg();
     if (!sup.ok) { T.show(outBox, errBox(sup.reason)); return; }
-    let start = Math.max(0, parseNum(startIn.value, 0));
-    let dur = Math.min(10, Math.max(0.5, parseNum(durIn.value, 3)));
+    let start = Math.max(0, utils.parseNum(startIn.value, 0));
+    let dur = Math.min(10, Math.max(0.5, utils.parseNum(durIn.value, 3)));
     if (duration > 0) {
       if (start >= duration) { T.show(outBox, errBox('Detik mulai melewati durasi video (' + duration.toFixed(1) + ' detik).')); return; }
       dur = Math.min(dur, duration - start);

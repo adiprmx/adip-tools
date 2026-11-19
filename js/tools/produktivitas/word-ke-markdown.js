@@ -1,4 +1,4 @@
-import { h as T, fileInput, LOCAL_NOTE } from '../../core.js';
+import { h as T, fileInput, LOCAL_NOTE, utils } from '../../core.js';
 
 // Word ke Markdown: baca dokumen Word (.docx), ubah jadi teks Markdown
 // yang bisa ditempel ke catatan, GitHub, atau blog.
@@ -18,17 +18,7 @@ const MAMMOTH_CDN = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.
 // [teks](javascript:...) yang mengeksekusi kode di renderer. Pemeriksaan
 // menormalkan dulu entitas HTML, tab/baris baru, dan spasi di depan.
 // Murni, bisa diuji di Node.
-export function hrefAman(href) {
-  const v = String(href || '')
-    .replace(/&#x([0-9a-fA-F]+);/gi, (_m, h) => String.fromCharCode(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_m, d) => String.fromCharCode(Number(d)))
-    .replace(/&(tab|newline);/gi, '')
-    .replace(/&colon;/gi, ':').replace(/&amp;/gi, '&')
-    .replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+/, '');
-  const m = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(v);
-  if (!m) return true; // tanpa skema: relatif atau jangkar # — aman
-  return /^(https?|mailto)$/i.test(m[1]);
-}
+// hrefAman kanonis tinggal di utils (core.js).
 
 // Ubah satu potong HTML jadi Markdown. Bekerja pada string saja (tanpa DOM),
 // jadi bisa diuji di Node. Menangani judul, paragraf, tebal, miring,
@@ -51,7 +41,7 @@ export function htmlKeMarkdown(html) {
   for (let i = 6; i >= 1; i--) {
     s = s.replace(new RegExp('<h' + i + '[^>]*>([\\s\\S]*?)</h' + i + '>', 'gi'), (_m, t) => '\n' + '#'.repeat(i) + ' ' + t.trim() + '\n');
   }
-  s = s.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, t) => hrefAman(href) ? '[' + t.trim() + '](' + href + ')' : t.trim());
+  s = s.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, t) => utils.hrefAman(href) ? '[' + t.trim() + '](' + href + ')' : t.trim());
   s = s.replace(/<(strong|b)[^>]*>([\s\S]*?)<\/(strong|b)>/gi, '**$2**');
   s = s.replace(/<(em|i)[^>]*>([\s\S]*?)<\/(em|i)>/gi, '_$2_');
   s = s.replace(/<br\s*\/?>/gi, '\n');

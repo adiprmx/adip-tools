@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "tod-indonesia", "name": "Truth or Dare Indonesia", "cat": "fun", "icon": "😈", "desc": "Main truth or dare bareng, 110 soal anti basi.", "keywords": "truth or dare,tod,jujur,tantangan,game,main bareng,nongkrong"};
 
@@ -123,19 +123,12 @@ export function render(root) {
   let deck = [];
   const card = T.out();
 
-  const shuffle = (a) => {
-    const x = a.slice();
-    for (let i = x.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [x[i], x[j]] = [x[j], x[i]];
-    }
-    return x;
-  };
+  // shuffle kanonis tinggal di utils (core.js).
   const buildDeck = () => {
     const pool = mode === 'truth' ? TRUTH.map((t) => ['truth', t])
       : mode === 'dare' ? DARE.map((t) => ['dare', t])
       : TRUTH.map((t) => ['truth', t]).concat(DARE.map((t) => ['dare', t]));
-    deck = shuffle(pool);
+    deck = utils.shuffle(pool);
   };
   const draw = () => {
     if (!deck.length) buildDeck();

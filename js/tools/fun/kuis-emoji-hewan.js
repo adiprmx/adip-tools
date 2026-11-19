@@ -38,22 +38,13 @@ const HEWAN = [
   ['🐫', 'Unta'],
 ];
 
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i]] = [x[j]], [x[j]] = [x[i]];
-  }
-  return x;
-};
-
 export function render(root) {
   const box = T.out();
   const quiz = { list: [], idx: 0, score: 0, answered: false };
 
-  const buatSoal = () => shuffle(HEWAN).slice(0, 10).map(([emoji, hewan]) => {
-    const pengecoh = shuffle(HEWAN.filter((h) => h[1] !== hewan)).slice(0, 3).map((h) => h[1]);
-    return { emoji, hewan, opsi: shuffle([hewan].concat(pengecoh)) };
+  const buatSoal = () => utils.shuffle(HEWAN).slice(0, 10).map(([emoji, hewan]) => {
+    const pengecoh = utils.shuffle(HEWAN.filter((h) => h[1] !== hewan)).slice(0, 3).map((h) => h[1]);
+    return { emoji, hewan, opsi: utils.shuffle([hewan].concat(pengecoh)) };
   });
 
   const showQ = () => {

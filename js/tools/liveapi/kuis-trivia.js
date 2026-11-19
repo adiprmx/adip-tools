@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 export const meta = {"id":"kuis-trivia","name":"Kuis Trivia","cat":"liveapi","icon":"🧠","desc":"Kuis pilihan ganda dari berbagai topik. Jawab, lihat skor, main lagi.","keywords":"kuis,trivia,soal,pilihan ganda,tebak,game","since":"6.16.0"};
 
@@ -16,14 +16,7 @@ function decodeHtml(s) {
   return doc.body.textContent || '';
 }
 
-function acak(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// acak (Fisher-Yates) kanonis tinggal di utils.shuffle (core.js).
 
 export function render(root) {
   const box = T.out();
@@ -40,7 +33,7 @@ export function render(root) {
   const tampilSoal = () => {
     sudahJawab = false;
     const s = soal[idx];
-    const jawaban = acak([s.correct_answer].concat(s.incorrect_answers || []));
+    const jawaban = utils.shuffle([s.correct_answer].concat(s.incorrect_answers || []));
     let html = '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">' +
       '<div class="dim">Soal ' + (idx + 1) + ' dari ' + soal.length + ' · ' + esc(decodeHtml(s.category)) + '</div>' +
       '<div id="skor-trivia" style="font-weight:700">' + esc(barisSkor()) + '</div></div>' +

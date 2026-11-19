@@ -1,47 +1,16 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, todayISO } from '../../core.js';
 
 export const meta = {"id": "surat-resmi", "name": "Pembuat Surat Resmi / Dinas", "cat": "produktivitas", "icon": "🏛️", "desc": "Bikin surat dinas atau surat resmi umum: kop instansi, nomor surat, perihal, isi, dan tembusan, siap salin atau cetak.", "keywords": "surat resmi,surat dinas,surat instansi,kop surat,nomor surat,tembusan", "since": "6.11.0"};
 
-let _printCssDone = false;
+// CSS cetak kanonis: utils.ensurePrintCss (core.js).
 
-function ensurePrintCss() {
-  if (_printCssDone) return;
-  _printCssDone = true;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:18mm 20mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#surat-resmi-print,#surat-resmi-print *{visibility:visible !important}' +
-    '#surat-resmi-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#surat-resmi-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-}
-
-const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-function isoHariIni() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-function fmtTanggal(iso) {
-  if (!iso) return '';
-  const p = String(iso).split('-');
-  if (p.length !== 3) return String(iso);
-  const tgl = Number(p[2]);
-  const bln = Number(p[1]);
-  const thn = Number(p[0]);
-  if (!tgl || !bln || !thn || bln < 1 || bln > 12) return String(iso);
-  return tgl + ' ' + BULAN[bln - 1] + ' ' + thn;
-}
+// BULAN, isoHariIni, fmtTanggal kanonis tinggal di core.js (todayISO, utils.fmtTanggal).
 
 const PENUTUP_STANDAR = 'Demikian surat ini kami sampaikan. Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.';
 
 export function render(root) {
 
-    ensurePrintCss();
+    utils.ensurePrintCss('surat-resmi-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-resmi-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
 
     const instansiI = T.input('text', 'Nama instansi / organisasi', '');
     const alamatInstansiI = T.ta(2, 'Alamat instansi (untuk kop surat)', '');
@@ -55,7 +24,7 @@ export function render(root) {
     const jabatanTtdI = T.input('text', 'Jabatan penanda tangan', '');
     const tembusanI = T.ta(3, 'Tembusan (boleh kosong), satu nama per baris', '');
     const tempatI = T.input('text', 'Tempat (untuk tanggal surat)', '');
-    const tglSuratI = T.input('date', '', isoHariIni());
+    const tglSuratI = T.input('date', '', todayISO());
     const previewBox = T.out();
     const peringatanBox = T.out();
 
@@ -63,7 +32,7 @@ export function render(root) {
     const v = (el) => el.value.trim();
 
     function tanggalSurat() {
-      const tgl = fmtTanggal(v(tglSuratI)) || fmtTanggal(isoHariIni());
+      const tgl = utils.fmtTanggal(v(tglSuratI)) || utils.fmtTanggal(todayISO());
       return (v(tempatI) ? v(tempatI) + ', ' : '') + tgl;
     }
 

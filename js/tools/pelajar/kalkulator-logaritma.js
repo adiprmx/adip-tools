@@ -1,11 +1,8 @@
-import { h as T, tabs } from '../../core.js';
+import { h as T, tabs, utils } from '../../core.js';
 
 export const meta = {"id":"kalkulator-logaritma","name":"Kalkulator Logaritma","cat":"pelajar","icon":"📊","desc":"Hitung log basis bebas + bedah sifat perkalian, pembagian, dan pangkat.","keywords":"logaritma,log,ln,matematika,basis,sifat logaritma,pelajar"};
 
-function r6(v) {
-  const r = Math.round(v * 1e6) / 1e6;
-  return String(Object.is(r, -0) ? 0 : r);
-}
+// r6 kanonis tinggal di utils (core.js).
 const logB = (x, b) => Math.log(x) / Math.log(b);
 const cekBasis = (b) => {
   if (isNaN(b)) return 'Isi basisnya dulu.';
@@ -29,9 +26,9 @@ export function render(root) {
     if (eb) { T.show(out1, '<p class="err">' + eb + '</p>'); return; }
     const hasil = logB(x, b);
     T.show(out1,
-      '<div class="center"><div class="dim">log<sub>' + r6(b) + '</sub>(' + r6(x) + ')</div>' +
-      '<div class="big">' + r6(hasil) + '</div>' +
-      '<p class="hint">Artinya ' + r6(b) + '<sup>' + r6(hasil) + '</sup> = ' + r6(x) + '</p></div>');
+      '<div class="center"><div class="dim">log<sub>' + utils.r6(b) + '</sub>(' + utils.r6(x) + ')</div>' +
+      '<div class="big">' + utils.r6(hasil) + '</div>' +
+      '<p class="hint">Artinya ' + utils.r6(b) + '<sup>' + utils.r6(hasil) + '</sup> = ' + utils.r6(x) + '</p></div>');
   };
   const setBasis = (b) => { bInp.value = String(b); hitung1(); };
   p1.appendChild(T.el('<p class="hint">Logaritma itu kebalikan dari pangkat: log<sub>a</sub>(x) nanya &ldquo;a pangkat berapa biar jadi x?&rdquo;</p>'));
@@ -70,7 +67,7 @@ export function render(root) {
     return wrap;
   };
 
-  const sub = (b) => '<sub>' + r6(b) + '</sub>';
+  const sub = (b) => '<sub>' + utils.r6(b) + '</sub>';
 
   p2.appendChild(mkSifat(
     'Perkalian',
@@ -82,8 +79,8 @@ export function render(root) {
       const eb = cekBasis(b); if (eb) return { err: eb };
       const lm = logB(m, b), ln = logB(n, b);
       return {
-        rumus: 'log' + sub(b) + '(' + r6(m) + ' &times; ' + r6(n) + ') = log' + sub(b) + '(' + r6(m) + ') + log' + sub(b) + '(' + r6(n) + ') = ' + r6(lm) + ' + ' + r6(ln),
-        hasil: r6(lm + ln),
+        rumus: 'log' + sub(b) + '(' + utils.r6(m) + ' &times; ' + utils.r6(n) + ') = log' + sub(b) + '(' + utils.r6(m) + ') + log' + sub(b) + '(' + utils.r6(n) + ') = ' + utils.r6(lm) + ' + ' + utils.r6(ln),
+        hasil: utils.r6(lm + ln),
       };
     }
   ));
@@ -97,8 +94,8 @@ export function render(root) {
       const eb = cekBasis(b); if (eb) return { err: eb };
       const lm = logB(m, b), ln = logB(n, b);
       return {
-        rumus: 'log' + sub(b) + '(' + r6(m) + ' / ' + r6(n) + ') = log' + sub(b) + '(' + r6(m) + ') &minus; log' + sub(b) + '(' + r6(n) + ') = ' + r6(lm) + ' &minus; ' + r6(ln),
-        hasil: r6(lm - ln),
+        rumus: 'log' + sub(b) + '(' + utils.r6(m) + ' / ' + utils.r6(n) + ') = log' + sub(b) + '(' + utils.r6(m) + ') &minus; log' + sub(b) + '(' + utils.r6(n) + ') = ' + utils.r6(lm) + ' &minus; ' + utils.r6(ln),
+        hasil: utils.r6(lm - ln),
       };
     }
   ));
@@ -112,8 +109,8 @@ export function render(root) {
       const eb = cekBasis(b); if (eb) return { err: eb };
       const lm = logB(m, b);
       return {
-        rumus: 'log' + sub(b) + '(' + r6(m) + '<sup>' + r6(n) + '</sup>) = ' + r6(n) + ' &times; log' + sub(b) + '(' + r6(m) + ') = ' + r6(n) + ' &times; ' + r6(lm),
-        hasil: r6(n * lm),
+        rumus: 'log' + sub(b) + '(' + utils.r6(m) + '<sup>' + utils.r6(n) + '</sup>) = ' + utils.r6(n) + ' &times; log' + sub(b) + '(' + utils.r6(m) + ') = ' + utils.r6(n) + ' &times; ' + utils.r6(lm),
+        hasil: utils.r6(n * lm),
       };
     }
   ));

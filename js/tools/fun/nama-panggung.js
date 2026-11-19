@@ -16,14 +16,6 @@ const AKHIRAN = [
 ];
 
 const acak = (a) => a[Math.floor(Math.random() * a.length)];
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i]] = [x[j]], [x[j]] = [x[i]];
-  }
-  return x;
-};
 
 const rapi = (t) => t.split(' ').filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 
@@ -41,7 +33,7 @@ const buatOpsi = (namaAsli) => {
     () => acak(SIFAT) + ' ' + depan + ' ' + acak(SIFAT),
   ];
   const hasil = [];
-  shuffle(pola).forEach((p) => {
+  utils.shuffle(pola).forEach((p) => {
     const s = p();
     if (hasil.indexOf(s) === -1) hasil.push(s);
   });

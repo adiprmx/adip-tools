@@ -1,37 +1,17 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, todayISO } from '../../core.js';
 
 export const meta = {"id": "surat-resign", "name": "Pembuat Surat Pengunduran Diri", "cat": "produktivitas", "icon": "📝", "desc": "Bikin surat resign formal dari form singkat: jabatan, tanggal terakhir kerja, dan ucapan terima kasih, siap salin atau cetak.", "keywords": "surat resign,surat pengunduran diri,resign,keluar kerja,contoh surat resign", "since": "6.11.0"};
 
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:18mm 20mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#surat-resign-print,#surat-resign-print *{visibility:visible !important}' +
-    '#surat-resign-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#surat-resign-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
 
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
 
-const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+// BULAN kanonis tinggal di core.js (dipakai utils.fmtTanggal).
 
-function isoHariIni() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
+// isoHariIni -> todayISO dari core.js.
 
 function isoPlusHari(n) {
   const d = new Date();
@@ -39,21 +19,12 @@ function isoPlusHari(n) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
-function fmtTanggal(iso) {
-  if (!iso) return '';
-  const p = String(iso).split('-');
-  if (p.length !== 3) return String(iso);
-  const tgl = Number(p[2]);
-  const bln = Number(p[1]);
-  const thn = Number(p[0]);
-  if (!tgl || !bln || !thn || bln < 1 || bln > 12) return String(iso);
-  return tgl + ' ' + BULAN[bln - 1] + ' ' + thn;
-}
+// fmtTanggal kanonis tinggal di utils (core.js).
 
 export function render(root) {
 
-    ensurePrintCss();
-    T.onLeave(hapusPrintCss);
+    utils.ensurePrintCss('surat-resign-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-resign-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+    T.onLeave(() => utils.removePrintCss('surat-resign-print'));
 
     const namaI = T.input('text', 'Nama lengkap', '');
     const jabatanI = T.input('text', 'Jabatan saat ini', '');
@@ -61,7 +32,7 @@ export function render(root) {
     const perusahaanI = T.input('text', 'Nama perusahaan', '');
     const kotaPerI = T.input('text', 'Kota perusahaan (boleh kosong)', '');
     const tempatI = T.input('text', 'Tempat (untuk tanggal surat)', '');
-    const tglSuratI = T.input('date', '', isoHariIni());
+    const tglSuratI = T.input('date', '', todayISO());
     const tglAkhirI = T.input('date', '', isoPlusHari(30));
     const alasanI = T.ta(2, 'Alasan mengundurkan diri (boleh kosong)', '');
     const terimaI = T.ta(2, 'Pesan terima kasih (boleh kosong, pakai kalimat standar)', '');
@@ -76,7 +47,7 @@ export function render(root) {
       'Saya berharap perusahaan terus maju dan sukses ke depannya.';
 
     function tanggalSurat() {
-      const tgl = fmtTanggal(v(tglSuratI)) || fmtTanggal(isoHariIni());
+      const tgl = utils.fmtTanggal(v(tglSuratI)) || utils.fmtTanggal(todayISO());
       return (v(tempatI) ? v(tempatI) + ', ' : '') + tgl;
     }
 
@@ -85,7 +56,7 @@ export function render(root) {
       const jabatan = v(jabatanI) || '(jabatan)';
       const dept = v(deptI);
       const perus = v(perusahaanI) || '(nama perusahaan)';
-      const tglAkhir = fmtTanggal(v(tglAkhirI)) || '(tanggal terakhir kerja)';
+      const tglAkhir = utils.fmtTanggal(v(tglAkhirI)) || '(tanggal terakhir kerja)';
       const alasan = v(alasanI);
       const terima = v(terimaI) || TERIMA_STANDAR(perus);
 
@@ -124,7 +95,7 @@ export function render(root) {
       if (!v(jabatanI)) kurang.push('jabatan');
       if (!v(perusahaanI)) kurang.push('perusahaan');
       const tglMundur = v(tglAkhirI) && v(tglSuratI) && v(tglAkhirI) < v(tglSuratI);
-      const tglLewat = v(tglAkhirI) && v(tglAkhirI) < isoHariIni();
+      const tglLewat = v(tglAkhirI) && v(tglAkhirI) < todayISO();
 
       let peringatan = '';
       if (tglMundur) peringatan = 'Tanggal terakhir kerja lebih awal dari tanggal surat. Periksa lagi tanggalnya.';

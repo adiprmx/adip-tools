@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput, utils } from '../../core.js';
 
 export const meta = {
   id: 'fake-dm-discord',
@@ -25,12 +25,7 @@ const STATUS = {
   offline: { label: 'Offline', color: '#80848E' },
 };
 
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',55%,45%)';
-}
+// avaColor kanonis tinggal di utils (core.js).
 
 const SVG_BACK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
 const SVG_CHEV = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>';
@@ -197,7 +192,7 @@ export function render(root) {
     let chatHtml = '';
     if (showWelcome) {
       chatHtml += '<div class="fdd-welcome">' +
-        '<div class="fdd-wav" style="background:' + avaColor(nameA) + '">' + avHtmlA + '</div>' +
+        '<div class="fdd-wav" style="background:' + utils.avaColor(nameA) + '">' + avHtmlA + '</div>' +
         '<p class="fdd-wname" style="color:' + th.name + '">' + T.esc(nameA) + '</p>' +
         '<p class="fdd-whandle" style="color:' + th.muted + '">@' + T.esc(nameA) + '</p>' +
         '<p class="fdd-wtext" style="color:' + th.muted + '">Ini awal riwayat DM kamu dengan <b style="color:' + th.name + '">@' + T.esc(nameA) + '</b>.</p>' +
@@ -212,7 +207,7 @@ export function render(root) {
       const isA = m.side === 'A';
       const uname = isA ? nameA : nameB;
       const avHtml = isA ? avHtmlA : avHtmlB;
-      const avBg = avaColor(uname);
+      const avBg = utils.avaColor(uname);
       const headHtml = cont ? '' :
         '<div class="fdd-mhead"><b style="color:' + th.name + '">' + T.esc(uname) + '</b>' +
         (m.time ? '<span style="color:' + th.muted + '">Hari ini pukul ' + T.esc(m.time) + '</span>' : '') + '</div>';
@@ -230,7 +225,7 @@ export function render(root) {
       T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
     const hdHtml = '<div class="fdd-hd" style="background:' + th.hdBg + ';color:' + th.name + '">' +
       '<button class="fdd-bk" type="button" tabindex="-1" style="color:' + th.muted + '">' + (isIPh ? SVG_CHEV : SVG_BACK) + '</button>' +
-      '<div class="fdd-avwrap"><div class="fdd-av" style="background:' + avaColor(nameA) + '">' + avHtmlA + '</div>' +
+      '<div class="fdd-avwrap"><div class="fdd-av" style="background:' + utils.avaColor(nameA) + '">' + avHtmlA + '</div>' +
       '<span class="fdd-dot' + dotCls + '" style="background:' + st.color + ';border-color:' + th.hdBg + '"></span></div>' +
       '<div class="fdd-nm"><b>' + T.esc(nameA) + '</b><span style="color:' + st.color + '">' + T.esc(st.label) + '</span></div>' +
       '<div class="fdd-hic" style="color:' + th.muted + '">' + SVG_PHONE + SVG_VIDEO + '</div></div>';
@@ -248,7 +243,7 @@ export function render(root) {
       '<span class="fdd-tab fdd-on" style="color:' + th.name + '">' + SVG_HOME + '<span>Beranda</span></span>' +
       '<span class="fdd-tab">' + SVG_GRID + '<span>Server</span></span>' +
       '<span class="fdd-tab">' + SVG_BELL + '<span>Notifikasi</span></span>' +
-      '<span class="fdd-tab"><span class="fdd-tav" style="background:' + avaColor(nameB) + '">' + avHtmlB + '</span><span>Kamu</span></span></div>' +
+      '<span class="fdd-tab"><span class="fdd-tav" style="background:' + utils.avaColor(nameB) + '">' + avHtmlB + '</span><span>Kamu</span></span></div>' +
       (isIPh ? '<div class="fdd-home" style="background:' + th.navBg + '"><i></i></div>' : '<div class="fdd-nav" style="background:' + th.navBg + '"><i></i></div>');
 
     phone.className = 'fdd-phone';

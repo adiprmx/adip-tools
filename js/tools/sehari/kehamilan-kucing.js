@@ -3,15 +3,13 @@ import { h as T, kv, utils } from '../../core.js';
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const fmtTgl = (d) => HARI[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + BULAN[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-const parseTgl = (s) => { const p = String(s || '').split('-').map(Number); if (p.length !== 3 || p.some(isNaN)) return null; const d = new Date(Date.UTC(p[0], p[1] - 1, p[2])); return isNaN(d.getTime()) ? null : d; };
-const tambahHari = (d, n) => { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate() + n); return x; };
-const hariIni = () => { const n = new Date(); return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate())); };
+// parseTgl, tambahHari, hariIni kanonis tinggal di utils (core.js).
 
 // Kehamilan kucing 63-65 hari dari tanggal kawin (MedVet, Cornell
 // Feline Health Center). Tonggak mengikuti perkembangan umum kehamilan kucing.
 utils.kehamilanKucing = function (isoKawin, isoHariIni) {
-  const kawin = parseTgl(isoKawin);
-  const today = isoHariIni ? parseTgl(isoHariIni) : hariIni();
+  const kawin = utils.parseTgl(isoKawin);
+  const today = isoHariIni ? utils.parseTgl(isoHariIni) : utils.hariIni();
   if (!kawin || !today) return null;
   const hariKe = Math.round((today - kawin) / 86400000);
   const tonggak = [
@@ -20,8 +18,8 @@ utils.kehamilanKucing = function (isoKawin, isoHariIni) {
     { hari: 42, ket: 'Perut mulai membesar, berat badan naik.' },
     { hari: 56, ket: 'Siapkan tempat melahirkan yang tenang, hangat, dan bersih.' },
     { hari: 63, ket: 'Perkiraan lahir, 63-65 hari setelah kawin.' },
-  ].map((t) => ({ ...t, tgl: tambahHari(kawin, t.hari), lewat: hariKe > t.hari }));
-  return { lahirAwal: tambahHari(kawin, 63), lahirAkhir: tambahHari(kawin, 65), lahirTengah: tambahHari(kawin, 64), hariKe, tonggak };
+  ].map((t) => ({ ...t, tgl: utils.tambahHari(kawin, t.hari), lewat: hariKe > t.hari }));
+  return { lahirAwal: utils.tambahHari(kawin, 63), lahirAkhir: utils.tambahHari(kawin, 65), lahirTengah: utils.tambahHari(kawin, 64), hariKe, tonggak };
 };
 
 export const meta = {"id": "kehamilan-kucing", "name": "Kehamilan Kucing", "cat": "sehari", "icon": "🤰", "desc": "Perkiraan tanggal lahir anak kucing dari tanggal kawin, plus tonggaknya.", "keywords": "kucing,hamil,kehamilan,lahir,anak kucing,kawin", "since": "6.11.0"};
@@ -30,9 +28,9 @@ export function render(root) {
   const box = T.out();
 
   const hitung = () => {
-    const kawin = parseTgl(tgl.value);
+    const kawin = utils.parseTgl(tgl.value);
     if (!kawin) { T.show(box, '<span class="err">Pilih tanggal kawin dulu.</span>'); return; }
-    if (kawin > hariIni()) { T.show(box, '<span class="err">Tanggal kawinnya masih di masa depan. Cek lagi tanggalnya.</span>'); return; }
+    if (kawin > utils.hariIni()) { T.show(box, '<span class="err">Tanggal kawinnya masih di masa depan. Cek lagi tanggalnya.</span>'); return; }
     const r = utils.kehamilanKucing(tgl.value);
     let statusHtml;
     if (r.hariKe > 72) {

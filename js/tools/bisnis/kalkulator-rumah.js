@@ -1,22 +1,8 @@
-import { h as T, kv, tabs } from '../../core.js';
+import { h as T, kv, tabs, utils } from '../../core.js';
 
 export const meta = {"id":"kalkulator-rumah","name":"Kalkulator Beli Rumah","cat":"bisnis","icon":"🏠","desc":"Harga rumah yang terjangkau dari penghasilan: batas cicilan bisa diatur, biaya awal ikut dihitung, sisa penghasilan, banding tenor, plus cek cicilan rumah incaran.","keywords":"rumah,kpr,cicilan,dp,uang muka,hipotek,beli rumah,properti,mampu beli rumah,harga rumah maksimal,tenor,biaya awal","since":"6.11.0"};
 
-/* Cicilan bulanan anuitas: PMT = P x r / (1 - (1+r)^-n). r = bunga per bulan.
-   Bentuk stabil numerik (P4-03): 1 - (1+r)^-n dihitung sebagai
-   -expm1(-n*log1p(r)) — bentuk pow langsung menderita pembatalan
-   katastrofik saat r mungil (r < ~1e-12: 1+r membulat, penyebut jadi 0
-   -> cicilan Infinity; di 1e-12 pun hasilnya sudah 6% meleset).
-   Bila 1+r membulat ke 1 (r di bawah setengah ulp), pakai limit linear
-   P/n — rumus eksak saat r -> 0. */
-export function cicilanBulanan(pinjaman, bungaTahunPersen, tenorTahun) {
-  const r = bungaTahunPersen / 100 / 12;
-  const n = tenorTahun * 12;
-  if (!Number.isFinite(pinjaman) || !Number.isFinite(bungaTahunPersen) || !Number.isFinite(tenorTahun)) return null;
-  if (!(pinjaman > 0) || !(n > 0)) return null;
-  if (r === 0 || 1 + r === 1) return pinjaman / n;
-  return pinjaman * r / (-Math.expm1(-n * Math.log1p(r)));
-}
+// cicilanBulanan kanonis tinggal di utils (core.js).
 
 /* Pinjaman maksimal dari cicilan bulanan yang sanggup dibayar.
    Bentuk stabil yang sama (P4-03): (1-(1+r)^-n)/r = -expm1(-n*log1p(r))/r. */
@@ -150,7 +136,7 @@ export function render(root) {
     if (!isFinite(tenor) || !(tenor > 0) || tenor > 30) { T.show(out2, '<p class="err">Tenor isi 1 sampai 30 tahun.</p>'); return; }
     if (gaji != null && (!isFinite(gaji) || !(gaji > 0))) { T.show(out2, '<p class="err">Penghasilan harus lebih dari 0 bila diisi.</p>'); return; }
     const pinj = harga - dp;
-    const cicil = cicilanBulanan(pinj, bunga, tenor);
+    const cicil = utils.cicilanBulanan(pinj, bunga, tenor);
     const totalBayar = cicil * tenor * 12;
     let rasioHtml = '';
     if (gaji != null) {

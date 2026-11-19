@@ -15,15 +15,7 @@ const FONT_STACK = "'Crimson Text', Georgia, 'Times New Roman', serif";
 const GFONT_HREF = 'https://fonts.googleapis.com/css2?family=Crimson+Text&display=swap';
 
 // RNG deterministik biar tekstur kertas stabil antar render
-function mulberry32(seed) {
-  let a = seed >>> 0;
-  return function () {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+// mulberry32 kanonis tinggal di utils (core.js).
 
 // Tekstur kertas prosedural (independen — tanpa hotlink aset pihak ketiga):
 // basis hangat terang + gradasi cahaya terang-kiri-atas → gelap-kanan-bawah
@@ -49,7 +41,7 @@ function paperBG(ctx) {
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  const rnd = mulberry32(20260425);
+  const rnd = utils.mulberry32(20260425);
 
   // noda lembut (blotch) skala besar — alpha 0.13 agar stddev tekstur
   // mendekati foto asli (stddev ~24-27, sebelumnya blotch 0.10 undershoot)

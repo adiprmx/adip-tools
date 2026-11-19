@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "potong-video", "name": "Potong Video", "cat": "converter", "icon": "✂️", "desc": "Potong durasi video dan ubah bentuk layarnya.", "keywords": "video,potong,trim,crop,layar,rasio,pendek", "since": "6.11.0"};
@@ -49,18 +49,15 @@ export function render(root) {
     barLabel.textContent = label;
     barFill.style.width = Math.max(0, Math.min(100, pct || 0)) + '%';
   };
-  const parseNum = (v, fallback) => {
-    const n = parseFloat(String(v || '').replace(',', '.'));
-    return Number.isFinite(n) ? n : fallback;
-  };
+  // parseNum kanonis tinggal di utils (core.js).
 
   const goBtn = T.btn('Potong video', async () => {
     if (busy) return;
     if (!fileObj) { T.show(outBox, errBox('Pilih dulu file videonya.')); return; }
     const sup = supportsFFmpeg();
     if (!sup.ok) { T.show(outBox, errBox(sup.reason)); return; }
-    const start = Math.max(0, parseNum(startIn.value, 0));
-    let end = parseNum(endIn.value, duration || 0);
+    const start = Math.max(0, utils.parseNum(startIn.value, 0));
+    let end = utils.parseNum(endIn.value, duration || 0);
     if (duration > 0) {
       end = Math.min(duration, end);
       if (end <= start) { T.show(outBox, errBox('Titik selesai harus setelah titik mulai (durasi video ' + duration.toFixed(1) + ' detik).')); return; }

@@ -9,14 +9,7 @@ const CONTOH = [
   { front: '7 × 8 = …', back: '56' },
 ];
 
-function acak(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// acak (Fisher-Yates) kanonis tinggal di utils.shuffle (core.js).
 
 export function render(root) {
   const KEY = 'adip-tools:flashcard';
@@ -37,7 +30,7 @@ export function render(root) {
 
   const resetOrder = () => {
     const n = cards().length;
-    order = acak(Array.from({ length: n }, (_, i) => i));
+    order = utils.shuffle(Array.from({ length: n }, (_, i) => i));
     if (!shuffleMode) order = Array.from({ length: n }, (_, i) => i);
     idx = 0; flipped = false;
   };

@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js';
+import { h as T, esc, utils } from '../../core.js';
 
 export const meta = {"id":"tebak-nama","name":"Tebak Profil Nama","cat":"liveapi","icon":"🔮","desc":"Tebak dulu umur & gender sebuah nama, lalu cek tebakanmu ke data nama dunia.","keywords":"nama,tebak,umur,usia,gender,jenis kelamin,negara,asal,kuis"};
 
@@ -29,21 +29,7 @@ export function render(root) {
   const skorBox = T.out();
 
   // Tiap API punya AbortController + timeout sendiri-sendiri (paralel).
-  const getJson = async (url) => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
-    try {
-      const res = await fetch(url, { signal: ctrl.signal });
-      if (!res.ok) {
-        const err = new Error('HTTP ' + res.status);
-        err.status = res.status;
-        throw err;
-      }
-      return await res.json();
-    } finally {
-      clearTimeout(timer);
-    }
-  };
+  // getJson kanonis tinggal di utils (core.js).
 
   const tebak = async () => {
     const nama = inp.value.trim();
@@ -52,9 +38,9 @@ export function render(root) {
     T.show(box, '<div class="dim center">Menerawang nama "' + esc(nama) + '"…</div>');
     const enc = encodeURIComponent(nama);
     const [rUmur, rGender, rNegara] = await Promise.all([
-      getJson('https://api.agify.io?name=' + enc).then((d) => ({ ok: true, d }), (e) => ({ ok: false, e })),
-      getJson('https://api.genderize.io?name=' + enc).then((d) => ({ ok: true, d }), (e) => ({ ok: false, e })),
-      getJson('https://api.nationalize.io?name=' + enc).then((d) => ({ ok: true, d }), (e) => ({ ok: false, e })),
+      utils.getJson('https://api.agify.io?name=' + enc).then((d) => ({ ok: true, d }), (e) => ({ ok: false, e })),
+      utils.getJson('https://api.genderize.io?name=' + enc).then((d) => ({ ok: true, d }), (e) => ({ ok: false, e })),
+      utils.getJson('https://api.nationalize.io?name=' + enc).then((d) => ({ ok: true, d }), (e) => ({ ok: false, e })),
     ]);
 
     const errMsg = (r) => {

@@ -191,6 +191,13 @@ export function render(root) {
   }
 
   function gambar() {
+    // Pengaman: bila labirin bentuk yang dipilih belum pernah dibuat
+    // (mis. bentuk baru diganti lalu solusi dicentang), bangun dulu
+    // supaya tidak crash membaca data yang masih kosong.
+    if ((bentuk.value === 'kotak' && !dinding) || (bentuk.value === 'bulat' && !bulat) || (bentuk.value === 'hex' && !hexSel)) {
+      buat();
+      return;
+    }
     const ctx = kanvas.getContext('2d');
     const S = kanvas.width;
     ctx.clearRect(0, 0, S, S);
@@ -339,6 +346,9 @@ export function render(root) {
   onLeave(() => document.removeEventListener('keydown', onKey));
 
   cekSolusi.addEventListener('change', gambar);
+  // Ganti bentuk langsung membangun labirin baru bentuk itu, jadi
+  // pengguna tidak perlu menekan "Buat labirin baru" dulu.
+  bentuk.addEventListener('change', buat);
 
   root.append(
     T.field('Bentuk labirin', bentuk),

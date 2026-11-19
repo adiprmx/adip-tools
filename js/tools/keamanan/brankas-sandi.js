@@ -8,18 +8,7 @@ const _te = new TextEncoder(), _td = new TextDecoder();
 const LS_KEY = 'brankas.vault';
 const ITERASI = 100000;
 
-function b64e(buf) {
-  const b = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  let s = '';
-  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
-  return btoa(s);
-}
-function b64d(b64) {
-  const s = atob(b64);
-  const b = new Uint8Array(s.length);
-  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
-  return b;
-}
+// b64e, b64d kanonis tinggal di utils (core.js).
 async function kunciDariPassword(password, salt) {
   const km = await crypto.subtle.importKey('raw', _te.encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
@@ -31,12 +20,12 @@ export async function vltEncrypt(entri, password) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await kunciDariPassword(password, salt);
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, _te.encode(JSON.stringify({ cek: 'brankas-ok', entri })));
-  return JSON.stringify({ salt: b64e(salt), iv: b64e(iv), data: b64e(data) });
+  return JSON.stringify({ salt: utils.b64e(salt), iv: utils.b64e(iv), data: utils.b64e(data) });
 }
 export async function vltDecrypt(paket, password) {
   const o = JSON.parse(paket);
-  const key = await kunciDariPassword(password, b64d(o.salt));
-  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(o.iv) }, key, b64d(o.data));
+  const key = await kunciDariPassword(password, utils.b64d(o.salt));
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: utils.b64d(o.iv) }, key, utils.b64d(o.data));
   const v = JSON.parse(_td.decode(pt));
   if (!v || v.cek !== 'brankas-ok') throw new Error('cek-gagal');
   return v.entri || [];
@@ -51,9 +40,7 @@ export function render(root) {
       return;
     }
 
-    const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-    const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
-    const lsDel = (k) => { try { localStorage.removeItem(k); } catch (e) { /* abaikan */ } };
+    // lsGet, lsSet, lsDel kanonis tinggal di utils (core.js).
 
     let master = null; // HANYA di memori — tidak pernah ke localStorage
 
@@ -61,7 +48,7 @@ export function render(root) {
 
     function draw() {
       root.querySelectorAll('.brv').forEach((n) => n.remove());
-      if (!lsGet(LS_KEY)) viewSetup();
+      if (!utils.lsGet(LS_KEY)) viewSetup();
       else if (!master) viewLocked();
       else viewOpen();
     }
@@ -85,7 +72,7 @@ export function render(root) {
         setTimeout(async () => {
           try {
             const paket = await vltEncrypt([], a);
-            if (!lsSet(LS_KEY, paket)) { T.show(msg, '<span class="err">Gagal menyimpan — penyimpanan HP penuh atau tidak tersedia.</span>'); return; }
+            if (!utils.lsSet(LS_KEY, paket)) { T.show(msg, '<span class="err">Gagal menyimpan — penyimpanan HP penuh atau tidak tersedia.</span>'); return; }
             master = a;
             draw();
             T.toast('Brankas jadi! Master password-nya dicatat ya.');
@@ -107,7 +94,7 @@ export function render(root) {
         T.show(msg, '<span class="dim">🔓 Membuka brankas…</span>');
         setTimeout(async () => {
           try {
-            await vltDecrypt(lsGet(LS_KEY), pw.value);
+            await vltDecrypt(utils.lsGet(LS_KEY), pw.value);
             master = pw.value;
             draw();
           } catch (e) {
@@ -130,10 +117,10 @@ export function render(root) {
 
       async function simpan(entri) {
         const paket = await vltEncrypt(entri, master);
-        if (!lsSet(LS_KEY, paket)) throw new Error('penyimpanan penuh');
+        if (!utils.lsSet(LS_KEY, paket)) throw new Error('penyimpanan penuh');
       }
       async function muat() {
-        return vltDecrypt(lsGet(LS_KEY), master);
+        return vltDecrypt(utils.lsGet(LS_KEY), master);
       }
 
       b.appendChild(T.el('<h3 class="h3">📂 Isi Brankas</h3>'));
@@ -236,7 +223,7 @@ export function render(root) {
         try {
           const data = await muat();
           const paket = await vltEncrypt(data, a);
-          if (!lsSet(LS_KEY, paket)) { T.show(msg2, '<span class="err">Gagal menyimpan.</span>'); return; }
+          if (!utils.lsSet(LS_KEY, paket)) { T.show(msg2, '<span class="err">Gagal menyimpan.</span>'); return; }
           master = a;
           n1.value = ''; n2.value = '';
           T.show(msg2, '<span class="ok">✅ Master password diganti, brankas di-enkripsi ulang.</span>');

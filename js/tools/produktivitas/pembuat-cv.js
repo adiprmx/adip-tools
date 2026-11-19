@@ -5,26 +5,7 @@ export const meta = {"id": "pembuat-cv", "name": "Pembuat CV Lamaran", "cat": "p
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
-
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:12mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#cv-print,#cv-print *{visibility:visible !important}' +
-    '#cv-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#cv-print .cv-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
-
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
 const LS_KEY = 'at-pembuat-cv-v1';
 
@@ -91,8 +72,8 @@ function normalisasiData(d) {
 
 export function render(root) {
 
-    ensurePrintCss();
-    T.onLeave(hapusPrintCss);
+    utils.ensurePrintCss('cv-print', { page: '@page{size:A4;margin:12mm}', extra: '#cv-print .cv-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+    T.onLeave(() => utils.removePrintCss('cv-print'));
 
     let data = kosong();
     try {

@@ -12,14 +12,7 @@ const TOTAL_SOAL = 10;
 const LS_KEY = 'kuis-matematika-cepat-best';
 
 const acak = (mn, mx) => mn + Math.floor(Math.random() * (mx - mn + 1));
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 function loadBest() {
   try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
   catch (e) { return {}; }
@@ -62,7 +55,7 @@ export function render(root) {
         if (v >= 0) opsiSet.add(v);
       }
       while (opsiSet.size < 4) opsiSet.add(jawab + opsiSet.size + 3);
-      list.push({ teks, jawab, opsi: shuffle([...opsiSet]) });
+      list.push({ teks, jawab, opsi: utils.shuffle([...opsiSet]) });
     }
     return list;
   };

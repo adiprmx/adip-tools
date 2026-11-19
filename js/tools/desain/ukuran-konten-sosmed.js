@@ -15,11 +15,7 @@ const FORMATS = [
   ['X Header', '1500 × 500', 1500, 500],
 ];
 
-function gcd(a, b) {
-  a = Math.abs(a); b = Math.abs(b);
-  while (b) { const t = a % b; a = b; b = t; }
-  return a || 1;
-}
+// gcd kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const wI = T.input('number', 'Lebar (px)');
@@ -32,7 +28,7 @@ export function render(root) {
       T.show(out, '<p class="hint center">Isi lebar & tinggi dulu — mis. 800 × 1200.</p>');
       return;
     }
-    const g = gcd(w, h);
+    const g = utils.gcd(w, h);
     const ratio = w / h;
     let best = null, bd = Infinity;
     FORMATS.forEach(([n, dim, fw, fh]) => {

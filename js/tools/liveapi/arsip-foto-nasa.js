@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Cari foto dari arsip NASA Images (tanpa key).
 // Terverifikasi 18 Nov 2026: images-api.nasa.gov/search 200, CORS *.
@@ -15,13 +15,7 @@ async function getJSON(url) {
 }
 
 // Hanya http/https yang boleh jadi sumber gambar.
-const imgAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// imgAman kanonis tinggal di utils.urlAman (core.js).
 
 function tglCantik(s) {
   if (!s) return '';
@@ -58,7 +52,7 @@ export function render(root) {
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px">' +
         items.map((it) => {
           const d = (it.data && it.data[0]) || {};
-          const thumb = imgAman(it.links && it.links[0] && it.links[0].href);
+          const thumb = utils.urlAman(it.links && it.links[0] && it.links[0].href);
           const judul = String(d.title || 'Tanpa judul');
           const detail = d.nasa_id ? 'https://images.nasa.gov/details/' + encodeURIComponent(String(d.nasa_id)) : null;
           const isi = (thumb ? '<img src="' + esc(thumb) + '" alt="' + esc(judul) + '" loading="lazy" data-err="hide" style="width:100%;height:120px;object-fit:cover;border-radius:8px;display:block">' : '<div style="height:120px;border-radius:8px;background:#221d18;display:flex;align-items:center;justify-content:center"><span class="dim" style="font-size:12px">Tidak ada pratinjau</span></div>') +

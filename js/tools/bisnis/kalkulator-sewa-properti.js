@@ -1,18 +1,8 @@
-import { h as T, kv } from '../../core.js';
+import { h as T, kv, utils } from '../../core.js';
 
 export const meta = {"id":"kalkulator-sewa-properti","name":"Kalkulator Sewa Properti","cat":"bisnis","icon":"🔑","desc":"Analisis properti sewa: yield kotor dan bersih, uang masuk per bulan setelah cicilan KPR, hasil dari uang tunai, titik impas hunian, lama balik modal, dan proyeksi 10 tahun.","keywords":"properti,sewa,kos,kontrakan,yield,rental,investasi,balik modal,investasi properti,cash on cash,roi,kpr,proyeksi,titik impas","since":"6.11.0"};
 
-/* Cicilan bulanan anuitas. Bentuk stabil numerik (P4-03, sama seperti
-   kalkulator-rumah.js): -expm1(-n*log1p(r)) menggantikan 1-(1+r)^-n,
-   plus jalur linear bila 1+r membulat ke 1. */
-export function cicilanBulanan(pinjaman, bungaTahunPersen, tenorTahun) {
-  const r = bungaTahunPersen / 100 / 12;
-  const n = tenorTahun * 12;
-  if (!Number.isFinite(pinjaman) || !Number.isFinite(bungaTahunPersen) || !Number.isFinite(tenorTahun)) return null;
-  if (!(pinjaman > 0) || !(n > 0)) return null;
-  if (r === 0 || 1 + r === 1) return pinjaman / n;
-  return pinjaman * r / (-Math.expm1(-n * Math.log1p(r)));
-}
+// cicilanBulanan kanonis tinggal di utils (core.js).
 
 /* Sisa pokok KPR setelah k bulan dibayar (anuitas).
    Bentuk stabil (P4-03): (1+r)^k = exp(k*log1p(r)) dan
@@ -24,7 +14,7 @@ export function sisaPinjaman(pinjaman, bungaTahunPersen, tenorTahun, bulanBerjal
   const k = Math.min(bulanBerjalan, n);
   if (!Number.isFinite(pinjaman) || !Number.isFinite(bungaTahunPersen) || !Number.isFinite(tenorTahun)) return null;
   if (r === 0 || 1 + r === 1) return Math.max(0, pinjaman * (1 - k / n));
-  const cicil = cicilanBulanan(pinjaman, bungaTahunPersen, tenorTahun);
+  const cicil = utils.cicilanBulanan(pinjaman, bungaTahunPersen, tenorTahun);
   if (cicil == null) return null;
   return Math.max(0, pinjaman * Math.exp(k * Math.log1p(r)) - cicil * Math.expm1(k * Math.log1p(r)) / r);
 }
@@ -98,7 +88,7 @@ export function render(root) {
 
     const dp = harga * (dpPersen / 100);
     const pinj = harga - dp;
-    const cicil = pinj > 0 ? cicilanBulanan(pinj, bunga, tenor) : 0;
+    const cicil = pinj > 0 ? utils.cicilanBulanan(pinj, bunga, tenor) : 0;
     const uangTunaiAwal = dp; // biaya awal (notaris/pajak beli) tidak dimasukkan — disebut di asumsi
 
     // Tahun pertama

@@ -3,27 +3,24 @@ import { h as T, kv, utils } from '../../core.js';
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const fmtTgl = (d) => HARI[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + BULAN[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-const parseTgl = (s) => { const p = String(s || '').split('-').map(Number); if (p.length !== 3 || p.some(isNaN)) return null; const d = new Date(Date.UTC(p[0], p[1] - 1, p[2])); return isNaN(d.getTime()) ? null : d; };
-const tambahHari = (d, n) => { const x = new Date(d.getTime()); x.setUTCDate(x.getUTCDate() + n); return x; };
-const tambahBulan = (d, n) => { const x = new Date(d.getTime()); x.setUTCMonth(x.getUTCMonth() + n); return x; };
-const hariIni = () => { const n = new Date(); return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate())); };
+// parseTgl, tambahHari, tambahBulan, hariIni kanonis tinggal di utils (core.js).
 
 // Jadwal vaksin anak kucing, panduan AAHA/AAFP 2020: F3 (FVRCP) 3 dosis
 // tiap 3-4 minggu dari umur 6-8 minggu, dosis terakhir di umur 16 minggu
 // atau lebih, rabies sekali di umur 12-16 minggu, pengulangan di umur 1 tahun.
 utils.jadwalVaksinKucing = function (isoLahir, isoHariIni) {
-  const lahir = parseTgl(isoLahir);
-  const today = isoHariIni ? parseTgl(isoHariIni) : hariIni();
+  const lahir = utils.parseTgl(isoLahir);
+  const today = isoHariIni ? utils.parseTgl(isoHariIni) : utils.hariIni();
   if (!lahir || !today) return null;
   const rows = [
-    { nama: 'F3 dosis 1', tgl: tambahHari(lahir, 56), ket: 'Vaksin pertama, umur 8 minggu. Melindungi dari 3 virus: panleukopenia, calici, dan flu kucing.' },
-    { nama: 'F3 dosis 2', tgl: tambahHari(lahir, 84), ket: 'Vaksin kedua, umur 12 minggu.' },
-    { nama: 'F3 dosis 3', tgl: tambahHari(lahir, 112), ket: 'Vaksin ketiga, umur 16 minggu. Ini dosis paling penting.' },
-    { nama: 'Rabies', tgl: tambahHari(lahir, 112), ket: 'Satu kali, umur 16 minggu. Bisa mulai dari umur 12 minggu. Wajib di banyak daerah.' },
-    { nama: 'FeLV dosis 1 (bila disarankan)', tgl: tambahHari(lahir, 56), ket: 'Vaksin leukemia kucing, untuk anak kucing yang akan keluar rumah atau tinggal dengan kucing lain.' },
-    { nama: 'FeLV dosis 2 (bila disarankan)', tgl: tambahHari(lahir, 84), ket: 'Lanjutan FeLV, 3-4 minggu setelah dosis pertama.' },
-    { nama: 'Pengulangan 1 tahun', tgl: tambahBulan(lahir, 12), ket: 'Pengulangan F3 dan rabies saat umur sekitar 1 tahun.' },
-    { nama: 'F3 lanjutan', tgl: tambahBulan(lahir, 48), ket: 'Setelah pengulangan 1 tahun, F3 diulang tiap 3 tahun. Rabies ikut aturan daerah, tiap 1-3 tahun.' },
+    { nama: 'F3 dosis 1', tgl: utils.tambahHari(lahir, 56), ket: 'Vaksin pertama, umur 8 minggu. Melindungi dari 3 virus: panleukopenia, calici, dan flu kucing.' },
+    { nama: 'F3 dosis 2', tgl: utils.tambahHari(lahir, 84), ket: 'Vaksin kedua, umur 12 minggu.' },
+    { nama: 'F3 dosis 3', tgl: utils.tambahHari(lahir, 112), ket: 'Vaksin ketiga, umur 16 minggu. Ini dosis paling penting.' },
+    { nama: 'Rabies', tgl: utils.tambahHari(lahir, 112), ket: 'Satu kali, umur 16 minggu. Bisa mulai dari umur 12 minggu. Wajib di banyak daerah.' },
+    { nama: 'FeLV dosis 1 (bila disarankan)', tgl: utils.tambahHari(lahir, 56), ket: 'Vaksin leukemia kucing, untuk anak kucing yang akan keluar rumah atau tinggal dengan kucing lain.' },
+    { nama: 'FeLV dosis 2 (bila disarankan)', tgl: utils.tambahHari(lahir, 84), ket: 'Lanjutan FeLV, 3-4 minggu setelah dosis pertama.' },
+    { nama: 'Pengulangan 1 tahun', tgl: utils.tambahBulan(lahir, 12), ket: 'Pengulangan F3 dan rabies saat umur sekitar 1 tahun.' },
+    { nama: 'F3 lanjutan', tgl: utils.tambahBulan(lahir, 48), ket: 'Setelah pengulangan 1 tahun, F3 diulang tiap 3 tahun. Rabies ikut aturan daerah, tiap 1-3 tahun.' },
   ];
   rows.forEach((r) => {
     const sisa = Math.round((r.tgl - today) / 86400000);
@@ -39,9 +36,9 @@ export function render(root) {
   const box = T.out();
 
   const hitung = () => {
-    const lahir = parseTgl(tgl.value);
+    const lahir = utils.parseTgl(tgl.value);
     if (!lahir) { T.show(box, '<span class="err">Pilih tanggal lahir kucing dulu.</span>'); return; }
-    if (lahir > hariIni()) { T.show(box, '<span class="err">Tanggal lahirnya masih di masa depan. Cek lagi tanggalnya.</span>'); return; }
+    if (lahir > utils.hariIni()) { T.show(box, '<span class="err">Tanggal lahirnya masih di masa depan. Cek lagi tanggalnya.</span>'); return; }
     const rows = utils.jadwalVaksinKucing(tgl.value);
     let html = '<div class="center"><div class="dim">Jadwal vaksin dari tanggal lahir</div>' +
       '<div class="big">' + fmtTgl(lahir) + '</div></div>';

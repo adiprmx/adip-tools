@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "fade-in-out-audio", "name": "Fade In/Out Audio", "cat": "musik", "icon": "🌅", "desc": "Buat awal audio muncul perlahan dan akhirnya menghilang perlahan.", "keywords": "audio,fade,masuk,keluar,halus,awal,akhir", "since": "6.17.0"};
@@ -51,14 +51,7 @@ export function render(root) {
     barLabel.textContent = label;
     barFill.style.width = Math.max(0, Math.min(100, pct || 0)) + '%';
   };
-  const measureDur = (blob) => new Promise((resolve) => {
-    const url = URL.createObjectURL(blob);
-    const m = document.createElement('audio');
-    m.preload = 'metadata';
-    m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
-    m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
-    m.src = url;
-  });
+  // measureDur kanonis tinggal di utils (core.js) — panggil utils.measureDur(blob, 'audio').
   // Durasi dari metadata <audio>; bila tidak terbaca, ukur lewat decode.
   const ensureDuration = async () => {
     if (duration > 0) return duration;
@@ -107,7 +100,7 @@ export function render(root) {
       await cleanupFFmpeg(ffmpeg, [inName, 'output.mp3']);
       const blob = new Blob([data], { type: 'audio/mpeg' });
       T.dl(base + '-fade.mp3', blob, 'audio/mpeg');
-      const outDur = await measureDur(blob);
+      const outDur = await utils.measureDur(blob, 'audio');
       T.show(outBox, '<span class="ok">Selesai. Audio terunduh.</span>' +
         kv('Fade masuk', fadeIn > 0 ? fadeIn + ' detik' : 'Tidak ada') +
         kv('Fade keluar', fadeOut > 0 ? fadeOut + ' detik' : 'Tidak ada') +

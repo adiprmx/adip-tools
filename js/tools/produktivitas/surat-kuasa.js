@@ -1,48 +1,19 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, todayISO } from '../../core.js';
 
 export const meta = {"id": "surat-kuasa", "name": "Pembuat Surat Kuasa", "cat": "produktivitas", "icon": "🤝", "desc": "Bikin surat kuasa dari form singkat: pemberi dan penerima kuasa, keperluan, dan masa berlaku, siap salin atau cetak.", "keywords": "surat kuasa,kuasa,pemberi kuasa,penerima kuasa,contoh surat kuasa", "since": "6.11.0"};
 
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:18mm 20mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#surat-kuasa-print,#surat-kuasa-print *{visibility:visible !important}' +
-    '#surat-kuasa-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#surat-kuasa-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
 
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
 
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-function isoHariIni() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
+// isoHariIni -> todayISO dari core.js.
 
-function fmtTanggal(iso) {
-  if (!iso) return '';
-  const p = String(iso).split('-');
-  if (p.length !== 3) return String(iso);
-  const tgl = Number(p[2]);
-  const bln = Number(p[1]);
-  const thn = Number(p[0]);
-  if (!tgl || !bln || !thn || bln < 1 || bln > 12) return String(iso);
-  return tgl + ' ' + BULAN[bln - 1] + ' ' + thn;
-}
+// fmtTanggal kanonis tinggal di utils (core.js).
 
 function tambahBulan(iso, n) {
   const p = String(iso || '').split('-');
@@ -53,8 +24,8 @@ function tambahBulan(iso, n) {
 
 export function render(root) {
 
-    ensurePrintCss();
-    T.onLeave(hapusPrintCss);
+    utils.ensurePrintCss('surat-kuasa-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-kuasa-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+    T.onLeave(() => utils.removePrintCss('surat-kuasa-print'));
 
     const namaPemberiI = T.input('text', 'Nama pemberi kuasa', '');
     const alamatPemberiI = T.ta(2, 'Alamat pemberi kuasa', '');
@@ -73,7 +44,7 @@ export function render(root) {
       ['12', '1 tahun']
     ], 'sekali');
     const tempatI = T.input('text', 'Tempat (untuk tanggal surat)', '');
-    const tglSuratI = T.input('date', '', isoHariIni());
+    const tglSuratI = T.input('date', '', todayISO());
     const previewBox = T.out();
     const peringatanBox = T.out();
 
@@ -81,13 +52,13 @@ export function render(root) {
     const v = (el) => el.value.trim();
 
     function tanggalSurat() {
-      const tgl = fmtTanggal(v(tglSuratI)) || fmtTanggal(isoHariIni());
+      const tgl = utils.fmtTanggal(v(tglSuratI)) || utils.fmtTanggal(todayISO());
       return (v(tempatI) ? v(tempatI) + ', ' : '') + tgl;
     }
 
     function kalimatMasa() {
       if (masaI.value === 'sekali') return 'Surat kuasa ini berlaku untuk keperluan di atas dan berakhir setelah keperluan tersebut selesai.';
-      const sampai = tambahBulan(v(tglSuratI) || isoHariIni(), Number(masaI.value));
+      const sampai = tambahBulan(v(tglSuratI) || todayISO(), Number(masaI.value));
       return 'Surat kuasa ini berlaku sampai dengan ' + sampai + '.';
     }
 

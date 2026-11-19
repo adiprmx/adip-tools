@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "biaya-sim-baru", "name": "Biaya Bikin SIM Baru", "cat": "indonesia", "icon": "🪪", "desc": "Hitung total biaya bikin SIM A atau C baru: PNBP + tes kesehatan + tes psikologi.", "keywords": "sim,baru,biaya,pnbp,tes,kesehatan,psikologi,satpas,calo"};
 export function render(root) {
@@ -19,10 +19,10 @@ export function render(root) {
       '<td style="padding:7px 4px;text-align:right;font-weight:600">' + p[1] + '</td></tr>').join('') + '</table>';
 
   const hitung = () => {
-    const pnbp = parseRp(pnbpI.value) || 0;
-    const sehat = parseRp(sehatI.value) || 0;
-    const psiko = parseRp(psikoI.value) || 0;
-    const asuransi = asuransiBox.checked ? (parseRp(asuransiI.value) || 0) : 0;
+    const pnbp = utils.parseRp(pnbpI.value) || 0;
+    const sehat = utils.parseRp(sehatI.value) || 0;
+    const psiko = utils.parseRp(psikoI.value) || 0;
+    const asuransi = asuransiBox.checked ? (utils.parseRp(asuransiI.value) || 0) : 0;
     const total = pnbp + sehat + psiko + asuransi;
     const rows = [
       ['PNBP ' + golI.value + ' (penerimaan negara)', T.rp(pnbp)],

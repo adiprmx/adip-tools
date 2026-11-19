@@ -10,10 +10,7 @@ export function render(root) {
     let buf = null, srcNode = null, origFile = null, busy = false, dariVideo = false;
     T.onLeave(() => { try { srcNode && srcNode.stop(); } catch (e) {} if (busy) cancelFFmpeg(); });
     const stopPrev = () => { try { srcNode && srcNode.stop(); } catch (e) {} srcNode = null; };
-    const parseNum = (v, fallback) => {
-      const n = parseFloat(String(v || '').replace(',', '.'));
-      return Number.isFinite(n) ? n : fallback;
-    };
+    // parseNum kanonis tinggal di utils (core.js).
 
     const drawWave = (canvas, s0, s1, fi, fo) => {
       const W = canvas.width = Math.min(720, canvas.clientWidth * 2 || 640), H = canvas.height = 160;
@@ -169,15 +166,15 @@ export function render(root) {
         barFill.style.width = Math.max(0, Math.min(100, pct || 0)) + '%';
       };
       const getRange = () => {
-        let s = Math.max(0, parseNum(sIn.value, 0)), e = Math.min(buf.duration, parseNum(eIn.value, buf.duration));
+        let s = Math.max(0, utils.parseNum(sIn.value, 0)), e = Math.min(buf.duration, utils.parseNum(eIn.value, buf.duration));
         if (e <= s) e = Math.min(buf.duration, s + 1);
         return [s, e];
       };
       const getFades = () => {
         const [s, e] = getRange();
         const seg = Math.max(0.1, e - s);
-        let fi = Math.min(5, Math.max(0, parseNum(fiIn.value, 0)));
-        let fo = Math.min(5, Math.max(0, parseNum(foIn.value, 0)));
+        let fi = Math.min(5, Math.max(0, utils.parseNum(fiIn.value, 0)));
+        let fo = Math.min(5, Math.max(0, utils.parseNum(foIn.value, 0)));
         if (fi + fo >= seg) { const k = (seg * 0.9) / (fi + fo || 1); fi *= k; fo *= k; }
         return [fi, fo];
       };

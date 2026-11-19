@@ -11,14 +11,7 @@ function loadAll() {
 }
 function saveAll(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
 
-function acak(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// acak (Fisher-Yates) kanonis tinggal di utils.shuffle (core.js).
 
 export function render(root) {
   let quizzes = loadAll();
@@ -131,7 +124,7 @@ export function render(root) {
     playBox.innerHTML = '';
     playBox.appendChild(T.el('<h3 style="margin:6px 0">' + T.esc(current.judul) + '</h3>'));
     playBox.appendChild(T.el('<p class="mut">Pilih satu jawaban untuk tiap soal, lalu kumpulkan.</p>'));
-    const order = acak(current.soal.map((_, i) => i));
+    const order = utils.shuffle(current.soal.map((_, i) => i));
     order.forEach((si, n) => {
       const s = current.soal[si];
       const card = T.el('<div class="card" style="margin-bottom:10px" data-q="' + si + '"></div>');

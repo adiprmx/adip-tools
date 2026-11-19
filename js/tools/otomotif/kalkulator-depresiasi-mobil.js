@@ -21,7 +21,10 @@ export function hitungDepresiasi(harga, umur, p1, p2) {
   const nilai = u <= 0 ? h : u <= 1 ? h * (1 - a) : h * (1 - a) * Math.pow(1 - b, u - 1);
   const riwayat = [];
   let v = h;
-  for (let t = 0; t <= Math.floor(u); t++) {
+  // Riwayat dibatasi 100 tahun pertama supaya umur ekstrem tidak
+  // membuat tabel raksasa; nilai akhir tetap dihitung dengan rumus.
+  const batasRiwayat = Math.min(Math.floor(u), 100);
+  for (let t = 0; t <= batasRiwayat; t++) {
     if (t > 0) v = t === 1 ? h * (1 - a) : v * (1 - b);
     riwayat.push({ tahun: t, nilai: Math.round(v) });
   }
@@ -53,6 +56,7 @@ export function render(root) {
     const umur = T.num(umurI.value);
     if (!(harga > 0)) { T.hide(box); return; }
     if (!isFinite(umur) || umur < 0) { T.show(box, '<p class="warn">Umur mobil harus angka 0 atau lebih.</p>'); return; }
+    if (umur > 100) { T.show(box, '<p class="warn">Umur mobil maksimal 100 tahun.</p>'); return; }
     const r = hitungDepresiasi(harga, umur, T.num(p1I.value), T.num(p2I.value));
     let tabel = '';
     if (r.riwayat.length > 1) {

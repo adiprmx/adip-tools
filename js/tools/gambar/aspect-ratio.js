@@ -1,11 +1,11 @@
 import { h as T, utils } from '../../core.js';
 
-function gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { const t = a % b; a = b; b = t; } return a || 1; }
+// gcd kanonis tinggal di utils (core.js).
 
 utils.simplifyRatio = function (w, h) {
     w = Math.round(Number(w)); h = Math.round(Number(h));
     if (!w || !h || w < 0 || h < 0) return '';
-    const g = gcd(w, h);
+    const g = utils.gcd(w, h);
     return (w / g) + ':' + (h / g);
   };
 

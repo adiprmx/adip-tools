@@ -9,7 +9,7 @@ const AI_GET = 'https://text.pollinations.ai/';
 
 const getStats = () => { try { return Object.assign({ total: 0, hoax: 0, valid: 0 }, JSON.parse(localStorage.getItem(STAT_KEY) || '{}')); } catch (e) { return { total: 0, hoax: 0, valid: 0 }; } };
 const setStats = (s) => { try { localStorage.setItem(STAT_KEY, JSON.stringify(s)); } catch (e) {} };
-const getHist = () => { try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch (e) { return []; } };
+// getHist kanonis tinggal di utils (core.js) — panggil utils.getHist(HIST_KEY).
 const setHist = (l) => { try { localStorage.setItem(HIST_KEY, JSON.stringify(l.slice(0, 50))); } catch (e) {} };
 
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -271,12 +271,12 @@ export function render(root) {
     if (verdict === 'hoax') s.hoax += 1;
     if (verdict === 'valid') s.valid += 1;
     setStats(s); tampilStat();
-    setHist([{ ts: Date.now(), query: (ringkas || '').trim() || teks.slice(0, 140).replace(/\s+/g, ' '), verdict }, ...getHist()]);
+    setHist([{ ts: Date.now(), query: (ringkas || '').trim() || teks.slice(0, 140).replace(/\s+/g, ' '), verdict }, ...utils.getHist(HIST_KEY)]);
     tampilHist();
   };
 
   const tampilHist = () => {
-    const l = getHist();
+    const l = utils.getHist(HIST_KEY);
     if (!l.length) { T.hide(histBox); return; }
     T.show(histBox, '<div style="margin-top:26px;border-top:1px solid #ffffff20;padding-top:18px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
@@ -292,7 +292,7 @@ export function render(root) {
     histBox.querySelector('[data-h=clear]').onclick = () => { setHist([]); tampilHist(); };
     histBox.querySelectorAll('[data-h]').forEach((b) => {
       if (b.getAttribute('data-h') === 'clear') return;
-      b.onclick = () => { const h = getHist()[+b.getAttribute('data-h')]; if (h) { ta.value = h.query; hitung(); cek(); } };
+      b.onclick = () => { const h = utils.getHist(HIST_KEY)[+b.getAttribute('data-h')]; if (h) { ta.value = h.query; hitung(); cek(); } };
     });
   };
 

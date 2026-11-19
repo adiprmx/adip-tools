@@ -1,48 +1,15 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, todayISO } from '../../core.js';
 
 export const meta = {"id": "surat-pernyataan", "name": "Pembuat Surat Pernyataan", "cat": "produktivitas", "icon": "📜", "desc": "Bikin surat pernyataan bermaterai: kebenaran data, belum menikah, atau tidak terikat kontrak, lengkap dengan tempat tanda tangan.", "keywords": "surat pernyataan,pernyataan bermaterai,surat pernyataan belum menikah,surat pernyataan kebenaran data,materai", "since": "6.11.0"};
 
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:18mm 20mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#surat-pernyataan-print,#surat-pernyataan-print *{visibility:visible !important}' +
-    '#surat-pernyataan-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#surat-pernyataan-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
 
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
 
-const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-function isoHariIni() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-function fmtTanggal(iso) {
-  if (!iso) return '';
-  const p = String(iso).split('-');
-  if (p.length !== 3) return String(iso);
-  const tgl = Number(p[2]);
-  const bln = Number(p[1]);
-  const thn = Number(p[0]);
-  if (!tgl || !bln || !thn || bln < 1 || bln > 12) return String(iso);
-  return tgl + ' ' + BULAN[bln - 1] + ' ' + thn;
-}
+// BULAN, isoHariIni, fmtTanggal kanonis tinggal di core.js (todayISO, utils.fmtTanggal).
 
 const ISI_BAWAAN = {
   data: 'Seluruh data dan dokumen yang saya sampaikan adalah benar dan dapat dipertanggungjawabkan.',
@@ -53,8 +20,8 @@ const ISI_BAWAAN = {
 
 export function render(root) {
 
-    ensurePrintCss();
-    T.onLeave(hapusPrintCss);
+    utils.ensurePrintCss('surat-pernyataan-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-pernyataan-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+    T.onLeave(() => utils.removePrintCss('surat-pernyataan-print'));
 
     const namaI = T.input('text', 'Nama lengkap', '');
     const tempatLahirI = T.input('text', 'Tempat lahir', '');
@@ -70,7 +37,7 @@ export function render(root) {
     ], 'data');
     const isiI = T.ta(3, 'Isi pernyataan', ISI_BAWAAN.data);
     const tempatI = T.input('text', 'Tempat (untuk tanggal surat)', '');
-    const tglSuratI = T.input('date', '', isoHariIni());
+    const tglSuratI = T.input('date', '', todayISO());
     const previewBox = T.out();
     const peringatanBox = T.out();
 
@@ -78,13 +45,13 @@ export function render(root) {
     const v = (el) => el.value.trim();
 
     function tanggalSurat() {
-      const tgl = fmtTanggal(v(tglSuratI)) || fmtTanggal(isoHariIni());
+      const tgl = utils.fmtTanggal(v(tglSuratI)) || utils.fmtTanggal(todayISO());
       return (v(tempatI) ? v(tempatI) + ', ' : '') + tgl;
     }
 
     function suratHtml() {
       const nama = v(namaI) || '(Nama lengkap)';
-      const ttl = [v(tempatLahirI), fmtTanggal(v(tglLahirI))].filter(Boolean).join(', ') || '(Tempat, tanggal lahir)';
+      const ttl = [v(tempatLahirI), utils.fmtTanggal(v(tglLahirI))].filter(Boolean).join(', ') || '(Tempat, tanggal lahir)';
       const alamat = v(alamatI) || '(Alamat lengkap)';
       const nik = v(nikI);
       const isi = v(isiI) || '(Isi pernyataan)';

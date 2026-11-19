@@ -19,13 +19,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const imgAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// imgAman kanonis tinggal di utils.urlAman (core.js) — definisi lokal ini tidak pernah dipakai.
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
 export const meta = {"id": "foto-acak", "name": "Foto Acak", "cat": "liveapi", "icon": "🖼️", "desc": "Foto acak berkualitas tinggi dari Lorem Picsum, bisa diunduh dalam ukuran pilihanmu.", "keywords": "foto,acak,random,picsum,gambar,placeholder,unsplash,unduh foto", "since": "6.17.0"};

@@ -34,14 +34,7 @@ export const SOAL = [
 const TOTAL_SOAL = 10;
 const LS_KEY = 'tebak-url-palsu-best';
 
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 function loadBest() {
   try { const v = parseInt(localStorage.getItem(LS_KEY), 10); return isNaN(v) ? 0 : v; }
   catch (e) { return 0; }
@@ -122,7 +115,7 @@ export function render(root) {
   }
 
   function mulai() {
-    list = shuffle(SOAL).slice(0, TOTAL_SOAL);
+    list = utils.shuffle(SOAL).slice(0, TOTAL_SOAL);
     idx = 0; skor = 0;
     kartu();
   }

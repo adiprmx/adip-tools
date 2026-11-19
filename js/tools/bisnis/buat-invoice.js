@@ -14,35 +14,12 @@ export const meta = {"id": "buat-invoice", "name": "Invoice Usaha dengan PPN", "
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
-
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#binvoice-print,#binvoice-print *{visibility:visible !important}' +
-    '#binvoice-print{position:absolute;inset:0;background:#fff;color:#000;padding:24px}' +
-    '#binvoice-print h2{margin:0 0 2px}' +
-    '#binvoice-print .cols{display:flex;justify-content:space-between;margin:16px 0}' +
-    '#binvoice-print table{width:100%;border-collapse:collapse}' +
-    '#binvoice-print th,#binvoice-print td{border:1px solid #666;padding:8px;text-align:left;font-size:14px}' +
-    '#binvoice-print td.num,#binvoice-print th.num{text-align:right}' +
-    '#binvoice-print .tot{text-align:right;margin-top:12px;font-size:15px}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
-
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
 export function render(root) {
 
-    ensurePrintCss();
-    T.onLeave(hapusPrintCss);
+    utils.ensurePrintCss('binvoice-print', { padding: '24px', extra: '#binvoice-print h2{margin:0 0 2px}#binvoice-print .cols{display:flex;justify-content:space-between;margin:16px 0}#binvoice-print table{width:100%;border-collapse:collapse}#binvoice-print th,#binvoice-print td{border:1px solid #666;padding:8px;text-align:left;font-size:14px}#binvoice-print td.num,#binvoice-print th.num{text-align:right}#binvoice-print .tot{text-align:right;margin-top:12px;font-size:15px}' });
+    T.onLeave(() => utils.removePrintCss('binvoice-print'));
 
     const usahaI = T.input('text', 'Nama usaha kamu', '');
     const alamatI = T.input('text', 'Alamat usaha', '');

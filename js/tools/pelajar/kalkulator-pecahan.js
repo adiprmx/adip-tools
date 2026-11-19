@@ -1,18 +1,14 @@
-import { h as T, kv, tabs } from '../../core.js';
+import { h as T, kv, tabs, utils } from '../../core.js';
 
 export const meta = {"id":"kalkulator-pecahan","name":"Kalkulator Pecahan","cat":"pelajar","icon":"🍕","desc":"Tambah, kurang, kali, bagi pecahan lengkap dengan langkah dan bentuk campurannya.","keywords":"pecahan,fraksi,matematika,pembilang,penyebut,sederhanakan,pelajar","since":"6.11.0"};
 
-export function fpb(a, b) {
-  a = Math.abs(a); b = Math.abs(b);
-  while (b) { const t = a % b; a = b; b = t; }
-  return a || 1;
-}
-const kpk = (a, b) => Math.abs(a * b) / fpb(a, b);
+// fpb kanonis tinggal di utils.gcd (core.js).
+const kpk = (a, b) => Math.abs(a * b) / utils.gcd(a, b);
 
 export function sederhanakan(pem, pen) {
   if (!pen) return null;
   if (pen < 0) { pem = -pem; pen = -pen; }
-  const f = fpb(pem, pen);
+  const f = utils.gcd(pem, pen);
   return { pem: pem / f, pen: pen / f, fpb: f };
 }
 

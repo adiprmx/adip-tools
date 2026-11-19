@@ -1,4 +1,4 @@
-import { h as T, fileInput, LOCAL_NOTE } from '../../core.js';
+import { h as T, fileInput, LOCAL_NOTE, utils } from '../../core.js';
 
 // Word ke HTML: baca dokumen Word (.docx) dan ubah jadi kode HTML
 // yang bisa ditempel ke website atau blog. Mesinnya mammoth.js.
@@ -17,22 +17,12 @@ const MAMMOTH_CDN = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.
 // entitas HTML (&#58; / &#x3a; / &colon;), tab/baris baru di dalam URL,
 // dan spasi di depan — semuanya trik yang dipakai untuk menyembunyikan
 // skema dari pemeriksaan naif. Murni, bisa diuji di Node.
-export function hrefAman(href) {
-  const v = String(href || '')
-    .replace(/&#x([0-9a-fA-F]+);/gi, (_m, h) => String.fromCharCode(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_m, d) => String.fromCharCode(Number(d)))
-    .replace(/&(tab|newline);/gi, '')
-    .replace(/&colon;/gi, ':').replace(/&amp;/gi, '&')
-    .replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+/, '');
-  const m = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(v);
-  if (!m) return true; // tanpa skema: relatif atau jangkar # — aman
-  return /^(https?|mailto)$/i.test(m[1]);
-}
+// hrefAman kanonis tinggal di utils (core.js).
 
 export function bersihkanHrefHtml(html) {
   return String(html || '').replace(/href\s*=\s*("[^"]*"|'[^']*')/gi, (cocok, dikutip) => {
     const nilai = dikutip.slice(1, -1);
-    return hrefAman(nilai) ? cocok : 'href="#"';
+    return utils.hrefAman(nilai) ? cocok : 'href="#"';
   });
 }
 

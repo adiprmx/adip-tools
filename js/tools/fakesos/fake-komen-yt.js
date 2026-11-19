@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput, utils } from '../../core.js';
 
 export const meta = {
   id: 'fake-komen-yt',
@@ -20,12 +20,7 @@ const ICO_LIKE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" st
 const ICO_DISLIKE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="transform:rotate(180deg)"><path d="M7 10v12H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm2-7l6.5 6.5c.8.8.8 2 0 2.8L12 16H20a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 18.6 27H9V10z" transform="translate(0,-3)"/></svg>';
 const ICO_PIN = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>';
 
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',55%,45%)';
-}
+// avaColor kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const wrap = T.el('<div class="fy-wrap"></div>');
@@ -125,7 +120,7 @@ export function render(root) {
     const initial = T.esc(name.charAt(0).toUpperCase() || '?');
     const ava = imgUrl
       ? '<div class="fy-ava"><img src="' + T.esc(imgUrl) + '" alt="avatar"></div>'
-      : '<div class="fy-ava" style="background:' + avaColor(name) + '">' + initial + '</div>';
+      : '<div class="fy-ava" style="background:' + utils.avaColor(name) + '">' + initial + '</div>';
     const badge = verI.value === 'ya' ? '<span class="fy-ver">' + VER_BADGE + '</span>' : '';
     const pinHtml = pinI.value === 'ya'
       ? '<div class="fy-pin">' + ICO_PIN + '<span>Disematkan oleh ' + T.esc(pinByI.value.trim() || 'kreator') + '</span></div>'

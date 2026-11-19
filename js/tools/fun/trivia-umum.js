@@ -61,14 +61,7 @@ const KAT_DUNIA = [
 const TOTAL_SOAL = 10;
 const LS_KEY = 'trivia-umum-best';
 
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 function loadBest() {
   try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
   catch (e) { return {}; }
@@ -98,8 +91,8 @@ export function render(root) {
 
   const soalLokal = () => {
     const pool = katLokalSel.value === 'semua' ? BANK_LOKAL : BANK_LOKAL.filter((s) => s.k === katLokalSel.value);
-    return shuffle(pool).slice(0, TOTAL_SOAL).map((s) => ({
-      q: s.q, kat: s.k, jawab: s.a, opsi: shuffle([s.a].concat(s.w)),
+    return utils.shuffle(pool).slice(0, TOTAL_SOAL).map((s) => ({
+      q: s.q, kat: s.k, jawab: s.a, opsi: utils.shuffle([s.a].concat(s.w)),
     }));
   };
 
@@ -117,7 +110,7 @@ export function render(root) {
       return data.results.map((r) => ({
         q: decodeHtml(r.question), kat: decodeHtml(r.category),
         jawab: decodeHtml(r.correct_answer),
-        opsi: shuffle([decodeHtml(r.correct_answer)].concat((r.incorrect_answers || []).map(decodeHtml))),
+        opsi: utils.shuffle([decodeHtml(r.correct_answer)].concat((r.incorrect_answers || []).map(decodeHtml))),
       }));
     } finally {
       clearTimeout(timer);

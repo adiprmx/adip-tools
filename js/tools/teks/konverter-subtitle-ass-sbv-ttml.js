@@ -1,4 +1,4 @@
-import { h as T, kv, errBox } from '../../core.js';
+import { h as T, kv, errBox, utils } from '../../core.js';
 
 export const meta = {"id": "konverter-subtitle-ass-sbv-ttml", "name": "Konverter Subtitle ASS/SBV/TTML", "cat": "teks", "icon": "📄", "desc": "Ubah subtitle antar format ASS, SBV, TTML, SRT, dan VTT.", "keywords": "subtitle,ass,sbv,ttml,srt,vtt,film,video,format", "since": "6.17.0"};
 
@@ -23,14 +23,7 @@ export function parseTime(s) {
   return null;
 }
 
-export function fmtSrt(ms) {
-  ms = Math.max(0, Math.round(ms));
-  const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000);
-  const s = Math.floor(ms % 60000 / 1000), r = ms % 1000;
-  const p = (n, l) => String(n).padStart(l, '0');
-  return p(h, 2) + ':' + p(m, 2) + ':' + p(s, 2) + ',' + p(r, 3);
-}
-export function fmtVtt(ms) { return fmtSrt(ms).replace(',', '.'); }
+// fmtSrt, fmtVtt kanonis tinggal di utils (core.js).
 export function fmtAss(ms) {
   ms = Math.max(0, Math.round(ms));
   const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000);
@@ -178,14 +171,9 @@ export function parseSubtitles(text, format) {
   return parseSrtVtt(text);
 }
 
-export function toSrt(cues) {
-  return cues.map((c, i) => (i + 1) + '\n' + fmtSrt(c.start) + ' --> ' + fmtSrt(c.end) + '\n' + c.text).join('\n\n') + '\n';
-}
-export function toVtt(cues) {
-  return 'WEBVTT\n\n' + cues.map((c) => fmtVtt(c.start) + ' --> ' + fmtVtt(c.end) + '\n' + c.text).join('\n\n') + '\n';
-}
+// toSrt, toVtt kanonis tinggal di utils (core.js).
 export function toSbv(cues) {
-  return cues.map((c) => fmtVtt(c.start) + ',' + fmtVtt(c.end) + '\n' + c.text).join('\n\n') + '\n';
+  return cues.map((c) => utils.fmtVtt(c.start) + ',' + utils.fmtVtt(c.end) + '\n' + c.text).join('\n\n') + '\n';
 }
 export function toAss(cues) {
   const head = '[Script Info]\nTitle: Adip Tools\nScriptType: v4.00+\nPlayResX: 1280\nPlayResY: 720\n\n' +
@@ -199,14 +187,14 @@ export function toAss(cues) {
 }
 export function toTtml(cues) {
   const ps = cues.map((c) =>
-    '    <p begin="' + fmtVtt(c.start) + '" end="' + fmtVtt(c.end) + '">' +
+    '    <p begin="' + utils.fmtVtt(c.start) + '" end="' + utils.fmtVtt(c.end) + '">' +
     encodeEntities(c.text).replace(/\n/g, '<br/>') + '</p>').join('\n');
   return '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="id">\n  <body>\n    <div>\n' +
     ps + '\n    </div>\n  </body>\n</tt>\n';
 }
 
-export const SERIALIZERS = { SRT: toSrt, VTT: toVtt, SBV: toSbv, ASS: toAss, TTML: toTtml };
+export const SERIALIZERS = { SRT: utils.toSrt, VTT: utils.toVtt, SBV: toSbv, ASS: toAss, TTML: toTtml };
 export const EXTENSIONS = { SRT: '.srt', VTT: '.vtt', SBV: '.sbv', ASS: '.ass', TTML: '.ttml' };
 
 export function render(root) {
@@ -267,7 +255,7 @@ export function render(root) {
     ));
     const rows = cues.slice(0, 8).map((c, i) =>
       '<tr><td style="padding:5px 8px;vertical-align:top;color:#a1a1aa">' + (i + 1) + '</td>' +
-      '<td style="padding:5px 8px;vertical-align:top;white-space:nowrap;font-variant-numeric:tabular-nums">' + fmtSrt(c.start) + ' → ' + fmtSrt(c.end) + '</td>' +
+      '<td style="padding:5px 8px;vertical-align:top;white-space:nowrap;font-variant-numeric:tabular-nums">' + utils.fmtSrt(c.start) + ' → ' + utils.fmtSrt(c.end) + '</td>' +
       '<td style="padding:5px 8px;vertical-align:top">' + T.esc(c.text).replace(/\n/g, '<br>') + '</td></tr>').join('');
     T.show(prevBox, '<p class="hint" style="margin-bottom:6px">Pratinjau ' + Math.min(8, cues.length) + ' baris pertama:</p>' +
       '<div style="overflow-x:auto"><table style="width:100%;font-size:13px;border-collapse:collapse;line-height:1.5">' + rows + '</table></div>' +

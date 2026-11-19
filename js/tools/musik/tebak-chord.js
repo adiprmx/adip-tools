@@ -1,4 +1,4 @@
-import { h as T, _NI, tabs } from '../../core.js';
+import { h as T, _NI, tabs, utils } from '../../core.js';
 
 export const meta = {"id": "tebak-chord", "name": "Tebak Chord dari Nada", "cat": "musik", "icon": "🔍", "desc": "Ketik nada-nada, tebak nama chordnya, plus kuis dengar chord 3 level.", "keywords": "chord,nada,tebak,nama chord,identifikasi,interval,kuis,latihan telinga"};
 
@@ -29,14 +29,7 @@ const TOTAL_SOAL = 10;
 const LS_KEY = 'tebak-chord-best-v2';
 
 const pcFreq = (pc) => 440 * Math.pow(2, (pc - 9) / 12);
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 function loadBest() {
   try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
   catch (e) { return {}; }
@@ -162,10 +155,10 @@ export function render(root) {
       dipakai.add(nama);
       // Pengecoh: root sama jenis beda, atau jenis sama root beda.
       const opsiSet = new Set([nama]);
-      const calon = shuffle(pola.filter((x) => x.suf !== p.suf)).map((x) => NS[r] + x.suf)
-        .concat(shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].filter((x) => x !== r)).map((x) => NS[x] + p.suf));
+      const calon = utils.shuffle(pola.filter((x) => x.suf !== p.suf)).map((x) => NS[r] + x.suf)
+        .concat(utils.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].filter((x) => x !== r)).map((x) => NS[x] + p.suf));
       for (const c of calon) { if (opsiSet.size >= 4) break; opsiSet.add(c); }
-      list.push({ nama, root: r, iv: p.iv, label: p.label, opsi: shuffle([...opsiSet]) });
+      list.push({ nama, root: r, iv: p.iv, label: p.label, opsi: utils.shuffle([...opsiSet]) });
     }
     return list;
   };

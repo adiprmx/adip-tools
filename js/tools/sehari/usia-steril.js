@@ -3,40 +3,38 @@ import { h as T, kv, utils } from '../../core.js';
 const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 const fmtTgl = (d) => HARI[d.getUTCDay()] + ', ' + d.getUTCDate() + ' ' + BULAN[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
-const parseTgl = (s) => { const p = String(s || '').split('-').map(Number); if (p.length !== 3 || p.some(isNaN)) return null; const d = new Date(Date.UTC(p[0], p[1] - 1, p[2])); return isNaN(d.getTime()) ? null : d; };
-const tambahBulan = (d, n) => { const x = new Date(d.getTime()); x.setUTCMonth(x.getUTCMonth() + n); return x; };
-const hariIni = () => { const n = new Date(); return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate())); };
+// parseTgl, tambahBulan, hariIni kanonis tinggal di utils (core.js).
 
 // Waktu steril yang dianjurkan. Kucing: sebelum umur 5 bulan
 // (Veterinary Task Force on Feline Sterilization, didukung AVMA).
 // Anjing: panduan AAHA 2019, batas 20 kg berat dewasa.
 utils.usiaSteril = function (jenis, kelamin, ukuran, isoLahir, isoHariIni) {
-  const lahir = parseTgl(isoLahir);
-  const today = isoHariIni ? parseTgl(isoHariIni) : hariIni();
+  const lahir = utils.parseTgl(isoLahir);
+  const today = isoHariIni ? utils.parseTgl(isoHariIni) : utils.hariIni();
   if (!lahir || !today) return null;
   let awal, akhir, ket;
   if (jenis === 'kucing') {
-    awal = tambahBulan(lahir, 4);
-    akhir = tambahBulan(lahir, 5);
+    awal = utils.tambahBulan(lahir, 4);
+    akhir = utils.tambahBulan(lahir, 5);
     ket = 'Kucing dianjurkan steril sebelum umur 5 bulan. Kucing betina bisa hamil mulai umur 4 bulan, dan steril sebelum birahi pertama menurunkan risiko tumor payudara.';
   } else if (ukuran === 'kecil') {
     if (kelamin === 'jantan') {
-      awal = tambahBulan(lahir, 6);
-      akhir = tambahBulan(lahir, 6);
+      awal = utils.tambahBulan(lahir, 6);
+      akhir = utils.tambahBulan(lahir, 6);
       ket = 'Anjing jantan ras kecil dianjurkan steril sekitar umur 6 bulan.';
     } else {
-      awal = tambahBulan(lahir, 5);
-      akhir = tambahBulan(lahir, 6);
+      awal = utils.tambahBulan(lahir, 5);
+      akhir = utils.tambahBulan(lahir, 6);
       ket = 'Anjing betina ras kecil dianjurkan steril umur 5-6 bulan, sebelum birahi pertama.';
     }
   } else {
     if (kelamin === 'jantan') {
-      awal = tambahBulan(lahir, 9);
-      akhir = tambahBulan(lahir, 15);
+      awal = utils.tambahBulan(lahir, 9);
+      akhir = utils.tambahBulan(lahir, 15);
       ket = 'Anjing jantan ras besar dianjurkan steril setelah selesai tumbuh, umur 9-15 bulan, supaya tulang dan sendi matang dulu.';
     } else {
-      awal = tambahBulan(lahir, 5);
-      akhir = tambahBulan(lahir, 15);
+      awal = utils.tambahBulan(lahir, 5);
+      akhir = utils.tambahBulan(lahir, 15);
       ket = 'Anjing betina ras besar dianjurkan steril umur 5-15 bulan. Waktu pastinya diputuskan bersama dokter hewan, menimbang risiko tumor dan risiko sendi.';
     }
   }
@@ -60,9 +58,9 @@ export function render(root) {
   aturUkuran();
 
   const hitung = () => {
-    const lahir = parseTgl(tgl.value);
+    const lahir = utils.parseTgl(tgl.value);
     if (!lahir) { T.show(box, '<span class="err">Pilih tanggal lahir hewan dulu.</span>'); return; }
-    if (lahir > hariIni()) { T.show(box, '<span class="err">Tanggal lahirnya masih di masa depan. Cek lagi tanggalnya.</span>'); return; }
+    if (lahir > utils.hariIni()) { T.show(box, '<span class="err">Tanggal lahirnya masih di masa depan. Cek lagi tanggalnya.</span>'); return; }
     const r = utils.usiaSteril(jenis.value, kelamin.value, ukuran.value, tgl.value);
     const sama = r.awal.getTime() === r.akhir.getTime();
     let statusHtml;

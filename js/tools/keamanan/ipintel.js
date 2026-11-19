@@ -75,9 +75,9 @@ async function lookupIpapi(ip) {
   };
 }
 
-const getHist = () => { try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch (e) { return []; } };
+// getHist kanonis tinggal di utils (core.js) — panggil utils.getHist(HIST_KEY).
 const pushHist = (h) => {
-  const l = [h, ...getHist().filter((x) => x.ip !== h.ip)].slice(0, 6);
+  const l = [h, ...utils.getHist(HIST_KEY).filter((x) => x.ip !== h.ip)].slice(0, 6);
   try { localStorage.setItem(HIST_KEY, JSON.stringify(l)); } catch (e) {}
 };
 
@@ -94,12 +94,12 @@ export function render(root) {
   const btnSaya = T.btn('IP Saya', () => analisis(true));
 
   const tampilHist = () => {
-    const l = getHist();
+    const l = utils.getHist(HIST_KEY);
     if (!l.length) { T.hide(histBox); return; }
     T.show(histBox, '<p class="dim" style="font-size:12.5px;margin:14px 0 6px"><b>Riwayat:</b></p><div style="display:flex;gap:6px;flex-wrap:wrap">' +
       l.map((h, i) => '<button class="btn" data-h="' + i + '" style="font-family:monospace;font-size:12px" title="' + T.esc(h.country || '') + '">' +
         T.esc(h.ip) + (h.asn && h.asn !== '-' ? ' <span class="dim">' + T.esc(h.asn) + '</span>' : '') + '</button>').join('') + '</div>');
-    histBox.querySelectorAll('[data-h]').forEach((b) => { b.onclick = () => { inp.value = getHist()[+b.getAttribute('data-h')].ip; analisis(); }; });
+    histBox.querySelectorAll('[data-h]').forEach((b) => { b.onclick = () => { inp.value = utils.getHist(HIST_KEY)[+b.getAttribute('data-h')].ip; analisis(); }; });
   };
 
   const analisis = async (self) => {

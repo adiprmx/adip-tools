@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Foto dan dokumen sejarah dari Library of Congress AS (tanpa key).
 // Terverifikasi 18 Nov 2026: www.loc.gov/photos/?fo=json 200, CORS *.
@@ -14,13 +14,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const imgAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// imgAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
 export const meta = {"id": "arsip-library-of-congress", "name": "Arsip Library of Congress", "cat": "liveapi", "icon": "🏛️", "desc": "Foto dan dokumen sejarah dari perpustakaan nasional Amerika Serikat.", "keywords": "library of congress,arsip,sejarah,foto lama,dokumen,loc,amerika", "since": "6.17.0"};
@@ -52,7 +46,7 @@ export function render(root) {
         items.map((it) => {
           const item = it.item || {};
           const imgs = Array.isArray(item.image_url) ? item.image_url : [];
-          const thumb = imgAman(imgs[imgs.length - 1] || imgs[0]);
+          const thumb = utils.urlAman(imgs[imgs.length - 1] || imgs[0]);
           const judul = String(it.title || 'Tanpa judul');
           const link = tautanAman(item.url) ? item.url : (tautanAman(it.url) ? it.url : null);
           const isi = (thumb ? '<img src="' + esc(thumb) + '" alt="' + esc(judul) + '" loading="lazy" data-err="hide" style="width:100%;height:120px;object-fit:cover;border-radius:8px;display:block">' : '<div style="height:120px;border-radius:8px;background:#221d18;display:flex;align-items:center;justify-content:center"><span class="dim" style="font-size:12px">Tidak ada pratinjau</span></div>') +

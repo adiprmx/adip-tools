@@ -30,14 +30,7 @@ const LS_KEY = 'tebak-bendera-best-v2';
 const flag = (iso) => String.fromCodePoint.apply(null,
   iso.toUpperCase().split('').map((c) => 0x1F1E6 + c.charCodeAt(0) - 65));
 
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 function loadBest() {
   try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
   catch (e) { return {}; }
@@ -58,9 +51,9 @@ export function render(root) {
 
   const buatSoal = () => {
     const pool = lvlSel.value === 'semua' ? NEGARA : NEGARA.filter((n) => n[2] === 'mudah');
-    return shuffle(pool).slice(0, TOTAL_SOAL).map(([nama, iso]) => {
-      const pengecoh = shuffle(pool.filter((n) => n[0] !== nama)).slice(0, 3).map((n) => n[0]);
-      return { nama, iso, emoji: flag(iso), opsi: shuffle([nama].concat(pengecoh)) };
+    return utils.shuffle(pool).slice(0, TOTAL_SOAL).map(([nama, iso]) => {
+      const pengecoh = utils.shuffle(pool.filter((n) => n[0] !== nama)).slice(0, 3).map((n) => n[0]);
+      return { nama, iso, emoji: flag(iso), opsi: utils.shuffle([nama].concat(pengecoh)) };
     });
   };
 

@@ -213,7 +213,7 @@ export function renderBaru(host, manifest, version, { limit = 8 } = {}) {
    berguna/umum dipakai di kategorinya), BUKAN klaim peringkat
    pemakaian — label di layar memakai "Coba dulu / mulai dari sini",
    bukan "paling populer". Semua ID di bawah diverifikasi ada di
-   manifest v6.11.5 (588 tool); catUnggulan() tetap memfilter ID yang
+   manifest v6.17.0 (857 tool); catUnggulan() tetap memfilter ID yang
    hilang, jadi aman bila ada tool yang dihapus di rilis berikut. */
 export const CAT_META = {
   keamanan: { desc: 'Jaga akun dan datamu: sandi kuat, cek kebocoran, dan kenali modus penipuan sebelum kena.', unggulan: ['password-generator', 'password-strength', 'cek-privasi-tempel'] },

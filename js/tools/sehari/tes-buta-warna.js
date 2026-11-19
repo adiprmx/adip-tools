@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "tes-buta-warna", "name": "Tes Buta Warna", "cat": "sehari", "icon": "👁️", "desc": "Tes Ishihara sederhana lewat gambar.", "keywords": "buta warna,ishihara,mata,tes", "file": "tools/sehari/tes-buta-warna.js"};
 
@@ -6,20 +6,13 @@ const PLATS = ['12', '8', '6', '29', '57', '74'];
 const BG_PAL = ['#9aa5a1', '#8b9a93', '#a8b0a6', '#97a3a8', '#b0a89e', '#8f9788', '#a3a8b0'];
 const FG_PAL = ['#d97b3f', '#c9632c', '#e08a4a', '#b85a28', '#cf7038'];
 
-function mulberry32(a) {
-  return function () {
-    a |= 0; a = a + 0x6D2B79F5 | 0;
-    let t = Math.imul(a ^ a >>> 15, 1 | a);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
-}
+// mulberry32 kanonis tinggal di utils (core.js).
 
 function drawPlate(canvas, digit, seed) {
   const S = 320, R = 148, CX = S / 2, CY = S / 2;
   canvas.width = S; canvas.height = S;
   const ctx = canvas.getContext('2d');
-  const rnd = mulberry32(seed);
+  const rnd = utils.mulberry32(seed);
 
   // masker angka di kanvas offscreen
   const M = 160;

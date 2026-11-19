@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Film Studio Ghibli lewat Ghibli API (tanpa key).
 // Terverifikasi 18 Nov 2026: ghibliapi.vercel.app/films 200, CORS echo.
@@ -14,13 +14,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const imgAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// imgAman kanonis tinggal di utils.urlAman (core.js).
 
 export const meta = {"id": "film-studio-ghibli", "name": "Film Studio Ghibli", "cat": "liveapi", "icon": "🎞️", "desc": "Daftar film Studio Ghibli lengkap: judul, sutradara, tahun, dan sinopsisnya.", "keywords": "ghibli,film,anime,studio ghibli,miyazaki,totoro,spirited away", "since": "6.17.0"};
 
@@ -42,7 +36,7 @@ export function render(root) {
       const list = j.slice().sort((a, b) => Number(a.release_date || 0) - Number(b.release_date || 0));
       T.show(box, '<p class="hint">' + list.length + ' film, diurutkan dari yang paling lama. Ketuk "Sinopsis" untuk membaca ceritanya.</p>' +
         list.map((f) => {
-          const gambar = imgAman(f.image);
+          const gambar = utils.urlAman(f.image);
           const skor = Number(f.rt_score);
           return '<div style="border-top:1px solid #ffffff14;padding:12px 0;display:flex;gap:12px">' +
             (gambar ? '<img src="' + esc(gambar) + '" alt="' + esc(String(f.title || 'Poster film')) + '" loading="lazy" data-err="hide" style="width:72px;height:auto;border-radius:8px;flex:none;object-fit:cover;align-self:flex-start">' : '') +

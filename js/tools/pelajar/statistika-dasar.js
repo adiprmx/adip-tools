@@ -1,11 +1,8 @@
-import { h as T, kvRows } from '../../core.js';
+import { h as T, kvRows, utils } from '../../core.js';
 
 export const meta = {"id":"statistika-dasar","name":"Statistika Dasar","cat":"pelajar","icon":"📈","desc":"Mean, median, modus, range & standar deviasi dari deret angka.","keywords":"statistika,mean,median,modus,range,standar deviasi,rata-rata,pelajar"};
 
-function r4(v) {
-  const r = Math.round(v * 1e4) / 1e4;
-  return String(Object.is(r, -0) ? 0 : r);
-}
+// r4 kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const out = T.out();
@@ -41,18 +38,18 @@ export function render(root) {
     const sd = Math.sqrt(varian);
 
     let langkah = '<p class="hint" style="margin:10px 0 4px"><b>Langkah singkat:</b></p>';
-    langkah += '<p class="hint" style="margin:0 0 4px">Data diurutkan dulu: ' + T.esc(urut.slice(0, 200).map(r4).join(', ')) + (n > 200 ? ', … (' + T.fmt(n) + ' data)' : '') + '</p>';
+    langkah += '<p class="hint" style="margin:0 0 4px">Data diurutkan dulu: ' + T.esc(urut.slice(0, 200).map(utils.r4).join(', ')) + (n > 200 ? ', … (' + T.fmt(n) + ' data)' : '') + '</p>';
     langkah += '<p class="hint" style="margin:0">Median = ' + (n % 2 === 1
-      ? 'data ke-' + ((n + 1) / 2) + ' dari ' + n + ' data → <b>' + r4(median) + '</b>'
-      : 'rata-rata data ke-' + (n / 2) + ' dan ke-' + (n / 2 + 1) + ' → (' + r4(urut[n / 2 - 1]) + ' + ' + r4(urut[n / 2]) + ') / 2 = <b>' + r4(median) + '</b>') + '</p>';
+      ? 'data ke-' + ((n + 1) / 2) + ' dari ' + n + ' data → <b>' + utils.r4(median) + '</b>'
+      : 'rata-rata data ke-' + (n / 2) + ' dan ke-' + (n / 2 + 1) + ' → (' + utils.r4(urut[n / 2 - 1]) + ' + ' + utils.r4(urut[n / 2]) + ') / 2 = <b>' + utils.r4(median) + '</b>') + '</p>';
 
     T.show(out, kvRows([
       ['Jumlah data (n)', T.fmt(n)],
-      ['Mean (rata-rata)', r4(mean)],
-      ['Median (nilai tengah)', r4(median)],
+      ['Mean (rata-rata)', utils.r4(mean)],
+      ['Median (nilai tengah)', utils.r4(median)],
       ['Modus', String(modus)],
-      ['Range (max − min)', r4(range)],
-      ['Standar deviasi (populasi)', r4(sd)],
+      ['Range (max − min)', utils.r4(range)],
+      ['Standar deviasi (populasi)', utils.r4(sd)],
     ]) + langkah + (buang > 0 ? '<p class="hint">Catatan: ' + buang + ' potong teks bukan angka, jadi diabaikan.</p>' : ''));
   };
 

@@ -1,6 +1,6 @@
 import { h as T, utils, dlNodePng } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 const SATUAN = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
 function terbilang(n) {
@@ -42,7 +42,7 @@ export function render(root) {
     let teksKwitansi = '';
 
     const buat = () => {
-      const jumlah = parseRp(jumlahI.value);
+      const jumlah = utils.parseRp(jumlahI.value);
       const dari = dariI.value.trim();
       const untuk = untukI.value.trim();
       const penerima = penerimaI.value.trim();

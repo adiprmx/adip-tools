@@ -5,26 +5,9 @@ export const meta = {"id": "surat-lamaran", "name": "Pembuat Surat Lamaran", "ca
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:18mm 20mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#surat-print,#surat-print *{visibility:visible !important}' +
-    '#surat-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#surat-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
 
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
 
 const LAMPIRAN_DEFAULT = [
   'Daftar Riwayat Hidup (CV)',
@@ -39,8 +22,8 @@ const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', '
 
 export function render(root) {
 
-    ensurePrintCss();
-    T.onLeave(hapusPrintCss);
+    utils.ensurePrintCss('surat-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+    T.onLeave(() => utils.removePrintCss('surat-print'));
 
     const namaI = T.input('text', 'Nama lengkap', '');
     const tempatI = T.input('text', 'Tempat (untuk tanggal surat)', '');

@@ -1,36 +1,8 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-probabilitas', name: 'Kalkulator Probabilitas', cat: 'pelajar', icon: '🎲', desc: 'Peluang gabungan, bersyarat, komplemen, dan distribusi binomial. Tulis peluangnya, langsung ketahuan hasilnya.', keywords: 'probabilitas,peluang,binomial,kombinasi,peluang gabungan,peluang bersyarat,bayes,statistik', since: '6.17.0' };
 
-export function lgamma(z) {
-  const p = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
-  if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lgamma(1 - z);
-  z -= 1;
-  let x = p[0];
-  for (let i = 1; i < 9; i++) x += p[i] / (z + i);
-  const t = z + 7.5;
-  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
-}
-
-// Kombinasi C(n,k) via log-gamma (aman untuk n besar).
-export function kombinasi(n, k) {
-  if (k < 0 || k > n) return 0;
-  return Math.round(Math.exp(lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1)));
-}
-
-// Peluang binomial: tepat k berhasil dari n percobaan dengan peluang p.
-export function binomialPMF(n, k, p) {
-  if (p === 0) return k === 0 ? 1 : 0;
-  if (p === 1) return k === n ? 1 : 0;
-  return kombinasi(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
-}
-
-// Peluang binomial kumulatif: paling banyak k berhasil.
-export function binomialCDF(n, k, p) {
-  let s = 0;
-  for (let i = 0; i <= k; i++) s += binomialPMF(n, i, p);
-  return s;
-}
+// lgamma, kombinasi, binomialPMF, binomialCDF kanonis tinggal di utils (core.js).
 
 function fmtP(p) {
   if (!isFinite(p)) return 'di luar jangkauan';
@@ -123,14 +95,14 @@ export function render(root) {
       if (!Number.isInteger(n) || n < 1 || n > 1000) { T.toast('Jumlah percobaan harus bilangan bulat 1 sampai 1000'); return; }
       if (!Number.isInteger(k) || k < 0 || k > n) { T.toast('Jumlah berhasil harus bilangan bulat 0 sampai ' + n); return; }
       if (p == null) return;
-      const tepat = binomialPMF(n, k, p);
-      const palingBanyak = binomialCDF(n, k, p);
-      const palingSedikit = 1 - binomialCDF(n, k - 1, p);
+      const tepat = utils.binomialPMF(n, k, p);
+      const palingBanyak = utils.binomialCDF(n, k, p);
+      const palingSedikit = 1 - utils.binomialCDF(n, k - 1, p);
       const rata = n * p;
       T.show(box,
         '<p class="big">Tepat ' + k + ' berhasil: ' + fmtP(tepat) + '</p>' +
         '<p>Paling banyak ' + k + ' berhasil: ' + fmtP(palingBanyak) + '. Paling sedikit ' + k + ' berhasil: ' + fmtP(palingSedikit) + '.</p>' +
-        '<p class="hint">Rata-rata berhasil yang diharapkan: ' + fmtDes(rata) + ' dari ' + n + ' percobaan. Kombinasi C(' + n + ',' + k + ') = ' + T.fmt(kombinasi(n, k)) + '.</p>');
+        '<p class="hint">Rata-rata berhasil yang diharapkan: ' + fmtDes(rata) + ' dari ' + n + ' percobaan. Kombinasi C(' + n + ',' + k + ') = ' + T.fmt(utils.kombinasi(n, k)) + '.</p>');
     }
   }
 

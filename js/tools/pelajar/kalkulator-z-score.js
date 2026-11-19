@@ -1,20 +1,12 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-z-score', name: 'Kalkulator Z-Score', cat: 'pelajar', icon: '🎯', desc: 'Seberapa jauh nilaimu dari rata-rata, dalam satuan simpangan baku, plus persentilnya.', keywords: 'z-score,nilai z,standarisasi,persentil,distribusi normal,standar deviasi', since: '6.17.0' };
 
-// CDF normal standar via erf (Abramowitz-Stegun 7.1.26).
-// Φ(x) = 0.5 * (1 + erf(x / √2)) — pembagi √2 wajib ada.
-export function normalCDF(x) {
-  const z = x / Math.SQRT2;
-  const t = 1 / (1 + 0.3275911 * Math.abs(z));
-  const poly = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))));
-  const erf = 1 - poly * Math.exp(-z * z);
-  return 0.5 * (1 + (z >= 0 ? erf : -erf));
-}
+// normalCDF kanonis tinggal di utils (core.js).
 
 export function hitungZ(nilai, mean, sd) {
   const z = (nilai - mean) / sd;
-  return { z, persentil: normalCDF(z) * 100 };
+  return { z, persentil: utils.normalCDF(z) * 100 };
 }
 
 function fmtNum(v, des) {

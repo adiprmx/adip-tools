@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js';
+import { h as T, esc, utils } from '../../core.js';
 
 export const meta = {"id":"pokemon-viewer","name":"Pokemon Viewer","cat":"liveapi","icon":"⚡","desc":"Lihat sprite, tipe, dan kemampuan Pokemon dari PokeAPI.","keywords":"pokemon,pokeapi,sprite,pikachu,tipe,kemampuan,game"};
 
@@ -8,28 +8,14 @@ export function render(root) {
   const inp = T.input('text', 'Nama atau ID, cth: pikachu / 25', '');
   const box = T.out();
 
-  const getJson = async (url) => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
-    try {
-      const res = await fetch(url, { signal: ctrl.signal });
-      if (!res.ok) {
-        const err = new Error('HTTP ' + res.status);
-        err.status = res.status;
-        throw err;
-      }
-      return await res.json();
-    } finally {
-      clearTimeout(timer);
-    }
-  };
+  // getJson kanonis tinggal di utils (core.js).
 
   const lihat = async () => {
     const q = inp.value.trim().toLowerCase();
     if (!q) { T.show(box, '<span class="err">Isi nama atau ID Pokemon dulu.</span>'); return; }
     T.show(box, '<div class="dim center">Mencari Pokemon "' + esc(q) + '"…</div>');
     try {
-      const d = await getJson('https://pokeapi.co/api/v2/pokemon/' + encodeURIComponent(q));
+      const d = await utils.getJson('https://pokeapi.co/api/v2/pokemon/' + encodeURIComponent(q));
       const sp = d.sprites || {};
       const art = sp.other && sp.other['official-artwork'] && sp.other['official-artwork'].front_default;
       const imgUrl = art || sp.front_default || '';

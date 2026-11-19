@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js';
+import { h as T, utils, beep, actx, onLeave, todayISO } from '../../core.js';
 
 export const meta = {"id": "jadwal-ronda", "name": "Jadwal Ronda", "cat": "indonesia", "icon": "🌙", "desc": "Generate jadwal ronda malam 14 hari: rotasi otomatis warga per malam.", "keywords": "ronda,siskamling,jaga,malam,warga,jadwal,rotasi,keamanan"};
 export function render(root) {
@@ -6,7 +6,7 @@ export function render(root) {
   const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
   const pad2 = (n) => String(n).padStart(2, '0');
-  const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+  // todayISO dari core.js.
 
   let cfg = null;
   try {

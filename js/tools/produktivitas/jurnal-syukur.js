@@ -1,11 +1,10 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, todayISO } from '../../core.js';
 
 export const meta = {"id":"jurnal-syukur","name":"Jurnal Syukur","cat":"produktivitas","icon":"🙏","desc":"Tulis 3 hal yang kamu syukuri hari ini, simpel dan menenangkan.","keywords":"jurnal,syukur,gratitude,harian,refleksi,mindfulness,catatan"};
 
 export function render(root) {
   const KEY = 'adip-tools:jurnal-syukur';
-  const p2 = (n) => String(n).padStart(2, '0');
-  const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
+  // todayISO dari core.js.
   const fmtTgl = (iso) => {
     try {
       const [y, m, dd] = String(iso).split('-').map(Number);

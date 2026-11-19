@@ -1,30 +1,13 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "surat-perjanjian-sewa", "name": "Pembuat Surat Perjanjian Sewa", "cat": "produktivitas", "icon": "🏠", "desc": "Bikin surat perjanjian sewa rumah, kos, atau ruko: pihak pemilik & penyewa, harga, deposit, aturan, dan tanda tangan, siap cetak atau salin.", "keywords": "surat sewa,perjanjian sewa,kontrak sewa,rumah,kos,ruko,deposit,penyewa,pemilik", "since": "6.13.0"};
 
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:18mm 20mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#surat-sewa-print,#surat-sewa-print *{visibility:visible !important}' +
-    '#surat-sewa-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#surat-sewa-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
 
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
 
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -92,8 +75,8 @@ const CARA_BAYAR = {
 };
 
 export function render(root) {
-  ensurePrintCss();
-  T.onLeave(hapusPrintCss);
+  utils.ensurePrintCss('surat-sewa-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-sewa-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+  T.onLeave(() => utils.removePrintCss('surat-sewa-print'));
 
   const uang = (ph, val) => { const i = T.input('text', ph, val || ''); i.inputMode = 'decimal'; return i; };
 

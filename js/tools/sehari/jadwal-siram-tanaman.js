@@ -1,12 +1,11 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, todayISO } from '../../core.js';
 
 export const meta = {"id":"jadwal-siram-tanaman","name":"Jadwal Siram","cat":"sehari","icon":"🪴","desc":"Catat tanamanmu, diingetin kapan waktunya disiram.","keywords":"tanaman,siram,jadwal,berkebun,menyiram,rawat tanaman,air"};
 
 export function render(root) {
   const KEY = 'adip-tools:jadwal-siram-tanaman';
   const DAY = 86400000;
-  const p2 = (n) => String(n).padStart(2, '0');
-  const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
+  // todayISO dari core.js.
   const fmtTgl = (iso) => {
     const [y, m, dd] = String(iso).split('-').map(Number);
     const nama = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];

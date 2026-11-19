@@ -1,45 +1,14 @@
-import { h as T, utils } from '../../core.js';
+import { h as T, utils, todayISO } from '../../core.js';
 
 export const meta = {"id": "surat-duka", "name": "Pembuat Surat Belasungkawa", "cat": "produktivitas", "icon": "🕊️", "desc": "Bikin surat turut berduka cita dengan bahasa yang sopan dan hangat untuk keluarga yang ditinggalkan, siap salin atau cetak.", "keywords": "surat duka,belasungkawa,turut berduka cita,surat belasungkawa,ucapan duka", "since": "6.11.0"};
 
-let _printCssDone = false;
+// CSS cetak kanonis: utils.ensurePrintCss (core.js).
 
-function ensurePrintCss() {
-  if (_printCssDone) return;
-  _printCssDone = true;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:18mm 20mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#surat-duka-print,#surat-duka-print *{visibility:visible !important}' +
-    '#surat-duka-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#surat-duka-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-}
-
-const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-
-function isoHariIni() {
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-function fmtTanggal(iso) {
-  if (!iso) return '';
-  const p = String(iso).split('-');
-  if (p.length !== 3) return String(iso);
-  const tgl = Number(p[2]);
-  const bln = Number(p[1]);
-  const thn = Number(p[0]);
-  if (!tgl || !bln || !thn || bln < 1 || bln > 12) return String(iso);
-  return tgl + ' ' + BULAN[bln - 1] + ' ' + thn;
-}
+// BULAN, isoHariIni, fmtTanggal kanonis tinggal di core.js (todayISO, utils.fmtTanggal).
 
 export function render(root) {
 
-    ensurePrintCss();
+    utils.ensurePrintCss('surat-duka-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-duka-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
 
     const pengirimI = T.input('text', 'Nama kamu (pengirim)', '');
     const namaAlmI = T.input('text', 'Nama almarhum / almarhumah', '');
@@ -48,7 +17,7 @@ export function render(root) {
     const hubunganI = T.input('text', 'Hubungan kamu dengan beliau (boleh kosong), contoh: rekan kerja', '');
     const pesanI = T.ta(3, 'Pesan pribadi (boleh kosong), contoh: kenangan atau kebaikan beliau yang kamu ingat', '');
     const tempatI = T.input('text', 'Tempat (untuk tanggal surat)', '');
-    const tglSuratI = T.input('date', '', isoHariIni());
+    const tglSuratI = T.input('date', '', todayISO());
     const previewBox = T.out();
     const peringatanBox = T.out();
 
@@ -56,7 +25,7 @@ export function render(root) {
     const v = (el) => el.value.trim();
 
     function tanggalSurat() {
-      const tgl = fmtTanggal(v(tglSuratI)) || fmtTanggal(isoHariIni());
+      const tgl = utils.fmtTanggal(v(tglSuratI)) || utils.fmtTanggal(todayISO());
       return (v(tempatI) ? v(tempatI) + ', ' : '') + tgl;
     }
 

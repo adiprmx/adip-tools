@@ -42,14 +42,7 @@ const PERISTIWA = [
 const TOTAL_SOAL = 10;
 const LS_KEY = 'tebak-tahun-best';
 
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 function loadBest() {
   try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
   catch (e) { return {}; }
@@ -59,7 +52,7 @@ function saveBest(b) { try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } 
 // Pengecoh tahun: dekat-dekat tahun benar (selisih 1–20 tahun) agar menjebak.
 const pengecohTahun = (th) => {
   const s = new Set();
-  const selisih = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20]);
+  const selisih = utils.shuffle([1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20]);
   for (const d of selisih) {
     if (s.size >= 3) break;
     const v = Math.random() < 0.5 ? th - d : th + d;
@@ -84,9 +77,9 @@ export function render(root) {
 
   const buatSoal = () => {
     const pool = katSel.value === 'semua' ? PERISTIWA : PERISTIWA.filter((p) => p.k === katSel.value);
-    return shuffle(pool).slice(0, TOTAL_SOAL).map((p) => ({
+    return utils.shuffle(pool).slice(0, TOTAL_SOAL).map((p) => ({
       e: p.e, k: p.k, th: p.th,
-      opsi: shuffle([p.th].concat(pengecohTahun(p.th))).sort((a, b) => a - b),
+      opsi: utils.shuffle([p.th].concat(pengecohTahun(p.th))).sort((a, b) => a - b),
     }));
   };
 

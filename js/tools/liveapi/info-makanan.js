@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js';
+import { h as T, esc, utils } from '../../core.js';
 
 export const meta = {"id":"info-makanan","name":"Info Makanan Kemasan","cat":"liveapi","icon":"🍫","desc":"Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.","keywords":"makanan,barcode,nutrisi,gizi,kalori,kemasan,openfoodfacts,skor"};
 
@@ -9,21 +9,7 @@ export function render(root) {
   const inp = T.input('text', 'Barcode (cth: 3017620422003) atau nama produk', '');
   const box = T.out();
 
-  const getJson = async (url) => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
-    try {
-      const res = await fetch(url, { signal: ctrl.signal });
-      if (!res.ok) {
-        const err = new Error('HTTP ' + res.status);
-        err.status = res.status;
-        throw err;
-      }
-      return await res.json();
-    } finally {
-      clearTimeout(timer);
-    }
-  };
+  // getJson kanonis tinggal di utils (core.js).
 
   const errText = (e) => {
     if (e && e.name === 'AbortError') return 'Waktu habis — server tidak merespons dalam 15 detik. Periksa koneksi internet lalu coba lagi.';
@@ -77,7 +63,7 @@ export function render(root) {
   const detailBarcode = async (barcode) => {
     T.show(box, '<div class="dim center">Mencari barcode ' + esc(barcode) + '…</div>');
     try {
-      const d = await getJson('https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(barcode) + '.json');
+      const d = await utils.getJson('https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(barcode) + '.json');
       if (d.status !== 1 || !d.product) {
         T.show(box, '<span class="err">Produk dengan barcode "' + esc(barcode) + '" tidak ditemukan di Open Food Facts.</span>');
         return;
@@ -94,7 +80,7 @@ export function render(root) {
   const cariNama = async (q) => {
     T.show(box, '<div class="dim center">Mencari "' + esc(q) + '"…</div>');
     try {
-      const d = await getJson('https://world.openfoodfacts.org/cgi/search.pl?search_terms=' + encodeURIComponent(q) + '&search_simple=1&action=process&json=1&page_size=8');
+      const d = await utils.getJson('https://world.openfoodfacts.org/cgi/search.pl?search_terms=' + encodeURIComponent(q) + '&search_simple=1&action=process&json=1&page_size=8');
       const list = (d.products || []).slice(0, 8);
       if (!list.length) {
         T.show(box, '<span class="err">Tidak ada hasil untuk "' + esc(q) + '". Coba kata kunci lain.</span>');

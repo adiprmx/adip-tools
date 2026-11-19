@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput, utils } from '../../core.js';
 
 export const meta = {
   id: 'fake-chat-messenger',
@@ -23,12 +23,7 @@ const MODES = {
   gelap: { bg: '#0A0A0A', fg: '#E4E6EB', sub: '#B0B3B8', inB: '#303030', inFg: '#E4E6EB', hdBg: '#0A0A0A', inputBg: '#3A3B3C', ph: '#B0B3B8', nav: '#E4E6EB' },
 };
 
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',55%,45%)';
-}
+// avaColor kanonis tinggal di utils (core.js).
 
 const SVG_BACK = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>';
 const SVG_CHEV = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>';
@@ -199,7 +194,7 @@ export function render(root) {
       const isThumb = m.msg.trim() === '👍' || m.msg.trim().toLowerCase() === '[jempol]';
       const sideCls = m.side === 'B' ? 'fcm-b' : 'fcm-a';
       const miniHtml = m.side === 'A'
-        ? '<div class="fcm-mini' + (last ? '' : ' fcm-blank') + '" style="background:' + avaColor(name) + '">' + avHtml + '</div>'
+        ? '<div class="fcm-mini' + (last ? '' : ' fcm-blank') + '" style="background:' + utils.avaColor(name) + '">' + avHtml + '</div>'
         : '';
       let inner = '';
       if (isThumb) {
@@ -213,7 +208,7 @@ export function render(root) {
       }
       chatHtml += '<div class="fcm-row ' + sideCls + ' fcm-' + pos + (first ? ' fcm-grp' : '') + '">' + miniHtml + inner + '</div>';
       if (m.seen && m.side === 'B') {
-        chatHtml += '<div class="fcm-seen"><div class="fcm-mini" style="background:' + avaColor(name) + '">' + avHtml + '</div></div>';
+        chatHtml += '<div class="fcm-seen"><div class="fcm-mini" style="background:' + utils.avaColor(name) + '">' + avHtml + '</div></div>';
       } else if (m.time && last && !typing) {
         chatHtml += '<div class="fcm-time" style="color:' + md.sub + ';align-self:' + (m.side === 'B' ? 'flex-end' : 'flex-start') + '">' + T.esc(m.time) + '</div>';
       }
@@ -223,7 +218,7 @@ export function render(root) {
       T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, dark) + '</div>';
     const hdHtml = '<div class="fcm-hd" style="background:' + md.hdBg + ';color:' + md.fg + '">' +
       '<button class="fcm-bk" type="button" tabindex="-1" style="color:' + ct.accent + '">' + (isIPh ? SVG_CHEV : SVG_BACK) + '</button>' +
-      '<div class="fcm-avwrap"><div class="fcm-av" style="background:' + avaColor(name) + '">' + avHtml + '</div>' +
+      '<div class="fcm-avwrap"><div class="fcm-av" style="background:' + utils.avaColor(name) + '">' + avHtml + '</div>' +
       (showDot ? '<span class="fcm-dot"></span>' : '') + '</div>' +
       '<div class="fcm-nm"><b>' + T.esc(name) + '</b><span style="color:' + md.sub + '">' + T.esc(status) + '</span></div>' +
       '<div class="fcm-hic" style="color:' + ct.accent + '">' + SVG_PHONE + SVG_VIDEO + '</div></div>';

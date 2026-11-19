@@ -623,6 +623,713 @@ utils.extractPhones = function (s) {
     return [...new Set((m || []).map((x) => x.replace(/^\+/, '')))];
   };
 
+/* ================= Statistik: distribusi (kanonis, G3 C1) =================
+   SATU-SATUNYA salinan fungsi-fungsi ini — dikonsolidasi dari duplikat di
+   kalkulator-p-value, kalkulator-interval-kepercayaan, kalkulator-probabilitas,
+   kalkulator-z-score (utang G2 §8.6). Tool statistik memakai utils.* di sini;
+   JANGAN duplikasi lagi di file tool. Implementasi kanonis = salinan terbaik
+   yang sudah ada: normalCDF dengan pembagi √2, zKritis Acklam + Newton ~1e-9. */
+
+// Fungsi galat erf (Abramowitz-Stegun 7.1.26, galat |ε| ≤ 1.5e-7).
+utils.erf = function (x) {
+  const t = 1 / (1 + 0.3275911 * Math.abs(x));
+  const poly = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))));
+  const e = 1 - poly * Math.exp(-x * x);
+  return x >= 0 ? e : -e;
+};
+
+// CDF normal standar. Φ(x) = 0.5 * (1 + erf(x / √2)) — pembagi √2 wajib ada.
+utils.normalCDF = function (x) {
+  return 0.5 * (1 + utils.erf(x / Math.SQRT2));
+};
+
+// ln Gamma via pendekatan Lanczos (koefisien g=7, n=9).
+utils.lgamma = function (z) {
+  const p = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - utils.lgamma(1 - z);
+  z -= 1;
+  let x = p[0];
+  for (let i = 1; i < 9; i++) x += p[i] / (z + i);
+  const t = z + 7.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+};
+
+// Beta tak lengkap ternormalisasi via pecahan lanjut (Numerical Recipes betacf).
+utils.betainc = function (a, b, x) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const bt = Math.exp(utils.lgamma(a + b) - utils.lgamma(a) - utils.lgamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  const betacf = (aa, bb, xx) => {
+    const MAX = 200, EPS = 3e-14, FPMIN = 1e-300;
+    const qab = aa + bb, qap = aa + 1, qam = aa - 1;
+    let c = 1, d = 1 - qab * xx / qap;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
+    d = 1 / d;
+    let h = d;
+    for (let m = 1; m <= MAX; m++) {
+      const m2 = 2 * m;
+      let aa2 = m * (bb - m) * xx / ((qam + m2) * (aa + m2));
+      d = 1 + aa2 * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aa2 / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d; h *= d * c;
+      aa2 = -(aa + m) * (qab + m) * xx / ((aa + m2) * (qap + m2));
+      d = 1 + aa2 * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aa2 / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d;
+      const del = d * c;
+      h *= del;
+      if (Math.abs(del - 1) < EPS) break;
+    }
+    return h;
+  };
+  if (x < (a + 1) / (a + b + 2)) return bt * betacf(a, b, x) / a;
+  return 1 - bt * betacf(b, a, 1 - x) / b;
+};
+
+// CDF distribusi t Student.
+utils.tCDF = function (t, df) {
+  const x = df / (df + t * t);
+  const ib = utils.betainc(df / 2, 0.5, x);
+  return t >= 0 ? 1 - 0.5 * ib : 0.5 * ib;
+};
+
+// Kuantil normal standar (Acklam + 2 langkah Newton).
+// Rasio Acklam saja galatnya ~2e-4; Newton dengan CDF membawa galat ke ~1e-9.
+utils.zKritis = function (tingkat) {
+  const p = (1 + tingkat) / 2;
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285984469534e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  const plow = 0.02425, phigh = 1 - plow;
+  let q, r, x;
+  if (p < plow) {
+    q = Math.sqrt(-2 * Math.log(p));
+    x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  } else if (p <= phigh) {
+    q = p - 0.5; r = q * q;
+    x = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+  } else {
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  // Pemurnian Newton: x -= (Φ(x) - p) / φ(x).
+  for (let i = 0; i < 3; i++) {
+    const pdf = Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+    x -= (utils.normalCDF(x) - p) / pdf;
+  }
+  return x;
+};
+
+/* ================= Statistik: lanjutan (kanonis, G3 C1R) =================
+   Sapuan ulang C1R: duplikat yang mendarat belakangan (B5/B5R) + sapuan
+   akhir seluruh js/tools/. Aturan sama: SATU-SATUNYA salinan ada di sini. */
+
+// Kombinasi C(n,k) via log-gamma (aman untuk n besar).
+utils.kombinasi = function (n, k) {
+  if (k < 0 || k > n) return 0;
+  return Math.round(Math.exp(utils.lgamma(n + 1) - utils.lgamma(k + 1) - utils.lgamma(n - k + 1)));
+};
+
+// Peluang binomial: tepat k berhasil dari n percobaan dengan peluang p.
+utils.binomialPMF = function (n, k, p) {
+  if (p === 0) return k === 0 ? 1 : 0;
+  if (p === 1) return k === n ? 1 : 0;
+  return utils.kombinasi(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+};
+
+// Peluang binomial kumulatif: paling banyak k berhasil.
+// Varian kanonis = yang berguard (B5): k >= n mengembalikan tepat 1,
+// bukan jumlah PMF ~1 (selisih <= ~1e-15, di dalam toleransi harness).
+utils.binomialCDF = function (n, k, p) {
+  if (k < 0) return 0;
+  if (k >= n) return 1;
+  let s = 0;
+  for (let i = 0; i <= k; i++) s += utils.binomialPMF(n, i, p);
+  return s;
+};
+
+// Gamma tak lengkap ternormalisasi P(a,x) (deret + pecahan lanjut, Numerical Recipes).
+utils.gammp = function (a, x) {
+  if (x <= 0) return 0;
+  if (x < a + 1) {
+    let ap = a, sum = 1 / a, del = sum;
+    for (let n = 1; n <= 1000; n++) {
+      ap += 1;
+      del *= x / ap;
+      sum += del;
+      if (Math.abs(del) < Math.abs(sum) * 1e-14) break;
+    }
+    return sum * Math.exp(-x + a * Math.log(x) - utils.lgamma(a));
+  }
+  const FPMIN = 1e-300;
+  let b = x + 1 - a, c = 1 / FPMIN, d = 1 / b, h = d;
+  for (let i = 1; i <= 1000; i++) {
+    const an = -i * (i - a);
+    b += 2;
+    d = an * d + b; if (Math.abs(d) < FPMIN) d = FPMIN;
+    c = b + an / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < 1e-14) break;
+  }
+  return 1 - Math.exp(-x + a * Math.log(x) - utils.lgamma(a)) * h;
+};
+
+// CDF distribusi chi-square.
+utils.chi2CDF = function (x, df) { return utils.gammp(df / 2, x / 2); };
+
+// FPB via algoritma Euclid. Kanonis untuk `fpb` (pelajar/converter) dan
+// `gcd` (gambar/desain) — kedua nama itu badannya identik persis.
+// Beda dengan gcd2 lokal fpb-kpk.js: yang ini mengembalikan 1 untuk (0,0).
+utils.gcd = function (a, b) {
+  a = Math.abs(a); b = Math.abs(b);
+  while (b) { const t = a % b; a = b; b = t; }
+  return a || 1;
+};
+
+// Pembulatan ke 4 / 6 desimal sebagai string; -0 dinormalisasi jadi 0.
+utils.r4 = function (v) {
+  const r = Math.round(v * 1e4) / 1e4;
+  return String(Object.is(r, -0) ? 0 : r);
+};
+utils.r6 = function (v) {
+  const r = Math.round(v * 1e6) / 1e6;
+  return String(Object.is(r, -0) ? 0 : r);
+};
+
+// Baca deret angka dari textarea (pemisah koma/spasi/titik-koma).
+// Mengembalikan null bila ada token bukan angka. Dipakai tool statistik B5.
+utils.bacaDeret = function (ta) {
+  const tokens = String(ta.value).split(/[,\s;]+/).map((s) => s.trim()).filter(Boolean);
+  const nums = [];
+  for (const t of tokens) {
+    const v = num(t);
+    if (!isFinite(v)) return null;
+    nums.push(v);
+  }
+  return nums;
+};
+
+// Cicilan bulanan (anuitas). Mengembalikan null bila input tidak valid.
+utils.cicilanBulanan = function (pinjaman, bungaTahunPersen, tenorTahun) {
+  const r = bungaTahunPersen / 100 / 12;
+  const n = tenorTahun * 12;
+  if (!Number.isFinite(pinjaman) || !Number.isFinite(bungaTahunPersen) || !Number.isFinite(tenorTahun)) return null;
+  if (!(pinjaman > 0) || !(n > 0)) return null;
+  if (r === 0 || 1 + r === 1) return pinjaman / n;
+  return pinjaman * r / (-Math.expm1(-n * Math.log1p(r)));
+};
+
+/* ================= LMS WHO (kanonis, G3 C1R) =================
+   Dikonsolidasi dari bmi-anak.js + kurva-pertumbuhan-anak.js (B4).
+   Tabel LMS-nya tetap di file tool masing-masing; hanya rumusnya di sini. */
+
+// Interpolasi linier L, M, S pada titik x di antara titik acuan.
+// Bentuk kanonis = yang umum (3 argumen); bmi-anak memanggil dengan
+// acuan = BULAN_ACUAN-nya sendiri, hasilnya identik dengan versi lamanya.
+utils.lmsPada = function (tabel, acuan, x) {
+  const t = Math.max(acuan[0], Math.min(acuan[acuan.length - 1], x));
+  for (let i = 0; i < acuan.length - 1; i++) {
+    const a = acuan[i], b = acuan[i + 1];
+    if (t >= a && t <= b) {
+      const f = (t - a) / (b - a);
+      const r = tabel[i], s = tabel[i + 1];
+      return [r[0] + (s[0] - r[0]) * f, r[1] + (s[1] - r[1]) * f, r[2] + (s[2] - r[2]) * f];
+    }
+  }
+  return tabel[tabel.length - 1];
+};
+
+// Z-score LMS: z = ((X/M)^L - 1) / (L*S); L ~ 0 memakai log.
+utils.zDariLMS = function (nilai, L, M, S) {
+  if (!(nilai > 0) || !(M > 0) || !(S > 0)) return null;
+  if (Math.abs(L) < 1e-9) return Math.log(nilai / M) / S;
+  return (Math.pow(nilai / M, L) - 1) / (L * S);
+};
+
+// Nilai ukur pada z-score tertentu (kebalikan zDariLMS).
+utils.nilaiDariZ = function (z, L, M, S) {
+  if (Math.abs(L) < 1e-9) return M * Math.exp(S * z);
+  return M * Math.pow(1 + L * S * z, 1 / L);
+};
+
+// Persentil dari z-score (pendekatan Abramowitz-Stegun 7.1.26, galat < 2e-7).
+utils.persentilDariZ = function (z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989422804014327 * Math.exp(-z * z / 2);
+  const p = d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))));
+  const cdf = z >= 0 ? 1 - p : p;
+  return cdf * 100;
+};
+
+/* ================= Audio & media (kanonis, G3 C1R) ================= */
+
+// Encode Float32Array per kanal jadi Blob WAV 16-bit PCM.
+// Kanonis untuk 8 tool musik (2 gaya penulisan, byte hasil identik —
+// dibuktikan harness C1R: varian blockAlign/dataSize vs inline).
+utils.encodeWav = function (channels, sampleRate) {
+  const len = channels[0].length;
+  const numCh = channels.length;
+  const buf = new ArrayBuffer(44 + len * numCh * 2);
+  const v = new DataView(buf);
+  const tulis = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
+  tulis(0, 'RIFF');
+  v.setUint32(4, 36 + len * numCh * 2, true);
+  tulis(8, 'WAVE');
+  tulis(12, 'fmt ');
+  v.setUint32(16, 16, true);
+  v.setUint16(20, 1, true);
+  v.setUint16(22, numCh, true);
+  v.setUint32(24, sampleRate, true);
+  v.setUint32(28, sampleRate * numCh * 2, true);
+  v.setUint16(32, numCh * 2, true);
+  v.setUint16(34, 16, true);
+  tulis(36, 'data');
+  v.setUint32(40, len * numCh * 2, true);
+  let off = 44;
+  for (let i = 0; i < len; i++) {
+    for (let c = 0; c < numCh; c++) {
+      const s = Math.max(-1, Math.min(1, channels[c][i]));
+      v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+      off += 2;
+    }
+  }
+  return new Blob([buf], { type: 'audio/wav' });
+};
+
+// Durasi blob media (detik; 0 bila gagal dibaca). tag: 'video' | 'audio'.
+// Dua varian lokal (video x5, audio x4) hanya beda tag elemennya.
+utils.measureDur = function (blob, tag) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(blob);
+    const m = document.createElement(tag);
+    m.preload = 'metadata';
+    m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
+    m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
+    m.src = url;
+  });
+};
+
+// Susun frame GIF (disposal 2/3) jadi frame penuh per langkah.
+utils.susunFrame = function (frames, w, h) {
+  const hasil = [];
+  let penuh = new Uint8ClampedArray(w * h * 4);
+  for (const f of frames) {
+    const d = f.dims || { width: w, height: h, top: 0, left: 0 };
+    const fw = d.width, fh = d.height, fx = d.left || 0, fy = d.top || 0;
+    const simpan = f.disposalType === 3 ? penuh.slice() : null;
+    const patch = f.patch;
+    if (patch) {
+      for (let y = 0; y < fh; y++) {
+        const gy = fy + y;
+        if (gy < 0 || gy >= h) continue;
+        for (let x = 0; x < fw; x++) {
+          const gx = fx + x;
+          if (gx < 0 || gx >= w) continue;
+          const pi = (y * fw + x) * 4;
+          if (patch[pi + 3] === 0) continue;
+          const gi = (gy * w + gx) * 4;
+          penuh[gi] = patch[pi];
+          penuh[gi + 1] = patch[pi + 1];
+          penuh[gi + 2] = patch[pi + 2];
+          penuh[gi + 3] = patch[pi + 3];
+        }
+      }
+    }
+    hasil.push(penuh.slice());
+    if (f.disposalType === 2) {
+      for (let y = 0; y < fh; y++) {
+        const gy = fy + y;
+        if (gy < 0 || gy >= h) continue;
+        for (let x = 0; x < fw; x++) {
+          const gx = fx + x;
+          if (gx < 0 || gx >= w) continue;
+          const gi = (gy * w + gx) * 4;
+          penuh[gi + 3] = 0;
+        }
+      }
+    } else if (f.disposalType === 3 && simpan) {
+      penuh = simpan;
+    }
+  }
+  return hasil;
+};
+
+/* ================= CSS cetak (kanonis, G3 C1R) =================
+   Pola ensurePrintCss/hapusPrintCss diduplikasi di 13 tool (B6 + lama).
+   Cangkang @page/@media print-nya sama; yang beda hanya id wadah, margin
+   @page, padding, dan aturan tambahan — semuanya jadi parameter opt:
+   { page: '@page{...}' | '', padding: '0' | '24px', extra: 'aturan...' }.
+   CSS yang dihasilkan byte-identik dengan versi lokal tiap tool
+   (dibuktikan harness C1R). Cache per id menggantikan variabel
+   _printCss lokal; removePrintCss dipanggil di onLeave seperti dulu. */
+const _printCssCache = new Map();
+utils.ensurePrintCss = function (id, opt) {
+  const o = opt || {};
+  const lama = _printCssCache.get(id);
+  if (lama && lama.isConnected) return lama;
+  const st = document.createElement('style');
+  st.textContent =
+    (o.page || '') +
+    '@media print{' +
+    'body *{visibility:hidden !important}' +
+    '#' + id + ',#' + id + ' *{visibility:visible !important}' +
+    '#' + id + '{position:absolute;inset:0;background:#fff;color:#000;padding:' + (o.padding || '0') + '}' +
+    (o.extra || '') +
+    '}';
+  document.head.appendChild(st);
+  _printCssCache.set(id, st);
+  return st;
+};
+utils.removePrintCss = function (id) {
+  const st = _printCssCache.get(id);
+  if (st) { st.remove(); _printCssCache.delete(id); }
+};
+
+/* ================= Teks & data (kanonis, G3 C1R) ================= */
+
+// Parser CSV (kutip ganda + "" lolos; \r diabaikan, \n pemisah baris).
+utils.parseCSV = function (text, delim) {
+  const rows = [];
+  let row = [], field = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else q = false;
+      } else field += c;
+    } else if (c === '"') q = true;
+    else if (c === delim) { row.push(field); field = ''; }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else if (c === '\r') { /* abaikan, \n yang menangani */ }
+    else field += c;
+  }
+  row.push(field); rows.push(row);
+  while (rows.length && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === '') rows.pop();
+  return rows;
+};
+
+// Satu sel CSV: dikutip bila mengandung kutip/baris-baru/delim.
+// Netralisasi injeksi formula (OWASP CSV Injection): sel yang diawali
+// = + - @ | % (sesudah buang spasi/tab di depan) diawali apostrof,
+// supaya spreadsheet tidak mengevaluasinya sebagai formula.
+// Pengecualian D-G3-14: angka murni (-5, +3.14) TIDAK dinetralkan —
+// spreadsheet membacanya sebagai angka, bukan formula.
+utils.csvCell = function (v, delim) {
+  v = String(v == null ? '' : v);
+  const t = v.replace(/^[ \t]+/, '');
+  if (/^[=+\-@|%]/.test(t) && !/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(t)) v = "'" + v;
+  return /["\n\r]/.test(v) || v.includes(delim) ? '"' + v.replace(/"/g, '""') + '"' : v;
+};
+
+// Baris-baris jadi teks CSV.
+utils.rowsToCSV = function (rows, delim) {
+  return rows.map((r) => r.map((c) => utils.csvCell(c, delim)).join(delim)).join('\n');
+};
+
+// Tebak pemisah CSV dari baris pertama (terbanyak ; vs ,).
+utils.detectDelim = function (text) {
+  const first = String(text).split('\n')[0] || '';
+  const nSemi = (first.match(/;/g) || []).length, nCom = (first.match(/,/g) || []).length;
+  return nSemi > nCom ? ';' : ',';
+};
+
+// Parse angka format rupiah/Indonesia: "1.234.567,89" -> 1234567.89.
+// NaN bila kosong/tidak bisa diparse.
+utils.parseRp = function (s) {
+  s = String(s || '').trim().replace(/\s/g, '');
+  if (!s) return NaN;
+  if (s.includes(',')) return Number(s.replace(/\./g, '').replace(',', '.'));
+  if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g, ''));
+  return Number(s);
+};
+
+// Parse angka dengan koma desimal + nilai cadangan bila gagal.
+utils.parseNum = function (v, fallback) {
+  const n = parseFloat(String(v || '').replace(',', '.'));
+  return Number.isFinite(n) ? n : fallback;
+};
+
+// Diff per baris (LCS): [{ t: '='|'-'|'+', x: baris }].
+utils.diffLines = function (a, b) {
+  const A = String(a).split('\n'), B = String(b).split('\n');
+  const n = A.length, m = B.length;
+  const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = A[i] === B[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    }
+  }
+  const out = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (A[i] === B[j]) { out.push({ t: '=', x: A[i] }); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { out.push({ t: '-', x: A[i] }); i++; }
+    else { out.push({ t: '+', x: B[j] }); j++; }
+  }
+  while (i < n) out.push({ t: '-', x: A[i++] });
+  while (j < m) out.push({ t: '+', x: B[j++] });
+  return out;
+};
+
+// Cap waktu subtitle: SRT (koma) dan VTT (titik).
+utils.fmtSrt = function (ms) {
+  ms = Math.max(0, Math.round(ms));
+  const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000);
+  const s = Math.floor(ms % 60000 / 1000), r = ms % 1000;
+  const p = (n, l) => String(n).padStart(l, '0');
+  return p(h, 2) + ':' + p(m, 2) + ':' + p(s, 2) + ',' + p(r, 3);
+};
+utils.fmtVtt = function (ms) {
+  return utils.fmtSrt(ms).replace(',', '.');
+};
+utils.toSrt = function (cues) {
+  return cues.map((c, i) => (i + 1) + '\n' + utils.fmtSrt(c.start) + ' --> ' + utils.fmtSrt(c.end) + '\n' + c.text).join('\n\n') + '\n';
+};
+utils.toVtt = function (cues) {
+  return 'WEBVTT\n\n' + cues.map((c) => utils.fmtVtt(c.start) + ' --> ' + utils.fmtVtt(c.end) + '\n' + c.text).join('\n\n') + '\n';
+};
+
+// Cek skema href aman (relatif/jangkar atau https?/mailto) setelah
+// mendekode entitas HTML yang bisa menyembunyikan skema jahat.
+utils.hrefAman = function (href) {
+  const v = String(href || '')
+    .replace(/&#x([0-9a-fA-F]+);/gi, (_m, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, d) => String.fromCharCode(Number(d)))
+    .replace(/&(tab|newline);/gi, '')
+    .replace(/&colon;/gi, ':').replace(/&amp;/gi, '&')
+    .replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+/, '');
+  const m = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(v);
+  if (!m) return true; // tanpa skema: relatif atau jangkar # — aman
+  return /^(https?|mailto)$/i.test(m[1]);
+};
+
+// Ambil teks dari respons AI (berbagai bentuk: string, .text, .content,
+// .message, .choices[0].message). Dipakai 24 tool generator AI.
+utils.chatText = function (res) {
+  if (!res) return '';
+  if (typeof res === 'string') return res;
+  const cands = [
+    res.text, res.content,
+    res.message && (res.message.content || res.message.text),
+    res.choices && res.choices[0] && res.choices[0].message && res.choices[0].message.content,
+  ];
+  for (const c of cands) if (typeof c === 'string' && c) return c;
+  return '';
+};
+
+// Pesan galat AI yang gampang dicerna dari error mentah (Puter).
+utils.errPesan = function (e) {
+  const r = (e && typeof e === 'object') ? e : {};
+  const n = (r.error && typeof r.error === 'object') ? r.error : r;
+  const raw = String(n.code || r.code || n.message || r.message || e || '').toLowerCase();
+  if (/timeout|waktu habis/.test(raw)) return 'AI tidak merespons dalam 60 detik. Coba lagi.';
+  if (/popup|blocked/.test(raw)) return 'Jendela login diblokir browser. Izinkan pop-up lalu coba lagi.';
+  if (/email_must_be_confirmed|confirm.*email|email.*confirm/.test(raw)) return 'Email akun Puter belum dikonfirmasi. Konfirmasi email di Puter lalu coba lagi.';
+  if (/401|403|unauthor|auth|sign.?in|login|cancel|closed|denied/.test(raw)) return 'Hubungkan akun Puter terlebih dahulu.';
+  if (/allowance|credit|quota|insufficient|payment|402/.test(raw)) return 'Allowance Puter kamu sudah habis atau tidak cukup.';
+  if (/rate|too many|429/.test(raw)) return 'Terlalu banyak permintaan. Coba lagi sebentar.';
+  if (/safety|moderation|policy|filtered/.test(raw)) return 'Teks ditolak oleh aturan keamanan AI.';
+  if (/model not found|unknown model|model.*unavailable|unsupported model|no provider/.test(raw)) return 'Model AI sedang tidak tersedia.';
+  if (/network|failed to fetch|offline|connection/.test(raw)) return 'Koneksi ke Puter terputus.';
+  return 'Puter belum bisa memproses permintaan ini. Coba lagi beberapa saat.';
+};
+
+// URL http(s) yang valid, atau null. Kanonis untuk `imgAman` (liveapi x7)
+// dan `mediaAman` (liveapi x3) — kedua nama itu badannya identik persis.
+utils.urlAman = function (u) {
+  if (typeof u !== 'string') return null;
+  try {
+    const p = new URL(u.trim());
+    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
+  } catch (e) { return null; }
+};
+
+// GET JSON dengan timeout 15 detik (AbortController).
+utils.getJson = async function (url) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) {
+      const err = new Error('HTTP ' + res.status);
+      err.status = res.status;
+      throw err;
+    }
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+/* ================= Tanggal (kanonis, G3 C1R) =================
+   Helper UTC keluarga sehari (jadwal vaksin/kehamilan/steril). Semua
+   memakai UTC supaya tanggal tidak geser karena zona waktu. */
+
+// Parse 'YYYY-M-D' (boleh tanpa nol depan) jadi Date UTC tengah malam.
+// LENIEN dibanding parseISO di atas: tidak menolak tanggal tak nyata
+// (Date.UTC menormalisasi, mis. 2026-02-30 -> 2 Maret). Jangan samakan.
+utils.parseTgl = function (s) {
+  const p = String(s || '').split('-').map(Number);
+  if (p.length !== 3 || p.some(isNaN)) return null;
+  const d = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  return isNaN(d.getTime()) ? null : d;
+};
+
+// Tambah hari / bulan (UTC), tanpa mengubah Date asal.
+utils.tambahHari = function (d, n) {
+  const x = new Date(d.getTime());
+  x.setUTCDate(x.getUTCDate() + n);
+  return x;
+};
+// Beda dengan tambahBulan lokal bisnis/kpr (y, m, n -> "Bulan Tahun",
+// terikat NAMA_BULAN): yang ini bekerja pada objek Date (UTC).
+utils.tambahBulan = function (d, n) {
+  const x = new Date(d.getTime());
+  x.setUTCMonth(x.getUTCMonth() + n);
+  return x;
+};
+
+// Hari ini sebagai Date UTC tengah malam.
+utils.hariIni = function () {
+  const n = new Date();
+  return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()));
+};
+
+const BULAN_ID = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+// '2026-11-19' -> '19 November 2026' (toleran: '2026-2-3' juga diterima).
+// Input tak valid dikembalikan apa adanya; input kosong -> ''.
+utils.fmtTanggal = function (iso) {
+  if (!iso) return '';
+  const p = String(iso).split('-');
+  if (p.length !== 3) return String(iso);
+  const tgl = Number(p[2]);
+  const bln = Number(p[1]);
+  const thn = Number(p[0]);
+  if (!tgl || !bln || !thn || bln < 1 || bln > 12) return String(iso);
+  return tgl + ' ' + BULAN_ID[bln - 1] + ' ' + thn;
+};
+
+/* ================= Warna & acak (kanonis, G3 C1R) ================= */
+
+// '#ff8800' / 'f80' -> [255, 136, 0]; null bila tidak valid.
+utils.hexKeRgb = function (hex) {
+  let s = String(hex || '').replace('#', '').trim();
+  if (s.length === 3) s = s.split('').map((c) => c + c).join('');
+  if (!/^[0-9a-fA-F]{6}$/.test(s)) return null;
+  const n = parseInt(s, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+
+// (255, 136, 0) -> '#ff8800' (nilai dijepit 0-255, dibulatkan).
+utils.rgbKeHex = function (r, g, b) {
+  const ke = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+  return '#' + ke(r) + ke(g) + ke(b);
+};
+
+// Acak urutan salinan array (Fisher-Yates); array asal tidak diubah.
+// Kanonis untuk `shuffle` (x10) dan `acak` (x4) — badannya identik persis.
+// Varian shuffle x2 (kuis-emoji-hewan, nama-panggung) yang swap-nya rusak
+// ([x[i]]=[x[j]] lalu [x[j]]=[x[i]] menduplikasi elemen) DIPERBAIKI 19 Nov 2026
+// (D-G3-13): keduanya kini memakai utils.shuffle ini.
+utils.shuffle = function (a) {
+  const x = a.slice();
+  for (let i = x.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [x[i], x[j]] = [x[j], x[i]];
+  }
+  return x;
+};
+
+// PRNG mulberry32 (seeded, deterministik). Tiga salinan lokal (teks,
+// sehari, fun) berbeda penulisan tapi terbukti berperilaku identik.
+utils.mulberry32 = function (seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+// Warna avatar dari nama (hash -> hsl, dipakai 7 tool fake sosmed).
+utils.avaColor = function (name) {
+  let hsh = 0;
+  const s = String(name || '?');
+  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
+  return 'hsl(' + hsh + ',55%,45%)';
+};
+
+/* ================= Penyimpanan lokal (kanonis, G3 C1R) =================
+   Semua versi try/catch supaya gagal diam-diam saat storage tidak tersedia. */
+
+// Base64 <-> Uint8Array (chunk 32KB supaya apply() tidak stack-overflow).
+utils.b64e = function (buf) {
+  const b = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  let s = '';
+  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+  return btoa(s);
+};
+utils.b64d = function (b64) {
+  const s = atob(b64);
+  const b = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
+  return b;
+};
+
+// localStorage mentah: lsGet null bila tidak ada/gagal; lsSet true/false.
+utils.lsGet = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+utils.lsSet = function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+utils.lsDel = function (k) { try { localStorage.removeItem(k); } catch (e) { /* abaikan */ } };
+
+// localStorage dengan nilai cadangan (getLS) / diam-diam (setLS).
+utils.getLS = function (k, fb) { try { const v = localStorage.getItem(k); return v == null ? fb : v; } catch (e) { return fb; } };
+utils.setLS = function (k, v) { try { localStorage.setItem(k, v); } catch (e) { /* abaikan */ } };
+
+// Riwayat JSON (array) dari kunci tertentu; [] bila kosong/rusak.
+utils.getHist = function (key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { return []; } };
+
+// State JSON objek dari kunci tertentu; {} bila kosong/rusak.
+utils.loadState = function (key) {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : {};
+  } catch (e) { return {}; }
+};
+utils.saveState = function (key, s) {
+  try { localStorage.setItem(key, JSON.stringify(s)); } catch (e) { /* abaikan */ }
+};
+
+/* ================= Minecraft & lain-lain (kanonis, G3 C1R) ================= */
+
+// Sel-sel lingkaran (koordinat "x,y") dengan jari-jari r.
+utils.isiLingkaran = function (r) {
+  const sel = new Set();
+  const m = Math.ceil(r);
+  for (let y = -m; y <= m; y++) {
+    for (let x = -m; x <= m; x++) {
+      const nx = (x + 0.5) / (r + 0.5), ny = (y + 0.5) / (r + 0.5);
+      if (nx * nx + ny * ny <= 1) sel.add(x + ',' + y);
+    }
+  }
+  return sel;
+};
+
+// Sel tepi dari himpunan sel (yang punya tetangga kosong).
+utils.tepiDariIsi = function (sel) {
+  const tepi = new Set();
+  sel.forEach((k) => {
+    const [x, y] = k.split(',').map(Number);
+    if (!sel.has((x + 1) + ',' + y) || !sel.has((x - 1) + ',' + y) || !sel.has(x + ',' + (y + 1)) || !sel.has(x + ',' + (y - 1))) tepi.add(k);
+  });
+  return tepi;
+};
+
 export function p2(n) { return String(n).padStart(2, '0'); }
 
 export function todayISO() {
@@ -917,7 +1624,7 @@ AL.slug = (s, fallback) => {
   return out || fallback || 'animasi-teks';
 };
 AL.projectName = (s, fallback) => {
-  const out = String(s || '').replace(/[ -]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const out = String(s || '').replace(/[\x00-\x1f\x7f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
   return out || fallback || 'Adip Tools';
 };
 

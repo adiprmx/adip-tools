@@ -22,15 +22,7 @@ const STEPS = [
 ];
 
 const LS_KEY = 'skala-tipografi:v1';
-function saveState(s) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch (e) { /* abaikan */ }
-}
-function loadState() {
-  try {
-    const v = localStorage.getItem(LS_KEY);
-    return v ? JSON.parse(v) : {};
-  } catch (e) { return {}; }
-}
+// saveState, loadState kanonis tinggal di utils (core.js) — panggil utils.saveState(LS_KEY, s) / utils.loadState(LS_KEY).
 
 const px = (base, ratio, exp) => +(base * Math.pow(ratio, exp)).toFixed(2);
 const rem = (v) => +(v / 16).toFixed(3);
@@ -38,7 +30,7 @@ const rem = (v) => +(v / 16).toFixed(3);
 export const meta = {"id": "skala-tipografi", "name": "Skala Tipografi", "cat": "desain", "icon": "🔠", "desc": "Skala ukuran font harmonis h1–h6.", "keywords": "tipografi,skala,font,h1,css"};
 export function render(root) {
 
-  const saved = loadState();
+  const saved = utils.loadState(LS_KEY);
   let base = Math.min(32, Math.max(8, +saved.base || 16));
   let ratio = RATIOS.some(([v]) => v === String(saved.ratio)) ? +saved.ratio : 1.333;
 
@@ -83,7 +75,7 @@ export function render(root) {
     });
     lastCSS = cssText();
     T.show(out, '<pre style="white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height:1.5;margin:0">' + T.esc(lastCSS) + '</pre>');
-    saveState({ base, ratio });
+    utils.saveState(LS_KEY, { base, ratio });
   }
 
   function onBase() {

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput, utils } from '../../core.js';
 
 export const meta = {
   id: 'fake-threads-post',
@@ -33,12 +33,7 @@ const ICO_SEARCH = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" 
 const ICO_COMPOSE = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></svg>';
 const ICO_ACTIVITY = '<svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',55%,45%)';
-}
+// avaColor kanonis tinggal di utils (core.js).
 
 function richText(src) {
   const e = T.esc(src);
@@ -187,7 +182,7 @@ export function render(root) {
     const initial = T.esc(user.charAt(0).toUpperCase() || '?');
     const has2 = text2I.value.trim() !== '';
     const pavaInner = avUrl ? '<img src="' + T.esc(avUrl) + '" alt="">' : initial;
-    const pavaBg = avUrl ? '' : ' style="background:' + avaColor(user) + '"';
+    const pavaBg = avUrl ? '' : ' style="background:' + utils.avaColor(user) + '"';
     card.setAttribute('style',
       '--fth-bg:' + th.bg + ';--fth-fg:' + th.fg + ';--fth-muted:' + th.muted + ';--fth-icon:' + th.icon +
       ';--fth-bdr:' + th.bdr + ';--fth-line:' + th.line + ';--fth-tab:' + th.tab);
@@ -195,11 +190,11 @@ export function render(root) {
       '<div class="fth-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, themeI.value !== 'terang') + '</div>' +
       '<div class="fth-topbar">' + THREADS_GLYPH + '</div>' +
       '<div class="fth-tabs"><span class="fth-tab fr-on">Untuk Anda</span><span class="fth-tab">Mengikuti</span></div>' +
-      postHtml({ user, initial, avColor: avaColor(user), ver: verI.value === 'ya', time: timeI.value.trim() || 'baru saja',
+      postHtml({ user, initial, avColor: utils.avaColor(user), ver: verI.value === 'ya', time: timeI.value.trim() || 'baru saja',
         text: textI.value.trim() || 'Isi postingan', img: imgUrl, connector: has2, counts: true,
         rep: repI.value.trim() || '0', like: likeI.value.trim() || '0',
         liked: likedI.value === 'ya', reposted: repostedI.value === 'ya' }) +
-      (has2 ? postHtml({ user, initial, avColor: avaColor(user), ver: verI.value === 'ya', time: timeI.value.trim() || 'baru saja',
+      (has2 ? postHtml({ user, initial, avColor: utils.avaColor(user), ver: verI.value === 'ya', time: timeI.value.trim() || 'baru saja',
         text: text2I.value.trim(), img: null, connector: false, counts: false,
         rep: '', like: '', liked: false, reposted: false }) : '') +
       '<div class="fth-div"></div>' +

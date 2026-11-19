@@ -1,4 +1,4 @@
-import { h as T, tabs } from '../../core.js';
+import { h as T, tabs, utils } from '../../core.js';
 
 export const meta = {"id": "tebak-tebakan", "name": "Tebak-tebakan Receh", "cat": "fun", "icon": "🤣", "desc": "71 tebak-tebakan + mode kuis, 5 kategori: logika, hewan, benda, kata, receh.", "keywords": "tebak-tebakan,teka-teki,lucu,receh,kuis,game,hiburan,kategori"};
 
@@ -90,14 +90,7 @@ const LS_KEY = 'tebak-tebakan-best';
 const norm = (s) => String(s == null ? '' : s).toLowerCase().trim()
   .replace(/-/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
 const benar = (soal, jawab) => [soal.a].concat(soal.ak || []).some((k) => norm(k) === norm(jawab) && norm(jawab) !== '');
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 function loadBest() {
   try { const v = parseInt(localStorage.getItem(LS_KEY), 10); return isNaN(v) ? 0 : v; }
   catch (e) { return 0; }
@@ -190,7 +183,7 @@ export function render(root) {
     }, true)));
   };
   const startQuiz = () => {
-    quiz.list = shuffle(pool()).slice(0, 10);
+    quiz.list = utils.shuffle(pool()).slice(0, 10);
     quiz.idx = 0;
     quiz.score = 0;
     showQ();

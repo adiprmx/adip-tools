@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "ubah-kecepatan-audio", "name": "Ubah Kecepatan Audio", "cat": "musik", "icon": "⏱️", "desc": "Percepat atau perlambat audio, nada bisa tetap atau ikut berubah.", "keywords": "audio,kecepatan,cepat,lambat,tempo,nada", "since": "6.16.0"};
@@ -38,14 +38,7 @@ export function render(root) {
     barFill.style.width = Math.max(0, Math.min(100, pct || 0)) + '%';
   };
   // Durasi hasil DIUKUR dari file jadi, bukan dihitung dari rumus.
-  const measureDur = (blob) => new Promise((resolve) => {
-    const url = URL.createObjectURL(blob);
-    const m = document.createElement('audio');
-    m.preload = 'metadata';
-    m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
-    m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
-    m.src = url;
-  });
+  // measureDur kanonis tinggal di utils (core.js) — panggil utils.measureDur(blob, 'audio').
 
   const goBtn = T.btn('Ubah kecepatan', async () => {
     if (busy) return;
@@ -84,7 +77,7 @@ export function render(root) {
       await cleanupFFmpeg(ffmpeg, [inName, 'output.mp3']);
       const blob = new Blob([data], { type: 'audio/mpeg' });
       T.dl(base + '-' + speedSel.value.replace('.', 'p') + 'x.mp3', blob, 'audio/mpeg');
-      const outDur = await measureDur(blob);
+      const outDur = await utils.measureDur(blob, 'audio');
       const newDur = outDur || (duration ? duration / speed : 0);
       T.show(outBox, '<span class="ok">Selesai. Audio terunduh.</span>' +
         kv('Kecepatan', speedSel.value.replace('.', ',') + 'x') +

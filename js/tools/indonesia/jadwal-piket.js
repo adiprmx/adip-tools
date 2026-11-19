@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js';
+import { h as T, utils, beep, actx, onLeave, todayISO } from '../../core.js';
 
 export const meta = {"id": "jadwal-piket", "name": "Jadwal Piket", "cat": "indonesia", "icon": "🧹", "desc": "Rotasi piket harian: pilih hari aktif, atur jumlah hari, tampilkan jadwal ke depan.", "keywords": "piket,jadwal,bersih,sekolah,kantor,giliran,rotasi,hari,harian,generator"};
 export function render(root) {
@@ -8,7 +8,7 @@ export function render(root) {
   const HARI_PENUH = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   const BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
   const pad2 = (n) => String(n).padStart(2, '0');
-  const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+  // todayISO dari core.js.
 
   let cfg = null;
   try {

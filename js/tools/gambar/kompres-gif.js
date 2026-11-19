@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, fileInput, fmtBytes, LOCAL_NOTE, utils } from '../../core.js';
 
 // Kompres GIF: kecilkan ukuran file GIF animasi dengan mengurangi jumlah
 // warna, ukuran gambar, atau jumlah frame. Ukuran sebelum dan sesudah
@@ -13,49 +13,7 @@ const MAKS_FRAME = 300;
 
 // Susun frame-frame GIF mentah jadi gambar utuh per frame (murni, tanpa DOM).
 // Sama seperti di pecah-gif-jadi-frame: menghormati disposal 2 dan 3.
-export function susunFrame(frames, w, h) {
-  const hasil = [];
-  let penuh = new Uint8ClampedArray(w * h * 4);
-  for (const f of frames) {
-    const d = f.dims || { width: w, height: h, top: 0, left: 0 };
-    const fw = d.width, fh = d.height, fx = d.left || 0, fy = d.top || 0;
-    const simpan = f.disposalType === 3 ? penuh.slice() : null;
-    const patch = f.patch;
-    if (patch) {
-      for (let y = 0; y < fh; y++) {
-        const gy = fy + y;
-        if (gy < 0 || gy >= h) continue;
-        for (let x = 0; x < fw; x++) {
-          const gx = fx + x;
-          if (gx < 0 || gx >= w) continue;
-          const pi = (y * fw + x) * 4;
-          if (patch[pi + 3] === 0) continue;
-          const gi = (gy * w + gx) * 4;
-          penuh[gi] = patch[pi];
-          penuh[gi + 1] = patch[pi + 1];
-          penuh[gi + 2] = patch[pi + 2];
-          penuh[gi + 3] = patch[pi + 3];
-        }
-      }
-    }
-    hasil.push(penuh.slice());
-    if (f.disposalType === 2) {
-      for (let y = 0; y < fh; y++) {
-        const gy = fy + y;
-        if (gy < 0 || gy >= h) continue;
-        for (let x = 0; x < fw; x++) {
-          const gx = fx + x;
-          if (gx < 0 || gx >= w) continue;
-          const gi = (gy * w + gx) * 4;
-          penuh[gi + 3] = 0;
-        }
-      }
-    } else if (f.disposalType === 3 && simpan) {
-      penuh = simpan;
-    }
-  }
-  return hasil;
-}
+// susunFrame kanonis tinggal di utils (core.js).
 
 // Hitung persen penghematan dari ukuran nyata (murni, bisa diuji).
 export function persenHemat(sebelum, sesudah) {
@@ -128,7 +86,7 @@ export function render(root) {
       if (!frames.length) throw new Error('tidak ada frame');
       const w0 = gif.lsd.width, h0 = gif.lsd.height;
       const pakai = frames.slice(0, MAKS_FRAME);
-      const susun = susunFrame(pakai, w0, h0);
+      const susun = utils.susunFrame(pakai, w0, h0);
       // Pilih frame: 'setengah' = ambil tiap frame genap, jeda digandakan.
       const indeksPakai = [];
       pakai.forEach((fr, i) => {

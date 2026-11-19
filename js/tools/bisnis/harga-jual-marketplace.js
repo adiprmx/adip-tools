@@ -1,6 +1,6 @@
 import { h as T, utils, kv } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 // Fee per kategori (% dari harga jual) — angka awal 2026, SEMUA bisa diubah user.
 // Shopee 2,5–10% per kategori; Tokopedia & TikTok Shop komisi 3–8% (maks Rp60.000/item).
@@ -43,12 +43,12 @@ export function render(root) {
     };
 
     const calc = () => {
-      const modal = parseRp(modalI.value);
-      const untung = parseRp(untungI.value);
-      const tetap = parseRp(tetapI.value);
-      const cap = parseRp(capI.value);
-      const aff = parseRp(affI.value);
-      const fs = parseRp(feeShopeeI.value), ft = parseRp(feeTokpedI.value), fk = parseRp(feeTiktokI.value);
+      const modal = utils.parseRp(modalI.value);
+      const untung = utils.parseRp(untungI.value);
+      const tetap = utils.parseRp(tetapI.value);
+      const cap = utils.parseRp(capI.value);
+      const aff = utils.parseRp(affI.value);
+      const fs = utils.parseRp(feeShopeeI.value), ft = utils.parseRp(feeTokpedI.value), fk = utils.parseRp(feeTiktokI.value);
       const fees = [fs, ft, fk];
       if (!isFinite(modal) || modal < 0 || !isFinite(untung) || untung < 0 || !isFinite(tetap) || tetap < 0 ||
           !isFinite(cap) || cap < 0 || !isFinite(aff) || aff < 0 || aff >= 100 ||

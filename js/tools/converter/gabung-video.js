@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "gabung-video", "name": "Gabung Video", "cat": "converter", "icon": "🎞️", "desc": "Sambung beberapa klip video jadi satu video.", "keywords": "video,gabung,sambung,klip,satu", "since": "6.16.0"};
@@ -30,14 +30,7 @@ export function render(root) {
   const fmtDur = (d) => (d > 0 ? d.toFixed(1) + ' detik' : 'durasi tidak terbaca');
   // Durasi hasil DIUKUR dari file jadi (bukan dijumlah dari rumus),
   // karena pembulatan frame bisa menggeser sedikit.
-  const measureDur = (blob) => new Promise((resolve) => {
-    const url = URL.createObjectURL(blob);
-    const m = document.createElement('video');
-    m.preload = 'metadata';
-    m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
-    m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
-    m.src = url;
-  });
+  // measureDur kanonis tinggal di utils (core.js) — panggil utils.measureDur(blob, 'video').
 
   const refreshList = () => {
     if (!clips.length) {
@@ -144,7 +137,7 @@ export function render(root) {
       await cleanupFFmpeg(ffmpeg, [...names, 'output.mp4']);
       const blob = new Blob([data], { type: 'video/mp4' });
       T.dl('video-gabungan.mp4', blob, 'video/mp4');
-      const outDur = await measureDur(blob);
+      const outDur = await utils.measureDur(blob, 'video');
       const total = outDur || clips.reduce((a, c) => a + (c.duration || 0), 0);
       T.show(outBox, '<span class="ok">Selesai. Video gabungan terunduh.</span>' +
         kv('Klip digabung', clips.length + ' video') +

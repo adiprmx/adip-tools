@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Cari lagu, film, dan aplikasi lewat iTunes Search API (tanpa key).
 // Terverifikasi 18 Nov 2026: itunes.apple.com/search 200, CORS *.
@@ -26,13 +26,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const mediaAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// mediaAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
 export const meta = {"id": "cari-lagu-film-app", "name": "Cari Lagu/Film/App", "cat": "liveapi", "icon": "🎵", "desc": "Cari lagu, film, podcast, dan aplikasi di iTunes Store, lengkap dengan cuplikan lagunya.", "keywords": "itunes,lagu,film,aplikasi,podcast,musik,cari lagu,apple", "since": "6.17.0"};
@@ -66,8 +60,8 @@ export function render(root) {
         list.map((r) => {
           const nama = String(r.trackName || r.collectionName || 'Tanpa nama');
           const artis = String(r.artistName || '');
-          const gambar = mediaAman(r.artworkUrl100);
-          const pratinjau = mediaAman(r.previewUrl);
+          const gambar = utils.urlAman(r.artworkUrl100);
+          const pratinjau = utils.urlAman(r.previewUrl);
           const label = LABEL_JENIS[r.kind] || String(r.kind || r.wrapperType || '');
           const link = tautanAman(r.trackViewUrl) ? r.trackViewUrl : (tautanAman(r.collectionViewUrl) ? r.collectionViewUrl : null);
           return '<div style="border-top:1px solid #ffffff14;padding:12px 0;display:flex;gap:12px">' +

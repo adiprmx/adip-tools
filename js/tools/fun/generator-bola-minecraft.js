@@ -1,19 +1,9 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'generator-bola-minecraft', name: 'Generator Bola Minecraft', cat: 'fun', icon: '⚽', desc: 'Rencanakan bola atau ellipsoid Minecraft lapis per lapis, dengan tampilan 3D dan hitungan blok.', keywords: 'minecraft,bola,sphere,ellipsoid,lapis,blok,bangunan,3d', since: '6.17.0' };
 
 // Lingkaran terisi pada satu lapis: set "x,y" relatif ke pusat.
-export function isiLingkaran(r) {
-  const sel = new Set();
-  const m = Math.ceil(r);
-  for (let y = -m; y <= m; y++) {
-    for (let x = -m; x <= m; x++) {
-      const nx = (x + 0.5) / (r + 0.5), ny = (y + 0.5) / (r + 0.5);
-      if (nx * nx + ny * ny <= 1) sel.add(x + ',' + y);
-    }
-  }
-  return sel;
-}
+// isiLingkaran kanonis tinggal di utils (core.js).
 
 // Bola/ellipsoid: diameter dx, dy (tinggi), dz.
 // Kembalikan array lapis dari bawah ke atas: [{ lapis, sel, jumlah }].
@@ -25,7 +15,7 @@ export function bangunBola(dx, dy, dz, isi) {
     const sisa = 1 - t * t;
     if (sisa < 0) continue;
     const f = Math.sqrt(sisa);
-    const sel = isiLingkaran(Math.min(rx, rz) * f + Math.max(0, Math.min(rx, rz) - Math.min(rx, rz)));
+    const sel = utils.isiLingkaran(Math.min(rx, rz) * f + Math.max(0, Math.min(rx, rz) - Math.min(rx, rz)));
     // Ellipsoid umum: skala x dan z terpisah.
     const selE = new Set();
     const mx = Math.ceil(rx), mz = Math.ceil(rz);

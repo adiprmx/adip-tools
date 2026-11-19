@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Profil acak lewat Random User Generator (tanpa key).
 // Terverifikasi 18 Nov 2026: randomuser.me/api/ 200, CORS *.
@@ -16,13 +16,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const imgAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// imgAman kanonis tinggal di utils.urlAman (core.js).
 
 export const meta = {"id": "generator-data-dummy", "name": "Generator Data Dummy", "cat": "liveapi", "icon": "👤", "desc": "Buat profil acak untuk keperluan tes dan desain: nama, foto, email, dan alamat contoh.", "keywords": "dummy,data dummy,profil acak,random user,tes,desain,data contoh,fake data", "since": "6.17.0"};
 
@@ -51,7 +45,7 @@ export function render(root) {
       T.show(box, '<p class="hint">Ini data acak yang dibuat komputer untuk keperluan tes dan desain. Bukan orang sungguhan, jangan dipakai untuk hal yang butuh identitas asli.</p>' +
         list.map((u) => {
           const nama = ((u.name && u.name.first) || '') + ' ' + ((u.name && u.name.last) || '');
-          const foto = u.picture && imgAman(u.picture.medium);
+          const foto = u.picture && utils.urlAman(u.picture.medium);
           const kota = u.location ? [u.location.city, u.location.state, u.location.country].filter(Boolean).join(', ') : '';
           const umur = u.dob && typeof u.dob.age === 'number' ? u.dob.age + ' tahun' : '';
           return '<div style="border-top:1px solid #ffffff14;padding:12px 0;display:flex;gap:12px">' +

@@ -35,20 +35,12 @@ function vigenere(text, key, enc) {
 }
 
 const LS_KEY = 'sandikan-teks:v1';
-function saveState(s) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch (e) { /* abaikan */ }
-}
-function loadState() {
-  try {
-    const v = localStorage.getItem(LS_KEY);
-    return v ? JSON.parse(v) : {};
-  } catch (e) { return {}; }
-}
+// saveState, loadState kanonis tinggal di utils (core.js) — panggil utils.saveState(LS_KEY, s) / utils.loadState(LS_KEY).
 
 export const meta = {"id": "sandikan-teks", "name": "Sandi Teks", "cat": "teks", "icon": "🔏", "desc": "Ubah teks jadi sandi Caesar & Vigenère.", "keywords": "sandi,caesar,vigenere,enkripsi,rahasia"};
 export function render(root) {
 
-  const saved = loadState();
+  const saved = utils.loadState(LS_KEY);
   const state = {
     mode: saved.mode === 'dec' ? 'dec' : 'enc',
     cipher: saved.cipher === 'vig' ? 'vig' : 'caesar',
@@ -87,7 +79,7 @@ export function render(root) {
     }
     lastResult = out;
     T.show(box, '<pre style="white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.6;margin:0">' + T.esc(out) + '</pre>');
-    saveState(state);
+    utils.saveState(LS_KEY, state);
   }
 
   function onShift() {

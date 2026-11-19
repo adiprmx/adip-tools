@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 // Data provinsi (38): nama + koordinat dari dataset Indonesia Region API
 // (turunan Kepmendagri 300.2.2-2138/2025 + 2430-2025, efektif 23 Jun 2025);
@@ -82,15 +82,11 @@ export function render(root) {
   const kuisBox = T.el('<div style="margin-top:20px"></div>');
   let soal = [], idx = 0, benar = 0, dijawab = false;
 
-  const acak = (arr) => {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-    return a;
-  };
+  // acak (Fisher-Yates) kanonis tinggal di utils.shuffle (core.js).
   const mulai = () => {
-    soal = acak(PROV).slice(0, 10).map(([nama, ibu]) => {
-      const pengecoh = acak(PROV.filter((p) => p[1] !== ibu)).slice(0, 3).map((p) => p[1]);
-      return { nama, ibu, pilihan: acak([ibu, ...pengecoh]) };
+    soal = utils.shuffle(PROV).slice(0, 10).map(([nama, ibu]) => {
+      const pengecoh = utils.shuffle(PROV.filter((p) => p[1] !== ibu)).slice(0, 3).map((p) => p[1]);
+      return { nama, ibu, pilihan: utils.shuffle([ibu, ...pengecoh]) };
     });
     idx = 0; benar = 0;
     tampilSoal();

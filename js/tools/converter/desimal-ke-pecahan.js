@@ -1,11 +1,7 @@
 import { h as T, utils } from '../../core.js';
 
 /* Fungsi murni, diekspor supaya bisa diuji dari node tanpa DOM. */
-export function fpb(a, b) {
-  a = Math.abs(a); b = Math.abs(b);
-  while (b) { const t = a % b; a = b; b = t; }
-  return a || 1;
-}
+// fpb kanonis tinggal di utils.gcd (core.js).
 
 export function desimalKePecahan(d) {
   if (!isFinite(d)) return null;
@@ -19,7 +15,7 @@ export function desimalKePecahan(d) {
   let pem = Math.round(d * pen);
   const langkah = [];
   langkah.push(d + ' = ' + pem + '/' + pen);
-  const f = fpb(pem, pen);
+  const f = utils.gcd(pem, pen);
   if (f > 1) {
     langkah.push('FPB(' + pem + ', ' + pen + ') = ' + f);
     langkah.push(pem + ' ÷ ' + f + ' = ' + (pem / f) + '   |   ' + pen + ' ÷ ' + f + ' = ' + (pen / f));
@@ -96,7 +92,7 @@ export function render(root) {
       const desStr = String(Math.round(r.desimal * 1e10) / 1e10).replace('.', ',');
       const perStr = String(Math.round(r.persen * 1e8) / 1e8).replace('.', ',');
       /* Penyederhanaan pecahan + langkah FPB. */
-      const f = fpb(pemTotal, pen);
+      const f = utils.gcd(pemTotal, pen);
       const sPem = pemTotal / f, sPen = pen / f;
       const langkahS = f > 1
         ? ['FPB(' + Math.abs(pemTotal) + ', ' + Math.abs(pen) + ') = ' + f + '.',

@@ -5,26 +5,7 @@ export const meta = {"id": "surat-jalan", "name": "Pembuat Surat Jalan", "cat": 
 /* <style> print disimpan referensinya supaya bisa DIHAPUS saat tool
    ditinggal (T.onLeave di render). Kalau menetap di <head>, aturan
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
-let _printCss = null;
-
-function ensurePrintCss() {
-  if (_printCss) return;
-  const st = document.createElement('style');
-  st.textContent =
-    '@page{size:A4;margin:16mm 18mm}' +
-    '@media print{' +
-    'body *{visibility:hidden !important}' +
-    '#sjalan-print,#sjalan-print *{visibility:visible !important}' +
-    '#sjalan-print{position:absolute;inset:0;background:#fff;color:#000;padding:0}' +
-    '#sjalan-print .sj-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' +
-    '}';
-  document.head.appendChild(st);
-  _printCss = st;
-}
-
-function hapusPrintCss() {
-  if (_printCss) { _printCss.remove(); _printCss = null; }
-}
+// CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 function tglIndo(iso) {
@@ -38,8 +19,8 @@ function hariIniISO() {
 }
 
 export function render(root) {
-  ensurePrintCss();
-  T.onLeave(hapusPrintCss);
+  utils.ensurePrintCss('sjalan-print', { page: '@page{size:A4;margin:16mm 18mm}', extra: '#sjalan-print .sj-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+  T.onLeave(() => utils.removePrintCss('sjalan-print'));
 
   const noI = T.input('text', 'cth: SJ-001/XI/2026 (boleh dikosongkan)', '');
   const tglI = T.input('date', '', hariIniISO());

@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "pajak-kendaraan", "name": "Hitung Pajak Motor & Mobil", "cat": "indonesia", "icon": "🚗", "desc": "Hitung pajak tahunan kendaraanmu: PKB + opsen + SWDKLLJ, dari NJKB di STNK.", "keywords": "pajak,kendaraan,motor,mobil,pkb,opsen,swdkllj,stnk,njkb,bapenda"};
 export function render(root) {
@@ -30,10 +30,10 @@ export function render(root) {
       '<td style="padding:7px 4px;text-align:right;font-weight:600">' + p[1] + '</td></tr>').join('') + '</table>';
 
   const hitung = () => {
-    const njkb = parseRp(njkbI.value) || 0;
+    const njkb = utils.parseRp(njkbI.value) || 0;
     const bobot = T.num(bobotI.value) || 0;
     const tarif = (T.num(tarifI.value) || 0) / 100;
-    const swdkllj = parseRp(swdklljI.value) || 0;
+    const swdkllj = utils.parseRp(swdklljI.value) || 0;
     if (!(njkb > 0)) { T.show(box, '<p class="warn">Isi NJKB dulu ya — angkanya ada di STNK (kolom NJKB).</p>'); return; }
     if (!(bobot > 0)) { T.show(box, '<p class="warn">Bobot harus lebih dari 0. Biasanya 1 untuk kendaraan biasa.</p>'); return; }
     const pkb = tarif * njkb * bobot;

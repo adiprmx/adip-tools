@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Cari foto berlisensi Creative Commons lewat Openverse (tanpa key).
 // Terverifikasi 18 Nov 2026: api.openverse.org/v1/images/ 200, CORS *.
@@ -15,13 +15,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const mediaAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// mediaAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
 export const meta = {"id": "cari-foto-gratis-cc", "name": "Cari Foto Gratis CC", "cat": "liveapi", "icon": "📸", "desc": "Cari foto gratis berlisensi Creative Commons, lengkap dengan nama pembuat dan lisensinya.", "keywords": "foto,gratis,creative commons,cc,openverse,stock photo,gambar bebas", "since": "6.17.0"};
@@ -51,7 +45,7 @@ export function render(root) {
       T.show(box, '<p class="hint">' + list.length + ' foto ditemukan. Tiap foto menampilkan pembuat dan lisensinya, cantumkan saat memakai foto itu.</p>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:10px">' +
         list.map((f) => {
-          const thumb = mediaAman(f.thumbnail || f.url);
+          const thumb = utils.urlAman(f.thumbnail || f.url);
           const judul = String(f.title || 'Tanpa judul');
           const pembuat = String(f.creator || 'Pembuat tidak diketahui');
           const lisensi = String(f.license || '').toUpperCase() + (f.license_version ? ' ' + String(f.license_version) : '');

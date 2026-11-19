@@ -1,6 +1,6 @@
 import { h as T, utils, kv } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 export const meta = {"id": "pajak-umkm", "name": "Pajak UMKM 0,5%", "cat": "indonesia", "icon": "🏛️", "desc": "Hitung PPh final 0,5% dari omzet bulanan, lengkap dengan jatah bebas pajak.", "keywords": "pajak,umkm,pph final,0,5 persen,omzet,pp 55"};
@@ -18,11 +18,11 @@ export function render(root) {
     const box = T.out();
 
     const calc = () => {
-      const omzet = parseRp(omzetI.value);
-      const kumul = parseRp(kumulI.value);
-      const tarif = parseRp(tarifI.value);
-      const bebas = parseRp(bebasI.value);
-      const batas = parseRp(batasI.value);
+      const omzet = utils.parseRp(omzetI.value);
+      const kumul = utils.parseRp(kumulI.value);
+      const tarif = utils.parseRp(tarifI.value);
+      const bebas = utils.parseRp(bebasI.value);
+      const batas = utils.parseRp(batasI.value);
       if (!isFinite(omzet) || omzet < 0 || !isFinite(kumul) || kumul < 0 || !isFinite(tarif) || tarif < 0 || tarif >= 100 || !isFinite(bebas) || bebas < 0 || !isFinite(batas) || batas <= 0) {
         T.toast('Isi semua kolom dengan angka yang benar ya.'); return;
       }

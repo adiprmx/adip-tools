@@ -1,4 +1,4 @@
-import { h as T, esc } from '../../core.js';
+import { h as T, esc, utils } from '../../core.js';
 
 export const meta = {"id":"galeri-seni","name":"Galeri Seni Dunia","cat":"liveapi","icon":"🖼️","desc":"Jelajahi karya seni acak dari Art Institute of Chicago.","keywords":"seni,galeri,lukisan,museum,art,acak,karya,chicago"};
 
@@ -11,21 +11,7 @@ const saveLast = (k) => { try { localStorage.setItem(KEY, JSON.stringify(k)); } 
 export function render(root) {
   const box = T.out();
 
-  const getJson = async (url) => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
-    try {
-      const res = await fetch(url, { signal: ctrl.signal });
-      if (!res.ok) {
-        const err = new Error('HTTP ' + res.status);
-        err.status = res.status;
-        throw err;
-      }
-      return await res.json();
-    } finally {
-      clearTimeout(timer);
-    }
-  };
+  // getJson kanonis tinggal di utils (core.js).
 
   const tampil = (karya, dariCache) => {
     const imgUrl = 'https://www.artic.edu/iiif/2/' + karya.image_id + '/full/843,/0/default.jpg';
@@ -46,7 +32,7 @@ export function render(root) {
     const page = 1 + Math.floor(Math.random() * 50);
     T.show(box, '<div class="dim center">Mengambil karya seni acak…</div>');
     try {
-      const d = await getJson('https://api.artic.edu/api/v1/artworks?page=' + page + '&limit=12&fields=id,title,artist_title,image_id,date_display');
+      const d = await utils.getJson('https://api.artic.edu/api/v1/artworks?page=' + page + '&limit=12&fields=id,title,artist_title,image_id,date_display');
       const semua = d.data || [];
       // Karya tanpa image_id dilewati — ambil yang lain dari batch yang sama.
       const bergambar = semua.filter((a) => a && a.image_id);

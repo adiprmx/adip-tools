@@ -44,22 +44,15 @@ const PROV = [
   ['Papua Barat Daya', 'Sorong'],
 ];
 
-const shuffle = (a) => {
-  const x = a.slice();
-  for (let i = x.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [x[i], x[j]] = [x[j], x[i]];
-  }
-  return x;
-};
+// shuffle kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const box = T.out();
   const quiz = { list: [], idx: 0, score: 0, answered: false };
 
-  const buatSoal = () => shuffle(PROV).slice(0, 10).map(([prov, kota]) => {
-    const pengecoh = shuffle(PROV.filter((p) => p[1] !== kota)).slice(0, 3).map((p) => p[1]);
-    return { prov, kota, opsi: shuffle([kota].concat(pengecoh)) };
+  const buatSoal = () => utils.shuffle(PROV).slice(0, 10).map(([prov, kota]) => {
+    const pengecoh = utils.shuffle(PROV.filter((p) => p[1] !== kota)).slice(0, 3).map((p) => p[1]);
+    return { prov, kota, opsi: utils.shuffle([kota].concat(pengecoh)) };
   });
 
   const showQ = () => {

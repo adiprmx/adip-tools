@@ -1,28 +1,22 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js';
+import { h as T, utils, errBox, beep, actx, onLeave } from '../../core.js';
 
 export const meta = {"id": "pembanding-teks", "name": "Pembanding Teks & Kode", "cat": "developer", "icon": "🔀", "desc": "Bandingkan dua teks baris per baris, lihat bedanya.", "keywords": "diff,teks,bandingkan,perbandingan,kode,cepat"};
 
 // Diff baris-per-baris ala LCS. Tiap item: {t:'='|'-'|'+', x:teks}
 // '=' sama di kedua, '-' hanya di teks A, '+' hanya di teks B.
-export function diffLines(a, b) {
-  const A = String(a).split('\n'), B = String(b).split('\n');
-  const n = A.length, m = B.length;
-  const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
-  for (let i = n - 1; i >= 0; i--) {
-    for (let j = m - 1; j >= 0; j--) {
-      dp[i][j] = A[i] === B[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
-    }
-  }
-  const out = [];
-  let i = 0, j = 0;
-  while (i < n && j < m) {
-    if (A[i] === B[j]) { out.push({ t: '=', x: A[i] }); i++; j++; }
-    else if (dp[i + 1][j] >= dp[i][j + 1]) { out.push({ t: '-', x: A[i] }); i++; }
-    else { out.push({ t: '+', x: B[j] }); j++; }
-  }
-  while (i < n) out.push({ t: '-', x: A[i++] });
-  while (j < m) out.push({ t: '+', x: B[j++] });
-  return out;
+// diffLines kanonis tinggal di utils (core.js).
+
+// Batas diff (pola banding-file.js): diff LCS O(n×m) tanpa batas bisa
+// membekukan tab — 10.000×10.000 baris = tabel 190,8 MB. Tolak bila salah
+// satu sisi > 2.000 baris atau > 200 KB. Mengembalikan pesan penolakan
+// jujur, atau null bila kedua sisi masih dalam batas.
+export const BATAS_BARIS_DIFF = 2000;
+export const BATAS_BYTE_DIFF = 200000;
+export function cekBatasDiff(a, b) {
+  const barisA = String(a).split('\n').length, barisB = String(b).split('\n').length;
+  if (barisA > BATAS_BARIS_DIFF || barisB > BATAS_BARIS_DIFF) return 'Teks terlalu panjang untuk dibandingkan baris per baris (lebih dari ' + BATAS_BARIS_DIFF + ' baris di salah satu sisi). Potong dulu teksnya, atau bandingkan per bagian.';
+  if (String(a).length > BATAS_BYTE_DIFF || String(b).length > BATAS_BYTE_DIFF) return 'Teks terlalu besar untuk dibandingkan (lebih dari 200 KB di salah satu sisi). Potong dulu teksnya, atau bandingkan per bagian.';
+  return null;
 }
 
 export function render(root) {
@@ -32,7 +26,9 @@ export function render(root) {
 
   function bandingkan() {
     if (!taA.value && !taB.value) { T.show(box, '<div class="hint">Kedua teks kosong.</div>'); return; }
-    const diff = diffLines(taA.value, taB.value);
+    const batas = cekBatasDiff(taA.value, taB.value);
+    if (batas) { T.show(box, errBox(batas)); return; }
+    const diff = utils.diffLines(taA.value, taB.value);
     const sama = diff.filter((d) => d.t === '=').length;
     const del = diff.filter((d) => d.t === '-').length;
     const add = diff.filter((d) => d.t === '+').length;
@@ -55,12 +51,14 @@ export function render(root) {
   const bGo = T.btn('🔀 Bandingkan', bandingkan, true);
   const bTukar = T.btn('⇄ Tukar', () => { const v = taA.value; taA.value = taB.value; taB.value = v; bandingkan(); });
   const bSalin = T.copyBtn(() => {
-    const diff = diffLines(taA.value, taB.value);
+    const batas = cekBatasDiff(taA.value, taB.value);
+    if (batas) { T.show(box, errBox(batas)); return ''; }
+    const diff = utils.diffLines(taA.value, taB.value);
     return diff.map((d) => (d.t === '=' ? ' ' : d.t) + ' ' + d.x).join('\n');
   }, 'Salin hasil');
 
   root.append(
-    T.el('<p class="dim" style="font-size:13px">Tempel dua versi teks (atau potongan kode), lihat baris mana yang sama, dihapus, atau ditambah.</p>'),
+    T.el('<p class="dim" style="font-size:13px">Tempel dua versi teks (atau potongan kode), lihat baris mana yang sama, dihapus, atau ditambah. Maksimal 2.000 baris per sisi.</p>'),
     T.grid2(T.field('Teks A (lama)', taA), T.field('Teks B (baru)', taB)),
     T.row(bGo, bTukar, bSalin),
     box

@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Cari anime dari screenshot lewat trace.moe (tanpa key).
 // Terverifikasi 18 Nov 2026: api.trace.moe/search 200, CORS echo.
@@ -17,13 +17,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const mediaAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// mediaAman kanonis tinggal di utils.urlAman (core.js).
 
 function detikKeMenit(d) {
   const n = Number(d);
@@ -67,8 +61,8 @@ export function render(root) {
       T.show(box, '<p class="hint">' + hasil.length + ' kecocokan teratas. Persentase menunjukkan seberapa mirip gambarnya.</p>' +
         hasil.map((r) => {
           const persen = Math.round((Number(r.similarity) || 0) * 100);
-          const video = mediaAman(r.video);
-          const gambar = mediaAman(r.image);
+          const video = utils.urlAman(r.video);
+          const gambar = utils.urlAman(r.image);
           const anilist = r.anilist ? 'https://anilist.co/anime/' + Number(r.anilist) : null;
           return '<div style="border-top:1px solid #ffffff14;padding:12px 0">' +
             (video ? '<video src="' + esc(video) + '" controls preload="none" style="width:100%;border-radius:8px;display:block;margin-bottom:8px"></video>'

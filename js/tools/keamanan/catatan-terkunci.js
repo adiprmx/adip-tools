@@ -5,18 +5,7 @@ const _te = new TextEncoder(), _td = new TextDecoder();
 const LS_PREFIX = 'locknote.';
 const ITERASI = 100000;
 
-function b64e(buf) {
-  const b = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  let s = '';
-  for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
-  return btoa(s);
-}
-function b64d(b64) {
-  const s = atob(b64);
-  const b = new Uint8Array(s.length);
-  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i);
-  return b;
-}
+// b64e, b64d kanonis tinggal di utils (core.js).
 async function kunciDariPassword(password, salt) {
   const km = await crypto.subtle.importKey('raw', _te.encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
@@ -28,21 +17,19 @@ export async function lockEncrypt(judul, isi, password) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const key = await kunciDariPassword(password, salt);
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, _te.encode(JSON.stringify({ judul, isi })));
-  return JSON.stringify({ salt: b64e(salt), iv: b64e(iv), data: b64e(data) });
+  return JSON.stringify({ salt: utils.b64e(salt), iv: utils.b64e(iv), data: utils.b64e(data) });
 }
 export async function lockDecrypt(paket, password) {
   const o = JSON.parse(paket);
-  const key = await kunciDariPassword(password, b64d(o.salt));
-  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(o.iv) }, key, b64d(o.data));
+  const key = await kunciDariPassword(password, utils.b64d(o.salt));
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: utils.b64d(o.iv) }, key, utils.b64d(o.data));
   return JSON.parse(_td.decode(pt));
 }
 
 export const meta = {"id": "catatan-terkunci", "name": "Catatan Terkunci", "cat": "keamanan", "icon": "🔐", "desc": "Catatan terenkripsi AES dengan password.", "keywords": "catatan,enkripsi,aes,password,rahasia"};
 export function render(root) {
 
-    const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-    const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
-    const lsDel = (k) => { try { localStorage.removeItem(k); } catch (e) { /* abaikan */ } };
+    // lsGet, lsSet, lsDel kanonis tinggal di utils (core.js).
     const lsJudul = () => {
       const r = [];
       try {
@@ -88,7 +75,7 @@ export function render(root) {
       setTimeout(async () => {
         try {
           const paket = await lockEncrypt(judul, isi, pw);
-          if (!lsSet(keyOf(judul), paket)) { T.show(msg, '<span class="err">Gagal menyimpan — penyimpanan HP penuh atau tidak tersedia.</span>'); return; }
+          if (!utils.lsSet(keyOf(judul), paket)) { T.show(msg, '<span class="err">Gagal menyimpan — penyimpanan HP penuh atau tidak tersedia.</span>'); return; }
           jdlInp.value = ''; isiInp.value = ''; pwInp.value = '';
           T.show(msg, '<span class="ok">✅ Catatan terkunci & tersimpan. Password-nya dicatat baik-baik ya!</span>');
           gambarDaftar();
@@ -120,7 +107,7 @@ export function render(root) {
       T.show(daftarBox, html);
       daftarBox.querySelectorAll('[data-buka]').forEach((b) => b.addEventListener('click', () => formBuka(b.dataset.buka)));
       daftarBox.querySelectorAll('[data-hapus]').forEach((b) => b.addEventListener('click', () => {
-        if (b.dataset.armed) { lsDel(keyOf(b.dataset.hapus)); T.toast('Catatan dihapus'); gambarDaftar(); return; }
+        if (b.dataset.armed) { utils.lsDel(keyOf(b.dataset.hapus)); T.toast('Catatan dihapus'); gambarDaftar(); return; }
         b.dataset.armed = '1';
         b.textContent = 'Yakin hapus?';
         setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Hapus'; } }, 3000);
@@ -135,7 +122,7 @@ export function render(root) {
         if (!pwBuka.value) { T.show(hasil, '<span class="err">Isi passwordnya dulu.</span>'); return; }
         T.show(hasil, '<span class="dim">Membuka…</span>');
         setTimeout(async () => {
-          const paket = lsGet(keyOf(k));
+          const paket = utils.lsGet(keyOf(k));
           if (!paket) { T.show(hasil, '<span class="err">Catatannya sudah tidak ada.</span>'); return; }
           try {
             const n = await lockDecrypt(paket, pwBuka.value);

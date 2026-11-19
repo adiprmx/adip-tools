@@ -1,12 +1,11 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js';
+import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage, utils } from '../../core.js';
 
 export const meta = {"id":"efek-polaroid","name":"Efek Polaroid","cat":"gambar","icon":"📸","desc":"Foto jadi polaroid klasik + caption tulisan tangan.","keywords":"polaroid,foto,efek,vintage,retro,caption,klasik"};
 
 const PAD = 90;      // border putih samping/atas
 const PAD_BOTTOM = 300; // area bawah (lebih tebal) buat caption
 
-function getLS(k, fb) { try { const v = localStorage.getItem(k); return v == null ? fb : v; } catch (e) { return fb; } }
-function setLS(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* abaikan */ } }
+// getLS, setLS kanonis tinggal di utils (core.js).
 
 function makePolaroid(img, caption, maxW) {
   const iw = img.naturalWidth, ih = img.naturalHeight;
@@ -55,14 +54,14 @@ function makePolaroid(img, caption, maxW) {
 
 export function render(root) {
   const fileI = fileInput('image/*');
-  const capI = T.input('text', 'Tulis caption…', getLS('pl-caption', 'kenangan indah ♡'));
+  const capI = T.input('text', 'Tulis caption…', utils.getLS('pl-caption', 'kenangan indah ♡'));
   const box = T.out();
   let img = null, resCanvas = null;
 
   function update() {
     if (!img) { T.hide(box); resCanvas = null; return; }
     const cap = capI.value;
-    setLS('pl-caption', cap);
+    utils.setLS('pl-caption', cap);
     resCanvas = makePolaroid(img, cap, 1200);
     T.show(box, '');
     const cap2 = T.el('<div class="hint" style="margin-bottom:6px">Pratinjau polaroid</div>');

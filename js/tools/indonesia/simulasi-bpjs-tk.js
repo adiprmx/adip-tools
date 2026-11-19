@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "simulasi-bpjs-tk", "name": "Simulasi BPJS Ketenagakerjaan", "cat": "indonesia", "icon": "🛡️", "desc": "Hitung iuran JHT dan Jaminan Pensiun dari gajimu, plus perkiraan saldo dan uang pensiun nanti.", "keywords": "bpjs,ketenagakerjaan,jht,jp,pensiun,iuran,gaji,pensiunan"};
 export function render(root) {
@@ -22,17 +22,17 @@ export function render(root) {
       '<td style="padding:7px 4px;text-align:right;font-weight:600">' + p[1] + '</td></tr>').join('') + '</table>';
 
   const hitung = () => {
-    const gaji = parseRp(gajiI.value) || 0;
+    const gaji = utils.parseRp(gajiI.value) || 0;
     const usia = Math.floor(T.num(usiaI.value) || 0);
     const mulai = Math.floor(T.num(mulaiI.value) || 0);
     const pensiun = Math.floor(T.num(pensiunI.value) || 0);
-    const saldoAwal = parseRp(saldoI.value) || 0;
+    const saldoAwal = utils.parseRp(saldoI.value) || 0;
     const hasil = (T.num(hasilI.value) || 0) / 100;
     const jhtP = (T.num(jhtPekerjaI.value) || 0) / 100;
     const jhtPr = (T.num(jhtPerusahaanI.value) || 0) / 100;
     const jpP = (T.num(jpPekerjaI.value) || 0) / 100;
     const jpPr = (T.num(jpPerusahaanI.value) || 0) / 100;
-    const batasJp = parseRp(batasJpI.value) || 0;
+    const batasJp = utils.parseRp(batasJpI.value) || 0;
     if (!(gaji > 0)) { T.show(box, '<p class="warn">Isi gajimu dulu ya.</p>'); return; }
     if (!(pensiun > usia) || !(pensiun > mulai)) { T.show(box, '<p class="warn">Usia pensiun harus lebih besar dari usia sekarang dan usia mulai kerja.</p>'); return; }
 

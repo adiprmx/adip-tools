@@ -1,28 +1,9 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'generator-kubah-minecraft', name: 'Generator Kubah Minecraft', cat: 'fun', icon: '🕌', desc: 'Rencanakan kubah, menara bundar, atau atap kerucut Minecraft lapis per lapis, dengan tampilan 3D.', keywords: 'minecraft,kubah,dome,menara,kerucut,atap,blok,bangunan,lapis', since: '6.17.0' };
 
 // Lingkaran terisi radius r (blok).
-export function isiLingkaran(r) {
-  const sel = new Set();
-  const m = Math.ceil(r);
-  for (let y = -m; y <= m; y++) {
-    for (let x = -m; x <= m; x++) {
-      const nx = (x + 0.5) / (r + 0.5), ny = (y + 0.5) / (r + 0.5);
-      if (nx * nx + ny * ny <= 1) sel.add(x + ',' + y);
-    }
-  }
-  return sel;
-}
-
-export function tepiDariIsi(sel) {
-  const tepi = new Set();
-  sel.forEach((k) => {
-    const [x, y] = k.split(',').map(Number);
-    if (!sel.has((x + 1) + ',' + y) || !sel.has((x - 1) + ',' + y) || !sel.has(x + ',' + (y + 1)) || !sel.has(x + ',' + (y - 1))) tepi.add(k);
-  });
-  return tepi;
-}
+// isiLingkaran, tepiDariIsi kanonis tinggal di utils (core.js).
 
 // Kubah setengah bola: lapis dari bawah (radius penuh) ke atas (mengecil).
 // diameter = lebar dasar. Kembalikan array lapis [{ lapis, sel, jumlah }].
@@ -36,8 +17,8 @@ export function bangunKubah(diameter, isi) {
     // Profil setengah bola: radius pada ketinggian y dari pusat bola di dasar.
     const yy = y - 0.5;
     const rr = Math.sqrt(Math.max(0, (R + 0.5) * (R + 0.5) - yy * yy)) - 0.5;
-    const penuh = isiLingkaran(Math.max(0, rr));
-    const pakai = isi ? penuh : tepiDariIsi(penuh);
+    const penuh = utils.isiLingkaran(Math.max(0, rr));
+    const pakai = isi ? penuh : utils.tepiDariIsi(penuh);
     if (pakai.size) lapis.push({ lapis: lapis.length + 1, sel: pakai, jumlah: pakai.size });
     void r;
   }
@@ -46,8 +27,8 @@ export function bangunKubah(diameter, isi) {
 
 // Menara bundar: silinder setinggi n lapis + kubah di atasnya.
 export function bangunMenara(diameter, tinggiDinding, isi) {
-  const penuh = isiLingkaran((diameter - 1) / 2);
-  const dinding = isi ? penuh : tepiDariIsi(penuh);
+  const penuh = utils.isiLingkaran((diameter - 1) / 2);
+  const dinding = isi ? penuh : utils.tepiDariIsi(penuh);
   const lapis = [];
   for (let i = 0; i < tinggiDinding; i++) lapis.push({ lapis: lapis.length + 1, sel: dinding, jumlah: dinding.size });
   const kubah = bangunKubah(diameter, isi);
@@ -61,8 +42,8 @@ export function bangunKerucut(diameter, tinggi, isi) {
   const lapis = [];
   for (let i = 0; i < tinggi; i++) {
     const r = R * (1 - i / tinggi);
-    const penuh = isiLingkaran(Math.max(0, r));
-    const pakai = isi ? penuh : tepiDariIsi(penuh);
+    const penuh = utils.isiLingkaran(Math.max(0, r));
+    const pakai = isi ? penuh : utils.tepiDariIsi(penuh);
     if (pakai.size) lapis.push({ lapis: lapis.length + 1, sel: pakai, jumlah: pakai.size });
   }
   return lapis;

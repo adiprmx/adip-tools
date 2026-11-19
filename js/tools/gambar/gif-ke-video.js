@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, fileInput, fmtBytes, LOCAL_NOTE, utils } from '../../core.js';
 
 // GIF ke Video: GIF animasi jadi video yang bisa diputar di mana saja.
 // Caranya: tiap frame GIF digambar ke canvas sesuai jedanya, lalu canvas
@@ -13,49 +13,7 @@ const MAKS_DURASI_MS = 60000;
 
 // Susun frame-frame GIF mentah jadi gambar utuh per frame (murni, tanpa DOM).
 // Sama seperti di pecah-gif-jadi-frame: menghormati disposal 2 dan 3.
-export function susunFrame(frames, w, h) {
-  const hasil = [];
-  let penuh = new Uint8ClampedArray(w * h * 4);
-  for (const f of frames) {
-    const d = f.dims || { width: w, height: h, top: 0, left: 0 };
-    const fw = d.width, fh = d.height, fx = d.left || 0, fy = d.top || 0;
-    const simpan = f.disposalType === 3 ? penuh.slice() : null;
-    const patch = f.patch;
-    if (patch) {
-      for (let y = 0; y < fh; y++) {
-        const gy = fy + y;
-        if (gy < 0 || gy >= h) continue;
-        for (let x = 0; x < fw; x++) {
-          const gx = fx + x;
-          if (gx < 0 || gx >= w) continue;
-          const pi = (y * fw + x) * 4;
-          if (patch[pi + 3] === 0) continue;
-          const gi = (gy * w + gx) * 4;
-          penuh[gi] = patch[pi];
-          penuh[gi + 1] = patch[pi + 1];
-          penuh[gi + 2] = patch[pi + 2];
-          penuh[gi + 3] = patch[pi + 3];
-        }
-      }
-    }
-    hasil.push(penuh.slice());
-    if (f.disposalType === 2) {
-      for (let y = 0; y < fh; y++) {
-        const gy = fy + y;
-        if (gy < 0 || gy >= h) continue;
-        for (let x = 0; x < fw; x++) {
-          const gx = fx + x;
-          if (gx < 0 || gx >= w) continue;
-          const gi = (gy * w + gx) * 4;
-          penuh[gi + 3] = 0;
-        }
-      }
-    } else if (f.disposalType === 3 && simpan) {
-      penuh = simpan;
-    }
-  }
-  return hasil;
-}
+// susunFrame kanonis tinggal di utils (core.js).
 
 // Total durasi dari jeda tiap frame (murni, bisa diuji). Jeda di bawah
 // 20ms dinaikkan ke 20ms supaya video tidak kelewat cepat.
@@ -135,7 +93,7 @@ export function render(root) {
         jumlah = Math.max(1, jumlah);
         durasi = totalDurasi(jedas.slice(0, jumlah));
       }
-      const susun = susunFrame(pakai.slice(0, jumlah), w, h);
+      const susun = utils.susunFrame(pakai.slice(0, jumlah), w, h);
       const c = document.createElement('canvas');
       c.width = w; c.height = h;
       const ctx = c.getContext('2d');

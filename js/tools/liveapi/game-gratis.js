@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Daftar game gratis lewat FreeToGame (tanpa key).
 // Terverifikasi 18 Nov 2026: www.freetogame.com/api/games 200, CORS *.
@@ -23,13 +23,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-const imgAman = (u) => {
-  if (typeof u !== 'string') return null;
-  try {
-    const p = new URL(u.trim());
-    return (p.protocol === 'http:' || p.protocol === 'https:') ? p.href : null;
-  } catch (e) { return null; }
-};
+// imgAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
 export const meta = {"id": "game-gratis", "name": "Game Gratis", "cat": "liveapi", "icon": "🎮", "desc": "Daftar game PC dan peramban yang gratis dimainkan, diurutkan dari yang paling populer.", "keywords": "game,gratis,free to play,pc,browser,freetogame,main game", "since": "6.17.0"};
@@ -58,7 +52,7 @@ export function render(root) {
       T.show(box, '<p class="hint">' + list.length + ' game teratas. Ketuk game untuk membuka halaman mainnya.</p>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:10px">' +
         list.map((g) => {
-          const gambar = imgAman(g.thumbnail);
+          const gambar = utils.urlAman(g.thumbnail);
           const link = tautanAman(g.game_url) ? g.game_url : null;
           const isi = (gambar ? '<img src="' + esc(gambar) + '" alt="' + esc(String(g.title || 'Game')) + '" loading="lazy" data-err="hide" style="width:100%;height:auto;border-radius:8px;display:block">' : '') +
             '<div style="font-size:13px;line-height:1.4;margin-top:6px;font-weight:700">' + esc(String(g.title || 'Tanpa judul')) + '</div>' +

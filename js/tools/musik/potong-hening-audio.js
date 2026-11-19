@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 
 export const meta = {"id": "potong-hening-audio", "name": "Potong Hening Audio", "cat": "musik", "icon": "✂️", "desc": "Buang bagian hening di awal, tengah, dan akhir audio.", "keywords": "audio,hening,diam,potong,sunyi,trim,silence", "since": "6.17.0"};
 
@@ -57,30 +57,7 @@ export function trimSilenceChannels(channels, sampleRate, thresholdDb) {
   };
 }
 
-/* Enkode PCM 16-bit jadi file WAV (salinan per tool, lihat balik-audio). */
-export function encodeWav(channels, sampleRate) {
-  const numCh = channels.length;
-  const len = channels[0].length;
-  const blockAlign = numCh * 2;
-  const dataSize = len * blockAlign;
-  const buf = new ArrayBuffer(44 + dataSize);
-  const v = new DataView(buf);
-  const wstr = (off, s) => { for (let i = 0; i < s.length; i++) v.setUint8(off + i, s.charCodeAt(i)); };
-  wstr(0, 'RIFF'); v.setUint32(4, 36 + dataSize, true); wstr(8, 'WAVE');
-  wstr(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
-  v.setUint16(22, numCh, true); v.setUint32(24, sampleRate, true);
-  v.setUint32(28, sampleRate * blockAlign, true); v.setUint16(32, blockAlign, true);
-  v.setUint16(34, 16, true); wstr(36, 'data'); v.setUint32(40, dataSize, true);
-  let off = 44;
-  for (let i = 0; i < len; i++) {
-    for (let ch = 0; ch < numCh; ch++) {
-      const s = Math.max(-1, Math.min(1, channels[ch][i]));
-      v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-      off += 2;
-    }
-  }
-  return new Blob([buf], { type: 'audio/wav' });
-}
+// encodeWav kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const LEVELS = [
@@ -114,7 +91,7 @@ export function render(root) {
         T.show(outBox, errBox('Seluruh audio terbaca hening pada pilihan ini. Coba pilihan yang lebih peka, atau cek apakah file-nya memang berisi suara.'));
         return;
       }
-      const blob = encodeWav(res.channels, decoded.sampleRate);
+      const blob = utils.encodeWav(res.channels, decoded.sampleRate);
       const base = fileObj.name.replace(/\.[^.]+$/, '').replace(/[^\w\- ]+/g, '').trim() || 'audio';
       if (lastUrl) URL.revokeObjectURL(lastUrl);
       lastUrl = URL.createObjectURL(blob);

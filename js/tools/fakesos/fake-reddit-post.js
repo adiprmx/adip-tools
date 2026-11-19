@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
+import { h as T, LOCAL_NOTE, dlNodePng, fileInput, utils } from '../../core.js';
 
 export const meta = {
   id: 'fake-reddit-post',
@@ -45,12 +45,7 @@ const ICO_BELL = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" st
 const ICO_SEARCH = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>';
 const ICO_AWARD = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8z"/></svg>';
 
-function avaColor(name) {
-  let hsh = 0;
-  const s = String(name || '?');
-  for (let i = 0; i < s.length; i++) hsh = (hsh * 31 + s.charCodeAt(i)) % 360;
-  return 'hsl(' + hsh + ',55%,45%)';
-}
+// avaColor kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const wrap = T.el('<div class="fr-wrap"></div>');
@@ -182,7 +177,7 @@ export function render(root) {
     const awards = parseInt((awardI.value || '').replace(/\D/g, ''), 10) || 0;
     const avHtml = avUrl
       ? '<img src="' + T.esc(avUrl) + '" alt="">'
-      : snooSvg(avaColor(sub));
+      : snooSvg(utils.avaColor(sub));
     const imgHtml = imgUrl
       ? '<div class="fr-img"><img src="' + T.esc(imgUrl) + '" alt="gambar postingan"></div>'
       : '';

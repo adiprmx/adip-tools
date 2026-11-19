@@ -1,39 +1,7 @@
-import { h as T, fileInput } from '../../core.js';
+import { h as T, fileInput, utils } from '../../core.js';
 
 // Parser CSV yang benar: dukung quote, koma di dalam field, quote ganda, newline di dalam field.
-function parseCSV(text, delim) {
-  const rows = [];
-  let row = [], field = '', q = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (q) {
-      if (c === '"') {
-        if (text[i + 1] === '"') { field += '"'; i++; }
-        else q = false;
-      } else field += c;
-    } else if (c === '"') q = true;
-    else if (c === delim) { row.push(field); field = ''; }
-    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-    else if (c === '\r') { /* abaikan, \n yang menangani */ }
-    else field += c;
-  }
-  row.push(field); rows.push(row);
-  // buang baris kosong di ujung
-  while (rows.length && rows[rows.length - 1].length === 1 && rows[rows.length - 1][0] === '') rows.pop();
-  return rows;
-}
-function detectDelim(text) {
-  const first = text.split('\n')[0] || '';
-  const nSemi = (first.match(/;/g) || []).length, nCom = (first.match(/,/g) || []).length;
-  return nSemi > nCom ? ';' : ',';
-}
-function csvCell(v, delim) {
-  v = String(v == null ? '' : v);
-  return /["\n\r]/.test(v) || v.includes(delim) ? '"' + v.replace(/"/g, '""') + '"' : v;
-}
-function rowsToCSV(rows, delim) {
-  return rows.map((r) => r.map((c) => csvCell(c, delim)).join(delim)).join('\n');
-}
+// parseCSV, detectDelim, csvCell, rowsToCSV kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "csv-json", "name": "CSV ↔ JSON", "cat": "converter", "icon": "🔄", "desc": "Konversi CSV ke JSON dan sebaliknya.", "keywords": "csv,json,konversi,data,spreadsheet,excel"};
 export function render(root) {
@@ -53,8 +21,8 @@ export function render(root) {
       if (m === 'auto') m = /^[[{]/.test(src) ? 'j2c' : 'c2j';
       try {
         if (m === 'c2j') {
-          const d = delim.value === 'auto' ? detectDelim(src) : delim.value;
-          const rows = parseCSV(src, d).filter((r) => r.some((c) => c !== ''));
+          const d = delim.value === 'auto' ? utils.detectDelim(src) : delim.value;
+          const rows = utils.parseCSV(src, d).filter((r) => r.some((c) => c !== ''));
           if (!rows.length) throw new Error('CSV kosong');
           let out;
           if (head.value === '1') {
@@ -81,7 +49,7 @@ export function render(root) {
           for (const o of arr) for (const k of Object.keys(o)) if (!keys.includes(k)) keys.push(k);
           const d = delim.value === 'auto' ? ',' : delim.value;
           const rows = [keys, ...arr.map((o) => keys.map((k) => o[k]))];
-          lastOut = rowsToCSV(rows, d);
+          lastOut = utils.rowsToCSV(rows, d);
           lastName = 'hasil.csv'; lastMime = 'text/csv';
           T.show(box,
             '<div class="kv"><span>Baris data</span><b>' + arr.length + '</b></div>' +

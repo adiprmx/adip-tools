@@ -1,6 +1,6 @@
 import { h as T, utils, kv } from '../../core.js';
 
-const parseRp = (s) => { s = String(s||'').trim().replace(/\s/g,''); if (!s) return NaN; if (s.includes(',')) return Number(s.replace(/\./g,'').replace(',','.')); if (/^\d{1,3}(\.\d{3})+$/.test(s)) return Number(s.replace(/\./g,'')); return Number(s); };
+// parseRp kanonis tinggal di utils (core.js).
 
 const JENIS = {
   'super': { label: 'KUR Super Mikro', maks: 10000000, bunga: 3, ket: 'Plafon s.d. Rp10 jt · bunga 3%/tahun' },
@@ -27,9 +27,9 @@ export function render(root) {
     isiJenis();
 
     const calc = () => {
-      const P = parseRp(plafonI.value);
-      const b = parseRp(bungaI.value);
-      const n = Math.round(parseRp(tenorI.value));
+      const P = utils.parseRp(plafonI.value);
+      const b = utils.parseRp(bungaI.value);
+      const n = Math.round(utils.parseRp(tenorI.value));
       if (!isFinite(P) || P <= 0 || !isFinite(b) || b < 0 || b >= 100 || !isFinite(n) || n < 1 || n > 120) {
         T.toast('Isi plafon, bunga, dan tenor dengan benar ya (tenor maks 120 bulan).'); return;
       }
