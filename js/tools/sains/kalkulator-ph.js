@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-ph', name: 'Kalkulator pH', cat: 'sains', icon: '🧫', desc: 'pH dari konsentrasi ion hidrogen dan sebaliknya, plus pH asam dan basa kuat. Lengkap dengan skala 0 sampai 14.', keywords: 'ph,asam,basa,konsentrasi,ion hidrogen,poh,kimia', since: '6.18.0' };
 
@@ -37,16 +37,12 @@ export function sifatPh(ph) {
   return 'netral';
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 2 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 2 desimal
+// (default lokal lama), kecuali yang eksplisit 4.
 
 function fmtKonsentrasi(h) {
   if (!isFinite(h) || h <= 0) return 'di luar jangkauan';
-  if (h >= 0.001) return fmtDes(h, 4) + ' M';
+  if (h >= 0.001) return utils.fmtDes(h, 4) + ' M';
   return h.toExponential(2).replace('.', ',') + ' M';
 }
 
@@ -100,8 +96,8 @@ export function render(root) {
     const poh = 14 - ph;
     const oh = Math.pow(10, -poh);
     T.show(box,
-      '<p class="big">pH ' + fmtDes(ph) + ' (' + sifatPh(ph) + ')</p>' +
-      '<p>[H+] = ' + fmtKonsentrasi(h) + ' · pOH = ' + fmtDes(poh) + ' · [OH-] = ' + fmtKonsentrasi(oh) + '.</p>' +
+      '<p class="big">pH ' + utils.fmtDes(ph, 2) + ' (' + sifatPh(ph) + ')</p>' +
+      '<p>[H+] = ' + fmtKonsentrasi(h) + ' · pOH = ' + utils.fmtDes(poh, 2) + ' · [OH-] = ' + fmtKonsentrasi(oh) + '.</p>' +
       gambarSkala(ph) +
       '<p class="hint">Hitungan pada suhu kamar (25 °C). Asam dan basa kuat dianggap terurai sempurna.</p>');
   }

@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Pecah GIF jadi Frame: ekstrak semua frame GIF animasi jadi gambar PNG
 // satu per satu, bisa diunduh satuan atau sekaligus dalam ZIP.
@@ -65,7 +65,7 @@ export function render(root) {
   const daftarBox = T.out();
 
   let gifuctSiap = null;
-  let zipSiap = null;
+  // Loader library kanonis: utils.loadLibOnce (core.js).
   let namaFile = 'gif';
   let gambarFrame = []; // [{blob, url, w, h}]
 
@@ -80,10 +80,7 @@ export function render(root) {
     }
     return gifuctSiap;
   };
-  const muatZip = () => {
-    if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
-    return zipSiap;
-  };
+
 
   function gambarDaftar() {
     T.show(daftarBox, '');
@@ -161,7 +158,7 @@ export function render(root) {
     zipB.disabled = true;
     T.show(statusBox, '<span class="dim">Menyiapkan ZIP…</span>');
     try {
-      const ok = await muatZip();
+      const ok = await utils.loadLibOnce(ZIP_CDN, () => typeof window.JSZip === 'function');
       if (!ok) throw new Error('zip gagal dimuat');
       const zip = new window.JSZip();
       for (let i = 0; i < gambarFrame.length; i++) {

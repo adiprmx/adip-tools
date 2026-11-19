@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"html-ke-pdf","name":"HTML ke PDF","cat":"converter","icon":"📄","desc":"Ubah kode HTML jadi file PDF ukuran A4.","keywords":"html,pdf,konversi,dokumen,cetak,a4","since":"6.11.0"};
 
@@ -33,17 +33,11 @@ export function render(root) {
     if (libsOk !== null) return Promise.resolve(libsOk);
     if (libsLoading) return new Promise((res) => { const t = setInterval(() => { if (libsOk !== null) { clearInterval(t); res(libsOk); } }, 300); });
     libsLoading = true;
-    const coba = async (list, check) => {
-      for (const u of list) {
-        const ok = await T.loadScript(u);
-        if (ok && check()) return true;
-      }
-      return false;
-    };
+    // Loop fallback CDN kanonis: utils.loadLibOnce (core.js).
     return (async () => {
       T.show(box, '<span class="dim">Menyiapkan alat PDF…</span>');
-      const h2c = await coba(H2C_CDNS, () => typeof window.html2canvas === 'function');
-      const pdf = h2c && await coba(JSPDF_CDNS, () => !!(window.jspdf && window.jspdf.jsPDF));
+      const h2c = await utils.loadLibOnce(H2C_CDNS, () => typeof window.html2canvas === 'function');
+      const pdf = h2c && await utils.loadLibOnce(JSPDF_CDNS, () => !!(window.jspdf && window.jspdf.jsPDF));
       libsOk = !!(h2c && pdf);
       if (!libsOk) T.show(box, errBox('Alat PDF tidak bisa dimuat dari internet. Periksa koneksi, lalu coba lagi.'));
       return libsOk;

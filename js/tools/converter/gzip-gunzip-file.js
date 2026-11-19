@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id": "gzip-gunzip-file", "name": "Gzip/Gunzip File", "cat": "converter", "icon": "🧊", "desc": "Kecilkan file jadi .gz, atau buka file .gz.", "keywords": "gzip,gunzip,gz,kompres,buka,kecilkan", "since": "6.17.0"};
 
@@ -11,12 +11,8 @@ const PAKO_CDNS = [
 ];
 
 async function muatPako() {
-  if (typeof window !== 'undefined' && window.pako && typeof window.pako.gzip === 'function') return true;
-  for (const u of PAKO_CDNS) {
-    const ok = await T.loadScript(u);
-    if (ok && window.pako && typeof window.pako.gzip === 'function') return true;
-  }
-  return false;
+  // Loader kanonis: utils.loadLibOnce (core.js).
+  return utils.loadLibOnce(PAKO_CDNS, () => window.pako && typeof window.pako.gzip === 'function');
 }
 
 // Kompres dengan alat bawaan browser; cadangan pako bila tidak tersedia.

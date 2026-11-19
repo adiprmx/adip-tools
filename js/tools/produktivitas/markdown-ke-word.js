@@ -1,4 +1,4 @@
-import { h as T, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Markdown ke Word: ubah tulisan Markdown jadi file .docx.
 // Mendukung judul (# sampai ###), paragraf, tebal (**...**), miring
@@ -85,15 +85,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let docxSiap = null;
-
-  const muatDocx = () => {
-    if (!docxSiap) {
-      docxSiap = T.loadScript(DOCX_CDN).then((ok) => ok && !!window.docx && typeof window.docx.Document === 'function')
-        .catch(() => { docxSiap = null; return false; });
-    }
-    return docxSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const blok = markdownKeBlok(teksI.value);
@@ -101,7 +93,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin Word… (perlu internet sekali saja)</span>');
-    const ok = await muatDocx();
+    const ok = await utils.loadLibOnce(DOCX_CDN, () => !!window.docx && typeof window.docx.Document === 'function');
     if (!ok) {
       T.show(statusBox, '<div class="err">Mesin Word gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

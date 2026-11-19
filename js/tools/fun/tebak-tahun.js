@@ -43,11 +43,7 @@ const TOTAL_SOAL = 10;
 const LS_KEY = 'tebak-tahun-best';
 
 // shuffle kanonis tinggal di utils (core.js).
-function loadBest() {
-  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
-  catch (e) { return {}; }
-}
-function saveBest(b) { try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } catch (e) { /* abaikan */ } }
+// loadBestObj/saveBestObj kanonis tinggal di utils (core.js).
 
 // Pengecoh tahun: dekat-dekat tahun benar (selisih 1–20 tahun) agar menjebak.
 const pengecohTahun = (th) => {
@@ -68,7 +64,7 @@ export function render(root) {
   const bestBox = T.el('<p class="hint center"></p>');
   const katSel = T.select([['semua', 'Semua — Indonesia & Dunia'], ['Indonesia', 'Indonesia saja'], ['Dunia', 'Dunia saja']], 'semua');
   const quiz = { list: [], idx: 0, score: 0, answered: false };
-  let best = loadBest();
+  let best = utils.loadBestObj(LS_KEY);
 
   const katLabel = () => katSel.value === 'semua' ? 'Semua' : katSel.value;
   const gambarBest = () => {
@@ -129,7 +125,7 @@ export function render(root) {
     const s = quiz.score;
     const key = katSel.value;
     let baru = '';
-    if (s > (best[key] || 0)) { best[key] = s; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    if (s > (best[key] || 0)) { best[key] = s; utils.saveBestObj(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
     gambarBest();
     const msg = s === 10 ? 'Sempurna! Kamu mesin waktu berjalan. 📅✨'
       : s >= 8 ? 'Keren! Ingatan sejarahmu tajam.'

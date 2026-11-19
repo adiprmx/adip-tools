@@ -195,19 +195,7 @@ export function render(root) {
       const UTIF_CDN = 'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js';
       const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';
       const MAKS_JUMLAH = 20;
-      let heicSiap = null, utifSiap = null, zipSiap = null;
-      const pastHeic = () => {
-        if (!heicSiap) heicSiap = T.loadScript(HEIC_CDN).then((ok) => ok && typeof window.heic2any === 'function');
-        return heicSiap;
-      };
-      const pastUtif = () => {
-        if (!utifSiap) utifSiap = T.loadScript(UTIF_CDN).then((ok) => ok && !!window.UTIF);
-        return utifSiap;
-      };
-      const pastZip = () => {
-        if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
-        return zipSiap;
-      };
+      // Loader library kanonis: utils.loadLibOnce (core.js).
 
       const fileI = fileInput('image/*,.heic,.heif,.tif,.tiff,.svg,.ico,.bmp,.avif');
       fileI.multiple = true;
@@ -324,14 +312,14 @@ export function render(root) {
       async function fileKeCanvas(file) {
         const jenis = jenisMasukan(file);
         if (jenis === 'heic') {
-          if (!(await pastHeic())) throw new Error('pengubah HEIC gagal dimuat, cek koneksi');
+          if (!(await utils.loadLibOnce(HEIC_CDN, () => typeof window.heic2any === 'function'))) throw new Error('pengubah HEIC gagal dimuat, cek koneksi');
           const keluar = await denganTimeout(window.heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 }), 120000);
           const blob = Array.isArray(keluar) ? keluar[0] : keluar;
           if (!blob) throw new Error('file HEIC tidak terbaca');
           return gambarKeCanvas(await loadImage(blob), true);
         }
         if (jenis === 'tiff') {
-          if (!(await pastUtif())) throw new Error('pembaca TIFF gagal dimuat, cek koneksi');
+          if (!(await utils.loadLibOnce(UTIF_CDN, () => !!window.UTIF))) throw new Error('pembaca TIFF gagal dimuat, cek koneksi');
           const buffer = await file.arrayBuffer();
           const ifds = window.UTIF.decode(buffer);
           if (!ifds || !ifds.length) throw new Error('file TIFF tidak terbaca');
@@ -532,7 +520,7 @@ export function render(root) {
           });
           const zipB = T.btn('Unduh semua (ZIP)', async () => {
             T.show(statusBox, '<span class="dim">Menyiapkan ZIP…</span>');
-            if (!(await pastZip())) { T.show(statusBox, '<span class="dim">Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi, atau unduh satu per satu.</span>'); return; }
+            if (!(await utils.loadLibOnce(ZIP_CDN, () => typeof window.JSZip === 'function'))) { T.show(statusBox, '<span class="dim">Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi, atau unduh satu per satu.</span>'); return; }
             try {
               const zip = new window.JSZip();
               const pakaiNama = new Set();

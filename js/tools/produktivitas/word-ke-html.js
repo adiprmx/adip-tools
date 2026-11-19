@@ -40,15 +40,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let mammothSiap = null;
-
-  const muatMammoth = () => {
-    if (!mammothSiap) {
-      mammothSiap = T.loadScript(MAMMOTH_CDN).then((ok) => ok && !!window.mammoth && typeof window.mammoth.convertToHtml === 'function')
-        .catch(() => { mammothSiap = null; return false; });
-    }
-    return mammothSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -56,7 +48,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin Word… (perlu internet sekali saja)</span>');
-    const ok = await muatMammoth();
+    const ok = await utils.loadLibOnce(MAMMOTH_CDN, () => !!window.mammoth && typeof window.mammoth.convertToHtml === 'function');
     if (!ok) {
       T.show(statusBox, '<div class="err">Mesin Word gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

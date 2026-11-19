@@ -4,11 +4,7 @@ export const meta = {"id":"favicon-generator","name":"Paket Favicon Lengkap","ca
 
 const SIZES = [16, 32, 48, 64, 128, 144, 180, 192, 256, 512];
 const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-let zipSiap = null;
-function loadZip() {
-  if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && !!window.JSZip);
-  return zipSiap;
-}
+// Loader library kanonis: utils.loadLibOnce (core.js).
 
 /* Bangun file favicon.ico dari PNG (format ICO boleh menyimpan PNG utuh). */
 function buatIco(pngList) {
@@ -270,7 +266,7 @@ export function render(root) {
   async function unduhZip() {
     if (!kanvasPaket.length) { T.toast('Buat dulu ikonnya'); return; }
     T.show(statusBox, '<p class="center mut">Menyiapkan ZIP...</p>');
-    const ok = await loadZip();
+    const ok = await utils.loadLibOnce(ZIP_CDN, () => !!window.JSZip);
     if (!ok) {
       T.show(statusBox, '<span class="err">Pembuat ZIP gagal dimuat. Cek koneksi internetmu lalu coba lagi. Unduhan satuan tetap bisa dipakai.</span>');
       return;

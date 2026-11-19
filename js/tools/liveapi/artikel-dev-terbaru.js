@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Artikel terbaru dari DEV Community (tanpa key).
 // Terverifikasi 18 Nov 2026: dev.to/api/articles 200, CORS *.
@@ -14,12 +14,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return '';
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
@@ -53,7 +48,7 @@ export function render(root) {
           const isi = '<div style="font-weight:700;font-size:14px;line-height:1.4">' + esc(String(a.title || 'Tanpa judul')) + '</div>' +
             (a.description ? '<div class="dim" style="font-size:12.5px;line-height:1.5;margin-top:4px">' + esc(String(a.description)) + '</div>' : '') +
             '<div class="dim" style="font-size:11.5px;margin-top:6px">' + esc(penulis) +
-            (a.readable_publish_date ? ' · ' + esc(tglCantik(a.published_at) || String(a.readable_publish_date)) : '') +
+            (a.readable_publish_date ? ' · ' + esc(utils.tglCantik(a.published_at) || String(a.readable_publish_date)) : '') +
             (a.reading_time_minutes ? ' · ' + (Number(a.reading_time_minutes) || 0) + ' menit baca' : '') +
             (a.public_reactions_count != null ? ' · ' + (Number(a.public_reactions_count) || 0) + ' reaksi' : '') +
             (tags ? '<br>Topik: ' + esc(tags) : '') + '</div>';

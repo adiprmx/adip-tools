@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-langkah-ke-km', name: 'Kalkulator Langkah ke KM', cat: 'sehari', icon: '🚶', desc: 'Ubah jumlah langkah dari HP atau jam tanganmu menjadi jarak kilometer, dengan panjang langkah dari tinggi badanmu.', keywords: 'langkah,km,jalan kaki,jarak,step counter,pedometer,olahraga', since: '6.18.0' };
 
@@ -15,12 +15,8 @@ export function langkahKeKm(langkah, panjangLangkahCm) {
   return langkah * panjangLangkahCm / 100000;
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 2 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 2 desimal
+// (default lokal lama), kecuali yang eksplisit.
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Isi jumlah langkahmu, lalu tinggi badanmu. Panjang langkah diperkirakan dari tinggi badan, jadi hasilnya perkiraan yang cukup dekat, bukan pengukuran pasti.</p>'));
@@ -61,9 +57,9 @@ export function render(root) {
     // Waktu tempuh dengan kecepatan jalan santai 5 km/jam (perkiraan).
     const menit = km / 5 * 60;
     T.show(box,
-      '<p class="big">' + fmtDes(km) + ' km</p>' +
-      '<p>' + T.fmt(langkah) + ' langkah dengan panjang langkah ' + fmtDes(cmLangkah, 1) + ' cm = ' + fmtDes(meter, 0) + ' meter (' + fmtDes(mil) + ' mil).</p>' +
-      '<p class="hint">Jalan santai sekitar 5 km/jam, jarak segitu ditempuh kira-kira ' + fmtDes(menit, 0) + ' menit. Panjang langkah dari tinggi badan adalah perkiraan umum (0,413 × tinggi).</p>');
+      '<p class="big">' + utils.fmtDes(km, 2) + ' km</p>' +
+      '<p>' + T.fmt(langkah) + ' langkah dengan panjang langkah ' + utils.fmtDes(cmLangkah, 1) + ' cm = ' + utils.fmtDes(meter, 0) + ' meter (' + utils.fmtDes(mil, 2) + ' mil).</p>' +
+      '<p class="hint">Jalan santai sekitar 5 km/jam, jarak segitu ditempuh kira-kira ' + utils.fmtDes(menit, 0) + ' menit. Panjang langkah dari tinggi badan adalah perkiraan umum (0,413 × tinggi).</p>');
   }
 
   root.append(

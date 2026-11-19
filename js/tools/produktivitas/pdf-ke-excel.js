@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // PDF ke Excel: ambil tabel dari PDF jadi file spreadsheet (.xlsx).
 // Caranya: teks PDF dikelompokkan jadi baris (posisi Y sama) lalu kolom
@@ -81,25 +81,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let pdfJsSiap = null, xlsxSiap = null;
-
-  const muatPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        const siap = ok && !!window.pdfjsLib;
-        if (siap) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return siap;
-      }).catch(() => { pdfJsSiap = null; return false; });
-    }
-    return pdfJsSiap;
-  };
-  const muatXlsx = () => {
-    if (!xlsxSiap) {
-      xlsxSiap = T.loadScript(XLSX_CDN).then((ok) => ok && !!window.XLSX && !!window.XLSX.utils)
-        .catch(() => { xlsxSiap = null; return false; });
-    }
-    return xlsxSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -107,7 +89,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF dan Excel… (perlu internet sekali saja)</span>');
-    const [pdfOk, xlsxOk] = await Promise.all([muatPdfJs(), muatXlsx()]);
+    const [pdfOk, xlsxOk] = await Promise.all([utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }), utils.loadLibOnce(XLSX_CDN, () => !!window.XLSX && !!window.XLSX.utils)]);
     if (!pdfOk || !xlsxOk) {
       T.show(statusBox, '<div class="err">Mesin gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

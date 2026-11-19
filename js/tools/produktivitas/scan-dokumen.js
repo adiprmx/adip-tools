@@ -1,4 +1,4 @@
-import { h as T, fileInput, loadImage, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, loadImage, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Scan Dokumen: foto dokumen lewat kamera atau unggah foto, luruskan
 // sudutnya, ubah jadi hitam-putih bersih, lalu ekspor sebagai PDF.
@@ -70,20 +70,14 @@ export function render(root) {
   kanvasTampil.style.cssText = 'max-width:100%;height:auto;border-radius:10px;border:1px solid #ffffff20;display:block;touch-action:none';
   const kanvasHasil = document.createElement('canvas');
   kanvasHasil.style.cssText = 'max-width:100%;height:auto;border-radius:10px;border:1px solid #ffffff20;display:block';
-  let pdfLibSiap = null;
+  // Loader library kanonis: utils.loadLibOnce (core.js).
   let img = null; // HTMLImageElement foto
   let titik = []; // 4 titik sudut dalam koordinat gambar asli [x, y]
   let skalaTampil = 1;
   let sudutSeret = -1;
   let hasilSiap = false;
 
-  const muatPdfLib = () => {
-    if (!pdfLibSiap) {
-      pdfLibSiap = T.loadScript(PDFLIB_CDN).then((ok) => ok && !!window.PDFLib)
-        .catch(() => { pdfLibSiap = null; return false; });
-    }
-    return pdfLibSiap;
-  };
+
 
   function gambarEditor() {
     if (!img) return;
@@ -204,7 +198,7 @@ export function render(root) {
       box.appendChild(kanvasHasil);
     }
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    const ok = await muatPdfLib();
+    const ok = await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib);
     if (!ok) { T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div>'); return; }
     T.hide(statusBox);
     const L = window.PDFLib;

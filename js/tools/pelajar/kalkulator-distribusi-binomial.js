@@ -27,10 +27,8 @@ function fmtP(p) {
   if (!isFinite(p)) return 'di luar jangkauan';
   return String(Math.round(p * 1000000) / 10000).replace('.', ',') + '%';
 }
-function fmtDes(v) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  return String(Math.round(v * 10000) / 10000).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js). fmtP di atas tetap lokal:
+// bentuk persen, beda dari utils.fmtP (nilai-p).
 
 function gambarBatang(rows) {
   const W = 340, H = 150, P = 14;
@@ -72,7 +70,7 @@ export function render(root) {
     let html =
       '<p class="big">Tepat ' + k + ' berhasil: ' + fmtP(h.tepat) + '</p>' +
       '<p>Paling banyak ' + k + ' berhasil: ' + fmtP(h.palingBanyak) + '. Paling sedikit ' + k + ' berhasil: ' + fmtP(h.palingSedikit) + '.</p>' +
-      '<p>Rata-rata berhasil yang diharapkan: ' + fmtDes(h.rata) + ' dari ' + n + ' percobaan. Varians: ' + fmtDes(h.varians) + '. Simpangan baku: ' + fmtDes(h.sd) + '.</p>' +
+      '<p>Rata-rata berhasil yang diharapkan: ' + utils.fmtDes(h.rata) + ' dari ' + n + ' percobaan. Varians: ' + utils.fmtDes(h.varians) + '. Simpangan baku: ' + utils.fmtDes(h.sd) + '.</p>' +
       '<p class="hint">Kombinasi C(' + n + ',' + k + ') = ' + T.fmt(utils.kombinasi(n, k)) + ' cara.</p>';
     if (n <= 30) {
       const rows = tabelBinomial(n, p);

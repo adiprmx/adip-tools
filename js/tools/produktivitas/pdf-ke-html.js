@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // PDF ke HTML: ubah PDF jadi satu halaman HTML yang berdiri sendiri.
 // Tiap halaman jadi gambar (tampilannya persis seperti di PDF) plus
@@ -90,18 +90,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let pdfJsSiap = null;
-
-  const muatPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        const siap = ok && !!window.pdfjsLib;
-        if (siap) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return siap;
-      }).catch(() => { pdfJsSiap = null; return false; });
-    }
-    return pdfJsSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -109,7 +98,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    const ok = await muatPdfJs();
+    const ok = await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; });
     if (!ok) {
       T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

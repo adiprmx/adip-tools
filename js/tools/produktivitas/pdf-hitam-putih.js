@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // PDF Hitam-Putih: ubah PDF berwarna jadi PDF hitam-putih.
 // Caranya: tiap halaman digambar ke kanvas dengan pdf.js, pikselnya
@@ -33,25 +33,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let pdfJsSiap = null, jsPdfSiap = null;
-
-  const muatPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        const siap = ok && !!window.pdfjsLib;
-        if (siap) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return siap;
-      }).catch(() => { pdfJsSiap = null; return false; });
-    }
-    return pdfJsSiap;
-  };
-  const muatJsPdf = () => {
-    if (!jsPdfSiap) {
-      jsPdfSiap = T.loadScript(JSPDF_CDN).then((ok) => ok && !!window.jspdf && typeof window.jspdf.jsPDF === 'function')
-        .catch(() => { jsPdfSiap = null; return false; });
-    }
-    return jsPdfSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -59,7 +41,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    const [pdfOk, jspdfOk] = await Promise.all([muatPdfJs(), muatJsPdf()]);
+    const [pdfOk, jspdfOk] = await Promise.all([utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }), utils.loadLibOnce(JSPDF_CDN, () => !!window.jspdf && typeof window.jspdf.jsPDF === 'function')]);
     if (!pdfOk || !jspdfOk) {
       T.show(statusBox, '<div class="err">Mesin gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

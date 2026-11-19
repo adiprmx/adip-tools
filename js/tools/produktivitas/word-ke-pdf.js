@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Word ke PDF: baca dokumen Word (.docx), ambil teksnya, susun jadi PDF.
 // File .docx adalah ZIP berisi document.xml; teksnya diambil dari sana
@@ -62,22 +62,7 @@ export function render(root) {
   const statusBox = T.out();
   const hasilBox = T.out();
 
-  let pdfLibSiap = null, jsZipSiap = null;
-
-  const muatPdfLib = () => {
-    if (!pdfLibSiap) {
-      pdfLibSiap = T.loadScript(PDFLIB_CDN).then((ok) => ok && !!window.PDFLib)
-        .catch(() => { pdfLibSiap = null; return false; });
-    }
-    return pdfLibSiap;
-  };
-  const muatJsZip = () => {
-    if (!jsZipSiap) {
-      jsZipSiap = T.loadScript(JSZIP_CDN).then((ok) => ok && !!window.JSZip)
-        .catch(() => { jsZipSiap = null; return false; });
-    }
-    return jsZipSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -85,7 +70,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    const [pdfOk, zipOk] = await Promise.all([muatPdfLib(), muatJsZip()]);
+    const [pdfOk, zipOk] = await Promise.all([utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib), utils.loadLibOnce(JSZIP_CDN, () => !!window.JSZip)]);
     if (!pdfOk || !zipOk) {
       T.show(statusBox, '<div class="err">Mesin gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

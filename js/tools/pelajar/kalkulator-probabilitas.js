@@ -9,10 +9,8 @@ function fmtP(p) {
   const persen = Math.round(p * 10000) / 100;
   return String(persen).replace('.', ',') + '%';
 }
-function fmtDes(v) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  return String(Math.round(v * 10000) / 10000).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js). fmtP di atas tetap lokal:
+// bentuk persen, beda dari utils.fmtP (nilai-p).
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Peluang ditulis sebagai angka 0 sampai 1, atau persen. Contoh: peluang 25% ditulis 0,25.</p>'));
@@ -102,7 +100,7 @@ export function render(root) {
       T.show(box,
         '<p class="big">Tepat ' + k + ' berhasil: ' + fmtP(tepat) + '</p>' +
         '<p>Paling banyak ' + k + ' berhasil: ' + fmtP(palingBanyak) + '. Paling sedikit ' + k + ' berhasil: ' + fmtP(palingSedikit) + '.</p>' +
-        '<p class="hint">Rata-rata berhasil yang diharapkan: ' + fmtDes(rata) + ' dari ' + n + ' percobaan. Kombinasi C(' + n + ',' + k + ') = ' + T.fmt(utils.kombinasi(n, k)) + '.</p>');
+        '<p class="hint">Rata-rata berhasil yang diharapkan: ' + utils.fmtDes(rata) + ' dari ' + n + ' percobaan. Kombinasi C(' + n + ',' + k + ') = ' + T.fmt(utils.kombinasi(n, k)) + '.</p>');
     }
   }
 

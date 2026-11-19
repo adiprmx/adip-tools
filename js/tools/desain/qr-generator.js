@@ -127,7 +127,7 @@ export function render(root) {
     const statusBox = T.out();
     const qrWrap = T.el('<div style="display:flex;justify-content:center;padding:20px;background:#fff;border-radius:12px;margin:12px 0;min-height:120px;align-items:center"></div>');
     const cv = document.createElement('canvas');
-    let libOk = null, libLoading = false, logoImg = null, logoDataUrl = null, zipSiap = null;
+    let libOk = null, libLoading = false, logoImg = null, logoDataUrl = null;
     let massalHasil = []; // [{teks, canvas, svg}]
     const content = () => {
       if (modeSel.value === 'wifi') return wifiString(wSsid.value.trim(), wPass.value, wEnc.value, wHidden.checked);
@@ -163,10 +163,7 @@ export function render(root) {
         return libOk;
       });
     };
-    const pastZip = () => {
-      if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
-      return zipSiap;
-    };
+    // Loader ZIP kanonis: utils.loadLibOnce (core.js).
     const tempelLogo = (canvas, ctx) => {
       if (!logoImg) return;
       const sisi = Math.round(canvas.width * 0.22);
@@ -369,7 +366,7 @@ export function render(root) {
     const unduhZipMassal = async (jenis) => {
       if (!massalHasil.length) { T.toast('Buat dulu QR massalnya'); return; }
       T.show(statusBox, '<span class="dim">Menyiapkan ZIP…</span>');
-      if (!(await pastZip())) { T.show(statusBox, '<span class="dim">Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi.</span>'); return; }
+      if (!(await utils.loadLibOnce(ZIP_CDN, () => typeof window.JSZip === 'function'))) { T.show(statusBox, '<span class="dim">Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi.</span>'); return; }
       try {
         const zip = new window.JSZip();
         for (let i = 0; i < massalHasil.length; i++) {

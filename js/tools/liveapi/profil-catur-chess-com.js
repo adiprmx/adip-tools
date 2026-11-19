@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Profil pemain Chess.com, tanpa key.
 // Terverifikasi 17 Nov 2026: /pub/player/erik -> 200, CORS *.
@@ -16,12 +16,8 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(ts) {
-  if (!ts) return '';
-  const d = new Date(Number(ts) * 1000);
-  if (isNaN(d)) return '';
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js) — dipakai dengan
+// { unix: true, bulan: 'long' } (detik epoch dari API chess.com).
 
 const gambarAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
@@ -64,8 +60,8 @@ export function render(root) {
         '<div style="margin-top:12px">' +
         (negara ? '<div class="kv"><span class="k">Negara</span><span class="v">' + esc(negara) + '</span></div>' : '') +
         (typeof j.followers === 'number' ? '<div class="kv"><span class="k">Pengikut</span><span class="v">' + T.fmt(j.followers) + '</span></div>' : '') +
-        (j.joined ? '<div class="kv"><span class="k">Bergabung</span><span class="v">' + esc(tglCantik(j.joined)) + '</span></div>' : '') +
-        (j.last_online ? '<div class="kv"><span class="k">Terakhir online</span><span class="v">' + esc(tglCantik(j.last_online)) + '</span></div>' : '') +
+        (j.joined ? '<div class="kv"><span class="k">Bergabung</span><span class="v">' + esc(utils.tglCantik(j.joined, { unix: true, bulan: 'long' })) + '</span></div>' : '') +
+        (j.last_online ? '<div class="kv"><span class="k">Terakhir online</span><span class="v">' + esc(utils.tglCantik(j.last_online, { unix: true, bulan: 'long' })) + '</span></div>' : '') +
         '</div>' +
         (j.url && j.url.indexOf('https://') === 0 ? '<p style="margin-top:10px"><a href="' + esc(j.url) + '" target="_blank" rel="noopener" style="font-size:12.5px">Lihat profil di Chess.com</a></p>' : '') +
         '<p class="hint">Sumber: Chess.com.</p>');

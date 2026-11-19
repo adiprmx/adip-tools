@@ -44,17 +44,13 @@ const TOTAL_SOAL = 10;
 const LS_KEY = 'benar-atau-salah-best';
 
 // shuffle kanonis tinggal di utils (core.js).
-function loadBest() {
-  try { const v = parseInt(localStorage.getItem(LS_KEY), 10); return isNaN(v) ? 0 : v; }
-  catch (e) { return 0; }
-}
-function saveBest(v) { try { localStorage.setItem(LS_KEY, String(v)); } catch (e) { /* abaikan */ } }
+// loadBestNum/saveBestNum kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const box = T.out();
-  const bestBox = T.el('<p class="hint center">Skor terbaikmu: <b>' + loadBest() + '</b>/' + TOTAL_SOAL + '</p>');
+  const bestBox = T.el('<p class="hint center">Skor terbaikmu: <b>' + utils.loadBestNum(LS_KEY) + '</b>/' + TOTAL_SOAL + '</p>');
   const quiz = { list: [], idx: 0, score: 0, answered: false };
-  let best = loadBest();
+  let best = utils.loadBestNum(LS_KEY);
 
   const showQ = () => {
     const q = quiz.list[quiz.idx];
@@ -99,7 +95,7 @@ export function render(root) {
   const finish = () => {
     const s = quiz.score;
     let baru = '';
-    if (s > best) { best = s; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    if (s > best) { best = s; utils.saveBestNum(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
     bestBox.innerHTML = 'Skor terbaikmu: <b>' + best + '</b>/' + TOTAL_SOAL;
     const msg = s === 10 ? 'Sempurna! Tidak ada mitos yang bisa menipumu. ✅✨'
       : s >= 8 ? 'Keren! Kamu tahu banyak fakta yang orang lain tidak tahu.'

@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Detail kerentanan CVE lewat NVD NIST (tanpa key).
 // Terverifikasi 18 Nov 2026: services.nvd.nist.gov/rest/json/cves/2.0 200, CORS *.
@@ -17,12 +17,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return String(s).slice(0, 10);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 function skorCvss(metrics) {
   if (!metrics) return null;
@@ -70,8 +65,8 @@ export function render(root) {
       const kelemahan = Array.isArray(v.weaknesses) ? v.weaknesses.flatMap((w) => Array.isArray(w.description) ? w.description : []).map((d) => d.value).filter(Boolean) : [];
       const refs = Array.isArray(v.references) ? v.references.slice(0, 5) : [];
       T.show(box, '<div class="center"><div style="font-weight:800;font-size:16px">' + esc(String(v.id)) + '</div>' +
-        '<div class="dim" style="font-size:12.5px;margin-top:4px">Diterbitkan ' + esc(tglCantik(v.published)) +
-        (v.lastModified ? ' · diubah ' + esc(tglCantik(v.lastModified)) : '') +
+        '<div class="dim" style="font-size:12.5px;margin-top:4px">Diterbitkan ' + esc(utils.tglCantik(v.published)) +
+        (v.lastModified ? ' · diubah ' + esc(utils.tglCantik(v.lastModified)) : '') +
         (v.vulnStatus ? ' · status ' + esc(String(v.vulnStatus)) : '') + '</div></div>' +
         (skor ? '<div class="kv"><span class="k">Skor keparahan (' + esc(skor.versi) + ')</span><span class="v" style="font-size:18px;font-weight:800">' + esc(String(skor.skor)) + ' / 10<br><span class="hint" style="font-size:12px;font-weight:400">' + esc(String(skor.tingkat || '')) + '</span></span></div>' : '<p class="hint" style="margin-top:10px">Belum ada skor keparahan untuk CVE ini.</p>') +
         (desk && desk.value ? '<p style="font-size:13.5px;line-height:1.6;margin-top:12px">' + esc(String(desk.value)) + '</p>' : '') +

@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // PDF ke Word: ambil teks dari PDF lalu susun jadi dokumen Word (.docx).
 // Teks diambil per halaman dengan pdf.js (Mozilla), dokumen Word-nya
@@ -60,25 +60,7 @@ export function render(root) {
   const statusBox = T.out();
   const hasilBox = T.out();
 
-  let pdfJsSiap = null, docxSiap = null;
-
-  const muatPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        const siap = ok && !!window.pdfjsLib;
-        if (siap) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return siap;
-      }).catch(() => { pdfJsSiap = null; return false; });
-    }
-    return pdfJsSiap;
-  };
-  const muatDocx = () => {
-    if (!docxSiap) {
-      docxSiap = T.loadScript(DOCX_CDN).then((ok) => ok && !!window.docx && typeof window.docx.Document === 'function')
-        .catch(() => { docxSiap = null; return false; });
-    }
-    return docxSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -86,7 +68,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF dan Word… (perlu internet sekali saja)</span>');
-    const [pdfOk, docxOk] = await Promise.all([muatPdfJs(), muatDocx()]);
+    const [pdfOk, docxOk] = await Promise.all([utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }), utils.loadLibOnce(DOCX_CDN, () => !!window.docx && typeof window.docx.Document === 'function')]);
     if (!pdfOk || !docxOk) {
       T.show(statusBox, '<div class="err">Mesin gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

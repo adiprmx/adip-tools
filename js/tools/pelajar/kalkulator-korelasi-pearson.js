@@ -37,21 +37,7 @@ export function tafsirR(r) {
   return 'hubungan lurus yang hampir sempurna' + (arah ? ' (' + arah + ')' : '');
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 4 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(r).replace('.', ',');
-}
-
-function fmtP(p) {
-  if (!isFinite(p)) return 'di luar jangkauan';
-  if (p === 0) return 'hampir 0';
-  if (p < 0.0001) return p.toExponential(2).replace('.', ',');
-  return fmtDes(p, 4);
-}
-
-// bacaDeret kanonis tinggal di utils (core.js).
+// fmtDes/fmtP/bacaDeret kanonis tinggal di utils (core.js).
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Korelasi mengukur seberapa lurus hubungan dua hal. Nilai 1 artinya naik bareng sempurna, -1 artinya satu naik satunya turun sempurna, 0 artinya tidak ada hubungan lurus. Korelasi bukan bukti sebab akibat.</p>'));
@@ -69,12 +55,12 @@ export function render(root) {
     const h = hitungPearson(x, y);
     if (!h) { T.toast('Salah satu deret tidak berubah sama sekali, jadi korelasinya tidak bisa dihitung'); return; }
     T.show(box,
-      '<p class="big">r = ' + fmtDes(h.r) + '</p>' +
-      '<p>Artinya: ' + tafsirR(h.r) + '. Nilai r² = ' + fmtDes(h.r2) + ': sekitar ' + fmtDes(h.r2 * 100, 1) + '% perubahan Y sejalan dengan perubahan X secara lurus.</p>' +
-      '<p>Nilai p = ' + fmtP(h.p) + ' (uji dua sisi, ' + h.df + ' derajat kebebasan). ' + (h.p < 0.05
+      '<p class="big">r = ' + utils.fmtDes(h.r) + '</p>' +
+      '<p>Artinya: ' + tafsirR(h.r) + '. Nilai r² = ' + utils.fmtDes(h.r2) + ': sekitar ' + utils.fmtDes(h.r2 * 100, 1) + '% perubahan Y sejalan dengan perubahan X secara lurus.</p>' +
+      '<p>Nilai p = ' + utils.fmtP(h.p) + ' (uji dua sisi, ' + h.df + ' derajat kebebasan). ' + (h.p < 0.05
         ? 'Di bawah 0,05, jadi hubungan ini cukup kuat untuk dianggap nyata, bukan kebetulan semata.'
         : 'Di atas 0,05, jadi belum cukup bukti bahwa hubungan ini nyata di luar data ini.') + '</p>' +
-      '<p class="hint">Dari ' + h.n + ' pasang angka. Rata-rata X = ' + fmtDes(h.meanX) + ', rata-rata Y = ' + fmtDes(h.meanY) + '.</p>');
+      '<p class="hint">Dari ' + h.n + ' pasang angka. Rata-rata X = ' + utils.fmtDes(h.meanX) + ', rata-rata Y = ' + utils.fmtDes(h.meanY) + '.</p>');
   }
 
   root.append(

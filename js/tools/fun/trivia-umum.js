@@ -62,11 +62,7 @@ const TOTAL_SOAL = 10;
 const LS_KEY = 'trivia-umum-best';
 
 // shuffle kanonis tinggal di utils (core.js).
-function loadBest() {
-  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
-  catch (e) { return {}; }
-}
-function saveBest(b) { try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } catch (e) { /* abaikan */ } }
+// loadBestObj/saveBestObj kanonis tinggal di utils (core.js).
 // Soal dari API mengandung HTML entities (&quot; dsb.) — decode dulu.
 const decodeHtml = (s) => {
   const ta = document.createElement('textarea');
@@ -82,7 +78,7 @@ export function render(root) {
   const katDuniaSel = T.select(KAT_DUNIA, '0');
   const sulitSel = T.select([['acak', 'Acak — semua level'], ['easy', 'Mudah'], ['medium', 'Sedang'], ['hard', 'Sulit']], 'acak');
   const quiz = { list: [], idx: 0, score: 0, answered: false, sumber: 'lokal' };
-  let best = loadBest();
+  let best = utils.loadBestObj(LS_KEY);
   let memuat = false;
 
   const gambarBest = () => {
@@ -161,7 +157,7 @@ export function render(root) {
     const s = quiz.score;
     const key = quiz.sumber;
     let baru = '';
-    if (s > (best[key] || 0)) { best[key] = s; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    if (s > (best[key] || 0)) { best[key] = s; utils.saveBestObj(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
     gambarBest();
     const msg = s === quiz.list.length ? 'Sempurna! Otak ensiklopedia berjalan. 🧠✨'
       : s >= 8 ? 'Keren! Wawasanmu luas banget.'

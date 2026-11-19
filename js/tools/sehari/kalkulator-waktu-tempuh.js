@@ -12,14 +12,8 @@ export function hitungWaktuTempuh(jarak, kecepatan, istirahatMenit) {
 }
 utils.waktuTempuh = hitungWaktuTempuh;
 
-export function fmtDurasi(menit) {
-  const total = Math.round(menit);
-  const j = Math.floor(total / 60);
-  const m = total % 60;
-  if (j <= 0) return total + ' menit';
-  if (m === 0) return j + ' jam';
-  return j + ' jam ' + m + ' menit';
-}
+// fmtDurasi memakai utils.fmtDurasi (kanonis, G4 C1G4-R).
+export const fmtDurasi = utils.fmtDurasi;
 export function tambahWaktu(jamBerangkat, menit) {
   const m = /^(\d{1,2}):(\d{2})$/.exec(String(jamBerangkat || '').trim());
   if (!m) return '';

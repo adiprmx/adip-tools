@@ -9,11 +9,8 @@ export function hitungZ(nilai, mean, sd) {
   return { z, persentil: utils.normalCDF(z) * 100 };
 }
 
-function fmtNum(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const r = Math.round(v * Math.pow(10, des == null ? 3 : des)) / Math.pow(10, des == null ? 3 : des);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 3 desimal
+// (default lokal lama), kecuali yang eksplisit.
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Z-score bilang seberapa jauh sebuah nilai dari rata-rata. Z-score 1 artinya nilainya 1 simpangan baku di atas rata-rata.</p>'));
@@ -42,7 +39,7 @@ export function render(root) {
       '<path d="' + path + '" fill="none" stroke="#e8ded0" stroke-width="2" />' +
       '<line x1="' + sx(zc) + '" y1="' + P + '" x2="' + sx(zc) + '" y2="' + (H - P) + '" stroke="#ff6f61" stroke-width="2" stroke-dasharray="4 3" />' +
       '<text x="' + sx(0) + '" y="' + (H - 2) + '" fill="#a89c88" font-size="10" text-anchor="middle">rata-rata (z = 0)</text>' +
-      '<text x="' + sx(zc) + '" y="' + (P + 2) + '" fill="#ff6f61" font-size="11" text-anchor="middle">z = ' + fmtNum(z, 2) + '</text>' +
+      '<text x="' + sx(zc) + '" y="' + (P + 2) + '" fill="#ff6f61" font-size="11" text-anchor="middle">z = ' + utils.fmtDes(z, 2) + '</text>' +
       '</svg>';
   }
 
@@ -52,13 +49,13 @@ export function render(root) {
     if (!isFinite(mean)) { T.toast('Isi rata-ratanya dulu'); return; }
     if (!(sd > 0)) { T.toast('Simpangan bakunya harus lebih dari 0'); return; }
     const h = hitungZ(nilai, mean, sd);
-    const posisi = h.z === 0 ? 'tepat di rata-rata' : h.z > 0 ? fmtNum(Math.abs(h.z)) + ' simpangan baku di atas rata-rata' : fmtNum(Math.abs(h.z)) + ' simpangan baku di bawah rata-rata';
+    const posisi = h.z === 0 ? 'tepat di rata-rata' : h.z > 0 ? utils.fmtDes(Math.abs(h.z), 3) + ' simpangan baku di atas rata-rata' : utils.fmtDes(Math.abs(h.z), 3) + ' simpangan baku di bawah rata-rata';
     const persenBawah = h.persentil;
     T.show(box,
-      '<p class="big">Z-score: ' + fmtNum(h.z) + '</p>' +
+      '<p class="big">Z-score: ' + utils.fmtDes(h.z, 3) + '</p>' +
       '<p>Nilaimu ' + posisi + '.</p>' +
-      '<p>Persentil ke-' + fmtNum(persenBawah, 1) + ': sekitar ' + fmtNum(persenBawah, 1) + '% nilai lain berada di bawah nilaimu, dan ' + fmtNum(100 - persenBawah, 1) + '% berada di atasnya.</p>' +
-      '<p class="hint">Cara hitungnya: (' + fmtNum(nilai) + ' − ' + fmtNum(mean) + ') ÷ ' + fmtNum(sd) + ' = ' + fmtNum(h.z) + '.</p>' +
+      '<p>Persentil ke-' + utils.fmtDes(persenBawah, 1) + ': sekitar ' + utils.fmtDes(persenBawah, 1) + '% nilai lain berada di bawah nilaimu, dan ' + utils.fmtDes(100 - persenBawah, 1) + '% berada di atasnya.</p>' +
+      '<p class="hint">Cara hitungnya: (' + utils.fmtDes(nilai, 3) + ' − ' + utils.fmtDes(mean, 3) + ') ÷ ' + utils.fmtDes(sd, 3) + ' = ' + utils.fmtDes(h.z, 3) + '.</p>' +
       gambarKurva(h.z));
   }
 

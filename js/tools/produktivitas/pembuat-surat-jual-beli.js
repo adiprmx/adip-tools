@@ -1,4 +1,4 @@
-import { h as T, dl, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, dl, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Pembuat Surat Jual Beli: susun surat jual beli kendaraan atau barang
 // dari data yang diisi user sendiri (penjual, pembeli, barang, harga),
@@ -154,27 +154,13 @@ export function render(root) {
     return susunSurat(d);
   }
 
-  let docxSiap = null, pdfLibSiap = null;
-  const muatDocx = () => {
-    if (!docxSiap) {
-      docxSiap = T.loadScript(DOCX_CDN).then((ok) => ok && !!window.docx && typeof window.docx.Document === 'function')
-        .catch(() => { docxSiap = null; return false; });
-    }
-    return docxSiap;
-  };
-  const muatPdfLib = () => {
-    if (!pdfLibSiap) {
-      pdfLibSiap = T.loadScript(PDFLIB_CDN).then((ok) => ok && !!window.PDFLib)
-        .catch(() => { pdfLibSiap = null; return false; });
-    }
-    return pdfLibSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function unduhDocx() {
     const baris = susun();
     if (!baris) return;
     T.show(statusBox, '<span class="dim">Memuat mesin Word… (perlu internet sekali saja)</span>');
-    const ok = await muatDocx();
+    const ok = await utils.loadLibOnce(DOCX_CDN, () => !!window.docx && typeof window.docx.Document === 'function');
     if (!ok) { T.show(statusBox, '<div class="err">Mesin Word gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div>'); return; }
     T.hide(statusBox);
     const D = window.docx;
@@ -194,7 +180,7 @@ export function render(root) {
     const baris = susun();
     if (!baris) return;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    const ok = await muatPdfLib();
+    const ok = await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib);
     if (!ok) { T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div>'); return; }
     T.hide(statusBox);
     const L = window.PDFLib;

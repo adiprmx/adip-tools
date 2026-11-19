@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Info domain lewat RDAP (pengganti WHOIS modern), tanpa key.
 // Terverifikasi 17 Nov 2026: https://rdap.org/domain/google.com -> 200, CORS *.
@@ -17,12 +17,8 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return String(s).slice(0, 10);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js) — dipakai dengan
+// { bulan: 'long' }.
 
 // vCardArray RDAP: ["vcard", [["fn", {}, "text", "Nama"], ...]]
 function namaDariVcard(ent) {
@@ -57,9 +53,9 @@ export function render(root) {
         (status.length ? '<div class="dim" style="font-size:12.5px;margin-top:4px">Status: ' + esc(status.join(', ')) + '</div>' : '') + '</div>' +
         '<div style="margin-top:12px">' +
         (pendaftar.length ? '<div class="kv"><span class="k">Pendaftar</span><span class="v">' + esc(pendaftar[0]) + '</span></div>' : '') +
-        (events.registration ? '<div class="kv"><span class="k">Didaftarkan</span><span class="v">' + esc(tglCantik(events.registration)) + '</span></div>' : '') +
-        (events.expiration ? '<div class="kv"><span class="k">Kedaluwarsa</span><span class="v">' + esc(tglCantik(events.expiration)) + '</span></div>' : '') +
-        (events['last changed'] ? '<div class="kv"><span class="k">Terakhir diubah</span><span class="v">' + esc(tglCantik(events['last changed'])) + '</span></div>' : '') +
+        (events.registration ? '<div class="kv"><span class="k">Didaftarkan</span><span class="v">' + esc(utils.tglCantik(events.registration, { bulan: 'long' })) + '</span></div>' : '') +
+        (events.expiration ? '<div class="kv"><span class="k">Kedaluwarsa</span><span class="v">' + esc(utils.tglCantik(events.expiration, { bulan: 'long' })) + '</span></div>' : '') +
+        (events['last changed'] ? '<div class="kv"><span class="k">Terakhir diubah</span><span class="v">' + esc(utils.tglCantik(events['last changed'], { bulan: 'long' })) + '</span></div>' : '') +
         (ns.length ? '<div class="kv"><span class="k">Server nama</span><span class="v" style="word-break:break-all">' + esc(ns.slice(0, 6).join(', ')) + '</span></div>' : '') +
         '</div>' +
         '<p class="hint">Sumber: RDAP, sistem resmi pengganti WHOIS. Data tampil apa adanya dari pendaftar domain.</p>');

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-berat-molekul', name: 'Kalkulator Berat Molekul', cat: 'sains', icon: '⚗️', desc: 'Massa molar senyawa dari rumus kimianya, lengkap dengan rincian tiap unsur. Massa atom memakai nilai standar IUPAC 2021.', keywords: 'berat molekul,massa molar,massa atom,rumus kimia,senyawa,kimia,mol', since: '6.18.0' };
 
@@ -96,11 +96,9 @@ export function hitungBeratMolekul(rumus) {
   return { ok: true, unsur: p.unsur, rincian, total };
 }
 
-function fmtDes(v, des) {
-  const d = des == null ? 3 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 3 desimal
+// (default lokal lama). Kanon menambah guard non-finite ('di luar
+// jangkauan'); input di sini selalu finite (massa konstanta x hitungan).
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Tulis rumus kimianya seperti biasa: H2SO4, C6H12O6, Ca(OH)2, atau CuSO4.5H2O untuk senyawa hidrat. Huruf besar kecilnya penting: Co itu kobalt, CO itu karbon monoksida.</p>'));
@@ -113,13 +111,13 @@ export function render(root) {
     if (!h.ok) { T.toast(h.err); return; }
     const baris = h.rincian.map((r) =>
       '<tr><td style="padding:5px 8px">' + T.esc(r.simbol) + ' (' + T.esc(r.nama) + ')</td>' +
-      '<td style="text-align:right;padding:5px 8px">' + r.jumlah + ' × ' + fmtDes(r.massaAtom) + '</td>' +
-      '<td style="text-align:right;padding:5px 8px">' + fmtDes(r.subtotal) + '</td></tr>').join('');
+      '<td style="text-align:right;padding:5px 8px">' + r.jumlah + ' × ' + utils.fmtDes(r.massaAtom, 3) + '</td>' +
+      '<td style="text-align:right;padding:5px 8px">' + utils.fmtDes(r.subtotal, 3) + '</td></tr>').join('');
     T.show(box,
-      '<p class="big">' + fmtDes(h.total) + ' g/mol</p>' +
-      '<p>Berat molekul ' + T.esc(rI.value.trim()) + ' adalah ' + fmtDes(h.total) + ' gram per mol.</p>' +
+      '<p class="big">' + utils.fmtDes(h.total, 3) + ' g/mol</p>' +
+      '<p>Berat molekul ' + T.esc(rI.value.trim()) + ' adalah ' + utils.fmtDes(h.total, 3) + ' gram per mol.</p>' +
       '<table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:13px"><thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.15)">Unsur</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.15)">Jumlah × massa atom</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.15)">Subtotal</th></tr></thead><tbody>' + baris + '</tbody></table>' +
-      '<p class="hint">Massa atom memakai nilai standar IUPAC 2021 (CIAAW). 1 mol ' + T.esc(rI.value.trim()) + ' beratnya ' + fmtDes(h.total) + ' gram.</p>');
+      '<p class="hint">Massa atom memakai nilai standar IUPAC 2021 (CIAAW). 1 mol ' + T.esc(rI.value.trim()) + ' beratnya ' + utils.fmtDes(h.total, 3) + ' gram.</p>');
   }
 
   root.append(

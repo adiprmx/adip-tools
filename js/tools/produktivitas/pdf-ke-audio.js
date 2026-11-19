@@ -1,4 +1,4 @@
-import { h as T, fileInput, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, LOCAL_NOTE } from '../../core.js';
 
 // PDF ke Audio: bacakan isi PDF dengan suara. Teks diambil dengan pdf.js
 // lalu dibacakan oleh suara bawaan browser (SpeechSynthesis).
@@ -113,23 +113,13 @@ export function render(root) {
   const statusBox = T.out();
   const hasilBox = T.out();
   const kendaliBox = T.out();
-  let pdfJsSiap = null;
   let potongan = [];
   let indeksJalan = -1;
   let sedangBaca = false;
 
   const ttsAda = () => typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 
-  const muatPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        const siap = ok && !!window.pdfjsLib;
-        if (siap) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return siap;
-      }).catch(() => { pdfJsSiap = null; return false; });
-    }
-    return pdfJsSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   function muatSuara() {
     if (!ttsAda()) return;
@@ -203,7 +193,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox); T.hide(kendaliBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    const ok = await muatPdfJs();
+    const ok = await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; });
     if (!ok) {
       T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

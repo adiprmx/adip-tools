@@ -1,4 +1,4 @@
-import { h as T, fileInput, tabs, errBox } from '../../core.js';
+import { h as T, utils, fileInput, tabs, errBox } from '../../core.js';
 
 // ---------- Util murni tab Banding (tanpa DOM, bisa diuji dari Node) ----------
 
@@ -393,53 +393,19 @@ export function render(root) {
   const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
   const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 
-  let pdfLibOk = null, pdfLibLoading = false;
-  const ensurePdfLib = () => {
-    if (pdfLibOk !== null) return Promise.resolve(pdfLibOk);
-    if (pdfLibLoading) return new Promise((res) => { const t = setInterval(() => { if (pdfLibOk !== null) { clearInterval(t); res(pdfLibOk); } }, 300); });
-    pdfLibLoading = true;
-    return T.loadScript(PDFLIB_CDN).then((ok) => {
-      pdfLibOk = ok && !!window.PDFLib;
-      return pdfLibOk;
-    });
-  };
-  let pdfJsOk = null, pdfJsLoading = false;
-  const ensurePdfJs = () => {
-    if (pdfJsOk !== null) return Promise.resolve(pdfJsOk);
-    if (pdfJsLoading) return new Promise((res) => { const t = setInterval(() => { if (pdfJsOk !== null) { clearInterval(t); res(pdfJsOk); } }, 300); });
-    pdfJsLoading = true;
-    return T.loadScript(PDFJS_CDN).then((ok) => {
-      pdfJsOk = ok && !!window.pdfjsLib;
-      if (pdfJsOk) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-      return pdfJsOk;
-    });
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js). Wrapper satu baris
+  // dipertahankan karena 15 call-site memakai nama ensure* ini.
+  const ensurePdfLib = () => utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib);
+  const ensurePdfJs = () => utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; });
 
   const JSZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
-  let jsZipOk = null, jsZipLoading = false;
-  const ensureJsZip = () => {
-    if (jsZipOk !== null) return Promise.resolve(jsZipOk);
-    if (jsZipLoading) return new Promise((res) => { const t = setInterval(() => { if (jsZipOk !== null) { clearInterval(t); res(jsZipOk); } }, 300); });
-    jsZipLoading = true;
-    return T.loadScript(JSZIP_CDN).then((ok) => {
-      jsZipOk = ok && !!window.JSZip;
-      return jsZipOk;
-    });
-  };
+  const ensureJsZip = () => utils.loadLibOnce(JSZIP_CDN, () => !!window.JSZip);
 
   // Pengubah HEIC & pembaca TIFF untuk tab Gambar->PDF (browser sendiri
   // tidak bisa membaca keduanya di sebagian besar perangkat).
   const HEIC_CDN = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
   const UTIF_CDN = 'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js';
-  let heicSiap = null, utifSiap = null;
-  const pastHeic = () => {
-    if (!heicSiap) heicSiap = T.loadScript(HEIC_CDN).then((ok) => ok && typeof window.heic2any === 'function');
-    return heicSiap;
-  };
-  const pastUtif = () => {
-    if (!utifSiap) utifSiap = T.loadScript(UTIF_CDN).then((ok) => ok && !!window.UTIF);
-    return utifSiap;
-  };
+
 
   // Kunci localStorage bersama tool Tanda Tangan (gambar PNG terakhir).
   const TTD_KEY = 'adip-ttd-png';
@@ -978,13 +944,13 @@ export function render(root) {
             else if (/jpe?g$/i.test(f.type) || /\.jpe?g$/i.test(f.name)) { img = await out.embedJpg(bytes); }
             else if (isHeic) {
               // HEIC tidak bisa dibaca browser: ubah dulu jadi JPEG.
-              if (!(await pastHeic())) throw new Error('pengubah HEIC gagal dimuat');
+              if (!(await utils.loadLibOnce(HEIC_CDN, () => typeof window.heic2any === 'function'))) throw new Error('pengubah HEIC gagal dimuat');
               const keluar = await window.heic2any({ blob: f, toType: 'image/jpeg', quality: 0.92 });
               const blob = Array.isArray(keluar) ? keluar[0] : keluar;
               if (!blob) throw new Error('file HEIC tidak terbaca');
               img = await out.embedJpg(new Uint8Array(await blob.arrayBuffer()));
             } else if (isTiff) {
-              if (!(await pastUtif())) throw new Error('pembaca TIFF gagal dimuat');
+              if (!(await utils.loadLibOnce(UTIF_CDN, () => !!window.UTIF))) throw new Error('pembaca TIFF gagal dimuat');
               const ifds = window.UTIF.decode(bytes.buffer);
               if (!ifds || !ifds.length) throw new Error('file TIFF tidak terbaca');
               window.UTIF.decodeImage(bytes.buffer, ifds[0]);

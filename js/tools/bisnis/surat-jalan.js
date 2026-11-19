@@ -7,12 +7,7 @@ export const meta = {"id": "surat-jalan", "name": "Pembuat Surat Jalan", "cat": 
    body *{visibility:hidden} bikin cetakan tool lain jadi blank. */
 // CSS cetak kanonis: utils.ensurePrintCss / utils.removePrintCss (core.js).
 
-const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-function tglIndo(iso) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
-  if (!m) return iso || '-';
-  return (+m[3]) + ' ' + BULAN[+m[2] - 1] + ' ' + m[1];
-}
+// tglIndo kanonis tinggal di utils (core.js).
 function hariIniISO() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -84,7 +79,7 @@ export function render(root) {
       return;
     }
     const nomor = noI.value.trim();
-    const tgl = tglIndo(tglI.value);
+    const tgl = utils.tglIndo(tglI.value);
     const dariTelp = dariTelpI.value.trim();
     const keTelp = keTelpI.value.trim();
     const ekspedisi = ekspedisiI.value.trim();

@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"markdown-ke-pdf","name":"Markdown ke PDF","cat":"converter","icon":"📝","desc":"Ubah tulisan Markdown jadi PDF A4 dengan pratinjau dulu.","keywords":"markdown,pdf,dokumen,tulisan,md,a4","since":"6.11.0"};
 
@@ -65,24 +65,15 @@ export function render(root) {
 
   const ensureMarked = async () => {
     if (markedOk !== null) return markedOk;
-    for (const u of MARKED_CDNS) {
-      const ok = await T.loadScript(u);
-      if (ok && window.marked && typeof window.marked.parse === 'function') { markedOk = true; return true; }
-    }
-    markedOk = false;
-    return false;
+    // Loop fallback CDN kanonis: utils.loadLibOnce (core.js).
+    markedOk = await utils.loadLibOnce(MARKED_CDNS, () => window.marked && typeof window.marked.parse === 'function');
+    return markedOk;
   };
   const ensurePdfLibs = async () => {
     if (pdfLibsOk !== null) return pdfLibsOk;
-    const coba = async (list, check) => {
-      for (const u of list) {
-        const ok = await T.loadScript(u);
-        if (ok && check()) return true;
-      }
-      return false;
-    };
-    const h2c = await coba(H2C_CDNS, () => typeof window.html2canvas === 'function');
-    const pdf = h2c && await coba(JSPDF_CDNS, () => !!(window.jspdf && window.jspdf.jsPDF));
+    // Loop fallback CDN kanonis: utils.loadLibOnce (core.js).
+    const h2c = await utils.loadLibOnce(H2C_CDNS, () => typeof window.html2canvas === 'function');
+    const pdf = h2c && await utils.loadLibOnce(JSPDF_CDNS, () => !!(window.jspdf && window.jspdf.jsPDF));
     pdfLibsOk = !!(h2c && pdf);
     return pdfLibsOk;
   };

@@ -1,4 +1,4 @@
-import { h as T, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // EPUB Maker: buat file ebook EPUB dari teks atau Markdown yang diketik.
 // Strukturnya EPUB 3 yang sah: mimetype (tanpa kompresi, file pertama),
@@ -118,15 +118,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let jsZipSiap = null;
-
-  const muatJsZip = () => {
-    if (!jsZipSiap) {
-      jsZipSiap = T.loadScript(JSZIP_CDN).then((ok) => ok && !!window.JSZip)
-        .catch(() => { jsZipSiap = null; return false; });
-    }
-    return jsZipSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const bab = markdownKeBab(teksI.value);
@@ -135,7 +127,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin EPUB… (perlu internet sekali saja)</span>');
-    const ok = await muatJsZip();
+    const ok = await utils.loadLibOnce(JSZIP_CDN, () => !!window.JSZip);
     if (!ok) {
       T.show(statusBox, '<div class="err">Mesin EPUB gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

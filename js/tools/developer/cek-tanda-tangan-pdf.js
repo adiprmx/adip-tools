@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, errBox, esc } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, errBox, esc } from '../../core.js';
 
 // Periksa KEBERADAAN tanda tangan digital di PDF, bukan keasliannya.
 // Tiga lapis pemeriksaan: pdf.js (file PDF valid + info dasar),
@@ -11,15 +11,9 @@ const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf
 
 let libState = { lib: null, js: null };
 async function ensureLibs() {
-  if (libState.lib === null) {
-    const ok = await T.loadScript(PDFLIB_CDN);
-    libState.lib = !!(ok && window.PDFLib);
-  }
-  if (libState.js === null) {
-    const ok = await T.loadScript(PDFJS_CDN);
-    libState.js = !!(ok && window.pdfjsLib);
-    if (libState.js) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-  }
+  // Loader library kanonis: utils.loadLibOnce (core.js).
+  if (libState.lib === null) libState.lib = await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib);
+  if (libState.js === null) libState.js = await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; });
   return libState;
 }
 

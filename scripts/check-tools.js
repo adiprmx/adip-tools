@@ -83,7 +83,9 @@ async function main() {
     'ffmpeg-worker/worker.js', 'ffmpeg-worker/const.js',
     'ffmpeg-worker/errors.js',
     'routes.js', 'catalog.js', 'store.js', 'supabase.js', 'shell-ui.js',
-    'beranda.js', 'search-plus.js', 'onboarding.js', 'components.js'];
+    'beranda.js', 'search-plus.js', 'onboarding.js', 'components.js',
+    'regex-aman.js', 'dxf.js', 'model-3d.js', 'tokenizer-js.js',
+    'gif-encoder.js', 'mouse-sens.js', 'screen-time.js', 'wrapped.js'];
   for (const sf of shellFiles) {
     const full = path.join(JS, sf);
     if (!fs.existsSync(full)) { errors.push(`file shell hilang: js/${sf}`); continue; }

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-molaritas', name: 'Kalkulator Molaritas', cat: 'sains', icon: '🧪', desc: 'Molaritas larutan dari jumlah zat dan volume, atau balikannya: cari jumlah zat dan massa yang dibutuhkan.', keywords: 'molaritas,mol,konsentrasi,larutan,kimia,molar', since: '6.18.0' };
 
@@ -20,12 +20,7 @@ export function hitungMassa(molaritas, liter, mr) {
   return molaritas * liter * mr;
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 4 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js).
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Molaritas itu seberapa pekat larutan: jumlah mol zat dalam tiap liter larutan. 1 M artinya 1 mol zat dalam 1 liter larutan.</p>'));
@@ -64,20 +59,20 @@ export function render(root) {
     if (mode.value === 'molaritas') {
       const m = hitungMolaritas(a, liter);
       T.show(box,
-        '<p class="big">' + fmtDes(m) + ' M</p>' +
-        '<p>' + fmtDes(a) + ' mol zat dalam ' + fmtDes(v) + ' ' + (satuan.value === 'ml' ? 'mL' : 'liter') + ' larutan = ' + fmtDes(m) + ' mol per liter.</p>');
+        '<p class="big">' + utils.fmtDes(m) + ' M</p>' +
+        '<p>' + utils.fmtDes(a) + ' mol zat dalam ' + utils.fmtDes(v) + ' ' + (satuan.value === 'ml' ? 'mL' : 'liter') + ' larutan = ' + utils.fmtDes(m) + ' mol per liter.</p>');
     } else if (mode.value === 'mol') {
       const mol = hitungMol(a, liter);
       T.show(box,
-        '<p class="big">' + fmtDes(mol) + ' mol</p>' +
-        '<p>Larutan ' + fmtDes(a) + ' M sebanyak ' + fmtDes(v) + ' ' + (satuan.value === 'ml' ? 'mL' : 'liter') + ' mengandung ' + fmtDes(mol) + ' mol zat.</p>');
+        '<p class="big">' + utils.fmtDes(mol) + ' mol</p>' +
+        '<p>Larutan ' + utils.fmtDes(a) + ' M sebanyak ' + utils.fmtDes(v) + ' ' + (satuan.value === 'ml' ? 'mL' : 'liter') + ' mengandung ' + utils.fmtDes(mol) + ' mol zat.</p>');
     } else {
       const mr = T.num(mrI.value);
       if (!isFinite(mr) || mr <= 0) { T.toast('Isi berat molekulnya dulu dengan angka lebih dari 0'); return; }
       const g = hitungMassa(a, liter, mr);
       T.show(box,
-        '<p class="big">' + fmtDes(g) + ' gram</p>' +
-        '<p>Untuk membuat ' + fmtDes(v) + ' ' + (satuan.value === 'ml' ? 'mL' : 'liter') + ' larutan ' + fmtDes(a) + ' M, timbang ' + fmtDes(g) + ' gram zat (berat molekul ' + fmtDes(mr) + ' g/mol), lalu larutkan sampai volumenya pas.</p>');
+        '<p class="big">' + utils.fmtDes(g) + ' gram</p>' +
+        '<p>Untuk membuat ' + utils.fmtDes(v) + ' ' + (satuan.value === 'ml' ? 'mL' : 'liter') + ' larutan ' + utils.fmtDes(a) + ' M, timbang ' + utils.fmtDes(g) + ' gram zat (berat molekul ' + utils.fmtDes(mr) + ' g/mol), lalu larutkan sampai volumenya pas.</p>');
     }
   }
 

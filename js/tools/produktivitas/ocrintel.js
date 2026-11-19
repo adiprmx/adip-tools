@@ -285,7 +285,7 @@ export function render(root) {
   let hasilHalaman = []; // [{no, canvas, words, teks}]
   let tabelPerHalaman = []; // hasil deteksiTabel per halaman (bila mode tabel)
   let namaFileTerakhir = '';
-  let pdfJsSiap = null, pdfLibSiap = null, utifSiap = null, zipSiap = null;
+  // Loader library kanonis: utils.loadLibOnce (core.js).
   let halAktif = -1; // tab reader: -1 = semua halaman, >=0 = indeks halaman
   let hasilBatch = []; // [{nama, halaman, teks, detik}] — satu entri per file
   let fileAktif = 0;
@@ -438,23 +438,7 @@ export function render(root) {
     return worker;
   };
 
-  const pastPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        if (ok && window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return ok && !!window.pdfjsLib;
-      });
-    }
-    return pdfJsSiap;
-  };
-  const pastPdfLib = () => {
-    if (!pdfLibSiap) pdfLibSiap = T.loadScript(PDFLIB_CDN).then((ok) => ok && !!window.PDFLib);
-    return pdfLibSiap;
-  };
-  const pastUtif = () => {
-    if (!utifSiap) utifSiap = T.loadScript(UTIF_CDN).then((ok) => ok && !!window.UTIF);
-    return utifSiap;
-  };
+
 
   function jenisFile(file) {
     const t = (file.type || '').toLowerCase();
@@ -474,7 +458,7 @@ export function render(root) {
 
   // PDF → daftar canvas (1 per halaman, maks MAKS_HALAMAN)
   const pdfKeCanvas = async (buffer, onHal) => {
-    if (!(await pastPdfJs())) throw new Error('Pustaka PDF gagal dimuat dari CDN.');
+    if (!(await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }))) throw new Error('Pustaka PDF gagal dimuat dari CDN.');
     const doc = await window.pdfjsLib.getDocument({ data: buffer }).promise;
     const total = Math.min(doc.numPages, MAKS_HALAMAN);
     const out = [];
@@ -495,7 +479,7 @@ export function render(root) {
 
   // TIFF → daftar canvas (1 per halaman IFD, dukung multi-page)
   const tiffKeCanvas = async (buffer, onHal) => {
-    if (!(await pastUtif())) throw new Error('Pustaka TIFF gagal dimuat dari CDN.');
+    if (!(await utils.loadLibOnce(UTIF_CDN, () => !!window.UTIF))) throw new Error('Pustaka TIFF gagal dimuat dari CDN.');
     const ifds = window.UTIF.decode(buffer);
     if (!ifds || !ifds.length) throw new Error('File TIFF tidak terbaca.');
     const total = Math.min(ifds.length, MAKS_HALAMAN);
@@ -522,10 +506,7 @@ export function render(root) {
     proses();
   };
 
-  const pastZip = () => {
-    if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
-    return zipSiap;
-  };
+
 
   const barProgress = (label, p) => {
     T.show(out, '<p class="dim">' + T.esc(label) + ' <span id="ocr-p">' + Math.round(p * 100) + '</span>%</p>' +
@@ -640,7 +621,7 @@ export function render(root) {
     if (!hasilHalaman.length) return;
     T.toast('Menyusun PDF searchable…');
     try {
-      if (!(await pastPdfLib())) { T.toast('Gagal memuat pustaka PDF.'); return; }
+      if (!(await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib))) { T.toast('Gagal memuat pustaka PDF.'); return; }
       const daftar = [];
       for (const h of hasilHalaman) {
         const blob = await canvasKeBlob(h.canvas);
@@ -810,7 +791,7 @@ export function render(root) {
     const bZip = hasilBox.querySelector('[data-o=zip]');
     if (bZip) bZip.onclick = async () => {
       T.toast('Menyiapkan ZIP…');
-      if (!(await pastZip())) { T.toast('Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi.'); return; }
+      if (!(await utils.loadLibOnce(ZIP_CDN, () => typeof window.JSZip === 'function'))) { T.toast('Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi.'); return; }
       try {
         const zip = new window.JSZip();
         const pakaiNama = new Set();

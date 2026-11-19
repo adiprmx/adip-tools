@@ -33,21 +33,7 @@ export function prediksiRegresi(model, x) {
   return model.a + model.b * x;
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 4 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(Object.is(r, -0) ? 0 : r).replace('.', ',');
-}
-
-function fmtP(p) {
-  if (!isFinite(p)) return 'di luar jangkauan';
-  if (p === 0) return 'hampir 0';
-  if (p < 0.0001) return p.toExponential(2).replace('.', ',');
-  return fmtDes(p, 4);
-}
-
-// bacaDeret kanonis tinggal di utils (core.js).
+// fmtDes/fmtP/bacaDeret kanonis tinggal di utils (core.js).
 
 function gambarSebar(x, y, model) {
   const W = 340, H = 190, P = 26;
@@ -92,14 +78,14 @@ export function render(root) {
     const xp = T.num(predI.value);
     if (predI.value.trim() !== '') {
       if (!isFinite(xp)) { T.toast('Nilai X untuk perkiraan harus angka'); return; }
-      predHtml = '<p>Perkiraan untuk X = ' + fmtDes(xp) + ': Y = ' + fmtDes(prediksiRegresi(m, xp)) + '.</p>';
+      predHtml = '<p>Perkiraan untuk X = ' + utils.fmtDes(xp) + ': Y = ' + utils.fmtDes(prediksiRegresi(m, xp)) + '.</p>';
     }
     T.show(box,
-      '<p class="big">Y = ' + fmtDes(m.a) + tandaB + fmtDes(Math.abs(m.b)) + 'X</p>' +
-      '<p>Kemiringan ' + fmtDes(m.b) + ': tiap X naik 1, Y berubah ' + fmtDes(m.b) + '. Titik potong ' + fmtDes(m.a) + ': nilai Y saat X = 0.</p>' +
-      '<p>Kekuatan hubungan r = ' + fmtDes(m.r) + ', R² = ' + fmtDes(m.r2) + ' (sekitar ' + fmtDes(m.r2 * 100, 1) + '% perubahan Y dijelaskan garis ini). Nilai p kemiringan = ' + fmtP(m.p) + (m.p < 0.05 ? ', di bawah 0,05, jadi kemiringannya nyata.' : ', di atas 0,05, jadi belum cukup bukti kemiringannya nyata.') + '</p>' +
+      '<p class="big">Y = ' + utils.fmtDes(m.a) + tandaB + utils.fmtDes(Math.abs(m.b)) + 'X</p>' +
+      '<p>Kemiringan ' + utils.fmtDes(m.b) + ': tiap X naik 1, Y berubah ' + utils.fmtDes(m.b) + '. Titik potong ' + utils.fmtDes(m.a) + ': nilai Y saat X = 0.</p>' +
+      '<p>Kekuatan hubungan r = ' + utils.fmtDes(m.r) + ', R² = ' + utils.fmtDes(m.r2) + ' (sekitar ' + utils.fmtDes(m.r2 * 100, 1) + '% perubahan Y dijelaskan garis ini). Nilai p kemiringan = ' + utils.fmtP(m.p) + (m.p < 0.05 ? ', di bawah 0,05, jadi kemiringannya nyata.' : ', di atas 0,05, jadi belum cukup bukti kemiringannya nyata.') + '</p>' +
       predHtml +
-      '<p class="hint">Dari ' + m.n + ' pasang angka. Perkiraan di luar rentang data X (' + fmtDes(Math.min.apply(null, x)) + ' sampai ' + fmtDes(Math.max.apply(null, x)) + ') kurang bisa dipegang.</p>' +
+      '<p class="hint">Dari ' + m.n + ' pasang angka. Perkiraan di luar rentang data X (' + utils.fmtDes(Math.min.apply(null, x)) + ' sampai ' + utils.fmtDes(Math.max.apply(null, x)) + ') kurang bisa dipegang.</p>' +
       gambarSebar(x, y, m));
   }
 

@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-kecepatan-jarak-waktu', name: 'Kalkulator Kecepatan (Jarak/Waktu)', cat: 'pelajar', icon: '🏃', desc: 'Cari kecepatan, jarak, atau waktu dari dua yang sudah diketahui. Lengkap dengan ubah satuan.', keywords: 'kecepatan,jarak,waktu,km/jam,m/s,cepat,lama perjalanan,rumus kecepatan', since: '6.17.0' };
 
@@ -26,11 +26,8 @@ export function fmtWaktu(detik) {
   return bagian.join(' ');
 }
 
-function fmtNum(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const r = Math.round(v * Math.pow(10, des == null ? 3 : des)) / Math.pow(10, des == null ? 3 : des);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 3 desimal
+// (default lokal lama).
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Isi dua yang sudah kamu tahu, nanti yang ketiga ketahuan. Rumusnya: kecepatan = jarak ÷ waktu.</p>'));
@@ -77,9 +74,9 @@ export function render(root) {
       if (!(w > 0)) { T.toast('Isi waktunya dulu, harus lebih dari 0'); return; }
       const ms = hitungKecepatan(jarakKeMeter(j, jarakSat.value), w);
       T.show(box,
-        '<p class="big">' + fmtNum(ms / KE_SATUAN['km/jam']) + ' km/jam</p>' +
-        '<p class="hint">Sama dengan ' + fmtNum(ms) + ' m/s, ' + fmtNum(ms / KE_SATUAN['mil/jam']) + ' mil/jam, dan ' + fmtNum(ms / KE_SATUAN['knot']) + ' knot.</p>' +
-        '<p class="hint">Cara hitungnya: ' + fmtNum(j) + ' ' + jarakSat.value + ' ÷ ' + fmtWaktu(w) + '.</p>');
+        '<p class="big">' + utils.fmtDes(ms / KE_SATUAN['km/jam'], 3) + ' km/jam</p>' +
+        '<p class="hint">Sama dengan ' + utils.fmtDes(ms, 3) + ' m/s, ' + utils.fmtDes(ms / KE_SATUAN['mil/jam'], 3) + ' mil/jam, dan ' + utils.fmtDes(ms / KE_SATUAN['knot'], 3) + ' knot.</p>' +
+        '<p class="hint">Cara hitungnya: ' + utils.fmtDes(j, 3) + ' ' + jarakSat.value + ' ÷ ' + fmtWaktu(w) + '.</p>');
     } else if (cari.value === 'jarak') {
       const k = T.num(kecI.value);
       const w = bacaWaktu();
@@ -87,9 +84,9 @@ export function render(root) {
       if (!(w > 0)) { T.toast('Isi waktunya dulu, harus lebih dari 0'); return; }
       const meter = hitungJarak(k * KE_SATUAN[kecSat.value], w);
       T.show(box,
-        '<p class="big">' + fmtNum(meter / 1000) + ' km</p>' +
-        '<p class="hint">Sama dengan ' + T.fmt(Math.round(meter)) + ' meter, atau ' + fmtNum(meter / 1609.344) + ' mil.</p>' +
-        '<p class="hint">Cara hitungnya: ' + fmtNum(k) + ' ' + kecSat.value + ' × ' + fmtWaktu(w) + '.</p>');
+        '<p class="big">' + utils.fmtDes(meter / 1000, 3) + ' km</p>' +
+        '<p class="hint">Sama dengan ' + T.fmt(Math.round(meter)) + ' meter, atau ' + utils.fmtDes(meter / 1609.344, 3) + ' mil.</p>' +
+        '<p class="hint">Cara hitungnya: ' + utils.fmtDes(k, 3) + ' ' + kecSat.value + ' × ' + fmtWaktu(w) + '.</p>');
     } else {
       const j = T.num(jarakI.value);
       const k = T.num(kecI.value);
@@ -98,8 +95,8 @@ export function render(root) {
       const detik = hitungWaktu(jarakKeMeter(j, jarakSat.value), k * KE_SATUAN[kecSat.value]);
       T.show(box,
         '<p class="big">' + fmtWaktu(detik) + '</p>' +
-        '<p class="hint">Totalnya ' + fmtNum(detik / 3600) + ' jam, atau ' + fmtNum(detik / 60) + ' menit.</p>' +
-        '<p class="hint">Cara hitungnya: ' + fmtNum(j) + ' ' + jarakSat.value + ' ÷ ' + fmtNum(k) + ' ' + kecSat.value + '.</p>');
+        '<p class="hint">Totalnya ' + utils.fmtDes(detik / 3600, 3) + ' jam, atau ' + utils.fmtDes(detik / 60, 3) + ' menit.</p>' +
+        '<p class="hint">Cara hitungnya: ' + utils.fmtDes(j, 3) + ' ' + jarakSat.value + ' ÷ ' + utils.fmtDes(k, 3) + ' ' + kecSat.value + '.</p>');
     }
   }
 

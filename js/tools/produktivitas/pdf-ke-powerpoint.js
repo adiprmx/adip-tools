@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // PDF ke PowerPoint: ubah PDF jadi presentasi .pptx. Tiap halaman PDF
 // jadi satu slide berisi gambar halaman itu (tampilannya persis seperti
@@ -75,25 +75,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let pdfJsSiap = null, pptxSiap = null;
-
-  const muatPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        const siap = ok && !!window.pdfjsLib;
-        if (siap) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return siap;
-      }).catch(() => { pdfJsSiap = null; return false; });
-    }
-    return pdfJsSiap;
-  };
-  const muatPptx = () => {
-    if (!pptxSiap) {
-      pptxSiap = T.loadScript(PPTX_CDN).then((ok) => ok && typeof window.PptxGenJS === 'function')
-        .catch(() => { pptxSiap = null; return false; });
-    }
-    return pptxSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -101,7 +83,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF dan PowerPoint… (perlu internet sekali saja)</span>');
-    const [pdfOk, pptxOk] = await Promise.all([muatPdfJs(), muatPptx()]);
+    const [pdfOk, pptxOk] = await Promise.all([utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }), utils.loadLibOnce(PPTX_CDN, () => typeof window.PptxGenJS === 'function')]);
     if (!pdfOk || !pptxOk) {
       T.show(statusBox, '<div class="err">Mesin gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

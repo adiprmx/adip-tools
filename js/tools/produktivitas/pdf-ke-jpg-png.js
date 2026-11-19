@@ -1,4 +1,4 @@
-import { h as T, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // PDF ke JPG/PNG: render tiap halaman PDF jadi gambar. Mesin render-nya
 // pdf.js (Mozilla), sama seperti PDF Lab; ZIP-nya JSZip, sama seperti
@@ -22,27 +22,10 @@ export function render(root) {
   const statusBox = T.out();
   const hasilBox = T.out();
 
-  let pdfJsSiap = null, jsZipSiap = null;
   let hasil = []; // [{blob, nama, w, h}]
   let namaDasar = 'pdf';
 
-  const muatPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        const siap = ok && !!window.pdfjsLib;
-        if (siap) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return siap;
-      }).catch(() => { pdfJsSiap = null; return false; });
-    }
-    return pdfJsSiap;
-  };
-  const muatJsZip = () => {
-    if (!jsZipSiap) {
-      jsZipSiap = T.loadScript(JSZIP_CDN).then((ok) => ok && !!window.JSZip)
-        .catch(() => { jsZipSiap = null; return false; });
-    }
-    return jsZipSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   function gambarHasil() {
     T.show(hasilBox, '');
@@ -63,7 +46,7 @@ export function render(root) {
     if (hasil.length > 1) {
       hasilBox.appendChild(T.btn('Unduh Semua (ZIP)', async () => {
         T.show(statusBox, '<span class="dim">Menyiapkan ZIP…</span>');
-        if (!(await muatJsZip())) {
+        if (!(await utils.loadLibOnce(JSZIP_CDN, () => !!window.JSZip))) {
           T.show(statusBox, '<span class="dim">Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi, atau unduh gambarnya satu per satu.</span>');
           return;
         }
@@ -88,7 +71,7 @@ export function render(root) {
     hasil = [];
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    if (!(await muatPdfJs())) {
+    if (!(await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }))) {
       T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);
       prosesB.disabled = false;

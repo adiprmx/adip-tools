@@ -1,4 +1,4 @@
-import { h as T, loadImage, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, loadImage, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Gambar ke PDF: gabung foto JPG/PNG jadi satu file PDF, satu foto satu
 // halaman. PDF Lab (pdflab.js) punya tab serupa; tool ini versi mandiri
@@ -22,15 +22,7 @@ export function render(root) {
   const hasilBox = T.out();
 
   let daftar = []; // [{file, img, nama, url}]
-  let pdfLibSiap = null;
-
-  const muatPdfLib = () => {
-    if (!pdfLibSiap) {
-      pdfLibSiap = T.loadScript(PDFLIB_CDN).then((ok) => ok && !!window.PDFLib)
-        .catch(() => { pdfLibSiap = null; return false; });
-    }
-    return pdfLibSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   function gambarDaftar() {
     T.show(box, '');
@@ -99,7 +91,7 @@ export function render(root) {
     T.hide(hasilBox);
     buatB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    if (!(await muatPdfLib())) {
+    if (!(await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib))) {
       T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', buat);
       buatB.disabled = false;

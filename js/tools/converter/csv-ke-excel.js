@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id": "csv-ke-excel", "name": "CSV ke Excel", "cat": "converter", "icon": "📊", "desc": "Ubah file CSV jadi spreadsheet Excel.", "keywords": "csv,excel,xlsx,spreadsheet,tabel,konversi", "since": "6.17.0"};
 
@@ -69,20 +69,7 @@ export function render(root) {
   const box = T.out();
   const prevBox = T.out();
 
-  let xlsxSiap = null;
-  const muatXlsx = () => {
-    if (!xlsxSiap) {
-      xlsxSiap = (async () => {
-        if (typeof window.XLSX !== 'undefined') return true;
-        for (const u of XLSX_CDNS) {
-          const ok = await T.loadScript(u);
-          if (ok && typeof window.XLSX !== 'undefined') return true;
-        }
-        return false;
-      })().catch(() => { xlsxSiap = null; return false; });
-    }
-    return xlsxSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   let fileObj = null;
   let busy = false;
@@ -98,7 +85,7 @@ export function render(root) {
     goBtn.disabled = true;
     T.show(box, '<span class="dim">Memuat alat spreadsheet…</span>');
     try {
-      const ok = await muatXlsx();
+      const ok = await utils.loadLibOnce(XLSX_CDNS, () => typeof window.XLSX !== 'undefined');
       if (!ok) {
         T.show(box, errBox('Alat spreadsheet tidak bisa dimuat dari internet. Cek koneksi lalu coba lagi.'));
         return;

@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Data Formula 1 lewat OpenF1 (tanpa key).
 // Terverifikasi 18 Nov 2026: api.openf1.org/v1/meetings 200, CORS *.
@@ -14,12 +14,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return String(s).slice(0, 10);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "data-f1-live", "name": "Data F1 Live", "cat": "liveapi", "icon": "🏎️", "desc": "Jadwal balapan Formula 1 per musim, sesi tiap seri, dan daftar pembalapnya.", "keywords": "f1,formula 1,balapan,pembalap,grand prix,jadwal f1,openf1", "since": "6.17.0"};
 
@@ -45,7 +40,7 @@ export function render(root) {
         return;
       }
       T.show(detailBox, '<p style="margin-top:6px"><b>Sesi ' + esc(nama) + '</b></p>' +
-        sesi.map((s) => '<div class="kv"><span class="k">' + esc(String(s.session_name || 'Sesi')) + '</span><span class="v">' + esc(tglCantik(s.date_start)) + '</span></div>').join('') +
+        sesi.map((s) => '<div class="kv"><span class="k">' + esc(String(s.session_name || 'Sesi')) + '</span><span class="v">' + esc(utils.tglCantik(s.date_start)) + '</span></div>').join('') +
         '<p style="margin-top:10px"><button class="btn" id="f1-drivers">Lihat pembalap seri ini</button></p>');
       const b = detailBox.querySelector('#f1-drivers');
       if (b) b.addEventListener('click', () => muatPembalap(meetingKey, sesi[sesi.length - 1].session_key, nama));
@@ -94,7 +89,7 @@ export function render(root) {
       T.show(box, '<p class="hint">' + j.length + ' seri di musim ' + esc(tahun) + '. Ketuk satu seri untuk melihat sesi dan pembalapnya.</p>' +
         j.map((m) => '<div class="kv" data-meeting="' + (Number(m.meeting_key) || 0) + '" data-nama="' + esc(String(m.meeting_name || '')) + '" style="cursor:pointer" role="button" tabindex="0">' +
           '<span class="k"><b>' + esc(String(m.meeting_name || 'Tanpa nama')) + '</b><br><span class="hint">' + esc(String(m.location || '')) + (m.country_name ? ', ' + esc(String(m.country_name)) : '') + '</span></span>' +
-          '<span class="v">' + esc(tglCantik(m.date_start)) + '</span></div>').join('') +
+          '<span class="v">' + esc(utils.tglCantik(m.date_start)) + '</span></div>').join('') +
         '<p class="hint">Sumber: OpenF1 (data resmi Formula 1).</p>');
       box.querySelectorAll('[data-meeting]').forEach((el) => {
         const buka = () => muatSesi(el.getAttribute('data-meeting'), el.getAttribute('data-nama') || '');

@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Lowongan kerja remote lewat RemoteOK, tanpa key.
 // Terverifikasi 17 Nov 2026: https://remoteok.com/api -> 200, CORS *.
@@ -19,12 +19,7 @@ async function getJSON(url) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return '';
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const box = T.out();
@@ -49,7 +44,7 @@ export function render(root) {
         '<div class="dim" style="font-size:12.5px;line-height:1.7">' +
         esc(j.company || '') +
         (j.location ? ' · ' + esc(j.location) : '') +
-        (j.date ? '<br>Diposting: ' + esc(tglCantik(j.date)) : '') +
+        (j.date ? '<br>Diposting: ' + esc(utils.tglCantik(j.date)) : '') +
         '</div>' +
         (tags.length ? '<div class="hint">' + esc(tags.join(' · ')) + '</div>' : '') +
         (tautanAman(j.url) ? '<div style="margin-top:4px"><a href="' + esc(j.url) + '" target="_blank" rel="noopener" style="font-size:12.5px">Lihat lowongan di situs aslinya</a></div>' : '') +

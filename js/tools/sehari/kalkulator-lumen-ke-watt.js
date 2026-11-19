@@ -1,4 +1,4 @@
-import { h as T } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'kalkulator-lumen-ke-watt', name: 'Kalkulator Lumen ke Watt', cat: 'sehari', icon: '💡', desc: 'Berapa watt lampu yang kamu butuhkan untuk terang tertentu, atau sebaliknya, sesuai jenis lampunya.', keywords: 'lumen,watt,lampu,led,terang,cahaya,hemat listrik', since: '6.18.0' };
 
@@ -23,12 +23,8 @@ export function wattKeLumen(watt, jenis) {
   return watt * EFIKASI[jenis][1];
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 1 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 1 desimal
+// (default lokal lama), kecuali yang eksplisit 0.
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Lumen itu seberapa terang cahayanya, watt itu seberapa besar listriknya. Lampu LED butuh watt jauh lebih kecil daripada bohlam pijar untuk terang yang sama.</p>'));
@@ -62,17 +58,17 @@ export function render(root) {
     if (mode.value === 'lumenWatt') {
       const w = lumenKeWatt(n, jenis.value);
       const banding = Object.keys(EFIKASI).map((j) =>
-        '<tr' + (j === jenis.value ? ' style="background:rgba(255,111,97,.12)"' : '') + '><td style="padding:5px 8px">' + T.esc(EFIKASI[j][0]) + '</td><td style="text-align:right;padding:5px 8px">' + fmtDes(lumenKeWatt(n, j)) + ' watt</td></tr>').join('');
+        '<tr' + (j === jenis.value ? ' style="background:rgba(255,111,97,.12)"' : '') + '><td style="padding:5px 8px">' + T.esc(EFIKASI[j][0]) + '</td><td style="text-align:right;padding:5px 8px">' + utils.fmtDes(lumenKeWatt(n, j), 1) + ' watt</td></tr>').join('');
       T.show(box,
-        '<p class="big">' + fmtDes(w) + ' watt</p>' +
-        '<p>Untuk terang ' + T.fmt(n) + ' lumen, lampu ' + T.esc(nama) + ' butuh sekitar ' + fmtDes(w) + ' watt.</p>' +
+        '<p class="big">' + utils.fmtDes(w, 1) + ' watt</p>' +
+        '<p>Untuk terang ' + T.fmt(n) + ' lumen, lampu ' + T.esc(nama) + ' butuh sekitar ' + utils.fmtDes(w, 1) + ' watt.</p>' +
         '<table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:13px"><thead><tr><th style="text-align:left;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.15)">Jenis lampu</th><th style="text-align:right;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.15)">Watt untuk ' + T.fmt(n) + ' lumen</th></tr></thead><tbody>' + banding + '</tbody></table>' +
         '<p class="hint">Angka ini perkiraan dari efisiensi umum tiap jenis lampu. Lumen dan watt pasti tiap lampu tertulis di kemasannya.</p>');
     } else {
       const l = wattKeLumen(n, jenis.value);
       T.show(box,
-        '<p class="big">' + fmtDes(l, 0) + ' lumen</p>' +
-        '<p>Lampu ' + T.esc(nama) + ' ' + fmtDes(n) + ' watt menghasilkan terang sekitar ' + fmtDes(l, 0) + ' lumen.</p>' +
+        '<p class="big">' + utils.fmtDes(l, 0) + ' lumen</p>' +
+        '<p>Lampu ' + T.esc(nama) + ' ' + utils.fmtDes(n, 1) + ' watt menghasilkan terang sekitar ' + utils.fmtDes(l, 0) + ' lumen.</p>' +
         '<p class="hint">Angka ini perkiraan dari efisiensi umum tiap jenis lampu. Lumen dan watt pasti tiap lampu tertulis di kemasannya.</p>');
     }
   }

@@ -105,20 +105,11 @@ export function parseJSONLepas(s) {
 }
 
 export function render(root) {
-  let pdfJsSiap = null;
-  const pastPdfJs = () => {
-    if (!pdfJsSiap) {
-      pdfJsSiap = T.loadScript(PDFJS_CDN).then((ok) => {
-        if (ok && window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
-        return ok && !!window.pdfjsLib;
-      });
-    }
-    return pdfJsSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   // PDF → teks (maks MAKS_HALAMAN_PDF halaman pertama)
   const pdfKeTeks = async (buffer) => {
-    if (!(await pastPdfJs())) throw new Error('Pustaka PDF gagal dimuat dari CDN.');
+    if (!(await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }))) throw new Error('Pustaka PDF gagal dimuat dari CDN.');
     const doc = await window.pdfjsLib.getDocument({ data: buffer }).promise;
     const n = Math.min(doc.numPages, MAKS_HALAMAN_PDF);
     let teks = '';

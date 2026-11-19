@@ -30,11 +30,7 @@ const LS_KEY = 'tebak-chord-best-v2';
 
 const pcFreq = (pc) => 440 * Math.pow(2, (pc - 9) / 12);
 // shuffle kanonis tinggal di utils (core.js).
-function loadBest() {
-  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
-  catch (e) { return {}; }
-}
-function saveBest(b) { try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } catch (e) { /* abaikan */ } }
+// loadBestObj/saveBestObj kanonis tinggal di utils (core.js).
 
 // Bunyikan chord sebagai arpeggio (nada satu-satu, lalu bareng).
 function mainkanChord(rootPc, iv) {
@@ -132,7 +128,7 @@ export function render(root) {
   const bestBox = T.el('<p class="hint center"></p>');
   const lvlSel = T.select(QUIZ_LEVELS.map((l) => [l.id, l.label]), 'mudah');
   const quiz = { list: [], idx: 0, score: 0, answered: false };
-  let best = loadBest();
+  let best = utils.loadBestObj(LS_KEY);
 
   const lvlLabel = () => (QUIZ_LEVELS.find((l) => l.id === lvlSel.value) || QUIZ_LEVELS[0]).label.split(' — ')[0];
   const gambarBest = () => {
@@ -208,7 +204,7 @@ export function render(root) {
     const s = quiz.score;
     const key = lvlSel.value;
     let baru = '';
-    if (s > (best[key] || 0)) { best[key] = s; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    if (s > (best[key] || 0)) { best[key] = s; utils.saveBestObj(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
     gambarBest();
     const msg = s === 10 ? 'Telinga absolut! Kamu dengar chord kayak baca tulisan. 🎧✨'
       : s >= 8 ? 'Keren! Telinga musikmu tajam.'

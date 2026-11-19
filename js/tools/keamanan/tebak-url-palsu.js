@@ -35,11 +35,7 @@ const TOTAL_SOAL = 10;
 const LS_KEY = 'tebak-url-palsu-best';
 
 // shuffle kanonis tinggal di utils (core.js).
-function loadBest() {
-  try { const v = parseInt(localStorage.getItem(LS_KEY), 10); return isNaN(v) ? 0 : v; }
-  catch (e) { return 0; }
-}
-function saveBest(v) { try { localStorage.setItem(LS_KEY, String(v)); } catch (e) { /* abaikan */ } }
+// loadBestNum/saveBestNum kanonis tinggal di utils (core.js).
 
 export function nilaiJawaban(soal, tebakan) {
   return soal.jawab === tebakan;
@@ -47,7 +43,7 @@ export function nilaiJawaban(soal, tebakan) {
 
 export function render(root) {
   let list = [], idx = 0, skor = 0, terkunci = false;
-  let best = loadBest();
+  let best = utils.loadBestNum(LS_KEY);
   const box = T.out();
   const bestBox = T.el('<p class="hint center">Skor terbaikmu: <b>' + best + '</b>/' + TOTAL_SOAL + '</p>');
 
@@ -87,7 +83,7 @@ export function render(root) {
   function hasil() {
     const persen = Math.round(skor / list.length * 100);
     let baru = '';
-    if (skor > best) { best = skor; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    if (skor > best) { best = skor; utils.saveBestNum(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
     bestBox.innerHTML = 'Skor terbaikmu: <b>' + best + '</b>/' + TOTAL_SOAL;
     const pesan = persen === 100 ? '🏆 Sempurna! Matamu tajam membedakan URL asli vs palsu.'
       : persen >= 75 ? '👍 Bagus! Hampir semua jebakan URL berhasil kamu hindari.'

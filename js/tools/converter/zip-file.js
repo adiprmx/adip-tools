@@ -1,4 +1,4 @@
-import { h as T, kv, fileInput, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fileInput, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id":"zip-file","name":"Buat & Buka ZIP","cat":"converter","icon":"🗜️","desc":"Gabung banyak file jadi satu ZIP, atau buka isi file ZIP.","keywords":"zip,arsip,kompres,ekstrak,file,buka","since":"6.11.0"};
 
@@ -12,20 +12,8 @@ const TEXT_EXT = ['txt', 'md', 'json', 'csv', 'html', 'htm', 'css', 'js', 'xml',
 const MAX_PREVIEW = 100 * 1024;
 
 export function render(root) {
-  let libOk = null, libLoading = false;
-  const ensureLib = () => {
-    if (libOk !== null) return Promise.resolve(libOk);
-    if (libLoading) return new Promise((res) => { const t = setInterval(() => { if (libOk !== null) { clearInterval(t); res(libOk); } }, 300); });
-    libLoading = true;
-    return (async () => {
-      for (const u of JSZIP_CDNS) {
-        const ok = await T.loadScript(u);
-        if (ok && typeof window.JSZip === 'function') { libOk = true; return true; }
-      }
-      libOk = false;
-      return false;
-    })();
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
+  const ensureLib = () => utils.loadLibOnce(JSZIP_CDNS, () => typeof window.JSZip === 'function');
 
   const tabBuat = T.btn('Buat ZIP', null); tabBuat.classList.add('primary');
   const tabBuka = T.btn('Buka ZIP', null);

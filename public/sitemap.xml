@@ -10,6 +10,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/berat-volumetrik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/biaya-paylater</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/buat-invoice</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/cara-bilang-profesional</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cat-tembok</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cuti-prorata</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/daftar-harga</loc></url>
@@ -43,6 +44,8 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-cac</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-cagr</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-cap-rate-properti</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-capm-beta</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-cash-on-cash</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-cashflow</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-churn-rate</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-conversion-rate</loc></url>
@@ -53,9 +56,12 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-dcf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-dividen</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-dscr</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ebitda</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-engagement</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-eoq</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-eps-rasio-p-e</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-fibonacci-retracement</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-fifo-lifo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-fire</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-gaji-bersih</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-gaji-freelance</loc></url>
@@ -63,13 +69,17 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-harga-wajar-saham-graham-number</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-hitung-uang-tunai</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-hpp</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-impermanent-loss</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-inflasi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kekayaan-bersih-net-worth</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kenaikan-gaji</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kenaikan-sewa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-komisi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-loan-to-value</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-lunasi-utang</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-margin-kontribusi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-margin-of-safety</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-mirr</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-modal-kerja</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-nilai-pelanggan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-nilai-sekarang-present-value</loc></url>
@@ -77,18 +87,25 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-obligasi-yield-ytm</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-pelunasan-kartu-kredit</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-penyusutan-aset-depresiasi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-perputaran-persediaan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ppn</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-preorder</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rasio-lancar-cepat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rasio-utang-terhadap-pendapatan-dti</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-roe-roa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-roi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rsi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rumah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-runway-usaha</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-safety-stock</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-sewa-properti</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-sharpe-ratio</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-siklus-konversi-kas</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-sinking-fund</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-stock-split</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-tabungan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ukuran-posisi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-wacc</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kartu-stempel</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/komisi-reseller</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-gaji</loc></url>
@@ -126,11 +143,13 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/csv-ke-vcf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/desimal-ke-pecahan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ekstrak-arsip-7z-rar-tar-gz</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/epub-ke-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/excel-ke-csv</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/excel-ke-json</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gabung-file</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gabung-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ganti-nama-file-massal</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-file-acak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gzip-gunzip-file</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/html-ke-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/info-metadata-video</loc></url>
@@ -144,14 +163,19 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-luas-tanah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-satuan-listrik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-video</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lihat-jejak-gpx</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/markdown-ke-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/morse</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/number-converter</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembelah-csv</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembelah-excel</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/penerjemah-pdf</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/perekam-webcam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/potong-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/putar-balik-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/qris-parser</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/slug-generator</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/subtitle-otomatis-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tambah-musik-ke-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tambah-teks-ke-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/terbilang</loc></url>
@@ -167,13 +191,16 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/unix-timestamp</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/url-encoder</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/vcf-ke-csv</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/video-ke-apng</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/video-ke-frame</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/video-ke-gif</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/video-ke-mp3</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/video-ke-webp-animasi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/video-looping-boomerang</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/watermark-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/xml-ke-csv</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/zip-file</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/analisis-musim-warna</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/animasi-css</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/barcode</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bentuk-blob-svg</loc></url>
@@ -185,13 +212,17 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/css-grid-generator</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/favicon-generator</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/font-dari-tulisan-tangan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/galeri-font-google</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-checkbox-css</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-efek-glitch-teks</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-glassmorphism-css</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-gradasi-warna</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-loader-css</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-segitiga-css</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-string-art</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-switch-css</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gradient</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/harmonograph</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/htmlvideo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rasio-emas</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/komponen-wireframe</loc></url>
@@ -203,6 +234,9 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/novelcover</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/paduan-font</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/palette</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-landing-page</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-pola-perler-bead</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-pola-sulam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-stempel</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pencampur-warna</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/placeholderstudio</loc></url>
@@ -211,7 +245,10 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/qr-decoder</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/qr-generator</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/radius-playground</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-buta-warna</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/skala-tipografi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/spirograph</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/svg-stroke-ke-fill</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/svgalight</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/teks-gradien</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/text2d</loc></url>
@@ -220,9 +257,12 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/textvector</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/trimpath</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ukuran-konten-sosmed</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ukuran-standar</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/apakah-situs-down</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/audit-seo-dari-html</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/baca-file-parquet</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/banding-file</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/cari-font-coding</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-jenis-file-asli</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-tanda-tangan-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cheatsheet-git</loc></url>
@@ -231,19 +271,23 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/cron</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/deeplink-telegram</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/dns-lookup</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/dxf-ke-svg</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/easing-visualizer</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/enkripsi-teks</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/escape-markdown-telegram</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/estimasi-storage</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/excel-ke-xml</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/file-ke-base64</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-docker-run</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-env</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-shadow-react-native</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-timestamp-discord</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/getcode</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/html-encoder-decoder</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/html-ke-markdown</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/html-table</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/http-status</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/info-apk-ipa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/info-perangkat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/json-diff</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/json-formatter</loc></url>
@@ -252,16 +296,26 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-bandwidth</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-luhn</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/keyboard-telegram</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kompres-model-3d-glb</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lihat-database-sqlite</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lihat-file-dxf</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lihat-file-stl</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lihat-hex-file</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lihat-model-3d-glb-gltf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lihat-update-telegram</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/list-converter</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/markdown-preview</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/meta-generator</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/minify-css</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/minify-html</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/minify-javascript</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/og-preview</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembanding-teks</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-pwa-dari-url</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/penampil-har</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penghitung-token-ai</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/perapi-kode-javascript</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pratinjau-font</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/preview-html</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/prompt-ai</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/rapikan-kode</loc></url>
@@ -276,14 +330,22 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/ttf-ke-woff2</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ubah-format-data</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/utm-builder</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/validator-email-url</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/woff2-ke-ttf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/xml-formatter</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/xml-ke-excel</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/zerowidth</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-achievement</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-boarding-pass</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-call</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-call-facetime</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-call-history-iphone</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-call-ig</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-messenger</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-snapchat</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-teams</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-tele</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-twitch</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-chat-wa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-dm-discord</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-dm-ig</loc></url>
@@ -292,27 +354,42 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-imessage</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-komen-tiktok</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-komen-yt</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-notes-ig</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-notes-iphone</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-notif-hp</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-notif-tele</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-percakapan-chatgpt</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-pesan-android</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-pesan-discord</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-pin-pinterest</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-post-bluesky</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-post-ig</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-postingan-tiktok</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-profil-bumble</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-profil-hinge</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-profil-ig</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-profil-tiktok</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-profil-tinder</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-profil-wa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-reddit-post</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-screen-time-android</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-screen-time-iphone</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-spotify-wrapped</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-status-wa</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/fake-story-facebook</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-story-ig</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-threads-post</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fake-tweet</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-koran-palsu</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/acak-grup</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/animegallery</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/apple-music-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/arti-asal-nama</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/baby-name</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bagan-turnamen</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/benar-atau-salah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/berat-di-planet-lain</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/bingo-target-tahunan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bola-ramalan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-khodam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-vibes</loc></url>
@@ -321,32 +398,62 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/dadu-dnd</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/decision</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/dice</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/discord-wrapped</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/durasi-nonton-serial</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fakta-menarik-harian</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/film-acak-malam-ini</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/game-imposter</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/game-mengetik</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/game-white-elephant</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-achievement-minecraft</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-achievement-steam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-alasan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-bola-minecraft</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-cerita-ai</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-gta-wasted</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-kartu-bingo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-komplimen</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-kubah-minecraft</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-labirin</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-lingkaran-minecraft</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-mission-passed</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-nama-grup</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-pantun</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-polling</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-trivia</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-trofi-playstation</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-you-died</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/instagram-wrapped</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/jarak-voyager-1</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-birth-chart</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-cm360</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-edpi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-elo-catur</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-handicap-golf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kocok-hadiah</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/konverter-sensitivitas-mouse</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-emoji-hewan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-ibukota</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-matematika-cepat</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kuis-peta-dunia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-peta-indonesia</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/letterboxd-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/mau-makan-apa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/meter-bucin</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/nama-panggung</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/netflix-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/nokiamsg</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/papan-skor-online</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/reaction</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/sertifikat</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-balap-bebek</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-balap-kelereng</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/simulator-hunger-games</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-pasir-jatuh</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-pita-suara</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/spinwheel</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/statistik-spotify-tahunan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/strava-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/suit-jawa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tantangan-30-hari</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-angka</loc></url>
@@ -354,17 +461,25 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-kata</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-tahun</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tebak-tebakan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/teka-teki-logika-harian</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-cps</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-kepribadian</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tes-rasa-waktu-satu-menit</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tier-list</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tiktok-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tod-indonesia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/trivia-umum</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/twister-lidah-indonesia</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/umur-di-planet-lain</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/whatsapp-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/winquotes</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/winrate-ml</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/youtube-wrapped</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/zodiak-hari-ini</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/aiimage</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/aivideo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/animetoreal</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/apng-maker</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/aspect-ratio</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/atur-hue-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/avatarstudio</loc></url>
@@ -378,50 +493,85 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/crop-pas-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/danbooru</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/deteksi-tepi-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/edit-exif-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-cermin</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-dithering</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-duotone</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-emboss</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/efek-glow</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-invert-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-kartun</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-komik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-polaroid</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/efek-posterize</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-sepia-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/efek-solarize</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/efek-threshold</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/efek-tilt-shift</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/efek-vignette</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/efek-vintage</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/exif-clean</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/filter-10-year-challenge</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/filter-digicam-y2k</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/filter-kamera-disposable</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/foto-grayscale</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/foto-ke-sprite-sheet</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/foto-sketca</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fotolink</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/gabung-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gambar-ke-gif</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/gambar-ke-jxl</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-caption-gambar-ai</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-halftone</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-paint-by-numbers</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/gif-3d-wigglegram</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gif-ke-video</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gif-maker</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/hapus-background-warna</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/hapus-noise-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/histogram-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/image-compress</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/image-convert</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/imagevectorizer</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/jxl-ke-jpg-png</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kolase-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kompres-gif</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lihat-data-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/meme</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/palet-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pecah-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pecah-gif-jadi-frame</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-caption-snapchat</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-mosaik-lego</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-photo-dump</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-year-in-review</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penyesuai-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/perekam-layar</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pixel-art</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pixel-sorting</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/psd-ke-png</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/putar-balik-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/removebg</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/saluran-rgb-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/smartcutout</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/split-grid-ig</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/stempel-tanggal-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/stiker-wa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tajamkan-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tambah-gps-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tambah-noise-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tambah-padding-foto</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/teks-di-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tempel-gambar</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/terjemahkan-gambar</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tga-ppm-ke-png</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/twibbon-maker</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ubah-dpi-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ubah-kecepatan-gif</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ubah-ukuran-foto</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/video-ke-live-photo</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/video-ke-motion-photo</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/webp-animasi-maker</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/yt-thumbnail</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/anggaran-lebaran</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/anggaran-nikah</loc></url>
@@ -517,35 +667,59 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/atlas-otot-latihan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bmi-anak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-stres-mood</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/jadwal-donor-darah</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-absi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-asupan-natrium-garam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-asupan-serat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-beban-glikemik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-berat-ideal</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-bri</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-curb-65</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-denyut-jantung-pemulihan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ffmi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-gfr-fungsi-ginjal</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-golongan-darah-anak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-hba1c-ke-gula-darah-rata-rata-eag</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-hemat-berhenti-merokok</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-homa-ir</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-indeks-panas-heat-index</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kadar-alkohol-darah-bac</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kalori-menyusui</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kalori-terbakar-per-aktivitas-met</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kenaikan-berat-badan-hamil</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-konversi-gula-darah</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-langkah-ke-kalori</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-luas-permukaan-tubuh-bsa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-makro-pembagian-makronutrisi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-map</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-massa-tubuh-tanpa-lemak-lbm</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-pack-year</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-peak-flow</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-prediksi-tinggi-anak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rasio-pinggang-pinggul-whr</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rasio-pinggang-tinggi-whtr</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rfm</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-risiko-jantung-framingham</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-vo2-max</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-volume-darah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kurva-pertumbuhan-anak</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/rencana-penurunan-berat-badan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/skor-apgar</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/skor-cha2ds2-vasc</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/skor-gcs</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tes-ketajaman-penglihatan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/timer-meditasi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-zona-aman-tiktok</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-brief-konten</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-caption-instagram</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-caption-reels-tiktok</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-hook-tiktok</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-ide-video-faceless</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-kerangka-blog</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-nama-channel-youtube</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-postingan-blog-ai</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-postingan-linkedin</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-skrip-video-pendek</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-tweet</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jam-upload-terbaik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-carousel-tiktok-ig</loc></url>
@@ -586,6 +760,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/cuaca-antariksa-aurora</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cuaca-arsip</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/cuaca-bmkg</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/data-bisbol-mlb</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-blockchain-bitcoin</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-covid-19-flu</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-digimon</loc></url>
@@ -593,6 +768,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/data-dota-2</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-f1-live</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-indonesia</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/data-matahari-iklim</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-satelit-tle</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-spesies-dunia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/data-valorant</loc></url>
@@ -602,6 +778,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/fakta-kucing</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fakta-tak-berguna</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fase-bulan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/film-baru-streaming</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/film-studio-ghibli</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/foto-acak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/galeri-met</loc></url>
@@ -630,6 +807,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/info-paket-npm</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/info-paket-python</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/info-serial-tv</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/info-tim-olahraga</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ip-saya</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jadwal-hasil-f1</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jadwal-peluncuran-roket</loc></url>
@@ -637,19 +815,28 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/jam-dunia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jawab-cepat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jurnal-medis</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ekspresi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kamus-inggris</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/karakter-avatar</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/karakter-disney</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/karakter-rick-morty</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kartu-magic-mtg</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kartu-remi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kartu-yu-gi-oh</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kelinci-acak</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ketinggian-lokasi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kode-pos-dunia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kode-pos-indonesia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kualitas-udara</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kucing-acak</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kucing-status-http</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kucing-teks</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-trivia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kurs-cuaca</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lelucon-acak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lelucon-bapak-bapak</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lelucon-chuck-norris</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lelucon-geek</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lirik-lagu</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lowongan-kerja-eropa-remote</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lowongan-kerja-remote</loc></url>
@@ -658,15 +845,20 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/pemendek-url</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penerjemah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penyelesaian-matematika</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pesan-commit-acak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pokemon-viewer</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/posisi-iss</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/prakiraan-gelombang-laut</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/profil-catur-chess-com</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/puisi-klasik</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/quotes-kanye-west</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/quotes-random</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/quotes-ron-swanson</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/radio-online</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/resep-koktail</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/resep-makanan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ringkasan-wikipedia</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/rubah-acak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/rute-jarak-perjalanan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/saran-random</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/sertifikat-ssl-domain</loc></url>
@@ -679,6 +871,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/template-meme-populer</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/terbit-terbenam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-kecepatan-internet</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/uji-klinis</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/wilayah-indonesia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-jumlah-makanan-pesta</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-persentase-baker-adonan-roti</loc></url>
@@ -687,6 +880,8 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/konversi-oven-ke-air-fryer</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/masak-dari-bahan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pengganti-bahan-masakan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/timer-seduh-kopi-teh</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/waktu-masak-daging</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/audio-8d</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/audio-ke-mono-stereo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/audio-trimmer</loc></url>
@@ -710,6 +905,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-capo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kartu-lirik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/keraskan-audio</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kompresor-dinamis-audio</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-audio</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-audio-lanjutan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kurva-energi</loc></url>
@@ -722,6 +918,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/pencari-rima</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/perekam-suara</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/piano</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pisah-audio-per-hening</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/playlist-duration</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/potong-hening-audio</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ritme-euclidean</loc></url>
@@ -739,25 +936,44 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/waktu-delay-bpm</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/white-noise</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/akselerasi-0-100-quarter-mile</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/beli-vs-sewa-mobil</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bhp-ke-whp</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/biaya-aus-kendaraan-per-km</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/estimasi-asuransi-kendaraan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-biaya-cas-mobil-listrik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-biaya-komuter</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-depresiasi-mobil</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-konsumsi-bbm</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-torsi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ukuran-ban</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-konsumsi-bbm</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/konverter-tenaga-mesin</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/rasio-gigi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tekanan-angin-ban</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/validasi-nomor-rangka-vin</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/apa-bedanya</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/baca-cepat-bionik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bangun-datar</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/barisan-bilangan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/beeline</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/biaya-kuliah</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/bilangan-besar</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/carifakta</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/citation</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/elastisitas-harga</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/estimasi-skor-toefl</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/faktor-bilangan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/faktorial</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/faktorisasi-prima</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/flashcard</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fpb-kpk</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/game-of-life</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-word-search</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/glosarium</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/hitung-mundur-ujian</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ipk</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jadwal-belajar</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/jarak-dua-titik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-angka-penting</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-bilangan-prima</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-distribusi-binomial</loc></url>
@@ -775,28 +991,46 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-uji-t</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-umum</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-z-score</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kamus-singkatan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kertas-grafik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kombinasi-permutasi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konversi-nilai</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kuis-kosakata-inggris</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kuis-maker</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/latihan-deret-angka</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/latihan-mengetik</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/margin-of-error</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/matriks-kalkulator</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/modulo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/nilai-akhir</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/nilai-skd-cpns</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/notasi-ilmiah</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/notasi-sigma</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/particle-life</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembagian-panjang</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembulatan-angka</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penjelas-sederhana</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penulis-esai-ai</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/persamaan-kuadrat</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/persen-error</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/persentil-kuartil</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/plot-fungsi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/rata-rata-geometrik-harmonik</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/rms</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/rumus-eksponen</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/rumus-fisika</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/rumus-saku</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/sample-size</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simpul-tali</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/simulasi-skd-cpns</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/statistika-dasar</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tabel-periodik</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tabel-perkalian</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tes-mengetik-kode</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/typing-test</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/visualisasi-algoritma-sorting</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/worldclassics</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/zoom-mandelbrot</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ambil-teks-dari-epub</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ambil-teks-dari-odt</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ambil-teks-dari-word</loc></url>
@@ -804,23 +1038,33 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/bantuan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/beri-masukan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bio-link</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/buka-file-eml</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/buka-kunci-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/catatan-cepat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/checklist-berbagi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/daftar-bacaan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/denah-tempat-duduk</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/diagram-alir</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/documentai</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ekstrak-tabel-pdf-ke-csv</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/epub-maker</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/excel-ke-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/gambar-ke-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-kalender-cetak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/genmail</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/habit-tracker</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/halaman-ketik-fokus</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/header-footer-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/hidup-dalam-minggu</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/hitung-kata-pdf</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/html-ke-word</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jurnal-harian</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jurnal-syukur</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalender-konten</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-catatan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kartu-waktu</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kanban-board</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/konverter-pdf-hasil-scan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kunci-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/latihan-interview</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/markdown-ke-word</loc></url>
@@ -832,7 +1076,9 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/papan-tulis-digital</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pdf-hitam-putih</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pdf-ke-audio</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pdf-ke-epub</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pdf-ke-excel</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pdf-ke-gif</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pdf-ke-html</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pdf-ke-jpg-png</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pdf-ke-markdown</loc></url>
@@ -841,9 +1087,11 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/pdflab</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pelacak-langganan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pelacak-tujuan</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-buklet-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-cv</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-file-kalender-ics</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-surat-jual-beli</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/perbaiki-pdf-rusak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/perencana-mingguan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/peta-pikiran</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pomodoro</loc></url>
@@ -860,6 +1108,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/surat-pernyataan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/surat-resign</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/surat-resmi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/surat-untuk-masa-depan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tanda-tangan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/target-menulis</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/teks-ke-word</loc></url>
@@ -870,22 +1119,41 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/word-ke-markdown</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/word-ke-pdf</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-atap</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-beban-balok</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-berat-baja-besi-beton</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-keramik-ubin</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-pagar</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-pasir-kerikil</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-tangga</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ukuran-kabel</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-volume-kolam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-volume-tangki-air</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-wallpaper</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/lem-untuk-bahan-ini</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ukuran-panel-surya</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/volume-air-hujan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-berat-molekul</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-densitas-udara</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-dilatasi-waktu</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-energi-gempa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-hukum-ohm</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kapasitor</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kecepatan-lepas</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-massa-jenis</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-molaritas</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-penurunan-tegangan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ph</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-resistor</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-rlc</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-titik-embun</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-waktu-paruh</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-tahun-cahaya</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-bandul</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-bandul-ganda</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/simulator-gerak-proyektil</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/simulator-gravitasi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-newtons-cradle</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/simulator-papan-galton</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/simulator-tata-surya</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/age-calc</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/anggaran-mudik</loc></url>
@@ -894,6 +1162,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/berat-ideal-kucing</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/biaya-bbm</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/biaya-pelihara-anjing</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/biaya-pelihara-ikan-hias</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/biaya-pelihara-kucing</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/bmi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/catat-minum-air</loc></url>
@@ -902,6 +1171,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/cek-tekanan-darah</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/daftar-belanja</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/date-duration</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/diagnosis-hp-rusak</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/hitung-hpl</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/hitung-parkir</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/hitung-pk-ac</loc></url>
@@ -913,10 +1183,19 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/jam-alarm-online</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/jejak-karbon</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-1rm</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-ape-index</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-biaya-punya-bayi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-gear-sepeda</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-gorden</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-hemat-lampu-led</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-jangkauan-e-bike</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-kain</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-langkah-ke-km</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-lumen-ke-watt</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-pace</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-panjang-langkah</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-popok</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-split-lari</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-uang-kembalian</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-waktu</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-waktu-mendaki-aturan-naismith</loc></url>
@@ -936,9 +1215,13 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/pakan-kucing</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pantun</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pengingat-obat</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/perbaiki-piksel-nyangkut</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/perbandingan-ukuran-pizza</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/risiko-diabetes</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/siklus-haid</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/stopwatch</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tahun-kabisat</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tanggal-kedaluwarsa</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/target-baca</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-baterai</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-buta-warna</loc></url>
@@ -952,13 +1235,21 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-mouse</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-sensor</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-speaker</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/tes-stick-drift</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-touchscreen</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/tes-webcam</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/timer-kontraksi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/timer-masak</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ukuran-bra</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ukuran-sepeda</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/ukuran-topi</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/umur-anjing</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/umur-kucing</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/usia-steril</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/volume-akuarium</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/waktu-bicara</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/waktu-cas-baterai</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/watt-sepeda</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/zona-denyut-jantung</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/ascii-art</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/balik-teks</loc></url>
@@ -970,6 +1261,8 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/extract-contact</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/fancy-text</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/generator-hashtag</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-ide-blog</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/generator-ide-story-instagram</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/hitung-suku-kata</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kamus-sinonim-indonesia</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/karakter-khusus</loc></url>
@@ -977,6 +1270,7 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/konverter-subtitle-ass-sbv-ttml</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/lorem-ipsum</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/parafrase-teks-ai</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/pembersih-spasi-berlebih</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pembuat-singkatan</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/pengacak-kalimat</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/penulis-pelengkap-paragraf-ai</loc></url>
@@ -999,6 +1293,11 @@
   <url><loc>https://tools.adipmusic.my.id/#/t/zalgo</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/anggaran-trip</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/checklist-dokumen-travel</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/estimasi-waktu-terbang</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/frasa-penting-travel</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/kalkulator-jet-lag</loc></url>
   <url><loc>https://tools.adipmusic.my.id/#/t/paspor-indonesia-bebas-visa</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/perencana-road-trip</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/peta-negara-dikunjungi</loc></url>
+  <url><loc>https://tools.adipmusic.my.id/#/t/visualisasi-timeline-google-maps</loc></url>
 </urlset>

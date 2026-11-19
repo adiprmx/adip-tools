@@ -8,21 +8,13 @@ const LEVELS = [
   { id: 'gila', label: 'Gila (1–500)', min: 1, max: 500 },
 ];
 const LS_KEY = 'tebak-angka-best-v2';
-function loadBest() {
-  try {
-    const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
-    return v && typeof v === 'object' ? v : {};
-  } catch (e) { return {}; }
-}
-function saveBest(b) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } catch (e) { /* abaikan */ }
-}
+// loadBestObj/saveBestObj kanonis tinggal di utils (core.js).
 
 export function render(root) {
   let level = LEVELS[1];
   let target = 1, attempts = 0, lo = 1, hi = 100, done = false;
   let history = [];
-  let best = loadBest();
+  let best = utils.loadBestObj(LS_KEY);
 
   const lvlSel = T.select(LEVELS.map((l) => [l.id, l.label]), 'normal');
   const inp = T.input('number', 'Tebak angkanya', '');
@@ -59,7 +51,7 @@ export function render(root) {
       done = true;
       const sc = score();
       let baru = '';
-      if (sc > (best[level.id] || 0)) { best[level.id] = sc; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+      if (sc > (best[level.id] || 0)) { best[level.id] = sc; utils.saveBestObj(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
       gambarBest();
       T.show(msg, '<div class="center" style="padding:6px 0">' +
         '<div style="font-size:34px">🎉</div>' +

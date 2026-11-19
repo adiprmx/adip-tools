@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Peristiwa bencana alam terkini lewat NASA EONET (tanpa key).
 // Terverifikasi 18 Nov 2026: eonet.gsfc.nasa.gov/api/v3/events 200, CORS *.
@@ -24,12 +24,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return '';
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
@@ -60,7 +55,7 @@ export function render(root) {
         ev.map((e) => {
           const kats = Array.isArray(e.categories) ? e.categories.map((k) => k.title).filter(Boolean).join(', ') : '';
           const geo = Array.isArray(e.geometry) && e.geometry.length ? e.geometry[e.geometry.length - 1] : null;
-          const tgl = geo && geo.date ? tglCantik(geo.date) : '';
+          const tgl = geo && geo.date ? utils.tglCantik(geo.date) : '';
           const koord = geo && Array.isArray(geo.coordinates) && geo.coordinates.length >= 2
             ? Number(geo.coordinates[1]).toFixed(2) + ', ' + Number(geo.coordinates[0]).toFixed(2) : '';
           const sumber = Array.isArray(e.sources) && e.sources[0] && tautanAman(e.sources[0].url) ? e.sources[0].url : null;

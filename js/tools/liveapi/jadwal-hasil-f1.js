@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Jadwal dan hasil Formula 1 lewat Ergast (Jolpica), tanpa key.
 // Terverifikasi 17 Nov 2026: /ergast/f1/current.json?limit=1 -> 200, CORS *.
@@ -17,12 +17,8 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s + 'T00:00:00');
-  if (isNaN(d)) return s;
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js) — dipakai dengan
+// { tglSaja: true } (tanggal saja, tengah malam lokal).
 
 export function render(root) {
   const box = T.out();
@@ -51,7 +47,7 @@ export function render(root) {
         const lokasi = sirkuit.Location || {};
         return '<div class="kv"><span class="k"><b>' + esc(r.raceName || 'Balapan') + '</b><br><span class="hint">' +
           esc(sirkuit.circuitName || '') + (lokasi.locality ? ' · ' + esc(lokasi.locality) : '') + (lokasi.country ? ', ' + esc(lokasi.country) : '') +
-          '</span></span><span class="v">' + esc(tglCantik(r.date)) + '</span></div>';
+          '</span></span><span class="v">' + esc(utils.tglCantik(r.date, { tglSaja: true })) + '</span></div>';
       }).join('') + '<p class="hint">Sumber: Ergast (Jolpica), data resmi Formula 1.</p>');
     } catch (e) {
       gagal(box, e.name === 'AbortError'
@@ -71,7 +67,7 @@ export function render(root) {
         T.show(hasilBox, '<p class="center dim">Belum ada hasil balapan musim ini.</p>');
         return;
       }
-      T.show(hasilBox, '<p style="margin-top:14px"><b>Hasil: ' + esc(balapan.raceName || 'Balapan terakhir') + '</b> <span class="hint">' + esc(tglCantik(balapan.date)) + '</span></p>' +
+      T.show(hasilBox, '<p style="margin-top:14px"><b>Hasil: ' + esc(balapan.raceName || 'Balapan terakhir') + '</b> <span class="hint">' + esc(utils.tglCantik(balapan.date, { tglSaja: true })) + '</span></p>' +
         hasil.slice(0, 10).map((h) => {
           const p = h.Driver || {};
           const tim = (h.Constructor && h.Constructor.name) || '';

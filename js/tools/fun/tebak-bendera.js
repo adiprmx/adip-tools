@@ -31,18 +31,14 @@ const flag = (iso) => String.fromCodePoint.apply(null,
   iso.toUpperCase().split('').map((c) => 0x1F1E6 + c.charCodeAt(0) - 65));
 
 // shuffle kanonis tinggal di utils (core.js).
-function loadBest() {
-  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
-  catch (e) { return {}; }
-}
-function saveBest(b) { try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } catch (e) { /* abaikan */ } }
+// loadBestObj/saveBestObj kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const box = T.out();
   const bestBox = T.el('<p class="hint center"></p>');
   const lvlSel = T.select([['mudah', 'Mudah — 36 negara terkenal'], ['semua', 'Sulit — semua 64 negara']], 'mudah');
   const quiz = { list: [], idx: 0, score: 0, answered: false };
-  let best = loadBest();
+  let best = utils.loadBestObj(LS_KEY);
 
   const lvlLabel = () => lvlSel.value === 'semua' ? 'Sulit' : 'Mudah';
   const gambarBest = () => {
@@ -102,7 +98,7 @@ export function render(root) {
     const s = quiz.score;
     const key = lvlSel.value;
     let baru = '';
-    if (s > (best[key] || 0)) { best[key] = s; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    if (s > (best[key] || 0)) { best[key] = s; utils.saveBestObj(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
     gambarBest();
     const msg = s === 10 ? 'Sempurna! Kamu layak jadi duta besar. 🏳️✨'
       : s >= 8 ? 'Keren! Wawasan duniamu luas.'

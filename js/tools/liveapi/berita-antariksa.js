@@ -15,13 +15,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return '';
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' +
-    d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-}
+// tglCantik kanonis tinggal di utils (core.js) — dipakai dengan { jam: true }.
 
 // imgAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
@@ -54,7 +48,7 @@ export function render(root) {
             '<div style="font-weight:700;font-size:14px;line-height:1.4">' + esc(String(a.title || 'Tanpa judul')) + '</div>' +
             (a.summary ? '<div class="dim" style="font-size:12.5px;line-height:1.5;margin-top:4px">' + esc(String(a.summary)) + '</div>' : '') +
             '<div class="dim" style="font-size:11.5px;margin-top:6px">' + esc(String(a.news_site || '')) +
-            (a.published_at ? ' · ' + esc(tglCantik(a.published_at)) : '') + '</div>';
+            (a.published_at ? ' · ' + esc(utils.tglCantik(a.published_at, { jam: true })) : '') + '</div>';
           return '<div style="border-top:1px solid #ffffff14;padding:12px 0">' +
             (tautanAman(a.url) ? '<a href="' + esc(a.url) + '" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">' + isi + '</a>' : isi) + '</div>';
         }).join('') +

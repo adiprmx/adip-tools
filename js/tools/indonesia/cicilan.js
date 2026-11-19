@@ -112,11 +112,7 @@ U.cicilanJadwalCsv = (rows) => {
   return isi;
 };
 
-const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-function tambahBulan(y, m, n) {
-  const d = new Date(y, m - 1 + n, 1);
-  return NAMA_BULAN[d.getMonth()] + ' ' + d.getFullYear();
-}
+// tambahBulanLabel kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "cicilan", "name": "Kalkulator Cicilan", "cat": "indonesia", "icon": "🏍️", "desc": "Simulasi cicilan flat & anuitas, DP + biaya awal, banding tenor, denda telat, jadwal per bulan & ekspor CSV.", "keywords": "cicilan,kredit,motor,angsuran,extra payment,flat,anuitas,dp,tenor,denda,csv"};
 export function render(root) {
@@ -201,7 +197,7 @@ export function render(root) {
           '<table class="tbl"><tr><th></th><th>Flat</th><th>Anuitas</th></tr>' +
           '<tr><td>Bayar / bulan</td><td><b>' + T.rp(fe.perBulan) + '</b></td><td><b>' + T.rp(ae.perBulan) + '</b></td></tr>' +
           '<tr><td>Lunas dalam</td><td>' + fe.months + ' bulan</td><td>' + ae.months + ' bulan</td></tr>' +
-          '<tr><td>Perkiraan lunas</td><td>' + T.esc(tambahBulan(y0, m0, fe.months - 1)) + '</td><td>' + T.esc(tambahBulan(y0, m0, ae.months - 1)) + '</td></tr>' +
+          '<tr><td>Perkiraan lunas</td><td>' + T.esc(utils.tambahBulanLabel(y0, m0, fe.months - 1)) + '</td><td>' + T.esc(utils.tambahBulanLabel(y0, m0, ae.months - 1)) + '</td></tr>' +
           '<tr><td>Total bunga</td><td>' + T.rp(fe.totalBunga) + '</td><td>' + T.rp(ae.totalBunga) + '</td></tr>' +
           '<tr><td>Hemat bunga</td><td>' + T.rp(fe.hematBunga) + '</td><td><b>' + T.rp(ae.hematBunga) + '</b></td></tr>' +
           '<tr><td>Total bayar</td><td>' + T.rp(fe.totalBayar) + '</td><td>' + T.rp(ae.totalBayar) + '</td></tr></table>' +

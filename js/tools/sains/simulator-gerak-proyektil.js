@@ -1,4 +1,4 @@
-import { h as T, onLeave } from '../../core.js';
+import { h as T, onLeave, utils } from '../../core.js';
 
 export const meta = { id: 'simulator-gerak-proyektil', name: 'Simulator Gerak Proyektil', cat: 'sains', icon: '🎯', desc: 'Lempar benda dan lihat lintasannya: seberapa jauh, setinggi apa, dan berapa lama di udara.', keywords: 'proyektil,gerak parabola,lintasan,lempar,gravitasi,fisika,sudut,kecepatan awal', since: '6.17.0' };
 
@@ -23,11 +23,8 @@ export function hitungProyektil(v0, sudutDeg, g, tinggiAwal) {
   return { jangkauan, tinggiMaks, waktuTotal, vx, vy, titik };
 }
 
-function fmtNum(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const r = Math.round(v * Math.pow(10, des == null ? 2 : des)) / Math.pow(10, des == null ? 2 : des);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 2 desimal
+// (default lokal lama), kecuali yang eksplisit 0.
 
 export function render(root) {
   const st = document.createElement('style');
@@ -88,7 +85,7 @@ export function render(root) {
     ctx.textAlign = 'center';
     for (let i = 0; i <= 4; i++) {
       const x = maxX * i / 4;
-      ctx.fillText(fmtNum(x, 0) + ' m', sx(x), H - 10);
+      ctx.fillText(utils.fmtDes(x, 0) + ' m', sx(x), H - 10);
     }
     // Lintasan penuh (redup) + yang sudah dilewati (tegas)
     const n = hasil.titik.length;
@@ -118,9 +115,9 @@ export function render(root) {
     ctx.fillStyle = '#e8ded0';
     ctx.font = '12px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('Jarak: ' + fmtNum(cur.x) + ' m', P + 4, P - 8);
-    ctx.fillText('Tinggi: ' + fmtNum(cur.y) + ' m', P + 4, P + 8);
-    ctx.fillText('Waktu: ' + fmtNum(cur.t) + ' dtk', P + 4, P + 24);
+    ctx.fillText('Jarak: ' + utils.fmtDes(cur.x, 2) + ' m', P + 4, P - 8);
+    ctx.fillText('Tinggi: ' + utils.fmtDes(cur.y, 2) + ' m', P + 4, P + 8);
+    ctx.fillText('Waktu: ' + utils.fmtDes(cur.t, 2) + ' dtk', P + 4, P + 24);
   }
 
   function luncurkan() {
@@ -134,8 +131,8 @@ export function render(root) {
     if (h0 < 0) { T.toast('Tinggi awalnya tidak boleh negatif'); return; }
     hasil = hitungProyektil(v0, sudut, g, h0);
     T.show(box,
-      '<p class="big">Jarak terjauh: ' + fmtNum(hasil.jangkauan) + ' m</p>' +
-      '<p>Tinggi maksimum: ' + fmtNum(hasil.tinggiMaks) + ' m · Lama di udara: ' + fmtNum(hasil.waktuTotal) + ' detik · Kecepatan mendatar: ' + fmtNum(hasil.vx) + ' m/s · Kecepatan tegak awal: ' + fmtNum(hasil.vy) + ' m/s.</p>' +
+      '<p class="big">Jarak terjauh: ' + utils.fmtDes(hasil.jangkauan, 2) + ' m</p>' +
+      '<p>Tinggi maksimum: ' + utils.fmtDes(hasil.tinggiMaks, 2) + ' m · Lama di udara: ' + utils.fmtDes(hasil.waktuTotal, 2) + ' detik · Kecepatan mendatar: ' + utils.fmtDes(hasil.vx, 2) + ' m/s · Kecepatan tegak awal: ' + utils.fmtDes(hasil.vy, 2) + ' m/s.</p>' +
       '<p class="hint">Sudut 45 derajat memberi jarak terjauh kalau lemparannya dari tanah. Makin besar gravitasinya, makin pendek jaraknya.</p>');
     if (animId) cancelAnimationFrame(animId);
     const mulai = performance.now();

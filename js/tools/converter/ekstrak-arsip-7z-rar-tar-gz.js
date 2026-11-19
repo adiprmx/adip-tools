@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 import { gunzipBytes } from './gzip-gunzip-file.js';
 
 export const meta = {"id": "ekstrak-arsip-7z-rar-tar-gz", "name": "Ekstrak Arsip 7Z/RAR/TAR.GZ", "cat": "converter", "icon": "🗄️", "desc": "Buka isi arsip 7Z, RAR, TAR, dan TAR.GZ.", "keywords": "ekstrak,arsip,7z,rar,tar,gz,buka,unzip", "since": "6.17.0"};
@@ -225,13 +225,8 @@ export function render(root) {
     });
     const zipBtn = T.btn('Unduh semua sebagai ZIP', async () => {
       T.show(box, '<span class="dim">Menyiapkan alat ZIP…</span>');
-      let ok = typeof window.JSZip === 'function';
-      if (!ok) {
-        for (const u of JSZIP_CDNS) {
-          const loaded = await T.loadScript(u);
-          if (loaded && typeof window.JSZip === 'function') { ok = true; break; }
-        }
-      }
+      // Loader library kanonis: utils.loadLibOnce (core.js).
+      const ok = await utils.loadLibOnce(JSZIP_CDNS, () => typeof window.JSZip === 'function');
       if (!ok) { T.show(box, errBox('Alat ZIP tidak bisa dimuat dari internet. Cek koneksi lalu coba lagi.')); return; }
       try {
         const zip = new window.JSZip();

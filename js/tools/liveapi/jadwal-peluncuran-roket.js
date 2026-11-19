@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Jadwal peluncuran roket lewat The Space Devs, tanpa key.
 // Terverifikasi 17 Nov 2026: /2.2.0/launch/upcoming/?limit=1 -> 200, CORS *.
@@ -17,13 +17,8 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return s;
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ' pukul ' +
-    d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-}
+// tglCantik kanonis tinggal di utils (core.js) — dipakai dengan
+// { bulan: 'long', jam: true, pukul: true }.
 
 const gambarAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
@@ -48,7 +43,7 @@ export function render(root) {
           (gambarAman(l.image) ? '<img src="' + esc(l.image) + '" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:8px;flex:none" loading="lazy" data-err="hide">' : '') +
           '<div style="min-width:0">' +
           '<div style="font-weight:700;font-size:15px">' + esc(l.name || 'Peluncuran') + '</div>' +
-          '<div class="dim" style="font-size:12.5px;line-height:1.7">' + esc(tglCantik(l.net)) +
+          '<div class="dim" style="font-size:12.5px;line-height:1.7">' + esc(utils.tglCantik(l.net, { bulan: 'long', jam: true, pukul: true })) +
           (roket ? '<br>Roket: ' + esc(roket) : '') +
           (lokasi ? '<br>Lokasi: ' + esc(lokasi) : '') +
           (status ? '<br>Status: ' + esc(status) : '') + '</div>' +

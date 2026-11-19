@@ -17,12 +17,7 @@ async function getJSON(url) {
 // Hanya http/https yang boleh jadi sumber gambar.
 // imgAman kanonis tinggal di utils.urlAman (core.js).
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return String(s).slice(0, 10);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "arsip-foto-nasa", "name": "Arsip Foto NASA", "cat": "liveapi", "icon": "🚀", "desc": "Cari foto dan gambar dari arsip NASA: planet, roket, astronot, sampai galaksi.", "keywords": "nasa,foto,antariksa,arsip,planet,roket,astronot,galaksi,gambar", "since": "6.17.0"};
 
@@ -57,7 +52,7 @@ export function render(root) {
           const detail = d.nasa_id ? 'https://images.nasa.gov/details/' + encodeURIComponent(String(d.nasa_id)) : null;
           const isi = (thumb ? '<img src="' + esc(thumb) + '" alt="' + esc(judul) + '" loading="lazy" data-err="hide" style="width:100%;height:120px;object-fit:cover;border-radius:8px;display:block">' : '<div style="height:120px;border-radius:8px;background:#221d18;display:flex;align-items:center;justify-content:center"><span class="dim" style="font-size:12px">Tidak ada pratinjau</span></div>') +
             '<div style="font-size:12.5px;line-height:1.4;margin-top:6px">' + esc(judul) + '</div>' +
-            (d.date_created ? '<div class="dim" style="font-size:11.5px">' + esc(tglCantik(d.date_created)) + '</div>' : '');
+            (d.date_created ? '<div class="dim" style="font-size:11.5px">' + esc(utils.tglCantik(d.date_created)) + '</div>' : '');
           return '<div>' + (detail ? '<a href="' + esc(detail) + '" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">' + isi + '</a>' : isi) + '</div>';
         }).join('') + '</div>' +
         '<p class="hint">Sumber: NASA Image and Video Library. Kebanyakan foto NASA bebas dipakai, cek halaman aslinya untuk ketentuan tiap foto.</p>');

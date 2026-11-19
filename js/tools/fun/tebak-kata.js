@@ -18,16 +18,12 @@ const LEVELS = [
 ];
 const ABJAD = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const LS_KEY = 'tebak-kata-best-v2';
-function loadBest() {
-  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || '{}'); return v && typeof v === 'object' ? v : {}; }
-  catch (e) { return {}; }
-}
-function saveBest(b) { try { localStorage.setItem(LS_KEY, JSON.stringify(b)); } catch (e) { /* abaikan */ } }
+// loadBestObj/saveBestObj kanonis tinggal di utils (core.js).
 
 export function render(root) {
   let kata = '', kategori = '', ditebak = new Set(), salah = 0, selesai = false;
   let level = LEVELS[1];
-  let best = loadBest();
+  let best = utils.loadBestObj(LS_KEY);
 
   const lvlSel = T.select(LEVELS.map((l) => [l.id, l.label]), 'normal');
   const katSel = T.select([['acak', 'Acak — semua kategori']].concat(KATA.map(([id, label]) => [id, label])), 'acak');
@@ -127,7 +123,7 @@ export function render(root) {
       selesai = true;
       const skor = (level.nyawa - salah) * 100 + kata.replace(/ /g, '').length * 10;
       let baru = '';
-      if (skor > (best[level.id] || 0)) { best[level.id] = skor; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+      if (skor > (best[level.id] || 0)) { best[level.id] = skor; utils.saveBestObj(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
       gambarBest();
       const teks = '🔤 Tebak Kata (' + level.label.split(' — ')[0] + '): aku nebak "' + kata + '" (' + kategori + ') dengan sisa ' + (level.nyawa - salah) + ' nyawa, skor ' + skor + '! Coba kalahin aku di Adip Tools.';
       T.show(hasilBox, '<div class="center" style="padding:8px 0">' +

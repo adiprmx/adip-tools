@@ -16,11 +16,9 @@ export function render(root) {
 
     const QR_CDN = 'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js';
     const BC_CDN = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
-    let qrOk = null, bcOk = null;
-    const loadQr = () => qrOk !== null ? Promise.resolve(qrOk)
-      : T.loadScript(QR_CDN).then((ok) => (qrOk = ok && typeof QRCode !== 'undefined'));
-    const loadBc = () => bcOk !== null ? Promise.resolve(bcOk)
-      : T.loadScript(BC_CDN).then((ok) => (bcOk = ok && typeof JsBarcode !== 'undefined'));
+    // Loader library kanonis: utils.loadLibOnce (core.js).
+    const loadQr = () => utils.loadLibOnce(QR_CDN, () => typeof QRCode !== 'undefined');
+    const loadBc = () => utils.loadLibOnce(BC_CDN, () => typeof JsBarcode !== 'undefined');
 
     // --- Tab vCard ---
     const vPage = T.el('<div></div>');

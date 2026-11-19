@@ -1,4 +1,4 @@
-import { h as T, onLeave } from '../../core.js';
+import { h as T, onLeave, utils } from '../../core.js';
 
 export const meta = { id: 'simulator-gravitasi', name: 'Simulator Gravitasi', cat: 'sains', icon: '🌍', desc: 'Hitung gaya tarik antara dua benda, lalu lihat satelit mengorbit planet di layar.', keywords: 'gravitasi,gaya tarik,newton,orbit,satelit,planet,massa,bumi,bulan', since: '6.17.0' };
 
@@ -29,11 +29,8 @@ function fmtIlmiah(v) {
   return e[0].replace('.', ',') + ' × 10^' + parseInt(e[1], 10);
 }
 
-function fmtNum(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const r = Math.round(v * Math.pow(10, des == null ? 2 : des)) / Math.pow(10, des == null ? 2 : des);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 2 desimal
+// (default lokal lama), kecuali yang eksplisit 1.
 
 export function render(root) {
   const st = document.createElement('style');
@@ -162,7 +159,7 @@ export function render(root) {
       }
     };
     T.show(boxOrbit,
-      '<p>Kecepatan awal satelit: ' + fmtNum(v0) + ' m/s. Kecepatan orbit melingkar di ketinggian ini: ' + fmtNum(kecepatanOrbit(M_BUMI, R_ORBIT_M)) + ' m/s. Satu putaran penuh: ' + fmtNum(T0 / 60, 1) + ' menit.</p>');
+      '<p>Kecepatan awal satelit: ' + utils.fmtDes(v0, 2) + ' m/s. Kecepatan orbit melingkar di ketinggian ini: ' + utils.fmtDes(kecepatanOrbit(M_BUMI, R_ORBIT_M), 2) + ' m/s. Satu putaran penuh: ' + utils.fmtDes(T0 / 60, 1) + ' menit.</p>');
     animId = requestAnimationFrame(putar);
   }
 

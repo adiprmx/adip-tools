@@ -19,12 +19,7 @@ function terbilang(n) {
   return 'angka terlalu besar';
 }
 const kapital = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
-const BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-const tglIndo = (iso) => {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
-  if (!m) return iso || '-';
-  return (+m[3]) + ' ' + BULAN[+m[2] - 1] + ' ' + m[1];
-};
+// tglIndo kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "kwitansi", "name": "Pembuat Kwitansi", "cat": "bisnis", "icon": "🧾", "desc": "Bikin kwitansi pembayaran yang rapi dengan terbilang otomatis, siap cetak atau dibagikan.", "keywords": "kwitansi,pembayaran,bukti bayar,terbilang,cetak,struk"};
 export function render(root) {
@@ -52,7 +47,7 @@ export function render(root) {
       const nomor = nomorI.value.trim();
       const kota = kotaI.value.trim();
       const tb = kapital(terbilang(jumlah)) + ' rupiah';
-      const tgl = tglIndo(tglI.value);
+      const tgl = utils.tglIndo(tglI.value);
       const tempatTgl = (kota ? kota + ', ' : '') + tgl;
 
       teksKwitansi =

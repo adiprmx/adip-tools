@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Daftar sertifikat SSL yang pernah diterbitkan untuk sebuah domain,
 // lewat crt.sh (log publik Certificate Transparency), tanpa key.
@@ -15,12 +15,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return String(s).slice(0, 10);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const box = T.out();
@@ -49,7 +44,7 @@ export function render(root) {
           '<div style="font-weight:700;font-size:14px;word-break:break-all">' + esc(s.common_name || s.name_value || '-') + '</div>' +
           '<div class="dim" style="font-size:12.5px;line-height:1.7">' +
           (s.issuer_name ? 'Penerbit: ' + esc(s.issuer_name) + '<br>' : '') +
-          'Berlaku: ' + esc(tglCantik(s.not_before)) + ' sampai ' + esc(tglCantik(s.not_after)) + '<br>' +
+          'Berlaku: ' + esc(utils.tglCantik(s.not_before)) + ' sampai ' + esc(utils.tglCantik(s.not_after)) + '<br>' +
           'Status: ' + (masihBerlaku ? 'Masih berlaku' : 'Sudah kedaluwarsa') +
           '</div></div>';
       }).join('') + '<p class="hint">Sumber: crt.sh, log publik Certificate Transparency. Daftar ini berisi sertifikat yang pernah diterbitkan, termasuk yang sudah kedaluwarsa.</p>');

@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Observasi satwa dan tumbuhan lewat iNaturalist, tanpa key.
 // Terverifikasi 17 Nov 2026: /v1/observations?taxon_name=Panthera%20tigris&per_page=1 -> 200, CORS *.
@@ -16,12 +16,7 @@ async function getJSON(url) {
 
 const gambarAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return String(s).slice(0, 10);
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const box = T.out();
@@ -49,7 +44,7 @@ export function render(root) {
           '<div style="font-weight:700;font-size:14px">' + esc(takson.preferred_common_name || takson.name || 'Tanpa nama') + '</div>' +
           (takson.preferred_common_name && takson.name ? '<div class="dim" style="font-size:12.5px;font-style:italic">' + esc(takson.name) + '</div>' : '') +
           '<div class="dim" style="font-size:12.5px;line-height:1.7">' +
-          (o.observed_on ? 'Diamati: ' + esc(tglCantik(o.observed_on)) : '') +
+          (o.observed_on ? 'Diamati: ' + esc(utils.tglCantik(o.observed_on)) : '') +
           (o.place_guess ? '<br>Lokasi: ' + esc(o.place_guess) : '') +
           (pengamat ? '<br>Pengamat: ' + esc(pengamat) : '') +
           '</div>' +

@@ -144,7 +144,7 @@ export function bytesToWordArray(CryptoJS, bytes) {
 // pra-standar, bukan SHA-3 resmi (FIPS 202). Dipakai js-sha3.
 const CJ_BASE = 'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/';
 const SHA3_CDN = 'https://cdn.jsdelivr.net/npm/js-sha3@0.9.3/build/sha3.min.js';
-let cjReady = null, sha3Ready = null;
+let cjReady = null;
 async function ensureCryptoJs() {
     if (cjReady !== null) return cjReady;
     for (const f of ['core.js', 'sha256.js', 'sha224.js', 'ripemd160.js']) {
@@ -155,10 +155,8 @@ async function ensureCryptoJs() {
     return cjReady;
   }
 async function ensureSha3() {
-    if (sha3Ready !== null) return sha3Ready;
-    const ok = await T.loadScript(SHA3_CDN);
-    sha3Ready = !!(ok && typeof window.sha3_256 === 'function' && typeof window.sha3_512 === 'function');
-    return sha3Ready;
+    // Loader kanonis: utils.loadLibOnce (core.js).
+    return utils.loadLibOnce(SHA3_CDN, () => typeof window.sha3_256 === 'function' && typeof window.sha3_512 === 'function');
   }
 
 export const meta = {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks & file: MD5, SHA, SHA-3, RIPEMD-160, CRC-32 + periksa checksum.", "keywords": "hash,md5,sha,sha3,ripemd,crc32,file,checksum,verifikasi"};

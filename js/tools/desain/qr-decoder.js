@@ -1,4 +1,4 @@
-import { h as T, errBox, LOCAL_NOTE, loadImage, fmtBytes } from '../../core.js';
+import { h as T, utils, errBox, LOCAL_NOTE, loadImage, fmtBytes } from '../../core.js';
 
 // Deteksi jenis isi kode QR. Murni, bisa diuji tanpa browser.
 export function deteksiIsi(teks) {
@@ -28,11 +28,7 @@ export function render(root) {
     const MAKS_FILE = 15 * 1024 * 1024;
     const FORMAT_BARCODE = ['qr_code', 'code_128', 'code_39', 'code_93', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'codabar', 'itf', 'data_matrix', 'aztec', 'pdf417'];
 
-    let jsqrSiap = null;
-    const pastJsqr = () => {
-      if (!jsqrSiap) jsqrSiap = T.loadScript(JSQR_CDN).then((ok) => ok && typeof window.jsQR === 'function');
-      return jsqrSiap;
-    };
+    // Loader library kanonis: utils.loadLibOnce (core.js).
     const barcodeDidukung = () => typeof window !== 'undefined' && 'BarcodeDetector' in window;
 
     root.appendChild(T.el(`<p class="note">🔒 ${LOCAL_NOTE}</p>`));
@@ -72,7 +68,7 @@ export function render(root) {
     };
 
     const pindaiCanvas = async (canvas) => {
-      if (await pastJsqr()) {
+      if (await utils.loadLibOnce(JSQR_CDN, () => typeof window.jsQR === 'function')) {
         const ctx = canvas.getContext('2d');
         const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const hasil = window.jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'attemptBoth' });

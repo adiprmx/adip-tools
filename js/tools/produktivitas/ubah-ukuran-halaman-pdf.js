@@ -1,4 +1,4 @@
-import { h as T, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Ubah Ukuran Halaman PDF: ganti ukuran halaman PDF (A4, Letter, Legal,
 // A3, A5) dengan isi yang ikut menyesuaikan. Caranya dengan pdf-lib:
@@ -50,15 +50,7 @@ export function render(root) {
   const box = T.out();
   const statusBox = T.out();
   const hasilBox = T.out();
-  let pdfLibSiap = null;
-
-  const muatPdfLib = () => {
-    if (!pdfLibSiap) {
-      pdfLibSiap = T.loadScript(PDFLIB_CDN).then((ok) => ok && !!window.PDFLib)
-        .catch(() => { pdfLibSiap = null; return false; });
-    }
-    return pdfLibSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   async function proses() {
     const f = fi.files && fi.files[0];
@@ -66,7 +58,7 @@ export function render(root) {
     T.hide(box); T.hide(hasilBox);
     prosesB.disabled = true;
     T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
-    const ok = await muatPdfLib();
+    const ok = await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib);
     if (!ok) {
       T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
       statusBox.querySelector('button').addEventListener('click', proses);

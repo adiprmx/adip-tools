@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id": "excel-ke-json", "name": "Excel ke JSON", "cat": "converter", "icon": "🧾", "desc": "Ubah spreadsheet Excel jadi data JSON.", "keywords": "excel,xlsx,json,data,spreadsheet,konversi", "since": "6.17.0"};
 
@@ -24,20 +24,7 @@ export function render(root) {
   const box = T.out();
   const prevBox = T.out();
 
-  let xlsxSiap = null;
-  const muatXlsx = () => {
-    if (!xlsxSiap) {
-      xlsxSiap = (async () => {
-        if (typeof window.XLSX !== 'undefined') return true;
-        for (const u of XLSX_CDNS) {
-          const ok = await T.loadScript(u);
-          if (ok && typeof window.XLSX !== 'undefined') return true;
-        }
-        return false;
-      })().catch(() => { xlsxSiap = null; return false; });
-    }
-    return xlsxSiap;
-  };
+  // Loader library kanonis: utils.loadLibOnce (core.js).
 
   let fileObj = null;
   let workbook = null;
@@ -52,7 +39,7 @@ export function render(root) {
     T.hide(box); T.hide(prevBox);
     if (!fileObj) return;
     T.show(box, '<span class="dim">Membaca spreadsheet…</span>');
-    const ok = await muatXlsx();
+    const ok = await utils.loadLibOnce(XLSX_CDNS, () => typeof window.XLSX !== 'undefined');
     if (!ok) { T.show(box, errBox('Alat spreadsheet tidak bisa dimuat dari internet. Cek koneksi lalu coba lagi.')); return; }
     try {
       const data = new Uint8Array(await fileObj.arrayBuffer());

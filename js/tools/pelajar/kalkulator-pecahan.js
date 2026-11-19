@@ -52,7 +52,7 @@ export function hitungPecahan(a, b, c, d, op) {
   return { pem: s.pem, pen: s.pen, desimal: s.pem / s.pen, langkah };
 }
 
-const fmtDes = (v) => String(Math.round(v * 1e10) / 1e10).replace('.', ',');
+// fmtDes kanonis tinggal di utils (core.js) — dipakai dengan 10 desimal.
 
 function tampilHasil(out, r) {
   const camp = keCampuran(r.pem, r.pen);
@@ -61,8 +61,8 @@ function tampilHasil(out, r) {
   T.show(out, '');
   out.appendChild(T.el(
     '<div><div class="center"><div class="dim">Hasil</div><div class="big">' + r.pem + '/' + r.pen + '</div></div>' +
-    kv('Desimal', '<b>' + fmtDes(r.desimal) + '</b>') +
-    kv('Persen', '<b>' + fmtDes(r.desimal * 100) + ' %</b>') +
+    kv('Desimal', '<b>' + utils.fmtDes(r.desimal, 10) + '</b>') +
+    kv('Persen', '<b>' + utils.fmtDes(r.desimal * 100, 10) + ' %</b>') +
     campHtml +
     '<div class="dim" style="font-size:12.5px;margin-top:8px;line-height:1.7">' +
     r.langkah.map((l) => '• ' + T.esc(l)).join('<br>') + '</div></div>'

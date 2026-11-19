@@ -1,10 +1,6 @@
 import { h as T, utils, money, kv } from '../../core.js';
 
-const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-function tambahBulan(y, m, n) {
-  const d = new Date(y, m - 1 + n, 1);
-  return NAMA_BULAN[d.getMonth()] + ' ' + d.getFullYear();
-}
+// tambahBulanLabel kanonis tinggal di utils (core.js).
 
 // Simulasi angsuran dengan pembayaran ekstra.
 // skema 'anuitas': cicilan tetap, bunga dari sisa pokok (ekstra memangkas bunga).
@@ -202,7 +198,7 @@ export function render(root) {
       const parts = String(mulaiI.value || '').split('-');
       const y0 = Number(parts[0]) || now.getFullYear();
       const m0 = Number(parts[1]) || (now.getMonth() + 1);
-      const lunas = tambahBulan(y0, m0, r.months - 1);
+      const lunas = utils.tambahBulanLabel(y0, m0, r.months - 1);
       const hematBunga = dasar ? dasar.totalBunga - r.totalBunga : 0;
 
       // Biaya awal KPR
@@ -281,7 +277,7 @@ export function render(root) {
         '<div style="overflow-x:auto"><table class="tbl">' +
         '<tr><th>Thn</th><th style="text-align:right">Pokok</th><th style="text-align:right">Bunga</th><th style="text-align:right">Sisa</th></tr>' +
         rows + '</table></div>' +
-        (r.adaFloating ? '<p class="hint">Tanda * = tahun saat bunga berubah dari fixed (' + T.esc(String(b)) + '%) ke floating (' + T.esc(String(bFloat)) + '%), cicilan dihitung ulang mulai bulan ke-' + r.bulanGanti + ' (' + T.esc(tambahBulan(y0, m0, r.bulanGanti - 1)) + '). Bunga floating di dunia nyata berubah-ubah mengikuti suku bunga acuan, jadi angka setelah masa fixed adalah perkiraan dengan asumsi bunga floating tetap.</p>'
+        (r.adaFloating ? '<p class="hint">Tanda * = tahun saat bunga berubah dari fixed (' + T.esc(String(b)) + '%) ke floating (' + T.esc(String(bFloat)) + '%), cicilan dihitung ulang mulai bulan ke-' + r.bulanGanti + ' (' + T.esc(utils.tambahBulanLabel(y0, m0, r.bulanGanti - 1)) + '). Bunga floating di dunia nyata berubah-ubah mengikuti suku bunga acuan, jadi angka setelah masa fixed adalah perkiraan dengan asumsi bunga floating tetap.</p>'
           : '<p class="hint">Simulasi bunga tetap. Bank biasanya memakai bunga fixed beberapa tahun pertama lalu floating — centang "Bunga berubah setelah masa fixed" di atas untuk mensimulasikannya. Pembayaran ekstra diasumsikan langsung memotong pokok tanpa denda pelunasan dipercepat, cek ketentuan bankmu.</p>'));
 
       // Banding skenario B
@@ -294,7 +290,7 @@ export function render(root) {
         } else {
           const pokokB = H - DPB;
           const rB = utils.kprSimulasi({ pokok: pokokB, bunga: bB, tahun: thnB, skema, extraBln: 0, extraThn: 0, bungaFloat: bFloat, tahunFixed: thnFixed });
-          const lunasB = tambahBulan(y0, m0, rB.months - 1);
+          const lunasB = utils.tambahBulanLabel(y0, m0, rB.months - 1);
           const selisih = (x, y) => x - y;
           T.show(bandingBox,
             '<h3 style="font-size:14px;margin:14px 0 6px">Banding 2 skenario</h3>' +

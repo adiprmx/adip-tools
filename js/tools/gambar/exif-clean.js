@@ -320,15 +320,7 @@ export function render(root) {
       const EXIF_CDN = 'https://cdn.jsdelivr.net/npm/exifreader@4.23.5/dist/exif-reader.js';
       const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';
       const MAKS_JUMLAH = 20;
-      let exifSiap = null, zipSiap = null;
-      const loadExif = () => {
-        if (!exifSiap) exifSiap = T.loadScript(EXIF_CDN).then((ok) => ok && !!window.ExifReader);
-        return exifSiap;
-      };
-      const pastZip = () => {
-        if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
-        return zipSiap;
-      };
+      // Loader library kanonis: utils.loadLibOnce (core.js).
       const tagStr = (tags, name) => {
         const t = tags && tags[name];
         if (t == null) return '';
@@ -434,7 +426,7 @@ export function render(root) {
         const f = files[pilihIdx];
         if (!f) return;
         T.show(lihatBox, '<p class="center mut">Membaca data foto...</p>');
-        const ok = await loadExif();
+        const ok = await utils.loadLibOnce(EXIF_CDN, () => !!window.ExifReader);
         if (!ok) {
           T.show(lihatBox, '<p class="hint">Data foto tidak bisa dibaca (pembaca gagal dimuat, cek koneksi). Foto tetap bisa dibersihkan seperti biasa.</p>');
           return;
@@ -552,7 +544,7 @@ export function render(root) {
         hasilBatch = [];
         dlB.disabled = true; // belum ada hasil baru (P2-2)
         const gagal = [];
-        const okExif = await loadExif();
+        const okExif = await utils.loadLibOnce(EXIF_CDN, () => !!window.ExifReader);
         for (let i = 0; i < files.length; i++) {
           if (files.length > 1) T.show(statusBox, '<span class="dim">Membersihkan ' + (i + 1) + ' dari ' + files.length + ': ' + T.esc(files[i].name || '') + '…</span>');
           try {
@@ -617,7 +609,7 @@ export function render(root) {
           });
           const zipB = T.btn('Unduh semua (ZIP)', async () => {
             T.show(statusBox, '<span class="dim">Menyiapkan ZIP…</span>');
-            if (!(await pastZip())) { T.show(statusBox, '<span class="dim">Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi, atau unduh satu per satu.</span>'); return; }
+            if (!(await utils.loadLibOnce(ZIP_CDN, () => typeof window.JSZip === 'function'))) { T.show(statusBox, '<span class="dim">Pembuat ZIP gagal dimuat. Cek koneksi lalu coba lagi, atau unduh satu per satu.</span>'); return; }
             try {
               const zip = new window.JSZip();
               const pakaiNama = new Set();

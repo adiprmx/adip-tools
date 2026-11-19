@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
 export const meta = {"id": "video-ke-frame", "name": "Video ke Frame", "cat": "converter", "icon": "📸", "desc": "Simpan frame-frame video jadi gambar.", "keywords": "video,frame,gambar,ekstrak,detik,cuplikan", "since": "6.17.0"};
 
@@ -150,13 +150,8 @@ export function render(root) {
       if (!frames.length) { T.show(outBox, errBox('Tidak ada frame yang berhasil diambil. Coba video lain.')); return; }
       barFill.style.width = '100%';
       barLabel.textContent = 'Menyiapkan alat ZIP…';
-      let ok = typeof window.JSZip === 'function';
-      if (!ok) {
-        for (const u of JSZIP_CDNS) {
-          const loaded = await T.loadScript(u);
-          if (loaded && typeof window.JSZip === 'function') { ok = true; break; }
-        }
-      }
+      // Loader library kanonis: utils.loadLibOnce (core.js).
+      const ok = await utils.loadLibOnce(JSZIP_CDNS, () => typeof window.JSZip === 'function');
       if (!ok) { T.show(outBox, errBox('Alat ZIP tidak bisa dimuat dari internet. Cek koneksi lalu coba lagi.')); return; }
       barLabel.textContent = 'Menggabungkan ' + frames.length + ' frame jadi ZIP…';
       const zip = new window.JSZip();

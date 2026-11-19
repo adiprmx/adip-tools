@@ -91,16 +91,12 @@ const norm = (s) => String(s == null ? '' : s).toLowerCase().trim()
   .replace(/-/g, ' ').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
 const benar = (soal, jawab) => [soal.a].concat(soal.ak || []).some((k) => norm(k) === norm(jawab) && norm(jawab) !== '');
 // shuffle kanonis tinggal di utils (core.js).
-function loadBest() {
-  try { const v = parseInt(localStorage.getItem(LS_KEY), 10); return isNaN(v) ? 0 : v; }
-  catch (e) { return 0; }
-}
-function saveBest(v) { try { localStorage.setItem(LS_KEY, String(v)); } catch (e) { /* abaikan */ } }
+// loadBestNum/saveBestNum kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const katSel = T.select(KATS, 'semua');
   const pool = () => katSel.value === 'semua' ? SOAL : SOAL.filter((s) => s.k === katSel.value);
-  let best = loadBest();
+  let best = utils.loadBestNum(LS_KEY);
 
   // ---- Mode Acak ----
   const pAcak = T.el('<div></div>');
@@ -144,7 +140,7 @@ export function render(root) {
     const s = quiz.score;
     const t = total();
     let baru = '';
-    if (t === 10 && s > best) { best = s; saveBest(best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    if (t === 10 && s > best) { best = s; utils.saveBestNum(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
     bestBox.innerHTML = 'Skor terbaikmu: <b>' + best + '</b>/10';
     const msg = s === t ? 'Sempurna! Otak kamu encer banget. 🧠✨'
       : s >= Math.ceil(t * 0.7) ? 'Keren! Dikit lagi sempurna.'

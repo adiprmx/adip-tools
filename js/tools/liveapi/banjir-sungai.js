@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Prakiraan debit sungai lewat Open-Meteo Flood API (tanpa key).
 // Terverifikasi 18 Nov 2026: flood-api.open-meteo.com/v1/flood 200, CORS *.
@@ -15,12 +15,8 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s + 'T00:00:00');
-  if (isNaN(d)) return String(s);
-  return d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
-}
+// tglCantik kanonis tinggal di utils (core.js) — dipakai dengan
+// { tglSaja: true, hari: true }.
 
 export const meta = {"id": "banjir-sungai", "name": "Banjir Sungai", "cat": "liveapi", "icon": "🌊", "desc": "Prakiraan debit air sungai untuk beberapa hari ke depan di titik yang kamu pilih.", "keywords": "banjir,sungai,debit,air,open-meteo,prakiraan,banjir sungai,hidrologi", "since": "6.17.0"};
 
@@ -53,10 +49,10 @@ export function render(root) {
       if (!waktu.length || !debit.length) throw new Error('bad-data');
       let maks = -1, maksIdx = 0;
       debit.forEach((v, i) => { if (typeof v === 'number' && v > maks) { maks = v; maksIdx = i; } });
-      T.show(box, '<p class="hint">Debit air sungai (meter kubik per detik) di titik ' + esc(String(lat)) + ', ' + esc(String(lon)) + '. Angka paling tinggi jatuh pada ' + esc(tglCantik(waktu[maksIdx])) + '.</p>' +
+      T.show(box, '<p class="hint">Debit air sungai (meter kubik per detik) di titik ' + esc(String(lat)) + ', ' + esc(String(lon)) + '. Angka paling tinggi jatuh pada ' + esc(utils.tglCantik(waktu[maksIdx], { tglSaja: true, hari: true })) + '.</p>' +
         waktu.map((t, i) => {
           const v = debit[i];
-          return '<div class="kv"><span class="k">' + esc(tglCantik(t)) + (i === maksIdx ? ' <b>(tertinggi)</b>' : '') + '</span><span class="v">' + (typeof v === 'number' ? v.toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' m³/detik' : 'tidak ada data') + '</span></div>';
+          return '<div class="kv"><span class="k">' + esc(utils.tglCantik(t, { tglSaja: true, hari: true })) + (i === maksIdx ? ' <b>(tertinggi)</b>' : '') + '</span><span class="v">' + (typeof v === 'number' ? v.toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' m³/detik' : 'tidak ada data') + '</span></div>';
         }).join('') +
         '<p class="hint">Ini prakiraan model komputer dari Open-Meteo, bukan peringatan resmi. Untuk info banjir resmi, ikuti pengumuman BPBD dan BMKG setempat.</p>');
     } catch (e) {

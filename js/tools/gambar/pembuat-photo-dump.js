@@ -1,4 +1,4 @@
-import { h as T, loadImage, fileInput, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, loadImage, fileInput, LOCAL_NOTE } from '../../core.js';
 
 // Pembuat Photo Dump: setumpuk foto jadi slide-slide photo dump ala
 // Instagram, satu foto per slide, dengan gaya scrapbook, polaroid,
@@ -115,13 +115,10 @@ export function render(root) {
   const hasilBox = T.out();
 
   let daftar = []; // [{img, nama, url}]
-  let zipSiap = null;
+  // Loader library kanonis: utils.loadLibOnce (core.js).
   let slideBlob = []; // Blob PNG per slide
 
-  const muatZip = () => {
-    if (!zipSiap) zipSiap = T.loadScript(ZIP_CDN).then((ok) => ok && typeof window.JSZip === 'function');
-    return zipSiap;
-  };
+
 
   function gambarDaftar() {
     T.show(daftarBox, '');
@@ -216,7 +213,7 @@ export function render(root) {
     zipB.disabled = true;
     T.show(statusBox, '<span class="dim">Menyiapkan ZIP…</span>');
     try {
-      const ok = await muatZip();
+      const ok = await utils.loadLibOnce(ZIP_CDN, () => typeof window.JSZip === 'function');
       if (!ok) throw new Error('zip gagal dimuat');
       const zip = new window.JSZip();
       slideBlob.forEach((b, i) => zip.file(`photo-dump-${String(i + 1).padStart(2, '0')}.png`, b));

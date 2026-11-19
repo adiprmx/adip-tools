@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Lowongan kerja Eropa dan remote lewat Arbeitnow, tanpa key.
 // Terverifikasi 17 Nov 2026: /api/job-board-api -> 200, CORS *.
@@ -17,12 +17,7 @@ async function getJSON(url) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-function tglCantik(s) {
-  if (!s) return '';
-  const d = new Date(s);
-  if (isNaN(d)) return '';
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js).
 
 export function render(root) {
   const box = T.out();
@@ -48,7 +43,7 @@ export function render(root) {
         esc(j.company_name || '') +
         (j.location ? ' · ' + esc(j.location) : '') +
         (jenis ? ' · ' + esc(jenis) : '') +
-        (j.created_at ? '<br>Diposting: ' + esc(tglCantik(j.created_at)) : '') +
+        (j.created_at ? '<br>Diposting: ' + esc(utils.tglCantik(j.created_at)) : '') +
         '</div>' +
         (tautanAman(j.url) ? '<div style="margin-top:4px"><a href="' + esc(j.url) + '" target="_blank" rel="noopener" style="font-size:12.5px">Lihat lowongan di situs aslinya</a></div>' : '') +
         '</div>';

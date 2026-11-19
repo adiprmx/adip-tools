@@ -322,6 +322,11 @@ export function wireImgErr(container) {
    hash pptxgenjs LAPORAN TIM SALAH (pukMOP2…) — koordinator mengukur
    ulang dari jsDelivr 2× + unpkg, ketiganya identik Cck14aA9… dan
    itulah yang dipakai (hash salah tidak pernah masuk file tool).
+   Leaflet 1.9.4 (JS + CSS) ditambahkan 19 Nov 2026 (G4 Blue R1,
+   D-G4-12 / RED-03) — hash diukur B2 2× identik (b2.md § SRI Leaflet
+   1.9.4). Entri CSS dipakai tool GPX untuk memverifikasi hasil fetch
+   via SubtleCrypto sebelum disuntik (RED-12); loadScript hanya memakai
+   entri JS.
    loadScript() memasang
    integrity + crossorigin="anonymous" bila URL-nya ada di peta ini; URL yang
    tidak ada di peta tetap dimuat seperti biasa (tanpa integrity).
@@ -353,6 +358,8 @@ const SRI_HASH = {
   'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js': 'sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx',
   'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js': 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG',
   'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js': 'sha384-DdGlNq+wVXAn83gXqwyeFHB7iyXy6L0rLrNzgDmhKWPjiJLg9vj6qosYmZmkMfQ+',
+  'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css': 'sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H',
+  'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js': 'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH',
   'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js': 'sha384-nFoSjZIoH3CCp8W639jJyQkuPHinJ2NHe7on1xvlUA7SuGfJAfvMldrsoAVm6ECz',
   'https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js': 'sha384-/TQbtLCAerC3jgaim+N78RZSDYV7ryeoBCVqTuzRrFec2akfBkHS7ACQ3PQhvMVi',
   'https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js': 'sha384-3TaxGqyHrMuRIWY5Z5WHNIzgNRqGIUJE+mk6tm+g1wkm9Ux2kUyOLfy9AsNWXA6u',
@@ -365,6 +372,7 @@ const SRI_HASH = {
   'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js': 'sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F',
   'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js': 'sha384-RyBmXHdfZ/Uon+ud+/AqSyWpUWnKYt2tkRG/P4gWoRUGDU+qIAV3tGBPNlYTBZEF',
   'https://cdn.jsdelivr.net/npm/wawoff2@2.0.1/build/compress_binding.js': 'sha384-v+lcTYQTiyFQbn062qNkSVvgZJRmpif6ULKitTafXR4kAYWLh0NL9mhec65e7X4j',
+  'https://cdn.jsdelivr.net/npm/wawoff2@2.0.1/build/decompress_binding.js': 'sha384-SyYOOD4ZN4/JKhvBuL3NEccOr0/4SXH20eHO+IATCKa69DExD+YA32e/bcSN8iWD',
   'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js': 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js': 'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js': 'sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk',
@@ -1185,12 +1193,22 @@ utils.tambahHari = function (d, n) {
   x.setUTCDate(x.getUTCDate() + n);
   return x;
 };
-// Beda dengan tambahBulan lokal bisnis/kpr (y, m, n -> "Bulan Tahun",
-// terikat NAMA_BULAN): yang ini bekerja pada objek Date (UTC).
+// Geser tanggal sejumlah bulan (bekerja pada objek Date, UTC).
+// Beda dengan utils.tambahBulanLabel di bawah (y, m, n -> "Bulan Tahun",
+// untuk label jadwal cicilan/KPR): yang ini menghitung, yang itu memformat.
 utils.tambahBulan = function (d, n) {
   const x = new Date(d.getTime());
   x.setUTCMonth(x.getUTCMonth() + n);
   return x;
+};
+
+// (tahun, bulan 1-12, geser n bulan) -> "Bulan Tahun", mis.
+// (2026, 11, 1) -> "Desember 2026" (kanonis, G4 C1G4; dulu duplikat
+// identik di bisnis/kpr + indonesia/cicilan). Memakai BULAN_ID —
+// NAMA_BULAN lokal kedua file itu identik isinya.
+utils.tambahBulanLabel = function (y, m, n) {
+  const d = new Date(y, m - 1 + n, 1);
+  return BULAN_ID[d.getMonth()] + ' ' + d.getFullYear();
 };
 
 // Hari ini sebagai Date UTC tengah malam.
@@ -1212,6 +1230,21 @@ utils.fmtTanggal = function (iso) {
   const thn = Number(p[0]);
   if (!tgl || !bln || !thn || bln < 1 || bln > 12) return String(iso);
   return tgl + ' ' + BULAN_ID[bln - 1] + ' ' + thn;
+};
+
+// '2026-11-19' -> '19 November 2026' (kanonis, G4 C1G4). KETAT: regex
+// ^(\d{4})-(\d{2})-(\d{2})$; input tak valid dikembalikan apa adanya,
+// input kosong -> '-'. BERBEDA dari utils.fmtTanggal (toleran, validasi
+// bulan 1-12, input kosong -> '') — dua pemakai bisnis (kwitansi,
+// surat-jalan) mengandalkan fallback '-' dan bentuk ketat ini.
+// Catatan: bulan di luar 1-12 lolos regex dan menghasilkan 'undefined'
+// ('2026-13-01' -> '1 undefined 2026') — perilaku lama yang DIPERTAHANKAN
+// persis; dalam praktik input berasal dari <input type="date"> yang hanya
+// menghasilkan tanggal valid.
+utils.tglIndo = function (iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  if (!m) return iso || '-';
+  return (+m[3]) + ' ' + BULAN_ID[+m[2] - 1] + ' ' + m[1];
 };
 
 /* ================= Warna & acak (kanonis, G3 C1R) ================= */
@@ -1328,6 +1361,301 @@ utils.tepiDariIsi = function (sel) {
     if (!sel.has((x + 1) + ',' + y) || !sel.has((x - 1) + ',' + y) || !sel.has(x + ',' + (y + 1)) || !sel.has(x + ',' + (y - 1))) tepi.add(k);
   });
   return tepi;
+};
+
+/* ================= Format angka & tanggal (kanonis, G4 C1G4) ================= */
+
+// Format angka desimal Indonesia: koma desimal, default 4 desimal.
+// Kebijakan -0 (D-G4-04): negatif-nol tampil sebagai "0" (varian regresi).
+// Non-finite -> 'di luar jangkauan' (copy yang sudah dipakai mayoritas file).
+utils.fmtDes = function (v, des) {
+  if (!isFinite(v)) return 'di luar jangkauan';
+  const d = des == null ? 4 : des;
+  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
+  return String(Object.is(r, -0) ? 0 : r).replace('.', ',');
+};
+
+// Format nilai-p: 0 -> 'hampir 0', < 0,0001 -> notasi eksponensial,
+// sisanya 4 desimal via fmtDes.
+utils.fmtP = function (p) {
+  if (!isFinite(p)) return 'di luar jangkauan';
+  if (p === 0) return 'hampir 0';
+  if (p < 0.0001) return p.toExponential(2).replace('.', ',');
+  return utils.fmtDes(p, 4);
+};
+
+// Tanggal cantik Indonesia dari string tanggal API.
+// Fallback SATU untuk tanggal tidak valid: '' (keputusan C1G4 — alasan:
+// menampilkan potongan string mentah API ('bukan-tang', dsb.) membingungkan
+// dan berisiko lolos tanpa escape; '' konsisten dengan guard input kosong).
+// Opsi: tglSaja (parse 'YYYY-MM-DD' sebagai tengah malam LOKAL, bukan UTC —
+// penting di zona waktu barat UTC), bulan 'long', hari (nama hari singkat),
+// jam (tambah jam:menit; pukul memakai kata 'pukul'), unix (detik epoch).
+utils.tglCantik = function (s, o) {
+  if (!s) return '';
+  o = o || {};
+  const d = o.unix ? new Date(Number(s) * 1000)
+    : new Date(o.tglSaja ? s + 'T00:00:00' : s);
+  if (isNaN(d)) return '';
+  let t;
+  if (o.hari) t = d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
+  else t = d.toLocaleDateString('id-ID', { day: 'numeric', month: o.bulan || 'short', year: 'numeric' });
+  if (o.jam) t += (o.pukul ? ' pukul ' : ' ') + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  return t;
+};
+
+// Skor terbaik game di localStorage — dua varian yang memang beda jenis:
+// angka (loadBestNum/saveBestNum) dan objek per level (loadBestObj/
+// saveBestObj). loadBestObj BERBEDA dari loadState: nilai JSON non-objek
+// (angka/string/null) dikembalikan sebagai {} (guard typeof) supaya
+// pemanggil `best[level] = x` tidak throw di ES module (strict).
+utils.loadBestNum = function (key) {
+  try { const v = parseInt(localStorage.getItem(key), 10); return isNaN(v) ? 0 : v; }
+  catch (e) { return 0; }
+};
+utils.saveBestNum = function (key, v) { try { localStorage.setItem(key, String(v)); } catch (e) { /* abaikan */ } };
+utils.loadBestObj = function (key) {
+  try { const v = JSON.parse(localStorage.getItem(key) || '{}'); return v && typeof v === 'object' ? v : {}; }
+  catch (e) { return {}; }
+};
+utils.saveBestObj = function (key, b) { try { localStorage.setItem(key, JSON.stringify(b)); } catch (e) { /* abaikan */ } };
+
+// Loader library generik (kanonis, G4 C1G4). Menggantikan ~40 salinan pola
+// lokal muatPdfJs/muatJsZip/muatPdfLib/muatXlsx/muatDocx/muatMammoth/
+// pastZip/pastHeic/pastUtif/ensure* di tool (cache promise per src +
+// cek global + hook pasca-siap). src: string (satu CDN) atau array
+// (daftar fallback, dicoba berurutan). cek: () => boolean, dievaluasi
+// saat pemuatan pertama saja. sesudah: hook sekali saat siap (mis.
+// workerSrc pdf.js). Tidak pernah reject: gagal/throw -> false.
+// Timeout 30 dtk per URL (G4 Blue R1, RED-13): URL yang macet dilewati
+// ke fallback berikutnya (atau false bila habis), bukan menggantung.
+// KONTRAK CACHE (diputuskan G4, didokumentasi di c1g4.md):
+// (1) Hanya SUKSES yang di-cache. Gagal (false/throw) menghapus entri
+//     sehingga panggilan berikutnya mencoba lagi. Pola lokal lama
+//     meng-cache false dalam satu render, sehingga tombol "Coba lagi"
+//     (yang memanggil proses() ulang dalam render yang sama) TIDAK
+//     PERNAH berhasil sesudah gagal muat — cache-false membuat retry
+//     mati. blur-foto.js sudah membuktikan niat retry di codebase
+//     ("Gagal tidak di-cache ... supaya tombol proses bisa coba lagi").
+//     Cache global tanpa evict justru lebih buruk dari pola lama
+//     (false menempel seumur sesi, bukan se-render).
+// (2) Kunci cache = src (atau gabungan src array). Pemanggil yang
+//     berbagi src berbagi hasil; cek varian untuk satu library
+//     (mis. mammoth convertToHtml vs extractRawText) setara dalam
+//     praktik — satu skrip mendefinisikan API-nya secara atomik.
+// (3) Cabang array melakukan pra-cek cek() (perilaku muatXlsx persis);
+//     cabang string tunggal TIDAK pra-cek (mempertahankan pinning
+//     versi: jszip 3.10.1 vs 3.10.2 adalah src berbeda).
+const _libOnce = {};
+utils.loadLibOnce = function (src, cek, sesudah) {
+  const daftar = Array.isArray(src) ? src : [src];
+  const kunci = daftar.join('\n');
+  if (_libOnce[kunci]) return _libOnce[kunci];
+  const p = (async () => {
+    if (Array.isArray(src) && cek && cek()) return true;
+    for (const u of daftar) {
+      // Timeout 30 dtk per URL (G4 Blue R1, RED-13): loadScript sendiri
+      // tidak pernah settle bila koneksi macet (bukan gagal) — tanpa ini
+      // tool menggantung selamanya tanpa pesan error. Bila habis waktu,
+      // entri _loaded dihapus supaya percobaan berikut memakai elemen
+      // script baru (janji yatim yang tertinggal tidak berbahaya: resolve
+      // belakangan tidak dipakai siapa pun).
+      let timer = null;
+      const batas = new Promise((resolve) => { timer = setTimeout(() => resolve('habis'), 30000); });
+      let ok;
+      try {
+        ok = await Promise.race([loadScript(u), batas]);
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+      if (ok === 'habis') { delete _loaded[u]; continue; }
+      if (ok && (!cek || cek())) { if (sesudah) sesudah(); return true; }
+    }
+    return false;
+  })().catch(() => { delete _libOnce[kunci]; return false; })
+    .then((v) => { if (!v) delete _libOnce[kunci]; return v; });
+  _libOnce[kunci] = p;
+  return p;
+};
+
+/* ================= Util bersama (kanonis, G4 C1G4-R) ================= */
+// Dikonsolidasi dari tool G4 oleh TIM C1G4-R (resweep). Setiap fungsi
+// byte-identik di semua file asalnya kecuali dinyatakan lain di komentar.
+// crc32 TIDAK diduplikasi di sini: core.js sudah punya export function
+// crc32 (bagian ZIP v6.12.0, algoritma sama); tool G4 memakai itu.
+
+// Blur kotak (box blur) dua-lintas separable pada data RGBA, hasil
+// Float32Array RGB (tanpa kanal alfa). (gambar/efek-glow.js +
+// gambar/efek-tilt-shift.js; identik kecuali nama variabel lokal;
+// kanon memakai nama efek-glow.)
+utils.blurKotak = function (data, w, h, radius) {
+  const r = Math.max(1, Math.round(radius));
+  const tmp = new Float32Array(w * h * 3);
+  const keluar = new Float32Array(w * h * 3);
+  const bagi = 1 / (2 * r + 1);
+  for (let y = 0; y < h; y++) {
+    let sr = 0, sg = 0, sb = 0;
+    for (let x = -r; x <= r; x++) {
+      const xx = Math.min(w - 1, Math.max(0, x));
+      const j = (y * w + xx) * 4;
+      sr += data[j]; sg += data[j + 1]; sb += data[j + 2];
+    }
+    for (let x = 0; x < w; x++) {
+      const k = (y * w + x) * 3;
+      tmp[k] = sr * bagi; tmp[k + 1] = sg * bagi; tmp[k + 2] = sb * bagi;
+      const xKeluar = Math.min(w - 1, Math.max(0, x - r));
+      const xMasuk = Math.min(w - 1, Math.max(0, x + r + 1));
+      const jK = (y * w + xKeluar) * 4;
+      const jM = (y * w + xMasuk) * 4;
+      sr += data[jM] - data[jK]; sg += data[jM + 1] - data[jK + 1]; sb += data[jM + 2] - data[jK + 2];
+    }
+  }
+  for (let x = 0; x < w; x++) {
+    let sr = 0, sg = 0, sb = 0;
+    for (let y = -r; y <= r; y++) {
+      const yy = Math.min(h - 1, Math.max(0, y));
+      const k = (yy * w + x) * 3;
+      sr += tmp[k]; sg += tmp[k + 1]; sb += tmp[k + 2];
+    }
+    for (let y = 0; y < h; y++) {
+      const k = (y * w + x) * 3;
+      keluar[k] = sr * bagi; keluar[k + 1] = sg * bagi; keluar[k + 2] = sb * bagi;
+      const yKeluar = Math.min(h - 1, Math.max(0, y - r));
+      const yMasuk = Math.min(h - 1, Math.max(0, y + r + 1));
+      const kK = (yKeluar * w + x) * 3;
+      const kM = (yMasuk * w + x) * 3;
+      sr += tmp[kM] - tmp[kK]; sg += tmp[kM + 1] - tmp[kK + 1]; sb += tmp[kM + 2] - tmp[kK + 2];
+    }
+  }
+  return keluar;
+};
+
+// Satu chunk PNG (panjang + tipe 4 huruf + data + CRC32).
+// (gambar/tambah-gps-foto.js + gambar/ubah-dpi-foto.js; byte-identik.)
+// Memakai crc32() core (bagian ZIP); deklarasi fungsi, jadi hoisting
+// membuatnya tersedia walau definisinya lebih bawah di berkas ini.
+utils.buatChunkPng = function (tipe, data) {
+  const out = new Uint8Array(12 + data.length);
+  const dv = new DataView(out.buffer);
+  dv.setUint32(0, data.length);
+  for (let i = 0; i < 4; i++) out[4 + i] = tipe.charCodeAt(i);
+  out.set(data, 8);
+  dv.setUint32(8 + data.length, crc32(out.subarray(4, 8 + data.length)));
+  return out;
+};
+
+// Parse deret angka dari string: dipisah spasi/titik-koma/baris baru;
+// token dengan >1 koma dibelah jadi beberapa angka ("1,2,3" = tiga
+// angka); token non-finite dilewati. (pelajar/persentil-kuartil.js +
+// pelajar/rata-rata-geometrik-harmonik.js + pelajar/rms.js; identik
+// kecuali komentar.) Berbeda dari utils.bacaDeret (menerima elemen
+// textarea, mengembalikan null bila ada token non-finite).
+utils.parseDeret = function (teks) {
+  const keluar = [];
+  String(teks || '').split(/[\s;]+/).forEach((tok) => {
+    const t = tok.trim();
+    if (!t) return;
+    const koma = (t.match(/,/g) || []).length;
+    if (koma > 1) {
+      // "1,2,3" = tiga angka, bukan satu desimal
+      t.split(',').forEach((p) => { const v = num(p); if (Number.isFinite(v)) keluar.push(v); });
+    } else {
+      const v = num(t); // num: "1.500" -> 1500, "2,5" -> 2.5
+      if (Number.isFinite(v)) keluar.push(v);
+    }
+  });
+  return keluar;
+};
+
+// Durasi menit -> "3 jam 24 menit" / "45 menit" / "2 jam".
+// (sehari/kalkulator-waktu-tempuh.js + travel/perencana-road-trip.js;
+// byte-identik.) Berbeda dari fmtDurasi screen-time ("3 j 24 mnt",
+// dijepit >= 0) yang tinggal di js/screen-time.js.
+utils.fmtDurasi = function (menit) {
+  const total = Math.round(menit);
+  const j = Math.floor(total / 60);
+  const m = total % 60;
+  if (j <= 0) return total + ' menit';
+  if (m === 0) return j + ' jam';
+  return j + ' jam ' + m + ' menit';
+};
+
+// Hitungan -> "999" / "1,2 rb" / "3,4 jt" (locale id-ID).
+// (fakesos/fake-pin-pinterest.js + fakesos/fake-post-bluesky.js +
+// fakesos/fake-profil-tiktok.js; byte-identik.)
+utils.formatHitungan = function (n) {
+  const v = Math.max(0, Math.floor(Number(n) || 0));
+  if (v < 1000) return String(v);
+  if (v < 1000000) return (v / 1000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' rb';
+  return (v / 1000000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt';
+};
+
+// Bungkus teks per kata memakai ctx canvas (x.measureText), maksimal
+// 2 baris. (fun/generator-achievement-minecraft.js +
+// fun/generator-achievement-steam.js +
+// fun/generator-trofi-playstation.js; byte-identik; render-local
+// const di ketiganya, kanon memakai bentuk function.)
+utils.bungkusKata = function (x, teks, maks) {
+  const kata = teks.split(' ');
+  const baris = [];
+  let cur = '';
+  for (const k of kata) {
+    const uji = cur ? cur + ' ' + k : k;
+    if (x.measureText(uji).width > maks && cur) { baris.push(cur); cur = k; }
+    else cur = uji;
+  }
+  if (cur) baris.push(cur);
+  return baris.slice(0, 2);
+};
+
+// Bungkus teks per kata memakai fungsi ukur (ukur(teks) -> lebar),
+// memotong kata tunggal yang lebih lebar dari batas per huruf.
+// Teks kosong -> ['']. (produktivitas/excel-ke-pdf.js, bungkusSel.)
+// Varian produktivitas/perbaiki-pdf-rusak.js (bungkusBaris) identik
+// kecuali teks kosong -> []; tool itu memakai wrapper 1-baris.
+utils.bungkusTeks = function (teks, lebarMaks, ukur) {
+  const kata = String(teks || '').split(/\s+/).filter(Boolean);
+  if (!kata.length) return [''];
+  const baris = [];
+  let jalan = '';
+  for (const k of kata) {
+    const coba = jalan ? jalan + ' ' + k : k;
+    if (ukur(coba) <= lebarMaks) { jalan = coba; continue; }
+    if (jalan) baris.push(jalan);
+    if (ukur(k) > lebarMaks) {
+      let sisa = k;
+      while (sisa && ukur(sisa) > lebarMaks) {
+        let potong = sisa.length - 1;
+        while (potong > 1 && ukur(sisa.slice(0, potong)) > lebarMaks) potong--;
+        baris.push(sisa.slice(0, potong));
+        sisa = sisa.slice(potong);
+      }
+      jalan = sisa;
+    } else {
+      jalan = k;
+    }
+  }
+  if (jalan) baris.push(jalan);
+  return baris;
+};
+
+// Indeks warna palet terdekat (jarak kuadrat RGB berbobot luma
+// 0.3/0.59/0.11). daftarHex: array string '#rrggbb'. Parse hex inline
+// persis seperti hexKeRgb lokal kedua tool asal
+// (parseInt(hex.slice(1), 16) + geser bit).
+// (desain/pembuat-pola-perler-bead.js warnaTerdekat +
+// desain/pembuat-pola-sulam.js warnaDmcTerdekat; loop identik,
+// hanya pengikat paletnya berbeda.)
+utils.indeksWarnaTerdekat = function (r, g, b, daftarHex) {
+  let terbaik = 0, jarakTerbaik = Infinity;
+  daftarHex.forEach((hex, i) => {
+    const n = parseInt(hex.slice(1), 16);
+    const pr = (n >> 16) & 255, pg = (n >> 8) & 255, pb = n & 255;
+    const dr = r - pr, dg = g - pg, db = b - pb;
+    const j = dr * dr * 0.3 + dg * dg * 0.59 + db * db * 0.11;
+    if (j < jarakTerbaik) { jarakTerbaik = j; terbaik = i; }
+  });
+  return terbaik;
 };
 
 export function p2(n) { return String(n).padStart(2, '0'); }

@@ -1,4 +1,4 @@
-import { h as T, esc, errBox } from '../../core.js';
+import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Jadwal akhir dukungan software lewat endoflife.date (tanpa key).
 // Terverifikasi 18 Nov 2026: /api/python.json 200, CORS *.
@@ -27,12 +27,9 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-function tglCantik(s) {
-  if (!s || typeof s !== 'string') return '';
-  const d = new Date(s + 'T00:00:00');
-  if (isNaN(d)) return s;
-  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+// tglCantik kanonis tinggal di utils (core.js) — dipakai dengan
+// { tglSaja: true } (tanggal saja, tengah malam lokal). Guard typeof
+// string lokal lama terserap: input bukan string selalu Invalid -> ''.
 
 function statusDukungan(eol) {
   if (eol === false || eol == null) return { teks: 'Belum ada tanggal akhir', sudah: false };
@@ -71,10 +68,10 @@ export function render(root) {
           const st = statusDukungan(c.eol);
           return '<div class="kv"><span class="k"><b>Versi ' + esc(String(c.cycle)) + '</b>' +
             (c.lts ? ' <span class="hint">(dukungan panjang)</span>' : '') +
-            '<br><span class="hint">Rilis ' + esc(tglCantik(c.releaseDate) || 'tidak ada info') +
+            '<br><span class="hint">Rilis ' + esc(utils.tglCantik(c.releaseDate, { tglSaja: true }) || 'tidak ada info') +
             (c.latest ? ' · terbaru ' + esc(String(c.latest)) : '') + '</span></span>' +
             '<span class="v" style="text-align:right">' + esc(st.teks) +
-            (typeof c.eol === 'string' ? '<br><span class="hint">' + esc(tglCantik(c.eol)) + '</span>' : '') + '</span></div>';
+            (typeof c.eol === 'string' ? '<br><span class="hint">' + esc(utils.tglCantik(c.eol, { tglSaja: true })) + '</span>' : '') + '</span></div>';
         }).join('') +
         '<p class="hint">Sumber: endoflife.date. Tanggal bisa berubah kalau pembuat software mengumumkan jadwal baru.</p>');
     } catch (e) {

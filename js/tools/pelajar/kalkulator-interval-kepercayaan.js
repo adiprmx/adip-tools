@@ -34,11 +34,9 @@ export function ciProporsi(x, n, tingkat) {
   return { bawah: Math.max(0, tengah - sebar), atas: Math.min(1, tengah + sebar), p, moe: sebar, k: z };
 }
 
-function fmtNum(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const r = Math.round(v * Math.pow(10, des || 4)) / Math.pow(10, des || 4);
-  return String(r).replace('.', ',');
-}
+// fmtDes kanonis tinggal di utils (core.js). Catatan: fmtNum lokal lama
+// memakai `des || 4` (des=0 dibaca 4); kanon memakai `des == null`.
+// Tidak ada call-site yang mengirim des=0, jadi perilaku tidak berubah.
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Interval kepercayaan itu rentang nilai yang paling mungkin berisi nilai sebenarnya. Makin tinggi tingkat keyakinannya, makin lebar rentangnya.</p>'));
@@ -77,9 +75,9 @@ export function render(root) {
       if (!(n >= 2) || !Number.isInteger(n)) { T.toast('Jumlah datanya minimal 2 dan harus bilangan bulat'); return; }
       const h = ciRataRata(mean, sd, n, lvl, metode.value);
       T.show(box,
-        '<p class="big">' + fmtNum(h.bawah) + ' sampai ' + fmtNum(h.atas) + '</p>' +
-        '<p>Kami ' + persen + '% yakin nilai rata-rata sebenarnya ada di antara ' + fmtNum(h.bawah) + ' dan ' + fmtNum(h.atas) + '.</p>' +
-        '<p class="hint">Nilai tengah: ' + fmtNum(mean) + '. Lebar simpangan: ±' + fmtNum(h.moe) + '. Angka pengali (' + (metode.value === 'z' ? 'z' : 't') + '): ' + fmtNum(h.k) + '.</p>');
+        '<p class="big">' + utils.fmtDes(h.bawah) + ' sampai ' + utils.fmtDes(h.atas) + '</p>' +
+        '<p>Kami ' + persen + '% yakin nilai rata-rata sebenarnya ada di antara ' + utils.fmtDes(h.bawah) + ' dan ' + utils.fmtDes(h.atas) + '.</p>' +
+        '<p class="hint">Nilai tengah: ' + utils.fmtDes(mean) + '. Lebar simpangan: ±' + utils.fmtDes(h.moe) + '. Angka pengali (' + (metode.value === 'z' ? 'z' : 't') + '): ' + utils.fmtDes(h.k) + '.</p>');
     } else {
       const x = T.num(xI.value), n = T.num(n2I.value);
       if (!Number.isInteger(x) || x < 0) { T.toast('Jumlah yang cocok harus bilangan bulat 0 atau lebih'); return; }
@@ -87,8 +85,8 @@ export function render(root) {
       if (x > n) { T.toast('Jumlah yang cocok tidak boleh lebih dari jumlah total'); return; }
       const h = ciProporsi(x, n, lvl);
       T.show(box,
-        '<p class="big">' + fmtNum(h.bawah * 100, 2) + '% sampai ' + fmtNum(h.atas * 100, 2) + '%</p>' +
-        '<p>Kami ' + persen + '% yakin proporsi sebenarnya ada di antara ' + fmtNum(h.bawah * 100, 2) + '% dan ' + fmtNum(h.atas * 100, 2) + '% (dari hasil sampel ' + fmtNum(h.p * 100, 2) + '%).</p>' +
+        '<p class="big">' + utils.fmtDes(h.bawah * 100, 2) + '% sampai ' + utils.fmtDes(h.atas * 100, 2) + '%</p>' +
+        '<p>Kami ' + persen + '% yakin proporsi sebenarnya ada di antara ' + utils.fmtDes(h.bawah * 100, 2) + '% dan ' + utils.fmtDes(h.atas * 100, 2) + '% (dari hasil sampel ' + utils.fmtDes(h.p * 100, 2) + '%).</p>' +
         '<p class="hint">Dihitung dengan metode Wilson, yang tetap akurat walau sampelnya kecil.</p>');
     }
   }

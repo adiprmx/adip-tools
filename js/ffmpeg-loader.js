@@ -50,7 +50,15 @@ const URL_CORE_WASM = CDN + '/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.wasm';
 // load() diam selamanya). Path absolut '/js/...' juga tetap dilarang
 // (404 di subpath preview).
 import workerUrl from './ffmpeg-worker/worker.js?worker&url';
-const WORKER_URL = workerUrl;
+// Resolve ABSOLUT terhadap import.meta.url loader ini (same-origin):
+// @ffmpeg/ffmpeg classes.js:105 menjalankan
+// `new Worker(new URL(classWorkerURL, import.meta.url))` — import.meta.url
+// di sana adalah CDN, jadi path tanpa origin (bentuk dev: /js/...) akan
+// me-resolve ke https://cdn.jsdelivr.net/js/... -> SecurityError dan
+// ffmpeg.load() gagal total (terbukti probe B2, 19 Nov 2026). Di build,
+// Vite sudah mengembalikan URL absolut sehingga resolve ini no-op
+// (terverifikasi di dist: new URL(`worker-*.js`, import.meta.url).href).
+const WORKER_URL = new URL(workerUrl, import.meta.url).href;
 
 // Pengganti lokal fetchFile dari @ffmpeg/util (lihat catatan di atas).
 // File/Blob -> Uint8Array via FileReader; string URL/data URI -> fetch.
@@ -138,26 +146,52 @@ async function importModule(src, timeoutMs) {
 
 // Unduh satu file jadi blob URL, dengan laporan progres byte.
 // onBytes(loaded, total|null). Mengembalikan blob URL.
-async function fetchBlobURL(url, mime, onBytes, signal) {
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error('Server mengembalikan kode ' + res.status + ' untuk ' + url);
-  const total = +(res.headers.get('content-length') || 0) || null;
-  if (!res.body || typeof res.body.getReader !== 'function') {
-    const blob = await res.blob();
-    if (onBytes) onBytes(blob.size, total || blob.size);
-    return URL.createObjectURL(new Blob([blob], { type: mime }));
+// timeoutMs (opsional): batas waktu unduhan — B21/RED-08 (G4 Blue R1):
+// timer 90 dtk di loadFFmpeg hanya membungkus ffmpeg.load(), BUKAN
+// unduhan core ~31 MB ini; CDN yang macet di tengah unduhan membuat
+// tool menggantung ~240 dtk tanpa umpan balik. Timeout diwujudkan
+// dengan AbortController lokal yang juga meneruskan abort dari signal
+// pemanggil (cancelFFmpeg tetap jalan); bila habis waktu, error
+// berbahasa Indonesia yang jelas dilempar.
+async function fetchBlobURL(url, mime, onBytes, signal, timeoutMs) {
+  const ctrl = new AbortController();
+  const teruskanAbort = () => { try { ctrl.abort(); } catch (e) {} };
+  if (signal) {
+    if (signal.aborted) ctrl.abort();
+    else signal.addEventListener('abort', teruskanAbort, { once: true });
   }
-  const reader = res.body.getReader();
-  const chunks = [];
-  let loaded = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-    loaded += value.byteLength;
-    if (onBytes) onBytes(loaded, total);
+  let timer = null;
+  let habisWaktu = false;
+  if (timeoutMs) {
+    timer = setTimeout(() => { habisWaktu = true; try { ctrl.abort(); } catch (e) {} }, timeoutMs);
   }
-  return URL.createObjectURL(new Blob(chunks, { type: mime }));
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) throw new Error('Server mengembalikan kode ' + res.status + ' untuk ' + url);
+    const total = +(res.headers.get('content-length') || 0) || null;
+    if (!res.body || typeof res.body.getReader !== 'function') {
+      const blob = await res.blob();
+      if (onBytes) onBytes(blob.size, total || blob.size);
+      return URL.createObjectURL(new Blob([blob], { type: mime }));
+    }
+    const reader = res.body.getReader();
+    const chunks = [];
+    let loaded = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      loaded += value.byteLength;
+      if (onBytes) onBytes(loaded, total);
+    }
+    return URL.createObjectURL(new Blob(chunks, { type: mime }));
+  } catch (e) {
+    if (habisWaktu) throw new Error('Unduhan mesin terlalu lama (lebih dari ' + Math.round(timeoutMs / 1000) + ' detik). Cek koneksi internet lalu coba lagi.');
+    throw e;
+  } finally {
+    if (timer) clearTimeout(timer);
+    if (signal) signal.removeEventListener('abort', teruskanAbort);
+  }
 }
 
 // Muat (atau pakai ulang) instance ffmpeg.
@@ -197,7 +231,9 @@ export function loadFFmpeg(onStage) {
         report('unduh', 0, 'Mengunduh mesin (' + CORE_SIZE_LABEL + ')…');
         let coreURL = null, wasmURL = null;
         try {
-          coreURL = await fetchBlobURL(URL_CORE_JS, 'text/javascript', null, signal);
+          // Timeout 120 dtk per file (RED-08): core ~31 MB di koneksi
+          // lambat butuh waktu, tapi tidak boleh menggantung tanpa batas.
+          coreURL = await fetchBlobURL(URL_CORE_JS, 'text/javascript', null, signal, 120000);
           wasmURL = await fetchBlobURL(URL_CORE_WASM, 'application/wasm', (loaded, total) => {
             // content-length CDN adalah ukuran TERKOMPRESI (~7 MB) sementara
             // loaded menghitung byte hasil dekompresi (~31 MB) — persen bisa
@@ -206,7 +242,7 @@ export function loadFFmpeg(onStage) {
             report('unduh', pct, total && loaded <= total
               ? 'Mengunduh mesin ' + pct + '% (' + (loaded / 1048576).toFixed(1) + ' dari ' + (total / 1048576).toFixed(1) + ' MB)…'
               : 'Mengunduh mesin (' + (loaded / 1048576).toFixed(1) + ' MB)…');
-          }, signal);
+          }, signal, 120000);
         } catch (e) {
           // Unduhan gagal di tengah jalan: bebaskan blob yang sudah jadi
           // supaya tidak bocor (coreBlobs hanya diisi bila keduanya sukses).

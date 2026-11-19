@@ -49,21 +49,7 @@ export function ujiTDuaSampel(a, b, opts) {
   return { a: ra, b: rb, t, df, p, se, d: sp === 0 ? 0 : (ra.mean - rb.mean) / sp, pooled: !!pooled };
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 4 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(Object.is(r, -0) ? 0 : r).replace('.', ',');
-}
-
-function fmtP(p) {
-  if (!isFinite(p)) return 'di luar jangkauan';
-  if (p === 0) return 'hampir 0';
-  if (p < 0.0001) return p.toExponential(2).replace('.', ',');
-  return fmtDes(p, 4);
-}
-
-// bacaDeret kanonis tinggal di utils (core.js).
+// fmtDes/fmtP/bacaDeret kanonis tinggal di utils (core.js).
 
 export function render(root) {
   root.appendChild(T.el('<p class="hint">Uji-t menjawab: beda rata-rata yang kamu lihat itu nyata, atau bisa jadi cuma kebetulan dari sampel yang kecil? Nilai p di bawah 0,05 biasanya dianggap cukup bukti bahwa bedanya nyata.</p>'));
@@ -109,9 +95,9 @@ export function render(root) {
       const h = ujiTSatuSampel(a, mu0);
       if (!h) { T.toast('Semua angka sama, jadi uji-t tidak bisa dihitung'); return; }
       T.show(box,
-        '<p class="big">t = ' + fmtDes(h.t) + ' · p = ' + fmtP(h.p) + '</p>' +
-        '<p>Rata-rata data ' + fmtDes(h.mean) + ' (n = ' + h.n + ', simpangan baku ' + fmtDes(h.sd) + '), dibandingkan dengan patokan ' + fmtDes(mu0) + '. Selisihnya ' + fmtDes(h.mean - mu0) + '.</p>' +
-        '<p>' + kesimpulan(h.p) + ' Derajat kebebasan ' + h.df + '. Besar efek (d) = ' + fmtDes(h.d) + '.</p>');
+        '<p class="big">t = ' + utils.fmtDes(h.t) + ' · p = ' + utils.fmtP(h.p) + '</p>' +
+        '<p>Rata-rata data ' + utils.fmtDes(h.mean) + ' (n = ' + h.n + ', simpangan baku ' + utils.fmtDes(h.sd) + '), dibandingkan dengan patokan ' + utils.fmtDes(mu0) + '. Selisihnya ' + utils.fmtDes(h.mean - mu0) + '.</p>' +
+        '<p>' + kesimpulan(h.p) + ' Derajat kebebasan ' + h.df + '. Besar efek (d) = ' + utils.fmtDes(h.d) + '.</p>');
       return;
     }
     const b = utils.bacaDeret(bI);
@@ -119,9 +105,9 @@ export function render(root) {
     const h = ujiTDuaSampel(a, b, { pooled: varian.value === 'pooled' });
     if (!h) { T.toast('Kedua kelompok tidak berubah sama sekali, jadi uji-t tidak bisa dihitung'); return; }
     T.show(box,
-      '<p class="big">t = ' + fmtDes(h.t) + ' · p = ' + fmtP(h.p) + '</p>' +
-      '<p>Rata-rata kelompok pertama ' + fmtDes(h.a.mean) + ' (n = ' + h.a.n + '), kelompok kedua ' + fmtDes(h.b.mean) + ' (n = ' + h.b.n + '). Selisih rata-rata ' + fmtDes(h.a.mean - h.b.mean) + '.</p>' +
-      '<p>' + kesimpulan(h.p) + ' Derajat kebebasan ' + fmtDes(h.df, 2) + ' (' + (h.pooled ? 'gabungan' : 'Welch') + '). Besar efek (d) = ' + fmtDes(h.d) + '.</p>');
+      '<p class="big">t = ' + utils.fmtDes(h.t) + ' · p = ' + utils.fmtP(h.p) + '</p>' +
+      '<p>Rata-rata kelompok pertama ' + utils.fmtDes(h.a.mean) + ' (n = ' + h.a.n + '), kelompok kedua ' + utils.fmtDes(h.b.mean) + ' (n = ' + h.b.n + '). Selisih rata-rata ' + utils.fmtDes(h.a.mean - h.b.mean) + '.</p>' +
+      '<p>' + kesimpulan(h.p) + ' Derajat kebebasan ' + utils.fmtDes(h.df, 2) + ' (' + (h.pooled ? 'gabungan' : 'Welch') + '). Besar efek (d) = ' + utils.fmtDes(h.d) + '.</p>');
   }
 
   root.append(

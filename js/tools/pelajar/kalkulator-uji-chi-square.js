@@ -77,21 +77,7 @@ export function hitungChiSquareKebebasan(tabel, opts) {
   return { chi2, df, p: chiSquarePValue(chi2, df), n, baris, kolom: cols, diharapkan, totalBaris, totalKolom, yates, minHarapan, cramerV: k > 0 ? Math.sqrt(chi2 / (n * k)) : 0 };
 }
 
-function fmtDes(v, des) {
-  if (!isFinite(v)) return 'di luar jangkauan';
-  const d = des == null ? 4 : des;
-  const r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d);
-  return String(Object.is(r, -0) ? 0 : r).replace('.', ',');
-}
-
-function fmtP(p) {
-  if (!isFinite(p)) return 'di luar jangkauan';
-  if (p === 0) return 'hampir 0';
-  if (p < 0.0001) return p.toExponential(2).replace('.', ',');
-  return fmtDes(p, 4);
-}
-
-// bacaDeret kanonis tinggal di utils (core.js).
+// fmtDes/fmtP/bacaDeret kanonis tinggal di utils (core.js).
 
 // Deret bilangan bulat (jumlah yang diamati harus bulat, bukan pecahan).
 function bacaDeretBulat(ta) {
@@ -188,11 +174,11 @@ export function render(root) {
 
   function kesimpulan(p, a, cocok) {
     if (p < a) return cocok
-      ? 'Nilai p di bawah ' + fmtDes(a, 2) + ': angka yang kamu amati beda dari dugaanmu, bedanya cukup kuat untuk dianggap nyata.'
-      : 'Nilai p di bawah ' + fmtDes(a, 2) + ': kedua hal dalam tabel berhubungan, hubungannya cukup kuat untuk dianggap nyata.';
+      ? 'Nilai p di bawah ' + utils.fmtDes(a, 2) + ': angka yang kamu amati beda dari dugaanmu, bedanya cukup kuat untuk dianggap nyata.'
+      : 'Nilai p di bawah ' + utils.fmtDes(a, 2) + ': kedua hal dalam tabel berhubungan, hubungannya cukup kuat untuk dianggap nyata.';
     return cocok
-      ? 'Nilai p di atas ' + fmtDes(a, 2) + ': belum cukup bukti bahwa angka yang kamu amati beda dari dugaanmu.'
-      : 'Nilai p di atas ' + fmtDes(a, 2) + ': belum cukup bukti bahwa kedua hal dalam tabel berhubungan.';
+      ? 'Nilai p di atas ' + utils.fmtDes(a, 2) + ': belum cukup bukti bahwa angka yang kamu amati beda dari dugaanmu.'
+      : 'Nilai p di atas ' + utils.fmtDes(a, 2) + ': belum cukup bukti bahwa kedua hal dalam tabel berhubungan.';
   }
 
   function peringatan(h) {
@@ -221,18 +207,18 @@ export function render(root) {
         const isi = bacaDeretDesimal(harapI);
         if (!isi || isi.length !== diamati.length) { T.toast('Isi angka harapannya sebanyak angka yang kamu amati (' + diamati.length + ' angka)'); return; }
         const sIsi = isi.reduce((s, v) => s + v, 0);
-        if (Math.abs(sIsi - total) > Math.max(1e-6, total * 1e-9)) { T.toast('Jumlah angka harapan (' + fmtDes(sIsi) + ') harus sama dengan jumlah angka yang kamu amati (' + total + ')'); return; }
+        if (Math.abs(sIsi - total) > Math.max(1e-6, total * 1e-9)) { T.toast('Jumlah angka harapan (' + utils.fmtDes(sIsi) + ') harus sama dengan jumlah angka yang kamu amati (' + total + ')'); return; }
         diharapkan = isi;
       }
       const h = hitungChiSquareKecocokan(diamati, diharapkan);
       if (!h) { T.toast('Angka harapan harus di atas 0'); return; }
       let tabelHtml = '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Kategori</th><th>Diamati</th><th>Diharapkan</th><th>Sumbangan</th></tr></thead><tbody>';
       h.rincian.forEach((r, i) => {
-        tabelHtml += '<tr><td>' + (i + 1) + '</td><td>' + fmtDes(r.o, 0) + '</td><td>' + fmtDes(r.e) + '</td><td>' + fmtDes(r.sumbangan) + '</td></tr>';
+        tabelHtml += '<tr><td>' + (i + 1) + '</td><td>' + utils.fmtDes(r.o, 0) + '</td><td>' + utils.fmtDes(r.e) + '</td><td>' + utils.fmtDes(r.sumbangan) + '</td></tr>';
       });
       tabelHtml += '</tbody></table></div>';
       T.show(box,
-        '<p class="big">χ² = ' + fmtDes(h.chi2) + ' · p = ' + fmtP(h.p) + '</p>' +
+        '<p class="big">χ² = ' + utils.fmtDes(h.chi2) + ' · p = ' + utils.fmtP(h.p) + '</p>' +
         '<p>Dari ' + h.k + ' kategori dan ' + h.total + ' pengamatan, derajat kebebasan ' + h.df + '. ' + kesimpulan(h.p, a, true) + '</p>' +
         peringatan(h) +
         tabelHtml);
@@ -248,14 +234,14 @@ export function render(root) {
     tabelHtml += '</tr></thead><tbody>';
     h.diharapkan.forEach((row, i) => {
       tabelHtml += '<tr><td>Baris ' + (i + 1) + '</td>';
-      row.forEach((e) => { tabelHtml += '<td>' + fmtDes(e) + '</td>'; });
+      row.forEach((e) => { tabelHtml += '<td>' + utils.fmtDes(e) + '</td>'; });
       tabelHtml += '</tr>';
     });
     tabelHtml += '</tbody></table></div>';
     T.show(box,
-      '<p class="big">χ² = ' + fmtDes(h.chi2) + ' · p = ' + fmtP(h.p) + '</p>' +
+      '<p class="big">χ² = ' + utils.fmtDes(h.chi2) + ' · p = ' + utils.fmtP(h.p) + '</p>' +
       '<p>Tabel ' + h.baris + 'x' + h.kolom + ' dengan ' + h.n + ' pengamatan, derajat kebebasan ' + h.df + (h.yates ? ' (dengan koreksi Yates)' : '') + '. ' + kesimpulan(h.p, a, false) + '</p>' +
-      '<p>Kekuatan hubungannya (V) = ' + fmtDes(h.cramerV) + '. V mendekati 0 berarti hubungannya lemah, mendekati 1 berarti kuat.</p>' +
+      '<p>Kekuatan hubungannya (V) = ' + utils.fmtDes(h.cramerV) + '. V mendekati 0 berarti hubungannya lemah, mendekati 1 berarti kuat.</p>' +
       peringatan(h) +
       '<p class="hint">Angka harapan kalau kedua hal itu tidak berhubungan:</p>' +
       tabelHtml);
