@@ -11,12 +11,20 @@
      butuh Cloudflare Transform Rule bila policy mau berlaku di produksi
      (keputusan owner, lihat laporan P5). -->
 <title>Butuh apa? - ADIP Tools</title>
-<meta name="description" content="627 tools gratis berbahasa Indonesia: kalkulator gaji &amp; THR, kompres foto, QR, sampai tools DJ. Tanpa daftar, tanpa instalasi, tanpa iklan.">
+<meta name="description" content="1.299 tools gratis berbahasa Indonesia: kalkulator gaji &amp; THR, kompres foto, QR, sampai tools DJ. Tanpa daftar, tanpa iklan.">
 <meta name="theme-color" content="#161311">
 <!-- Favicon + apple-touch-icon (v6.14.0, P2-B2 — B-03): mark "a"
      sekeluarga dengan .mark di navbar; file tinggal di public/. -->
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- PWA manifest + meta web-app (v6.20.0, P1): installability Chrome + iOS.
+     theme-color meta TETAP #161311 (D-PWA-04 revisi) — manifest theme_color
+     #000000 hanya untuk chrome splash aplikasi terpasang. -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="ADIP Tools">
 <link rel="preload" href="css/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <!-- CSS + JS di bawah dibundel Vite (v6.14.0+): nama file ber-hash hasil
      build menggantikan ?v= manual. JANGAN tambah ?v= lagi — hash sudah

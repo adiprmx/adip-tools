@@ -33,7 +33,7 @@ async function main() {
   const lines = [
     '# ADIP Tools',
     '',
-    `> Kumpulan ${manifest.length} tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi ${VERSION}.`,
+    `> Kumpulan ${manifest.length} tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar. Bisa dipasang sebagai aplikasi (opsional) — sebagian tool jalan offline setelah pernah dibuka. Versi ${VERSION}.`,
     '',
   ];
   const byCat = new Map();

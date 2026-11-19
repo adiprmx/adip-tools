@@ -30,7 +30,7 @@ export const SITE_URL = 'https://tools.adipmusic.my.id';
 export const SITE_NAME = 'ADIP Tools';
 export const HOME_TITLE = 'Butuh apa? - ADIP Tools';
 export const HOME_DESC =
-  '588 tools gratis yang jalan 100% di browser: keamanan, converter, kalkulator Indonesia, tools DJ, dan lainnya. Tanpa daftar, tanpa upload.';
+  '1.299 tools gratis berbahasa Indonesia: kalkulator gaji & THR, kompres foto, QR, sampai tools DJ. Tanpa daftar, tanpa iklan.';
 
 /* Judul rute non-tool, disamakan dengan app.js (home 505, semua 648,
    kategori 729, favorit 750, koleksi 775, metodologi 801). */
@@ -104,7 +104,7 @@ export function toolShareUrl(toolId, base) {
 /* JSON-LD situs: WebSite + WebApplication (gratis, tanpa daftar). */
 export function buildSiteJsonLd(toolCount) {
   const count =
-    Number.isFinite(toolCount) && toolCount > 0 ? toolCount : 606;
+    Number.isFinite(toolCount) && toolCount > 0 ? toolCount : 1299;
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -122,7 +122,7 @@ export function buildSiteJsonLd(toolCount) {
         operatingSystem: 'Web browser',
         inLanguage: 'id',
         description: HOME_DESC.replace(
-          '588 tools',
+          '1.299 tools',
           `${count} tools`,
         ),
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'IDR' },

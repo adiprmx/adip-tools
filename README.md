@@ -4,11 +4,12 @@
 
 🌐 Live: <https://tools.adipmusic.my.id>
 
-Tanpa daftar, tanpa instalasi, tanpa iklan. Kebanyakan tool jalan sepenuhnya di browser kamu. Buka, pakai, selesai.
+Tanpa daftar, tanpa iklan. Bisa dipasang sebagai aplikasi di HP/komputer (opsional) — sebagian tool jalan offline. Kebanyakan tool jalan sepenuhnya di browser kamu. Buka, pakai, selesai.
 
 ## Isi
 
 - [Kategori](#kategori)
+- [Pasang sebagai aplikasi, pakai offline (PWA)](#pasang-sebagai-aplikasi-pakai-offline-pwa)
 - [Cara menjalankan lokal](#cara-menjalankan-lokal)
 - [Menambah tool baru](#menambah-tool-baru)
 - [Bump versi](#bump-versi)
@@ -38,6 +39,65 @@ Tanpa daftar, tanpa instalasi, tanpa iklan. Kebanyakan tool jalan sepenuhnya di 
 | 🌐 Live API | 32 | Gempa BMKG, jadwal sholat, kurs, harga crypto |
 | 🔤 Teks | 27 | Word counter, lorem ipsum, fancy text |
 | 🎭 Fake Sosmed | 23 | Fake chat, fake post, fake notif (untuk hiburan) |
+
+## Pasang sebagai aplikasi, pakai offline (PWA)
+
+Sejak v6.20.0, ADIP Tools bisa dipasang sebagai aplikasi dan sebagian tool-nya
+jalan tanpa internet. Memasang itu **opsional** — situs tetap jalan penuh di
+browser tanpa dipasang.
+
+### Cara memasang
+
+- **Android (Chrome/Edge):** ketuk tombol **Instal** yang muncul di situs, atau
+  lewat menu browser (⋮ → "Instal aplikasi"). Ikon ADIP Tools muncul di layar
+  utama seperti aplikasi biasa.
+- **Komputer (Chrome/Edge):** klik ikon instal di address bar, atau menu
+  browser → "Instal ADIP Tools". Aplikasi terbuka di jendela sendiri, tanpa
+  address bar.
+- **iPhone/iPad (Safari):** Safari tidak punya tombol instal otomatis. Caranya
+  manual: ketuk tombol **Bagikan** (kotak + panah ke atas) → **Tambah ke Layar
+  Utama** → **Tambah**. Situs akan menampilkan panduan langkah ini bila kamu
+  membukanya dari iPhone/iPad.
+- **Menghapus:** seperti menghapus aplikasi biasa — tekan lama ikonnya lalu
+  hapus/uninstall. Menghapus aplikasi juga menghapus data offline-nya.
+
+### Apa yang jalan tanpa internet
+
+Syaratnya satu: tool itu **pernah dibuka sekali saat online**, supaya tersimpan
+di perangkat. Setelah itu:
+
+| Keadaan | Jumlah tool | Artinya |
+|---|---:|---|
+| Jalan penuh offline | 933 (72%) | Kalkulator, converter, generator, dan sebagian besar tool lain — semuanya jalan normal tanpa internet |
+| Jalan offline setelah pustakanya tersimpan sekali | 114 | Tool PDF, video/audio, dan sejenisnya: pustakanya diunduh sekali saat pertama dipakai (mis. mesin video/audio ~31 MB), lalu jalan offline |
+| Jalan offline, kecuali tombol unduh PNG | 53 | Fungsi utamanya jalan penuh; hanya tombol unduh gambar yang butuh internet sekali |
+| Butuh internet | 166 + 33 | Tool data live (cuaca, gempa, harga, jadwal) dan tool AI (butuh akun/kuota layanan AI) — datanya memang dari internet, jadi tidak bisa offline. Bila dibuka tanpa internet, muncul pesan jujur + tombol coba lagi, bukan data palsu |
+
+Catatan: halaman utama, pencarian, favorit, dan riwayat tersimpan di perangkat
+dan tetap bisa dibuka offline. Istilah "Populer" butuh internet (datanya dari
+server) — offline, bagian itu kosong.
+
+### Mengelola data offline
+
+- **Lihat ukuran:** besar data offline yang tersimpan ditampilkan di footer
+  situs, dekat tombol instal.
+- **Hapus data offline:** tombol **hapus cache offline** di footer menghapus
+  semua tool yang tersimpan, tanpa menghapus favorit dan riwayatmu (keduanya
+  tersimpan terpisah). Setelah dihapus, tool perlu dibuka sekali lagi saat
+  online supaya tersimpan ulang.
+- **Batas penyimpanan:** tool yang tersimpan dibatasi 300 tool terakhir
+  (yang paling lama tidak dibuka akan diganti otomatis), dan pustaka dari
+  internet dibatasi 20 item — supaya tidak memenuhi memori HP.
+
+### Cara kerja pembaruan
+
+- Saat ada versi baru, situs menampilkan pemberitahuan **"Ada versi baru ADIP
+  Tools."** Ketuk **Muat ulang** untuk memakai versi baru — pembaruan tidak
+  terjadi diam-diam di tengah kamu memakai tool.
+- Begitu versi baru aktif, data offline versi lama dihapus otomatis, jadi kamu
+  tidak akan terjebak di versi lama.
+- File pembaruan aplikasi selalu dicek ulang ke server setiap kali situs
+  dibuka, jadi versi baru tidak akan terlewat karena tersimpan di cache lama.
 
 ## Cara menjalankan lokal
 

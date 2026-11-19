@@ -41,6 +41,102 @@ Laporan audit lengkap: `~/workspace/adip-tools-upgrade/v6.12.0/t04-security-repo
 - **Pustaka CDN dipin versinya.** Semua script CDN memakai versi eksplisit
   (mis. `jspdf@2.5.1`, `@ffmpeg/ffmpeg@0.12.15`) — bukan tag `latest`.
 
+## Service worker (PWA v6.20.0)
+
+Sejak v6.20.0 situs memakai service worker (SW) untuk instalasi aplikasi dan
+mode offline. Bagian ini mendeskripsikan **desain** yang dibangun ronde
+v6.20.0; mekanisme yang ditandai [desain] diverifikasi tim QA/keamanan
+ronde ini (laporan audit Red/Blue, di luar repo).
+
+- **Scope same-origin.** SW didaftarkan dari `./sw.js` dengan scope `./`
+  (root origin `tools.adipmusic.my.id`) — SW hanya mengendalikan halaman di
+  origin ini, tidak bisa menyentuh situs lain. Browser sendiri yang
+  menegakkannya: SW lintas origin tidak bisa didaftarkan.
+- **Tanpa rahasia di SW/manifest.** SW dan `manifest.webmanifest` tidak
+  memuat kunci API, token, atau kredensial apa pun (gerbang ZB-8 ronde
+  v6.20.0). SW juga tidak mengubah cara data pengguna dikirim — tabel
+  "Data pengguna yang meninggalkan browser" di bawah tetap berlaku.
+- **File SW selalu dicek ulang [desain].** Semua file `sw*.js` disajikan
+  dengan `Cache-Control: no-cache` (diatur di `vercel.json`), sehingga
+  browser memeriksa versi baru SW setiap kali situs dibuka. Tanpa ini,
+  SW lama bisa bertahan dan pengguna terjebak di cache basi.
+- **Cache berversi per rilis [desain].** Nama cache precache/runtime
+  mengikuti versi rilis (`adip-tools-precache-6.20.0`,
+  `adip-tools-runtime-6.20.0`). Saat versi baru aktif, cache versi lama
+  dihapus di event `activate` — tidak ada cache precache/runtime usang
+  yang bertahan lintas rilis. **Pengecualian yang disengaja:** cache CDN
+  (`adip-tools-cdn-v1`) TIDAK berversi — ffmpeg (~31 MB) dan pustaka
+  CDN tidak boleh diunduh ulang tiap rilis. Batas umurnya ditegakkan
+  dengan cara lain: setiap cache-hit CDN memeriksa header `Date`
+  respons tersimpan, dan entri berumur > 30 hari dianggap miss
+  (dihapus + diunduh ulang) — jadi umur cache CDN jahat paling lama
+  30 hari, bukan tanpa batas. Entri tanpa header `Date` valid
+  dipertahankan (fail-open); kedua CDN allowlist (jsDelivr, unpkg)
+  selalu mengirim `Date`, jadi kasus itu praktis tidak terjadi.
+  **Ketergantungan penting (RED2-01, Red-2 20 Nov 2026):** batas 30 hari
+  ini bergantung pada header `Access-Control-Expose-Headers: *` dari
+  jsDelivr dan unpkg. `Date` BUKAN header CORS-safelist, sehingga SW
+  hanya dapat membaca `Date` dari entri CDN tersimpan bila CDN
+  mengeksposnya lewat header itu — kedua CDN mengirim
+  `Access-Control-Expose-Headers: *` (terverifikasi 20 Nov 2026). Bila
+  CDN menghapus atau mempersempit header itu, SW tidak dapat melihat
+  `Date` dan entri dipertahankan (fail-open, tanpa alarm); umur 30 hari
+  tidak dapat ditegakkan dan risiko RED1-01 kembali terbuka.
+  Re-verifikasi berkala (read-only): `curl -I
+  https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js` dan
+  `curl -I https://unpkg.com/jquery@3.7.1/dist/jquery.min.js`, lalu
+  periksa baris `access-control-expose-headers: *` pada keduanya.
+- **Yang masuk cache, dan yang tidak [desain].**
+  - Precache hanya berisi app shell same-origin (halaman utama, `app.js`,
+    `core.js`, `manifest.js`, CSS) — chunk tool TIDAK di-precache semua,
+    melainkan masuk cache saat tool itu dibuka (on-demand).
+  - Hanya respons sukses (HTTP 200) yang disimpan; respons gagal tidak
+    pernah di-cache. Selain itu, `Content-Type` respons wajib cocok
+    dengan yang diminta (skrip harus `text/javascript` /
+    `application/javascript`, CSS harus `text/css`, dst.) — respons
+    200 berkonten salah (mis. HTML dari SPA fallback) ditolak
+    simpan-nya, walau tetap disajikan ke halaman dari jaringan.
+  - Pustaka CDN yang di-cache adalah URL berpin versi + hash integritas
+    (SRI) yang sudah ada — SW tidak mengubah/menurunkan pemeriksaan
+    integritas yang dilakukan browser saat memuat pustaka.
+  - SDK Puter (`js.puter.com/v2/`) TIDAK di-cache jangka panjang karena
+    tanpa pin versi; data live API (cuaca, gempa, harga, dsb.) TIDAK
+    di-cache sama sekali — menyajikan data basi seolah live dilarang.
+  - Payload ukur tool tes kecepatan internet dikecualikan dari cache —
+    bila ter-cache, hasil ukurnya palsu.
+- **Mitigasi cache poisoning [desain].** Serangan yang relevan: penyerang
+  membujuk SW menyimpan respons jahat/basi lalu disajikan ke pengguna.
+  Pertahanannya berlapis: (1) SW hanya diinstal dari origin sendiri lewat
+  HTTPS — tidak ada jalur pihak ketiga menyuntikkan SW; (2) precache hanya
+  aset build same-origin yang namanya ber-hash (konten berubah = nama
+  berubah); (3) hanya respons 200 yang di-cache; (4) pustaka CDN berpin
+  versi + SRI — respons yang tidak cocok hash-nya ditolak browser sebelum
+  dipakai; (5) umur cache jahat dibatasi: cache precache/runtime
+  berversi per rilis (paling lama satu rilis), cache CDN ditegakkan
+  umur 30 hari pada setiap pembacaan (lihat butir "Cache berversi per
+  rilis" di atas). Risiko residu: pustaka CDN yang dimuat via dynamic
+  `import()` ESM tidak mendukung SRI (keterbatasan browser, sudah dicatat
+  di butir 5 "Yang perlu diperbaiki").
+- **Update flow aman [desain].** SW baru TIDAK mengambil alih otomatis
+  (`skipWaiting` tidak dipanggil sendiri): pengguna melihat pemberitahuan
+  "Ada versi baru" dan mengetuk Muat ulang — barulah SW baru aktif dan
+  mengklaim halaman. Ini mencegah halaman yang sedang dipakai tiba-tiba
+  berganti versi di tengah jalan. Catatan residual (RED1-04): pesan
+  `SKIP_WAITING` ke SW waiting bisa dikirim skrip same-origin mana pun —
+  platform tidak menyediakan cara membedakan pengirimnya — jadi gerbang
+  persetujuan update hanya sekuat kebersihan XSS origin ini; mitigasinya
+  adalah menutup item 1–3 di "Yang perlu diperbaiki". Banner update
+  sendiri diverifikasi ke controller live sebelum tampil (RED1-05),
+  sehingga banner palsu dari skrip same-origin tidak bisa muncul.
+- **CSP worker.** Kebijakan CSP Report-Only sudah memuat
+  `worker-src 'self' blob: https://cdn.jsdelivr.net` — worker same-origin
+  diizinkan. Catatan: CSP masih Report-Only (belum ditegakkan); penegakan
+  CSP adalah gerbang fase lain, bukan ronde PWA ini.
+- **Rollback SW.** Bila SW bermasalah, rollback TIDAK dilakukan dengan
+  sekadar menghapus file SW (pengguna lama akan tetap memakai cache basi).
+  Prosedur yang benar ada di runbook `docs/pwa-rollback.md`: deploy versi
+  SW yang unregister + hapus cache, lalu verifikasi situs lolos tanpa SW.
+
 ## Data pengguna yang meninggalkan browser (atas aksi pengguna)
 
 | Tujuan | Data | Tool |

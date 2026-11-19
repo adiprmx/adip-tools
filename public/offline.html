@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#161311">
+<title>Kamu sedang offline — ADIP Tools</title>
+<style>
+  :root {
+    --bg: #161311;
+    --surface: #1e1a16;
+    --line: #332a21;
+    --txt: #f6f1e8;
+    --mut: #c9bda9;
+    --faint: #9d9078;
+    --acc: #ff6f61;
+    --acc-ink: #2b100a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--txt);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+  .mark {
+    width: 48px; height: 48px;
+    margin: 0 auto 16px;
+    background: var(--acc);
+    color: var(--acc-ink);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .brand {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--faint);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 22px;
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+  p { color: var(--mut); font-size: 15px; }
+  p + p { margin-top: 10px; }
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 13px 18px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--txt);
+    transition: transform 0.1s ease, filter 0.15s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary {
+    background: var(--acc);
+    color: var(--acc-ink);
+    border-color: var(--acc);
+  }
+  .btn.primary:hover { filter: brightness(1.05); }
+  .note {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--faint);
+  }
+  @media (min-width: 480px) {
+    .actions { flex-direction: row; }
+    .btn { width: auto; flex: 1; }
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="mark" aria-hidden="true">a</div>
+    <div class="brand">Adip Tools</div>
+    <h1>Kamu sedang offline</h1>
+    <p>Saat ini tidak ada internet, jadi halaman ini tidak bisa dimuat.</p>
+    <p>Tenang — tool yang sudah pernah kamu buka masih bisa dipakai. Tool yang butuh internet, seperti yang menampilkan data terbaru atau memakai AI, baru bisa dipakai lagi setelah kamu online.</p>
+    <div class="actions">
+      <button class="btn primary" type="button" id="retry">Coba lagi</button>
+      <a class="btn" href="./">Ke beranda</a>
+    </div>
+    <p class="note" id="status">Halaman ini akan memuat ulang sendiri begitu internet kembali.</p>
+  </main>
+  <script src="./offline.js"></script>
+</body>
+</html>

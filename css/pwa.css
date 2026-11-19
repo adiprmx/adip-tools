@@ -1,0 +1,440 @@
+/* ============================================================
+   ADIP Tools v6.20.0 — pwa.css (P8)
+   Gaya UI PWA: lembar ajakan pasang + bar notifikasi update
+   + tautan footer "Pasang aplikasi".
+
+   Kontrak R11 (r11-ui-patterns.md §3.4) — DIKUNCI:
+   - Pemilik tunggal file ini adalah P8. P9 hanya MEMAKAI
+     class bar update (bertanda ◆), tidak menulis CSS.
+   - HANYA token :root css/style.css yang sudah ada +
+     --z-pwa (82, di atas palette 80, di bawah dialog 85).
+     Nol nilai warna baru, nol gradasi dekoratif, nol glow.
+   - Tombol aksi utama meniru .btn.primary deklarasi per
+     deklarasi (coral). Bila koordinator memutuskan aksen
+     putih, ubah SATU blok (.pwa-btn-primary,
+     .pwa-update-btn) — jangan sentuh file lain.
+   - --warn DILARANG di UI PWA (update bukan peringatan);
+     --ok/--err juga tidak dipakai di sini.
+   - Semua tombol min-height 44px; tanpa deklarasi important.
+   - Lembar meniru geometri .onb-sheet; bar meniru .toast +
+     .tabs (patokan bawah HP 96px, di atas tab bar).
+   ============================================================ */
+
+/* ---------- lembar ajakan pasang ---------- */
+
+/* Pembungkus fixed seluruh layar; pointer-events none agar
+   halaman di belakang tetap bisa dipakai (lembar NON-modal,
+   pola .onb-root). .open = tampil, .closing = sedang keluar. */
+#pwaInstallSheet,
+.pwa-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-pwa, 82);
+  pointer-events: none;
+}
+
+.pwa-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim-soft);
+  opacity: 0;
+  transition: opacity 0.25s var(--ease);
+  pointer-events: auto;
+}
+
+.pwa-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 560px;
+  margin-inline: auto;
+  max-height: 55dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-bottom: 0;
+  border-radius: var(--r-card) var(--r-card) 0 0;
+  transform: translateY(102%);
+  transition: transform 0.35s var(--ease), translate 0.25s var(--ease);
+  pointer-events: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pwa-sheet-root.open .pwa-sheet-backdrop {
+  opacity: 1;
+}
+.pwa-sheet-root.open .pwa-sheet {
+  transform: translateY(0);
+}
+.pwa-sheet.dragging {
+  transition: none;
+}
+/* Desktop: lembar mengambang di tengah bawah (bukan menempel
+   tepi), pola .onb-sheet. */
+@media (min-width: 640px) {
+  .pwa-sheet {
+    left: 50%;
+    right: auto;
+    bottom: 20px;
+    width: min(560px, calc(100vw - 32px));
+    border-bottom: 1px solid var(--hair);
+    border-radius: var(--r-card);
+    box-shadow: var(--sh-pop);
+    transform: translate(-50%, 120%);
+  }
+  .pwa-sheet-root.open .pwa-sheet {
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Pegangan geser (murni penanda "bisa digeser ke bawah"). */
+.pwa-sheet-grip {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--hair-hover);
+  margin: 10px auto 2px;
+}
+
+/* touch-action: none — WAJIB (pelajaran RED-01 onboarding):
+   dengan pan-y browser mengambil alih geseran vertikal untuk
+   scroll -> pointercancel -> geser ke bawah TIDAK PERNAH
+   menutup lembar di HP. Area ini tidak memuat konten yang
+   bisa di-scroll (scroll ada di .pwa-sheet-body), jadi none
+   aman; tombol x di dalamnya tetap bisa diketuk. */
+.pwa-sheet-dragzone {
+  flex: none;
+  cursor: grab;
+  touch-action: none;
+}
+.pwa-sheet-dragzone:active {
+  cursor: grabbing;
+}
+
+.pwa-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 20px 0;
+}
+
+.pwa-sheet-title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-d);
+  font-weight: 750;
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  outline: none;
+}
+
+.pwa-sheet-sub {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--mut);
+  padding: 2px 20px 0;
+}
+
+/* Isi lembar: satu-satunya area yang di-scroll bila lembar
+   penuh (maks 55dvh). Dipakai mode ios-guide untuk langkah
+   ringkas; mode prompt tidak merender isi ini. */
+.pwa-sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px 20px 4px;
+  -webkit-overflow-scrolling: touch;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--mut);
+}
+.pwa-sheet-body ol {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pwa-sheet-body strong {
+  color: var(--txt);
+  font-weight: 700;
+}
+
+.pwa-sheet-foot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px 20px;
+}
+.pwa-sheet-foot .pwa-btn-primary {
+  flex: 1;
+}
+
+/* ---------- tombol PWA ---------- */
+
+/* Tombol sekunder netral: deklarasi disalin dari .btn (bukan
+   diwarisi) agar PWA tidak ikut berubah bila .btn berubah
+   untuk tool. */
+.pwa-btn {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--txt);
+  border-radius: var(--r-ctl);
+  padding: 13px 18px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: transform 0.1s var(--ease), background 0.15s, border-color 0.15s;
+  min-height: 48px;
+}
+.pwa-btn:hover {
+  border-color: var(--line-strong);
+}
+.pwa-btn:active {
+  transform: scale(0.97);
+}
+
+/* Tombol aksi utama: salinan .btn.primary. SATU-SATUNYA titik
+   ubah bila koordinator memutuskan aksen putih — blok warna
+   di bawah ini juga dipakai .pwa-update-btn agar keduanya
+   tetap satu aksen. */
+.pwa-btn-primary {
+  border: 1px solid var(--acc);
+  border-radius: var(--r-ctl);
+  padding: 13px 18px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: transform 0.1s var(--ease), filter 0.15s;
+  min-height: 48px;
+}
+.pwa-btn-primary,
+.pwa-update-btn {
+  background: var(--acc);
+  color: var(--acc-ink);
+  border-color: var(--acc);
+}
+.pwa-btn-primary:hover,
+.pwa-update-btn:hover {
+  filter: brightness(1.05);
+}
+.pwa-btn-primary:active,
+.pwa-update-btn:active {
+  transform: scale(0.97);
+}
+
+/* Tombol teks ("Nanti saja" / "Nanti"): tanpa border/latar,
+   pola .onb-skip. */
+.pwa-btn-ghost {
+  min-height: var(--tap);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-ctl);
+  background: none;
+  color: var(--mut);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.12s var(--ease);
+}
+.pwa-btn-ghost:hover,
+.pwa-update-dismiss:hover {
+  color: var(--txt);
+}
+.pwa-btn-ghost:active,
+.pwa-update-dismiss:active {
+  transform: scale(0.97);
+}
+
+/* Tombol tutup (x) 44px, pola .onb-close. */
+.pwa-close,
+.pwa-update-close {
+  flex: none;
+  width: var(--tap);
+  height: var(--tap);
+  border: 0;
+  border-radius: var(--r-ctl);
+  background: none;
+  color: var(--mut);
+  font-family: inherit;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.12s var(--ease);
+}
+.pwa-close {
+  margin: -8px -8px 0 0;
+}
+.pwa-update-close {
+  margin: -8px -8px -8px 0;
+}
+.pwa-close:hover,
+.pwa-update-close:hover {
+  color: var(--txt);
+}
+.pwa-close:active,
+.pwa-update-close:active {
+  transform: scale(0.93);
+}
+
+/* ---------- bar notifikasi update (◆ dipakai P9) ---------- */
+
+/* Bar ramping satu baris, fixed di atas tab bar. HP: bawah
+   96px (patokan .toast/.btt); desktop: bawah 24px (pola
+   .btt desktop). Menetap sampai ditindak/ditutup. */
+#pwaUpdateBar,
+.pwa-update {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 96px;
+  max-width: 560px;
+  margin-inline: auto;
+  z-index: var(--z-pwa, 82);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  background: var(--panel);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-card);
+  box-shadow: var(--sh-pop);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s var(--ease);
+}
+.pwa-update.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+.pwa-update.closing {
+  opacity: 0;
+  transform: translateY(8px);
+}
+/* Selektor ID di atas WAJIB diulang di sini: aturan dasar
+   memakai #pwaUpdateBar (spesifisitas ID) sehingga
+   .pwa-update.open saja KALAH dan bar tetap opacity 0 +
+   translateY(8px) — terbukti di tes Playwright P8 (bar tak
+   terlihat, gap bawah 88px bukan 96px). */
+#pwaUpdateBar.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+#pwaUpdateBar.closing {
+  opacity: 0;
+  transform: translateY(8px);
+}
+@media (min-width: 1024px) {
+  /* Selektor ID WAJIB (bukan .pwa-update saja): aturan dasar memakai
+     #pwaUpdateBar { bottom: 96px } — class kalah spesifisitas dan
+     aturan 24px mati (terukur FIX-3: gap desktop 96px, bukan 24px). */
+  #pwaUpdateBar {
+    bottom: 24px;
+  }
+}
+
+.pwa-update-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--txt);
+}
+
+.pwa-update-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Tombol utama bar: alias visual .pwa-btn-primary (warna
+   berbagi satu blok di atas agar aksen tetap satu titik
+   ubah); geometri lebih ramping untuk bar satu baris. */
+.pwa-update-btn {
+  border: 1px solid var(--acc);
+  border-radius: var(--r-ctl);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  white-space: nowrap;
+  transition: transform 0.1s var(--ease), filter 0.15s;
+  min-height: var(--tap);
+}
+
+/* Tombol tolak bar ("Nanti"): alias visual .pwa-btn-ghost. */
+.pwa-update-dismiss {
+  min-height: var(--tap);
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-ctl);
+  background: none;
+  color: var(--mut);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, transform 0.12s var(--ease);
+}
+
+/* Layar sempit (<=480px): teks + 3 tombol tidak muat sebaris
+   (teks "Ada versi baru ADIP Tools." terdesak sampai 3-4
+   baris — terbukti di tes Playwright P8). Bar membungkus:
+   teks satu baris penuh di atas, tombol di baris kedua.
+   Aturan "teks maks 2 baris di 360px" (R11 §3.4) terjaga
+   tanpa menyembunyikan tombol apa pun.
+   BLOK INI WAJIB DI BAWAH aturan dasar .pwa-update-text /
+   .pwa-update-actions: spesifisitas sama, yang belakangan
+   menang — saat blok ini di atas, .pwa-update-text { flex: 1 }
+   menimpa flex-basis 100% dan bungkusan tidak jalan
+   (terbukti di tes P8 ronde 2). */
+@media (max-width: 480px) {
+  .pwa-update {
+    flex-wrap: wrap;
+  }
+  .pwa-update-text {
+    flex: 1 1 100%;
+  }
+  .pwa-update-actions {
+    margin-left: auto;
+  }
+}
+
+/* ---------- tautan footer ---------- */
+
+/* .pwa-foot-link TIDAK punya deklarasi khusus: ia mewarisi
+   gaya .foot-links a yang sudah ada. Class ini hanya penanda
+   untuk mountInstallEntry/unmountInstallEntry. Dicatat di
+   sini agar P9/P10 tahu class ini ada dan tidak membuat
+   tandingannya. */
+
+/* ---------- fokus keyboard (pola R-32 situs) ---------- */
+
+.pwa-sheet button:focus-visible,
+.pwa-update button:focus-visible,
+.pwa-foot-link:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+/* ---------- hormati yang tidak suka gerak ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .pwa-sheet-backdrop,
+  .pwa-sheet,
+  .pwa-update {
+    transition: none;
+  }
+}

@@ -1,6 +1,6 @@
 # ADIP Tools
 
-> Kumpulan 1299 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar dan tanpa instalasi. Versi 6.19.1.
+> Kumpulan 1299 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar. Bisa dipasang sebagai aplikasi (opsional) — sebagian tool jalan offline setelah pernah dibuka. Versi 6.20.0.
 
 ## Keamanan
 

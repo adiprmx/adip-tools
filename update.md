@@ -1,3 +1,50 @@
+# Update — 20 Nov 2026: PWA penuh — pasang sebagai aplikasi & pakai offline (v6.19.1 → v6.20.0)
+
+ADIP Tools kini bisa dipasang sebagai aplikasi dan dipakai tanpa internet.
+Memasang itu opsional — situs tetap jalan penuh di browser tanpa dipasang.
+Ronde ini mengeksekusi F11 (PWA inti) dari rencana Fase 9: manifest +
+service worker + install prompt + cache on-demand. Sinkronisasi riwayat
+(F2) dan antrean sinkron offline TIDAK termasuk ronde ini (butuh auth
+Fase 1–2 yang belum ada) — dicatat sebagai utang Fase 9.
+
+## Yang baru
+1. Pasang sebagai aplikasi: manifest + ikon 192/512/maskable; tombol Instal
+   di Chrome/Edge (Android & desktop); panduan manual "Bagikan → Tambah ke
+   Layar Utama" untuk iPhone/iPad (Safari tidak punya prompt install).
+2. Offline: 933 tool (72%) jalan penuh setelah pernah dibuka sekali; 114 tool
+   jalan offline setelah pustaka CDN-nya tersimpan (termasuk ffmpeg ~31 MB,
+   diunduh sekali); 53 tool jalan penuh kecuali tombol unduh PNG; 166 tool
+   data live + 33 tool AI tetap butuh internet, dengan pesan jujur + tombol
+   coba lagi (tanpa data palsu).
+3. Service worker modular (`sw.js` + `sw-runtime.js`/`sw-cdn.js`/`sw-update.js`/
+   `sw-quota.js` via `importScripts`); precache build-time shell-only dari
+   `dist/.vite/manifest.json` — chunk tool TIDAK di-precache (cache on-demand);
+   nama cache berversi per rilis, cache lama dihapus saat versi baru aktif.
+4. Update flow: SW baru tidak mengambil alih otomatis — pengguna melihat
+   pemberitahuan "Ada versi baru ADIP Tools." lalu mengetuk Muat ulang.
+   Semua file `sw*.js` disajikan `Cache-Control: no-cache` agar update SW
+   selalu terdeteksi.
+5. Manajemen cache: ukuran cache tampil di footer + tombol hapus cache
+   offline (favorit & riwayat tidak ikut terhapus). Batas runtime cache:
+   300 entri chunk tool + TTL 30 hari, CDN 20 entri / 30 hari.
+6. Halaman fallback offline + empty state jujur saat tool butuh internet.
+   SW nonaktif di dev server (hanya aktif di build produksi).
+7. Copy "tanpa instalasi" diperbaiki di sumbernya: `scripts/gen-llms-txt.js`
+   (llms.txt di-regenerate) + README; meta description index.html diperbaiki
+   tim P1 (kini menyebut 1.299 tool, bukan 627).
+
+## Verifikasi
+- Verifikasi ronde ini dijalankan tim QA (laporan di luar repo):
+  Q1 sapu 1.330 route di bawah PWA (ZB-1), Q2 fungsional PWA
+  (manifest/registrasi/offline/update/install, ZB-4 tanpa login),
+  Q3 regresi live-API/CDN + SRI, Q4 performa muat pertama dengan/tanpa SW
+  (ZB-6), Q5 matriks browser; audit keamanan Red/Blue atas SW.
+- Runbook rollback SW: `docs/pwa-rollback.md` (unregister + hapus cache via
+  deploy — jangan sekadar hapus file SW). Kill-switch flag belum ada
+  (butuh Fase 4) — rollback praktis adalah revert deploy + SW unregister.
+
+---
+
 # Update — 7 Okt 2026: Tarif MDR QRIS baru BI 1 Okt 2026 (v6.9.14 → v6.9.15)
 
 Kalkulator Biaya QRIS (`indonesia/mdr-qris`) disesuaikan ke kebijakan BI efektif

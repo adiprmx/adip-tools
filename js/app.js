@@ -59,6 +59,9 @@ import { rankedSearchPlus, assessQuery, suggestDidYouMean, getRecentSearches, ad
    Satu-satunya titik sambung: initComponents di boot +
    enhanceRoute di route() + renderToolError di catch toolPage. */
 import { initComponents, enhanceRoute, renderToolError } from './components.js';
+/* PWA v6.20.0 (P10): registrasi SW + orkestrasi install/update.
+   initPWA menunda kerja berat sampai sesudah event load (ZB-6). */
+import { initPWA } from './pwa.js';
 
 /* Peta lazy-load semua tool (Vite: import.meta.glob).
    - Dev: tiap nilai adalah () => import('<file sumber>') — dilayani Vite
@@ -884,6 +887,7 @@ function route() {
 /* ---------------- boot ---------------- */
 ensureTabs();
 initComponents({ openPalette, toast }); /* P2-B2: navbar, dialog, back-to-top */
+initPWA({ toast }); /* PWA v6.20.0 (P10): SW + install/update — kerja berat ditunda sampai load */
 sbFetchPopular();
 window.addEventListener('hashchange', route);
 document.addEventListener('keydown', (e) => {
