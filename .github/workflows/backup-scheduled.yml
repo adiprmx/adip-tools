@@ -1,0 +1,482 @@
+# =====================================================================
+# Backup terjadwal Adip Tools — FINAL (Tim P4 Workflow+Secrets)
+# ---------------------------------------------------------------------
+# STATUS: FINAL. File ini siap ditempatkan ke
+# .github/workflows/backup-scheduled.yml di repo adiprmx/adip-tools,
+# MENUNGGU sinyal parent (pasca fast-forward tim lain yang sedang
+# membangun — JANGAN push sebelum sinyal itu). Lihat placement.md.
+#
+# PERBAIKAN RED RONDE 1 (Blue Team A6, 18 Nov 2026 — tetap FINAL):
+#   R1-01  KEY dump diteruskan dari job backup-b2 ke mirror-drive via job
+#          outputs (deterministik; query list "terbaru" dihapus — sekaligus
+#          menutup R1-06 tanpa paginasi).
+#   R1-02  Sidecar .sha256 berisi nama file BER-STAMP, sehingga sha256sum -c
+#          jalan setelah unduh (mirror + restore).
+#   R1-04  Prefix lifecycle di header ini ditulis LENGKAP (adip-tools/...).
+#   R1-05  Promosi weekly/monthly ikut menyalin manifest + sidecar.
+#   R1-07  Job mirror-drive punya notifikasi gagal (Telegram, failure()).
+#   R1-09  Cek hari/tanggal promosi + mirror memakai TZ=Asia/Jakarta (WIB);
+#          penamaan objek (STAMP/DATE_UTC) tetap UTC — konvensi ini
+#          didokumentasikan, bukan digeser diam-diam.
+#   R1-10  Step cek kuota Drive (>90% = peringatan) di job mirror.
+#   R1-11  Deteksi "2 kegagalan berurutan" via GitHub API di notifikasi gagal
+#          (butuh permission actions:read di job backup-b2).
+#   R1-12  Step validasi AGE_PUBLIC_KEY sebelum dump (non-kosong + format
+#          age1 + 58 karakter; gagal keras bila tidak valid).
+#   R1-15  Job mirror memasang aws CLI bila belum ada (seperti backup-b2).
+#   R1-19  Promosi non-fatal: gagal promosi = peringatan + output
+#          promotion_failed, job tetap sukses (dump harian sudah aman).
+#   R1-20  DITERIMA: job mirror start harian lalu berhenti di cek hari —
+#          biaya kecil, didokumentasikan (ekspresi GitHub tak punya tanggal).
+#
+# PERBAIKAN RED RONDE 2 (Blue Team A6, 18 Nov 2026 — tetap FINAL):
+#   R2-04b Kuota Drive >90% kini mengirim notifikasi Telegram (pola yang
+#          sama dengan notifikasi gagal; no-op bila secret kosong) —
+#          sebelumnya hanya tercetak ke log Actions yang sukses.
+#   R2-10  Regex AGE_PUBLIC_KEY diketatkan ke charset bech32
+#          (qpzry9x8gf2tvdw0s3jn54khce6mua7l) — b/i/o/1 ditolak.
+#
+# FUNGSI: dump harian proyek Supabase BARU (org baru) -> enkripsi age
+# (kunci publik owner) -> upload ke Backblaze B2 (bucket khusus backup)
+# -> verifikasi upload -> promosi mingguan/bulanan (prefix) -> salinan
+# mingguan ke Google Drive (job kedua, hanya hari Minggu).
+#
+# RAHASIA YANG DIBUTUHKAN (diisi via GitHub Secrets, TIDAK PERNAH di file ini):
+#   SUPABASE_DATABASE_URL  Koneksi LANGSUNG proyek Supabase baru
+#                          (db.<ref>.supabase.co:5432, user postgres).
+#                          JANGAN pakai pooler (port 6543): pg_dump
+#                          tidak didukung mode transaksi pooler.
+#                          STATUS: TERISI (Tim P4, 18 Nov 2026).
+#   AGE_PUBLIC_KEY         Kunci publik age owner (age1...). Hanya kunci
+#                          PUBLIK yang ada di CI; kunci privat TIDAK
+#                          PERNAH menyentuh runner/repo/log.
+#                          STATUS: TERTUNDA — keypair belum dibuat
+#                          (gelombang berikut). JANGAN jalankan
+#                          workflow_dispatch sebelum secret ini terisi.
+#   B2_BACKUP_BUCKET       Nama bucket khusus backup Adip Tools
+#                          (BUKAN bucket adip-cinema).
+#                          STATUS: TERISI (Tim P4, 18 Nov 2026).
+#   B2_ENDPOINT            Endpoint S3-compatible B2, mis.
+#                          https://s3.us-east-005.backblazeb2.com
+#                          (diisi sesuai wilayah akun saat setup).
+#                          STATUS: TERISI (Tim P4, 18 Nov 2026).
+#   B2_APPLICATION_KEY_ID  Application key KHUSUS bucket backup.
+#                          STATUS: TERISI (Tim P4, 18 Nov 2026).
+#   B2_APPLICATION_KEY     Izin: listFiles + readFiles + writeFiles
+#                          SAJA (tanpa deleteFiles — retensi dihapus
+#                          lifecycle rule sisi server, bukan oleh key).
+#                          STATUS: TERISI (Tim P4, 18 Nov 2026).
+#   RCLONE_DRIVE_CONF      (Opsional, job mirror) Isi penuh rclone.conf
+#                          untuk remote Google Drive owner.
+#                          STATUS: TERTUNDA — token Drive belum ada.
+#                          Job mirror-drive BERHENTI BERSIH (sukses,
+#                          tanpa error) bila secret ini kosong — lihat
+#                          GUARD di bawah. Isi secret ini kapan saja;
+#                          tidak perlu ubah workflow.
+#   TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID
+#                          (Opsional) Notifikasi bila backup gagal.
+#                          STATUS: TERTUNDA — lihat laporan.md
+#                          (keputusan Tim P4). Workflow tetap jalan
+#                          tanpanya; step notifikasi sudah no-op
+#                          bila secret kosong.
+#
+# GUARD mirror-drive (Tim P4):
+#   Step pertama job mirror-drive ("Cek konfigurasi Drive") memeriksa
+#   RCLONE_DRIVE_CONF. Bila kosong/belum ada, step itu mencetak alasan
+#   dan menandai drive_configured=false; SEMUA step berikutnya di job
+#   itu (termasuk pembersihan) ter-gate oleh output tersebut, sehingga
+#   job selesai dengan status SUKSES dan tanpa error — bukan gagal.
+#   Tanpa guard ini job akan gagal tiap Minggu sebelum token Drive ada.
+#
+# RETENSI (lihat backup-neon.md §4.4): lifecycle rule B2 per prefix —
+#   adip-tools/daily/   disembunyikan setelah 8 hari, dihapus 1 hari sesudahnya   (7 salinan harian)
+#   adip-tools/weekly/  disembunyikan setelah 35 hari, dihapus 1 hari sesudahnya  (4 salinan mingguan)
+#   adip-tools/monthly/ disembunyikan setelah 400 hari, dihapus 1 hari sesudahnya (12 salinan bulanan)
+#   Aturan dibuat SEKALI saat setup bucket (API/Console B2), bukan oleh
+#   workflow ini. STATUS: dibuat + terverifikasi tersimpan saat pembuatan
+#   bucket 18 Nov 2026 18:45 WIB (fakta parent; verifikasi-ulang live via
+#   b2_list_buckets = cek penempatan di placement.md prasyarat 4).
+#   AWAS: prefix LENGKAP di atas yang dipakai rule — singkatan "daily/"
+#   saja TIDAK cocok dengan objek mana pun (R1-04).
+#
+# CATATAN DESAIN:
+#   - Dump HANYA skema public + auth. Skema terkelola Supabase (storage,
+#     realtime, extensions, vault, dsb.) TIDAK di-dump: skema itu dibuat
+#     ulang oleh provisioning proyek baru, bukan oleh restore.
+#   - --no-owner --no-privileges: restore harus jalan ke Neon maupun ke
+#     proyek Supabase segar tanpa bergantung pada role sumber.
+#   - Format custom (-Fc): sudah terkompresi + memungkinkan restore
+#     selektif via pg_restore -L (diperlukan untuk jalur Neon).
+#   - Plaintext dump DIHANCURKAN (shred -u) segera setelah enkripsi.
+#     Runner tidak menyimpan apa pun setelah job selesai.
+#   - Konvensi waktu (R1-09): penamaan objek memakai UTC (STAMP/DATE_UTC),
+#     tetapi jangkar hari promosi + mirror memakai WIB (TZ=Asia/Jakarta)
+#     agar "Minggu"/"tanggal 1" sesuai kontrak desain — cron 00:00 WIB =
+#     17:00 UTC hari sebelumnya, jadi `date -u` menggeser semuanya ke Senin.
+# =====================================================================
+
+name: backup-scheduled
+
+on:
+  schedule:
+    - cron: "0 17 * * *" # 00:00 WIB setiap hari
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adip-tools-backup
+  cancel-in-progress: false
+
+env:
+  B2_BUCKET: ${{ secrets.B2_BACKUP_BUCKET }}
+  B2_ENDPOINT: ${{ secrets.B2_ENDPOINT }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.B2_APPLICATION_KEY }}
+  AWS_DEFAULT_REGION: us-east-005
+  AGE_PUBLIC_KEY: ${{ secrets.AGE_PUBLIC_KEY }}
+
+jobs:
+  backup-b2:
+    name: Dump -> age -> B2 (harian)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # actions:read hanya untuk deteksi "2 kegagalan berurutan" (R1-11)
+    # di step notifikasi; contents:read dipertahankan dari level workflow.
+    permissions:
+      contents: read
+      actions: read
+    # KEY dump diteruskan ke job mirror-drive (R1-01) — deterministik,
+    # tanpa list "terbaru" (menutup R1-06).
+    outputs:
+      key: ${{ steps.upload.outputs.key }}
+    steps:
+      - name: Pasang perkakas (age + postgresql-client)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age postgresql-client > /dev/null
+          age --version
+          pg_dump --version
+          aws --version || sudo apt-get install -y -qq awscli > /dev/null
+
+      - name: Validasi AGE_PUBLIC_KEY (sebelum dump)
+        run: |
+          set -euo pipefail
+          # Guard R1-12: kunci kosong/salah format ketahuan SEBELUM dump
+          # (bukan sesudah beban DB, dan bukan di uji restore bulanan).
+          # Kunci TIDAK PERNAH dicetak — hanya hasil validasi.
+          # R2-10: charset bech32 (tanpa b/i/o/1) — typo kelas itu dulu
+          # lolos regex [0-9a-z] dan baru gagal di step enkripsi, sesudah
+          # dump berjalan.
+          if [ -z "${AGE_PUBLIC_KEY:-}" ]; then
+            echo "FATAL: secret AGE_PUBLIC_KEY kosong/belum terisi — isi dulu sebelum menjalankan workflow ini." >&2
+            exit 1
+          fi
+          if ! printf '%s' "$AGE_PUBLIC_KEY" | grep -Eq '^age1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{58}$'; then
+            echo "FATAL: AGE_PUBLIC_KEY tidak cocok format kunci publik age (age1 + 58 karakter, total 62). Periksa secret — backup dengan kunci yang salah tidak bisa didekripsi owner." >&2
+            exit 1
+          fi
+          echo "AGE_PUBLIC_KEY valid (format age1..., 62 karakter)."
+
+      - name: Dump database (public + auth)
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          DATE_UTC="$(date -u +%Y-%m-%d)"
+          STAMP="$(date -u +%Y%m%d-%H%M)"
+          echo "DATE_UTC=$DATE_UTC" >> "$GITHUB_ENV"
+          echo "STAMP=$STAMP" >> "$GITHUB_ENV"
+          # JANGAN pernah mencetak DATABASE_URL (berisi kata sandi).
+          pg_dump "$DATABASE_URL" \
+            --format=custom \
+            --no-owner --no-privileges \
+            --schema=public --schema=auth \
+            --file="adip-tools.dump"
+          [ -s adip-tools.dump ] || { echo "FATAL: dump kosong"; exit 1; }
+          DUMP_SHA="$(sha256sum adip-tools.dump | awk '{print $1}')"
+          DUMP_BYTES="$(stat -c%s adip-tools.dump)"
+          echo "DUMP_SHA=$DUMP_SHA" >> "$GITHUB_ENV"
+          echo "DUMP_BYTES=$DUMP_BYTES" >> "$GITHUB_ENV"
+          echo "dump OK: $DUMP_BYTES byte, sha256=$DUMP_SHA"
+
+      - name: Enkripsi dengan kunci publik age owner
+        run: |
+          set -euo pipefail
+          age --encrypt --recipient "$AGE_PUBLIC_KEY" \
+            --output "adip-tools.dump.age" "adip-tools.dump"
+          [ -s adip-tools.dump.age ] || { echo "FATAL: hasil enkripsi kosong"; exit 1; }
+          # Hancurkan plaintext segera — hanya ciphertext yang keluar.
+          shred -u adip-tools.dump
+          ENC_SHA="$(sha256sum adip-tools.dump.age | awk '{print $1}')"
+          ENC_BYTES="$(stat -c%s adip-tools.dump.age)"
+          echo "ENC_SHA=$ENC_SHA" >> "$GITHUB_ENV"
+          echo "ENC_BYTES=$ENC_BYTES" >> "$GITHUB_ENV"
+          echo "enkripsi OK: $ENC_BYTES byte, sha256=$ENC_SHA"
+          # Manifes (untuk verifikasi saat restore; tanpa data sensitif)
+          cat > manifest.json <<EOF
+          {
+            "created_at_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "dump_sha256": "$DUMP_SHA",
+            "dump_bytes": $DUMP_BYTES,
+            "encrypted_sha256": "$ENC_SHA",
+            "encrypted_bytes": $ENC_BYTES,
+            "tool": "pg_dump --format=custom --schema=public --schema=auth",
+            "encryption": "age (recipient public key)"
+          }
+          EOF
+          # Sidecar berisi nama file BER-STAMP (R1-02): file yang diunduh
+          # mirror/restore bernama adip-tools-<STAMP>.dump.age — sha256sum -c
+          # hanya jalan bila nama di dalam sidecar sama dengan nama itu.
+          echo "$ENC_SHA  adip-tools-${STAMP}.dump.age" > adip-tools.dump.age.sha256
+
+      - name: Upload ke B2 (prefix daily/)
+        id: upload
+        run: |
+          set -euo pipefail
+          KEY="adip-tools/daily/${DATE_UTC}/adip-tools-${STAMP}.dump.age"
+          echo "KEY=$KEY" >> "$GITHUB_ENV"
+          # Teruskan KEY ke job mirror-drive via job outputs (R1-01).
+          echo "key=$KEY" >> "$GITHUB_OUTPUT"
+          aws s3 cp adip-tools.dump.age \
+            "s3://${B2_BUCKET}/${KEY}" \
+            --endpoint-url "$B2_ENDPOINT" --only-show-errors
+          aws s3 cp manifest.json \
+            "s3://${B2_BUCKET}/${KEY}.manifest.json" \
+            --endpoint-url "$B2_ENDPOINT" --only-show-errors
+          aws s3 cp adip-tools.dump.age.sha256 \
+            "s3://${B2_BUCKET}/${KEY}.sha256" \
+            --endpoint-url "$B2_ENDPOINT" --only-show-errors
+          echo "upload OK: $KEY"
+
+      - name: Verifikasi upload (ukuran objek == ukuran lokal)
+        run: |
+          set -euo pipefail
+          REMOTE_BYTES="$(aws s3api head-object \
+            --bucket "$B2_BUCKET" --key "$KEY" \
+            --endpoint-url "$B2_ENDPOINT" \
+            --query ContentLength --output text)"
+          [ "$REMOTE_BYTES" = "$ENC_BYTES" ] \
+            || { echo "FATAL: ukuran remote ($REMOTE_BYTES) != lokal ($ENC_BYTES)"; exit 1; }
+          echo "verifikasi OK: $REMOTE_BYTES byte di B2"
+
+      - name: Promosi mingguan/bulanan (salinan sisi server)
+        id: promote
+        run: |
+          # Promosi adalah kegagalan SEKUNDER (R1-19): dump harian sudah aman
+          # di prefix daily/ SEBELUM step ini. Kegagalan salin di sini TIDAK
+          # boleh menggagalkan job / memicu alarm "backup GAGAL" — dicatat
+          # sebagai peringatan + output promotion_failed=true.
+          # (Tanpa set -e: kegagalan tiap salinan ditangani di promote_one.)
+          set -uo pipefail
+          DOW="$(TZ=Asia/Jakarta date +%u)"   # 7 = Minggu WIB (R1-09)
+          DOM="$(TZ=Asia/Jakarta date +%d)"   # 01 = tanggal 1 WIB (R1-09)
+          PROMO_FAIL=false
+          promote_one() {
+            # $1 = weekly/monthly. Menyalin dump + sidecar + manifest (R1-05)
+            # agar salinan weekly/monthly bisa diverifikasi sesuai prosedur
+            # restore (sidecar + manifest daily/ hilang oleh lifecycle 8 hari).
+            local dest="adip-tools/$1/${DATE_UTC}/adip-tools-${STAMP}.dump.age"
+            if aws s3 cp "s3://${B2_BUCKET}/${KEY}" "s3://${B2_BUCKET}/${dest}" \
+                 --endpoint-url "$B2_ENDPOINT" --only-show-errors \
+               && aws s3 cp "s3://${B2_BUCKET}/${KEY}.sha256" "s3://${B2_BUCKET}/${dest}.sha256" \
+                 --endpoint-url "$B2_ENDPOINT" --only-show-errors \
+               && aws s3 cp "s3://${B2_BUCKET}/${KEY}.manifest.json" "s3://${B2_BUCKET}/${dest}.manifest.json" \
+                 --endpoint-url "$B2_ENDPOINT" --only-show-errors; then
+              echo "promosi $1 OK (dump + sidecar + manifest)"
+            else
+              echo "PERINGATAN: promosi $1 GAGAL — dump harian di daily/ tetap aman." >&2
+              PROMO_FAIL=true
+            fi
+          }
+          if [ "$DOW" = "7" ]; then promote_one weekly; fi
+          if [ "$DOM" = "01" ]; then promote_one monthly; fi
+          echo "promotion_failed=$PROMO_FAIL" >> "$GITHUB_OUTPUT"
+          if [ "$PROMO_FAIL" = "true" ]; then
+            echo "PERINGATAN: satu/lebih promosi gagal — lihat log di atas. Job tetap sukses karena dump harian aman." >&2
+          fi
+
+      - name: Ringkasan promosi (bila gagal)
+        if: always() && steps.promote.outputs.promotion_failed == 'true'
+        run: |
+          {
+            echo "## Promosi weekly/monthly gagal"
+            echo "Dump harian aman di prefix daily/, tetapi salinan weekly/monthly gagal dibuat. Cek log step promosi."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Notifikasi bila gagal (opsional, Telegram)
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${TG_TOKEN:-}" ] && [ -n "${TG_CHAT:-}" ]; then
+            # Deteksi "2 kegagalan berurutan" (R1-11, desain §4.3 = insiden):
+            # run saat ini belum completed, jadi run completed terbaru adalah
+            # run sebelumnya. Bila conclusion-nya failure, ini kegagalan ke-2
+            # berurutan. Gagal cek API = anggap kegagalan tunggal (fail-safe).
+            # Batasan: hitungan per-run workflow (semua trigger); detektor
+            # otoritatif 48 jam adalah freshness check monitor (R1-08).
+            MSG="ALARM: backup harian Adip Tools GAGAL (${GITHUB_RUN_ID}). Cek Actions."
+            PREV_CONCLUSION="$(curl -s --max-time 15 \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/backup-scheduled.yml/runs?per_page=1&status=completed" \
+              | jq -r '.workflow_runs[0].conclusion // empty' 2>/dev/null || true)"
+            if [ "$PREV_CONCLUSION" = "failure" ]; then
+              MSG="INSIDEN: backup harian Adip Tools GAGAL 2x BERURUTAN (run ${GITHUB_RUN_ID}). Cek Actions segera."
+            fi
+            curl -s --max-time 15 \
+              "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              -d "chat_id=${TG_CHAT}" \
+              -d "text=${MSG}" \
+              > /dev/null || true
+          else
+            echo "Telegram tidak dikonfigurasi — lewati notifikasi."
+          fi
+
+  mirror-drive:
+    name: Salinan mingguan ke Google Drive (cadangan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: backup-b2
+    steps:
+      - name: Cek hari (hanya Minggu)
+        id: day
+        run: |
+          # 7 = Minggu WIB (R1-09: cron 00:00 WIB = 17:00 UTC hari sebelumnya;
+          # `date -u` menggeser mirror ke Senin WIB).
+          if [ "$(TZ=Asia/Jakarta date +%u)" = "7" ]; then
+            echo "is_sunday=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_sunday=false" >> "$GITHUB_OUTPUT"
+            echo "Bukan hari Minggu — job mirror berhenti di sini."
+          fi
+
+      # GUARD (Tim P4): bila RCLONE_DRIVE_CONF kosong/belum ada, job ini
+      # berhenti bersih (sukses, tanpa error) — bukan gagal tiap Minggu.
+      # Semua step berikutnya ter-gate oleh drive_configured=true.
+      - name: Cek konfigurasi Drive
+        id: drive
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_DRIVE_CONF }}
+        run: |
+          if [ -z "${RCLONE_CONF:-}" ]; then
+            echo "drive_configured=false" >> "$GITHUB_OUTPUT"
+            echo "RCLONE_DRIVE_CONF kosong/belum ada — mirror Drive dilewati (bukan error)."
+            echo "Isi secret RCLONE_DRIVE_CONF kapan saja untuk mengaktifkan mirror mingguan."
+          else
+            echo "drive_configured=true" >> "$GITHUB_OUTPUT"
+            echo "Konfigurasi Drive tersedia — mirror aktif."
+          fi
+
+      - name: Pasang rclone + siapkan konfigurasi Drive
+        if: steps.day.outputs.is_sunday == 'true' && steps.drive.outputs.drive_configured == 'true'
+        env:
+          RCLONE_CONF: ${{ secrets.RCLONE_DRIVE_CONF }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq rclone > /dev/null
+          # Job ini runner terpisah — aws CLI tidak terbawa dari backup-b2 (R1-15).
+          aws --version || sudo apt-get install -y -qq awscli > /dev/null
+          mkdir -p ~/.config/rclone
+          printf '%s' "$RCLONE_CONF" > ~/.config/rclone/rclone.conf
+          chmod 600 ~/.config/rclone/rclone.conf
+          rclone --version
+
+      - name: Cek kuota Drive (alarm bila pemakaian >90%)
+        id: quota
+        if: steps.day.outputs.is_sunday == 'true' && steps.drive.outputs.drive_configured == 'true'
+        run: |
+          # Cek kuota Drive (R1-10, desain §2.2/§4.3): kuota 15 GB dipakai
+          # bersama Gmail + Photos — bisa penuh bukan oleh backup. Step ini
+          # TIDAK PERNAH menggagalkan job: gagal baca = peringatan saja.
+          # Catatan: bila token berscope drive.file dan endpoint about
+          # ditolak API, step ini mencetak "tidak terbaca" — bukan
+          # kegagalan; cek kuota tetap bisa via Drive web UI.
+          ABOUT="$(rclone about drive: --json 2>/dev/null || true)"
+          # ABOUT kosong = rclone about gagal total (jq atas input kosong
+          # keluar 0 tanpa output — JANGAN biarkan jatuh ke cabang "OK").
+          if [ -z "$ABOUT" ]; then
+            OVER90="unknown"
+          else
+            OVER90="$(printf '%s' "$ABOUT" | jq -r 'if (.total // 0) > 0 and (.used / .total) > 0.9 then "yes" else "no" end' 2>/dev/null || echo unknown)"
+          fi
+          if [ "$OVER90" = "yes" ]; then
+            echo "PERINGATAN: pemakaian Drive >90% — mirror berisiko gagal kehabisan kuota. Bersihkan Drive / kurangi retensi." >&2
+          elif [ "$OVER90" = "unknown" ]; then
+            echo "PERINGATAN: kuota Drive tidak terbaca (rclone about gagal) — cek kuota dilewati." >&2
+          else
+            echo "kuota Drive OK (pemakaian <=90%)."
+          fi
+          # R2-04b: teruskan hasil ke step notifikasi (over90=yes -> Telegram).
+          echo "over90=$OVER90" >> "$GITHUB_OUTPUT"
+
+      - name: Notifikasi kuota Drive >90% (Telegram)
+        if: steps.day.outputs.is_sunday == 'true' && steps.drive.outputs.drive_configured == 'true' && steps.quota.outputs.over90 == 'yes'
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # R2-04b: peringatan kuota >90% kini punya penonton — notifikasi
+          # Telegram (pola yang sama dengan notifikasi gagal); no-op bila
+          # secret kosong. Sebelumnya hanya tercetak ke log Actions.
+          if [ -n "${TG_TOKEN:-}" ] && [ -n "${TG_CHAT:-}" ]; then
+            curl -s --max-time 15 \
+              "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              -d "chat_id=${TG_CHAT}" \
+              -d "text=PERINGATAN: pemakaian Google Drive backup Adip Tools >90% — mirror mingguan berisiko gagal kehabisan kuota. Bersihkan Drive / kurangi retensi." \
+              > /dev/null || true
+          else
+            echo "Telegram tidak dikonfigurasi — lewati notifikasi kuota."
+          fi
+
+      - name: Unduh dump terbaru dari B2, salin ke Drive
+        if: steps.day.outputs.is_sunday == 'true' && steps.drive.outputs.drive_configured == 'true'
+        env:
+          # KEY diteruskan deterministik dari job backup-b2 (R1-01) — dump
+          # hari ini (Minggu WIB), tanpa list "terbaru" (menutup R1-06).
+          LATEST_KEY: ${{ needs.backup-b2.outputs.key }}
+        run: |
+          set -euo pipefail
+          [ -n "${LATEST_KEY:-}" ] \
+            || { echo "FATAL: key backup kosong (job backup-b2 tidak mengembalikan key)"; exit 1; }
+          FNAME="$(basename "$LATEST_KEY")"
+          aws s3 cp "s3://${B2_BUCKET}/${LATEST_KEY}" "$FNAME" \
+            --endpoint-url "$B2_ENDPOINT" --only-show-errors
+          # Verifikasi hash terhadap sidecar .sha256 sebelum menyalin
+          # (sidecar berisi nama ber-stamp sejak R1-02 — sha256sum -c jalan).
+          aws s3 cp "s3://${B2_BUCKET}/${LATEST_KEY}.sha256" "$FNAME.sha256" \
+            --endpoint-url "$B2_ENDPOINT" --only-show-errors
+          sha256sum -c "$FNAME.sha256"
+          rclone copy "$FNAME" "drive:AdipToolsBackup/weekly/" --progress=false
+          rclone copy "$FNAME.sha256" "drive:AdipToolsBackup/weekly/" --progress=false
+          # Prune Drive: hanya 4 salinan mingguan terbaru (hapus >28 hari)
+          rclone delete "drive:AdipToolsBackup/weekly/" --min-age 28d --include "*.age" || true
+          rclone delete "drive:AdipToolsBackup/weekly/" --min-age 28d --include "*.sha256" || true
+          echo "mirror Drive OK: $FNAME"
+
+      - name: Notifikasi bila mirror gagal (opsional, Telegram)
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -n "${TG_TOKEN:-}" ] && [ -n "${TG_CHAT:-}" ]; then
+            curl -s --max-time 15 \
+              "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              -d "chat_id=${TG_CHAT}" \
+              -d "text=ALARM: mirror Drive backup Adip Tools GAGAL (${GITHUB_RUN_ID}). Salinan B2 tetap aman. Cek Actions." \
+              > /dev/null || true
+          else
+            echo "Telegram tidak dikonfigurasi — lewati notifikasi."
+          fi
+
+      - name: Bersihkan artefak lokal (selalu jalan)
+        if: always() && steps.day.outputs.is_sunday == 'true' && steps.drive.outputs.drive_configured == 'true'
+        run: |
+          shred -u -- *.age *.sha256 2>/dev/null || true
+          shred -u ~/.config/rclone/rclone.conf 2>/dev/null || true
