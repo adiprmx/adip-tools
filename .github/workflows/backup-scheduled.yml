@@ -42,11 +42,17 @@
 # mingguan ke Google Drive (job kedua, hanya hari Minggu).
 #
 # RAHASIA YANG DIBUTUHKAN (diisi via GitHub Secrets, TIDAK PERNAH di file ini):
-#   SUPABASE_DATABASE_URL  Koneksi LANGSUNG proyek Supabase baru
-#                          (db.<ref>.supabase.co:5432, user postgres).
-#                          JANGAN pakai pooler (port 6543): pg_dump
-#                          tidak didukung mode transaksi pooler.
-#                          STATUS: TERISI (Tim P4, 18 Nov 2026).
+#   SUPABASE_DATABASE_URL  Pooler SESI Supavisor proyek Supabase baru
+#                          (aws-1-ap-southeast-1.pooler.supabase.com:5432,
+#                          user postgres.<ref>). Mode SESI (5432) DIDUKUNG
+#                          pg_dump; mode TRANSAKSI (6543) TIDAK. Koneksi
+#                          LANGSUNG (db.<ref>.supabase.co) HANYA IPv6 —
+#                          runner GitHub IPv4-only, dump GAGAL di sana
+#                          (run 44588320623 + 44636678915). Indeks klaster
+#                          pooler (aws-1) BUKAN tebakan: aws-0 ditolak
+#                          "tenant not found" (run 44689211246); aws-1
+#                          TERBUKTI 20 Nov 2026 (run 44689813379 sukses).
+#                          STATUS: TERISI (diperbarui ke pooler 20 Nov 2026).
 #   AGE_PUBLIC_KEY         Kunci publik age owner (age1...). Hanya kunci
 #                          PUBLIK yang ada di CI; kunci privat TIDAK
 #                          PERNAH menyentuh runner/repo/log.
