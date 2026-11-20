@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "$comment": "RED1-02 — JANGAN tambah SPA rewrite (mis. {\"source\": \"/(.*)\", \"destination\": \"/index.html\"}) tanpa cek guard Content-Type SW: rewrite membuat aset hilang dijawab 200 + text/html, dan SW lama akan meng-cache index.html sebagai chunk JS. Guard RED1-02 kini menolak menyimpan respons yang Content-Type-nya tidak cocok — tapi rewrite tetap mengubah semantik 404 situs, jadi putuskan dengan sadar.",
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",

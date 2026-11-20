@@ -96,6 +96,15 @@ ronde ini (laporan audit Red/Blue, di luar repo).
     `application/javascript`, CSS harus `text/css`, dst.) — respons
     200 berkonten salah (mis. HTML dari SPA fallback) ditolak
     simpan-nya, walau tetap disajikan ke halaman dari jaringan.
+    JANGAN tambah SPA rewrite di `vercel.json` (mis.
+    `{"source": "/(.*)", "destination": "/index.html"}`) tanpa
+    pertimbangan sadar (RED1-02): rewrite membuat aset hilang dijawab
+    200 + `text/html` dan mengubah semantik 404 situs — guard
+    Content-Type di atas menolak menyimpan respons semacam itu, tapi
+    keputusan rewrite tetap harus eksplisit. Catatan: `vercel.json`
+    TIDAK boleh berisi kunci `$comment` atau kunci non-skema lain —
+    validasi skema Vercel menolak deploy (terbukti 20 Nov 2026:
+    deploy v6.20.0 gagal ERROR sebelum build karena `$comment`).
   - Pustaka CDN yang di-cache adalah URL berpin versi + hash integritas
     (SRI) yang sudah ada — SW tidak mengubah/menurunkan pemeriksaan
     integritas yang dilakukan browser saat memuat pustaka.
