@@ -3,28 +3,38 @@ import { h as T, utils } from '../../core.js';
 /* Enkripsi AES-GCM via WebCrypto — pendekatan meniru catatan-terkunci.js.
  * Satu vault terenkripsi menyimpan {cek, entri[]}; password tidak pernah
  * disimpan, di localStorage maupun di mana pun. Diekspor agar bisa diuji
- * round-trip di luar browser. */
+ * round-trip di luar browser.
+ * Iterasi PBKDF2-HMAC-SHA256: 600.000 = batas minimum panduan OWASP
+ * Password Storage Cheat Sheet. Paket baru berversi (v: 2, iter: 600000);
+ * paket lama (tanpa field iter, dibuat saat iterasi masih 100.000) tetap
+ * bisa dibuka via ITERASI_LAMA — jangan pernah kunci user dari datanya. */
 const _te = new TextEncoder(), _td = new TextDecoder();
 const LS_KEY = 'brankas.vault';
-const ITERASI = 100000;
+const ITERASI = 600000;
+const ITERASI_LAMA = 100000;
+// Master password minimal 8 karakter. Brankas terkunci sendiri setelah
+// 5 menit tidak dipakai (HP ketinggalan terbuka tidak berarti brankas
+// ikut terbuka).
+export const PANJANG_MIN_MASTER = 8;
+export const AUTO_LOCK_MS = 5 * 60 * 1000;
 
 // b64e, b64d kanonis tinggal di utils (core.js).
-async function kunciDariPassword(password, salt) {
+async function kunciDariPassword(password, salt, iterasi) {
   const km = await crypto.subtle.importKey('raw', _te.encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: ITERASI, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations: iterasi, hash: 'SHA-256' },
     km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 export async function vltEncrypt(entri, password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await kunciDariPassword(password, salt);
+  const key = await kunciDariPassword(password, salt, ITERASI);
   const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, _te.encode(JSON.stringify({ cek: 'brankas-ok', entri })));
-  return JSON.stringify({ salt: utils.b64e(salt), iv: utils.b64e(iv), data: utils.b64e(data) });
+  return JSON.stringify({ v: 2, iter: ITERASI, salt: utils.b64e(salt), iv: utils.b64e(iv), data: utils.b64e(data) });
 }
 export async function vltDecrypt(paket, password) {
   const o = JSON.parse(paket);
-  const key = await kunciDariPassword(password, utils.b64d(o.salt));
+  const key = await kunciDariPassword(password, utils.b64d(o.salt), o.iter || ITERASI_LAMA);
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: utils.b64d(o.iv) }, key, utils.b64d(o.data));
   const v = JSON.parse(_td.decode(pt));
   if (!v || v.cek !== 'brankas-ok') throw new Error('cek-gagal');
@@ -43,14 +53,35 @@ export function render(root) {
     // lsGet, lsSet, lsDel kanonis tinggal di utils (core.js).
 
     let master = null; // HANYA di memori — tidak pernah ke localStorage
+    let timerKunci = null;
+    // Auto-lock: hitung mundur diulang tiap ada aktivitas di tool ini.
+    // Timer hanya jalan saat brankas terbuka; dikunci -> timer mati.
+    function hentikanTimerKunci() {
+      if (timerKunci) { clearTimeout(timerKunci); timerKunci = null; }
+    }
+    function mulaiTimerKunci() {
+      hentikanTimerKunci();
+      timerKunci = setTimeout(() => {
+        if (!master) return;
+        master = null;
+        hentikanTimerKunci();
+        draw();
+        T.toast('Brankas terkunci sendiri karena 5 menit tidak dipakai.');
+      }, AUTO_LOCK_MS);
+    }
+    function segarkanTimerKunci() { if (master) mulaiTimerKunci(); }
+    ['pointerdown', 'keydown', 'input'].forEach((ev) => {
+      root.addEventListener(ev, segarkanTimerKunci, true);
+    });
+    T.onLeave(hentikanTimerKunci);
 
-    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Brankas password pribadi: semua entri dienkripsi AES-256 pakai master password-mu, tersimpan <b>lokal di browser HP ini saja</b>. Master password tidak disimpan di mana pun — kalau lupa, isi brankas hilang selamanya. Nggak ada tombol "lupa password".</p>'));
+    root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Brankas password pribadi: semua entri dienkripsi AES-256 pakai master password-mu, tersimpan <b>lokal di browser HP ini saja</b>. Master password tidak disimpan di mana pun — kalau lupa, isi brankas hilang selamanya. Nggak ada tombol "lupa password". Brankas terkunci sendiri kalau 5 menit tidak dipakai.</p>'));
 
     function draw() {
       root.querySelectorAll('.brv').forEach((n) => n.remove());
-      if (!utils.lsGet(LS_KEY)) viewSetup();
-      else if (!master) viewLocked();
-      else viewOpen();
+      if (!utils.lsGet(LS_KEY)) { hentikanTimerKunci(); viewSetup(); }
+      else if (!master) { hentikanTimerKunci(); viewLocked(); }
+      else { viewOpen(); mulaiTimerKunci(); }
     }
     function box(el) { el.classList.add('brv'); root.appendChild(el); return el; }
 
@@ -62,11 +93,11 @@ export function render(root) {
       p1.autocomplete = 'new-password'; p2.autocomplete = 'new-password';
       const msg = T.out();
       b.appendChild(T.el('<h3 class="h3">🗝️ Buat Brankas Baru</h3>'));
-      b.appendChild(T.field('Master password', p1, 'Minimal 6 karakter. Ini satu-satunya kunci — catat baik-baik.'));
+      b.appendChild(T.field('Master password', p1, 'Minimal 8 karakter. Ini satu-satunya kunci — catat baik-baik.'));
       b.appendChild(T.field('Konfirmasi', p2));
       b.appendChild(T.row(T.btn('Buat Brankas', () => {
         const a = p1.value, c = p2.value;
-        if (a.length < 6) { T.show(msg, '<span class="err">Master password minimal 6 karakter ya.</span>'); return; }
+        if (a.length < PANJANG_MIN_MASTER) { T.show(msg, '<span class="err">Master password minimal 8 karakter ya.</span>'); return; }
         if (a !== c) { T.show(msg, '<span class="err">Konfirmasinya nggak sama — ketik ulang.</span>'); return; }
         T.show(msg, '<span class="dim">🔒 Mengenkripsi brankas…</span>');
         setTimeout(async () => {
@@ -214,11 +245,11 @@ export function render(root) {
       const n2 = T.input('password', 'Ulangi yang baru…');
       n1.autocomplete = 'new-password'; n2.autocomplete = 'new-password';
       const msg2 = T.out();
-      b.appendChild(T.field('Baru', n1, 'Minimal 6 karakter.'));
+      b.appendChild(T.field('Baru', n1, 'Minimal 8 karakter.'));
       b.appendChild(T.field('Konfirmasi baru', n2));
       b.appendChild(T.row(T.btn('Ganti & Enkripsi Ulang', async () => {
         const a = n1.value, c = n2.value;
-        if (a.length < 6) { T.show(msg2, '<span class="err">Minimal 6 karakter.</span>'); return; }
+        if (a.length < PANJANG_MIN_MASTER) { T.show(msg2, '<span class="err">Minimal 8 karakter.</span>'); return; }
         if (a !== c) { T.show(msg2, '<span class="err">Konfirmasinya nggak sama.</span>'); return; }
         try {
           const data = await muat();

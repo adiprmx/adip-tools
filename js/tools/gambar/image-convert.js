@@ -453,8 +453,10 @@ export function render(root) {
               kecil.getContext('2d').drawImage(canvas, 0, 0, target.w, target.h);
               canvas = kecil;
             }
-            if (fmtSel.value === 'jpeg' || fmtSel.value === 'webp' || fmtSel.value === 'avif' || (svgMode && svgMode.bg === 'putih')) {
-              // Format ini tidak punya transparansi: timpa di atas latar putih.
+            if (fmtSel.value === 'jpeg' || (svgMode && svgMode.bg === 'putih')) {
+              // Hanya JPEG yang tidak punya transparansi: timpa di atas latar
+              // putih supaya bagian tembus pandang tidak jadi hitam. WebP dan
+              // AVIF bisa menyimpan transparansi, jadi tidak diratakan.
               // (Untuk SVG yang ditempel, latar putih juga dipakai bila dipilih.)
               const putih = document.createElement('canvas');
               putih.width = canvas.width; putih.height = canvas.height;

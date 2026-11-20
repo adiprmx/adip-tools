@@ -21,7 +21,7 @@ export function render(root) {
       const imgUrl = art || sp.front_default || '';
       let html = '<div class="center" style="margin-bottom:12px">';
       if (imgUrl) {
-        html += '<img src="' + esc(imgUrl) + '" alt="' + esc(d.name || 'pokemon') + '" loading="lazy" style="width:160px;height:160px;object-fit:contain">';
+        html += '<div data-gambar><img src="' + esc(imgUrl) + '" alt="' + esc(d.name || 'pokemon') + '" loading="lazy" style="width:160px;height:160px;object-fit:contain"></div>';
       }
       html += '<div style="font-size:20px;font-weight:700;margin-top:8px">' + esc(cap(d.name)) + '</div>' +
         '<div class="dim">#' + esc(String(d.id)) + '</div></div>';
@@ -35,6 +35,18 @@ export function render(root) {
       });
       html += '<div class="hint">Data dari PokeAPI (pokeapi.co).</div>';
       T.show(box, html);
+      // Sprite gagal dimuat: tampilkan pesan pengganti yang terlihat,
+      // bukan ikon gambar patah. Nama dan data tetap tampil.
+      const slot = box.querySelector('[data-gambar]');
+      const img = slot && slot.querySelector('img');
+      if (img) {
+        img.addEventListener('error', () => {
+          T.show(slot, '<div class="dim" style="font-size:13px;line-height:1.6;padding:20px 0">Gambar Pokemon ini tidak bisa dimuat.<br>Datanya di bawah tetap bisa dibaca.</div>');
+          const w = T.el('<div style="margin-top:4px"></div>');
+          w.appendChild(T.btn('Coba lagi', lihat));
+          slot.appendChild(w);
+        });
+      }
     } catch (e) {
       let msg;
       if (e && e.name === 'AbortError') msg = 'Waktu habis — PokeAPI tidak merespons dalam 15 detik. Periksa koneksi internet lalu coba lagi.';

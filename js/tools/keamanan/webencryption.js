@@ -2,6 +2,34 @@ import { h as T, fileInput, errBox } from '../../core.js';
 
 export const meta = {"id": "webencryption", "name": "Web Encryption", "cat": "keamanan", "icon": "🔐", "desc": "Kunci HTML jadi file berpassword (AES-256).", "keywords": "enkripsi,aes,password,html,kunci,proteksi"};
 
+// Password minimal 8 karakter. Di bawah itu, file terenkripsi gampang
+// dibobol dengan tebakan — enkripsinya kuat, tapi kuncinya rapuh.
+export const PANJANG_MIN_PASS = 8;
+
+// Password yang sering dipakai orang (daftar singkat yang umum
+// diketahui — bukan daftar lengkap). Cocokkan tanpa peduli huruf
+// besar/kecil.
+const PASSWORD_UMUM = ['password', 'password1', '12345678', '123456789', '1234567890', '11111111', '00000000', 'qwerty123', 'qwertyuiop', 'admin123', 'letmein123', 'abcdefgh', 'asdfghjk'];
+
+// Nilai apakah password gampang ditebak. Mengembalikan alasan dalam
+// bahasa sehari-hari, atau null bila tidak ada masalah yang ketemu.
+// Ini peringatan, bukan vonis mutlak — password di luar pola ini pun
+// bisa lemah bila pernah bocor di tempat lain.
+export function passwordLemah(pw) {
+  const s = String(pw == null ? '' : pw);
+  if (s.length < PANJANG_MIN_PASS) return 'terlalu pendek (minimal 8 karakter)';
+  if (/^(\d)\1*$/.test(s) || /^\d+$/.test(s)) return 'cuma angka — gampang ditebak';
+  if (/^(.)\1+$/.test(s)) return 'satu huruf yang diulang-ulang';
+  if (PASSWORD_UMUM.includes(s.toLowerCase())) return 'password ini sering dipakai orang';
+  const punyaBesar = /[A-Z]/.test(s);
+  const punyaKecil = /[a-z]/.test(s);
+  const punyaAngka = /\d/.test(s);
+  const punyaSimbol = /[^A-Za-z0-9]/.test(s);
+  const ragam = [punyaBesar, punyaKecil, punyaAngka, punyaSimbol].filter(Boolean).length;
+  if (ragam < 2 && s.length < 12) return 'terlalu seragam — campur huruf besar, huruf kecil, angka, dan simbol';
+  return null;
+}
+
 export function render(root) {
 
   const MAX_FILE = 5 * 1024 * 1024;
@@ -13,8 +41,23 @@ export function render(root) {
   srcTa.spellcheck = false;
   const titleInp = T.input('text', 'Protected Page', 'Protected Page');
   titleInp.maxLength = 80;
-  const passInp = T.input('password', 'Minimal 4 karakter', '');
+  const passInp = T.input('password', 'Minimal 8 karakter', '');
   passInp.autocomplete = 'new-password';
+  // Peringatan langsung saat mengetik: password lemah ditandai sebelum
+  // tombol enkripsi ditekan (peringatan, bukan larangan — keputusan
+  // tetap di tangan user, tapi dengan info yang jelas).
+  const passWarn = T.el('<div class="warn" style="font-size:12.5px;margin-top:4px" hidden></div>');
+  const cekPassLemah = () => {
+    const alasan = passInp.value ? passwordLemah(passInp.value) : null;
+    if (alasan) {
+      passWarn.hidden = false;
+      passWarn.textContent = '⚠️ Password ini ' + alasan + '. File terenkripsi bisa dibuka orang yang menebaknya.';
+    } else {
+      passWarn.hidden = true;
+      passWarn.textContent = '';
+    }
+  };
+  passInp.addEventListener('input', cekPassLemah);
   const bShow = T.btn('Lihat', () => {
     passInp.type = passInp.type === 'password' ? 'text' : 'password';
     bShow.textContent = passInp.type === 'password' ? 'Lihat' : 'Sembunyi';
@@ -51,10 +94,16 @@ export function render(root) {
   };
   const compactHtml = (s) => String(s || '').replace(/<!--[\s\S]*?-->/g, '').replace(/>\s+</g, '><').trim();
 
+  // Iterasi PBKDF2-HMAC-SHA256: 600.000 = batas minimum panduan OWASP
+  // Password Storage Cheat Sheet. Payload baru menyimpan iterasinya
+  // (v: 2, iter: 600000); decryptor mandiri memakai P.iter bila ada dan
+  // jatuh ke 180.000 untuk file lama — file lama tetap bisa dibuka.
+  const ITERASI = 600000;
+
   async function deriveKey(password, salt) {
     const mat = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
     return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: 180000, hash: 'SHA-256' },
+      { name: 'PBKDF2', salt, iterations: ITERASI, hash: 'SHA-256' },
       mat, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
     );
   }
@@ -89,7 +138,7 @@ export function render(root) {
       '<script>(function(){"use strict";var P=' + pJson + ';' +
       'function b64(v){var s=atob(v),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a}' +
       'async function key(p,s){var m=await crypto.subtle.importKey("raw",new TextEncoder().encode(p),"PBKDF2",false,["deriveKey"]);' +
-      'return crypto.subtle.deriveKey({name:"PBKDF2",salt:s,iterations:180000,hash:"SHA-256"},m,{name:"AES-GCM",length:256},false,["decrypt"])}' +
+      'return crypto.subtle.deriveKey({name:"PBKDF2",salt:s,iterations:(P.iter||180000),hash:"SHA-256"},m,{name:"AES-GCM",length:256},false,["decrypt"])}' +
       'async function open(){var btn=document.getElementById("open"),msg=document.getElementById("msg"),pw=document.getElementById("pw").value;' +
       'if(!pw){msg.textContent="Password wajib diisi.";return}btn.disabled=true;btn.textContent="Membuka\\u2026";msg.textContent="";' +
       'try{var pl=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64(P.iv)},await key(pw,b64(P.salt)),b64(P.data));' +
@@ -103,7 +152,7 @@ export function render(root) {
     let html = srcTa.value.trim();
     const pass = passInp.value;
     if (!html) { T.show(box, errBox('Source HTML masih kosong.')); srcTa.focus(); return; }
-    if (pass.length < 4) { T.show(box, errBox('Password minimal 4 karakter.')); passInp.focus(); return; }
+    if (pass.length < PANJANG_MIN_PASS) { T.show(box, errBox('Password minimal 8 karakter.')); passInp.focus(); return; }
     if (!window.crypto || !crypto.subtle) { T.show(box, errBox('Browser ini belum mendukung Web Crypto API.')); return; }
     bEnc.disabled = true;
     T.show(box, '<span class="dim">Membuat kunci dan mengenkripsi…</span>');
@@ -114,13 +163,15 @@ export function render(root) {
       const key = await deriveKey(pass, salt);
       const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(html));
       latest = protectedDocument(
-        { salt: bytesToB64(salt), iv: bytesToB64(iv), data: bytesToB64(new Uint8Array(enc)) },
+        { v: 2, iter: ITERASI, salt: bytesToB64(salt), iv: bytesToB64(iv), data: bytesToB64(new Uint8Array(enc)) },
         titleInp.value.trim() || 'Protected Page'
       );
       outTa.value = latest;
       sizeLbl.textContent = (new Blob([latest]).size / 1024).toFixed(1) + ' KB';
       resWrap.hidden = false;
-      T.show(box, '<span class="ok">Enkripsi berhasil. Uji file hasil dengan password sebelum dipublikasikan.</span>');
+      const alasanLemah = passwordLemah(pass);
+      T.show(box, '<span class="ok">Enkripsi berhasil. Uji file hasil dengan password sebelum dipublikasikan.</span>' +
+        (alasanLemah ? '<br><span class="warn">⚠️ Tapi password ini ' + T.esc(alasanLemah) + ' — siapa pun yang menebaknya bisa membuka file ini. Pakai password yang lebih kuat bila isinya penting.</span>' : ''));
       resWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } catch (e) { T.show(box, errBox('Enkripsi gagal. Coba lagi.')); }
     finally { bEnc.disabled = false; }
@@ -148,7 +199,9 @@ export function render(root) {
   root.appendChild(T.el('<div style="margin-bottom:4px"><b>Ambil file HTML</b> <span class="dim" style="font-size:12px">· maks 5 MB (.html/.htm/.txt)</span></div>'));
   root.appendChild(fi);
   root.appendChild(T.field('Source HTML', srcTa));
-  root.appendChild(T.grid2(T.field('Judul halaman', titleInp), T.field('Password', T.row(passInp, bShow))));
+  const passField = T.field('Password', T.row(passInp, bShow));
+  passField.appendChild(passWarn);
+  root.appendChild(T.grid2(T.field('Judul halaman', titleInp), passField));
   root.appendChild(chkRow);
   root.appendChild(T.row(bEnc));
   root.appendChild(box);

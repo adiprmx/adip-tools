@@ -1,13 +1,18 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "bagi-video", "name": "Bagi Video", "cat": "converter", "icon": "✂️", "desc": "Bagi video panjang jadi beberapa bagian per durasi.", "keywords": "video,bagi,potong,bagian,durasi,split", "since": "6.17.0"};
 
+// Batas jumlah segmen: tanpa cap, durasi Infinity (atau video sangat
+// panjang) membuat loop di bawah jalan selamanya dan tab hang.
+export const MAKS_SEGMEN = 999;
+
 // Rencana segmen murni: daftar {mulai, durasi} detik. Bisa diuji di Node.
 export function rencanaSegmen(durasi, perSegmen) {
   const out = [];
+  if (!Number.isFinite(durasi) || durasi <= 0) return out;
   const step = Math.max(1, perSegmen || 30);
-  for (let mulai = 0; mulai < durasi; mulai += step) {
+  for (let mulai = 0; mulai < durasi && out.length < MAKS_SEGMEN; mulai += step) {
     out.push({ mulai: Math.round(mulai * 100) / 100, durasi: Math.round(Math.min(step, durasi - mulai) * 100) / 100 });
   }
   return out;
@@ -44,11 +49,13 @@ export function render(root) {
   const refreshInfo = () => {
     if (!fileObj) { T.hide(infoBox); return; }
     const rencana = duration ? rencanaSegmen(duration, Number(durSel.value)) : [];
+    const terpotong = duration > 0 && Math.ceil(duration / Number(durSel.value)) > MAKS_SEGMEN;
     T.show(infoBox,
       kv('File', T.esc(fileObj.name)) +
       kv('Durasi', duration ? duration.toFixed(1) + ' detik' : 'tidak terbaca') +
       kv('Ukuran', fmtBytes(fileObj.size)) +
-      (rencana.length ? kv('Jadi bagian', rencana.length + ' bagian') : ''));
+      (rencana.length ? kv('Jadi bagian', rencana.length + ' bagian') : '') +
+      (terpotong ? '<p class="hint" style="margin-top:8px">Video ini sangat panjang, jadi hanya ' + MAKS_SEGMEN + ' bagian pertama yang dibuat.</p>' : ''));
   };
   durSel.addEventListener('change', refreshInfo);
 
@@ -58,9 +65,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       URL.revokeObjectURL(url);
       refreshInfo();
     };

@@ -1,6 +1,6 @@
 import { h as T, LOCAL_NOTE, dlNodePng, fileInput } from '../../core.js';
 
-export const meta = {"id":"fake-call","name":"Fake Panggilan Masuk","cat":"fakesos","icon":"📞","desc":"Bikin screenshot layar panggilan masuk palsu + unduh PNG.","keywords":"telepon,call,panggilan,fake,palsu,screenshot,prank"};
+export const meta = {"id":"fake-call","name":"Fake Panggilan Masuk","cat":"fakesos","icon":"📞","desc":"Bikin screenshot layar panggilan WhatsApp palsu: masuk, keluar, atau berlangsung + unduh PNG.","keywords":"telepon,call,panggilan,fake,palsu,screenshot,prank"};
 
 const P = 'fkcl';
 
@@ -35,7 +35,7 @@ const doodle = '<svg class="' + P + '-doodle" width="100%" height="100%" aria-hi
   '<rect width="100%" height="100%" fill="url(#' + P + '-dd)"/></svg>';
 
 export function render(root) {
-  const S = { platform: 'android', tipe: 'masuk', media: 'audio', nama: 'Mama', avatar: '' };
+  const S = { platform: 'android', tipe: 'masuk', media: 'audio', nama: 'Mama', avatar: '', durasi: '0:00' };
 
   const css = document.createElement('style');
   css.textContent =
@@ -118,6 +118,7 @@ export function render(root) {
 
   function draw() {
     brandField.style.display = (S.platform === 'android') ? '' : 'none';
+    durasiField.style.display = (S.tipe === 'berlangsung') ? '' : 'none';
     let html = '';
     if (S.tipe === 'masuk') {
       const lbl = S.media === 'video' ? 'Panggilan video WhatsApp' : 'Panggilan suara WhatsApp';
@@ -133,6 +134,19 @@ export function render(root) {
             '<div class="' + P + '-roundbtn ' + P + '-accept" title="Jawab">' + ic('phone') + '</div>' +
           '</div>' +
         '</div>' + bottomChrome() + '<span class="' + P + '-pranktag">palsu · cuma prank</span></div>';
+    } else if (S.tipe === 'keluar') {
+      const lbl = S.media === 'video' ? 'Memanggil video…' : 'Memanggil…';
+      html = '<div class="' + P + '-screen">' +
+        '<div class="' + P + '-ct">' + sb() +
+          '<div class="' + P + '-inhead">' + avHtml(false) +
+            '<div class="' + P + '-nm">' + T.esc(S.nama) + '</div>' +
+            '<div class="' + P + '-callabel">' + lbl + '</div>' +
+          '</div>' +
+          '<div class="' + P + '-sp"></div>' +
+          '<div class="' + P + '-inbtns" style="justify-content:center">' +
+            '<div class="' + P + '-roundbtn ' + P + '-decline" title="Batalkan panggilan">' + ic('phone', true) + '</div>' +
+          '</div>' +
+        '</div>' + bottomChrome() + '<span class="' + P + '-pranktag">palsu · cuma prank</span></div>';
     } else {
       html = '<div class="' + P + '-screen">' + doodle +
         '<div class="' + P + '-ct">' + sb() +
@@ -145,7 +159,7 @@ export function render(root) {
             '<div class="' + P + '-hbtn">' + ic('padd') + '</div>' +
           '</div>' +
           avHtml(true) +
-          '<div class="' + P + '-ontimer">0:00</div>' +
+          '<div class="' + P + '-ontimer">' + T.esc(S.durasi || '0:00') + '</div>' +
           '<div class="' + P + '-sp"></div>' +
           '<div class="' + P + '-islandbar">' +
             '<div class="' + P + '-ctl">' + ic('mic') + '</div>' +
@@ -163,17 +177,18 @@ export function render(root) {
 
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], S.platform);
   const selBrand = T.select([['xiaomi','Xiaomi'],['samsung','Samsung'],['oppo','Oppo'],['vivo','Vivo'],['realme','Realme'],['oneplus','OnePlus'],['infinix','Infinix'],['tecno','Tecno'],['motorola','Motorola'],['nothing','Nothing'],['pixel','Pixel'],['huawei','Huawei'],['honor','Honor']], 'xiaomi');
-  const selTipe = T.select([['masuk', 'Panggilan masuk'], ['berlangsung', 'Panggilan berlangsung']], S.tipe);
+  const selTipe = T.select([['masuk', 'Panggilan masuk'], ['keluar', 'Panggilan keluar'], ['berlangsung', 'Panggilan berlangsung']], S.tipe);
   const selMedia = T.select([['audio', 'Audio'], ['video', 'Video']], S.media);
   const inNama = T.input('text', 'Nama kontak', S.nama);
+  const inDurasi = T.input('text', 'Durasi (mis. 2:34)', S.durasi);
   const fi = fileInput('image/*');
   const fiField = T.field('Foto avatar (upload, opsional)', fi, 'Foto tampil sebagai foto profil lingkaran di layar panggilan.');
 
   function pull() {
     S.platform = selPlatform.value; S.tipe = selTipe.value;
-    S.media = selMedia.value; S.nama = inNama.value;
+    S.media = selMedia.value; S.nama = inNama.value; S.durasi = inDurasi.value;
   }
-  [selPlatform, selBrand, selTipe, selMedia, inNama].forEach((elm) => {
+  [selPlatform, selBrand, selTipe, selMedia, inNama, inDurasi].forEach((elm) => {
     elm.addEventListener('input', () => { pull(); draw(); });
     elm.addEventListener('change', () => { pull(); draw(); });
   });
@@ -182,7 +197,7 @@ export function render(root) {
   });
 
   const bContoh = T.btn('🎲 Contoh', () => {
-    selTipe.value = 'masuk'; selMedia.value = 'audio'; inNama.value = 'Mama';
+    selTipe.value = 'masuk'; selMedia.value = 'audio'; inNama.value = 'Mama'; inDurasi.value = '0:00';
     S.avatar = ''; fi.value = '';
     pull(); draw(); T.scrollToPreview(frame); T.toast('Contoh dimuat');
   });
@@ -194,9 +209,12 @@ export function render(root) {
   wrap.appendChild(T.field('Tipe panggilan', selTipe));
   wrap.appendChild(T.field('Audio / Video', selMedia));
   wrap.appendChild(T.field('Nama kontak', inNama));
+  const durasiField = T.field('Durasi (panggilan berlangsung)', inDurasi, 'Tampil sebagai timer di layar panggilan berlangsung, mis. 2:34.');
+  wrap.appendChild(durasiField);
   wrap.appendChild(fiField);
   wrap.appendChild(T.row(bContoh, bDl));
   wrap.appendChild(stage);
+  wrap.appendChild(T.el('<p class="note">🎭 Hanya untuk prank, bukan panggilan WhatsApp asli. Jangan dipakai untuk menipu orang.</p>'));
   wrap.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
   wrap.appendChild(T.el('<p class="hint">Tips: export PNG butuh koneksi internet sekali untuk memuat pustaka export.</p>'));
   root.appendChild(wrap);

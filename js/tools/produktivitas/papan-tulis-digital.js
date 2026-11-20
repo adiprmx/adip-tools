@@ -26,7 +26,28 @@ export function render(root) {
   const riwayat = []; // snapshot dataURL, maks 20
 
   const catat = () => { riwayat.push(canvas.toDataURL('image/png')); if (riwayat.length > 20) riwayat.shift(); };
-  const simpan = () => { try { localStorage.setItem(LS_KEY, canvas.toDataURL('image/png')); } catch (e) { /* penyimpanan penuh: abaikan */ } };
+  const peringatanBox = T.out();
+  const unduhPng = () => {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'papan-tulis.png';
+    a.click();
+  };
+  // Simpan otomatis bisa gagal saat penyimpanan browser penuh (gambar PNG
+  // penuh bisa besar). Sebelumnya gagal diam-diam dan user mengira
+  // gambarnya tersimpan. Sekarang: kembalikan status, tampilkan
+  // peringatan jujur, dan tawarkan unduh supaya gambar tidak hilang.
+  const simpan = () => {
+    try {
+      localStorage.setItem(LS_KEY, canvas.toDataURL('image/png'));
+      T.hide(peringatanBox);
+      return true;
+    } catch (e) {
+      T.show(peringatanBox, '<div class="err" style="margin-bottom:8px">Gambar tidak bisa disimpan otomatis karena penyimpanan browser penuh. Unduh gambarnya sekarang supaya tidak hilang.</div>');
+      peringatanBox.appendChild(T.btn('⬇ Unduh PNG sekarang', unduhPng, true));
+      return false;
+    }
+  };
   const muat = (url) => {
     const img = new Image();
     img.onload = () => { ctx.clearRect(0, 0, W, H); ctx.drawImage(img, 0, 0); };
@@ -85,16 +106,12 @@ export function render(root) {
     ctx.clearRect(0, 0, W, H);
     simpan();
   });
-  const unduhBtn = T.btn('⬇ Unduh PNG', () => {
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
-    a.download = 'papan-tulis.png';
-    a.click();
-  });
+  const unduhBtn = T.btn('⬇ Unduh PNG', unduhPng);
 
   root.appendChild(T.el('<p class="note">Gambar apa saja di papan ini — sketsa, coretan, atau catatan tangan. Gambar tersimpan otomatis di browser ini, jadi tetap ada saat kamu kembali.</p>'));
   wrap.appendChild(canvas);
   root.appendChild(wrap);
+  root.appendChild(peringatanBox);
   root.appendChild(palet);
   root.appendChild(T.field('Ketebalan garis', tebalI, 'Geser untuk garis lebih tebal atau tipis'));
   const tombol = T.el('<div class="row" style="flex-wrap:wrap;gap:8px"></div>');

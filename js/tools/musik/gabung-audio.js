@@ -55,7 +55,7 @@ export function render(root) {
     const url = URL.createObjectURL(f);
     const a = document.createElement('audio');
     a.preload = 'metadata';
-    a.onloadedmetadata = () => { const d = a.duration || 0; URL.revokeObjectURL(url); resolve(d); };
+    a.onloadedmetadata = async () => { const d = await utils.resolveDurasi(a); URL.revokeObjectURL(url); resolve(d); };
     a.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
     a.src = url;
   });
@@ -119,7 +119,11 @@ export function render(root) {
       T.toast('Audio gabungan terunduh');
     } catch (e) {
       if (isCancelled(e)) { T.show(outBox, '<span class="dim">Dibatalkan.</span>'); }
-      else T.show(outBox, errBox(friendlyError(e)));
+      else {
+        T.show(outBox, errBox(friendlyError(e)));
+        const retry = T.btn('Coba lagi', () => goBtn.click());
+        outBox.appendChild(retry);
+      }
     } finally {
       busy = false;
       goBtn.disabled = false;

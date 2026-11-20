@@ -31,11 +31,20 @@ export function render(root) {
     }
     const p = cocok(a, b);
     const [label, sub] = labelFor(p);
+    const teksHasil = a + ' 💘 ' + b + ' = ' + p + '% — ' + label;
     T.show(box,
       '<div class="big center">' + p + '<span class="mut" style="font-size:15px">%</span></div>' +
       '<p class="center" style="font-size:16px;margin:8px 0 4px"><b>' + T.esc(label) + '</b></p>' +
       '<p class="center mut">' + T.esc(sub) + '</p>' +
       '<p class="center" style="margin-top:10px">' + T.esc(a) + ' 💘 ' + T.esc(b) + '</p>');
+    const bagikan = T.btn('Bagikan', () => {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        navigator.share({ text: teksHasil }).catch(() => {});
+      } else {
+        T.toast('Bagikan tidak tersedia di perangkat ini, pakai tombol Salin hasil saja.');
+      }
+    });
+    box.appendChild(T.row(T.copyBtn(() => teksHasil, 'Salin hasil'), bagikan));
   };
   [n1, n2].forEach((i) => i.addEventListener('keydown', (e) => { if (e.key === 'Enter') cek(); }));
   root.appendChild(T.grid2(T.field('Nama pertama', n1), T.field('Nama kedua', n2)));

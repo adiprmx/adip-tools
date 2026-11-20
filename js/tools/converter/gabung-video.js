@@ -59,7 +59,7 @@ export function render(root) {
     const url = URL.createObjectURL(f);
     const v = document.createElement('video');
     v.preload = 'metadata';
-    v.onloadedmetadata = () => { const m = { duration: v.duration || 0, w: v.videoWidth || 0, h: v.videoHeight || 0 }; URL.revokeObjectURL(url); resolve(m); };
+    v.onloadedmetadata = async () => { const m = { duration: await utils.resolveDurasi(v), w: v.videoWidth || 0, h: v.videoHeight || 0 }; URL.revokeObjectURL(url); resolve(m); };
     v.onerror = () => { URL.revokeObjectURL(url); resolve({ duration: 0, w: 0, h: 0 }); };
     v.src = url;
   });
@@ -146,7 +146,11 @@ export function render(root) {
       T.toast('Video gabungan terunduh');
     } catch (e) {
       if (isCancelled(e)) { T.show(outBox, '<span class="dim">Dibatalkan.</span>'); }
-      else T.show(outBox, errBox(friendlyError(e)));
+      else {
+        T.show(outBox, errBox(friendlyError(e)));
+        const retry = T.btn('Coba lagi', () => goBtn.click());
+        outBox.appendChild(retry);
+      }
     } finally {
       busy = false;
       goBtn.disabled = false;

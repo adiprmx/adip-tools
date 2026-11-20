@@ -144,7 +144,9 @@ export function render(root) {
           w = Math.round(w * s); h = Math.round(h * s);
         }
         const mime = fmtSel.value === 'png' ? 'image/png' : fmtSel.value === 'webp' ? 'image/webp' : fmtSel.value === 'avif' ? 'image/avif' : 'image/jpeg';
-        const isiPutih = fmtSel.value !== 'png';
+        // Hanya JPEG yang perlu latar putih (tidak punya transparansi).
+        // WebP dan AVIF bisa menyimpan transparansi, jadi dibiarkan apa adanya.
+        const isiPutih = fmtSel.value === 'jpeg';
         const base = (file.name || 'gambar').replace(/\.[^.]*$/, '');
         const ext = fmtSel.value === 'jpeg' ? 'jpg' : fmtSel.value;
         const nama = base + '-kompres.' + ext;

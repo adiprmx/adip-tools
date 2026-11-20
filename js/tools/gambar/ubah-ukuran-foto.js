@@ -82,7 +82,19 @@ export function render(root) {
         const c = drawSharp(img, tw, th);
         const mime = fmtSel.value === 'png' ? 'image/png' : fmtSel.value === 'webp' ? 'image/webp' : 'image/jpeg';
         const q = fmtSel.value === 'png' ? undefined : (parseInt(qRange.value, 10) / 100);
-        const blob = await canvasToBlob(c, mime, q);
+        // JPEG tidak punya transparansi: timpa di atas latar putih supaya
+        // bagian tembus pandang tidak jadi hitam (pola banding-foto).
+        // PNG dan WebP bisa menyimpan transparansi, jadi tidak diratakan.
+        let sumber = c;
+        if (mime === 'image/jpeg') {
+          const putih = document.createElement('canvas');
+          putih.width = c.width; putih.height = c.height;
+          const px = putih.getContext('2d');
+          px.fillStyle = '#ffffff'; px.fillRect(0, 0, c.width, c.height);
+          px.drawImage(c, 0, 0);
+          sumber = putih;
+        }
+        const blob = await canvasToBlob(sumber, mime, q);
         if (!blob) { T.toast('Fotonya tidak bisa diproses. Coba foto lain.'); return; }
         const orig = fileI.files[0];
         const base = (orig.name || 'foto').replace(/\.[^.]*$/, '');

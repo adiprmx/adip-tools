@@ -1,10 +1,10 @@
 import { h as T } from '../../core.js';
 
-// 12 resep rumahan Indonesia, masing-masing dari sumber terverifikasi
+// 13 resep rumahan Indonesia, masing-masing dari sumber terverifikasi
 // (dicantumkan per resep). Waktu bertanda ± adalah perkiraan.
 // Sumber 1-4: dataset unitools-recipes-v1 (CC BY-SA 4.0), diterjemahkan.
-// Sumber 5-12: situs resep Indonesia, diverifikasi 18 Nov 2026.
-const RESEP = [
+// Sumber 5-13: situs resep Indonesia, diverifikasi 18-20 Nov 2026.
+export const RESEP = [
   { nama: 'Nasi Goreng', porsi: '4 porsi', waktu: '20 menit', tingkat: 'Mudah',
     sumber: 'unitools-recipes-v1 (CC BY-SA 4.0)',
     utama: ['nasi', 'ayam', 'udang', 'telur', 'bawang merah', 'bawang putih', 'cabai', 'kecap manis'],
@@ -30,11 +30,11 @@ const RESEP = [
     utama: ['telur', 'cabai', 'bawang merah', 'bawang putih', 'tomat'],
     bahan: ['Telur ayam 8 butir', 'Cabai merah keriting 10 buah', 'Cabai rawit 5 buah (opsional)', 'Bawang merah 8 siung', 'Bawang putih 3 siung', 'Tomat 1 buah', 'Gula merah sisir 1 sdm', 'Air asam jawa 1 sdm', 'Garam secukupnya', 'Minyak secukupnya'],
     langkah: ['Rebus telur dalam air mendidih 10 menit, angkat, rendam air dingin, lalu kupas.', 'Goreng telur rebus sebentar sampai permukaannya berkulit kecokelatan, tiriskan.', 'Haluskan cabai, bawang merah, bawang putih, dan tomat.', 'Tumis bumbu halus dengan sedikit minyak sampai harum dan matang, sekitar 8-10 menit.', 'Tambahkan gula merah, garam, dan air asam jawa; aduk dan koreksi rasa.', 'Masukkan telur, aduk hingga rata terbalut sambal, masak 2 menit, sajikan.'] },
-  { nama: 'Tempe Goreng', porsi: '2-3 porsi', waktu: '±20 menit', tingkat: 'Mudah',
-    sumber: 'brainly.co.id',
-    utama: ['tempe', 'bawang putih', 'ketumbar', 'kunyit'],
-    bahan: ['Tempe 1 papan, potong dadu', 'Garam 1/2 sdt', 'Ketumbar bubuk 1/4 sdt', 'Kunyit bubuk 1/4 sdt', 'Merica bubuk 1/4 sdt', 'Minyak goreng secukupnya'],
-    langkah: ['Potong tempe menjadi dadu berukuran sedang.', 'Campur garam, ketumbar bubuk, kunyit bubuk, dan merica bubuk.', 'Lumuri potongan tempe dengan campuran bumbu hingga merata.', 'Panaskan minyak goreng dalam wajan. Goreng tempe hingga berwarna keemasan dan renyah, api sedang agar matang merata.', 'Angkat dan tiriskan.', 'Sajikan hangat sebagai camilan atau lauk.'] },
+  { nama: 'Tempe Goreng Tepung', porsi: '2-3 porsi', waktu: '±20 menit', tingkat: 'Mudah',
+    sumber: 'Cookpad (Kiki Fhatria)',
+    utama: ['tempe', 'tepung terigu', 'tepung beras', 'bawang putih', 'ketumbar', 'kunyit'],
+    bahan: ['Tempe 1 papan (500 g), iris tipis', 'Tepung terigu serbaguna 100 g', 'Tepung beras 50 g', 'Air 275-300 ml', 'Garam 1 sdt', 'Kaldu bubuk 1 sdt', 'Minyak goreng secukupnya', 'Bumbu halus: bawang putih 2 siung, kunyit 1 ruas, ketumbar 1 sdt'],
+    langkah: ['Iris tempe dengan ketebalan sesuai selera.', 'Campur tepung terigu dan tepung beras dalam wadah.', 'Haluskan bumbu halus, masukkan ke campuran tepung, lalu tambah air, garam, dan kaldu bubuk, aduk rata.', 'Celupkan tempe ke adonan pencelup, goreng hingga keemasan, tiriskan.', 'Sajikan hangat, lengkapi dengan cocolan cabai atau kecap dengan irisan cabai rawit.'] },
   { nama: 'Tumis Kangkung Terasi', porsi: '2-3 porsi', waktu: '±15 menit', tingkat: 'Mudah',
     sumber: 'kuliner.indostri.com',
     utama: ['kangkung', 'bawang putih', 'cabai', 'terasi', 'kecap manis'],
@@ -65,6 +65,11 @@ const RESEP = [
     utama: ['ayam', 'wortel', 'kentang', 'kol', 'buncis', 'bawang putih', 'bawang merah'],
     bahan: ['Ayam tanpa kulit 300 g', 'Wortel 2 buah', 'Kentang 2 buah', 'Kol 100 g', 'Buncis 100 g', 'Daun bawang 1 batang', 'Seledri 1 batang', 'Bawang putih 3 siung', 'Bawang merah 4 siung', 'Merica dan garam secukupnya'],
     langkah: ['Rebus ayam hingga matang, buang buih yang muncul di permukaan kaldu agar kuah tetap bening.', 'Masukkan bumbu, lalu kentang dan wortel.', 'Masukkan buncis dan kol, masak sampai sayur empuk.', 'Tambahkan daun bawang dan seledri sebelum api dimatikan.', 'Koreksi rasa, sajikan hangat.'] },
+  { nama: 'Sayur Lodeh', porsi: '4 porsi', waktu: '±40 menit', tingkat: 'Mudah',
+    sumber: 'royco.co.id',
+    utama: ['tahu', 'kacang panjang', 'santan', 'bawang merah', 'bawang putih', 'cabai', 'kemiri', 'kunyit', 'lengkuas'],
+    bahan: ['Tahu pong 5 buah, potong-potong', 'Kacang panjang 8 lonjor, potong-potong', 'Santan 25 g (bubuk) atau 250 ml santan kelapa', 'Air 1.300 ml', 'Daun salam 1 lembar', 'Daun jeruk purut 3 lembar', 'Lengkuas 2 ruas, memarkan', 'Gula merah 1/2 sdm', 'Garam 1 sdt', 'Kaldu jamur 1/2 sdt', 'Minyak goreng 3 sdm', 'Bumbu halus: bawang merah 8 siung, bawang putih 4 siung, cabai merah besar 2 buah, kemiri 2 biji, kunyit 1 ruas, lengkuas 1 ruas, ketumbar bubuk 1/2 sdt, udang rebon 1 sdm (rendam air panas)'],
+    langkah: ['Tumis bumbu halus bersama daun salam, daun jeruk, dan lengkuas dalam sedikit minyak hingga wangi.', 'Tambahkan air, lalu masukkan kacang panjang dan tahu pong. Masak sampai kacang panjang setengah matang.', 'Masukkan garam, gula merah, dan kaldu jamur. Aduk rata dan masak sampai semua sayuran matang.', 'Tambahkan santan, aduk terus hingga mendidih kembali. Koreksi rasa dan sajikan.'] },
 ];
 
 export const meta = {"id": "masak-dari-bahan", "name": "Masak dari Bahan", "cat": "masak", "icon": "🍳", "desc": "Pilih bahan yang ada di dapurmu, lihat resep apa saja yang bisa dimasak.", "keywords": "masak,resep,bahan,dapur,indonesia,rumahan", "since": "6.16.0"};

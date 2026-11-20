@@ -2,9 +2,10 @@ import { h as T, utils } from '../../core.js';
 
 // Logika murni (bisa di-test di Node). Dosis per hektar per musim tanam.
 // Skema NPK mengikuti Permentan 13/2022: NPK 225 + Urea 50 + SP-36 75 + KCl 50 kg/ha.
-// Skema tunggal memakai nilai tengah kisaran Permentan 2022 (Urea 300-400,
-// SP-36 100-150, KCl 75-100). Semua dosis bisa diubah, karena kebutuhan
-// tiap lahan beda.
+// Skema tunggal memakai UJUNG BAWAH kisaran Permentan 2022 (bukan nilai tengah):
+// Urea 300 (kisaran 300–400), SP-36 100 (100–150), KCl 75 (75–100) kg/ha —
+// dosis hemat; naikkan bila anjuran penyuluh setempat lebih tinggi. Semua dosis
+// bisa diubah, karena kebutuhan tiap lahan beda.
 utils.SKEMA_PUPUK_PADI = {
   npk: { nama: 'Skema NPK (majemuk)', dosis: { npk: 225, urea: 50, sp36: 75, kcl: 50, za: 0 } },
   tunggal: { nama: 'Skema pupuk tunggal', dosis: { npk: 0, urea: 300, sp36: 100, kcl: 75, za: 0 } }

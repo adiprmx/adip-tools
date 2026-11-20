@@ -5,8 +5,12 @@ import { h as T, utils, kv } from '../../core.js';
 // Satuan hasil: newton-meter (N.m). Konversi: 1 kgf.m = 9,80665 N.m;
 // 1 lbf.ft = 1,35582 N.m. Bila sudut 90 derajat, sin = 1, torsi maksimal.
 // Mode balik: gaya = tau / (r x sin sudut); lengan = tau / (F x sin sudut).
+// Catatan floating point: sin(180°) dihitung ≈ 1,22e-16, bukan 0 — tanpa
+// ambang, mode balik di sudut 180° membagi dengan angka itu dan menghasilkan
+// gaya/lengan astronomis (≈1e18). sin di bawah 1e-9 dianggap 0.
 export function hitungTorsi(o) {
-  const sin = Math.sin((Math.max(0, Math.min(180, Number(o.sudut) || 0)) * Math.PI) / 180);
+  const sinMentah = Math.sin((Math.max(0, Math.min(180, Number(o.sudut) || 0)) * Math.PI) / 180);
+  const sin = Math.abs(sinMentah) < 1e-9 ? 0 : sinMentah;
   if (o.mode === 'gaya') {
     const tau = Math.max(0, Number(o.torsi) || 0);
     const r = Math.max(0, Number(o.lengan) || 0);

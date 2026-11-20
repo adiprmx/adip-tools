@@ -11,10 +11,22 @@ const TER_KAT = { 'TK/0': 'A', 'TK/1': 'A', 'K/0': 'A', 'TK/2': 'B', 'TK/3': 'B'
 // + 4,5 jt bila kawin. Dipakai saat hitung ulang PPh 21 bulan Desember.
 const PTKP_NOMINAL = { 'TK/0': 54000000, 'TK/1': 58500000, 'TK/2': 63000000, 'TK/3': 67500000, 'K/0': 58500000, 'K/1': 63000000, 'K/2': 67500000, 'K/3': 72000000 };
 
+// Batas upah BPJS — dicek 20 Nov 2026 (angka BPJS disatukan ronde v6.21.0;
+// lihat BPJS-CAP.md di folder fix):
+// - Jaminan Pensiun (JP): maks Rp11.086.300/bln sejak 1 Mar 2026 (Surat BPJS
+//   Ketenagakerjaan B/1226/022026, 25 Feb 2026; PP 45/2015 Pasal 29 —
+//   disesuaikan tiap Maret mengikuti pertumbuhan PDB). Berlaku untuk iuran
+//   JP pekerja (1%) maupun perusahaan (2%).
+// - BPJS Kesehatan: maks Rp12.000.000/bln (Perpres 82/2018 Pasal 32 jo
+//   Perpres 59/2024). Berlaku untuk iuran Kesehatan pekerja (1%) maupun
+//   perusahaan (4%). JHT (2% + 3,7%), JKK, dan JKM tanpa batas upah.
+export const CAP_UPAH_JP = 11086300;
+export const CAP_UPAH_BPJS_KES = 12000000;
+
 // Iuran BPJS Ketenagakerjaan porsi pemberi kerja (PP 44/2015 & PP 45/2015):
 // JKK 0,24%–1,74% (menurut kelas risiko pekerjaan), JKM 0,3%, JHT 3,7%, JP 2%.
-// Batas upah (mis. JP) tidak diterapkan di sini — lihat catatan di bawah.
-const IURAN_PERUSAHAAN = { jkm: 0.3, jht: 3.7, jp: 2 };
+// BPJS Kesehatan porsi perusahaan 4% (Perpres 82/2018 jo Perpres 64/2020).
+const IURAN_PERUSAHAAN = { jkm: 0.3, jht: 3.7, jp: 2, kes: 4 };
 
 function terRate(bruto, status) {
   const kat = TER_KAT[status];
@@ -24,17 +36,32 @@ function terRate(bruto, status) {
   return { kat, tarif: 34 };
 }
 
-// Gross-up: cari penghasilan bruto supaya setelah dipotong BPJS, JHT, PPh 21 (TER)
-// dan potongan lain, yang diterima sama dengan target. Iterasi titik tetap.
-function grossUpBersih(target, bp, jp, lain, pphOn, status) {
+// Potongan iuran porsi pekerja dari penghasilan bruto. BPJS Kesehatan 1%
+// dan JP 1% memakai batas upah (di atas); JHT 2% tanpa batas upah.
+// Logika murni (bisa di-test di Node).
+export function potonganKaryawan(bruto, bpPct, jhtPct, jpPct) {
+  const b = Math.max(0, Number(bruto) || 0);
+  const bpjs = Math.min(b, CAP_UPAH_BPJS_KES) * (Math.max(0, Number(bpPct) || 0) / 100);
+  const jht = b * (Math.max(0, Number(jhtPct) || 0) / 100);
+  const jp = Math.min(b, CAP_UPAH_JP) * (Math.max(0, Number(jpPct) || 0) / 100);
+  return { bpjs, jht, jp, total: bpjs + jht + jp };
+}
+
+// Gross-up: cari penghasilan bruto supaya setelah dipotong BPJS, JHT, JP,
+// PPh 21 (TER) dan potongan lain, yang diterima sama dengan target.
+// Iterasi titik tetap: bruto = target + lain + potongan(bruto). Potongan
+// memakai batas upah (BPJS Kesehatan & JP), jadi tidak lagi rumus tertutup.
+function grossUpBersih(target, bp, jhtPct, jpPct, lain, pphOn, status) {
   if (!Number.isFinite(target) || !(target > 0)) return null;
-  let bruto = target + lain;
-  for (let i = 0; i < 60; i++) {
+  const potongan = (bruto) => {
+    const p = potonganKaryawan(bruto, bp, jhtPct, jpPct);
     const tr = pphOn ? terRate(bruto, status) : null;
-    const rate = tr ? tr.tarif / 100 : 0;
-    const denom = 1 - bp / 100 - jp / 100 - rate;
-    if (denom <= 0) return null;
-    const next = (target + lain) / denom;
+    return p.total + (tr ? bruto * (tr.tarif / 100) : 0);
+  };
+  let bruto = target + (Number(lain) || 0);
+  for (let i = 0; i < 60; i++) {
+    const next = target + (Number(lain) || 0) + potongan(bruto);
+    if (!Number.isFinite(next) || next <= 0) return null;
     if (Math.abs(next - bruto) < 1) { bruto = next; break; }
     bruto = next;
   }
@@ -42,7 +69,8 @@ function grossUpBersih(target, bp, jp, lain, pphOn, status) {
 }
 
 // Iuran porsi perusahaan dari penghasilan bruto. jkkPct bisa diubah
-// (0,24–1,74% menurut risiko pekerjaan); JKM/JHT/JP memakai tarif tetap.
+// (0,24–1,74% menurut risiko pekerjaan); JKM/JHT/JP/Kesehatan memakai tarif
+// tetap. JP 2% dan Kesehatan 4% memakai batas upah; JHT, JKK, JKM tidak.
 function iuranPerusahaan(bruto, jkkPct) {
   // Kalikan dengan tarif/100 dulu: bruto * tarif bisa meluber ke Infinity
   // sebelum dibagi 100 bila bruto sangat besar (pola yang sama dengan NaN
@@ -50,8 +78,9 @@ function iuranPerusahaan(bruto, jkkPct) {
   const jkk = bruto * (Math.max(0, jkkPct || 0) / 100);
   const jkm = bruto * (IURAN_PERUSAHAAN.jkm / 100);
   const jht = bruto * (IURAN_PERUSAHAAN.jht / 100);
-  const jp = bruto * (IURAN_PERUSAHAAN.jp / 100);
-  return { jkk, jkm, jht, jp, total: jkk + jkm + jht + jp };
+  const jp = Math.min(bruto, CAP_UPAH_JP) * (IURAN_PERUSAHAAN.jp / 100);
+  const kes = Math.min(bruto, CAP_UPAH_BPJS_KES) * (IURAN_PERUSAHAAN.kes / 100);
+  return { jkk, jkm, jht, jp, kes, total: jkk + jkm + jht + jp + kes };
 }
 
 // Pajak atas THR (1x gaji bruto) dengan metode TER: di bulan THR diterima,
@@ -71,18 +100,22 @@ function pajakThr(gajiBruto, thr, pphOn, status) {
 
 // Logika murni (bisa di-test di Node).
 utils.gajiBersihTer = (bruto, status) => terRate(bruto, status);
-utils.gajiBersihGrossUp = (target, bp, jp, lain, pphOn, status) => grossUpBersih(target, bp, jp, lain, pphOn, status);
+utils.gajiBersihGrossUp = (target, bp, jhtPct, jpPct, lain, pphOn, status) => grossUpBersih(target, bp, jhtPct, jpPct, lain, pphOn, status);
 utils.gajiBersihIuranPerusahaan = (bruto, jkkPct) => iuranPerusahaan(bruto, jkkPct);
+utils.gajiBersihPotonganKaryawan = (bruto, bp, jhtPct, jpPct) => potonganKaryawan(bruto, bp, jhtPct, jpPct);
+utils.gajiBersihCapUpah = { jp: CAP_UPAH_JP, bpjsKes: CAP_UPAH_BPJS_KES };
 utils.gajiBersihPajakThr = (gajiBruto, thr, pphOn, status) => pajakThr(gajiBruto, thr, pphOn, status);
 
 export const meta = {"id": "kalkulator-gaji-bersih", "name": "Kalkulator Gaji Bersih", "cat": "bisnis", "icon": "💰", "desc": "Gaji pokok + tunjangan − BPJS, PPh 21 (TER), & potongan = take-home pay. Ada gross-up, iuran perusahaan, pajak THR & banding tawaran.", "keywords": "gaji,bersih,take home pay,bpjs,jht,potongan,tunjangan,payroll,thr,pph 21,ter,gross-up,ptkp,jkk,jkm,jp,iuran perusahaan"};
 export function render(root) {
-  let bpjsPct = 1, jhtPct = 2, jkkPct = 0.24;
+  let bpjsPct = 1, jhtPct = 2, jpPct = 1, jkkPct = 0.24;
   try {
     const b = parseFloat(localStorage.getItem('kalkulator-gaji-bersih-bpjs'));
     if (b >= 0 && b <= 100) bpjsPct = b;
     const j = parseFloat(localStorage.getItem('kalkulator-gaji-bersih-jht'));
     if (j >= 0 && j <= 100) jhtPct = j;
+    const p = parseFloat(localStorage.getItem('kalkulator-gaji-bersih-jp'));
+    if (p >= 0 && p <= 100) jpPct = p;
     const k = parseFloat(localStorage.getItem('kalkulator-gaji-bersih-jkk'));
     if (k >= 0 && k <= 100) jkkPct = k;
   } catch (e) { /* abaikan */ }
@@ -90,6 +123,7 @@ export function render(root) {
   const pokokI = T.input('text', 'cth: 5000000'); pokokI.inputMode = 'decimal';
   const bpjsI = T.input('text', 'cth: 1', String(bpjsPct)); bpjsI.inputMode = 'decimal';
   const jhtI = T.input('text', 'cth: 2', String(jhtPct)); jhtI.inputMode = 'decimal';
+  const jpI = T.input('text', 'cth: 1', String(jpPct)); jpI.inputMode = 'decimal';
   const jkkI = T.input('text', 'cth: 0.24', String(jkkPct)); jkkI.inputMode = 'decimal';
   const pphSel = T.select([
     ['tidak', 'Tidak, tanpa PPh 21'],
@@ -169,17 +203,18 @@ export function render(root) {
 
   const hitung = () => {
     const pokok = T.num(pokokI.value) || 0;
-    const bp = T.num(bpjsI.value), jp = T.num(jhtI.value), jk = T.num(jkkI.value);
+    const bp = T.num(bpjsI.value), jh = T.num(jhtI.value), jp = T.num(jpI.value), jk = T.num(jkkI.value);
     if (!(pokok > 0)) { T.hide(box); T.hide(bandingBox); return; }
     if (!isFinite(pokok) || pokok > 1e14) {
       T.show(box, '<p class="warn">Gaji pokok terlalu besar (maksimal Rp100 triliun). Periksa lagi angkanya, mungkin ada nol yang kelebihan.</p>'); return;
     }
-    if (!(bp >= 0 && bp <= 100) || !(jp >= 0 && jp <= 100) || !(jk >= 0 && jk <= 100)) {
-      T.show(box, '<p class="warn">Persentase BPJS, JHT & JKK harus 0–100%.</p>'); return;
+    if (!(bp >= 0 && bp <= 100) || !(jh >= 0 && jh <= 100) || !(jp >= 0 && jp <= 100) || !(jk >= 0 && jk <= 100)) {
+      T.show(box, '<p class="warn">Persentase BPJS, JHT, JP & JKK harus 0–100%.</p>'); return;
     }
     try {
       localStorage.setItem('kalkulator-gaji-bersih-bpjs', String(bp));
-      localStorage.setItem('kalkulator-gaji-bersih-jht', String(jp));
+      localStorage.setItem('kalkulator-gaji-bersih-jht', String(jh));
+      localStorage.setItem('kalkulator-gaji-bersih-jp', String(jp));
       localStorage.setItem('kalkulator-gaji-bersih-jkk', String(jk));
     } catch (e) { /* abaikan */ }
     const totTunj = sumRows(tunj);
@@ -187,8 +222,9 @@ export function render(root) {
     if (!isFinite(gross) || gross > 1e14) {
       T.show(box, '<p class="warn">Penghasilan bruto terlalu besar (maksimal Rp100 triliun). Periksa lagi gaji pokok & tunjangannya, mungkin ada nol yang kelebihan.</p>'); return;
     }
-    const bpjs = gross * bp / 100;
-    const jht = gross * jp / 100;
+    // Potongan pekerja: BPJS Kesehatan & JP memakai batas upah, JHT tidak.
+    const pot = potonganKaryawan(gross, bp, jh, jp);
+    const bpjs = pot.bpjs, jht = pot.jht, jpRp = pot.jp;
     const lain = sumRows(potLain);
     if (!isFinite(lain) || lain > 1e14) {
       T.show(box, '<p class="warn">Total potongan lain terlalu besar (maksimal Rp100 triliun). Periksa lagi angkanya.</p>'); return;
@@ -196,7 +232,7 @@ export function render(root) {
     const pphOn = pphSel.value === 'ya';
     const tr = pphOn ? terRate(gross, statusSel.value) : null;
     const pph = tr ? gross * tr.tarif / 100 : 0;
-    const thp = gross - bpjs - jht - pph - lain;
+    const thp = gross - bpjs - jht - jpRp - pph - lain;
     const jamHari = Math.max(1, T.num(jamI.value) || 8);
     const hariMinggu = Math.min(7, Math.max(1, T.num(hariI.value) || 5));
     const thpMinggu = thp * 12 / 52;
@@ -214,7 +250,8 @@ export function render(root) {
       baris(tunj) +
       '<div class="kv"><span class="k"><b>Penghasilan bruto</b></span><span class="v"><b>' + T.rp(gross) + '</b></span></div>' +
       '<div class="kv"><span class="k">BPJS Kesehatan (' + T.esc(String(bp)) + '%)</span><span class="v">− ' + T.rp(bpjs) + '</span></div>' +
-      '<div class="kv"><span class="k">JHT (' + T.esc(String(jp)) + '%)</span><span class="v">− ' + T.rp(jht) + '</span></div>' +
+      '<div class="kv"><span class="k">JHT (' + T.esc(String(jh)) + '%)</span><span class="v">− ' + T.rp(jht) + '</span></div>' +
+      '<div class="kv"><span class="k">Jaminan Pensiun / JP (' + T.esc(String(jp)) + '%)</span><span class="v">− ' + T.rp(jpRp) + '</span></div>' +
       (tr ? '<div class="kv"><span class="k">PPh 21 TER kategori ' + tr.kat + ' (' + T.esc(String(tr.tarif)) + '%)</span><span class="v">− ' + T.rp(pph) + '</span></div>' : '') +
       (tr ? '<div class="kv"><span class="k">PTKP ' + T.esc(statusSel.value) + ' (setahun)</span><span class="v">' + T.rp(PTKP_NOMINAL[statusSel.value] || 54000000) + '</span></div>' : '') +
       baris(potLain, true) +
@@ -231,13 +268,14 @@ export function render(root) {
       '<div class="kv"><span class="k">Per tahun + THR bersih</span><span class="v">' + T.rp(Math.round(thp * 12 + thrBersih)) + '</span></div>' +
       '<p class="hint">Pajak THR dihitung dengan tarif TER bulan THR diterima (gaji + THR digabung, lalu dikurangi PPh bulan biasa). Besaran THR umumnya 1x gaji sebulan bagi yang sudah kerja setahun, prorata bila kurang dari setahun.</p>' +
       '<h3 style="font-size:14px;margin:12px 0 4px">Yang dibayar perusahaan (di luar gaji)</h3>' +
+      '<div class="kv"><span class="k">BPJS Kesehatan porsi perusahaan (4%)</span><span class="v">' + T.rp(Math.round(iur.kes)) + '</span></div>' +
       '<div class="kv"><span class="k">JKK (' + T.esc(String(jk)) + '%)</span><span class="v">' + T.rp(Math.round(iur.jkk)) + '</span></div>' +
       '<div class="kv"><span class="k">JKM (0,3%)</span><span class="v">' + T.rp(Math.round(iur.jkm)) + '</span></div>' +
       '<div class="kv"><span class="k">JHT porsi perusahaan (3,7%)</span><span class="v">' + T.rp(Math.round(iur.jht)) + '</span></div>' +
       '<div class="kv"><span class="k">JP porsi perusahaan (2%)</span><span class="v">' + T.rp(Math.round(iur.jp)) + '</span></div>' +
       '<div class="kv"><span class="k"><b>Total biaya perusahaan / bulan</b></span><span class="v"><b>' + T.rp(Math.round(biayaPerusahaan)) + '</b></span></div>' +
       '<div class="kv"><span class="k">Yang diterima karyawan (THP)</span><span class="v">' + T.rp(Math.round(thp)) + '</span></div>' +
-      '<p class="hint">Iuran di atas dibayar perusahaan di luar gajimu, jadi tidak memotong THP. JKK 0,24%–1,74% tergantung risiko pekerjaanmu (kantoran umumnya 0,24%). Batas upah BPJS (mis. JP) belum diterapkan di hitungan ini.</p>');
+      '<p class="hint">Iuran di atas dibayar perusahaan di luar gajimu, jadi tidak memotong THP. JKK 0,24%–1,74% tergantung risiko pekerjaanmu (kantoran umumnya 0,24%). Batas upah sudah dipakai: JP dihitung paling tinggi dari Rp11.086.300/bln (sejak 1 Mar 2026), BPJS Kesehatan paling tinggi dari Rp12.000.000/bln. Angka dicek 20 Nov 2026.</p>');
     box.appendChild(T.row(T.btn('Salin rincian (teks slip)', () => {
       if (slipTerakhir) T.copy(slipTerakhir);
       else T.toast('Hitung dulu gajinya');
@@ -250,7 +288,8 @@ export function render(root) {
     tunj.filter((r) => String(r.nama).trim() && (T.num(r.jumlah) || 0) > 0).forEach((r) => { slip += garis(r.nama, T.rp(T.num(r.jumlah))); });
     slip += garis('Penghasilan bruto', T.rp(gross));
     slip += garis('BPJS Kesehatan (' + bp + '%)', '- ' + T.rp(bpjs));
-    slip += garis('JHT (' + jp + '%)', '- ' + T.rp(jht));
+    slip += garis('JHT (' + jh + '%)', '- ' + T.rp(jht));
+    slip += garis('Jaminan Pensiun (' + jp + '%)', '- ' + T.rp(jpRp));
     if (tr) slip += garis('PPh 21 TER kategori ' + tr.kat + ' (' + tr.tarif + '%)', '- ' + T.rp(pph));
     potLain.filter((r) => String(r.nama).trim() && (T.num(r.jumlah) || 0) > 0).forEach((r) => { slip += garis(r.nama, '- ' + T.rp(T.num(r.jumlah))); });
     slip += garis('Take-home pay / bulan', T.rp(thp));
@@ -266,24 +305,32 @@ export function render(root) {
     } else if (pokokB > 0) {
       const tunjB = Math.max(0, T.num(tunjBI.value) || 0);
       const grossB = pokokB + tunjB;
-      const bpjsB = grossB * bp / 100;
-      const jhtB = grossB * jp / 100;
+      const potB = potonganKaryawan(grossB, bp, jh, jp);
+      const bpjsB = potB.bpjs, jhtB = potB.jht, jpB = potB.jp;
       const trB = pphOn ? terRate(grossB, statusSel.value) : null;
       const pphB = trB ? grossB * trB.tarif / 100 : 0;
-      const thpB = grossB - bpjsB - jhtB - pphB;
+      const thpB = grossB - bpjsB - jhtB - jpB - pphB;
       const iurB = iuranPerusahaan(grossB, jk);
+      // THR B memakai asumsi yang sama dengan A: 1x gaji bruto, dipotong
+      // pajak THR (metode TER gabungan) — dan sama dengan patokan THR di
+      // tool Banding Gaji (1x gaji sebulan, pokok + tunjangan tetap).
+      const thrBersihB = grossB - pajakThr(grossB, grossB, pphOn, statusSel.value);
+      const setahunA = thp * 12 + thrBersih;
+      const setahunB = thpB * 12 + thrBersihB;
       T.show(bandingBox,
         '<h3 style="font-size:14px;margin:14px 0 6px">Banding 2 tawaran gaji</h3>' +
         '<div style="overflow-x:auto"><table class="tbl"><tr><th></th><th>A (saat ini)</th><th>B</th><th>Selisih (B − A)</th></tr>' +
         '<tr><td>Gaji pokok</td><td>' + T.rp(pokok) + '</td><td>' + T.rp(pokokB) + '</td><td>' + T.rp(pokokB - pokok) + '</td></tr>' +
         '<tr><td>Tunjangan</td><td>' + T.rp(totTunj) + '</td><td>' + T.rp(tunjB) + '</td><td>' + T.rp(tunjB - totTunj) + '</td></tr>' +
         '<tr><td>Penghasilan bruto</td><td>' + T.rp(gross) + '</td><td>' + T.rp(grossB) + '</td><td>' + T.rp(grossB - gross) + '</td></tr>' +
-        '<tr><td>BPJS + JHT</td><td>− ' + T.rp(bpjs + jht) + '</td><td>− ' + T.rp(bpjsB + jhtB) + '</td><td>' + T.rp((bpjsB + jhtB) - (bpjs + jht)) + '</td></tr>' +
+        '<tr><td>BPJS + JHT + JP</td><td>− ' + T.rp(bpjs + jht + jpRp) + '</td><td>− ' + T.rp(bpjsB + jhtB + jpB) + '</td><td>' + T.rp((bpjsB + jhtB + jpB) - (bpjs + jht + jpRp)) + '</td></tr>' +
         '<tr><td>PPh 21</td><td>− ' + T.rp(pph) + '</td><td>− ' + T.rp(pphB) + '</td><td>' + T.rp(pphB - pph) + '</td></tr>' +
         (lain > 0 ? '<tr><td>Potongan lain (hanya A)</td><td>− ' + T.rp(lain) + '</td><td>—</td><td></td></tr>' : '') +
         '<tr><td><b>Take-home pay</b></td><td><b>' + T.rp(thp) + '</b></td><td><b>' + T.rp(thpB) + '</b></td><td><b>' + T.rp(thpB - thp) + '</b></td></tr>' +
+        '<tr><td>THR bersih (1x bruto)</td><td>' + T.rp(Math.round(thrBersih)) + '</td><td>' + T.rp(Math.round(thrBersihB)) + '</td><td>' + T.rp(Math.round(thrBersihB - thrBersih)) + '</td></tr>' +
+        '<tr><td><b>Total setahun (THP × 12 + THR bersih)</b></td><td><b>' + T.rp(Math.round(setahunA)) + '</b></td><td><b>' + T.rp(Math.round(setahunB)) + '</b></td><td><b>' + T.rp(Math.round(setahunB - setahunA)) + '</b></td></tr>' +
         '<tr><td>Total biaya perusahaan</td><td>' + T.rp(Math.round(biayaPerusahaan)) + '</td><td>' + T.rp(Math.round(grossB + iurB.total)) + '</td><td>' + T.rp(Math.round((grossB + iurB.total) - biayaPerusahaan)) + '</td></tr></table></div>' +
-        '<p class="hint">Tawaran B memakai persentase iuran, pengaturan PPh 21, dan status PTKP yang sama dengan A. Potongan lain (koperasi, kasbon, dsb.) hanya berlaku untuk A.</p>');
+        '<p class="hint">Tawaran B memakai persentase iuran, pengaturan PPh 21, dan status PTKP yang sama dengan A. Potongan lain (koperasi, kasbon, dsb.) hanya berlaku untuk A. THR kedua tawaran memakai asumsi yang sama (1x gaji bruto, dipotong pajak THR), jadi baris "Total setahun" bisa dibandingkan langsung — sama lensanya dengan tool Banding Gaji.</p>');
     } else {
       T.hide(bandingBox);
     }
@@ -293,39 +340,42 @@ export function render(root) {
     const target = T.num(targetI.value) || 0;
     if (!(target > 0)) { T.show(grossBox, '<p class="warn">Isi dulu target gaji bersih per bulan.</p>'); return; }
     if (!isFinite(target) || target > 1e14) { T.show(grossBox, '<p class="warn">Target terlalu besar (maksimal Rp100 triliun). Periksa lagi angkanya.</p>'); return; }
-    const bp = T.num(bpjsI.value), jp = T.num(jhtI.value);
-    if (!(bp >= 0 && bp <= 100) || !(jp >= 0 && jp <= 100)) {
-      T.show(grossBox, '<p class="warn">Persentase BPJS & JHT harus 0–100%.</p>'); return;
+    const bp = T.num(bpjsI.value), jh = T.num(jhtI.value), jp = T.num(jpI.value);
+    if (!(bp >= 0 && bp <= 100) || !(jh >= 0 && jh <= 100) || !(jp >= 0 && jp <= 100)) {
+      T.show(grossBox, '<p class="warn">Persentase BPJS, JHT & JP harus 0–100%.</p>'); return;
     }
     const lain = sumRows(potLain);
     const pphOn = pphSel.value === 'ya';
-    const bruto = grossUpBersih(target, bp, jp, lain, pphOn, statusSel.value);
+    const bruto = grossUpBersih(target, bp, jh, jp, lain, pphOn, statusSel.value);
     if (bruto == null) { T.show(grossBox, '<p class="warn">Total persentase potongan 100% atau lebih, gross-up tidak bisa dihitung.</p>'); return; }
     const tr = pphOn ? terRate(bruto, statusSel.value) : null;
     const pph = tr ? bruto * tr.tarif / 100 : 0;
-    const cek = bruto - bruto * bp / 100 - bruto * jp / 100 - pph - lain;
+    const potG = potonganKaryawan(bruto, bp, jh, jp);
+    const cek = bruto - potG.total - pph - lain;
     T.show(grossBox,
       '<div class="big">' + T.rp(Math.round(bruto)) + '<span style="font-size:13px;font-weight:400"> / bulan</span></div>' +
       '<p class="center mut">Penghasilan bruto yang dibutuhkan</p>' +
-      '<div class="kv"><span class="k">BPJS Kesehatan (' + T.esc(String(bp)) + '%)</span><span class="v">− ' + T.rp(Math.round(bruto * bp / 100)) + '</span></div>' +
-      '<div class="kv"><span class="k">JHT (' + T.esc(String(jp)) + '%)</span><span class="v">− ' + T.rp(Math.round(bruto * jp / 100)) + '</span></div>' +
+      '<div class="kv"><span class="k">BPJS Kesehatan (' + T.esc(String(bp)) + '%)</span><span class="v">− ' + T.rp(Math.round(potG.bpjs)) + '</span></div>' +
+      '<div class="kv"><span class="k">JHT (' + T.esc(String(jh)) + '%)</span><span class="v">− ' + T.rp(Math.round(potG.jht)) + '</span></div>' +
+      '<div class="kv"><span class="k">Jaminan Pensiun / JP (' + T.esc(String(jp)) + '%)</span><span class="v">− ' + T.rp(Math.round(potG.jp)) + '</span></div>' +
       (tr ? '<div class="kv"><span class="k">PPh 21 TER kategori ' + tr.kat + ' (' + T.esc(String(tr.tarif)) + '%)</span><span class="v">− ' + T.rp(Math.round(pph)) + '</span></div>' : '') +
       (lain > 0 ? '<div class="kv"><span class="k">Potongan lain</span><span class="v">− ' + T.rp(lain) + '</span></div>' : '') +
       '<div class="kv total"><span class="k"><b>Cek: gaji bersih yang diterima</b></span><span class="v"><b>' + T.rp(Math.round(cek)) + '</b></span></div>' +
-      '<p class="hint">Gross-up memakai persentase BPJS dan JHT di atas' + (pphOn ? ' plus PPh 21 TER sesuai status PTKP' : '') + '. Bila perusahaan menanggung pajak, angka bruto ini yang dinegosiasikan sebagai gaji.</p>');
+      '<p class="hint">Gross-up memakai persentase BPJS, JHT, dan JP di atas (dengan batas upah)' + (pphOn ? ' plus PPh 21 TER sesuai status PTKP' : '') + '. Bila perusahaan menanggung pajak, angka bruto ini yang dinegosiasikan sebagai gaji.</p>');
   };
 
-  [pokokI, bpjsI, jhtI, jkkI, jamI, hariI, pokokBI, tunjBI].forEach((i) => i.addEventListener('input', hitung));
+  [pokokI, bpjsI, jhtI, jpI, jkkI, jamI, hariI, pokokBI, tunjBI].forEach((i) => i.addEventListener('input', hitung));
   statusSel.addEventListener('change', hitung);
 
-  root.appendChild(T.el('<p class="note">Hitung gaji yang beneran masuk rekening: gaji pokok + tunjangan, dikurangi BPJS, JHT, PPh 21, dan potongan lain. Persentase iurannya bisa disesuaikan.</p>'));
+  root.appendChild(T.el('<p class="note">Hitung gaji yang beneran masuk rekening: gaji pokok + tunjangan, dikurangi BPJS, JHT, Jaminan Pensiun (JP), PPh 21, dan potongan lain. Persentase iurannya bisa disesuaikan.</p>'));
   root.appendChild(T.field('Gaji pokok (Rp)', pokokI));
   root.appendChild(T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Tunjangan</p>'));
   root.appendChild(tunjBox);
   root.appendChild(T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Potongan iuran (dari penghasilan bruto, tersimpan otomatis)</p>'));
   root.appendChild(T.grid2(
-    T.field('BPJS Kesehatan (%)', bpjsI),
-    T.field('JHT (%)', jhtI)
+    T.field('BPJS Kesehatan (%)', bpjsI, 'Dihitung paling tinggi dari Rp12.000.000/bln'),
+    T.field('JHT (%)', jhtI),
+    T.field('Jaminan Pensiun / JP (%)', jpI, 'Dihitung paling tinggi dari Rp11.086.300/bln (sejak 1 Mar 2026)')
   ));
   root.appendChild(T.field('JKK porsi perusahaan (%)', jkkI, '0,24%–1,74% tergantung risiko pekerjaan. Kantoran umumnya 0,24%.'));
   root.appendChild(T.field('Potong PPh 21?', pphSel, 'TER bulanan dipakai pemberi kerja untuk potongan Januari-November (PP 58/2023)'));
@@ -348,7 +398,7 @@ export function render(root) {
   root.appendChild(T.field('Target gaji bersih / bulan (Rp)', targetI, 'Memakai persentase iuran dan pengaturan PPh 21 di atas'));
   root.appendChild(T.row(T.btn('Hitung gaji bruto yang dibutuhkan', hitungGrossUp, true)));
   root.appendChild(grossBox);
-  root.appendChild(T.el('<p class="hint">Iuran dihitung dari penghasilan bruto (pokok + tunjangan). Angka ilustrasi, potongan aktual bisa beda tergantung kebijakan perusahaan & batas upah BPJS. TER bulanan: PPh 21 = bruto sebulan x tarif TER sesuai kategori status PTKP, tanpa mengurangi biaya jabatan atau PTKP dulu. Di bulan Desember, PPh 21 dihitung ulang setahun penuh dengan tarif progresif dikurangi potongan Januari-November yang sudah dibayar, jadi potongan Desember bisa beda. Butuh hitung THR, lembur, atau pesangon tersendiri? Ada tool terpisah: <a href="#/t/thr">THR</a>, <a href="#/t/hitung-lembur">Lembur</a>, <a href="#/t/kalkulator-pesangon">Pesangon</a>.</p>'));
+  root.appendChild(T.el('<p class="hint">Iuran dihitung dari penghasilan bruto (pokok + tunjangan). Batas upah sudah dipakai: JP paling tinggi dari Rp11.086.300/bln (sejak 1 Mar 2026), BPJS Kesehatan paling tinggi dari Rp12.000.000/bln; JHT tanpa batas. Angka dicek 20 Nov 2026. Angka ilustrasi, potongan aktual bisa beda tergantung kebijakan perusahaan. TER bulanan: PPh 21 = bruto sebulan x tarif TER sesuai kategori status PTKP, tanpa mengurangi biaya jabatan atau PTKP dulu. Di bulan Desember, PPh 21 dihitung ulang setahun penuh dengan tarif progresif dikurangi potongan Januari-November yang sudah dibayar, jadi potongan Desember bisa beda. Butuh hitung THR, lembur, atau pesangon tersendiri? Ada tool terpisah: <a href="#/t/thr">THR</a>, <a href="#/t/hitung-lembur">Lembur</a>, <a href="#/t/kalkulator-pesangon">Pesangon</a>.</p>'));
   renderTunj();
   renderPot();
   hitung();

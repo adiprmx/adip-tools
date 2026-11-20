@@ -1,11 +1,12 @@
 import { h as T, utils, money, kv } from '../../core.js';
+import { HARGA_BBM_PERTALITE, HARGA_BBM_LABEL } from '../../harga-bbm.js';
 
 // Konsumsi BBM: km/liter = jarak / liter yang diisi. Liter/100 km adalah
 // kebalikannya (100 / km-per-liter). Biaya per km = harga per liter /
 // km-per-liter. Cara ukur yang paling gampang: isi penuh, catat kilometer,
 // pakai sampai hampir habis, isi penuh lagi, bagi jarak dengan liter isi
-// kedua. Harga default Pertalite Rp10.000/liter (berlaku sejak 2 September
-// 2026, Pertamina), bisa diubah.
+// kedua. Harga default dari modul bersama js/harga-bbm.js (satu sumber
+// kebenaran dengan 4 tool BBM lain), bisa diubah.
 export function hitungKonsumsi(jarak, liter, harga) {
   const j = Math.max(0, Number(jarak) || 0);
   const l = Math.max(0, Number(liter) || 0);
@@ -25,7 +26,7 @@ export const meta = {"id": "kalkulator-konsumsi-bbm", "name": "Kalkulator Konsum
 export function render(root) {
   const jarakI = T.input('text', 'cth: 450', ''); jarakI.inputMode = 'decimal';
   const literI = T.input('text', 'cth: 30', ''); literI.inputMode = 'decimal';
-  const hargaI = money(null, 'cth: 10000', '10000');
+  const hargaI = money(null, 'cth: 10000', String(HARGA_BBM_PERTALITE));
   const box = T.out();
 
   const hitung = () => {
@@ -42,7 +43,7 @@ export function render(root) {
       kv('Biaya per km', T.rp(Math.round(r.biayaPerKm))) +
       kv('Biaya per 100 km', T.rp(Math.round(r.biayaPer100))) +
       kv('Total biaya BBM ini', T.rp(Math.round(r.totalBiaya))) +
-      '<p class="hint">Cara ukur: isi penuh dan catat kilometer, pakai seperti biasa, lalu isi penuh lagi. Jarak dibagi liter isi kedua adalah konsumsi aslimu. Harga default Pertalite Rp10.000/liter (berlaku sejak 2 September 2026), sesuaikan dengan BBM yang kamu pakai.</p>');
+      '<p class="hint">Cara ukur: isi penuh dan catat kilometer, pakai seperti biasa, lalu isi penuh lagi. Jarak dibagi liter isi kedua adalah konsumsi aslimu. Harga default ' + HARGA_BBM_LABEL + ', sesuaikan dengan BBM yang kamu pakai.</p>');
   };
   [jarakI, literI, hargaI].forEach((i) => i.addEventListener('input', hitung));
 

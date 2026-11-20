@@ -63,8 +63,16 @@ export function render(root) {
   const ctl = T.el('<div class="fsfb-ctl"></div>');
   const inNama = T.input('text', 'Nama pemilik story', 'Adip RMX');
   const inWaktu = T.input('text', 'Waktu posting', '3 jam lalu');
-  const inTeks = T.input('text', 'Teks story (bila tanpa foto)', 'Akhirnya beat baru selesai! 🎧');
+  const inTeks = T.input('text', 'Teks story', 'Akhirnya beat baru selesai! 🎧');
   const inLihat = T.input('text', 'Jumlah penonton', '312');
+  const inSeg = T.input('number', 'Jumlah story (1-8)', '3');
+  inSeg.min = '1'; inSeg.max = '8';
+  const inAktif = T.input('number', 'Story yang sedang dibuka', '1');
+  inAktif.min = '1';
+  const inProg = T.input('range', '', '45');
+  inProg.min = '0'; inProg.max = '100';
+  const fldProg = T.field('Story ini sudah jalan (45%)', inProg, 'Seberapa jauh story yang sedang dibuka sudah berjalan.');
+  const labProg = fldProg.querySelector('label');
   const selGrad = T.select(Object.keys(GRADASI).map((k) => [k, GRADASI[k].label]), 'biru');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
@@ -77,9 +85,14 @@ export function render(root) {
 
   ctl.appendChild(T.field('Nama pemilik story', inNama));
   ctl.appendChild(T.field('Waktu posting', inWaktu));
-  ctl.appendChild(T.field('Teks story', inTeks));
+  ctl.appendChild(T.field('Teks story', inTeks, 'Teks tampil di tengah layar, di atas foto bila ada.'));
   ctl.appendChild(T.field('Jumlah penonton', inLihat));
   ctl.appendChild(T.field('Latar (bila tanpa foto)', selGrad));
+  const segRow = T.el('<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>');
+  segRow.appendChild(T.field('Jumlah story', inSeg, '1 sampai 8 segmen.'));
+  segRow.appendChild(T.field('Story yang dibuka', inAktif, 'Dihitung dari kiri. Bila melebihi jumlah, dipakai yang terakhir.'));
+  ctl.appendChild(segRow);
+  ctl.appendChild(fldProg);
   ctl.appendChild(T.field('Platform', selPlatform));
   const brandField = T.field('Merk HP', selBrand);
   ctl.appendChild(brandField);
@@ -91,7 +104,9 @@ export function render(root) {
     T.btn('🎲 Contoh', () => {
       inNama.value = 'Adip RMX'; inWaktu.value = '3 jam lalu';
       inTeks.value = 'Akhirnya beat baru selesai! 🎧'; inLihat.value = '312';
-      selGrad.value = 'biru'; fotoUrl = null; draw(); T.scrollToPreview(phone);
+      selGrad.value = 'biru'; inSeg.value = '3'; inAktif.value = '1'; inProg.value = '45';
+      labProg.textContent = 'Story ini sudah jalan (45%)';
+      fotoUrl = null; draw(); T.scrollToPreview(phone);
     }),
     T.btn('⬇️ Unduh PNG', () => dlNodePng(phone, 'fake-story-facebook.png'), true)
   );
@@ -104,12 +119,22 @@ export function render(root) {
     const teks = inTeks.value.trim();
     const lihat = inLihat.value.trim() || '0';
     const grad = GRADASI[selGrad.value] || GRADASI.biru;
+    const totalSeg = Math.max(1, Math.min(8, parseInt(inSeg.value, 10) || 3));
+    const segAktif = Math.max(1, Math.min(totalSeg, parseInt(inAktif.value, 10) || 1));
+    const progPersen = Math.max(0, Math.min(100, parseInt(inProg.value, 10) || 0));
+    let progHtml = '<div class="fsfb-prog">';
+    for (let i = 1; i <= totalSeg; i++) {
+      const w = i < segAktif ? 100 : (i === segAktif ? progPersen : 0);
+      progHtml += '<i>' + (w > 0 ? '<b style="width:' + w + '%"></b>' : '') + '</i>';
+    }
+    progHtml += '</div>';
 
     const sbHtml = '<div class="fsfb-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, true) + '</div>';
     const stageHtml = '<div class="fsfb-stage" style="background:' + grad.bg + '">' +
-      (fotoUrl ? '<img src="' + fotoUrl + '" alt="">' : '<div class="fsfb-teks">' + T.esc(teks) + '</div>') +
+      (fotoUrl ? '<img src="' + fotoUrl + '" alt="">' : '') +
+      (teks ? '<div class="fsfb-teks">' + T.esc(teks) + '</div>' : '') +
       sbHtml +
-      '<div class="fsfb-prog"><i><b style="width:45%"></b></i><i></i><i></i></div>' +
+      progHtml +
       '<div class="fsfb-hd"><div class="fsfb-av" style="background:' + utils.avaColor(nama) + '">' + T.esc((nama[0] || '?').toUpperCase()) + '</div>' +
       '<div class="fsfb-nm"><b>' + T.esc(nama) + '</b>' + (waktu ? '<span>' + T.esc(waktu) + '</span>' : '') + '</div>' +
       '<div class="fsfb-hic"><span style="display:flex">' + SVG_MORE + '</span><span style="display:flex">' + SVG_CLOSE + '</span></div></div>' +
@@ -123,8 +148,8 @@ export function render(root) {
       '<div class="fsfb-pranktag-wrap"><span class="fsfb-pranktag">palsu · cuma prank</span></div>';
   }
 
-  [inNama, inWaktu, inTeks, inLihat, selGrad, selPlatform, selBrand].forEach((el) => {
-    el.addEventListener('input', draw);
+  [inNama, inWaktu, inTeks, inLihat, selGrad, selPlatform, selBrand, inSeg, inAktif, inProg].forEach((el) => {
+    el.addEventListener('input', () => { labProg.textContent = 'Story ini sudah jalan (' + (parseInt(inProg.value, 10) || 0) + '%)'; draw(); });
     el.addEventListener('change', draw);
   });
 

@@ -7,6 +7,12 @@ export const meta = {"id":"data-covid-19-flu","name":"Data COVID-19","cat":"live
 // Dicek ulang 19 Nov 2026: /all 200, /countries/indonesia 200.
 // Catatan jujur: penyedia ini tidak punya endpoint flu (dicek 19 Nov 2026,
 // /v3/influenza/all mengembalikan 404), jadi yang tampil saat ini data COVID-19.
+// Dicek lagi 20 Nov 2026: belum ada pengganti flu gratis yang terverifikasi —
+// satu-satunya kandidat (Delphi Epidata FluView, api.delphi.cmu.edu) hanya
+// data Amerika Serikat, API lamanya sedang dihentikan, dan belum teruji dari
+// browser. Karena itu tool ini tetap COVID-19 saja, dan UI-nya berkata begitu.
+// ID "data-covid-19-flu" dipertahankan apa adanya supaya tautan/routing lama
+// tidak putus; nama yang tampil ke pengguna adalah "Data COVID-19".
 const API = 'https://disease.sh/v3/covid-19/';
 
 async function getJSON(url) {
@@ -104,7 +110,7 @@ export function render(root) {
   });
   bungkusNegara.hidden = true;
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') lihat(); });
-  root.appendChild(T.el('<p class="note">Lihat angka COVID-19 terbaru, seluruh dunia atau satu negara. Data flu belum tersedia dari penyedia ini.</p>'));
+  root.appendChild(T.el('<p class="note">Lihat angka COVID-19 terbaru, seluruh dunia atau satu negara. Data flu belum tersedia — penyedia ini tidak punya data flu, dan belum ada sumber flu gratis lain yang terverifikasi.</p>'));
   root.appendChild(T.field('Cakupan data', modeSel));
   root.appendChild(bungkusNegara);
   root.appendChild(T.row(T.btn('Lihat data', lihat, true)));

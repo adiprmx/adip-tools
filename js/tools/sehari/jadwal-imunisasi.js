@@ -26,8 +26,14 @@ utils.JADWAL_IMUNISASI = [
   { vaksin: 'Tifoid', umurBulan: 24, gratis: false, ket: 'Melindungi dari demam tifoid, diulang tiap 3 tahun.' },
   { vaksin: 'DPT booster (5 tahun)', umurBulan: 60, gratis: true, ket: 'Penguat sebelum masuk sekolah.' },
   { vaksin: 'Campak-Rubela (MR) booster (5 tahun)', umurBulan: 60, gratis: true, ket: 'Penguat sebelum masuk sekolah.' },
+  { vaksin: 'Dengue 1 (6 tahun)', umurBulan: 72, gratis: false, ket: 'Melindungi dari demam berdarah dengue, mulai usia 6 tahun.' },
+  { vaksin: 'Dengue 2 (6 tahun 3 bulan)', umurBulan: 75, gratis: false, ket: 'Dosis kedua dengue, 3 bulan setelah dosis pertama.' },
   { vaksin: 'HPV', umurBulan: 108, gratis: true, ket: 'Untuk anak perempuan usia 9-14 tahun, program pemerintah (kelas 5-6 SD).' },
-  { vaksin: 'Td/Tdap (10 tahun)', umurBulan: 120, gratis: true, ket: 'Penguat tetanus-difteri di usia 10 tahun.' }
+  { vaksin: 'HPV dosis 2 (9 tahun 6 bulan)', umurBulan: 114, gratis: true, ket: 'Dosis kedua HPV, 6 bulan setelah dosis pertama.' },
+  { vaksin: 'Td/Tdap (10 tahun)', umurBulan: 120, gratis: true, ket: 'Penguat tetanus-difteri di usia 10 tahun.' },
+  { vaksin: 'Tifoid ulangan (11 tahun)', umurBulan: 132, gratis: false, ket: 'Ulangan tifoid, diulang tiap 3 tahun selama masih berisiko.' },
+  { vaksin: 'Tifoid ulangan (14 tahun)', umurBulan: 168, gratis: false, ket: 'Ulangan tifoid, diulang tiap 3 tahun selama masih berisiko.' },
+  { vaksin: 'Tifoid ulangan (17 tahun)', umurBulan: 204, gratis: false, ket: 'Ulangan tifoid, diulang tiap 3 tahun selama masih berisiko.' }
 ];
 utils.tanggalImunisasi = function (tglLahirISO, umurBulan) {
   const d = new Date(tglLahirISO + 'T00:00:00');
@@ -62,16 +68,19 @@ export function render(root) {
     sudah[kunciAnak] = sudah[kunciAnak] || {};
     let rows = '';
     let berikutnya = null;
-    utils.JADWAL_IMUNISASI.forEach((j, i) => {
+    utils.JADWAL_IMUNISASI.forEach((j) => {
       const tgl = utils.tanggalImunisasi(lahir.value, j.umurBulan);
-      const done = !!sudah[kunciAnak][i];
+      // Kunci centang = nama vaksin (bukan nomor urut): nomor urut bergeser
+      // tiap jadwal ditambah, nama vaksin stabil — centang lama tidak salah
+      // tempat. Data lama berkunci angka jadi tidak terpakai lagi.
+      const done = !!sudah[kunciAnak][j.vaksin];
       const lewat = tgl < hariIni;
       if (!done && !berikutnya) berikutnya = j.vaksin;
       const status = done
         ? '<span style="color:#4ade80">Sudah</span>'
         : (lewat ? '<span style="color:#facc15">Sudah lewat, segera susulkan</span>' : '<span style="color:#a1a1aa">Akan datang</span>');
       rows += `<tr><td style="padding:8px;border-bottom:1px solid #2a2a2a;vertical-align:top">` +
-        `<input type="checkbox" data-i="${i}" ${done ? 'checked' : ''} style="width:18px;height:18px;cursor:pointer"></td>` +
+        `<input type="checkbox" data-k="${T.esc(j.vaksin)}" ${done ? 'checked' : ''} style="width:18px;height:18px;cursor:pointer"></td>` +
         `<td style="padding:8px;border-bottom:1px solid #2a2a2a;vertical-align:top"><b>${j.vaksin}</b>` +
         (j.gratis ? ' <span style="font-size:11px;color:#4ade80">gratis di posyandu</span>' : '') +
         `<br><span style="font-size:12px;color:#a1a1aa">${j.ket}</span></td>` +
@@ -85,11 +94,11 @@ export function render(root) {
       `<td style="padding:8px;border-bottom:1px solid #3a3a3a;color:#999">Vaksin</td>` +
       `<td style="padding:8px;border-bottom:1px solid #3a3a3a;color:#999">Usia</td>` +
       `<td style="padding:8px;border-bottom:1px solid #3a3a3a;color:#999">Status</td></tr>` + rows + `</table>` +
-      `<div class="hint">Jadwal mengikuti rekomendasi IDAI 2024. Centang vaksin yang sudah diberikan, centang tersimpan di HP ini. Jadwal bisa disesuaikan dokter anak, dan jadwal yang terlewat umumnya masih bisa disusulkan (catch-up). Vaksin bertanda gratis tersedia di posyandu dan puskesmas.</div>`
+      `<div class="hint">Jadwal mengikuti rekomendasi IDAI 2024. Centang vaksin yang sudah diberikan, centang tersimpan di HP ini. Jadwal bisa disesuaikan dokter anak, dan jadwal yang terlewat umumnya masih bisa disusulkan (catch-up). Vaksin bertanda gratis tersedia di posyandu dan puskesmas. Beberapa vaksin lain (mis. hepatitis A, varisela) mengikuti jadwal dokter anak.</div>`
     );
     box.querySelectorAll('input[type="checkbox"]').forEach((c) => {
       c.addEventListener('change', () => {
-        sudah[kunciAnak][c.dataset.i] = c.checked;
+        sudah[kunciAnak][c.dataset.k] = c.checked;
         simpan();
         tampil();
       });

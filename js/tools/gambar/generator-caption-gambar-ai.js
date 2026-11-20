@@ -1,9 +1,19 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"generator-caption-gambar-ai","name":"Generator Caption Gambar AI","cat":"gambar","icon":"🖼️","desc":"Caption untuk fotomu, ditulis AI dari deskripsimu.","keywords":"caption,gambar,foto,deskripsi,ai,puter","since":"6.18.0"};
+export const meta = {"id":"generator-caption-gambar-ai","name":"Generator Caption Gambar AI","cat":"gambar","icon":"🖼️","desc":"Caption untuk fotomu — AI melihat fotonya langsung, lalu menulis captionnya.","keywords":"caption,gambar,foto,deskripsi,ai,puter,vision","since":"6.18.0"};
 
 const MAX_DESKRIPSI = 2000;
 const MAX_MB = 10;
+// Model vision untuk membaca foto (docs.puter.com/AI/chat/ + tutorial
+// resmi Puter "Free, Unlimited OpenAI API", contoh "Analyze images",
+// Nov 2026: gpt-6-luna dipakai untuk analisis gambar). Jalur vision
+// mengikuti sintaks resmi: puter.ai.chat(prompt, media, testMode,
+// { model }) — media bisa berupa objek File (dokumen resmi: "A string
+// containing the URL or Puter path of an image or video, or a File
+// object"). BELUM terverifikasi live (egress mati, tidak bisa uji
+// login Puter) — bila panggilan vision gagal, tool jatuh ke jalur teks
+// (dari deskripsi user) dan mengatakannya dengan jujur.
+export const MODEL_VISION = 'gpt-6-luna';
 const GAYA = [
   ['deskriptif', 'Deskriptif', 'deskriptif, menjelaskan isi foto dengan jelas'],
   ['santai', 'Santai', 'santai seperti sedang ngobrol dengan teman'],
@@ -29,10 +39,18 @@ export function cekGambarValid(buf) {
 }
 
 // Pembentuk prompt murni (bisa diuji tanpa SDK).
-// Catatan: caption dibuat dari deskripsi yang ditulis user, bukan dari
-// fotonya langsung. Jalur chat+vision Puter butuh model vision eksplisit
-// dari listModels() live + uji login-penuh, dan belum bisa dibuktikan di
-// sandbox (lihat laporan B7).
+// Jalur vision: foto dikirim sebagai File ke puter.ai.chat, AI membaca
+// isi fotonya langsung; deskripsi user (bila ada) hanya konteks tambahan.
+export function buatPromptVision(o) {
+  const g = GAYA.find(([v]) => v === (o && o.gaya)) || GAYA[0];
+  const j = JUMLAH.find(([v]) => v === (o && o.jumlah)) || JUMLAH[0];
+  const konteks = (o && o.deskripsi) ? '\n\nKonteks tambahan dari pemilik foto: ' + o.deskripsi : '';
+  return 'Lihat foto ini dengan saksama, lalu buatkan ' + j[2] + ' caption foto dalam Bahasa Indonesia dari ISI FOTO tersebut (apa yang terlihat: orang, benda, tempat, suasana, warna).' + konteks + '\n\n' +
+    'Gayanya ' + g[2] + '. Tiap caption singkat, maksimal 2 kalimat, dan enak dibaca. ' +
+    'Jawab HANYA dengan captionnya, satu per baris, tanpa penjelasan tambahan.';
+}
+// Jalur teks (tanpa foto / cadangan bila vision gagal): caption dibuat
+// dari deskripsi yang ditulis user.
 export function buatPrompt(o) {
   const g = GAYA.find(([v]) => v === (o && o.gaya)) || GAYA[0];
   const j = JUMLAH.find(([v]) => v === (o && o.jumlah)) || JUMLAH[0];
@@ -42,15 +60,25 @@ export function buatPrompt(o) {
     'Jawab HANYA dengan captionnya, satu per baris, tanpa penjelasan tambahan.';
 }
 
+// Batasi waktu tunggu AI; timer dibersihkan begitu salah satu sisi menang
+// supaya tidak ada timer menggantung (di Node, timer 60 dtk yang tidak
+// dibersihkan menahan proses; di browser ini kebocoran kecil).
+function denganTimeout(promise, ms, pesan) {
+  let timer = null;
+  const batas = new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(pesan)), ms); });
+  return Promise.race([Promise.resolve(promise), batas]).finally(() => { if (timer) clearTimeout(timer); });
+}
+
 export function render(root) {
   const puter = utils.puter.panel();
   root.appendChild(puter.box);
   puter.refresh();
 
   let alive = true, busy = false, lastHasil = '';
+  let fotoFile = null;
   T.onLeave(() => { alive = false; });
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Unggah fotomu, ceritakan isinya dengan singkat, lalu AI menulis captionnya. AI di sini membaca deskripsimu, bukan fotonya langsung, jadi makin jelas deskripsinya, makin pas captionnya. Diproses lewat <b>akun Puter milikmu</b> (login gratis, sekali saja). Foto dan teksmu tidak disimpan di mana pun.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Unggah fotomu, lalu AI melihat isi fotonya langsung dan menulis captionnya. Boleh tambah deskripsi singkat sebagai konteks (misal: acaranya apa, buat siapa). Tanpa foto, AI menulis dari deskripsimu saja. Diproses lewat <b>akun Puter milikmu</b> (login gratis, sekali saja). Foto dan teksmu tidak disimpan di mana pun.</p>'));
 
   /* ---------- Foto ---------- */
   const fotoLabel = T.el('<label style="display:block;border:1.5px dashed #ffffff30;border-radius:10px;padding:14px;text-align:center;cursor:pointer;font-size:13px">Pilih foto<div class="dim" style="font-size:11.5px;margin-top:2px">PNG, JPG, atau WebP, maks ' + MAX_MB + ' MB</div></label>');
@@ -80,18 +108,19 @@ export function render(root) {
         r.onerror = () => rej(new Error('gagal membaca foto'));
         r.readAsDataURL(f);
       });
+      fotoFile = f;
       preview.src = du;
       preview.style.display = '';
-      setStatus('Foto siap. Tulis deskripsinya di bawah.', 'ok');
+      setStatus('Foto siap. AI akan membaca isi fotonya langsung.', 'ok');
     } catch (e) { setStatus('Foto belum bisa dibaca. Coba foto lain.', 'err'); }
   });
 
   /* ---------- Deskripsi ---------- */
-  const deskTa = T.ta(3, 'Ceritakan isi fotonya…\nContoh: Foto secangkir kopi susu di meja kayu, di samping jendela, cahaya pagi masuk dari samping.');
+  const deskTa = T.ta(3, 'Konteks tambahan (opsional)…\nContoh: Foto ini buat postingan ulang tahun adikku, acaranya di rumah.');
   deskTa.maxLength = MAX_DESKRIPSI;
   const hitung = T.el('<div class="dim" style="font-size:11.5px;text-align:right;margin-top:2px">0 / ' + MAX_DESKRIPSI + '</div>');
   deskTa.addEventListener('input', () => { hitung.textContent = deskTa.value.length + ' / ' + MAX_DESKRIPSI; });
-  root.appendChild(T.field('Deskripsi foto', deskTa));
+  root.appendChild(T.field('Deskripsi / konteks (opsional bila foto sudah diunggah)', deskTa));
   root.appendChild(hitung);
 
   const gayaSel = T.select(GAYA.map(([v, l]) => [v, l]), 'deskriptif');
@@ -128,23 +157,50 @@ export function render(root) {
   async function jalan() {
     if (busy || !alive) return;
     const deskripsi = deskTa.value.trim();
-    if (deskripsi.length < 10) { setStatus('Ceritakan isi fotonya sedikit lebih lengkap (minimal 10 huruf).', 'err'); deskTa.focus(); return; }
+    const pakaiVision = !!fotoFile;
+    if (!pakaiVision && deskripsi.length < 10) { setStatus('Unggah fotonya, atau ceritakan isi fotonya sedikit lebih lengkap (minimal 10 huruf).', 'err'); deskTa.focus(); return; }
     await puter.need(async () => {
       busy = true; aksiBtn.disabled = true; aksiBtn.textContent = 'AI sedang menulis…';
-      setStatus('AI sedang menulis captionnya…', '');
+      setStatus(pakaiVision ? 'AI sedang melihat fotomu…' : 'AI sedang menulis captionnya…', '');
       T.show(out, '<div class="dim center" style="padding:18px 0">Menunggu jawaban AI…</div>');
       const t0 = performance.now();
       try {
-        const prompt = buatPrompt({ deskripsi, gaya: gayaSel.value, jumlah: jumlahSel.value });
-        const res = await Promise.race([
-          Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
-        ]);
-        const hasil = utils.chatText(res).trim();
+        let hasil = '';
+        let dariVision = false;
+        let jatuhKeTeks = false;
+        if (pakaiVision) {
+          // Jalur vision: foto dikirim sebagai File (docs.puter.com/AI/chat/).
+          try {
+            const promptV = buatPromptVision({ deskripsi, gaya: gayaSel.value, jumlah: jumlahSel.value });
+            const resV = await denganTimeout(
+              window.puter.ai.chat(promptV, fotoFile, false, { model: MODEL_VISION }),
+              60000, 'TIMEOUT: AI tidak merespons dalam 60 detik.');
+            hasil = utils.chatText(resV).trim();
+            dariVision = !!hasil;
+          } catch (eV) {
+            // Vision gagal: jatuh ke jalur teks bila ada deskripsi,
+            // dan katakan dengan jujur di status. Tanpa deskripsi,
+            // lemparkan error aslinya.
+            if (deskripsi.length >= 10) {
+              jatuhKeTeks = true;
+            } else {
+              throw eV;
+            }
+          }
+        }
+        if (!hasil) {
+          const prompt = buatPrompt({ deskripsi, gaya: gayaSel.value, jumlah: jumlahSel.value });
+          const res = await denganTimeout(
+            window.puter.ai.chat(prompt, {}),
+            60000, 'TIMEOUT: AI tidak merespons dalam 60 detik.');
+          hasil = utils.chatText(res).trim();
+        }
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');
         if (!alive) return;
         const detik = ((performance.now() - t0) / 1000).toFixed(1);
         tampilHasil(hasil, detik);
+        if (dariVision) setStatus('Selesai dalam ' + detik + ' detik. AI membaca fotomu langsung.', 'ok');
+        else if (jatuhKeTeks) setStatus('Selesai dalam ' + detik + ' detik. Foto tidak bisa dibaca AI, caption dibuat dari deskripsimu.', '');
       } catch (e) {
         if (alive) tampilError(utils.errPesan(e));
       } finally {

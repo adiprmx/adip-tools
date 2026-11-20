@@ -52,7 +52,8 @@ let _otPromise = null;
 function ensureOpentype() {
   if (typeof window !== 'undefined' && window.opentype) return Promise.resolve(window.opentype);
   if (!_otPromise) {
-    _otPromise = T.loadScript(OT_CDN).then((ok) => {
+    // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+    _otPromise = utils.loadLibOnce(OT_CDN, () => typeof window !== 'undefined' && !!window.opentype).then((ok) => {
       if (!ok || typeof window === 'undefined' || !window.opentype) throw new Error('Alat baca font gagal dimuat. Cek koneksi lalu coba lagi.');
       return window.opentype;
     }).catch((e) => { _otPromise = null; throw e; });

@@ -183,44 +183,54 @@ export function render(root) {
     const ok = await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib);
     if (!ok) { T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div>'); return; }
     T.hide(statusBox);
-    const L = window.PDFLib;
-    const doc = await L.PDFDocument.create();
-    const font = await doc.embedFont(L.StandardFonts.Helvetica);
-    const fontTebal = await doc.embedFont(L.StandardFonts.HelveticaBold);
-    const MARGIN = 56, LEBAR = 595.28, TINGGI = 841.89, UKURAN = 11, TINGGI_BARIS = 17;
-    const lebarTeks = LEBAR - MARGIN * 2;
-    let page = doc.addPage([LEBAR, TINGGI]);
-    let y = TINGGI - MARGIN;
-    const halamanBaru = () => { page = doc.addPage([LEBAR, TINGGI]); y = TINGGI - MARGIN; };
-    const tulisBaris = (teks, fnt, ukuran) => {
-      const kata = String(teks).split(/\s+/).filter(Boolean);
-      let jalan = '';
-      const potong = [];
-      for (const k of kata) {
-        const coba = jalan ? jalan + ' ' + k : k;
-        if (fnt.widthOfTextAtSize(coba, ukuran) <= lebarTeks) { jalan = coba; continue; }
+    try {
+      const L = window.PDFLib;
+      const doc = await L.PDFDocument.create();
+      const font = await doc.embedFont(L.StandardFonts.Helvetica);
+      const fontTebal = await doc.embedFont(L.StandardFonts.HelveticaBold);
+      const MARGIN = 56, LEBAR = 595.28, TINGGI = 841.89, UKURAN = 11, TINGGI_BARIS = 17;
+      const lebarTeks = LEBAR - MARGIN * 2;
+      let page = doc.addPage([LEBAR, TINGGI]);
+      let y = TINGGI - MARGIN;
+      const halamanBaru = () => { page = doc.addPage([LEBAR, TINGGI]); y = TINGGI - MARGIN; };
+      const tulisBaris = (teks, fnt, ukuran) => {
+        const kata = String(teks).split(/\s+/).filter(Boolean);
+        let jalan = '';
+        const potong = [];
+        for (const k of kata) {
+          const coba = jalan ? jalan + ' ' + k : k;
+          if (fnt.widthOfTextAtSize(coba, ukuran) <= lebarTeks) { jalan = coba; continue; }
+          if (jalan) potong.push(jalan);
+          jalan = k;
+        }
         if (jalan) potong.push(jalan);
-        jalan = k;
+        if (!potong.length) potong.push('');
+        for (const b of potong) {
+          if (y - TINGGI_BARIS < MARGIN) halamanBaru();
+          if (b) page.drawText(b, { x: MARGIN, y: y - ukuran, size: ukuran, font: fnt, color: L.rgb(0.09, 0.08, 0.07) });
+          y -= TINGGI_BARIS;
+        }
+      };
+      for (const b of baris) {
+        const judul = b === 'SURAT JUAL BELI';
+        const tebal = judul || /^(Pasal \d|PIHAK (PERTAMA|KEDUA))/.test(b);
+        tulisBaris(b, tebal ? fontTebal : font, judul ? 16 : UKURAN);
       }
-      if (jalan) potong.push(jalan);
-      if (!potong.length) potong.push('');
-      for (const b of potong) {
-        if (y - TINGGI_BARIS < MARGIN) halamanBaru();
-        if (b) page.drawText(b, { x: MARGIN, y: y - ukuran, size: ukuran, font: fnt, color: L.rgb(0.09, 0.08, 0.07) });
-        y -= TINGGI_BARIS;
-      }
-    };
-    for (const b of baris) {
-      const judul = b === 'SURAT JUAL BELI';
-      const tebal = judul || /^(Pasal \d|PIHAK (PERTAMA|KEDUA))/.test(b);
-      tulisBaris(b, tebal ? fontTebal : font, judul ? 16 : UKURAN);
+      const bytes = await doc.save();
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      tampilkanSurat(baris);
+      T.show(hasilBox, '');
+      hasilBox.appendChild(T.el(`<p class="dim">Ukuran file: ${fmtBytes(blob.size)}.</p>`));
+      hasilBox.appendChild(T.btn('Unduh PDF', () => { T.dl('surat-jual-beli.pdf', blob, 'application/pdf'); T.toast('Berhasil diunduh'); }, true));
+    } catch (e) {
+      // Font Helvetica mesin PDF hanya mendukung huruf Latin (WinAnsi):
+      // huruf Arab, Tionghoa, atau emoji melempar di drawText. Sebelumnya
+      // tanpa try/catch sama sekali — gagal diam-diam tanpa pesan.
+      const hurufTakDidukung = e && /WinAnsi|encode/i.test(e.message || '');
+      T.show(statusBox, hurufTakDidukung
+        ? '<div class="err">PDF gagal dibuat karena ada huruf yang belum didukung mesin PDF (misal huruf Arab, Tionghoa, atau emoji). Coba tulis dengan huruf Latin, atau unduh versi Word yang mendukung semua huruf.</div>'
+        : '<div class="err">PDF gagal dibuat. Coba lagi, atau unduh versi Word.</div>');
     }
-    const bytes = await doc.save();
-    const blob = new Blob([bytes], { type: 'application/pdf' });
-    tampilkanSurat(baris);
-    T.show(hasilBox, '');
-    hasilBox.appendChild(T.el(`<p class="dim">Ukuran file: ${fmtBytes(blob.size)}.</p>`));
-    hasilBox.appendChild(T.btn('Unduh PDF', () => { T.dl('surat-jual-beli.pdf', blob, 'application/pdf'); T.toast('Berhasil diunduh'); }, true));
   }
 
   function unduhTeks() {

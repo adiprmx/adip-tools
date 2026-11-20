@@ -36,6 +36,46 @@ export function render(root) {
     ['2026-12-25', 'Kelahiran Yesus Kristus (Natal)', 'Libur nasional'],
   ];
 
+  // Data lokal 2027 — sumber utama: SKB 3 Menteri No. 1205/2026, No. 3/2026,
+  // No. 2/2026 (ditetapkan 15 Sep 2026; 18 hari libur nasional + 8 cuti
+  // bersama). Diverifikasi 20 Nov 2026 dari kemenag.go.id, setneg.go.id, dan
+  // naskah SKB (jdih.kemnaker.go.id); hari dalam seminggu dicek silang.
+  // Idulfitri 10–11 Maret dihitung 2 hari (sesuai SKB).
+  const SKB_2027 = [
+    ['2027-01-01', 'Tahun Baru 2027 Masehi', 'Libur nasional'],
+    ['2027-01-05', 'Isra Mikraj Nabi Muhammad SAW', 'Libur nasional'],
+    ['2027-02-05', 'Cuti Bersama Tahun Baru Imlek 2578 Kongzili', 'Cuti bersama'],
+    ['2027-02-06', 'Tahun Baru Imlek 2578 Kongzili', 'Libur nasional'],
+    ['2027-03-08', 'Hari Suci Nyepi (Tahun Baru Saka 1949)', 'Libur nasional'],
+    ['2027-03-09', 'Cuti Bersama Hari Raya Idulfitri 1448 H', 'Cuti bersama'],
+    ['2027-03-10', 'Hari Raya Idulfitri 1448 H', 'Libur nasional'],
+    ['2027-03-11', 'Hari Raya Idulfitri 1448 H', 'Libur nasional'],
+    ['2027-03-12', 'Cuti Bersama Hari Raya Idulfitri 1448 H', 'Cuti bersama'],
+    ['2027-03-15', 'Cuti Bersama Hari Raya Idulfitri 1448 H', 'Cuti bersama'],
+    ['2027-03-25', 'Cuti Bersama Wafat Yesus Kristus', 'Cuti bersama'],
+    ['2027-03-26', 'Wafat Yesus Kristus', 'Libur nasional'],
+    ['2027-03-28', 'Kebangkitan Yesus Kristus (Paskah)', 'Libur nasional'],
+    ['2027-05-01', 'Hari Buruh Internasional', 'Libur nasional'],
+    ['2027-05-06', 'Kenaikan Yesus Kristus', 'Libur nasional'],
+    ['2027-05-17', 'Hari Raya Iduladha 1448 H', 'Libur nasional'],
+    ['2027-05-18', 'Cuti Bersama Hari Raya Iduladha 1448 H', 'Cuti bersama'],
+    ['2027-05-19', 'Cuti Bersama Hari Raya Waisak 2571 BE', 'Cuti bersama'],
+    ['2027-05-20', 'Hari Raya Waisak 2571 BE', 'Libur nasional'],
+    ['2027-06-01', 'Hari Lahir Pancasila', 'Libur nasional'],
+    ['2027-06-06', '1 Muharam Tahun Baru Islam 1449 H', 'Libur nasional'],
+    ['2027-08-15', 'Maulid Nabi Muhammad SAW', 'Libur nasional'],
+    ['2027-08-17', 'Proklamasi Kemerdekaan RI', 'Libur nasional'],
+    ['2027-12-24', 'Cuti Bersama Hari Raya Natal', 'Cuti bersama'],
+    ['2027-12-25', 'Kelahiran Yesus Kristus (Natal)', 'Libur nasional'],
+    ['2027-12-26', 'Isra Mikraj Nabi Muhammad SAW', 'Libur nasional'],
+  ];
+
+  // Tahun yang punya data lokal lengkap (SKB) — tanpa internet.
+  const DATA_LOKAL = {
+    '2026': { data: SKB_2026, sumber: 'Data 2026: SKB 3 Menteri No. 1497/2025, No. 2/2025, No. 5/2025 — 17 hari libur nasional + 8 cuti bersama. Tanggal hari besar Islam bisa bergeser bila ada keputusan Menteri Agama (sidang isbat).' },
+    '2027': { data: SKB_2027, sumber: 'Data 2027: SKB 3 Menteri No. 1205/2026, No. 3/2026, No. 2/2026 — 18 hari libur nasional + 8 cuti bersama. Tanggal hari besar Islam bisa bergeser bila ada keputusan Menteri Agama (sidang isbat).' },
+  };
+
   const tahun = T.select([['2025', '2025'], ['2026', '2026'], ['2027', '2027']], '2026');
   const box = T.out();
   const fmtTgl = (iso) => {
@@ -77,11 +117,9 @@ export function render(root) {
 
   const muat = async () => {
     const th = tahun.value;
-    // Tahun 2026: data lokal SKB 3 Menteri (lengkap, tanpa internet).
-    if (th === '2026') {
-      tampilkan(th, SKB_2026.map(([date, name, jenis]) => ({ date, name, jenis })),
-        'Data 2026: SKB 3 Menteri No. 1497/2025, No. 2/2025, No. 5/2025 — 17 hari libur nasional + 8 cuti bersama. ' +
-        'Tanggal hari besar Islam bisa bergeser bila ada keputusan Menteri Agama (sidang isbat).');
+    // Tahun dengan data lokal SKB 3 Menteri (lengkap, tanpa internet).
+    if (DATA_LOKAL[th]) {
+      tampilkan(th, DATA_LOKAL[th].data.map(([date, name, jenis]) => ({ date, name, jenis })), DATA_LOKAL[th].sumber);
       return;
     }
     // Tahun lain: Nager.Date sebagai pelengkap, dengan disclaimer ketidaklengkapan.

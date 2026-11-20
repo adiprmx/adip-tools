@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js';
 
 // Font dari Tulisan Tangan: gambar tiap huruf dengan jarimu, lalu jadikan
 // file font OTF yang benar-benar bisa dipakai di HP/komputer.
@@ -117,7 +117,8 @@ export function render(root) {
     if (!otSiap) {
       otSiap = (async () => {
         if (typeof window !== 'undefined' && window.opentype) return window.opentype;
-        const ok = await T.loadScript(OT_CDN);
+        // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+        const ok = await utils.loadLibOnce(OT_CDN, () => typeof window.opentype !== 'undefined');
         if (!ok || typeof window.opentype === 'undefined') throw new Error('opentype gagal dimuat');
         return window.opentype;
       })().catch((e) => { otSiap = null; throw e; });

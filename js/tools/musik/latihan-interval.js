@@ -2,19 +2,26 @@ import { h as T, utils } from '../../core.js';
 
 export const meta = {"id": "latihan-interval", "name": "Latihan Interval", "cat": "musik", "icon": "👂", "desc": "Asah kuping: tebak jarak 2 nada dalam 10 ronde.", "keywords": "interval,ear training,telinga,nada,musik,latihan"};
 
+// [semiton, nama Indonesia], lengkap 13 interval dalam satu oktaf
+// (0 sampai 12 semiton, termasuk tritone, sekst, dan septim).
+export const INTERVAL = [
+  [0, 'Prime (Unison)'],
+  [1, 'Sekun Minor'],
+  [2, 'Sekun Mayor'],
+  [3, 'Ters Minor'],
+  [4, 'Ters Mayor'],
+  [5, 'Kwart Murni'],
+  [6, 'Tritone'],
+  [7, 'Kwint Murni'],
+  [8, 'Sekst Minor'],
+  [9, 'Sekst Mayor'],
+  [10, 'Septim Minor'],
+  [11, 'Septim Mayor'],
+  [12, 'Oktaf'],
+];
+
 export function render(root) {
 
-    // [semiton, nama Indonesia]
-    const INTERVAL = [
-      [0, 'Prime (Unison)'],
-      [1, 'Sekun Minor'],
-      [2, 'Sekun Mayor'],
-      [3, 'Ters Minor'],
-      [4, 'Ters Mayor'],
-      [5, 'Kwart Murni'],
-      [7, 'Kwint Murni'],
-      [12, 'Oktaf'],
-    ];
     const RONDE = 10;
 
     const box = T.out();
@@ -112,7 +119,7 @@ export function render(root) {
     };
 
     root.appendChild(box);
-    root.appendChild(T.el('<p class="hint center" style="margin-top:10px">10 ronde · nada dasar diacak tiap ronde · 8 pilihan interval dari prime sampai oktaf.</p>'));
+    root.appendChild(T.el('<p class="hint center" style="margin-top:10px">10 ronde · nada dasar diacak tiap ronde · 13 pilihan interval dari prime sampai oktaf.</p>'));
     rondeBaru();
 
 }

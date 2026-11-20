@@ -15,7 +15,10 @@ export function hitungBalok(o) {
   const L = Math.max(0, Number(o.bentang) || 0);
   const w = Math.max(0, Number(o.bebanMerata) || 0);
   const P = Math.max(0, Number(o.bebanTitik) || 0);
-  const a = Math.max(0, Math.min(L, Number(o.posisiTitik) || 0));
+  // Posisi kosong (NaN) = di tengah bentang, sesuai janji di kolom input.
+  // Posisi 0 yang diisi eksplisit tetap berarti di tumpuan kiri.
+  const aMentah = Number(o.posisiTitik);
+  const a = Number.isFinite(aMentah) ? Math.max(0, Math.min(L, aMentah)) : L / 2;
   const E = Math.max(0, Number(o.eGpa) || 0) * 1000; // GPa -> N/mm^2
   const I = Math.max(0, Number(o.iMm4) || 0);
   const Lm = L;
@@ -48,6 +51,7 @@ export function hitungBalok(o) {
   const batas = Lmm / 240;
   return {
     RA, RB,
+    posisiTitik: a, // posisi beban terpusat yang dipakai (m dari kiri)
     momenMaks: mMax / 1e6, // N.mm -> kN.m
     momenX: mX / 1000, // mm -> m
     lendutMaks: dMax, // mm
@@ -104,11 +108,14 @@ export function render(root) {
     const lendutBaris = I > 0
       ? kv('Lendutan paling besar', f(r.lendutMaks, 2) + ' mm (di ' + f(r.lendutX, 2) + ' m dari kiri)') +
         kv('Batas lendutan umum (L/240)', f(r.batasLendut, 2) + ' mm, ' + (r.lendutOk ? 'masih aman' : 'MELEBIHI BATAS, balok terlalu lentur')) : '';
+    const posisiBaris = (T.num(titikI.value) || 0) > 0
+      ? kv('Posisi beban terpusat dipakai', f(r.posisiTitik, 2) + ' m dari kiri' + (posisiI.value.trim() === '' ? ' (tengah bentang, karena kolom posisi dikosongkan)' : '')) : '';
     T.show(box,
       '<div class="big">' + f(r.momenMaks, 2) + ' kN.m</div>' +
       '<p class="center mut">Momen paling besar, di ' + f(r.momenX, 2) + ' m dari tumpuan kiri.</p>' +
       kv('Reaksi tumpuan kiri (RA)', f(r.RA, 2) + ' kN') +
       kv('Reaksi tumpuan kanan (RB)', f(r.RB, 2) + ' kN') +
+      posisiBaris +
       kv('Momen inersia I', T.fmt(Math.round(I)) + ' mm⁴') +
       lendutBaris +
       '<p class="hint">Hitungan untuk balok yang bertumpu bebas di dua ujungnya. Batas lendutan L/240 adalah patokan umum untuk balok lantai; balok atap atau yang menopang dinding bata biasanya memakai batas lebih ketat. Hasil ini untuk perkiraan awal saja, ukuran balok bangunan nyata tetap harus dicek ahli struktur.</p>');

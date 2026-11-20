@@ -53,11 +53,12 @@ export function render(root) {
       const r = await fetch(API + layanan.value, { signal: c.signal });
       if (!r.ok) throw new Error('http ' + r.status);
       const j = await r.json();
+      if (!j || typeof j !== 'object') throw new Error('bad-data');
       const baru = j.new || j.arrivals || j.added || [];
       const segera = j.coming || j.upcoming || [];
       const pergi = j.leaving || j.departures || j.removed || [];
       const total = (Array.isArray(baru) ? baru.length : 0) + (Array.isArray(segera) ? segera.length : 0) + (Array.isArray(pergi) ? pergi.length : 0);
-      if (!j || (typeof j !== 'object') || (!Array.isArray(baru) && !Array.isArray(segera) && !Array.isArray(pergi))) throw new Error('bad-data');
+      if (!Array.isArray(baru) && !Array.isArray(segera) && !Array.isArray(pergi)) throw new Error('bad-data');
       if (!total) {
         T.show(box, '<p class="center dim">Tidak ada perubahan katalog ' + esc(nama ? nama[1] : '') + ' saat ini. Coba lagi besok atau pilih layanan lain.</p>');
         return;

@@ -1,6 +1,6 @@
 import { h as T, onLeave } from '../../core.js';
 
-export const meta = { id: 'papan-skor-online', name: 'Papan Skor Online', cat: 'fun', icon: '🏆', desc: 'Papan skor layar besar untuk game, kuis, atau olahraga. Tim, ronde, target skor, dan jam pertandingan.', keywords: 'papan skor,scoreboard,skor,pertandingan,kuis,olahraga,timer,ronde', since: '6.17.0' };
+export const meta = { id: 'papan-skor-online', name: 'Papan Skor', cat: 'fun', icon: '🏆', desc: 'Papan skor layar besar untuk game, kuis, atau olahraga. Tim, ronde, target skor, dan jam pertandingan.', keywords: 'papan skor,scoreboard,skor,pertandingan,kuis,olahraga,timer,ronde', since: '6.17.0' };
 
 export function render(root) {
   const st = document.createElement('style');

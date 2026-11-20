@@ -25,6 +25,20 @@ export const BAHASA_OCR = [
   ['rus', 'Rusia'],
 ];
 
+// Kode bahasa Tesseract (ISO 639-2/T, 3 huruf) -> kode MyMemory
+// (ISO 639-1, 2 huruf). MyMemory menolak kode 3 huruf: tanpa pemetaan
+// ini, terjemahan dari/ke Indonesia, Jepang, Korea, Jerman, Spanyol,
+// Belanda, dan Rusia selalu gagal ("INVALID TARGET LANGUAGE"). Mandarin
+// memakai kode wilayah: sederhana zh-CN, tradisional zh-TW.
+export const KODE_MYMEMORY = {
+  eng: 'en', ind: 'id', jpn: 'ja', kor: 'ko',
+  chi_sim: 'zh-CN', chi_tra: 'zh-TW',
+  ara: 'ar', deu: 'de', fra: 'fr', spa: 'es', nld: 'nl', rus: 'ru',
+};
+export function kodeMyMemory(kodeTesseract) {
+  return KODE_MYMEMORY[kodeTesseract] || kodeTesseract;
+}
+
 // Potong teks jadi potongan <= batas karakter, diusahakan di batas kalimat
 // atau kata (pola yang sama dengan penerjemah-pdf). Fungsi murni.
 export function potongTeks(teks, batas) {
@@ -82,7 +96,7 @@ async function terjemahkan(q, langpair, signal) {
 export function render(root) {
   const fi = fileInput('image/*');
   const ocrSel = T.select(BAHASA_OCR, 'eng');
-  const targetSel = T.select([['id', 'Indonesia'], ['en', 'Inggris'], ['jpn', 'Jepang'], ['kor', 'Korea'], ['spa', 'Spanyol'], ['fra', 'Prancis'], ['deu', 'Jerman'], ['ara', 'Arab']], 'id');
+  const targetSel = T.select([['id', 'Indonesia'], ['en', 'Inggris'], ['ja', 'Jepang'], ['ko', 'Korea'], ['es', 'Spanyol'], ['fr', 'Prancis'], ['de', 'Jerman'], ['ar', 'Arab']], 'id');
   const statusBox = T.out();
   const ocrBox = T.out();
   const hasilBox = T.out();
@@ -100,7 +114,8 @@ export function render(root) {
     if (worker) return worker;
     if (!window.Tesseract) {
       T.show(statusBox, '<p class="dim">Mengunduh engine baca teks (~3 MB, sekali saja, perlu internet)…</p>');
-      const ok = await T.loadScript(TS_CDN);
+      // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+      const ok = await utils.loadLibOnce(TS_CDN, () => !!window.Tesseract);
       if (!ok || !window.Tesseract) throw new Error('Engine baca teks gagal dimuat. Cek koneksi internetmu lalu coba lagi.');
     }
     T.show(statusBox, '<p class="dim">Menyiapkan model bahasa…</p>');
@@ -143,7 +158,7 @@ export function render(root) {
         const timer = setTimeout(() => aborter.abort(), 30000);
         try {
           const potongan = potongTeks(teks, 450);
-          const langpair = ocrSel.value === 'chi_sim' || ocrSel.value === 'chi_tra' ? 'zh-CN|' + targetSel.value : ocrSel.value + '|' + targetSel.value;
+          const langpair = kodeMyMemory(ocrSel.value) + '|' + targetSel.value;
           const hasilTerjemah = [];
           for (let i = 0; i < potongan.length; i++) {
             T.show(statusBox, `<p class="dim">Menerjemahkan bagian ${i + 1} dari ${potongan.length}…</p>`);

@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"jam-dunia","name":"Jam Dunia","cat":"liveapi","icon":"🌍","desc":"Jam realtime 8 kota dunia.","keywords":"jam,dunia,timezone,waktu,kota"};
+export const meta = {"id":"jam-dunia","name":"Jam Dunia","cat":"sehari","icon":"🌍","desc":"Jam realtime 8 kota dunia.","keywords":"jam,dunia,timezone,waktu,kota"};
 
 const KOTA_DEFAULT = [
   ['Jakarta', '🇮🇩', 'Asia/Jakarta'],

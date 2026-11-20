@@ -234,7 +234,7 @@ export function render(root) {
     } catch (e) {
       const terkunci = e && e.name === 'PasswordException';
       T.show(statusBox, terkunci
-        ? '<div class="err">PDF ini dikunci kata sandi. Buka kuncinya dulu dengan tool Buka Kunci PDF.</div>'
+        ? '<div class="err">PDF ini dikunci kata sandi. Buka kuncinya dulu dengan tool Kunci PDF, tab Buka kunci.</div>'
         : '<div class="err">PDF tidak bisa dibaca. Pastikan filenya PDF yang benar dan tidak rusak.</div> <button class="btn" type="button">Coba lagi</button>');
       const tombol = statusBox.querySelector('button');
       if (tombol) tombol.addEventListener('click', proses);

@@ -72,9 +72,18 @@ export function babKeXhtml(bab) {
 
 export const CSS_EBOOK = 'body{font-family:serif;line-height:1.6;margin:5%}\nh1{font-size:1.4em;line-height:1.3}\np{text-align:justify}\n';
 
+// UID unik untuk satu ebook; dipakai bersama oleh OPF dan NCX supaya
+// cocok (aturan format EPUB: dtb:uid di NCX harus sama dengan identifier
+// di OPF). Sebelumnya NCX memakai nilai hardcoded sementara OPF memakai
+// timestamp — tidak pernah cocok. Murni, bisa diuji di Node.
+export function buatUid() {
+  return 'urn:uuid:adip-tools-' + Date.now().toString(36) + '-' + Math.floor(Math.random() * 1e6).toString(36);
+}
+
 // content.opf (EPUB 3). Murni, bisa diuji di Node.
-export function bangunOpf(meta, jumlahBab) {
-  const uid = 'urn:uuid:adip-tools-' + Date.now().toString(36);
+// uid: bila diisi, dipakai apa adanya supaya sama dengan NCX.
+export function bangunOpf(meta, jumlahBab, uid) {
+  const idBuku = uid || buatUid();
   const items = ['<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>',
     '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>',
     '<item id="css" href="style.css" media-type="text/css"/>'];
@@ -83,7 +92,7 @@ export function bangunOpf(meta, jumlahBab) {
   for (let i = 1; i <= jumlahBab; i++) spine.push(`<itemref idref="bab${i}"/>`);
   return '<?xml version="1.0" encoding="utf-8"?>\n'
     + '<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uid" version="3.0">\n<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">\n'
-    + '<dc:identifier id="uid">' + escXml(uid) + '</dc:identifier>\n'
+    + '<dc:identifier id="uid">' + escXml(idBuku) + '</dc:identifier>\n'
     + '<dc:title>' + escXml(meta.judul || 'Tanpa Judul') + '</dc:title>\n'
     + '<dc:language>' + escXml(meta.bahasa || 'id') + '</dc:language>\n'
     + (meta.penulis ? '<dc:creator>' + escXml(meta.penulis) + '</dc:creator>\n' : '')
@@ -100,10 +109,12 @@ export function bangunNav(bab) {
 }
 
 // Daftar isi EPUB 2 (toc.ncx, untuk pembaca lama). Murni, bisa diuji di Node.
-export function bangunNcx(meta, bab) {
+// uid WAJIB sama dengan yang dipakai bangunOpf untuk ebook yang sama.
+export function bangunNcx(meta, bab, uid) {
+  const idBuku = uid || buatUid();
   const isi = bab.map((b, i) => `<navPoint id="np${i + 1}" playOrder="${i + 1}"><navLabel><text>${escXml(b.judul)}</text></navLabel><content src="bab${i + 1}.xhtml"/></navPoint>`).join('\n');
   return '<?xml version="1.0" encoding="utf-8"?>\n'
-    + '<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">\n<head><meta name="dtb:uid" content="urn:uuid:adip-tools-epub"/></head>\n'
+    + '<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">\n<head><meta name="dtb:uid" content="' + escXml(idBuku) + '"/></head>\n'
     + '<docTitle><text>' + escXml(meta.judul || 'Tanpa Judul') + '</text></docTitle>\n<navMap>\n' + isi + '\n</navMap>\n</ncx>\n';
 }
 
@@ -141,9 +152,10 @@ export function render(root) {
       zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
       zip.file('META-INF/container.xml', CONTAINER_XML);
       const metaBuku = { judul, penulis: penulisI.value.trim(), bahasa: 'id' };
-      zip.file('OEBPS/content.opf', bangunOpf(metaBuku, bab.length));
+      const uid = buatUid();
+      zip.file('OEBPS/content.opf', bangunOpf(metaBuku, bab.length, uid));
       zip.file('OEBPS/nav.xhtml', bangunNav(bab));
-      zip.file('OEBPS/toc.ncx', bangunNcx(metaBuku, bab));
+      zip.file('OEBPS/toc.ncx', bangunNcx(metaBuku, bab, uid));
       zip.file('OEBPS/style.css', CSS_EBOOK);
       bab.forEach((b, i) => zip.file('OEBPS/bab' + (i + 1) + '.xhtml', babKeXhtml(b)));
       const blob = await zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });

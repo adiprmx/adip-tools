@@ -1,11 +1,14 @@
 import { h as T, utils, money, kv } from '../../core.js';
+import { HARGA_BBM_PERTALITE } from '../../harga-bbm.js';
 
 // Biaya aus kendaraan per km: total biaya yang "habis" tiap kilometer.
 // Depresiasi per km = (harga beli - nilai sekarang) / total km.
 // Perawatan per km = total biaya servis, ban, oli, dan suku cadang / total km.
 // BBM per km = harga per liter / konsumsi km per liter.
 // Total per km = ketiganya dijumlah. Angka ini yang dipakai untuk hitung
-// ongkos jalan yang sebenarnya, bukan cuma BBM.
+// ongkos jalan yang sebenarnya, bukan cuma BBM. Harga BBM default dari
+// modul bersama js/harga-bbm.js (satu sumber kebenaran dengan 4 tool
+// BBM lain), bisa diubah.
 export function hitungAusPerKm(o) {
   const susut = Math.max(0, (Number(o.hargaBeli) || 0) - (Number(o.nilaiAkhir) || 0));
   const km = Math.max(0, Number(o.totalKm) || 0);
@@ -26,7 +29,7 @@ export function render(root) {
   const kmI = T.input('text', 'cth: 60000', '60000'); kmI.inputMode = 'decimal';
   const servisI = money(null, 'cth: 15000000', '15000000');
   const kmlI = T.input('text', 'cth: 14', '14'); kmlI.inputMode = 'decimal';
-  const bbmI = money(null, 'cth: 10000', '10000');
+  const bbmI = money(null, 'cth: 10000', String(HARGA_BBM_PERTALITE));
   const box = T.out();
 
   const hitung = () => {

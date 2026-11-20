@@ -36,7 +36,7 @@ export function render(root) {
         if (dir === 'ltr') {
           pos = spans.length; // posisi antar huruf non-spasi
         } else if (dir === 'ttb') {
-          pos = li * n;
+          pos = li;
         } else {
           pos = li + ci;
         }

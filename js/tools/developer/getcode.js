@@ -1,21 +1,55 @@
-import { h as T, errBox } from '../../core.js';
+import { h as T, errBox, utils } from '../../core.js';
 
 export const meta = {"id": "getcode", "name": "Get Code HTML", "cat": "developer", "icon": "💻", "desc": "Ambil & ekstrak source HTML dari URL mana pun.", "keywords": "html,source,kode,extract,view-source,scrape"};
+
+// F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak
+// teridentifikasi). Rantai kini: Jina Reader dulu, lalu rantai kanonis
+// utils.fetchViaProxyChain (langsung → AllOrigins). Rute dengan `fetch`
+// memanggil helper yang mengembalikan Response; rute dengan `url` di-fetch
+// langsung di sini. AllOrigins terakhir karena flaky (522 berulang
+// Sep–Okt 2026). CodeTabs DIHAPUS — shutdown 30 Jun 2026, mengembalikan
+// 521/522.
+const ROUTES = [
+  { id: 'jina', label: 'Jina Reader', url: (u) => 'https://r.jina.ai/' + u },
+  { id: 'proxy-chain', label: 'Proxy', fetch: (u) => utils.fetchViaProxyChain(u, { timeout: 10000 }) },
+];
+
+// Ambil source HTML target lewat ROUTES. Di-export agar bisa di-unit-test
+// via node. report(label, status, msg): status 'try' | 'ok' | 'fail'.
+// Return {html, route}; throw Error(lastErr) bila semua jalur gagal.
+export async function fetchSource(target, report) {
+  const log = report || (() => {});
+  let html = '', routeUsed = '', lastErr = '';
+  for (const r of ROUTES) {
+    try {
+      log(r.label, 'try', '');
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 20000);
+      const res = r.fetch
+        ? await r.fetch(target)
+        : await fetch(r.url(target), { signal: ctrl.signal });
+      clearTimeout(t);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      if (!text || !text.trim()) throw new Error('Respons kosong');
+      if (/^4\d\d/.test(text.slice(0, 3)) && text.length < 200) throw new Error('Halaman error');
+      html = text; routeUsed = r.label;
+      log(r.label, 'ok', 'Berhasil (' + (new Blob([text]).size / 1024).toFixed(1) + ' KB)');
+      break;
+    } catch (e) {
+      lastErr = e.name === 'AbortError' ? 'waktu habis' : 'tidak bisa dijangkau';
+      log(r.label, 'fail', lastErr);
+    }
+  }
+  if (!html) throw new Error(lastErr);
+  return { html, route: routeUsed };
+}
 
 export function render(root) {
 
   const HIST_KEY = 'adip-getcode-history';
   const readHist = () => { try { const l = JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); return Array.isArray(l) ? l : []; } catch (e) { return []; } };
   const pushHist = (rec) => { try { localStorage.setItem(HIST_KEY, JSON.stringify([rec].concat(readHist()).slice(0, 24))); } catch (e) {} };
-
-  // Rantai proxy: yang terverifikasi hidup didahulukan (Jina, CorsAnyway);
-  // AllOrigins terakhir karena flaky (522 berulang Sep–Okt 2026).
-  // CodeTabs DIHAPUS — shutdown 30 Jun 2026, mengembalikan 521/522.
-  const ROUTES = [
-    { id: 'jina', label: 'Jina Reader', url: (u) => 'https://r.jina.ai/' + u },
-    { id: 'corsanyway', label: 'CorsAnyway', url: (u) => 'https://cors-anyway.huskymobile.com/?' + u },
-    { id: 'allorigins', label: 'AllOrigins', url: (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
-  ];
 
   /* ---- log ekstraksi ---- */
   const logSec = T.el('<div style="margin:16px 0 4px" hidden><b>Log ekstraksi</b></div>');
@@ -64,24 +98,14 @@ export function render(root) {
     T.show(box, '<span class="dim">Mengambil source…</span>');
     statBox.textContent = '';
     let html = '', routeUsed = '', lastErr = '';
-    for (const r of ROUTES) {
-      try {
-        T.show(box, '<span class="dim">Mencoba via ' + r.label + '…</span>');
-        const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 20000);
-        const res = await fetch(r.url(target), { signal: ctrl.signal });
-        clearTimeout(t);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        if (!text || !text.trim()) throw new Error('Respons kosong');
-        if (/^4\d\d/.test(text.slice(0, 3)) && text.length < 200) throw new Error('Halaman error');
-        html = text; routeUsed = r.label;
-        addLog(r.label, true, 'Berhasil (' + (new Blob([text]).size / 1024).toFixed(1) + ' KB)');
-        break;
-      } catch (e) {
-        lastErr = e.name === 'AbortError' ? 'waktu habis' : 'tidak bisa dijangkau';
-        addLog(r.label, false, lastErr);
-      }
+    try {
+      const got = await fetchSource(target, (label, status, msg) => {
+        if (status === 'try') T.show(box, '<span class="dim">Mencoba via ' + label + '…</span>');
+        else addLog(label, status === 'ok', msg);
+      });
+      html = got.html; routeUsed = got.route;
+    } catch (e) {
+      lastErr = e.message || 'tidak bisa dijangkau';
     }
     if (!html) { T.show(box, errBox('Gagal mengambil source dari semua jalur (' + lastErr + '). Coba lagi nanti.')); return; }
 

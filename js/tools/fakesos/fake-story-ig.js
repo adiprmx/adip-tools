@@ -22,7 +22,8 @@ const SVG_LINK = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" st
 export function render(root) {
   const S = {
     username: 'adip.rmx', time: '2h', text: 'Contoh teks story',
-    size: 24, color: '#ffffff', bg: 'sunset', photo: null, link: false
+    size: 24, color: '#ffffff', bg: 'sunset', photo: null, link: false,
+    seg: 3, aktif: 2, prog: 60
   };
 
   const css = document.createElement('style');
@@ -90,16 +91,18 @@ export function render(root) {
     const bgHtml = S.photo
       ? '<div class="' + P + '-bg"><img src="' + S.photo + '" alt=""></div>'
       : '<div class="' + P + '-bg" style="background:' + GRADS[S.bg] + '"></div>';
+    let progHtml = '<div class="' + P + '-prog">';
+    for (let i = 1; i <= S.seg; i++) {
+      const w = i < S.aktif ? 100 : (i === S.aktif ? S.prog : 0);
+      progHtml += '<div class="' + P + '-seg">' + (w > 0 ? '<i style="width:' + w + '%"></i>' : '') + '</div>';
+    }
+    progHtml += '</div>';
     frame = T.el(
       '<div class="' + P + '-frame plat-' + (isIph ? 'iphone' : 'android') + '">' +
         bgHtml +
         '<div class="' + P + '-shade"></div>' +
         sbHtml +
-        '<div class="' + P + '-prog">' +
-          '<div class="' + P + '-seg"><i style="width:100%"></i></div>' +
-          '<div class="' + P + '-seg"><i style="width:60%"></i></div>' +
-          '<div class="' + P + '-seg"></div>' +
-        '</div>' +
+        progHtml +
         '<div class="' + P + '-head">' +
           '<div class="' + P + '-av">' + T.esc(initial(S.username)) + '</div>' +
           '<div class="' + P + '-who"><b>' + T.esc(S.username) + '</b> <span>' + T.esc(S.time) + '</span></div>' +
@@ -149,6 +152,29 @@ export function render(root) {
   chkLink.checked = S.link;
   chkLink.addEventListener('change', () => { S.link = chkLink.checked; draw(); });
 
+  const inSeg = T.input('number', 'Jumlah story (1-8)', '3');
+  inSeg.min = '1'; inSeg.max = '8';
+  inSeg.addEventListener('input', () => {
+    S.seg = Math.max(1, Math.min(8, parseInt(inSeg.value, 10) || 3));
+    S.aktif = Math.min(S.aktif, S.seg);
+    draw();
+  });
+  const inAktif = T.input('number', 'Story yang sedang dibuka', '2');
+  inAktif.min = '1';
+  inAktif.addEventListener('input', () => {
+    S.aktif = Math.max(1, Math.min(S.seg, parseInt(inAktif.value, 10) || 1));
+    draw();
+  });
+  const inProg = T.input('range', '', '60');
+  inProg.min = '0'; inProg.max = '100';
+  const fldProg = T.field('Story ini sudah jalan (60%)', inProg, 'Seberapa jauh story yang sedang dibuka sudah berjalan.');
+  const labProg = fldProg.querySelector('label');
+  inProg.addEventListener('input', () => {
+    S.prog = Math.max(0, Math.min(100, parseInt(inProg.value, 10) || 0));
+    labProg.textContent = 'Story ini sudah jalan (' + S.prog + '%)';
+    draw();
+  });
+
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   selPlatform.addEventListener('change', draw);
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
@@ -168,9 +194,12 @@ export function render(root) {
   const btnEx = T.btn('🎲 Contoh', () => {
     S.username = 'adip.rmx'; S.time = '2h'; S.text = 'Baru rilis beat baru! 🔥';
     S.size = 26; S.color = '#ffffff'; S.bg = 'sunset'; S.photo = null; S.link = true;
+    S.seg = 3; S.aktif = 2; S.prog = 60;
     inUser.value = S.username; inTime.value = S.time; inText.value = S.text;
     inSize.value = String(S.size); labSize.textContent = 'Ukuran teks (' + S.size + 'px)';
     inColor.value = S.color; selBg.value = S.bg; chkLink.checked = S.link;
+    inSeg.value = '3'; inAktif.value = '2'; inProg.value = '60';
+    labProg.textContent = 'Story ini sudah jalan (60%)';
     draw();
     T.scrollToPreview(frame);
   });
@@ -185,10 +214,13 @@ export function render(root) {
     T.field('Background gradient', selBg),
     T.field('Foto background', T.row(btnUp, btnGrad)),
     T.field('Stiker link', chkLink),
+    T.grid2(T.field('Jumlah story', inSeg, '1 sampai 8 segmen.'), T.field('Story yang dibuka', inAktif, 'Dihitung dari kiri.')),
+    fldProg,
     T.field('Platform', selPlatform),
     brandField,
     T.row(btnEx, btnDl),
     stage,
+    T.el('<p class="' + P + '-note">🎭 Hanya untuk prank, bukan story Instagram asli. Jangan dipakai untuk menipu orang.</p>'),
     T.el('<p class="' + P + '-note">' + T.esc(LOCAL_NOTE) + '</p>')
   );
   root.appendChild(wrap);

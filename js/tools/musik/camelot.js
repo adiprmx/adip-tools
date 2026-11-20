@@ -5,6 +5,11 @@ const _MIN = { 1: 'Ab', 2: 'Eb', 3: 'Bb', 4: 'F', 5: 'C', 6: 'G', 7: 'D', 8: 'A'
 const _MAJ = { 1: 'B', 2: 'F#', 3: 'Db', 4: 'Ab', 5: 'Eb', 6: 'Bb', 7: 'F', 8: 'C', 9: 'G', 10: 'D', 11: 'A', 12: 'E' };
 
 const _minByPc = {}, _majByPc = {};
+// Peta balik nada -> nomor Camelot, dibangun dari tabel roda di atas
+// (_NI memetakan nama nada ke nomor kelas nadanya, 0-11). Tanpa ini
+// keyToCamelot selalu mengembalikan null.
+for (const [n, nama] of Object.entries(_MIN)) _minByPc[_NI[nama]] = +n;
+for (const [n, nama] of Object.entries(_MAJ)) _majByPc[_NI[nama]] = +n;
 
 U.camelotToKey = (code) => {
     const m = /^\s*(\d{1,2})\s*([ABab])\s*$/.exec(String(code));
@@ -20,8 +25,10 @@ U.keyToCamelot = (key) => {
     if (!m) return null;
     const pc = _NI[m[1].toUpperCase() + _normAcc(m[2])];
     if (pc == null) return null;
-    const mode = (m[3] || '').toLowerCase();
-    const minor = mode === 'minor' || mode === 'min' || mode === 'm';
+    // 'm' kecil = minor, 'M' besar = major — dibedakan sebelum di-lowercase.
+    const modeRaw = m[3] || '';
+    const mode = modeRaw.toLowerCase();
+    const minor = mode === 'minor' || mode === 'min' || modeRaw === 'm';
     const n = minor ? _minByPc[pc] : _majByPc[pc];
     if (n == null) return null;
     return n + (minor ? 'A' : 'B');

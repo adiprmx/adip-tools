@@ -4,18 +4,33 @@ export const meta = {"id":"statistika-dasar","name":"Statistika Dasar","cat":"pe
 
 // r4 kanonis tinggal di utils (core.js).
 
+// Urai deret angka ala Indonesia: koma di dalam angka adalah desimal
+// ("7,5" = 7,5), pemisah antar angka adalah spasi / enter / titik koma.
+// Koma ganda tanpa spasi ("1,2,3") tetap dibaca tiga angka. Pola yang sama
+// dengan bacaDeretDesimal di kalkulator-uji-chi-square.
+export function bacaDeret(teks) {
+  const nums = [];
+  let buang = 0;
+  String(teks || '').split(/[\s;]+/).forEach((tok) => {
+    const t = tok.trim().replace(/,+$/, '');
+    if (!t) return;
+    const koma = (t.match(/,/g) || []).length;
+    if (koma > 1) {
+      t.split(',').forEach((p) => { const v = T.num(p); if (isFinite(v)) nums.push(v); else buang++; });
+    } else {
+      const v = T.num(t);
+      if (isFinite(v)) nums.push(v); else buang++;
+    }
+  });
+  return { nums, buang };
+}
+
 export function render(root) {
   const out = T.out();
   const taInp = T.ta(5, 'mis.\n7, 8, 9, 6, 10\natau pisahkan dengan spasi / enter', '');
 
   const hitung = () => {
-    const tokens = String(taInp.value).split(/[,\s;]+/).map((s) => s.trim()).filter(Boolean);
-    const nums = [];
-    let buang = 0;
-    tokens.forEach((t) => {
-      const v = Number(String(t).replace(',', '.'));
-      if (isNaN(v)) buang++; else nums.push(v);
-    });
+    const { nums, buang } = bacaDeret(taInp.value);
     if (!nums.length) { T.show(out, '<p class="err">Belum ada angka yang valid. Coba isi deret angkanya dulu.</p>'); return; }
 
     const n = nums.length;
@@ -53,7 +68,7 @@ export function render(root) {
     ]) + langkah + (buang > 0 ? '<p class="hint">Catatan: ' + buang + ' potong teks bukan angka, jadi diabaikan.</p>' : ''));
   };
 
-  root.appendChild(T.el('<p class="hint">Tempel deret angkamu di bawah — koma, spasi, atau enter, bebas. Nanti dihitung mean, median, modus, range, sampai standar deviasinya.</p>'));
+  root.appendChild(T.el('<p class="hint">Tempel deret angkamu di bawah — pisahkan dengan koma, spasi, atau enter. Angka desimal pakai koma, contoh: 7,5.</p>'));
   root.appendChild(T.field('Deret angka', taInp));
   root.appendChild(T.row(T.btn('Hitung', hitung, true), T.btn('Contoh', () => { taInp.value = '1, 2, 3, 4, 5'; hitung(); })));
   root.appendChild(out);

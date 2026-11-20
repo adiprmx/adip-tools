@@ -76,7 +76,6 @@ export function render(root) {
 
     const fTitle = T.input('text', 'Judul halaman', '');
     const fDesc = T.ta(2, 'Deskripsi singkat halaman (150-160 karakter ideal)');
-    const fKeys = T.input('text', 'kata kunci, dipisah koma', '');
     const fAuthor = T.input('text', 'Nama penulis/situs', '');
     const fUrl = T.input('text', 'https://situsmu.com/halaman', '');
     const fSitus = T.input('text', 'Nama situs (boleh kosong, diambil dari alamat)', '');
@@ -178,14 +177,15 @@ export function render(root) {
     };
 
     const build = () => {
-      const title = fTitle.value.trim(), desc = fDesc.value.trim(), keys = fKeys.value.trim(),
+      const title = fTitle.value.trim(), desc = fDesc.value.trim(),
         author = fAuthor.value.trim(), ogT = fOgT.value.trim() || title, ogD = fOgD.value.trim() || desc,
         ogI = fOgI.value.trim(), twUser = fTwUser.value.trim().replace(/^@/, ''),
         url = fUrl.value.trim();
       if (!title) return '';
       const L = ['<title>' + esc(title) + '</title>'];
       if (desc) L.push('<meta name="description" content="' + esc(desc) + '">');
-      if (keys) L.push('<meta name="keywords" content="' + esc(keys) + '">');
+      // Tag meta keywords sengaja TIDAK dibuat: Google sudah mengabaikannya
+      // untuk peringkat sejak 2009, jadi menaruhnya hanya menambah sampah.
       if (author) L.push('<meta name="author" content="' + esc(author) + '">');
       if (url) L.push('<link rel="canonical" href="' + esc(url) + '">');
       L.push('<meta property="og:type" content="website">');
@@ -210,7 +210,7 @@ export function render(root) {
     root.appendChild(T.field('Author', fAuthor));
     root.appendChild(T.field('Description', fDesc));
     root.appendChild(cntDesc);
-    root.appendChild(T.field('Keywords', fKeys));
+    root.appendChild(T.el('<div class="hint" style="margin:4px 0 10px">Tag meta keywords sengaja tidak dibuat — Google sudah tidak memakainya untuk peringkat sejak 2009, jadi isinya tidak berpengaruh apa-apa.</div>'));
     root.appendChild(T.field('URL halaman', fUrl, 'Dipakai untuk pratinjau alamat di Google, tag og:url, dan link canonical.'));
     root.appendChild(T.field('Nama situs (opsional)', fSitus, 'Nama yang tampil di pratinjau hasil pencarian. Kosongkan untuk memakai nama domain dari alamat.'));
     root.appendChild(T.grid2(T.field('og:title', fOgT), T.field('og:image', fOgI)));

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE } from '../../core.js';
+import { h as T, utils, LOCAL_NOTE } from '../../core.js';
 
 export const meta = { id: 'lihat-database-sqlite', name: 'Lihat Database SQLite', cat: 'developer', icon: '🗄️', desc: 'Buka file database .db atau .sqlite di browser, jelajahi tabelnya, dan jalankan query SELECT. Baca saja, tidak bisa mengubah.', keywords: 'sqlite,database,db,sql,query,tabel,buka database,select', since: '6.17.0' };
 
@@ -19,23 +19,26 @@ export const BATAS_BARIS = 1000;
 let sqlPromise = null;
 function muatSqlJs() {
   if (sqlPromise) return sqlPromise;
-  sqlPromise = new Promise((resolve) => {
-    if (typeof window.initSqlJs === 'function') {
-      window.initSqlJs({ locateFile: (f) => SQLJS_WASM_DIR + f }).then(resolve, () => resolve(null));
-      return;
+  // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk untuk
+  // script (SRI tetap dipasang loadScript dari peta core.js) + timeout
+  // 60 dtk untuk initSqlJs (ia mengunduh sql-wasm.wasm lewat fetch
+  // internal, yang juga bisa menggantung). Gagal tidak di-cache supaya
+  // tombol bisa coba lagi.
+  sqlPromise = (async () => {
+    const ok = await utils.loadLibOnce(SQLJS_URL, () => typeof window.initSqlJs === 'function');
+    if (!ok || typeof window.initSqlJs !== 'function') return null;
+    let timer = null;
+    try {
+      const batas = new Promise((resolve) => { timer = setTimeout(() => resolve(null), 60000); });
+      const db = await Promise.race([
+        window.initSqlJs({ locateFile: (f) => SQLJS_WASM_DIR + f }).catch(() => null),
+        batas,
+      ]);
+      return db || null;
+    } finally {
+      if (timer) clearTimeout(timer);
     }
-    const s = document.createElement('script');
-    s.src = SQLJS_URL;
-    s.async = true;
-    const hashSql = T.scriptIntegrity(SQLJS_URL);
-    if (hashSql) { s.integrity = hashSql; s.crossOrigin = 'anonymous'; }
-    s.onload = () => {
-      if (typeof window.initSqlJs !== 'function') { resolve(null); return; }
-      window.initSqlJs({ locateFile: (f) => SQLJS_WASM_DIR + f }).then(resolve, () => resolve(null));
-    };
-    s.onerror = () => { sqlPromise = null; resolve(null); };
-    document.head.appendChild(s);
-  });
+  })().then((db) => { if (!db) sqlPromise = null; return db; });
   return sqlPromise;
 }
 

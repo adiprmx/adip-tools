@@ -91,7 +91,11 @@ export function render(root) {
   let mpSiap = null, seg = null;
   async function loadSeg() {
     if (seg) return seg;
-    if (!mpSiap) mpSiap = T.loadScript(MP_CDN).then((ok) => ok && !!window.SelfieSegmentation);
+    // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk, hanya
+    // sukses yang di-cache (pola lama meng-cache false sehingga tombol
+    // proses tidak pernah bisa coba lagi sesudah gagal muat).
+    if (!mpSiap) mpSiap = utils.loadLibOnce(MP_CDN, () => !!window.SelfieSegmentation)
+      .then((ok) => { if (!ok) mpSiap = null; return ok; });
     const ok = await mpSiap;
     if (!ok) throw new Error('cdn');
     seg = new window.SelfieSegmentation({ locateFile: (f) => MP_BASE + f });

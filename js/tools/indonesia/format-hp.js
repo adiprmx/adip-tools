@@ -1,11 +1,14 @@
 import { h as T, utils, kv, tabs } from '../../core.js';
 
-export const meta = {"id": "format-hp", "name": "Format Nomor HP", "cat": "indonesia", "icon": "📱", "desc": "08xx ↔ +62 ↔ 62xx, satu nomor atau banyak sekaligus, lengkap dengan operator, link WA + pesan awal, dan deteksi nomor rumah.", "keywords": "hp,nomor,telepon,62,whatsapp,operator,telkomsel,indosat,xl,tri,axis,smartfren,massal,rumah,kode area"};
+export const meta = {"id": "format-hp", "name": "Format Nomor HP", "cat": "indonesia", "icon": "📱", "desc": "08xx ↔ +62 ↔ 62xx, satu nomor atau banyak sekaligus, lengkap dengan operator, link WA + pesan awal, dan deteksi nomor rumah.", "keywords": "hp,nomor,telepon,62,whatsapp,operator,telkomsel,indosat,xl,tri,axis,smartfren,massal,rumah,kode area,cek operator"};
 
 /* Prefix 4 digit operator seluler Indonesia (berdasarkan alokasi awal nomor).
-   Nomor yang sudah pindah operator (porting) tidak lagi cocok dengan prefix ini. */
+   Dicek 20 November 2026 (Wikipedia "Nomor telepon di Indonesia" + daftar
+   prefix operator):
+   Telkomsel 0811, 0812, 0813, 0821, 0822, 0823, 0851 (termasuk by.U), 0852,
+   0853, 0854. */
 export const OPERATOR_PREFIX = {
-  Telkomsel: ['0811', '0812', '0813', '0821', '0822', '0852', '0853'],
+  Telkomsel: ['0811', '0812', '0813', '0821', '0822', '0823', '0851', '0852', '0853', '0854'],
   Indosat: ['0814', '0815', '0816', '0855', '0856', '0857', '0858'],
   XL: ['0817', '0818', '0819', '0859', '0877', '0878'],
   Tri: ['0895', '0896', '0897', '0898', '0899'],
@@ -161,7 +164,11 @@ export function render(root) {
     if (!r.length) { T.hide(riwBox); return; }
     T.show(riwBox, '<p class="mut" style="font-size:13px;margin:10px 0 6px">Terakhir dicek</p>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-      r.map((n) => '<button type="button" class="btn" data-riw="' + T.esc(n) + '">' + T.esc(n) + '</button>').join('') +
+      r.map((n) => {
+        const a = analisisNomor(n);
+        const label = n + (a.jenis === 'hp' && a.operator ? ' · ' + a.operator : '');
+        return '<button type="button" class="btn" data-riw="' + T.esc(n) + '">' + T.esc(label) + '</button>';
+      }).join('') +
       '<button type="button" class="btn" data-riw-hapus="1">Hapus riwayat</button></div>');
     riwBox.querySelectorAll('[data-riw]').forEach((b) => b.addEventListener('click', () => {
       inp.value = b.dataset.riw;
@@ -209,7 +216,7 @@ export function render(root) {
       barisFormat('Format baca (08xx)', f['Format baca']) +
       opHtml +
       kv('Link WhatsApp', '<b>' + T.esc(wa) + '</b>') +
-      '<p class="hint">Operator ditebak dari prefix awal nomor. Nomor yang sudah pindah operator tetap memakai prefix lamanya.</p>');
+      '<p class="hint">Operator ditebak dari prefix awal nomor (4 digit pertama).</p>');
     box.appendChild(T.row(
       T.copyBtn(() => wa, 'Salin link WA'),
       (() => { const el = T.el('<a class="btn primary" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">Buka wa.me</a>'); el.href = wa; return el; })()

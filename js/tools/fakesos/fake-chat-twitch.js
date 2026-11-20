@@ -151,7 +151,7 @@ export function render(root) {
 
     let chatHtml = '';
     msgs.forEach((m, i) => {
-      const jam = showJam ? '<span class="fctw-time">' + String(21 + Math.floor(i / 60)).padStart(2, '0') + ':' + String(i % 60).padStart(2, '0') + '</span>' : '';
+      const jam = showJam ? '<span class="fctw-time">' + String((21 + Math.floor(i / 60)) % 24).padStart(2, '0') + ':' + String(i % 60).padStart(2, '0') + '</span>' : '';
       const bdg = m.badge ? '<span class="fctw-bdg">' + BADGE[m.badge] + '</span>' : '';
       chatHtml += '<div class="fctw-msg">' + jam + bdg + '<b style="color:' + m.warna + '">' + T.esc(m.nama) + '</b><span style="color:#ADADB8">: </span>' + T.esc(m.msg) + '</div>';
     });

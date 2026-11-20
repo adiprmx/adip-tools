@@ -54,15 +54,65 @@ export function bersihkanDaftarMassal(teks, maks) {
   return out.slice(0, m);
 }
 
+// ---------- Barcode 1D (diserap dari Barcode, B11 v6.21.0) ----------
+
+// Digit cek GTIN (EAN-13/UPC-A/ITF-14): dari kanan, bobot 3,1,3,1...
+// digits = angka TANPA digit cek. Murni, bisa diuji di Node.
+export function gtinCheckDigit(digits) {
+  const s = String(digits || '').replace(/\D/g, '');
+  let jumlah = 0;
+  for (let i = 0; i < s.length; i++) {
+    const d = Number(s[s.length - 1 - i]);
+    jumlah += d * (i % 2 === 0 ? 3 : 1);
+  }
+  return (10 - (jumlah % 10)) % 10;
+}
+
+// Validasi isi barcode per format. Kembalikan {ok, pesan}; pesan kosong
+// bila ok. Murni, bisa diuji di Node.
+export function validasiBarcode(format, teks) {
+  const t = String(teks || '').trim();
+  if (!t) return { ok: false, pesan: 'Isi dulu teks/angkanya.' };
+  if (format === 'EAN13') {
+    if (!/^\d{12,13}$/.test(t)) return { ok: false, pesan: 'EAN-13 butuh 12 atau 13 digit angka saja. Contoh: 8991234567891.' };
+    if (t.length === 13 && Number(t[12]) !== gtinCheckDigit(t.slice(0, 12))) {
+      return { ok: false, pesan: 'Digit terakhir EAN-13 ini salah. Digit cek yang benar untuk ' + t.slice(0, 12) + ' adalah ' + gtinCheckDigit(t.slice(0, 12)) + '.' };
+    }
+    return { ok: true, pesan: '' };
+  }
+  if (format === 'UPC') {
+    if (!/^\d{11,12}$/.test(t)) return { ok: false, pesan: 'UPC-A butuh 11 atau 12 digit angka saja.' };
+    if (t.length === 12 && Number(t[11]) !== gtinCheckDigit(t.slice(0, 11))) {
+      return { ok: false, pesan: 'Digit terakhir UPC-A ini salah. Digit cek yang benar untuk ' + t.slice(0, 11) + ' adalah ' + gtinCheckDigit(t.slice(0, 11)) + '.' };
+    }
+    return { ok: true, pesan: '' };
+  }
+  if (format === 'CODE39') {
+    if (!/^[0-9A-Z .$/+%-]+$/.test(t)) return { ok: false, pesan: 'CODE39 hanya boleh huruf besar A-Z, angka, spasi, dan tanda - . $ / + %.' };
+    return { ok: true, pesan: '' };
+  }
+  if (format === 'ITF14') {
+    if (!/^\d{13,14}$/.test(t)) return { ok: false, pesan: 'ITF-14 butuh 13 atau 14 digit angka saja.' };
+    if (t.length === 14 && Number(t[13]) !== gtinCheckDigit(t.slice(0, 13))) {
+      return { ok: false, pesan: 'Digit terakhir ITF-14 ini salah. Digit cek yang benar untuk ' + t.slice(0, 13) + ' adalah ' + gtinCheckDigit(t.slice(0, 13)) + '.' };
+    }
+    return { ok: true, pesan: '' };
+  }
+  // CODE128: teks ASCII biasa.
+  if (!/^[\x20-\x7E]+$/.test(t)) return { ok: false, pesan: 'CODE128 hanya bisa memakai huruf, angka, dan tanda baca biasa.' };
+  return { ok: true, pesan: '' };
+}
+
 // ---------- Akhir fungsi murni ----------
 
-export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, WiFi (termasuk jaringan tersembunyi), lokasi, vCard, SMS & email. Mode massal, logo, bingkai, ekspor SVG.", "keywords": "qr,barcode,scan,link,wifi,svg,logo,whatsapp,telegram,lokasi,maps,vcard,sms,email,massal,ssid,tersembunyi,hotspot"};
+export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, WiFi (termasuk jaringan tersembunyi), lokasi, vCard, SMS & email. Mode massal, logo, bingkai, ekspor SVG. Serta barcode 1D produk (CODE128, EAN-13, UPC-A, CODE39, ITF-14).", "keywords": "qr,barcode,scan,link,wifi,svg,logo,whatsapp,telegram,lokasi,maps,vcard,sms,email,massal,ssid,tersembunyi,hotspot,ean13,upc,code128,code39,itf14,barcode produk"};
 export function render(root) {
 
     const QR_CDN = 'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js';
+    const BC_CDN = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
     const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';
     const MAKS_MASSAL = 20;
-    const modeSel = T.select([['text', 'Teks / URL'], ['wifi', 'WiFi'], ['lokasi', 'Lokasi (peta)'], ['vcard', 'Kontak (vCard)'], ['sms', 'SMS'], ['email', 'Email'], ['massal', 'Massal (banyak sekaligus)']], 'text');
+    const modeSel = T.select([['text', 'Teks / URL'], ['wifi', 'WiFi'], ['lokasi', 'Lokasi (peta)'], ['vcard', 'Kontak (vCard)'], ['sms', 'SMS'], ['email', 'Email'], ['massal', 'Massal (banyak sekaligus)'], ['barcode', 'Barcode 1D (produk)']], 'text');
     const fText = T.ta(3, 'Teks atau URL…', 'https://adipmusic.my.id');
     const wSsid = T.input('text', 'Nama WiFi (SSID)', '');
     const wPass = T.input('text', 'Password WiFi', '');
@@ -72,7 +122,7 @@ export function render(root) {
     const wBox = T.el('<div hidden></div>');
     wBox.appendChild(T.field('SSID', wSsid));
     wBox.appendChild(T.grid2(T.field('Password', wPass), T.field('Enkripsi', wEnc)));
-    wBox.appendChild(T.field('Jaringan tersembunyi (hidden)', wHidden, 'Centang bila WiFi-mu tidak muncul di daftar jaringan — QR tetap bisa di-scan.'));
+    wBox.appendChild(T.field('Jaringan tersembunyi (hidden)', wHidden, 'Centang bila WiFi-mu tidak muncul di daftar jaringan. QR tetap bisa di-scan.'));
     wBox.appendChild(T.row(T.copyBtn(() => wifiString(wSsid.value.trim(), wPass.value, wEnc.value, wHidden.checked), 'Salin string WiFi')));
     const aturPassWifi = () => { const f = wPass.closest('.fld'); if (f) f.style.display = wEnc.value === 'nopass' ? 'none' : ''; };
     wEnc.addEventListener('change', aturPassWifi);
@@ -111,6 +161,56 @@ export function render(root) {
     mBox.appendChild(T.field('Daftar teks / URL (maks ' + MAKS_MASSAL + ')', mTa, 'Satu baris = satu QR. Baris kosong & duplikat diabaikan.'));
     const massalGrid = T.el('<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:12px 0" hidden></div>');
     const massalBar = T.el('<div hidden></div>');
+    // --- Barcode 1D (dari tool Barcode) ---
+    const bText = T.input('text', 'misal: 8991234567891 (EAN-13) atau ADIP-001', '8991234567891');
+    bText.style.fontFamily = 'monospace';
+    const bFmt = T.select([['CODE128', 'CODE128 (umum)'], ['EAN13', 'EAN-13 (produk retail)'], ['UPC', 'UPC-A'], ['CODE39', 'CODE39'], ['ITF14', 'ITF-14']], 'CODE128');
+    const bStatus = T.out();
+    const bWrap = T.el('<div style="display:flex;justify-content:center;padding:20px;background:#fff;border-radius:12px;margin:12px 0;min-height:100px;align-items:center"><span class="dim">Barcode muncul di sini.</span></div>');
+    const bSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const bDraw = () => {
+      const txt = bText.value.trim();
+      const cek = validasiBarcode(bFmt.value, txt);
+      if (!cek.ok) { T.show(bStatus, errBox(cek.pesan)); return; }
+      T.show(bStatus, '<span class="dim">Menyiapkan alat barcode…</span>');
+      // Loader library kanonis: utils.loadLibOnce (core.js).
+      utils.loadLibOnce(BC_CDN, () => typeof JsBarcode !== 'undefined').then((ok) => {
+        if (!ok) { T.show(bStatus, errBox('Alat barcode tidak bisa dimuat dari internet. Cek koneksi internet.')); return; }
+        try {
+          bWrap.innerHTML = '';
+          bSvg.setAttribute('width', '100%');
+          JsBarcode(bSvg, txt, { format: bFmt.value, displayValue: true, fontSize: 16, margin: 10, background: '#ffffff', lineColor: '#000000' });
+          bWrap.appendChild(bSvg);
+          T.hide(bStatus);
+        } catch (e) {
+          T.show(bStatus, errBox('Teks/angka ini tidak cocok untuk format ' + bFmt.value + '. Periksa lagi isinya (EAN-13 butuh 12–13 digit angka).'));
+        }
+      });
+    };
+    const bUnduhPng = () => {
+      if (!bWrap.contains(bSvg)) { T.toast('Buat dulu barcodenya'); return; }
+      const xml = new XMLSerializer().serializeToString(bSvg);
+      const img = new Image();
+      img.onload = () => {
+        const cv = document.createElement('canvas');
+        cv.width = img.width || 600; cv.height = img.height || 200;
+        const x = cv.getContext('2d');
+        x.fillStyle = '#ffffff'; x.fillRect(0, 0, cv.width, cv.height);
+        x.drawImage(img, 0, 0);
+        const a = document.createElement('a');
+        a.href = cv.toDataURL('image/png');
+        a.download = 'barcode.png';
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+      img.onerror = () => T.toast('PNG tidak bisa dibuat');
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+    };
+    const bBox = T.el('<div></div>');
+    bBox.appendChild(T.field('Teks / angka barcode', bText, 'EAN-13 butuh 12-13 digit angka. CODE128 bebas teks.'));
+    bBox.appendChild(T.field('Format', bFmt));
+    bBox.appendChild(T.row(T.btn('Buat Barcode', bDraw, true), T.btn('Unduh PNG', bUnduhPng)));
+    bBox.appendChild(bStatus);
+    bBox.appendChild(bWrap);
     const sizeSel = T.select([['200', '200px'], ['300', '300px'], ['500', '500px'], ['1000', '1000px']], '300');
     const fg = T.el('<input type="color" value="#000000" style="width:100%;height:44px;border:1px solid #27272a;border-radius:8px;background:none;padding:4px;cursor:pointer">');
     const bg = T.el('<input type="color" value="#ffffff" style="width:100%;height:44px;border:1px solid #27272a;border-radius:8px;background:none;padding:4px;cursor:pointer">');
@@ -157,7 +257,8 @@ export function render(root) {
       if (libLoading) return new Promise((res) => { const t = setInterval(() => { if (libOk !== null) { clearInterval(t); res(libOk); } }, 300); });
       libLoading = true;
       T.show(statusBox, '<span class="dim">Memuat library QR…</span>');
-      return T.loadScript(QR_CDN).then((ok) => {
+      // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+      return utils.loadLibOnce(QR_CDN, () => typeof QRCode !== 'undefined').then((ok) => {
         libOk = ok && typeof QRCode !== 'undefined';
         if (!libOk) T.show(statusBox, errBox('Gagal memuat library QR dari CDN. Cek koneksi internet lalu coba lagi.'));
         return libOk;
@@ -287,6 +388,7 @@ export function render(root) {
       return s;
     };
     const draw = () => {
+      if (modeSel.value === 'barcode') return;
       if (modeSel.value === 'massal') { gambarMassal(); return; }
       if (modeSel.value === 'wifi') {
         if (!wSsid.value.trim()) { T.show(statusBox, errBox('Isi dulu nama WiFi (SSID)-nya ya.')); return; }
@@ -301,7 +403,7 @@ export function render(root) {
         const perluManual = gayaSel.value === 'bulat' || gradCek.checked;
         if (perluManual) {
           if (!gambarManual(cv, txt, ecc, ukuran, margin)) {
-            T.show(statusBox, errBox('QR tidak bisa dibuat. Datanya mungkin terlalu panjang — coba persingkat, lalu coba lagi.'));
+            T.show(statusBox, errBox('QR tidak bisa dibuat. Datanya mungkin terlalu panjang. Coba persingkat, lalu coba lagi.'));
             return;
           }
           tempelLogo(cv, cv.getContext('2d'));
@@ -312,7 +414,7 @@ export function render(root) {
           return;
         }
         QRCode.toCanvas(cv, txt, { width: ukuran, margin, errorCorrectionLevel: ecc, color: { dark: fg.value, light: bg.value } }, (err) => {
-          if (err) { T.show(statusBox, errBox('QR tidak bisa dibuat. Datanya mungkin terlalu panjang — coba persingkat, lalu coba lagi.')); return; }
+          if (err) { T.show(statusBox, errBox('QR tidak bisa dibuat. Datanya mungkin terlalu panjang. Coba persingkat, lalu coba lagi.')); return; }
           tempelLogo(cv, cv.getContext('2d'));
           qrWrap.innerHTML = '';
           cv.style.maxWidth = '100%'; cv.style.height = 'auto';
@@ -390,6 +492,9 @@ export function render(root) {
     const queue = () => { clearTimeout(deb); deb = setTimeout(draw, 400); };
     const aturMode = () => {
       const m = modeSel.value;
+      qrPage.hidden = m === 'barcode';
+      bcPage.hidden = m !== 'barcode';
+      if (m === 'barcode') return;
       wBox.hidden = m !== 'wifi';
       lokBox.hidden = m !== 'lokasi';
       vBox.hidden = m !== 'vcard';
@@ -442,32 +547,34 @@ export function render(root) {
       T.btn('Unduh semua SVG (ZIP)', () => unduhZipMassal('svg'), true)
     ));
     root.appendChild(T.field('Mode', modeSel));
-    root.appendChild(T.row(
+    const qrPage = T.el('<div></div>');
+    const bcPage = T.el('<div hidden></div>');
+    qrPage.appendChild(T.row(
       T.btn('WhatsApp (wa.me)', () => isiPreset('https://wa.me/6281234567890', 'Ganti nomor di atas dengan nomormu')),
       T.btn('Telegram (t.me)', () => isiPreset('https://t.me/namapengguna', 'Ganti nama pengguna di atas dengan namamu')),
       T.btn('Lokasi (peta)', () => { modeSel.value = 'lokasi'; aturMode(); T.toast('Isi koordinat lokasinya'); })
     ));
-    root.appendChild(T.field('Isi QR', fText));
-    root.appendChild(wBox);
-    root.appendChild(lokBox);
-    root.appendChild(vBox);
-    root.appendChild(sBox);
-    root.appendChild(eBox);
-    root.appendChild(mBox);
-    root.appendChild(T.grid2(T.field('Ukuran', sizeSel), T.field('Ketahanan kode', eccSel, 'Makin tinggi, makin tahan rusak atau tertutup sebagian.')));
-    root.appendChild(T.grid2(
+    qrPage.appendChild(T.field('Isi QR', fText));
+    qrPage.appendChild(wBox);
+    qrPage.appendChild(lokBox);
+    qrPage.appendChild(vBox);
+    qrPage.appendChild(sBox);
+    qrPage.appendChild(eBox);
+    qrPage.appendChild(mBox);
+    qrPage.appendChild(T.grid2(T.field('Ukuran', sizeSel), T.field('Ketahanan kode', eccSel, 'Makin tinggi, makin tahan rusak atau tertutup sebagian.')));
+    qrPage.appendChild(T.grid2(
       T.el('<div class="fld"><label>Warna QR</label></div>').appendChild(fg).parentNode,
       T.el('<div class="fld"><label>Warna latar</label></div>').appendChild(bg).parentNode
     ));
-    root.appendChild(gradChk);
-    root.appendChild(gradRow);
-    root.appendChild(T.grid2(
+    qrPage.appendChild(gradChk);
+    qrPage.appendChild(gradRow);
+    qrPage.appendChild(T.grid2(
       T.field('Bentuk modul', gayaSel, 'Bulat membuat QR terlihat lebih lembut; tetap terbaca normal.'),
       T.field('Bingkai', frameSel)
     ));
-    root.appendChild(T.field('Logo tengah (opsional)', logoInp, 'Gambar kotak paling bagus. PNG transparan bisa dipakai. Logo ikut masuk ke PNG & SVG.'));
-    root.appendChild(logoCatatan);
-    root.appendChild(T.row(T.btn('Buat QR', draw, true), T.btn('Unduh PNG', () => {
+    qrPage.appendChild(T.field('Logo tengah (opsional)', logoInp, 'Gambar kotak paling bagus. PNG transparan bisa dipakai. Logo ikut masuk ke PNG & SVG.'));
+    qrPage.appendChild(logoCatatan);
+    qrPage.appendChild(T.row(T.btn('Buat QR', draw, true), T.btn('Unduh PNG', () => {
       if (!qrWrap.contains(cv)) { T.toast('Buat dulu QR-nya'); return; }
       const a = document.createElement('a');
       a.href = cv.toDataURL('image/png');
@@ -480,7 +587,7 @@ export function render(root) {
         if (!ok) return;
         const ecc = logoImg ? 'H' : eccSel.value;
         const svg = qrKeSvg(txt, ecc, +sizeSel.value, +frameSel.value);
-        if (!svg) { T.show(statusBox, errBox('SVG tidak bisa dibuat. Datanya mungkin terlalu panjang — coba persingkat, lalu coba lagi.')); return; }
+        if (!svg) { T.show(statusBox, errBox('SVG tidak bisa dibuat. Datanya mungkin terlalu panjang. Coba persingkat, lalu coba lagi.')); return; }
         T.dl('qr-code.svg', svg, 'image/svg+xml');
         T.toast('SVG berhasil diunduh');
       });
@@ -491,11 +598,14 @@ export function render(root) {
       logoCatatan.hidden = true;
       draw();
     })));
-    root.appendChild(statusBox);
-    root.appendChild(qrWrap);
-    root.appendChild(massalGrid);
-    root.appendChild(massalBar);
-    root.appendChild(T.el('<p class="dim" style="font-size:13px">Punya kode QR? <a href="#/t/qr-decoder">Baca di sini</a>.</p>'));
+    qrPage.appendChild(statusBox);
+    qrPage.appendChild(qrWrap);
+    qrPage.appendChild(massalGrid);
+    qrPage.appendChild(massalBar);
+    qrPage.appendChild(T.el('<p class="dim" style="font-size:13px">Punya kode QR? <a href="#/t/qr-decoder">Baca di sini</a>.</p>'));
+    bcPage.appendChild(bBox);
+    root.appendChild(qrPage);
+    root.appendChild(bcPage);
     T.onLeave(() => clearTimeout(deb));
     draw();
   

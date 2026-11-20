@@ -61,15 +61,27 @@ export function parseHar(teks) {
 
 export function ringkasHar(entries) {
   const baris = (entries || []).map(ringkasEntry);
-  let totalWaktu = 0, totalUkuran = 0, gagal = 0, lambat = 0, takTerkompres = 0;
+  let jumlahWaktu = 0, totalUkuran = 0, gagal = 0, lambat = 0, takTerkompres = 0;
+  let awal = null, akhir = null;
   for (const b of baris) {
-    totalWaktu += b.waktu;
+    jumlahWaktu += b.waktu;
     totalUkuran += b.ukuran;
     if (b.gagal) gagal++;
     if (b.lambat) lambat++;
     if (b.takTerkompres) takTerkompres++;
+    // Wall-clock: dari request pertama mulai sampai request terakhir
+    // selesai (bukan jumlah waktu semua request — request berjalan
+    // bersamaan, jadi jumlahnya melebih-lebihkan durasi sebenarnya).
+    if (b.mulai != null) {
+      if (awal == null || b.mulai < awal) awal = b.mulai;
+      const s = b.mulai + b.waktu;
+      if (akhir == null || s > akhir) akhir = s;
+    }
   }
-  return { baris, jumlah: baris.length, totalWaktu, totalUkuran, gagal, lambat, takTerkompres };
+  // Tanpa stempel waktu sama sekali, jumlah waktu adalah satu-satunya
+  // angka yang bisa ditampilkan — dipakai sebagai cadangan.
+  const totalWaktu = awal != null && akhir != null && akhir > awal ? akhir - awal : jumlahWaktu;
+  return { baris, jumlah: baris.length, totalWaktu, jumlahWaktu, totalUkuran, gagal, lambat, takTerkompres };
 }
 
 export function saringBaris(baris, filter) {
@@ -90,7 +102,11 @@ export function buatCurl(entry) {
   if (!url) return '';
   const bagian = ['curl ' + shellQuote(url)];
   const metode = String(req.method || 'GET').toUpperCase();
-  if (metode !== 'GET') bagian.push('-X ' + metode);
+  // Q3 (v6.21.0): metode dari file HAR (bisa dibuat penyerang) — token
+  // metode standar dipakai mentah (keluaran tidak berubah), sisanya
+  // dikutip POSIX supaya tidak jadi injeksi perintah saat ditempel ke
+  // terminal.
+  if (metode !== 'GET') bagian.push('-X ' + (/^[A-Z]+$/.test(metode) ? metode : shellQuote(metode)));
   if (Array.isArray(req.headers)) {
     for (const h of req.headers) {
       if (!h || !h.name) continue;
@@ -131,6 +147,9 @@ export function render(root) {
   const gambarTabel = () => {
     if (!ringkasan) return;
     const tampil = saringBaris(ringkasan.baris, filterSel.value);
+    // Peta baris -> nomor urut asli (O(1) per baris; indexOf di dalam
+    // forEach membuat gambar tabel jadi O(n^2) untuk HAR besar).
+    const idxDariBaris = new Map(ringkasan.baris.map((b, i) => [b, i]));
     const awal = ringkasan.baris.reduce((m, b) => (b.mulai != null && (m == null || b.mulai < m) ? b.mulai : m), null);
     const akhir = ringkasan.baris.reduce((m, b) => (b.mulai != null && b.mulai + b.waktu > m ? b.mulai + b.waktu : m), 0);
     const rentang = awal != null && akhir > awal ? akhir - awal : 0;
@@ -143,7 +162,7 @@ export function render(root) {
       '<th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)">Waktu</th>' +
       '<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)">Waterfall</th></tr></thead><tbody>';
     tampil.forEach((b) => {
-      const idx = ringkasan.baris.indexOf(b);
+      const idx = idxDariBaris.get(b);
       const kiri = rentang && b.mulai != null ? ((b.mulai - awal) / rentang) * 100 : 0;
       const lebar = rentang ? Math.max(1, (b.waktu / rentang) * 100) : 0;
       const warna = b.gagal ? 'var(--err)' : (b.lambat ? '#f5a623' : 'var(--acc, #fff)');
@@ -191,6 +210,7 @@ export function render(root) {
       '<p class="hint" style="margin-top:10px">Header respons:</p>' + headerHtml(res.headers));
     const aksi = T.el('<div class="row" style="flex-wrap:wrap;margin-top:10px"></div>');
     aksi.appendChild(T.copyBtn(() => buatCurl(entry), 'Salin sebagai cURL'));
+    aksi.appendChild(T.el('<span class="hint" style="color:var(--err)">Perintah cURL ini membawa cookie &amp; kunci loginmu — jangan dibagikan.</span>'));
     detailBox.appendChild(aksi);
     detailBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
@@ -209,7 +229,7 @@ export function render(root) {
     T.hide(detailBox);
     T.show(box,
       kvBaris('Total request', T.fmt(ringkasan.jumlah)) +
-      kvBaris('Total waktu', fmtWaktu(ringkasan.totalWaktu)) +
+      kvBaris('Total waktu (awal–akhir)', fmtWaktu(ringkasan.totalWaktu)) +
       kvBaris('Total ukuran', fmtBytes(ringkasan.totalUkuran)) +
       kvBaris('Gagal', T.fmt(ringkasan.gagal)) +
       kvBaris('Lambat (>1 dtk)', T.fmt(ringkasan.lambat)) +
@@ -227,6 +247,7 @@ export function render(root) {
   });
 
   root.appendChild(T.el('<p class="hint">File HAR bisa diekspor dari tab Network di DevTools browser (klik kanan daftar request, lalu Save all as HAR). Di sini kamu bisa melihat semua request, mencari yang gagal atau lambat, dan menyalin salah satunya sebagai perintah cURL.</p>'));
+  root.appendChild(T.el('<div style="border:1px solid var(--err);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.6;margin-bottom:12px"><b style="color:var(--err)">⚠️ Jangan bagikan file HAR atau hasil cURL ini ke siapa pun.</b><br>File HAR berisi cookie dan kunci login (header Authorization) — siapa pun yang pegang bisa masuk ke akunmu. File ini hanya dibaca di browsermu, tidak diunggah ke mana-mana.</div>'));
   root.appendChild(T.field('Pilih file .har', fileI));
   root.appendChild(T.field('Atau tempel isi HAR', ta));
   root.appendChild(T.row(T.btn('Tampilkan', () => {

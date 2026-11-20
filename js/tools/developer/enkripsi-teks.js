@@ -1,12 +1,17 @@
 import { h as T, tabs, errBox, esc } from '../../core.js';
 
 // Enkripsi teks AES-GCM (WebCrypto). Kunci diturunkan dari kata sandi
-// dengan PBKDF2 (250.000 iterasi, SHA-256). Format hasil:
-// "AT1." + base64(salt 16 byte | iv 12 byte | ciphertext).
+// dengan PBKDF2-HMAC-SHA256 600.000 iterasi (batas minimum panduan OWASP
+// Password Storage Cheat Sheet). Format hasil:
+// "AT2." + base64(salt 16 byte | iv 12 byte | ciphertext).
+// Teks lama berawalan "AT1." (dibuat saat iterasi masih 250.000) tetap
+// bisa dibuka: dekripsi membaca prefix-nya dan memakai iterasi yang sesuai.
 // Salt & IV dibuat acak tiap enkripsi, jadi hasil yang sama tidak
 // pernah menghasilkan teks terenkripsi yang sama.
-const PREFIX = 'AT1.';
-const ITER = 250000;
+const PREFIX = 'AT2.';
+const PREFIX_LAMA = 'AT1.';
+const ITER = 600000;
+const ITER_LAMA = 250000;
 
 function b64encode(bytes) {
   let bin = '';
@@ -20,17 +25,17 @@ function b64decode(s) {
   return bytes;
 }
 
-async function deriveKey(password, salt) {
+async function deriveKey(password, salt, iterasi) {
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: ITER, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations: iterasi, hash: 'SHA-256' },
     base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 
 async function encryptText(plain, password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await deriveKey(password, salt);
+  const key = await deriveKey(password, salt, ITER);
   const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain)));
   const packed = new Uint8Array(16 + 12 + ct.length);
   packed.set(salt, 0); packed.set(iv, 16); packed.set(ct, 28);
@@ -39,11 +44,12 @@ async function encryptText(plain, password) {
 
 async function decryptText(packed, password) {
   const s = String(packed || '').trim();
-  if (!s.startsWith(PREFIX)) throw new Error('format');
-  const bytes = b64decode(s.slice(PREFIX.length));
+  const iterasi = s.startsWith(PREFIX) ? ITER : s.startsWith(PREFIX_LAMA) ? ITER_LAMA : null;
+  if (iterasi === null) throw new Error('format');
+  const bytes = b64decode(s.slice(4));
   if (bytes.length < 28 + 16) throw new Error('pendek');
   const salt = bytes.slice(0, 16), iv = bytes.slice(16, 28), ct = bytes.slice(28);
-  const key = await deriveKey(password, salt);
+  const key = await deriveKey(password, salt, iterasi);
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
   return new TextDecoder().decode(pt);
 }
@@ -91,7 +97,7 @@ export function render(root) {
 
     // ---- Tab dekripsi ----
     const pDec = T.el('<div></div>');
-    const decInp = T.ta(5, 'Tempel teks terenkripsi (diawali AT1.)…');
+    const decInp = T.ta(5, 'Tempel teks terenkripsi (diawali AT2. atau AT1.)…');
     const decPass = mkPass('Kata sandi yang dipakai saat mengunci');
     const decOut = T.out();
     const decRes = T.ta(4, 'Hasil terbuka muncul di sini…');
@@ -110,7 +116,7 @@ export function render(root) {
       } catch (e) {
         decLast = '';
         const msg = (e && e.message) || '';
-        if (msg === 'format') T.show(decOut, errBox('Teks ini bukan hasil dari tool ini. Teks terenkripsi selalu diawali "AT1.".'));
+        if (msg === 'format') T.show(decOut, errBox('Teks ini bukan hasil dari tool ini. Teks terenkripsi selalu diawali "AT2." (atau "AT1." untuk hasil lama).'));
         else if (msg === 'pendek') T.show(decOut, errBox('Teks terenkripsi tidak lengkap. Pastikan seluruh teks tersalin.'));
         else T.show(decOut, errBox('Kata sandi salah, atau teks terenkripsi sudah berubah/rusak. Coba kata sandi lain atau tempel ulang teksnya.'));
       }

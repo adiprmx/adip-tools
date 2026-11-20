@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL, fetchFileLokal } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "tambah-teks-ke-video", "name": "Tambah Teks ke Video", "cat": "converter", "icon": "✍️", "desc": "Tulis teks atau judul di atas video.", "keywords": "video,teks,judul,tulisan,overlay,caption", "since": "6.17.0"};
@@ -7,20 +7,22 @@ export const meta = {"id": "tambah-teks-ke-video", "name": "Tambah Teks ke Video
 // dari CDN saat proses berjalan.
 const FONT_URL = 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf';
 
-// Escape teks untuk filter drawtext ffmpeg. Teks TIDAK dibungkus tanda
-// petik (pembungkus petik membuat parser salah membaca \% bila teks juga
-// mengandung petik — terbukti lewat probe CLI: petik + persen = peringatan
-// "Stray %" walau tiap karakter sendiri-sendiri aman). Karena tanpa
-// pembungkus, karakter pemisah filter juga harus di-escape: titik dua,
-// koma, titik koma, dan kurung siku. Backslash dan persen butuh escape
-// ganda (parser filter lalu parser drawtext). Backslash ditulis lewat
-// fromCharCode supaya jumlahnya tidak bisa salah baca di lapisan
-// penulisan berkas. Murni, bisa diuji di Node.
+// Escape teks untuk filter drawtext ffmpeg. Nilai text DIBUNGKUS petik
+// tunggal di baris filter (kutip + escape): tanpa kutip, titik dua
+// memecah opsi filter (ffmpeg exit 234 — terbukti ffmpeg 8.1.2, 20 Nov
+// 2026). Di dalam petik: backslash ganda, persen ganda (sampai ke
+// drawtext sebagai \% = persen literal yang tidak menelan spasi
+// sesudahnya), titik dua/koma/titik koma/kurung siku satu backslash.
+// Petik tunggal TIDAK BISA di-escape di dalam nilai berpetik (parser
+// menutup petik di \' maupun \\') — diganti U+2019 (petik tipografi,
+// tampil sama). Backslash ditulis lewat fromCharCode supaya jumlahnya
+// tidak bisa salah baca di lapisan penulisan berkas. Murni, bisa diuji
+// di Node.
 export function escapeDrawtext(teks) {
   const B = String.fromCharCode(92);
   return String(teks || '')
-    .replace(/\\/g, B + B + B + B)
-    .replace(/'/g, B + "'")
+    .replace(/'/g, '’')
+    .replace(/\\/g, B + B)
     .replace(/%/g, B + B + '%')
     .replace(/:/g, B + ':')
     .replace(/,/g, B + ',')
@@ -77,9 +79,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       vw = v.videoWidth || 0;
       vh = v.videoHeight || 0;
       T.show(infoBox,
@@ -114,7 +119,7 @@ export function render(root) {
     });
     const w = video.videoWidth || 640;
     const h = video.videoHeight || 360;
-    const dur = video.duration || 0;
+    const dur = utils.durasiAman(video.duration);
     const canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;
@@ -184,10 +189,16 @@ export function render(root) {
     const cek = setInterval(() => {
       if (onProgress && dur) onProgress(video.currentTime / dur);
     }, 300);
+    // Watchdog hanya memakai durasi bila diketahui: durasi 0 (tidak
+    // terbaca) tidak boleh memotong rekaman di ~2 detik. Bila tidak
+    // diketahui, andalkan video.onended + batas absolut 10 menit supaya
+    // rekaman tidak jalan selamanya bila onended tidak pernah datang.
+    let pengaman = 0;
     await new Promise((resolve) => {
       video.onended = resolve;
-      setTimeout(resolve, (dur + 2) * 1000);
+      pengaman = setTimeout(resolve, dur > 0 ? (dur + 2) * 1000 : 10 * 60 * 1000);
     });
+    clearTimeout(pengaman);
     clearInterval(cek);
     cancelAnimationFrame(raf);
     if (perekam.state !== 'inactive') perekam.stop();
@@ -225,7 +236,7 @@ export function render(root) {
           const fontSize = Math.max(16, Math.round((vh || 720) * faktorUkuran()));
           const yPos = posisiSel.value === 'atas' ? 'y=h*0.08' : posisiSel.value === 'tengah' ? 'y=(h-text_h)/2' : 'y=h-text_h-h*0.08';
           const boxColor = warnaSel.value === 'hitam' ? 'white@0.6' : 'black@0.5';
-          const filter = 'drawtext=fontfile=font.ttf:text=' + escapeDrawtext(teks) + ':fontsize=' + fontSize + ':fontcolor=' + warnaDrawtext() + ':box=1:boxcolor=' + boxColor + ':boxborderw=12:x=(w-text_w)/2:' + yPos;
+          const filter = "drawtext=fontfile=font.ttf:text='" + escapeDrawtext(teks) + "':fontsize=" + fontSize + ':fontcolor=' + warnaDrawtext() + ':box=1:boxcolor=' + boxColor + ':boxborderw=12:x=(w-text_w)/2:' + yPos;
           setStage('Menulis teks… 0%', 0);
           const prog = (p) => { const pct = Math.round(p * 100); setStage('Menulis teks… ' + pct + '%', pct); };
           await runFFmpeg(ffmpeg, ['-i', inName, '-vf', filter, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23', '-c:a', 'copy', '-movflags', '+faststart', 'output.mp4'], prog);

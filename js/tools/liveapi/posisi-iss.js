@@ -75,11 +75,15 @@ export function render(root) {
         gambarPeta(d.latitude, d.longitude);
         const jam = new Date((d.timestamp || Date.now() / 1000) * 1000)
           .toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        // Jam di atas memakai zona waktu perangkat, jadi labelnya ikut zona
+        // itu juga (WIB/WITA/WIT) — jangan hardcode "WIB".
+        const geserJam = -new Date().getTimezoneOffset() / 60;
+        const labelZona = geserJam === 7 ? 'WIB' : geserJam === 8 ? 'WITA' : geserJam === 9 ? 'WIT' : 'waktu setempat';
         const vis = d.visibility === 'daylight' ? '☀️ Siang' : d.visibility === 'eclipsed' ? '🌙 Malam' : '-';
         T.show(box,
           '<div class="center"><div class="mut">Koordinat ISS saat ini</div>' +
           '<div class="big" style="font-size:22px">' + T.esc(fmtKoord(d.latitude, d.longitude)) + '</div>' +
-          '<div class="hint">Diperbarui pukul ' + T.esc(jam) + ' WIB</div></div>' +
+          '<div class="hint">Diperbarui pukul ' + T.esc(jam) + ' ' + T.esc(labelZona) + '</div></div>' +
           '<div class="kv"><span class="k">Ketinggian</span><span class="v">' + T.fmt(Math.round(d.altitude || 0)) + ' km</span></div>' +
           '<div class="kv"><span class="k">Kecepatan</span><span class="v">' + T.fmt(Math.round(d.velocity || 0)) + ' km/jam</span></div>' +
           '<div class="kv"><span class="k">Kondisi</span><span class="v">' + T.esc(vis) + '</span></div>'

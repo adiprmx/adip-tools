@@ -23,24 +23,6 @@ const md5FF = (a, b, c, d, x, s, ac) => md5AddU(md5RotL(md5AddU(md5AddU(a, md5F(
 const md5GG = (a, b, c, d, x, s, ac) => md5AddU(md5RotL(md5AddU(md5AddU(a, md5G(b, c, d)), md5AddU(x, ac)), s), b);
 const md5HH = (a, b, c, d, x, s, ac) => md5AddU(md5RotL(md5AddU(md5AddU(a, md5H(b, c, d)), md5AddU(x, ac)), s), b);
 const md5II = (a, b, c, d, x, s, ac) => md5AddU(md5RotL(md5AddU(md5AddU(a, md5I(b, c, d)), md5AddU(x, ac)), s), b);
-function md5Utf8(s) {
-  s = s.replace(/\r\n/g, '\n');
-  let out = '';
-  for (let n = 0; n < s.length; n++) {
-    const c = s.charCodeAt(n);
-    if (c < 128) out += String.fromCharCode(c);
-    else if (c < 2048) out += String.fromCharCode((c >> 6) | 192, (c & 63) | 128);
-    else out += String.fromCharCode((c >> 12) | 224, ((c >> 6) & 63) | 128, (c & 63) | 128);
-  }
-  return out;
-}
-function md5ToWords(s) {
-  const l = s.length, nblk = ((l + 8) >>> 6) + 1, w = new Array(nblk * 16).fill(0);
-  for (let i = 0; i < l; i++) w[i >>> 2] |= s.charCodeAt(i) << ((i % 4) << 3);
-  w[(l >>> 2)] |= 0x80 << ((l % 4) << 3);
-  w[nblk * 16 - 2] = l * 8;
-  return w;
-}
 function md5Hex(v) {
   let s = '';
   for (let i = 0; i < 4; i++) s += ('0' + ((v >>> (i * 8 + 4)) & 0x0f).toString(16)).slice(-1) + ('0' + ((v >>> (i * 8)) & 0x0f).toString(16)).slice(-1);
@@ -96,7 +78,11 @@ function md5FromWords(x) {
   return md5Hex(a) + md5Hex(b) + md5Hex(c) + md5Hex(d);
 }
 
-function _md5(string) { return md5FromWords(md5ToWords(md5Utf8(String(string)))); }
+// Teks di-encode ke UTF-8 pakai TextEncoder (standar): encoder tulisan
+// tangan sebelumnya salah untuk karakter di atas U+FFFF (emoji dsb.) karena
+// tiap unit kode UTF-16 di-encode terpisah, bukan sebagai satu karakter.
+// Terverifikasi vs Node crypto: MD5("😀") = 2a02eac39d716a70ecf37579185927b6.
+function _md5(string) { return md5Bytes(new TextEncoder().encode(String(string))); }
 
 export function md5Bytes(bytes) { return md5FromWords(md5WordsFromBytes(bytes)); }
 
@@ -144,11 +130,22 @@ export function bytesToWordArray(CryptoJS, bytes) {
 // pra-standar, bukan SHA-3 resmi (FIPS 202). Dipakai js-sha3.
 const CJ_BASE = 'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/';
 const SHA3_CDN = 'https://cdn.jsdelivr.net/npm/js-sha3@0.9.3/build/sha3.min.js';
+// F13 v6.21.0: loop T.loadScript mentah diganti utils.loadLibOnce kanonis
+// per file (timeout 30 dtk/file, hanya sukses yang di-cache — pola yang
+// sama dengan ensureSha3 di bawah dan migrasi F10 di 12 file lain).
+// Urutan tetap berurutan: sha224 butuh sha256 dulu. Di-export agar bisa
+// di-unit-test via node.
+const CJ_FILES = [
+  {f: 'core.js', cek: () => !!(window.CryptoJS && window.CryptoJS.lib)},
+  {f: 'sha256.js', cek: () => !!(window.CryptoJS && window.CryptoJS.SHA256)},
+  {f: 'sha224.js', cek: () => !!(window.CryptoJS && window.CryptoJS.SHA224)},
+  {f: 'ripemd160.js', cek: () => !!(window.CryptoJS && window.CryptoJS.RIPEMD160)},
+];
 let cjReady = null;
-async function ensureCryptoJs() {
+export async function ensureCryptoJs() {
     if (cjReady !== null) return cjReady;
-    for (const f of ['core.js', 'sha256.js', 'sha224.js', 'ripemd160.js']) {
-      const ok = await T.loadScript(CJ_BASE + f);
+    for (const {f, cek} of CJ_FILES) {
+      const ok = await utils.loadLibOnce(CJ_BASE + f, cek);
       if (!ok) { cjReady = false; return false; }
     }
     cjReady = !!(window.CryptoJS && window.CryptoJS.SHA224 && window.CryptoJS.RIPEMD160);
@@ -229,7 +226,7 @@ export function render(root) {
       }
       const { hasil } = r;
       let html = hasil.map(([n, h]) =>
-        '<div class="kv"><span class="k">' + n + '</span><span class="v" class="monoall" style="font-size:12px">' + T.esc(h) + '</span></div>'
+        '<div class="kv"><span class="k">' + n + '</span><span class="v monoall" style="font-size:12px">' + T.esc(h) + '</span></div>'
       ).join('') + '<div style="margin-top:10px">' +
         hasil.map(([n, h], i) => '<button type="button" class="btn small" data-h="' + i + '" style="margin:0 6px 6px 0">Salin ' + n + '</button>').join('') + '</div>';
       if (r.cjFail) html += '<div class="hint" style="margin-top:8px">SHA-224 / RIPEMD-160 gagal: komponen penghitungnya tidak bisa dimuat.</div>';
@@ -295,6 +292,6 @@ export function render(root) {
     root.appendChild(T.field('Pilih file', fileI, 'File dibaca di perangkat ini saja, tidak diunggah ke mana-mana. Maksimal 256 MB.'));
     root.appendChild(T.row(T.btn('Hash File', goFile, true)));
     root.appendChild(fileOut);
-    root.appendChild(T.el('<div class="hint" style="margin-top:12px">MD5, SHA-1/256/384/512 &amp; CRC-32 dihitung langsung di perangkat. SHA-224 &amp; RIPEMD-160 memuat crypto-js dari internet sekali, SHA3 memuat js-sha3 (SHA-3 resmi, bukan Keccak).</div>'));
+    root.appendChild(T.el('<div class="hint" style="margin-top:12px">MD5, SHA-1/256/384/512 &amp; CRC-32 dihitung langsung di perangkat. SHA-224 &amp; RIPEMD-160 memuat crypto-js dari internet sekali, SHA3 memuat js-sha3 (SHA-3 resmi, bukan Keccak). MD5 &amp; SHA-1 cuma cocok buat cek file sama atau tidak — jangan dipakai untuk mengamankan password.</div>'));
   
 }

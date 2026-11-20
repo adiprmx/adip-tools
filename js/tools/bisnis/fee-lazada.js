@@ -7,6 +7,9 @@ import { h as T, kv } from '../../core.js';
 // pesanan (termasuk pajak, untuk seller bergabung > 90 hari). Free Shipping
 // Max non-elektronik 1,5–6% maks Rp20.000/produk, elektronik 4% maks
 // Rp10.000/produk (everpro.id, bisnison.com). PPh 22 0,5% opsional.
+// Penyesuaian komisi per kategori + Free Shipping Max mulai 7 Des 2026
+// (Pusat Bantuan Lazada via otomagis.id/ibuat.link, riset 20 Nov 2026)
+// — cek Seller Center untuk tarif terbaru setelah tanggal itu.
 // SEMUA tarif bisa diubah user. Angka final selalu di seller center Lazada.
 const KOMISI_DEFAULT = { marketplace: 6.43, lazmall: 9.95 };
 
@@ -78,7 +81,7 @@ export function render(root) {
         (lain > 0 ? kv('Biaya lain', T.rp(lain)) : '') +
         kv('Total potongan (' + efektif.toLocaleString('id-ID', { maximumFractionDigits: 2 }) + '%)', T.rp(totalPotong)) +
         labaRow +
-        '<p class="warn">⚠️ Tarif Lazada beda per kategori dan bisa berubah. Angka awal di sini dari tarif yang berlaku 1 Feb 2026, riset 14 Nov 2026 (komisi Marketplace 0–8,18%, LazMall 2,5–11,7%, sudah termasuk PPN). Periksa lagi di seller center Lazada sebelum menetapkan harga.</p>' +
+        '<p class="warn">⚠️ Tarif Lazada beda per kategori dan bisa berubah. Angka awal di sini dari tarif yang berlaku 1 Feb 2026, riset 14 Nov 2026 (komisi Marketplace 0–8,18%, LazMall 2,5–11,7%, sudah termasuk PPN). Mulai 7 Des 2026 Lazada menyesuaikan lagi komisi per kategori dan Free Shipping Max. Periksa lagi di seller center Lazada sebelum menetapkan harga.</p>' +
         '<p class="hint">Rumus: uang yang diterima = harga jual − komisi − biaya proses − Free Shipping Max − PPh 22 − biaya lain. Komisi dihitung dari harga jual dan dibatasi angka maks per produk bila diisi. Contoh dari angka di atas: komisi ' + T.rp(komisiRp) + ' + proses ' + T.rp(proses) + (fsm > 0 ? ' + Free Shipping Max ' + T.rp(fsmRp) : '') + (pph > 0 ? ' + PPh 22 ' + T.rp(pphRp) : '') + ' = total potongan ' + T.rp(totalPotong) + ', jadi diterima ' + T.rp(diterima) + '. Asumsi: komisi dihitung dari harga jual penuh, belum termasuk voucher, iklan, dan subsidi ongkir yang ditanggung penjual.</p>');
     };
 

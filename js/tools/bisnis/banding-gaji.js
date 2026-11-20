@@ -3,14 +3,36 @@ import { h as T, utils, money, kv } from '../../core.js';
 // Batas upah untuk hitung iuran (terverifikasi Nov 2026):
 // BPJS Kesehatan maks Rp12.000.000 (Perpres 82/2018 jo Perpres 64/2020),
 // Jaminan Pensiun maks Rp11.086.300 sejak Maret 2026 (PP 45/2015).
-// Beban perusahaan: Kesehatan 4%, JHT 3,7%, JP 2% (JKK/JKM/JKP tidak dihitung).
-utils.bpjsPerusahaan = function (dasar) {
+// Beban perusahaan: Kesehatan 4%, JHT 3,7%, JP 2%, JKM 0,3%, JKK 0,24%
+// (default kantoran; bisa diubah lewat parameter kedua). Sama dengan yang
+// dipakai kalkulator-gaji-bersih — kedua tool kini satu asumsi (JKP saja
+// yang tidak dihitung di sini).
+// Logika murni (bisa di-test di Node).
+utils.bpjsPerusahaan = function (dasar, jkkPct) {
   const d = Math.max(0, Number(dasar) || 0);
+  const jkk = Math.max(0, Number(jkkPct == null ? 0.24 : jkkPct) || 0);
   const kesehatan = Math.min(d, 12000000) * 0.04;
   const jht = d * 0.037;
   const jp = Math.min(d, 11086300) * 0.02;
-  return { kesehatan, jht, jp, total: kesehatan + jht + jp };
+  const jkm = d * 0.003;
+  const jkkRp = d * (jkk / 100);
+  return { kesehatan, jht, jp, jkm, jkk: jkkRp, total: kesehatan + jht + jp + jkm + jkkRp };
 };
+
+// THR 1 bulan upah (Permenaker 6/2016 Pasal 3): bagi yang sudah kerja
+// 12 bulan atau lebih, THR = 1x upah sebulan = gaji pokok + tunjangan
+// tetap. Kurang dari 12 bulan: proporsional (masa kerja/12 x 1 bulan upah).
+// `masaKerjaBulan` opsional; bila tidak diisi, dianggap 12 bulan ke atas.
+export function thrSatuBulanUpah(pokok, tunjangan, masaKerjaBulan) {
+  const p = Math.max(0, Number(pokok) || 0);
+  const t = Math.max(0, Number(tunjangan) || 0);
+  const upah = p + t;
+  const m = Number(masaKerjaBulan);
+  if (!isFinite(m) || m >= 12) return upah;
+  if (m <= 0) return 0;
+  return upah * m / 12;
+}
+utils.thrSatuBulanUpah = thrSatuBulanUpah;
 
 // Logika murni (bisa di-test di Node).
 // Tiap tawaran: { pokok, tunjangan, bpjs, bonus, thr, lain } (bpjs/bulan, bonus/thr/lain per tahun).
@@ -36,7 +58,7 @@ export function render(root) {
     const pokokI = money(null, 'cth: 8000000');
     const tunjI = money(null, 'cth: 1000000', '0');
     const bpjsMode = T.select([
-      ['auto', 'Hitung otomatis (Kesehatan 4% + JHT 3,7% + JP 2%)'],
+      ['auto', 'Hitung otomatis (Kes 4% + JHT 3,7% + JP 2% + JKM 0,3% + JKK 0,24%)'],
       ['manual', 'Isi sendiri'],
     ], 'auto');
     const bpjsI = money(null, 'cth: 500000', '0');
@@ -60,8 +82,16 @@ export function render(root) {
     wrap.appendChild(fldBpjs);
     wrap.appendChild(T.grid2(
       T.field('Bonus / tahun (Rp)', bonusI),
-      T.field('THR / tahun (Rp)', thrI, 'Biasanya 1x gaji pokok')
+      T.field('THR / tahun (Rp)', thrI, 'Biasanya 1x gaji sebulan (pokok + tunjangan tetap).')
     ));
+    const isiThrBtn = T.btn('Isi THR 1x gaji sebulan', () => {
+      const pokok = T.num(pokokI.value) || 0;
+      const tunj = T.num(tunjI.value) || 0;
+      if (!(pokok > 0) && !(tunj > 0)) { T.toast('Isi dulu gaji pokok atau tunjangannya.'); return; }
+      thrI.value = String(Math.round(thrSatuBulanUpah(pokok, tunj)));
+      hitung();
+    });
+    wrap.appendChild(T.row(isiThrBtn));
     wrap.appendChild(T.field('Tunjangan lain / tahun (Rp)', lainI, 'Misal: uang transport tahunan, insentif'));
     return { wrap, namaI, pokokI, tunjI, bpjsMode, bpjsI, bonusI, thrI, lainI };
   };
@@ -104,7 +134,7 @@ export function render(root) {
       '<tr><td>Bonus + THR + lain / tahun</td><td>' + T.rp(a.bonus + a.thr + a.lain) + '</td><td>' + T.rp(b.bonus + b.thr + b.lain) + '</td></tr>' +
       '<tr><td><b>Total / tahun</b></td><td><b>' + T.rp(r.a.tahunan) + '</b></td><td><b>' + T.rp(r.b.tahunan) + '</b></td></tr>' +
       '<tr><td>Total rata-rata / bulan</td><td>' + T.rp(Math.round(r.a.tahunan / 12)) + '</td><td>' + T.rp(Math.round(r.b.tahunan / 12)) + '</td></tr></table>' +
-      '<p class="hint">Ini total kotor sebelum PPh 21 dan iuran BPJS bagian karyawan. BPJS otomatis dihitung dari gaji pokok + tunjangan: Kesehatan 4% (dasar maks Rp12 juta), JHT 3,7%, JP 2% (dasar maks Rp11.086.300 sejak Maret 2026). JKK, JKM, dan JKP tidak dihitung. Selain angka, pertimbangkan juga jarak, jam kerja, dan jenjang kariernya.</p>');
+      '<p class="hint">Ini total kotor sebelum PPh 21 dan iuran BPJS bagian karyawan. BPJS otomatis dihitung dari gaji pokok + tunjangan: Kesehatan 4% (dasar maks Rp12 juta), JHT 3,7%, JP 2% (dasar maks Rp11.086.300 sejak Maret 2026), JKM 0,3%, dan JKK 0,24% (kantoran) — sama seperti di tool Kalkulator Gaji Bersih. JKP tidak dihitung. THR umumnya 1x gaji sebulan (pokok + tunjangan tetap) bagi yang sudah kerja 12 bulan, proporsional bila kurang (Permenaker 6/2016). Selain angka, pertimbangkan juga jarak, jam kerja, dan jenjang kariernya.</p>');
   };
   [A, B].forEach((t) => {
     [t.namaI, t.pokokI, t.tunjI, t.bpjsI, t.bonusI, t.thrI, t.lainI].forEach((i) => i.addEventListener('input', hitung));

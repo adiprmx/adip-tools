@@ -1,6 +1,6 @@
 import { h as T, utils, todayISO } from '../../core.js';
 
-export const meta = {"id":"jadwal-siram-tanaman","name":"Jadwal Siram","cat":"sehari","icon":"🪴","desc":"Catat tanamanmu, diingetin kapan waktunya disiram.","keywords":"tanaman,siram,jadwal,berkebun,menyiram,rawat tanaman,air"};
+export const meta = {"id":"jadwal-siram-tanaman","name":"Jadwal Siram","cat":"sehari","icon":"🪴","desc":"Catat tanamanmu dan lihat kapan waktunya disiram saat buka halaman ini.","keywords":"tanaman,siram,jadwal,berkebun,menyiram,rawat tanaman,air"};
 
 export function render(root) {
   const KEY = 'adip-tools:jadwal-siram-tanaman';
@@ -46,6 +46,12 @@ export function render(root) {
     const urut = daftar
       .map((t, i) => ({ t, i, sisa: t.interval - sejakHari(t.terakhir) }))
       .sort((a, b) => a.sisa - b.sisa);
+    const jatuhTempo = urut.filter((x) => x.sisa <= 0);
+    if (jatuhTempo.length) {
+      const banner = T.el('<div style="background:#1d3a2a;border:1px solid #2f6b4a;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13px;line-height:1.5;color:#6ee7b7"></div>');
+      banner.textContent = '🌱 ' + jatuhTempo.length + ' tanaman waktunya disiram: ' + jatuhTempo.map((x) => x.t.nama).join(', ') + '.';
+      listBox.appendChild(banner);
+    }
     urut.forEach(({ t, i }) => {
       const st = statusOf(t);
       const card = T.el('<div class="card" style="margin-bottom:10px;padding:12px"></div>');

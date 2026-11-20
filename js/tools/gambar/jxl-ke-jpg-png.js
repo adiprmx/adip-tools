@@ -1,14 +1,17 @@
 import { h as T, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // JXL ke JPG/PNG: ubah file JPEG XL jadi JPG atau PNG.
-// CARA KERJA JUJUR: tool ini memakai decoder JXL bawaan browser
-// (Chrome 155+, Safari 17+, Firefox 158+). Bila browser belum bisa
-// buka JXL, file tetap diperiksa keasliannya (tanda tangan + daftar
-// kotak) dan pengguna diberi panduan, bukan hasil palsu. Decoder
-// WASM (@jsquash/jxl) belum dibundel karena belum bisa diuji dari
-// VM ini (egress mati, hash SRI tidak bisa diukur). Lihat laporan
-// tim B20.
-export const meta = {"id": "jxl-ke-jpg-png", "name": "JXL ke JPG/PNG", "cat": "gambar", "icon": "🖼️", "desc": "Ubah file JXL jadi JPG atau PNG lewat decoder bawaan browser.", "keywords": "jxl,jpeg xl,konversi,jpg,png,gambar", "since": "6.19.0"};
+// CARA KERJA: decoder bawaan browser dicoba dulu (Chrome 155+, Safari
+// 17+, Firefox 158+) — gratis dan cepat. Bila browser belum bisa,
+// dipakai mesin JXL tambahan (@jsquash/jxl 1.3.0, WASM libjxl) yang
+// diunduh sekali dari internet. File tetap diperiksa keasliannya
+// (tanda tangan + daftar kotak) sebelum dibuka.
+// GERBANG (F10, 20 Nov 2026): jalur WASM BELUM teruji live (egress
+// mati) — gelombang 4 WAJIB membuktikan modul + file .wasm-nya
+// benar-benar termuat dari kedua CDN sebelum fitur ini diklaim live.
+// SRI tidak berlaku untuk dynamic import (keterbatasan browser, sudah
+// didokumentasi di core.js); pengaman di sini adalah pin versi 1.3.0.
+export const meta = {"id": "jxl-ke-jpg-png", "name": "JXL ke JPG/PNG", "cat": "gambar", "icon": "🖼️", "desc": "Ubah file JXL jadi JPG atau PNG.", "keywords": "jxl,jpeg xl,konversi,jpg,png,gambar", "since": "6.19.0"};
 
 // Sampel JXL asli 8x6 piksel (94 byte, dibuat ffmpeg + libjxl) untuk
 // mengecek apakah browser ini bisa membuka JXL.
@@ -72,6 +75,52 @@ export async function browserBisaJxl() {
   });
 }
 
+// ---- Mesin JXL tambahan (@jsquash/jxl 1.3.0, WASM libjxl) ----
+// Dipakai dua arah: decode (fallback di tool ini) dan encode (tool
+// gambar-ke-jxl.js mengimpor muatJxl dari sini). Paket ini ESM-only
+// (tidak ada build UMD), jadi TIDAK BISA lewat loadLibOnce (itu
+// untuk script klasik) — dimuat via dynamic import dengan pola yang
+// sama seperti ag-psd (psd-ke-png.js): fallback 2-CDN + timeout
+// 30 dtk per URL (pola race ubah-nada-audio.js). Hanya sukses yang
+// di-cache; gagal bisa dicoba lagi.
+const JXL_ESM_CDNS = [
+  'https://esm.sh/@jsquash/jxl@1.3.0',
+  'https://cdn.jsdelivr.net/npm/@jsquash/jxl@1.3.0/+esm',
+];
+let _jxlModul = null;
+export async function muatJxl() {
+  if (_jxlModul) return _jxlModul;
+  let gagalTerakhir = null;
+  for (const u of JXL_ESM_CDNS) {
+    try {
+      const m = await imporDenganBatas(u, 30000);
+      if (m && typeof m.decode === 'function' && typeof m.encode === 'function') {
+        _jxlModul = m;
+        return m;
+      }
+      gagalTerakhir = new Error('modul JXL tidak lengkap');
+    } catch (e) { gagalTerakhir = e; }
+  }
+  throw gagalTerakhir || new Error('Mesin JXL gagal dimuat dari internet.');
+}
+function imporDenganBatas(url, ms) {
+  let timer = null;
+  const batas = new Promise((_, tolak) => { timer = setTimeout(() => tolak(new Error('Waktu habis saat mengunduh mesin JXL.')), ms); });
+  return Promise.race([import(/* @vite-ignore */ url), batas])
+    .finally(() => { if (timer) clearTimeout(timer); });
+}
+
+// Decode byte JXL jadi ImageData lewat modul WASM. Modul di-inject
+// sebagai parameter supaya bisa diuji di Node dengan modul tiruan.
+export async function decodeJxlWasm(jxl, bytes) {
+  const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+  const imageData = await jxl.decode(buf);
+  if (!imageData || !imageData.width || !imageData.height || !imageData.data) {
+    throw new Error('Hasil decode JXL tidak lengkap.');
+  }
+  return imageData;
+}
+
 export function render(root) {
   const fi = fileInput('.jxl,image/jxl');
   const formatSel = T.select([['png', 'PNG (tanpa rugi)'], ['jpeg', 'JPG (lebih kecil)']], 'png');
@@ -105,28 +154,40 @@ export function render(root) {
     }
     T.show(infoBox, info + '<p class="hint">Lagi mengecek apakah browser ini bisa membuka JXL...</p>');
     if (dukungan === null) dukungan = await browserBisaJxl();
-    if (!dukungan) {
-      T.show(infoBox, info +
-        '<p class="err">Browser ini belum bisa membuka JXL, jadi file belum bisa diubah di sini.</p>' +
-        '<p class="hint">Yang bisa dilakukan: buka halaman ini di Chrome 155 ke atas, Safari 17 ke atas, atau Firefox 158 ke atas. Atau ubah lewat komputer dengan perintah <b>djxl ' + T.esc(f.name) + ' ' + T.esc(namaDasar) + '.png</b> (alat djxl dari libjxl).</p>');
-      return;
+    let lewatWasm = false;
+    if (dukungan) {
+      let bmp;
+      try {
+        bmp = await createImageBitmap(new Blob([bytes.buffer], { type: 'image/jxl' }));
+      } catch (e) {
+        T.show(infoBox, info + '<p class="err">File JXL valid, tapi gambarnya gagal dibuka di browser ini. File mungkin rusak di bagian dalam.</p>');
+        return;
+      }
+      cv.width = bmp.width; cv.height = bmp.height;
+      const ctx = cv.getContext('2d');
+      ctx.drawImage(bmp, 0, 0);
+      bmp.close();
+    } else {
+      // Browser belum bisa JXL native → mesin JXL tambahan (WASM).
+      T.show(infoBox, info + '<p class="hint">Browser ini belum bisa membuka JXL, jadi dipakai mesin JXL tambahan (diunduh sekali, perlu internet)...</p>');
+      let imageData;
+      try {
+        imageData = await decodeJxlWasm(await muatJxl(), bytes);
+      } catch (e) {
+        T.show(infoBox, info +
+          '<p class="err">Browser ini belum bisa membuka JXL, dan mesin JXL tambahannya juga gagal dimuat. Cek koneksi internetmu lalu coba lagi.</p>' +
+          '<p class="hint">Yang bisa dilakukan: buka halaman ini di Chrome 155 ke atas, Safari 17 ke atas, atau Firefox 158 ke atas. Atau ubah lewat komputer dengan perintah <b>djxl ' + T.esc(f.name) + ' ' + T.esc(namaDasar) + '.png</b> (alat djxl dari libjxl).</p>');
+        return;
+      }
+      cv.width = imageData.width; cv.height = imageData.height;
+      cv.getContext('2d').putImageData(imageData, 0, 0);
+      lewatWasm = true;
     }
-    let bmp;
-    try {
-      bmp = await createImageBitmap(new Blob([bytes.buffer], { type: 'image/jxl' }));
-    } catch (e) {
-      T.show(infoBox, info + '<p class="err">File JXL valid, tapi gambarnya gagal dibuka di browser ini. File mungkin rusak di bagian dalam.</p>');
-      return;
-    }
-    cv.width = bmp.width; cv.height = bmp.height;
-    const ctx = cv.getContext('2d');
-    ctx.drawImage(bmp, 0, 0);
-    bmp.close();
     cv.style.cssText = 'max-width:100%;height:auto;border-radius:10px;border:1px solid #ffffff20;display:block';
     T.show(box, '');
     box.appendChild(cv);
     T.show(infoBox, info + '<div class="kv"><span>Ukuran gambar</span><b>' + cv.width + 'x' + cv.height + ' px</b></div>' +
-      '<p class="hint">Gambar berhasil dibuka. Pilih format lalu unduh.</p>');
+      '<p class="hint">Gambar berhasil dibuka' + (lewatWasm ? ' dengan mesin JXL tambahan' : '') + '. Pilih format lalu unduh.</p>');
     T.toast('JXL berhasil dibuka!');
   }
 
@@ -150,7 +211,7 @@ export function render(root) {
   kualitasV.style.opacity = '0.4';
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Pilih file .jxl. File diperiksa dulu keasliannya, lalu dibuka dengan decoder bawaan browser dan disimpan jadi JPG atau PNG.</p>'));
+  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Pilih file .jxl. File diperiksa dulu keasliannya, lalu dibuka — pakai decoder bawaan browser bila ada, atau mesin JXL tambahan bila browser belum bisa — dan disimpan jadi JPG atau PNG.</p>'));
   root.appendChild(T.field('Pilih file JXL', fi, 'Hanya file .jxl.'));
   root.appendChild(T.grid2(T.field('Format hasil', formatSel), T.field('Kualitas JPG', (() => { const w = T.el('<div style="display:flex;gap:8px;align-items:center"></div>'); w.appendChild(kualitasR); w.appendChild(kualitasV); return w; })(), 'Hanya berlaku untuk JPG.')));
   root.appendChild(T.row(T.btn('Buka dan ubah', onPick, true), dlB));

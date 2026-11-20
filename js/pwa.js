@@ -844,19 +844,6 @@ export function initPWA({ toast } = {}) {
   }
 }
 
-/* Fungsi baca murni, tanpa efek samping. */
-export function getPWAState() {
-  const ios = detectIos();
-  const installed = isInstalled();
-  return {
-    supported: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
-    installed,
-    installAvailable: !installed && (deferredPrompt !== null || ios),
-    updateAvailable: waitingWorker !== null,
-    ios,
-  };
-}
-
 /* Jalankan prompt install sistem (HANYA dalam user gesture —
    dipanggil dari ketukan tombol lembar). Event hanya bisa
    dipakai sekali: dikosongkan sesudah prompt(). */

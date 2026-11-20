@@ -1,7 +1,7 @@
 // ADIP Tools — konfigurasi Vite (P0-A, v6.14.0).
 //
 // Arsitektur: SPA hash-routing vanilla ESM, TANPA framework. Vite hanya
-// membundel + memberi hash nama file (menggantikan ?v= manual); 627 tool
+// membundel + memberi hash nama file (menggantikan ?v= manual); 1.299 tool
 // tetap file vanilla JS yang dimuat on-demand lewat import.meta.glob
 // di js/app.js (satu chunk ber-hash per tool).
 //
@@ -13,7 +13,7 @@
 //     JANGAN ganti ke '/' tanpa memindahkan preview ke domain root.
 //   - manifest: true — dist/.vite/manifest.json memetakan tiap file
 //     sumber ke hasil build ber-hash (dipakai sapu route A11 + audit).
-//   - CSS: 6 stylesheet index.html dibundel Vite sesuai urutan <link>
+//   - CSS: 12 stylesheet index.html dibundel Vite sesuai urutan <link>
 //     (cascade tidak berubah), diminifikasi esbuild.
 //   - Worker ffmpeg: js/ffmpeg-loader.js memakai `?worker&url` agar
 //     worker.js + import relatifnya dibundel jadi satu file ber-hash.

@@ -3,13 +3,31 @@ import { h as T, utils } from '../../core.js';
 // parseRp kanonis tinggal di utils (core.js).
 
 export const meta = {"id": "tabungan-haji-umroh", "name": "Rencana Tabungan Haji & Umroh", "cat": "indonesia", "icon": "🕋", "desc": "Hitung berapa lama nabung untuk haji reguler, haji plus, atau umroh dari setoran bulananmu.", "keywords": "haji,umroh,tabungan,bipih,embarkasi,menabung,ibadah"};
-export function render(root) {
-  const EMBARKASI = [
+// Bipih haji reguler 2026 per embarkasi (Keppres 34/2025, ditetapkan
+// 13 Nov 2025) — 14 embarkasi lengkap, diverifikasi 20 Nov 2026 dari
+// salinan Keppres dan pemberitaan (TribrataNews Polri, Antara via
+// Periskop, fahum.umsu.ac.id, jagad.id — keempatnya cocok angkanya).
+// Rata-rata nasional Rp54.193.806. Bipih ditetapkan ulang tiap tahun.
+export const EMBARKASI = [
     ['54193806', 'Rata-rata nasional — Rp54.193.806'],
     ['45109422', 'Aceh — Rp45.109.422'],
+    ['46163512', 'Medan — Rp46.163.512'],
+    ['54125422', 'Batam — Rp54.125.422'],
+    ['47869922', 'Padang — Rp47.869.922'],
+    ['54206922', 'Palembang — Rp54.206.922'],
+    ['58542722', 'Jakarta (Pondok Gede, Cipondoh, Bekasi) — Rp58.542.722'],
+    ['53233422', 'Solo — Rp53.233.422'],
     ['60645422', 'Surabaya — Rp60.645.422'],
+    ['55575922', 'Balikpapan — Rp55.575.922'],
+    ['55538922', 'Banjarmasin — Rp55.538.922'],
+    ['55893179', 'Makassar — Rp55.893.179'],
+    ['54951822', 'Lombok — Rp54.951.822'],
+    ['58559022', 'Kertajati — Rp58.559.022'],
+    ['52955422', 'Yogyakarta — Rp52.955.422'],
     ['custom', 'Embarkasi lain — isi sendiri'],
-  ];
+];
+
+export function render(root) {
   const jenisI = T.select([
     ['reguler', 'Haji reguler'],
     ['plus', 'Haji plus'],
@@ -81,7 +99,7 @@ export function render(root) {
       '<tr><td style="padding:7px 4px;color:#a8a29e">Total terkumpul</td><td style="padding:7px 4px;text-align:right;font-weight:600">' + T.rp(saldo) + '</td></tr>' +
       '</table>' +
       (jenis === 'reguler'
-        ? '<p class="hint">Biaya Bipih haji reguler 2026 resmi (Keppres 34/2025): rata-rata ' + T.rp(54193806) + ', Aceh ' + T.rp(45109422) + ' s.d. Surabaya ' + T.rp(60645422) + '. Setoran awal pendaftaran Rp25.000.000, dan masa tunggu haji reguler sekitar 26 tahun — jadi makin cepat mulai nabung, makin baik. Bipih ditetapkan ulang tiap tahun.</p>'
+        ? '<p class="hint">Biaya Bipih haji reguler 2026 resmi (Keppres 34/2025, 13 Nov 2025): 14 embarkasi, dari Aceh ' + T.rp(45109422) + ' sampai Surabaya ' + T.rp(60645422) + ', rata-rata ' + T.rp(54193806) + '. Setoran awal pendaftaran Rp25.000.000, dan masa tunggu haji reguler sekitar 26 tahun — jadi makin cepat mulai nabung, makin baik. Bipih ditetapkan ulang tiap tahun.</p>'
         : jenis === 'plus'
         ? '<p class="hint">Angka ' + T.rp(target) + ' adalah perkiraan tengah dari kisaran pasar haji plus 2026 (Rp274–325 juta) — BUKAN tarif resmi. Biaya sebenarnya tergantung travel dan paketnya; ubah targetnya sesuai penawaran travel yang kamu pilih.</p>'
         : '<p class="hint">Angka ' + T.rp(target) + ' adalah perkiraan tengah dari kisaran pasar umroh 2026 (Rp26–35 juta) — BUKAN tarif resmi. Biaya sebenarnya tergantung travel dan paketnya; ubah targetnya sesuai penawaran travel yang kamu pilih.</p>'));

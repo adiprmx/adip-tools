@@ -142,7 +142,7 @@ export function render(root) {
     tabBuka.classList.add('primary'); tabKompres.classList.remove('primary');
   });
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Kecilkan satu file supaya gampang dikirim, atau buka file .gz yang kamu terima. Untuk menggabung banyak file jadi satu arsip, pakai tool Buat Arsip TAR.GZ.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Kecilkan satu file supaya gampang dikirim, atau buka file .gz yang kamu terima. Untuk menggabung banyak file jadi satu arsip, pakai tool Arsip TAR/7Z/RAR, tab Buat arsip.</p>'));
   root.appendChild(tabs);
   root.appendChild(panelKompres);
   root.appendChild(panelBuka);

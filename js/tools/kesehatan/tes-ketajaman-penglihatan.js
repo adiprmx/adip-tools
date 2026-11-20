@@ -7,7 +7,14 @@ import { h as T, esc, utils } from '../../core.js';
 // satuan CSS px (1 mm = 96/25,4 px), rumusnya menjadi px = 0,5497 x X.
 // Baris yang diuji: 20/200 sampai 20/20. Tiap baris 3 soal, lolos bila
 // 2 atau 3 jawaban benar. Ini SKRINING KASAR, bukan pemeriksaan mata.
+// KOREKSI CAP-HEIGHT: ukuranHurufPx() menghasilkan TINGGI HURUF nominal,
+// tapi CSS font-size bukan tinggi huruf — tinggi huruf kapital "E" Arial
+// hanya ~71,6% dari font-size. Jadi font-size yang dipakai =
+// tinggi nominal / 0,716 (fontSizeHurufPx), kalau tidak huruf tampil ~28%
+// lebih kecil dari ukuran Snellen nominal dan tes jadi lebih sulit dari
+// yang diklaim.
 const TAN_5_MENIT = 0.0014544;
+const CAP_HEIGHT_ARIAL = 0.716;
 
 export function ukuranHurufPx(penyebut, jarakMeter) {
   const d = (jarakMeter || 2) * 1000;
@@ -15,10 +22,17 @@ export function ukuranHurufPx(penyebut, jarakMeter) {
   return Math.round(hMm * (96 / 25.4));
 }
 
+// font-size CSS yang membuat tinggi huruf "E" Arial sama dengan tinggi
+// nominal Snellen (ukuranHurufPx dibagi cap-height Arial).
+export function fontSizeHurufPx(penyebut, jarakMeter) {
+  return Math.round(ukuranHurufPx(penyebut, jarakMeter) / CAP_HEIGHT_ARIAL);
+}
+
 export function lolosLevel(benar, total) {
   return benar >= 2 && total >= 3;
 }
 utils.ukuranHurufPx = ukuranHurufPx;
+utils.fontSizeHurufPx = fontSizeHurufPx;
 utils.lolosLevel = lolosLevel;
 
 const BARIS = [200, 100, 70, 50, 40, 30, 25, 20];
@@ -42,7 +56,7 @@ export function render(root) {
 
   const tampilE = () => {
     arahSekarang = acakArah();
-    const px = ukuranHurufPx(BARIS[levelIdx], 2);
+    const px = fontSizeHurufPx(BARIS[levelIdx], 2);
     panggung.innerHTML = '<div data-arah="' + arahSekarang + '" aria-label="Huruf E menghadap ' + arahSekarang + '" style="font-family:Arial,Helvetica,sans-serif;font-weight:900;line-height:1;font-size:' + px + 'px;transform:rotate(' + ROTASI[arahSekarang] + 'deg)">E</div>';
     T.show(info, '<p class="center">Baris <b>20/' + BARIS[levelIdx] + '</b>, soal ' + (soalKe + 1) + ' dari 3. Ke arah mana kaki huruf E membuka?</p>');
   };

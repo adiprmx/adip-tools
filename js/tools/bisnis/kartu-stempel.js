@@ -25,9 +25,9 @@ export function render(root) {
     const kotak = Array.from({ length: nKotak }, () => '<div style="width:34px;height:34px;border:2px dashed #a1a1aa;border-radius:50%"></div>').join('');
     return `<div style="background:#111;border:1px solid #2a2a2a;border-radius:14px;padding:18px">` +
       `<div style="display:flex;justify-content:space-between;align-items:baseline">` +
-      `<b style="font-size:16px">${namaUsaha.value.trim() || 'Kartu Stempel'}</b>` +
-      `<span style="font-size:12px;color:#a1a1aa">${seri}</span></div>` +
-      `<div style="font-size:13px;color:#d4d4d4;margin:6px 0 14px">${hadiah.value.trim()}</div>` +
+      `<b style="font-size:16px">${T.esc(namaUsaha.value.trim() || 'Kartu Stempel')}</b>` +
+      `<span style="font-size:12px;color:#a1a1aa">${T.esc(seri)}</span></div>` +
+      `<div style="font-size:13px;color:#d4d4d4;margin:6px 0 14px">${T.esc(hadiah.value.trim())}</div>` +
       `<div style="display:flex;flex-wrap:wrap;gap:8px">${kotak}</div>` +
       `<div style="font-size:11px;color:#a1a1aa;margin-top:14px">Nama pelanggan: ___________________</div></div>`;
   }

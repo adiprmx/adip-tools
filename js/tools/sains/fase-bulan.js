@@ -1,6 +1,6 @@
-import { h as T, utils } from '../../core.js';
+import { h as T } from '../../core.js';
 
-export const meta = {"id": "fase-bulan", "name": "Fase Bulan", "cat": "liveapi", "icon": "🌕", "desc": "Fase bulan hari ini, dihitung lokal tanpa internet.", "keywords": "bulan,fase,purnama,bulan baru,moon,lunar"};
+export const meta = {"id": "fase-bulan", "name": "Fase Bulan", "cat": "sains", "icon": "🌕", "desc": "Fase bulan hari ini, dihitung lokal tanpa internet.", "keywords": "bulan,fase,purnama,bulan baru,moon,lunar"};
 export function render(root) {
 
     const SYNODIC = 29.530588853; // rata-rata satu siklus bulan (hari)
@@ -12,9 +12,9 @@ export function render(root) {
       { nama: 'Seperempat Awal', emoji: '🌓', ket: 'Setengah bulan kelihatan, makin malam makin tinggi.' },
       { nama: 'Cembung Awal', emoji: '🌔', ket: 'Bulan makin gendut, bentar lagi purnama.' },
       { nama: 'Purnama', emoji: '🌕', ket: 'Bulan bulat sempurna — terang banget semalaman.' },
-      { nama: 'Cembung Akhir', emoji: '🌘', ket: 'Bulan mulai menyusut setelah purnama.' },
+      { nama: 'Cembung Akhir', emoji: '🌖', ket: 'Bulan mulai menyusut setelah purnama.' },
       { nama: 'Seperempat Akhir', emoji: '🌗', ket: 'Setengah bulan lagi, kelihatan jelas menjelang subuh.' },
-      { nama: 'Sabit Tua', emoji: '🌖', ket: 'Tinggal sabit tipis, siklus mau mulai dari awal lagi.' },
+      { nama: 'Sabit Tua', emoji: '🌘', ket: 'Tinggal sabit tipis, siklus mau mulai dari awal lagi.' },
     ];
 
     // info fase untuk sebuah tanggal (ms epoch)

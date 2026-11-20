@@ -87,6 +87,8 @@ export function render(root) {
     }
 
     let langkah = 1;
+    // Saat true, pratinjau menampilkan CONTOH — data user tidak ditimpa.
+    let contohAktif = false;
     const box = T.out();
     const previewBox = T.out();
     const langkahBox = T.out();
@@ -128,14 +130,17 @@ export function render(root) {
 
     /* ---------- render CV ---------- */
     function cvHtml() {
-      const nama = baris(data.nama) || '(Nama lengkap)';
-      const kontak = [baris(data.alamat), baris(data.telepon), baris(data.email)].filter(Boolean);
-      const ttl = [baris(data.tempatLahir), baris(data.tanggalLahir)].filter(Boolean).join(', ');
-      const pend = data.pendidikan.filter((p) => baris(p.sekolah) || baris(p.jurusan));
-      const peng = data.pengalaman.filter((p) => baris(p.tempat) || baris(p.jabatan));
-      const sert = (data.sertifikat || []).filter((s) => baris(s.nama));
-      const ahli = data.keahlian.map(baris).filter(Boolean);
-      const tpl = data.template || 'formal';
+      // Saat melihat contoh, yang dirender adalah CONTOH — data user
+      // tidak pernah ditimpa (lihat isiContoh).
+      const dataTampil = contohAktif ? CONTOH : data;
+      const nama = baris(dataTampil.nama) || '(Nama lengkap)';
+      const kontak = [baris(dataTampil.alamat), baris(dataTampil.telepon), baris(dataTampil.email)].filter(Boolean);
+      const ttl = [baris(dataTampil.tempatLahir), baris(dataTampil.tanggalLahir)].filter(Boolean).join(', ');
+      const pend = dataTampil.pendidikan.filter((p) => baris(p.sekolah) || baris(p.jurusan));
+      const peng = dataTampil.pengalaman.filter((p) => baris(p.tempat) || baris(p.jabatan));
+      const sert = (dataTampil.sertifikat || []).filter((s) => baris(s.nama));
+      const ahli = dataTampil.keahlian.map(baris).filter(Boolean);
+      const tpl = dataTampil.template || 'formal';
 
       // Template dua kolom panel: samping berwarna (kontak, keahlian,
       // pendidikan singkat), kolom utama berisi nama, profil & pengalaman.
@@ -162,9 +167,9 @@ export function render(root) {
         }
         let utama = '';
         utama += '<div style="font-size:26px;font-weight:700;letter-spacing:.5px;line-height:1.2;overflow-wrap:anywhere">' + esc(nama) + '</div>' +
-          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (baris(dataTampil.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(dataTampil.gelar) + '</div>' : '') +
           '<div style="border-bottom:2px solid #111;margin:10px 0 14px"></div>';
-        if (baris(data.ringkasan)) utama += jdlUtama('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0 0 14px;overflow-wrap:anywhere">' + esc(data.ringkasan) + '</p>';
+        if (baris(dataTampil.ringkasan)) utama += jdlUtama('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0 0 14px;overflow-wrap:anywhere">' + esc(dataTampil.ringkasan) + '</p>';
         if (peng.length) {
           utama += jdlUtama('Pengalaman');
           peng.forEach((p) => {
@@ -174,15 +179,8 @@ export function render(root) {
           });
           utama += '<div style="height:6px"></div>';
         }
-        if (pend.length) {
-          utama += jdlUtama('Pendidikan');
-          pend.forEach((p) => {
-            utama += '<div style="font-size:13px;line-height:1.5;margin-bottom:6px;overflow-wrap:anywhere"><b>' + esc(p.sekolah || '(Sekolah)') + '</b>' +
-              (baris(p.tahun) ? ' <span style="color:#555">(' + esc(p.tahun) + ')</span>' : '') +
-              (baris(p.jurusan) ? '<br/>' + esc(p.jurusan) : '') + '</div>';
-          });
-          utama += '<div style="height:6px"></div>';
-        }
+        // Pendidikan TIDAK diulang di kolom utama: sudah tampil di panel
+        // samping (di atas). Duplikasi lama bikin CV terlihat salah.
         if (sert.length) {
           utama += jdlUtama('Pelatihan & Sertifikat');
           sert.forEach((s) => {
@@ -209,7 +207,7 @@ export function render(root) {
           kiri += jdlKiri('Keahlian') + '<div style="font-size:12px;line-height:1.7">' + ahli.map((a) => '• ' + esc(a)).join('<br/>') + '</div>';
         }
         let kanan = '';
-        if (baris(data.ringkasan)) kanan += jdl('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0 0 14px">' + esc(data.ringkasan) + '</p>';
+        if (baris(dataTampil.ringkasan)) kanan += jdl('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0 0 14px">' + esc(dataTampil.ringkasan) + '</p>';
         if (pend.length) {
           kanan += jdl('Pendidikan');
           pend.forEach((p) => {
@@ -237,7 +235,7 @@ export function render(root) {
         }
         return '<div style="border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:0">' +
           '<div style="font-size:26px;font-weight:700;letter-spacing:.5px">' + esc(nama) + '</div>' +
-          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (baris(dataTampil.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(dataTampil.gelar) + '</div>' : '') +
           '</div>' +
           '<div style="display:flex;gap:0">' +
           '<div style="width:190px;flex-shrink:0;padding:4px 16px 0 0;border-right:1px solid #ccc">' + kiri + '</div>' +
@@ -248,27 +246,27 @@ export function render(root) {
       const head = tpl === 'formal'
         ? '<div style="text-align:center;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:14px">' +
           '<div style="font-size:24px;font-weight:700;letter-spacing:.5px">' + esc(nama) + '</div>' +
-          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (baris(dataTampil.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(dataTampil.gelar) + '</div>' : '') +
           (kontak.length ? '<div style="font-size:12px;margin-top:6px;color:#333">' + kontak.map(esc).join(' &nbsp;|&nbsp; ') + '</div>' : '') +
           (ttl ? '<div style="font-size:12px;color:#333">' + esc(ttl) + '</div>' : '') +
           '</div>'
         : tpl === 'modern'
         ? '<div style="border-left:4px solid #111;padding-left:12px;margin-bottom:14px">' +
           '<div style="font-size:26px;font-weight:700;letter-spacing:.5px">' + esc(nama) + '</div>' +
-          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (baris(dataTampil.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(dataTampil.gelar) + '</div>' : '') +
           (kontak.length ? '<div style="font-size:12px;margin-top:6px;color:#333">' + kontak.map(esc).join(' &nbsp;|&nbsp; ') + '</div>' : '') +
           (ttl ? '<div style="font-size:12px;color:#333">' + esc(ttl) + '</div>' : '') +
           '</div>'
         : tpl === 'ats'
         ? '<div style="margin-bottom:12px">' +
           '<div style="font-size:20px;font-weight:700">' + esc(nama) + '</div>' +
-          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (baris(dataTampil.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(dataTampil.gelar) + '</div>' : '') +
           (kontak.length ? '<div style="font-size:12px;margin-top:4px">' + kontak.map(esc).join(' | ') + '</div>' : '') +
           (ttl ? '<div style="font-size:12px">' + esc(ttl) + '</div>' : '') +
           '</div>'
         : '<div style="margin-bottom:14px">' +
           '<div style="font-size:24px;font-weight:700">' + esc(nama) + '</div>' +
-          (baris(data.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(data.gelar) + '</div>' : '') +
+          (baris(dataTampil.gelar) ? '<div style="font-size:13px;margin-top:2px">' + esc(dataTampil.gelar) + '</div>' : '') +
           (kontak.length ? '<div style="font-size:12px;margin-top:6px;color:#333">' + kontak.map(esc).join('<br/>') + '</div>' : '') +
           (ttl ? '<div style="font-size:12px;color:#333">' + esc(ttl) + '</div>' : '') +
           '</div>';
@@ -282,7 +280,7 @@ export function render(root) {
         : '<div style="font-size:13px;font-weight:700;margin:14px 0 6px">' + t + '</div>';
 
       let h = head;
-      if (baris(data.ringkasan)) h += judul('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0">' + esc(data.ringkasan) + '</p>';
+      if (baris(dataTampil.ringkasan)) h += judul('Tentang Saya') + '<p style="font-size:13px;line-height:1.6;margin:0">' + esc(dataTampil.ringkasan) + '</p>';
       if (pend.length) {
         h += judul('Pendidikan');
         pend.forEach((p) => {
@@ -339,17 +337,28 @@ export function render(root) {
     }
 
     function tampilkanPreview() {
+      // Saat melihat contoh: sembunyikan cek kelengkapan & tombol cetak/
+      // unduh (itu milik CV user), ganti dengan tombol kembali.
+      const aksi = contohAktif
+        ? '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button class="btn primary" data-act="kembali">← Kembali ke CV saya</button></div>' +
+          '<p class="hint">Ini hanya contoh tampilan. Data CV kamu tidak berubah.</p>'
+        : '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button class="btn primary" data-act="print">🖨️ Cetak / Simpan PDF</button>' +
+          '<button class="btn" data-act="dl">⬇️ Unduh HTML</button>' +
+          '<button class="btn" data-act="copy">📋 Salin teks CV</button>' +
+          '<button class="btn" data-act="txt">⬇️ Unduh TXT</button></div>' +
+          '<p class="hint">Tips cetak: pilih ukuran kertas A4 dan matikan header/footer browser supaya CV bersih 1 halaman. Teks polos berguna untuk ditempel ke formulir lamaran online.</p>';
       T.show(previewBox,
-        cekKelengkapan() +
+        (contohAktif ? '' : cekKelengkapan()) +
         '<div id="cv-print"><div class="cv-page" style="background:#fff;color:#111;border:1px solid rgba(255,255,255,.15);border-radius:12px;max-width:720px;margin:0 auto;padding:28px 32px;font-family:Arial,Helvetica,sans-serif">' +
         cvHtml() +
         '</div></div>' +
-        '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">' +
-        '<button class="btn primary" data-act="print">🖨️ Cetak / Simpan PDF</button>' +
-        '<button class="btn" data-act="dl">⬇️ Unduh HTML</button>' +
-        '<button class="btn" data-act="copy">📋 Salin teks CV</button>' +
-        '<button class="btn" data-act="txt">⬇️ Unduh TXT</button></div>' +
-        '<p class="hint">Tips cetak: pilih ukuran kertas A4 dan matikan header/footer browser supaya CV bersih 1 halaman. Teks polos berguna untuk ditempel ke formulir lamaran online.</p>');
+        aksi);
+      if (contohAktif) {
+        previewBox.querySelector('[data-act="kembali"]').addEventListener('click', () => { contohAktif = false; tampilkanPreview(); });
+        return;
+      }
       previewBox.querySelector('[data-act="print"]').addEventListener('click', () => window.print());
       previewBox.querySelector('[data-act="copy"]').addEventListener('click', () => T.copy(cvText()));
       previewBox.querySelector('[data-act="txt"]').addEventListener('click', () => {
@@ -410,6 +419,8 @@ export function render(root) {
 
     function tampilkanLangkah() {
       navLangkah();
+      // Keluar dari mode contoh begitu user pindah ke langkah isi data.
+      if (langkah !== 5) contohAktif = false;
       // PERBAIKAN BUG LAMA (bukan bagian template, tapi pemilih template di
       // langkah 4 tidak bisa dijangkau tanpanya): T.out() membuat div dengan
       // atribut hidden, dan tampilkanLangkah() tidak pernah membukanya —
@@ -479,14 +490,17 @@ export function render(root) {
       box.appendChild(nav);
     }
 
+    // "Lihat contoh" HANYA menampilkan contoh di pratinjau — data user
+    // tidak ditimpa dan tidak disimpan. Sebelumnya satu ketuk langsung
+    // menimpa + menyimpan contoh di atas CV user tanpa bisa dibatalkan.
     const isiContoh = () => {
-      data = JSON.parse(JSON.stringify(CONTOH));
-      simpan();
+      contohAktif = true;
       langkah = 5;
       tampilkanLangkah();
-      T.toast('Contoh terisi, ganti dengan data kamu');
+      T.toast('Ini contoh CV — data kamu tidak berubah');
     };
     const hapusSemua = () => {
+      if (!confirm('Hapus semua data CV? Data yang sudah dihapus tidak bisa kembali.')) return;
       data = kosong();
       try { localStorage.removeItem(LS_KEY); } catch (e) {}
       langkah = 1;

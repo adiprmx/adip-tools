@@ -135,7 +135,18 @@ export function render(root) {
       geserHue(data.data, parseInt(range.value, 10));
       ctx.putImageData(data, 0, 0);
       const mime = fmtSel.value === 'png' ? 'image/png' : 'image/jpeg';
-      const blob = await canvasToBlob(c, mime, 0.92);
+      // JPEG tidak punya transparansi: timpa di atas latar putih supaya
+      // bagian tembus pandang tidak jadi hitam (pola banding-foto).
+      let sumber = c;
+      if (mime === 'image/jpeg') {
+        const putih = document.createElement('canvas');
+        putih.width = c.width; putih.height = c.height;
+        const px = putih.getContext('2d');
+        px.fillStyle = '#ffffff'; px.fillRect(0, 0, c.width, c.height);
+        px.drawImage(c, 0, 0);
+        sumber = putih;
+      }
+      const blob = await canvasToBlob(sumber, mime, 0.92);
       if (!blob) throw new Error('gagal');
       T.dl(`${namaFile}-hue.${fmtSel.value === 'png' ? 'png' : 'jpg'}`, blob, mime);
       T.toast('Berhasil diunduh');

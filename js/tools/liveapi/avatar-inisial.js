@@ -48,11 +48,24 @@ export function render(root) {
     }
     const url = urlAvatar(nama, warnaSel.value, ukuranSel.value);
     T.show(box,
-      '<div class="center"><img src="' + esc(url) + '" alt="Avatar inisial ' + esc(nama) + '" style="width:128px;height:128px;border-radius:12px" data-err="hide">' +
+      '<div class="center"><div data-gambar><img src="' + esc(url) + '" alt="Avatar inisial ' + esc(nama) + '" style="width:128px;height:128px;border-radius:12px">' +
+      '<div class="dim" data-memuat style="font-size:12.5px;margin-top:6px">Membuat avatar…</div></div>' +
       '<div style="font-weight:700;margin-top:10px">' + esc(nama) + '</div>' +
       '<p style="margin-top:10px"><a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener">Buka ukuran penuh</a></p></div>' +
       '<p class="hint">Sumber: ui-avatars.com. Nama yang kamu tulis dikirim ke layanan itu untuk dibuat avatarnya. Avatar dibuat dari huruf awal namamu.</p>');
-    T.wireImgErr(box);
+    // Gambar gagal dimuat harus TERLIHAT, bukan hilang diam-diam:
+    // ganti slot gambar dengan pesan + tombol coba lagi.
+    const slot = box.querySelector('[data-gambar]');
+    const img = slot && slot.querySelector('img');
+    if (img) {
+      img.addEventListener('load', () => { const m = slot.querySelector('[data-memuat]'); if (m) m.remove(); });
+      img.addEventListener('error', () => {
+        T.show(slot, errBox('Avatar tidak bisa dibuat. Layanannya mungkin sedang bermasalah, coba lagi sebentar lagi.'));
+        const wr = T.el('<div style="margin-top:8px"></div>');
+        wr.appendChild(T.btn('Coba lagi', buat));
+        slot.appendChild(wr);
+      });
+    }
     const w = T.el('<div style="margin-top:8px" class="center"></div>');
     w.appendChild(T.copyBtn(() => url, 'Salin alamat gambar'));
     box.appendChild(w);

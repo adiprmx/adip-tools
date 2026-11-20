@@ -103,7 +103,7 @@ function buatSilogisme() {
     'Tidak ada ' + r[0] + ' yang ' + r[2],
   ]);
   return {
-    t: 'Semua ' + r[0] + ' adalah ' + r[1] + '. Semua ' + r[1] + ' adalah ' + r[2] + '. Kesimpulan yang benar adalah …',
+    t: 'Semua ' + r[0] + ' adalah ' + r[1] + '. Semua ' + r[1] + ' adalah ' + r[2] + '. Kesimpulan yang PASTI benar dari kedua pernyataan itu adalah …',
     o: opsi, k: opsi.indexOf(benar),
     b: 'Karena ' + r[0] + ' termasuk ' + r[1] + ' dan semua ' + r[1] + ' termasuk ' + r[2] + ', maka semua ' + r[0] + ' pasti ' + r[2] + '.', jenis: 'TIU',
   };

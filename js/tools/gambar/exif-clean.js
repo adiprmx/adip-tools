@@ -1,4 +1,12 @@
-import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage, kvRows, tabs } from '../../core.js';
+
+/* Data & EXIF Foto — hasil gabung v6.21.0 (B7):
+   Tab 1 "Lihat data": tampilan kurasi (kamera, tanggal, bukaan, ISO,
+   lokasi + tautan peta) dari Lihat Data Foto + daftar semua tag EXIF.
+   Tab 2 "Bersihkan data": mesin Hapus EXIF (4 mode, massal, ZIP).
+   Tab 3 "Ubah data": ubah 6 kelompok data (keterangan, tanggal, arah,
+   merk/model kamera, fotografer, aplikasi) dari Edit EXIF Foto, JPEG
+   saja. Data lain di foto DIPERTAHANKAN (perbaikan gelombang 2, F5). */
 
 /* ============ Fungsi murni byte-level (bisa diuji di Node, tanpa DOM) ============ */
 
@@ -310,11 +318,526 @@ export function daftarSemuaTag(tags) {
   return out;
 }
 
+/* ============ Parser EXIF kurasi (dari Lihat Data Foto) ============ */
+
+// Parser EXIF JPEG minimal, ditulis sendiri (tanpa pustaka luar).
+// Membaca IFD0 + ExifIFD + GPS IFD. Mengembalikan null bila tidak ada EXIF.
+export function parseExif(buf) {
+  const view = buf instanceof DataView ? buf : new DataView(buf);
+  if (view.byteLength < 4 || view.getUint16(0) !== 0xFFD8) return null;
+  let off = 2, exifStart = -1;
+  while (off + 4 <= view.byteLength) {
+    if (view.getUint8(off) !== 0xFF) break;
+    const marker = view.getUint8(off + 1);
+    if (marker === 0xDA || marker === 0xD9) break;
+    const len = view.getUint16(off + 2);
+    if (marker === 0xE1 && off + 10 <= view.byteLength &&
+        view.getUint32(off + 4) === 0x45786966 && view.getUint16(off + 8) === 0) {
+      exifStart = off + 10;
+      break;
+    }
+    off += 2 + len;
+  }
+  if (exifStart < 0) return null;
+  const tiff = exifStart;
+  const le = view.getUint16(tiff) === 0x4949;
+  if (view.getUint16(tiff + 2, le) !== 42) return null;
+  const get16 = (o) => view.getUint16(tiff + o, le);
+  const get32 = (o) => view.getUint32(tiff + o, le);
+  const ukuranTipe = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+  function bacaNilai(tipe, jumlah, offNilai) {
+    const ukuran = (ukuranTipe[tipe] || 1) * jumlah;
+    const pos = ukuran <= 4 ? offNilai : get32(offNilai);
+    if (tipe === 2) {
+      let s = '';
+      for (let i = 0; i < jumlah; i++) {
+        const c = view.getUint8(tiff + pos + i);
+        if (c === 0) break;
+        s += String.fromCharCode(c);
+      }
+      return s.trim();
+    }
+    if (tipe === 3) {
+      const arr = [];
+      for (let i = 0; i < jumlah; i++) arr.push(get16(pos + i * 2));
+      return jumlah === 1 ? arr[0] : arr;
+    }
+    if (tipe === 4 || tipe === 9) {
+      const arr = [];
+      for (let i = 0; i < jumlah; i++) arr.push(get32(pos + i * 4));
+      return jumlah === 1 ? arr[0] : arr;
+    }
+    if (tipe === 5 || tipe === 10) {
+      const arr = [];
+      for (let i = 0; i < jumlah; i++) {
+        const a = get32(pos + i * 8), b = get32(pos + i * 8 + 4);
+        arr.push(b === 0 ? 0 : a / b);
+      }
+      return jumlah === 1 ? arr[0] : arr;
+    }
+    return null;
+  }
+  function bacaIfd(offIfd) {
+    const out = {};
+    if (offIfd <= 0 || tiff + offIfd + 2 > view.byteLength) return out;
+    const n = get16(offIfd);
+    for (let i = 0; i < n; i++) {
+      const e = offIfd + 2 + i * 12;
+      if (tiff + e + 12 > view.byteLength) break;
+      const tag = get16(e), tipe = get16(e + 2), jumlah = get32(e + 4);
+      out[tag] = bacaNilai(tipe, jumlah, e + 8);
+    }
+    return out;
+  }
+  const ifd0 = bacaIfd(get32(4));
+  const hasil = {
+    kamera: [ifd0[0x010F], ifd0[0x0110]].filter(Boolean).join(' ') || null,
+    tanggal: ifd0[0x0132] || null,
+    deskripsi: ifd0[0x010E] || null,
+    software: ifd0[0x0131] || null,
+    artis: ifd0[0x013B] || null
+  };
+  if (ifd0[0x8769]) {
+    const ex = bacaIfd(ifd0[0x8769]);
+    hasil.tanggalJepret = ex[0x9003] || ex[0x9004] || null;
+    hasil.exposure = typeof ex[0x829A] === 'number' && ex[0x829A] > 0
+      ? (ex[0x829A] >= 1 ? ex[0x829A] + ' detik' : '1/' + Math.round(1 / ex[0x829A]) + ' detik') : null;
+    hasil.bukaan = typeof ex[0x829D] === 'number' ? 'f/' + (Math.round(ex[0x829D] * 10) / 10) : null;
+    hasil.iso = ex[0x8827] || null;
+    hasil.focal = typeof ex[0x920A] === 'number' ? ex[0x920A] + ' mm' : null;
+    hasil.dimensi = (ex[0xA002] && ex[0xA003]) ? ex[0xA002] + ' x ' + ex[0xA003] : null;
+  }
+  if (ifd0[0x8825]) {
+    const g = bacaIfd(ifd0[0x8825]);
+    const keDerajat = (arr) => (Array.isArray(arr) && arr.length >= 3) ? arr[0] + arr[1] / 60 + arr[2] / 3600 : null;
+    const lat = keDerajat(g[0x0002]), lon = keDerajat(g[0x0004]);
+    if (lat !== null && lon !== null) {
+      hasil.gps = {
+        lat: (g[0x0001] === 'S' ? -lat : lat),
+        lon: (g[0x0003] === 'W' ? -lon : lon)
+      };
+    }
+  }
+  return hasil;
+}
+// Kompatibilitas: parser yang sama juga tersedia lewat utils (dulu
+// didaftarkan tool Lihat Data Foto; tidak ada tool lain yang memakainya).
+utils.parseExif = parseExif;
+
+/* ============ Ubah EXIF (dari Edit EXIF Foto) ============ */
+
+// "2026:11:19 10:30:00" (format EXIF) -> "2026-11-19T10:30" (input tanggal).
+export function exifKeIso(s) {
+  const m = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2})(?::(\d{2}))?$/.exec((s || '').trim());
+  if (!m) return '';
+  return m[1] + '-' + m[2] + '-' + m[3] + 'T' + m[4] + ':' + m[5];
+}
+
+// "2026-11-19T10:30" -> "2026:11:19 10:30:00" (format EXIF).
+export function isoKeExif(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec((s || '').trim());
+  if (!m) return '';
+  return m[1] + ':' + m[2] + ':' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + (m[6] || '00');
+}
+
+function asciiBersih(s) {
+  let keluar = '';
+  for (let i = 0; i < s.length; i++) {
+    const kode = s.charCodeAt(i);
+    keluar += (kode >= 32 && kode <= 126) ? s[i] : '?';
+  }
+  return keluar;
+}
+
+// Baca field EXIF yang bisa diedit dari byte JPEG.
+// Kembalikan null bila bukan JPEG; {adaExif:false} bila JPEG tanpa EXIF.
+export function bacaExifEdit(bytes) {
+  const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  if (b.length < 4 || b[0] !== 0xFF || b[1] !== 0xD8) return null;
+  const seg = cariSegmenExif(b);
+  if (!seg) return { adaExif: false };
+  const t = b.subarray(seg.isiAwal, seg.akhir);
+  if (t.length < 8) return { adaExif: false };
+  const le = t[0] === 0x49 && t[1] === 0x49;
+  if (!le && !(t[0] === 0x4D && t[1] === 0x4D)) return { adaExif: false };
+  const u16 = (o) => le ? t[o] | (t[o + 1] << 8) : (t[o] << 8) | t[o + 1];
+  const u32 = (o) => le
+    ? (t[o] | (t[o + 1] << 8) | (t[o + 2] << 16) | (t[o + 3] << 24)) >>> 0
+    : ((t[o] << 24) | (t[o + 1] << 16) | (t[o + 2] << 8) | t[o + 3]) >>> 0;
+  if (u16(2) !== 42) return { adaExif: false };
+  const ukuranTipe = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+  function bacaNilai(tipe, jumlah, offNilai) {
+    const ukuran = (ukuranTipe[tipe] || 1) * jumlah;
+    const pos = ukuran <= 4 ? offNilai : u32(offNilai);
+    if (pos + ukuran > t.length) return null;
+    if (tipe === 2) {
+      let s = '';
+      for (let i = 0; i < jumlah; i++) {
+        const c = t[pos + i];
+        if (c === 0) break;
+        s += String.fromCharCode(c);
+      }
+      return s.trim();
+    }
+    if (tipe === 3) return jumlah === 1 ? u16(pos) : null;
+    if (tipe === 4) return jumlah === 1 ? u32(pos) : null;
+    return null;
+  }
+  function bacaIfd(offIfd) {
+    const out = {};
+    if (offIfd <= 0 || offIfd + 2 > t.length) return out;
+    const n = u16(offIfd);
+    for (let i = 0; i < n; i++) {
+      const e = offIfd + 2 + i * 12;
+      if (e + 12 > t.length) break;
+      out[u16(e)] = bacaNilai(u16(e + 2), u32(e + 4), e + 8);
+    }
+    return out;
+  }
+  const ifd0 = bacaIfd(u32(4));
+  const hasil = {
+    adaExif: true,
+    deskripsi: ifd0[0x010E] || '',
+    pembuat: ifd0[0x010F] || '',
+    model: ifd0[0x0110] || '',
+    orientasi: ifd0[0x0112] || 1,
+    software: ifd0[0x0131] || '',
+    tanggal: ifd0[0x0132] || '',
+    artis: ifd0[0x013B] || '',
+    tanggalJepret: ''
+  };
+  if (ifd0[0x8769]) {
+    const ex = bacaIfd(ifd0[0x8769]);
+    hasil.tanggalJepret = ex[0x9003] || ex[0x9004] || '';
+  }
+  return hasil;
+}
+
+// Bangun byte TIFF (little-endian) dari field yang diisi.
+// edit: {deskripsi, pembuat, model, orientasi, software, tanggal,
+// tanggalJepret, artis}. Field kosong dilewati.
+export function bangunTiff(edit) {
+  const e = edit || {};
+  const teks = [];
+  const entri0 = [];
+  function tambahTeks(tag, nilai) {
+    if (!nilai) return;
+    const bersih = asciiBersih(String(nilai));
+    if (!bersih) return;
+    teks.push({ tag, data: bersih });
+    entri0.push({ tag, tipe: 2, jumlah: bersih.length + 1, teks: bersih });
+  }
+  tambahTeks(0x010E, e.deskripsi);
+  tambahTeks(0x010F, e.pembuat);
+  tambahTeks(0x0110, e.model);
+  const orientasi = Math.max(1, Math.min(8, Math.round(e.orientasi == null ? 1 : e.orientasi)));
+  entri0.push({ tag: 0x0112, tipe: 3, jumlah: 1, nilai: orientasi });
+  tambahTeks(0x0131, e.software);
+  tambahTeks(0x0132, e.tanggal);
+  tambahTeks(0x013B, e.artis);
+  const punyaExif = Boolean(e.tanggalJepret);
+  if (punyaExif) entri0.push({ tag: 0x8769, tipe: 4, jumlah: 1, pointerExif: true });
+  entri0.sort((a, b) => a.tag - b.tag);
+  const entriEx = [];
+  if (punyaExif) {
+    const bersih = asciiBersih(String(e.tanggalJepret));
+    entriEx.push({ tag: 0x9003, tipe: 2, jumlah: bersih.length + 1, teks: bersih });
+    entriEx.push({ tag: 0x9004, tipe: 2, jumlah: bersih.length + 1, teks: bersih });
+  }
+  const ukuranIfd0 = 2 + entri0.length * 12 + 4;
+  const ukuranIfdEx = punyaExif ? 2 + entriEx.length * 12 + 4 : 0;
+  const offIfd0 = 8;
+  const offIfdEx = offIfd0 + ukuranIfd0;
+  let offData = offIfdEx + ukuranIfdEx;
+  const semuaTeks = entri0.concat(entriEx).filter((en) => en.teks != null);
+  semuaTeks.forEach((en) => { en.offData = offData; offData += en.jumlah; });
+  const total = offData;
+  const out = new Uint8Array(total);
+  out[0] = 0x49; out[1] = 0x49; out[2] = 42; out[3] = 0;
+  out[4] = offIfd0 & 255; out[5] = (offIfd0 >> 8) & 255; out[6] = 0; out[7] = 0;
+  const tulis16 = (o, v) => { out[o] = v & 255; out[o + 1] = (v >> 8) & 255; };
+  const tulis32 = (o, v) => { out[o] = v & 255; out[o + 1] = (v >> 8) & 255; out[o + 2] = (v >> 16) & 255; out[o + 3] = (v >> 24) & 255; };
+  function tulisIfd(off, daftar) {
+    tulis16(off, daftar.length);
+    daftar.forEach((en, i) => {
+      const eo = off + 2 + i * 12;
+      tulis16(eo, en.tag);
+      tulis16(eo + 2, en.tipe);
+      tulis32(eo + 4, en.jumlah);
+      if (en.teks != null) {
+        if (en.jumlah <= 4) {
+          // Nilai pendek (<= 4 byte) wajib disimpan INLINE di field nilai
+          // (spesifikasi TIFF): pembaca mengabaikan offset bila ukurannya
+          // <= 4 byte — menulis offset di sini membuat nilai terbaca
+          // sebagai byte offset itu sendiri (mis. deskripsi 'X' terbaca 'P').
+          for (let j = 0; j < 4; j++) out[eo + 8 + j] = j < en.teks.length ? en.teks.charCodeAt(j) : 0;
+        } else tulis32(eo + 8, en.offData);
+      }
+      else if (en.nilai != null) { tulis16(eo + 8, en.nilai); tulis16(eo + 10, 0); }
+      else if (en.pointerExif) tulis32(eo + 8, offIfdEx);
+    });
+    tulis32(off + 2 + daftar.length * 12, 0);
+  }
+  tulisIfd(offIfd0, entri0);
+  if (punyaExif) tulisIfd(offIfdEx, entriEx);
+  semuaTeks.forEach((en) => {
+    for (let i = 0; i < en.teks.length; i++) out[en.offData + i] = en.teks.charCodeAt(i);
+    out[en.offData + en.teks.length] = 0;
+  });
+  return out;
+}
+
+// ---------- Pertahankan EXIF lain (pola tambah-gps-foto) ----------
+// Baca satu IFD jadi [{tag, tipe, jumlah, nilai}] dengan nilai yang
+// dinormalisasi: ASCII/BYTE/UNDEFINED -> Uint8Array mentah; SHORT/LONG ->
+// [angka]; RATIONAL -> [[pembilang, penyebut], ...].
+const UKURAN_TIPE_GABUNG = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8 };
+function bacaU16G(t, o, le) { return le ? t[o] | (t[o + 1] << 8) : (t[o] << 8) | t[o + 1]; }
+function bacaU32G(t, o, le) {
+  return le
+    ? (t[o] | (t[o + 1] << 8) | (t[o + 2] << 16) | (t[o + 3] << 24)) >>> 0
+    : ((t[o] << 24) | (t[o + 1] << 16) | (t[o + 2] << 8) | t[o + 3]) >>> 0;
+}
+function bacaIfdMentah(t, off, le) {
+  if (off + 2 > t.length) return { entri: [], berikut: 0 };
+  const n = bacaU16G(t, off, le);
+  const entri = [];
+  for (let k = 0; k < n; k++) {
+    const eo = off + 2 + k * 12;
+    if (eo + 12 > t.length) break;
+    const tag = bacaU16G(t, eo, le);
+    const tipe = bacaU16G(t, eo + 2, le);
+    const jumlah = bacaU32G(t, eo + 4, le);
+    const ukuran = UKURAN_TIPE_GABUNG[tipe] || 0;
+    if (!ukuran || jumlah > 1000000) continue;
+    const total = jumlah * ukuran;
+    let awal;
+    if (total <= 4) awal = eo + 8;
+    else { awal = bacaU32G(t, eo + 8, le); if (awal + total > t.length) continue; }
+    let nilai;
+    if (tipe === 2 || tipe === 1 || tipe === 7 || tipe === 6 || tipe === 11 || tipe === 12) {
+      nilai = t.slice(awal, awal + total);
+    } else if (tipe === 3 || tipe === 8) {
+      nilai = []; for (let i = 0; i < jumlah; i++) nilai.push(bacaU16G(t, awal + i * 2, le));
+    } else if (tipe === 4 || tipe === 9) {
+      nilai = []; for (let i = 0; i < jumlah; i++) nilai.push(bacaU32G(t, awal + i * 4, le));
+    } else if (tipe === 5 || tipe === 10) {
+      nilai = [];
+      for (let i = 0; i < jumlah; i++) nilai.push([bacaU32G(t, awal + i * 8, le), bacaU32G(t, awal + i * 8 + 4, le)]);
+    } else nilai = t.slice(awal, awal + total);
+    entri.push({ tag, tipe, jumlah, nilai });
+  }
+  const berikut = off + 2 + n * 12 + 4 <= t.length ? bacaU32G(t, off + 2 + n * 12, le) : 0;
+  return { entri, berikut };
+}
+function cariEntriG(entri, tag) { return (entri || []).find((e) => e.tag === tag) || null; }
+function nilaiPointerG(e) { return e && Array.isArray(e.nilai) ? e.nilai[0] : 0; }
+function nilaiKeByteG(e) {
+  if (e.nilai instanceof Uint8Array) return e.nilai;
+  const n = e.jumlah;
+  const ukuran = UKURAN_TIPE_GABUNG[e.tipe] || 1;
+  const out = new Uint8Array(n * ukuran);
+  const dv = new DataView(out.buffer);
+  if (e.tipe === 3 || e.tipe === 8) e.nilai.forEach((v, i) => dv.setUint16(i * 2, v, true));
+  else if (e.tipe === 4 || e.tipe === 9) e.nilai.forEach((v, i) => dv.setUint32(i * 4, v >>> 0, true));
+  else if (e.tipe === 5 || e.tipe === 10) e.nilai.forEach((p, i) => { dv.setUint32(i * 8, p[0] >>> 0, true); dv.setUint32(i * 8 + 4, p[1] >>> 0, true); });
+  return out;
+}
+function entriTeksG(tag, nilai) {
+  if (nilai == null || nilai === '') return null;
+  const bersih = asciiBersih(String(nilai));
+  if (!bersih) return null;
+  const data = new Uint8Array(bersih.length + 1);
+  for (let i = 0; i < bersih.length; i++) data[i] = bersih.charCodeAt(i);
+  return { tag, tipe: 2, jumlah: bersih.length + 1, nilai: data };
+}
+
+// Bangun byte TIFF baru (little-endian) dari field yang diedit, dengan
+// MEMPERTAHANKAN semua entri TIFF lama (GPS, exposure, lensa, Interop,
+// pratinjau/IFD1) — hanya 7 field IFD0 + 2 field tanggal jepret yang
+// diganti/dihapus sesuai isi form. Field kosong = tag-nya dihapus (sama
+// seperti bangunTiff). Bila TIFF lama tidak bisa dibaca, jatuh ke
+// bangunTiff (bangun dari nol). Fungsi murni, bisa diuji.
+export function bangunTiffGabung(tiffLama, edit) {
+  const e = edit || {};
+  let lama = null;
+  if (tiffLama && tiffLama.length >= 8) {
+    const le = tiffLama[0] === 0x49 && tiffLama[1] === 0x49;
+    const be = tiffLama[0] === 0x4D && tiffLama[1] === 0x4D;
+    if ((le || be) && bacaU16G(tiffLama, 2, le) === 42) {
+      const ifd0 = bacaIfdMentah(tiffLama, bacaU32G(tiffLama, 4, le), le);
+      const exifPtr = cariEntriG(ifd0.entri, 0x8769);
+      const gpsPtr = cariEntriG(ifd0.entri, 0x8825);
+      const interopPtr0 = cariEntriG(ifd0.entri, 0xA005);
+      lama = { le, ifd0: ifd0.entri, exif: null, gps: null, interop: null, interopDiIfd0: false, ifd1: null, thumb: null };
+      if (exifPtr) lama.exif = bacaIfdMentah(tiffLama, nilaiPointerG(exifPtr), le).entri;
+      if (gpsPtr) lama.gps = bacaIfdMentah(tiffLama, nilaiPointerG(gpsPtr), le).entri;
+      if (lama.exif) {
+        const ip = cariEntriG(lama.exif, 0xA005);
+        if (ip) lama.interop = bacaIfdMentah(tiffLama, nilaiPointerG(ip), le).entri;
+      }
+      if (!lama.interop && interopPtr0) {
+        lama.interop = bacaIfdMentah(tiffLama, nilaiPointerG(interopPtr0), le).entri;
+        lama.interopDiIfd0 = true;
+      }
+      if (ifd0.berikut) {
+        const d1 = bacaIfdMentah(tiffLama, ifd0.berikut, le);
+        const fmt = cariEntriG(d1.entri, 0x0201);
+        const len = cariEntriG(d1.entri, 0x0202);
+        if (fmt && len) {
+          const o = nilaiPointerG(fmt), n = nilaiPointerG(len);
+          // Pratinjau hanya dipertahankan bila byte-nya bisa dibaca utuh;
+          // kalau tidak, IFD1 dibuang supaya tidak ada pointer basi.
+          if (o + n <= tiffLama.length) { lama.ifd1 = d1.entri; lama.thumb = tiffLama.slice(o, o + n); }
+        } else lama.ifd1 = d1.entri;
+      }
+    }
+  }
+  if (!lama) return bangunTiff(edit);
+
+  const EDIT_IFD0 = [0x010E, 0x010F, 0x0110, 0x0112, 0x0131, 0x0132, 0x013B];
+  const POINTER_IFD0 = [0x8769, 0x8825, 0xA005];
+  const ifd0Baru = lama.ifd0.filter((en) => !EDIT_IFD0.includes(en.tag) && !POINTER_IFD0.includes(en.tag));
+  const tambah = (tag, nilai) => { const en = entriTeksG(tag, nilai); if (en) ifd0Baru.push(en); };
+  tambah(0x010E, e.deskripsi);
+  tambah(0x010F, e.pembuat);
+  tambah(0x0110, e.model);
+  const orientasi = Math.max(1, Math.min(8, Math.round(e.orientasi == null ? 1 : e.orientasi)));
+  ifd0Baru.push({ tag: 0x0112, tipe: 3, jumlah: 1, nilai: [orientasi] });
+  tambah(0x0131, e.software);
+  tambah(0x0132, e.tanggal);
+  tambah(0x013B, e.artis);
+
+  const exifBaru = (lama.exif || []).filter((en) => en.tag !== 0x9003 && en.tag !== 0x9004 && en.tag !== 0xA005);
+  if (e.tanggalJepret) {
+    const t3 = entriTeksG(0x9003, e.tanggalJepret);
+    const t4 = entriTeksG(0x9004, e.tanggalJepret);
+    if (t3) exifBaru.push(t3);
+    if (t4) exifBaru.push(t4);
+  }
+  const adaExif = exifBaru.length > 0;
+  const adaGps = lama.gps && lama.gps.length > 0;
+  const adaInterop = lama.interop && lama.interop.length > 0;
+  const adaIfd1 = lama.ifd1 && lama.ifd1.length > 0;
+  if (adaExif) ifd0Baru.push({ tag: 0x8769, tipe: 4, jumlah: 1, nilai: null, ptr: 'exif' });
+  if (adaGps) ifd0Baru.push({ tag: 0x8825, tipe: 4, jumlah: 1, nilai: null, ptr: 'gps' });
+  if (adaInterop && lama.interopDiIfd0) ifd0Baru.push({ tag: 0xA005, tipe: 4, jumlah: 1, nilai: null, ptr: 'interop' });
+  ifd0Baru.sort((a, b) => a.tag - b.tag);
+
+  const ifds = [{ nama: 'ifd0', entri: ifd0Baru, berikut: adaIfd1 ? 'ifd1' : 0 }];
+  if (adaExif) {
+    if (adaInterop && !lama.interopDiIfd0) exifBaru.push({ tag: 0xA005, tipe: 4, jumlah: 1, nilai: null, ptr: 'interop' });
+    exifBaru.sort((a, b) => a.tag - b.tag);
+    ifds.push({ nama: 'exif', entri: exifBaru, berikut: 0 });
+  }
+  if (adaInterop) ifds.push({ nama: 'interop', entri: lama.interop, berikut: 0 });
+  if (adaGps) ifds.push({ nama: 'gps', entri: lama.gps, berikut: 0 });
+  if (adaIfd1) {
+    const d1 = lama.ifd1.map((en) => (en.tag === 0x0201 && lama.thumb ? { ...en, nilai: null, ptr: 'thumb' } : en));
+    ifds.push({ nama: 'ifd1', entri: d1, berikut: 0 });
+  }
+
+  const posisi = {};
+  let cursor = 8;
+  for (const d of ifds) { posisi[d.nama] = cursor; cursor += 2 + d.entri.length * 12 + 4; }
+  const tulis16 = (arr, o, v) => { arr[o] = v & 255; arr[o + 1] = (v >> 8) & 255; };
+  const tulis32 = (arr, o, v) => { arr[o] = v & 255; arr[o + 1] = (v >> 8) & 255; arr[o + 2] = (v >> 16) & 255; arr[o + 3] = (v >> 24) & 255; };
+  const blob = [];
+  const alokasi = new Map();
+  for (const d of ifds) {
+    for (const en of d.entri) {
+      if (en.ptr === 'thumb') { alokasi.set(en, cursor); blob.push({ data: lama.thumb, offset: cursor }); cursor += lama.thumb.length; if (cursor % 2) cursor++; continue; }
+      if (en.nilai === null) continue;
+      const ukuran = (UKURAN_TIPE_GABUNG[en.tipe] || 1) * en.jumlah;
+      if (ukuran <= 4) continue;
+      alokasi.set(en, cursor);
+      blob.push({ data: nilaiKeByteG(en), offset: cursor });
+      cursor += ukuran; if (cursor % 2) cursor++;
+    }
+  }
+  const keluar = new Uint8Array(cursor);
+  keluar[0] = 0x49; keluar[1] = 0x49; tulis16(keluar, 2, 42); tulis32(keluar, 4, 8);
+  for (const d of ifds) {
+    const o = posisi[d.nama];
+    tulis16(keluar, o, d.entri.length);
+    d.entri.forEach((en, i) => {
+      const eo = o + 2 + i * 12;
+      tulis16(keluar, eo, en.tag);
+      tulis16(keluar, eo + 2, en.tipe);
+      tulis32(keluar, eo + 4, en.jumlah);
+      if (en.ptr) {
+        tulis32(keluar, eo + 8, en.ptr === 'thumb' ? alokasi.get(en) : posisi[en.ptr]);
+      } else {
+        const b = nilaiKeByteG(en);
+        if (b.length <= 4) keluar.set(b, eo + 8);
+        else tulis32(keluar, eo + 8, alokasi.get(en));
+      }
+    });
+    tulis32(keluar, o + 2 + d.entri.length * 12, d.berikut ? posisi[d.berikut] : 0);
+  }
+  for (const b of blob) keluar.set(b.data, b.offset);
+  return keluar;
+}
+
+// Tulis EXIF baru ke byte JPEG. Segmen EXIF lama diganti, segmen lain
+// (termasuk data gambar) disalin apa adanya. Bila foto sudah punya EXIF,
+// data lain di dalamnya (GPS, exposure, lensa, pratinjau) dipertahankan
+// lewat bangunTiffGabung; hanya field yang diedit yang berubah.
+// Kembalikan {ok:true, bytes} atau {ok:false, alasan}.
+export function tulisExifJpeg(bytes, edit) {
+  const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  if (b.length < 4 || b[0] !== 0xFF || b[1] !== 0xD8) return { ok: false, alasan: 'File ini bukan JPEG.' };
+  const segLamaAwal = cariSegmenExif(b);
+  const tiffLama = segLamaAwal ? b.subarray(segLamaAwal.isiAwal, segLamaAwal.akhir) : null;
+  const tiff = tiffLama ? bangunTiffGabung(tiffLama, edit) : bangunTiff(edit);
+  const segLen = 2 + 6 + tiff.length;
+  if (segLen > 65535) return { ok: false, alasan: 'Datanya terlalu panjang untuk disimpan di foto (maksimal sekitar 65 ribu karakter).' };
+  const segBaru = new Uint8Array(2 + segLen);
+  segBaru[0] = 0xFF; segBaru[1] = 0xE1;
+  segBaru[2] = (segLen >> 8) & 255; segBaru[3] = segLen & 255;
+  segBaru[4] = 0x45; segBaru[5] = 0x78; segBaru[6] = 0x69; segBaru[7] = 0x66; segBaru[8] = 0; segBaru[9] = 0;
+  segBaru.set(tiff, 10);
+  const segLama = segLamaAwal;
+  const keluar = [0xFF, 0xD8];
+  for (let i = 0; i < segBaru.length; i++) keluar.push(segBaru[i]);
+  const n = b.length;
+  let i = 2;
+  while (i + 1 < n) {
+    if (b[i] !== 0xFF) { for (; i < n; i++) keluar.push(b[i]); break; }
+    let j = i + 1;
+    while (j < n && b[j] === 0xFF) j++;
+    if (j >= n) break;
+    const marker = b[j];
+    if (marker === 0xD9) { keluar.push(0xFF, 0xD9); break; }
+    if (marker === 0xDA) { for (let k = i; k < n; k++) keluar.push(b[k]); break; }
+    if (marker === 0x01 || (marker >= 0xD0 && marker <= 0xD7)) { keluar.push(0xFF, marker); i = j + 1; continue; }
+    if (j + 2 >= n) break;
+    const len = (b[j + 1] << 8) | b[j + 2];
+    const segEnd = j + 1 + len;
+    if (len < 2 || segEnd > n) break;
+    const iniExifLama = segLama && i === segLama.awal;
+    if (!iniExifLama) for (let k = i; k < segEnd; k++) keluar.push(b[k]);
+    i = segEnd;
+  }
+  return { ok: true, bytes: new Uint8Array(keluar) };
+}
+
+const ARAH = [
+  ['1', 'Normal (tidak diputar)'],
+  ['2', 'Cermin kiri-kanan'],
+  ['3', 'Putar 180 derajat'],
+  ['4', 'Cermin atas-bawah'],
+  ['5', 'Cermin lalu putar 90 derajat searah jarum jam'],
+  ['6', 'Putar 90 derajat searah jarum jam'],
+  ['7', 'Cermin lalu putar 90 derajat berlawanan jarum jam'],
+  ['8', 'Putar 90 derajat berlawanan jarum jam']
+];
+
 /* ============ Akhir fungsi murni ============ */
 
-export const meta = {"id": "exif-clean", "name": "Hapus EXIF", "cat": "gambar", "icon": "🧹", "desc": "Lihat dulu datanya, baru bersihkan metadata sebelum dishare.", "keywords": "exif,metadata,bersih,privasi,gps"};
-export function render(root) {
+export const meta = {"id": "exif-clean", "name": "Data & EXIF Foto", "cat": "gambar", "icon": "🧹", "desc": "Lihat data di dalam foto (kamera, tanggal, lokasi), ubah datanya, atau bersihkan sebelum dibagikan.", "keywords": "exif,metadata,bersih,privasi,gps,foto,kamera,lokasi,lihat data foto,edit exif,ubah exif,tanggal foto,keterangan foto,orientasi"};
 
+export function render(root) {
       /* Penampil EXIF sebelum menghapus: baca metadata pakai ExifReader
          (CDN, pin versi) begitu foto dipilih, tampilkan isinya, baru hapus. */
       const EXIF_CDN = 'https://cdn.jsdelivr.net/npm/exifreader@4.23.5/dist/exif-reader.js';
@@ -355,17 +878,32 @@ export function render(root) {
       const hapusSel = T.select([
         ['semua', 'Hapus semua data (gambar digambar ulang)'],
         ['lossless', 'Hapus semua data tanpa gambar ulang (kualitas piksel utuh)'],
-        ['gps', 'Hapus lokasi (GPS) saja — data lain tetap ada'],
+        ['gps', 'Hapus lokasi (GPS) saja, data lain tetap ada'],
         ['hakcipta', 'Hapus semua kecuali hak cipta'],
       ], 'semua');
       const box = T.out();
       const lihatBox = T.out();
       const daftarBox = T.out();
       const statusBox = T.out();
+      // --- Tab Ubah data ---
+      const deskripsiI = T.ta(3, 'Tulis keterangan foto di sini', '');
+      deskripsiI.maxLength = 500;
+      const tglI = T.input('datetime-local', '');
+      const arahSel = T.select(ARAH, '1');
+      const pembuatI = T.input('text', 'Contoh: Canon, Samsung, Xiaomi', '');
+      const modelI = T.input('text', 'Contoh: EOS 2000D, Galaxy A54', '');
+      const artisI = T.input('text', 'Nama fotografer', '');
+      const softwareI = T.input('text', 'Contoh: Adobe Lightroom', '');
+      const editStatusBox = T.out();
+      const editInfoBox = T.out();
       let files = [];
       let pilihIdx = 0;
       let cacheTag = new Map(); // idx -> tags ExifReader (atau null bila gagal)
       let hasilBatch = [];
+      let kurasiHtmlAktif = '';
+      let bytesEdit = null;
+      let namaEdit = 'foto';
+      let exifLamaEdit = null;
 
       const jenisFile = (f) => {
         const n = (f.name || '').toLowerCase();
@@ -381,11 +919,42 @@ export function render(root) {
         const list = T.el('<div style="display:grid;gap:6px;margin-top:8px"></div>');
         files.forEach((f, i) => {
           const row = T.el('<button type="button" class="btn" style="text-align:left;justify-content:space-between;display:flex;gap:8px;' + (i === pilihIdx ? 'border-color:var(--acc)' : '') + '"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + T.esc(f.name || ('foto ' + (i + 1))) + '</span><span class="dim" style="flex-shrink:0">' + fmtBytes(f.size) + '</span></button>');
-          row.addEventListener('click', () => { pilihIdx = i; gambarDaftar(); lihatData(); });
+          row.addEventListener('click', () => { pilihIdx = i; gambarDaftar(); lihatData(); muatEdit(); });
           list.appendChild(row);
         });
         daftarBox.appendChild(list);
-        if (files.length > 1) daftarBox.appendChild(T.el('<p class="hint">Ketuk nama file untuk melihat datanya. Tombol Bersihkan memproses semua ' + files.length + ' foto sekaligus.</p>'));
+        if (files.length > 1) daftarBox.appendChild(T.el('<p class="hint">Ketuk nama file untuk melihat datanya. Tombol Bersihkan memproses semua ' + files.length + ' foto sekaligus. Tab Ubah memakai foto yang dipilih di sini.</p>'));
+      }
+
+      // Ringkasan kurasi dari parser sendiri (tanpa internet): kamera,
+      // tanggal, bukaan, ISO, lokasi + tautan peta.
+      function kartuKurasi(f, ex) {
+        const kosong = '<p class="hint">Foto ini tidak menyimpan data EXIF. Bisa karena sudah dibersihkan, hasil screenshot, atau diunduh dari aplikasi yang menghapus datanya.</p>';
+        if (!ex) return kosong;
+        const baris = [];
+        let adaData = false;
+        if (ex.kamera) { baris.push(['Kamera', ex.kamera]); adaData = true; }
+        if (ex.tanggalJepret || ex.tanggal) { baris.push(['Tanggal jepret', ex.tanggalJepret || ex.tanggal]); adaData = true; }
+        if (ex.dimensi) { baris.push(['Ukuran foto', ex.dimensi + ' piksel']); adaData = true; }
+        if (ex.bukaan) { baris.push(['Bukaan lensa', ex.bukaan]); adaData = true; }
+        if (ex.exposure) { baris.push(['Waktu pajanan', ex.exposure]); adaData = true; }
+        if (ex.iso) { baris.push(['ISO', String(ex.iso)]); adaData = true; }
+        if (ex.focal) { baris.push(['Panjang fokus', ex.focal]); adaData = true; }
+        if (ex.software) { baris.push(['Aplikasi pengolah', ex.software]); adaData = true; }
+        if (ex.artis) { baris.push(['Fotografer', ex.artis]); adaData = true; }
+        if (ex.deskripsi) { baris.push(['Keterangan', ex.deskripsi]); adaData = true; }
+        let gpsHtml = '';
+        if (ex.gps) {
+          adaData = true;
+          const lat = ex.gps.lat.toFixed(6), lon = ex.gps.lon.toFixed(6);
+          const urlPeta = 'https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '#map=15/' + lat + '/' + lon;
+          gpsHtml = '<div class="kv"><span>Lokasi foto (GPS)</span><b>' + lat + ', ' + lon + '</b></div>' +
+            '<p style="font-size:13px"><a href="' + urlPeta + '" target="_blank" rel="noopener">Lihat lokasi ini di peta</a></p>';
+        }
+        if (!adaData) return kosong;
+        return '<h3 style="font-size:13px;margin:4px 0 6px;color:var(--txt)">Ringkasan data foto</h3>' +
+          kvRows(baris) + gpsHtml +
+          '<div class="note" style="border-color:#facc15">Foto ini menyimpan data di atas. Lokasi GPS dan tanggal jepret bisa dilihat siapa pun yang menerima fotonya. Hapus datanya dulu sebelum dibagikan ke orang yang tidak dikenal.</div>';
       }
 
       function gambarTabelTag(tags, cari) {
@@ -395,7 +964,8 @@ export function render(root) {
         const lat = gpsDec(tags, 'GPSLatitude', 'GPSLatitudeRef');
         const lon = gpsDec(tags, 'GPSLongitude', 'GPSLongitudeRef');
         const punyaGps = lat != null && lon != null;
-        let html = '<h3 style="font-size:13px;margin:4px 0 6px;color:var(--txt)">Data yang tersimpan di foto ini (' + semua.length + ' data)</h3>';
+        let html = kurasiHtmlAktif;
+        html += '<h3 style="font-size:13px;margin:12px 0 6px;color:var(--txt)">Semua data yang tersimpan di foto ini (' + semua.length + ' data)</h3>';
         if (punyaGps) {
           html += '<div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.6;margin-bottom:8px"><b style="color:var(--err)">Foto ini menyimpan lokasi pengambilan (' + lat.toFixed(6) + ', ' + lon.toFixed(6) + ').</b> Siapa pun yang menerima foto ini bisa tahu di mana foto ini diambil.</div>';
         }
@@ -409,7 +979,6 @@ export function render(root) {
               return '<tr style="' + (isGps ? 'background:rgba(239,68,68,.08)' : '') + '"><td style="border-bottom:1px solid #ffffff10;padding:6px 8px;white-space:nowrap;color:var(--mut);vertical-align:top">' + T.esc(r.nama) + '</td><td style="border-bottom:1px solid #ffffff10;padding:6px 8px;word-break:break-word">' + T.esc(r.nilai) + '</td></tr>';
             }).join('') + '</table></div>';
         }
-        html += '<p class="hint" style="margin-top:8px">Mau lihat semua datanya lebih lengkap? <a href="#/t/lihat-data-foto">Buka Lihat Data Foto</a>.</p>';
         T.show(lihatBox, html);
         const cariInp = lihatBox.querySelector('#exif-cari');
         if (cariInp) {
@@ -426,17 +995,90 @@ export function render(root) {
         const f = files[pilihIdx];
         if (!f) return;
         T.show(lihatBox, '<p class="center mut">Membaca data foto...</p>');
+        let buf = null;
+        try { buf = await f.arrayBuffer(); } catch (e) { buf = null; }
+        kurasiHtmlAktif = '';
+        if (buf) {
+          try { kurasiHtmlAktif = kartuKurasi(f, parseExif(buf)); } catch (e) { kurasiHtmlAktif = ''; }
+        }
         const ok = await utils.loadLibOnce(EXIF_CDN, () => !!window.ExifReader);
         if (!ok) {
-          T.show(lihatBox, '<p class="hint">Data foto tidak bisa dibaca (pembaca gagal dimuat, cek koneksi). Foto tetap bisa dibersihkan seperti biasa.</p>');
+          T.show(lihatBox, kurasiHtmlAktif + '<p class="hint">Daftar lengkap tidak bisa dibaca (pembaca gagal dimuat, cek koneksi). Foto tetap bisa dibersihkan seperti biasa.</p>');
           return;
         }
         let tags = {};
-        try { tags = window.ExifReader.load(await f.arrayBuffer()) || {}; }
+        try { tags = window.ExifReader.load(buf || await f.arrayBuffer()) || {}; }
         catch (e) { tags = {}; }
         cacheTag.set(pilihIdx, tags);
         gambarTabelTag(tags, '');
       }
+
+      // --- Tab Ubah data: isi form dari foto terpilih ---
+      function isiFormEdit(ex) {
+        deskripsiI.value = ex.deskripsi || '';
+        tglI.value = exifKeIso(ex.tanggalJepret || ex.tanggal || '');
+        arahSel.value = String(ex.orientasi || 1);
+        pembuatI.value = ex.pembuat || '';
+        modelI.value = ex.model || '';
+        artisI.value = ex.artis || '';
+        softwareI.value = ex.software || '';
+      }
+
+      async function muatEdit() {
+        const f = files[pilihIdx];
+        if (!f) return;
+        bytesEdit = null;
+        T.hide(editInfoBox);
+        T.show(editStatusBox, '<span class="dim">Membaca data foto…</span>');
+        try {
+          const buf = await f.arrayBuffer();
+          bytesEdit = new Uint8Array(buf);
+          namaEdit = (f.name || 'foto').replace(/\.[^.]*$/, '');
+          exifLamaEdit = bacaExifEdit(bytesEdit);
+          if (exifLamaEdit === null) {
+            bytesEdit = null;
+            T.show(editStatusBox, '<div class="err">File ini bukan JPEG. Tab ini hanya bisa mengubah data foto JPEG.</div>');
+            simpanB.disabled = true;
+            return;
+          }
+          isiFormEdit(exifLamaEdit);
+          T.hide(editStatusBox);
+          if (exifLamaEdit.adaExif) {
+            T.show(editInfoBox, '<span class="dim">Data lama sudah terisi di bawah. Ubah yang perlu, lalu simpan.</span>');
+          } else {
+            T.show(editInfoBox, '<span class="dim">Foto ini belum punya data EXIF. Isi di bawah, datanya akan ditambahkan ke foto.</span>');
+          }
+          simpanB.disabled = false;
+        } catch (e) {
+          bytesEdit = null;
+          T.show(editStatusBox, '<div class="err">File tidak bisa dibaca. Coba foto lain.</div>');
+          simpanB.disabled = true;
+        }
+      }
+
+      function simpanEdit() {
+        if (!bytesEdit) { T.toast('Pilih foto JPEG dulu'); return; }
+        const tanggalExif = isoKeExif(tglI.value);
+        if (tglI.value && !tanggalExif) { T.toast('Tanggalnya tidak valid'); return; }
+        const edit = {
+          deskripsi: deskripsiI.value.trim(),
+          pembuat: pembuatI.value.trim(),
+          model: modelI.value.trim(),
+          orientasi: parseInt(arahSel.value, 10),
+          software: softwareI.value.trim(),
+          tanggal: tanggalExif,
+          tanggalJepret: tanggalExif,
+          artis: artisI.value.trim()
+        };
+        const hasil = tulisExifJpeg(bytesEdit, edit);
+        if (!hasil.ok) { T.toast(hasil.alasan); return; }
+        const blob = new Blob([hasil.bytes], { type: 'image/jpeg' });
+        T.dl(namaEdit + '-exif.jpg', blob, 'image/jpeg');
+        T.show(editInfoBox, '<span class="ok">Data tersimpan.</span> <span class="dim">Ukuran file ' + fmtBytes(blob.size) + '. Piksel foto tidak berubah, data lain di foto (lokasi, pengaturan kamera) tetap ada.</span>');
+        T.toast('Berhasil diunduh');
+      }
+
+      const simpanB = T.btn('Simpan & Unduh Foto', simpanEdit, true, true);
 
       // Gambar ulang via canvas (mode "semua"): JPEG = latar putih, PNG = transparan.
       async function gambarUlang(file, fmt) {
@@ -576,7 +1218,7 @@ export function render(root) {
                     } catch (e) {}
                   }
                   verifikasi = masihAdaGps ? ' · lokasi MASIH ADA (coba mode hapus semua)'
-                    : adaTakTerperiksa ? ' · lokasi tidak bisa dipastikan (ada data terkompresi yang tidak bisa diperiksa — coba mode hapus semua)'
+                    : adaTakTerperiksa ? ' · lokasi tidak bisa dipastikan (ada data terkompresi yang tidak bisa diperiksa, coba mode hapus semua)'
                     : ' · lokasi terhapus ✓';
                 }
               } catch (e) { /* hasil tidak terbaca = tidak ada EXIF yang bisa dibaca */ }
@@ -643,13 +1285,6 @@ export function render(root) {
         fmtSel.parentNode.style.display = hapusSel.value === 'semua' ? '' : 'none';
       });
 
-      root.appendChild(T.el(`<p class="note">🔒 ${LOCAL_NOTE}</p>`));
-      root.appendChild(T.el('<p class="note">ℹ️ Gambar digambar ulang lewat canvas, jadi metadata EXIF standar (lokasi GPS, info kamera, tanggal jepret) ikut terbuang. Jujur aja: ini tidak menghapus watermark atau tulisan yang sudah nempel di piksel gambar.</p>'));
-      root.appendChild(T.field('Pilih gambar (bisa banyak sekaligus)', fileI, 'Maksimal ' + MAKS_JUMLAH + ' foto.'));
-      root.appendChild(daftarBox);
-      root.appendChild(lihatBox);
-      root.appendChild(T.field('Yang dihapus', hapusSel, '“Tanpa gambar ulang” menjaga kualitas piksel tetap utuh (hanya untuk JPG/PNG). “Lokasi saja” menjaga data lain seperti kamera & tanggal.'));
-      root.appendChild(T.field('Format hasil', fmtSel, 'PNG menjaga latar transparan tetap transparan. Hanya berlaku bila mode “gambar digambar ulang” dipilih.'));
       // "Unduh Hasil" sekunder + nonaktif sampai hasil benar-benar ada (P2-2).
       const dlB = T.btn('Unduh Hasil', () => {
         if (!hasilBatch.length) { T.toast('Bersihkan dulu gambarnya'); return; }
@@ -657,12 +1292,37 @@ export function render(root) {
         T.dl(r.name, r.blob, r.blob.type);
         T.toast('Berhasil diunduh');
       }, false, true);
-      root.appendChild(T.row(
+
+      // --- Halaman tab ---
+      const lihatPage = T.el('<div></div>');
+      lihatPage.appendChild(lihatBox);
+      const bersihPage = T.el('<div hidden></div>');
+      bersihPage.appendChild(T.el('<p class="note">ℹ️ Gambar digambar ulang lewat canvas, jadi metadata EXIF standar (lokasi GPS, info kamera, tanggal jepret) ikut terbuang. Jujur aja: ini tidak menghapus watermark atau tulisan yang sudah nempel di piksel gambar.</p>'));
+      bersihPage.appendChild(T.field('Yang dihapus', hapusSel, '“Tanpa gambar ulang” menjaga kualitas piksel tetap utuh (hanya untuk JPG/PNG). “Lokasi saja” menjaga data lain seperti kamera & tanggal.'));
+      bersihPage.appendChild(T.field('Format hasil', fmtSel, 'PNG menjaga latar transparan tetap transparan. Hanya berlaku bila mode “gambar digambar ulang” dipilih.'));
+      bersihPage.appendChild(T.row(
         T.btn('Bersihkan EXIF', process, true),
         dlB
       ));
-      root.appendChild(statusBox);
-      root.appendChild(box);
+      bersihPage.appendChild(statusBox);
+      bersihPage.appendChild(box);
+      const ubahPage = T.el('<div hidden></div>');
+      ubahPage.appendChild(T.field('Keterangan foto', deskripsiI, 'Maksimal 500 karakter. Huruf di luar huruf biasa dan angka disimpan sebagai tanda tanya.'));
+      ubahPage.appendChild(T.grid2(T.field('Tanggal jepret', tglI), T.field('Arah foto', arahSel)));
+      ubahPage.appendChild(T.grid2(T.field('Merk kamera', pembuatI), T.field('Model kamera', modelI)));
+      ubahPage.appendChild(T.grid2(T.field('Fotografer', artisI), T.field('Aplikasi pengolah', softwareI)));
+      ubahPage.appendChild(editStatusBox);
+      ubahPage.appendChild(editInfoBox);
+      ubahPage.appendChild(T.row(simpanB));
+      ubahPage.appendChild(T.el('<p class="hint">Mengubah arah foto hanya mengubah penandanya di dalam file, bukan memutar gambarnya. Piksel foto tidak pernah diubah, jadi kualitasnya tetap sama. Data lain yang sudah ada di foto (lokasi, pengaturan kamera, lensa) ikut dipertahankan. Hanya JPEG yang bisa diubah datanya.</p>'));
+
+      root.appendChild(T.el(`<p class="note">🔒 ${LOCAL_NOTE}</p>`));
+      root.appendChild(T.field('Pilih gambar (bisa banyak sekaligus)', fileI, 'Maksimal ' + MAKS_JUMLAH + ' foto.'));
+      root.appendChild(daftarBox);
+      root.appendChild(tabs([['Lihat data', 0], ['Bersihkan data', 1], ['Ubah data', 2]], [lihatPage, bersihPage, ubahPage]));
+      root.appendChild(lihatPage);
+      root.appendChild(bersihPage);
+      root.appendChild(ubahPage);
       fileI.addEventListener('change', () => {
         files = [...(fileI.files || [])].slice(0, MAKS_JUMLAH);
         pilihIdx = 0;
@@ -672,6 +1332,6 @@ export function render(root) {
         T.hide(box);
         gambarDaftar();
         lihatData();
+        muatEdit();
       });
-    
 }

@@ -36,9 +36,12 @@ export function render(root) {
     if (tinggi <= rendah) { T.show(box, '<div class="err">Harga tertinggi harus lebih besar dari harga terendah.</div>'); return; }
     const level = hitungFibonacci(rendah, tinggi, arahS.value);
     if (level === null) { T.show(box, '<div class="err">Angkanya terlalu besar untuk dihitung. Coba pakai angka yang lebih kecil.</div>'); return; }
+    // Label ujung mengikuti arah: arah naik 0% = puncak (harga mulai turun dari
+    // sana), arah turun 0% = dasar (harga mulai naik dari sana).
+    const naik = arahS.value !== 'turun';
     let baris = '';
     level.forEach((l) => {
-      const nama = l.rasio === 0 ? '0% (puncak)' : l.rasio === 1 ? '100% (dasar)' : String(l.rasio * 100).replace('.', ',') + '%';
+      const nama = l.rasio === 0 ? '0% (' + (naik ? 'puncak' : 'dasar') + ')' : l.rasio === 1 ? '100% (' + (naik ? 'dasar' : 'puncak') + ')' : String(l.rasio * 100).replace('.', ',') + '%';
       const kunci = l.rasio === 0.618 || l.rasio === 0.382 ? ' <span class="hint">level kunci</span>' : '';
       baris += '<tr><td>' + nama + kunci + '</td><td style="text-align:right"><b>' + fmtH(l.harga) + '</b></td></tr>';
     });

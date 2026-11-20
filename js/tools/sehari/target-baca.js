@@ -1,4 +1,4 @@
-import { h as T, utils, beep, actx, onLeave } from '../../core.js';
+import { h as T, utils } from '../../core.js';
 
 // Logika murni (bisa di-test di Node)
 utils.paceBaca = function (o) {
@@ -25,6 +25,22 @@ utils.paceBaca = function (o) {
 export const meta = {"id": "target-baca", "name": "Target Baca", "cat": "sehari", "icon": "📚", "desc": "Pantau pace baca buku & halaman", "keywords": "baca,buku,halaman,target,pace,reading,literasi"};
 
 export function render(root) {
+  const KEY = 'adip-tools:target-baca';
+  const load = () => {
+    try {
+      const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+      return d && typeof d === 'object' ? d : null;
+    } catch (e) { return null; }
+  };
+  const save = () => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        mode: mode.value, target: target.value, current: current.value,
+        paceNow: paceNow.value, deadline: deadline.value,
+      }));
+    } catch (e) {}
+  };
+
   const mode = T.select([['buku', '📕 Jumlah buku'], ['halaman', '📄 Jumlah halaman']], 'buku');
   const target = T.input('text', 'Contoh: 12', '12'); target.inputMode = 'decimal';
   const current = T.input('text', 'Contoh: 3', '3'); current.inputMode = 'decimal';
@@ -38,7 +54,7 @@ export function render(root) {
 
   function unit() { return mode.value === 'buku' ? 'buku' : 'halaman'; }
 
-  function calc() {
+  function calc(simpan = true) {
     const r = utils.paceBaca({
       target: T.num(target.value),
       current: T.num(current.value),
@@ -47,6 +63,7 @@ export function render(root) {
     });
     if (!deadline.value) { T.show(box, '<div class="hint">⚠️ Pilih tanggal target selesai dulu.</div>'); return; }
     if (r.target <= 0) { T.show(box, '<div class="hint">⚠️ Isi targetnya dengan benar dulu.</div>'); return; }
+    if (simpan) save();
 
     const u = unit();
     const needTxt = isFinite(r.need) ? r.need.toFixed(2) + ' ' + u + '/hari' : '—';
@@ -79,15 +96,40 @@ export function render(root) {
   const fldT = T.field('Target', target);
   const fldC = T.field('Sudah tercapai', current);
   const fldP = T.field('Pace harianmu saat ini (opsional)', paceNow, 'Dipakai untuk menilai on track / tertinggal');
-  mode.addEventListener('change', () => {
+  const syncLabel = () => {
     const u = unit();
     fldT.querySelector('label').textContent = 'Target (' + u + ')';
     fldC.querySelector('label').textContent = 'Sudah tercapai (' + u + ')';
     fldP.querySelector('label').textContent = 'Pace harianmu saat ini (' + u + '/hari, opsional)';
+  };
+  mode.addEventListener('change', syncLabel);
+
+  // Pulihkan simpanan sebelumnya (bila ada dan valid).
+  const tersimpan = load();
+  if (tersimpan) {
+    if (tersimpan.mode === 'buku' || tersimpan.mode === 'halaman') mode.value = tersimpan.mode;
+    if (typeof tersimpan.target === 'string' && tersimpan.target !== '') target.value = tersimpan.target;
+    if (typeof tersimpan.current === 'string' && tersimpan.current !== '') current.value = tersimpan.current;
+    if (typeof tersimpan.paceNow === 'string') paceNow.value = tersimpan.paceNow;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(tersimpan.deadline || ''))) deadline.value = tersimpan.deadline;
+    syncLabel();
+  }
+
+  const resetBtn = T.btn('Hapus simpanan', () => {
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    mode.value = 'buku'; target.value = '12'; current.value = '3'; paceNow.value = '';
+    const d = new Date(Date.now() + 90 * 86400000);
+    deadline.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    syncLabel();
+    calc(false);
+    T.toast('Simpanan dihapus');
   });
+
   root.appendChild(T.grid2(fldT, fldC));
   root.appendChild(T.field('Tanggal target selesai', deadline));
   root.appendChild(fldP);
-  root.appendChild(T.btn('Hitung pace', calc, true));
+  root.appendChild(T.row(T.btn('Hitung pace', calc, true), resetBtn));
   root.appendChild(box);
+  root.appendChild(T.el('<p class="hint">Angka yang kamu isi tersimpan di perangkat ini, jadi tidak hilang saat halaman ditutup.</p>'));
+  if (tersimpan) calc();
 }

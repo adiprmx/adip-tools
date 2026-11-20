@@ -8,14 +8,22 @@ export function render(root) {
       { t: 'formal', b: 'Jalan-jalan ke kota Medan,\nSinggah sebentar membeli duku.\nSelamat pagi hadirin sekalian,\nTerima kasih atas waktu dan perhatianmu.' },
       { t: 'formal', b: 'Ke pasar membeli kain batik,\nBatik indah buatan Solo.\nDengan rendah hati saya angkat topik,\nSemoga bermanfaat bagi kita semua.' },
       { t: 'formal', b: 'Burung garuda terbang tinggi,\nHinggap sebentar di pohon mangga.\nAssalamu\u2019alaikum saya sampaikan lagi,\nSemoga acara berjalan lancar jaya.' },
+      { t: 'formal', b: 'Burung camar terbang ke laut,\nHinggap sebentar di atas karang.\nSelamat datang hadirin yang terhormat,\nMari kita mulai dengan penuh semangat.' },
+      { t: 'formal', b: 'Pagi-pagi embun membasahi,\nBunga mawar mekar di taman.\nTerima kasih sudah hadir di sini,\nSemoga kita semua mendapat keberkahan.' },
       { t: 'santai', b: 'Main ke pantai bawa kelapa,\nKelapa muda manis rasanya.\nSantai saja kita belajar bersama,\nYang penting pulang bawa ilmunya.' },
       { t: 'santai', b: 'Ke warung beli gorengan,\nGorengan hangat lima ribuan.\nJangan tegang dengarkan presentasi,\nKita diskusi bareng-bareng kawan.' },
       { t: 'santai', b: 'Naik kereta ke Bandung,\nBandung dingin udaranya.\nSambil ngopi kita sambung,\nMateri asyik, jangan ke mana-mana.' },
       { t: 'santai', b: 'Beli batagor di pinggir jalan,\nBatagor enak bumbunya kacang.\nDuduk santai dengarkan penjelasan,\nKalau bingung langsung tanya abang.' },
+      { t: 'santai', b: 'Ke pantai bawa tikar,\nTikar baru beli di pasar.\nSantai saja, jangan tegang,\nKita belajar sambil bersenang-senang.' },
+      { t: 'santai', b: 'Naik sepeda keliling kota,\nKota ramai di pagi hari.\nYuk kita mulai dengan ceria,\nMateri hari ini gampang sekali.' },
+      { t: 'santai', b: 'Beli bakso di depan sekolah,\nKuahnya hangat, pedasnya mantap.\nDuduk manis, dengarkan baik-baik,\nNanti kita diskusi biar makin lengkap.' },
       { t: 'lucu', b: 'Ada kucing makan ikan,\nIkannya digoreng pakai mentega.\nJangan panik, jangan deg-degan,\nPresentasi ini anti bikin nganga.' },
       { t: 'lucu', b: 'Ke dapur masak mi instan,\nMi-nya enak, kuahnya seger.\nKalau ngantuk, tahan-tahan,\nSebentar lagi kita bubar, geser.' },
       { t: 'lucu', b: 'Beli es teh di pinggir jalan,\nEs teh manis campur jeruk nipis.\nWalaupun saya bukan pujangga,\nPantun ini khusus buat yang manis.' },
       { t: 'lucu', b: 'Kuda nil berendam di kali,\nAirnya keruh, lumpurnya tebal.\nSaya deg-degan setengah mati,\nTapi demi nilai, saya tetap nekat.' },
+      { t: 'lucu', b: 'Ada bebek berenang di kolam,\nKolamnya dangkal, bebeknya tenggelam.\nSaya grogi sampai berkeringat,\nTapi demi presentasi, saya tetap semangat.' },
+      { t: 'lucu', b: 'Ke pasar beli ikan lele,\nLele digoreng pakai sambal.\nKalau materi ini terasa sepele,\nTolong jangan dilempar sandal.' },
+      { t: 'lucu', b: 'Burung beo bisa bicara,\nBicaranya cuma "halo, apa kabar".\nSaya berdiri di sini bukan tanpa rencana,\nSemoga presentasi ini tidak membosankan.' },
     ];
     const PENUTUP = [
       { t: 'semua', b: 'Burung nuri, burung cendrawasih,\nCukup sekian dan terima kasih.' },
@@ -26,6 +34,14 @@ export function render(root) {
       { t: 'semua', b: 'Ke toko membeli buku,\nBuku tulis sampulnya biru.\nSaya tutup dengan doa dan restu,\nSukses selalu untukmu.' },
       { t: 'formal', b: 'Bunga mawar, bunga melati,\nHarum semerbak di pagi hari.\nAkhir kata saya tutup presentasi,\nWassalamu\u2019alaikum, terima kasih sekali.' },
       { t: 'lucu', b: 'Ikan hiu makan tomat,\nI love you so much.\nSelesai sudah, jangan ngantuk berat,\nSemoga ilmunya nempel terus.' },
+      { t: 'semua', b: 'Jalan-jalan ke kota Surabaya,\nJangan lupa beli oleh-oleh.\nCukup sekian dari saya,\nSampai jumpa lagi, boleh?' },
+      { t: 'semua', b: 'Beli buku di toko Gramedia,\nBukunya tebal, isinya padat.\nTerima kasih atas perhatiannya,\nSemoga ilmu yang didapat bermanfaat.' },
+      { t: 'semua', b: 'Naik bus ke kota Bandung,\nBandung sejuk, udaranya segar.\nSekian presentasi, mohon pamit pulang,\nSemoga kita semua makin pintar.' },
+      { t: 'semua', b: 'Makan siang di warung tegal,\nLauknya banyak, harganya murah.\nSekian dari saya, terima kasih banyak,\nSemoga ilmu hari ini berkah.' },
+      { t: 'formal', b: 'Bunga anggrek mekar di taman,\nHarumnya semerbak di pagi hari.\nAkhir kata, saya ucapkan terima kasih,\nSemoga kita semua diberkahi.' },
+      { t: 'formal', b: 'Kapal layar berlayar ke pulau,\nOmbaknya tenang, anginnya sepoi.\nDemikian presentasi saya,\nSemoga bermanfaat bagi kita semua.' },
+      { t: 'lucu', b: 'Ikan paus makan kerupuk,\nKerupuknya habis, tinggal bungkus.\nSelesai sudah, jangan ngantuk,\nSemoga ilmunya nempel terus.' },
+      { t: 'santai', b: 'Sore-sore minum es kelapa,\nKelapanya muda, segar rasanya.\nSampai di sini dulu ya,\nBesok kita lanjut lagi ceritanya.' },
     ];
     const tema = T.select([['semua', 'Semua tema'], ['formal', 'Formal'], ['santai', 'Santai'], ['lucu', 'Lucu']], 'semua');
     const jenis = T.select([['pembuka', 'Pembuka'], ['penutup', 'Penutup']], 'pembuka');
@@ -40,6 +56,7 @@ export function render(root) {
     };
     root.appendChild(T.grid2(T.field('Tema', tema), T.field('Jenis', jenis)));
     root.appendChild(T.row(T.btn('Acak pantun', acak, true), T.copyBtn(() => current || 'Acak dulu pantunnya', 'Salin')));
+    root.appendChild(T.el('<p class="hint">' + PEMBUKA.length + ' pantun pembuka dan ' + PENUTUP.length + ' pantun penutup tersedia. Pilih tema dan jenisnya, lalu tekan Acak pantun.</p>'));
     root.appendChild(box);
     acak();
     tema.addEventListener('change', acak);

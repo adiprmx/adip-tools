@@ -10,7 +10,11 @@ U.zakatMaal = (harta, hargaEmas) => {
 export const meta = {"id": "zakat", "name": "Kalkulator Zakat", "cat": "indonesia", "icon": "🤲", "desc": "Zakat maal & fitrah.", "keywords": "zakat,maal,fitrah,islam"};
 export function render(root) {
 
-    const harta = money(null, 'cth: 200000000'), emas = money(null, 'cth: 2517000', '2517000');
+    const harta = money(null, 'cth: 200000000'), emas = money(null, 'cth: 2500000', '2500000');
+    // Harga default disamakan dengan kalkulator-emas (satu sumber tanggal
+    // yang sama): Antam Rp2.500.000/gram, 20 November 2026 (Logam Mulia;
+    // diverifikasi Q5 v6.21.0). Bila mengubah default di sini, ubah juga
+    // di kalkulator-emas.js.
     const jiwa = T.input('number', 'cth: 4', '4'), beras = money(null, 'cth: 15000', '15000');
     const box1 = T.out(), box2 = T.out();
     const hitMaal = () => {
@@ -39,7 +43,7 @@ export function render(root) {
     root.appendChild(T.el('<h3 style="font-size:15px">Zakat Maal</h3>'));
     root.appendChild(T.grid2(
       T.field('Total harta (Rp)', harta, 'Tabungan, emas, investasi, piutang'),
-      T.field('Harga emas / gram', emas, 'Harga Antam 15 Nov 2026: Rp2.517.000 — cek harga hari ini, harga emas berubah tiap hari')
+      T.field('Harga emas / gram', emas, 'Harga Antam 20 Nov 2026: Rp2.500.000 — cek harga hari ini, harga emas berubah tiap hari')
     ));
     root.appendChild(T.row(T.btn('Hitung zakat maal', hitMaal, true)));
     root.appendChild(box1);

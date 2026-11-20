@@ -13,7 +13,7 @@ utils.ipk = function (entries) {
 export const meta = {"id": "ipk", "name": "Kalkulator IPK", "cat": "pelajar", "icon": "🎓", "desc": "Hitung IPK semester.", "keywords": "ipk,nilai,kuliah,semester"};
 export function render(root) {
 
-    const GRADES = [['4', 'A (4,0)'], ['3.7', 'A− (3,7)'], ['3.3', 'B+ (3,3)'], ['3', 'B (3,0)'], ['2.7', 'B− (2,7)'], ['2.3', 'C+ (2,3)'], ['2', 'C (2,0)'], ['1', 'D (1,0)'], ['0', 'E (0,0)'], ['custom', 'Bobot sendiri…']];
+    const GRADES = [['4', 'A (4,0)'], ['3.7', 'A− (3,7)'], ['3.3', 'B+ (3,3)'], ['3', 'B (3,0)'], ['2.7', 'B− (2,7)'], ['2.3', 'C+ (2,3)'], ['2', 'C (2,0)'], ['1.7', 'C− (1,7)'], ['1', 'D (1,0)'], ['0', 'E (0,0)'], ['custom', 'Bobot sendiri…']];
     const listEl = T.el('<div></div>');
     const box = T.out();
     const rows = [];
@@ -45,7 +45,10 @@ export function render(root) {
       const entries = rows.map((r) => ({
         sks: T.num(r.sks.value),
         bobot: r.grade.value === 'custom' ? T.num(r.bobot.value) : Number(r.grade.value),
+        nama: r.nama.value.trim(),
       }));
+      const diLuar = entries.find((e) => e.sks > 0 && !isNaN(e.bobot) && (e.bobot < 0 || e.bobot > 4));
+      if (diLuar) { T.show(box, '<span class="err">Bobot sendiri harus antara 0 dan 4' + (diLuar.nama ? ' (mata kuliah "' + T.esc(diLuar.nama) + '")' : '') + '. Cek lagi ya.</span>'); return; }
       const valid = entries.filter((e) => e.sks > 0 && !isNaN(e.bobot));
       if (!valid.length) { T.show(box, '<span class="err">Isi minimal satu mata kuliah dengan SKS dan nilai yang benar.</span>'); return; }
       const ipk = utils.ipk(valid);

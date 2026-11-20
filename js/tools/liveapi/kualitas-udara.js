@@ -75,7 +75,11 @@ export function render(root) {
     try {
       const gd = await fetchJson('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(q) + '&count=5&language=id&format=json');
       if (id !== reqId) return;
-      if (!gd.results || !gd.results.length) throw new Error('Kota "' + q + '" tidak ditemukan.');
+      if (!gd.results || !gd.results.length) {
+        const err = new Error('Kota "' + q + '" tidak ditemukan.');
+        err.kode = 'kota-tidak-ditemukan';
+        throw err;
+      }
       const pairs = gd.results.map((r) => [String(r.id), namaLokasi(r)]);
       const sel = T.select(pairs, String(gd.results[0].id));
       const byId = {};
@@ -87,7 +91,13 @@ export function render(root) {
     } catch (e) {
       if (id !== reqId) return;
       T.show(pilihWrap, '');
-      errDenganTombolUlang(box, 'Gagal mencari kota. Periksa koneksi internet lalu coba lagi.', () => cariKota(false));
+      // Pesan spesifik "kota tidak ditemukan" jangan tertelan pesan generik:
+      // penyebabnya beda (ejaan kota) dan jalan keluarnya beda.
+      if (e && e.kode === 'kota-tidak-ditemukan') {
+        errDenganTombolUlang(box, e.message + ' Coba ejaan lain, atau nama kota yang lebih besar di dekatnya.', () => cariKota(false));
+      } else {
+        errDenganTombolUlang(box, 'Gagal mencari kota. Periksa koneksi internet lalu coba lagi.', () => cariKota(false));
+      }
     }
   };
 

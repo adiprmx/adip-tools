@@ -101,8 +101,8 @@ const NEXT = {
   'komisi-reseller': ['fee-lazada', 'target-omzet'],
   'bep-umkm': ['estimasi-modal-usaha', 'target-omzet'],
   'estimasi-modal-usaha': ['bep-umkm', 'target-omzet'],
-  'target-omzet': ['reorder-point', 'komisi-reseller'],
-  'reorder-point': ['target-omzet', 'harga-grosir'],
+  'target-omzet': ['kalkulator-safety-stock', 'komisi-reseller'],
+  'kalkulator-safety-stock': ['target-omzet', 'harga-grosir'],
   'buat-invoice': ['daftar-harga', 'margin-markup', 'fee-lazada'],
   'date-duration': ['age-calc', 'hitung-hpl'],
   'age-calc': ['date-duration', 'hitung-hpl'],
@@ -124,8 +124,8 @@ const NEXT = {
   'kalkulator-pecahan': ['kalkulator-umum', 'persamaan-kuadrat'],
   'persamaan-kuadrat': ['kalkulator-umum', 'matriks-kalkulator'],
   'matriks-kalkulator': ['kalkulator-umum', 'statistika-dasar'],
-  'statistika-dasar': ['sample-size', 'matriks-kalkulator'],
-  'sample-size': ['statistika-dasar'],
+  'statistika-dasar': ['margin-of-error', 'matriks-kalkulator'],
+  'margin-of-error': ['statistika-dasar'],
   'kalkulator-logaritma': ['rumus-eksponen', 'kalkulator-umum'],
   'rumus-eksponen': ['kalkulator-logaritma'],
   'kalkulator-trigonometri': ['plot-fungsi', 'kalkulator-umum'],
@@ -178,7 +178,7 @@ const METHOD = [
   { id: 'kalkulator-hpp', rumus: 'HPP per unit = (biaya material + tenaga kerja + overhead) ÷ jumlah unit. Saran harga jual = HPP ÷ (1 − margin%). Margin dihitung dari harga jual, bukan dari modal.', batas: 'Hanya menghitung biaya yang kamu isi. Biaya tak terduga, susut, dan pajak belum masuk. Tambahkan sendiri ke overhead bila perlu.' },
   { id: 'bmi', rumus: 'BMI = berat (kg) ÷ tinggi (m)². Kategori memakai standar WHO untuk Asia: di bawah 18,5 kurus; 18,5-22,9 normal; 23-24,9 kelebihan berat; 25-29,9 obesitas I; 30 ke atas obesitas II. BMR memakai rumus Mifflin-St Jeor; TDEE = BMR × faktor aktivitas (1,2-1,9). Target turun berat memakai defisit 500 kkal/hari (sekitar 0,5 kg/minggu).', batas: 'BMI tidak membedakan otot dan lemak, jadi orang berotot bisa terbaca "kelebihan berat" padahal sehat. BMR/TDEE adalah perkiraan; konsultasikan ke tenaga kesehatan untuk target yang personal.' },
   { id: 'hitung-hpl', rumus: 'Tiga mode. Dari HPHT memakai rumus Naegele: HPHT + 7 hari − 3 bulan + 1 tahun. Dari USG: tanggal USG + sisa hari sampai 40 minggu (280 hari). Dari transfer embrio IVF: tanggal transfer + (280 − 14 − umur embrio) hari. Perkembangan janin per minggu memakai perkiraan rata-rata umum.', batas: 'HPL adalah perkiraan. Hanya sebagian kecil persalinan yang tepat di tanggal HPL. Usia kehamilan dari USG trimester awal lebih akurat daripada dari HPHT bila siklus haid tidak teratur.' },
-  { id: 'zakat', rumus: 'Nisab zakat maal = 85 gram emas × harga emas per gram yang kamu isi. Bila total harta mencapai nisab, zakatnya 2,5% dari harta. Zakat fitrah = 2,5 kg beras per jiwa × harga beras.', batas: 'Harga emas default Rp2.517.000/gram (harga Antam 15 Nov 2026). Harga emas berubah tiap hari, cek harga saat ini agar nisabnya akurat. Harta yang dihitung adalah yang sudah dimiliki setahun (haul); konsultasikan ke lembaga zakat bila ragu.' },
+  { id: 'zakat', rumus: 'Nisab zakat maal = 85 gram emas × harga emas per gram yang kamu isi. Bila total harta mencapai nisab, zakatnya 2,5% dari harta. Zakat fitrah = 2,5 kg beras per jiwa × harga beras.', batas: 'Harga emas default Rp2.500.000/gram (harga Antam 20 Nov 2026). Harga emas berubah tiap hari, cek harga saat ini agar nisabnya akurat. Harta yang dihitung adalah yang sudah dimiliki setahun (haul); konsultasikan ke lembaga zakat bila ragu.' },
 ];
 const METHOD_IDS = new Set(METHOD.map((x) => x.id));
 

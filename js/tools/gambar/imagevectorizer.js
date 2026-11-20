@@ -155,6 +155,17 @@ export function kmeansRefine(px, n, seeds, iters) {
   return C.map((c) => '#' + c.map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join(''))
     .filter((hx) => { if (seen.has(hx)) return false; seen.add(hx); return true; });
 }
+/** Bungkus semua path SVG mode hitam-putih dalam <g fill="warna">.
+    Tag </g> disisipkan SEBELUM </svg> (bukan sesudahnya) supaya XML
+    tetap utuh — versi lama menempel </g> setelah </svg> sehingga SVG
+    hasil mode BW (default) malformed. Fungsi murni, bisa diuji. */
+export function warnaiSvgBw(svg, warna) {
+  const s = String(svg || '');
+  const buka = s.replace(/(<svg[^>]*>)/, '$1<g fill="' + warna + '">');
+  const tutup = buka.lastIndexOf('</svg>');
+  if (tutup < 0) return buka + '</g>';
+  return buka.slice(0, tutup) + '</g>' + buka.slice(tutup);
+}
 /** Pecah <g> bertingkat jadi <path> top-level (butuh DOM). */
 export function ungroupSvg(svg) {
   const doc = new DOMParser().parseFromString(String(svg), 'image/svg+xml');
@@ -351,7 +362,7 @@ export function render(root) {
     const { svg, w, h, name, mode } = cur;
     const fg = colInp.value || '#1a1a1a';
     // mode bw: terapkan warna — bungkus path dalam <g fill>
-    const colored = mode === 'color' ? svg : svg.replace(/(<svg[^>]*>)/, '$1<g fill="' + fg + '">') + '</g>';
+    const colored = mode === 'color' ? svg : warnaiSvgBw(svg, fg);
     const box = T.el('<div></div>');
     const modes = T.el('<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap"></div>');
     let bgMode = 'checker';

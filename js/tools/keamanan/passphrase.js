@@ -27,6 +27,16 @@ const WORDS = [...new Set(_WORDS_RAW)];
 
 const SYMBOLS = '!@#$%^&*?';
 
+// Estimasi entropi passphrase (bit, dibulatkan). Diekspor agar bisa diuji
+// di Node. Rumus jujur: tiap kata = log2(jumlah kata unik); kapitalisasi
+// deterministik = +0 bit; tiap angka acak = log2(10); 1 simbol = log2(9).
+export function estimasiEntropi(jmlKata, jmlAngka, pakaiSimbol) {
+  let bits = jmlKata * Math.log2(WORDS.length);
+  if (jmlAngka) bits += jmlAngka * Math.log2(10);
+  if (pakaiSimbol) bits += Math.log2(SYMBOLS.length);
+  return Math.round(bits);
+}
+
 function rand(n) {
   const a = new Uint32Array(1);
   crypto.getRandomValues(a);
@@ -57,20 +67,26 @@ export function render(root) {
       if (simbol.value === '1') tail += SYMBOLS[rand(SYMBOLS.length)];
       const pass = words.join(sep) + (tail ? sep + tail : '');
 
-      // Estimasi entropi
-      let bits = n * Math.log2(WORDS.length);
-      if (kapital.value === '1') bits += n; // tiap kata 2x lipat (kapital/tidak)
-      if (na) bits += na * Math.log2(10);
-      if (simbol.value === '1') bits += Math.log2(SYMBOLS.length);
-      bits = Math.round(bits);
+      // Estimasi entropi (jujur): tiap kata dipilih acak dari WORDS kata,
+      // jadi tiap kata menyumbang log2(324) ≈ 8,34 bit. Kapitalisasi TIDAK
+      // menambah apa pun: huruf pertama SELALU kapital, polanya bisa
+      // ditebak siapa pun (sebelumnya salah menambah +n bit). Angka/symbol
+      // acak menambah log2(10) / log2(9) bit per karakter.
+      const bits = estimasiEntropi(n, na, simbol.value === '1');
       const label = bits < 40 ? ['Lemah', 'warn'] : bits < 60 ? ['Sedang', ''] : bits < 80 ? ['Kuat', 'ok'] : ['Sangat kuat', 'ok'];
+      // Perbandingan yang benar: password acak 8 karakter (94 karakter
+      // mungkin) ≈ 52 bit. 4 kata ≈ 33 bit — masih di bawahnya; klaim
+      // "lebih kuat" baru benar di 7+ kata (≈ 58 bit).
+      const banding = bits >= 53
+        ? 'Kekuatannya sudah sekelas password acak 8 karakter.'
+        : 'Masih di bawah password acak 8 karakter — tambah kata sampai 7 atau lebih supaya lebih kuat.';
 
       T.show(box,
         '<div class="big" style="font-size:20px;word-break:break-all;user-select:all">' + T.esc(pass) + '</div>' +
         '<div class="kv"><span>Panjang</span><b>' + pass.length + ' karakter</b></div>' +
         '<div class="kv"><span>Estimasi entropi</span><b>~' + bits + ' bit</b></div>' +
         '<div class="kv"><span>Kekuatan</span><b class="' + label[1] + '">' + label[0] + '</b></div>' +
-        '<p class="hint">Passphrase 4+ kata Indonesia jauh lebih kuat dari password acak 8 karakter, tapi tetap gampang diingat. Jangan pakai ulang di banyak akun.</p>');
+        '<p class="hint">' + banding + ' Makin banyak kata, makin kuat — dan kapitalisasi huruf pertama tidak menambah kekuatan karena polanya selalu sama. Jangan pakai ulang di banyak akun.</p>');
       box.appendChild(T.row(T.copyBtn(() => pass, 'Salin passphrase')));
     };
     [jml, pisah, kapital, angka, simbol].forEach((s) => s.addEventListener('change', buat));

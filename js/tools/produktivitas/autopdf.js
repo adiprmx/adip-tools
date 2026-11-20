@@ -1,4 +1,4 @@
-import { h as T, errBox } from '../../core.js';
+import { h as T, utils, errBox } from '../../core.js';
 
 export const meta = {"id": "autopdf", "name": "Auto PDF", "cat": "produktivitas", "icon": "📄", "desc": "Ubah teks panjang jadi dokumen PDF rapi.", "keywords": "pdf,teks,dokumen,naskah,cetak"};
 
@@ -83,19 +83,15 @@ export function render(root) {
     if (libOk !== null) return Promise.resolve(libOk);
     if (libLoading) return new Promise((res) => { const t = setInterval(() => { if (libOk !== null) { clearInterval(t); res(libOk); } }, 300); });
     libLoading = true;
-    const coba = (i) => {
-      if (i >= JSPDF_CDNS.length) {
-        libOk = false;
-        T.show(box, errBox('Alat PDF tidak bisa dimuat dari internet. Cek koneksi internet lalu coba lagi.'));
-        return Promise.resolve(false);
-      }
-      T.show(box, '<span class="dim">Menyiapkan alat PDF…</span>');
-      return T.loadScript(JSPDF_CDNS[i]).then((ok) => {
-        if (ok && window.jspdf && window.jspdf.jsPDF) { libOk = true; return true; }
-        return coba(i + 1);
-      });
-    };
-    return coba(0);
+    T.show(box, '<span class="dim">Menyiapkan alat PDF…</span>');
+    // Loader kanonis: utils.loadLibOnce (core.js) — fallback 3-CDN +
+    // timeout 30 dtk per URL (loop loadScript lama: tiap URL bisa
+    // menggantung selamanya sehingga fallback tidak pernah tercapai, R-36).
+    return utils.loadLibOnce(JSPDF_CDNS, () => !!(window.jspdf && window.jspdf.jsPDF)).then((ok) => {
+      libOk = ok && !!(window.jspdf && window.jspdf.jsPDF);
+      if (!libOk) T.show(box, errBox('Alat PDF tidak bisa dimuat dari internet. Cek koneksi internet lalu coba lagi.'));
+      return libOk;
+    });
   };
 
   const PAPER = { a4: [595.28, 841.89], a5: [419.53, 595.28] };

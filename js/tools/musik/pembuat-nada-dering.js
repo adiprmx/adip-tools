@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "pembuat-nada-dering", "name": "Pembuat Nada Dering", "cat": "musik", "icon": "📱", "desc": "Potong lagu jadi nada dering, dengan fade halus di awal dan akhir.", "keywords": "nada dering,ringtone,potong lagu,hp,iphone,android", "since": "6.17.0"};
@@ -177,8 +177,11 @@ export function render(root) {
     const url = URL.createObjectURL(fileObj);
     const a = document.createElement('audio');
     a.preload = 'metadata';
-    a.onloadedmetadata = () => {
-      duration = a.duration || 0;
+    const fDipilih = fileObj;
+    a.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(a);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       T.show(infoBox,
         kv('File', T.esc(fileObj.name)) +
         kv('Durasi', duration ? duration.toFixed(1) + ' detik' : 'tidak terbaca') +

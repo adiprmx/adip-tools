@@ -77,7 +77,11 @@ export function render(root) {
       T.toast('Video terunduh');
     } catch (e) {
       if (isCancelled(e)) { T.show(outBox, '<span class="dim">Dibatalkan.</span>'); }
-      else T.show(outBox, errBox(friendlyError(e)));
+      else {
+        T.show(outBox, errBox(friendlyError(e)));
+        const retry = T.btn('Coba lagi', () => goBtn.click());
+        outBox.appendChild(retry);
+      }
     } finally {
       busy = false;
       goBtn.disabled = false;
@@ -95,9 +99,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       srcW = v.videoWidth || 0;
       srcH = v.videoHeight || 0;
       T.show(infoBox,

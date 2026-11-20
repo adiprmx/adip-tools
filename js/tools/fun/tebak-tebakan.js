@@ -52,7 +52,7 @@ const SOAL = [
   // --- tambahan v6.12.0 (26 soal) ---
   { k: 'logika', q: "Apa yang jalan dengan 4 kaki di pagi hari, 2 kaki di siang hari, dan 3 kaki di malam hari?", a: "manusia", ak: ["orang"] },
   { k: 'logika', q: "Aku berjalan tanpa kaki, punya tempat tidur tapi tidak pernah tidur. Siapakah aku?", a: "sungai" },
-  { k: 'logika', q: "Benda apa yang selalu ada di depan mata tapi tidak pernah kamu lihat?", a: "hidung" },
+  { k: 'logika', q: "Bagian tubuh apa yang selalu ada di depan kedua matamu tapi tidak pernah kamu lihat?", a: "hidung" },
   { k: 'logika', q: "Ada 5 apel di meja. Kamu mengambil 3. Berapa apel yang kamu punya?", a: "3", ak: ["tiga", "3 apel"] },
   { k: 'hewan', q: "Hewan apa yang paling suka bersih-bersih?", a: "ikan sapu-sapu", ak: ["sapu-sapu"] },
   { k: 'hewan', q: "Hewan apa yang paling rajin menabung?", a: "semut" },

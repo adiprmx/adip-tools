@@ -219,7 +219,7 @@ function initConfetti() {
   });
 }
 
-/* ---------- 4. COUNT-UP PILL NAVBAR: "627 tools" naik dari 0 ----------
+/* ---------- 4. COUNT-UP PILL NAVBAR: "1.299 tools" naik dari 0 ----------
    P3 (v6.14.0): count-up lama di home() (app.js) MATI sejak P2-B2 —
    renderNavbar() menghapus header.top home() yang berisi
    [data-countup] SEBELUM rAF pertamanya jalan (app.js route()

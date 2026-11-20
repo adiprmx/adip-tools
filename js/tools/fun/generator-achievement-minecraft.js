@@ -67,6 +67,29 @@ export function gambarIkonPixel(x, ikon, px, py, ukuran) {
   });
 }
 
+// Potong teks dengan '…' berdasarkan LEBAR TERUKUR (bukan jumlah karakter),
+// supaya teks panjang tidak pernah meluber keluar kanvas.
+function potongElipsis(x, teks, maksW) {
+  if (x.measureText(teks).width <= maksW) return teks;
+  let s = teks;
+  while (s.length > 1 && x.measureText(s + '…').width > maksW) s = s.slice(0, -1);
+  return s + '…';
+}
+
+// Bungkus kata + batasi jumlah baris + elipsis bila ada teks terpotong
+// (bungkusKata membuang kata di luar 2 baris secara diam-diam).
+function bungkusTerbatas(x, teks, maksW, maksBaris) {
+  const rapi = String(teks).replace(/\s+/g, ' ').trim();
+  let baris = utils.bungkusKata(x, rapi, maksW).map((b) => potongElipsis(x, b, maksW));
+  const terpotong = baris.join(' ') !== rapi || baris.length > maksBaris;
+  if (baris.length > maksBaris) baris = baris.slice(0, maksBaris);
+  if (terpotong && baris.length) {
+    const t = baris.length - 1;
+    baris[t] = potongElipsis(x, baris[t].replace(/…$/, '') + '…', maksW);
+  }
+  return baris;
+}
+
 export function render(root) {
   const box = T.out();
   const judulI = T.input('text', 'cth: Raja Begadang', 'Raja Begadang');
@@ -91,12 +114,15 @@ export function render(root) {
     x.fillText(kicker, 168, 24);
     x.fillStyle = '#fff'; x.font = '700 30px monospace';
     const judul = (judulI.value.trim() || 'Achievement').slice(0, 40);
-    const barisJudul = utils.bungkusKata(x, judul, 440);
+    const barisJudul = bungkusTerbatas(x, judul, 440, 2);
     barisJudul.forEach((b, i) => x.fillText(b, 168, 58 + i * 34));
     x.fillStyle = '#c9c9c9'; x.font = '400 22px monospace';
     const desc = descI.value.trim().slice(0, 80);
-    const barisDesc = utils.bungkusKata(x, desc, 440);
     const yDesc = 58 + barisJudul.length * 34 + 4;
+    // Sisa ruang vertikal sampai tepi bawah (156): judul 2 baris hanya
+    // menyisakan 1 baris deskripsi — dulu deskripsi meluber sampai y≈182.
+    const maksBarisDesc = Math.max(1, Math.floor((156 - yDesc) / 26));
+    const barisDesc = bungkusTerbatas(x, desc, 440, maksBarisDesc);
     barisDesc.forEach((b, i) => x.fillText(b, 168, yDesc + i * 26));
   };
 

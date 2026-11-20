@@ -3,13 +3,18 @@ import { h as T } from '../../core.js';
 export const meta = { id: 'bilangan-besar', name: 'Kalkulator Bilangan Besar', cat: 'pelajar', icon: '🔢', desc: 'Hitung tambah kurang kali bagi dan pangkat untuk bilangan raksasa sampai ribuan digit, hasilnya persis tanpa pembulatan.', keywords: 'bilangan besar,big number,bigint,angka raksasa,perkalian besar,matematika', since: '6.19.0' };
 
 // Parse bilangan bulat besar dari teks (boleh pakai titik pemisah ribuan).
-// Batas 5000 digit per bilangan.
+// Titik hanya sah sebagai pemisah ribuan (kelompok 3 digit): '1.234' = 1234,
+// tapi '1.5' DITOLAK (bukan ribuan yang valid, dan ini kalkulator bilangan
+// bulat — desimal tidak berlaku). Batas 5000 digit per bilangan.
 export function parseBesar(teks) {
-  const s = String(teks || '').trim().replace(/[\s.]/g, '').replace(',', '.');
-  if (!/^[+-]?\d+$/.test(s)) return null;
-  const digit = s.replace(/^[+-]/, '').replace(/^0+/, '') || '0';
+  const s = String(teks || '').trim().replace(/\s/g, '');
+  const inti = s.replace(/^[+-]/, '');
+  if (inti.includes('.') && !/^\d{1,3}(\.\d{3})+$/.test(inti)) return null;
+  const bersih = s.replace(/\./g, '');
+  if (!/^[+-]?\d+$/.test(bersih)) return null;
+  const digit = bersih.replace(/^[+-]/, '').replace(/^0+/, '') || '0';
   if (digit.length > 5000) return null;
-  try { return BigInt(s); } catch (e) { return null; }
+  try { return BigInt(bersih); } catch (e) { return null; }
 }
 
 // Operasi BigInt: + - * / (bagi bulat + sisa) ^ (pangkat, eksponen maks 10000).

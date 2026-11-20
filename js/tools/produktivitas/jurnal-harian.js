@@ -61,6 +61,11 @@ export function render(root) {
   };
 
   const loadTgl = (iso) => {
+    if (iso === tgl) return;
+    if (isDirty() && !confirm('Tulisan tanggal ini belum disimpan. Pindah tanggal? Tulisan yang belum disimpan akan hilang.')) {
+      dateInp.value = tgl;
+      return;
+    }
     tgl = iso;
     dateInp.value = iso;
     area.value = String(data[iso] || '');

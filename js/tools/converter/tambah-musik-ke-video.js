@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "tambah-musik-ke-video", "name": "Tambah Musik ke Video", "cat": "converter", "icon": "🎵", "desc": "Tempel lagu sebagai musik latar video.", "keywords": "video,musik,audio,lagu,latar,backsound", "since": "6.17.0"};
@@ -41,9 +41,12 @@ export function render(root) {
     if (!videoObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(videoObj);
     const v = document.createElement('video');
+    const vDipilih = videoObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (videoObj !== vDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       T.show(infoBox,
         kv('Video', T.esc(videoObj.name)) +
         kv('Durasi video', duration ? duration.toFixed(1) + ' detik' : 'tidak terbaca'));

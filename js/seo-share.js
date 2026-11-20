@@ -101,10 +101,21 @@ export function toolShareUrl(toolId, base) {
   return `${String(b).replace(/\/$/, '')}/#/t/${toolId}`;
 }
 
-/* JSON-LD situs: WebSite + WebApplication (gratis, tanpa daftar). */
+/* JSON-LD situs: WebSite + WebApplication (gratis, tanpa daftar).
+   Jumlah tool dihitung dinamis: argumen dulu, lalu manifest yang
+   disimpan initSeoShare(). Tanpa keduanya, deskripsi dibiarkan apa
+   adanya (tanpa angka hardcode — F10 v6.21.0: fallback "1299" lama
+   akan basi diam-diam begitu jumlah tool berubah). */
 export function buildSiteJsonLd(toolCount) {
   const count =
-    Number.isFinite(toolCount) && toolCount > 0 ? toolCount : 1299;
+    Number.isFinite(toolCount) && toolCount > 0
+      ? toolCount
+      : _manifest.length > 0
+        ? _manifest.length
+        : null;
+  const desc = count
+    ? HOME_DESC.replace('1.299 tools', `${count} tools`)
+    : HOME_DESC;
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -121,10 +132,7 @@ export function buildSiteJsonLd(toolCount) {
         applicationCategory: 'UtilitiesApplication',
         operatingSystem: 'Web browser',
         inLanguage: 'id',
-        description: HOME_DESC.replace(
-          '1.299 tools',
-          `${count} tools`,
-        ),
+        description: desc,
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'IDR' },
         isAccessibleForFree: true,
       },

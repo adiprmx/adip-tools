@@ -17,13 +17,19 @@ export function hitungAirHujan(o) {
   const luas = Math.max(0, Number(o.luas) || 0);
   const hujan = Math.max(0, Number(o.hujan) || 0);
   const koef = Math.max(0, Math.min(1, Number(o.koef) || 0));
-  const ef = Math.max(0, Math.min(1, Number(o.efisiensi) == null ? 0.9 : Number(o.efisiensi)));
+  const efRaw = Number(o.efisiensi);
+  const ef = Math.max(0, Math.min(1, isFinite(efRaw) ? efRaw : 0.9));
   const liter = luas * hujan * koef * ef;
   const hari = o.periode === 'tahun' ? 365 : 30;
   const perHari = liter / hari;
   const orang = perHari / 120;
-  const toren = TOREN.find((t) => t >= liter) || null;
-  return { liter, perHari, orang, toren, koef };
+  // Saran toren SELALU dari volume sebulan: toren menampung air hujan
+  // antar-hujan (hitungan minggu), bukan menampung satu tahun penuh —
+  // saran lama "menampung satu tahun penuh" di mode tahunan menyesatkan
+  // (tidak ada rumah yang torennya sebesar itu).
+  const literPerBulan = o.periode === 'tahun' ? liter / 12 : liter;
+  const toren = TOREN.find((t) => t >= literPerBulan) || null;
+  return { liter, literPerBulan, perHari, orang, toren, koef };
 }
 utils.volumeAirHujan = hitungAirHujan;
 
@@ -49,7 +55,7 @@ export function render(root) {
       '<p class="center mut">Air hujan yang bisa ditampung dari atap ini.</p>' +
       kv('Rata-rata per hari', T.fmt(Math.round(r.perHari)) + ' liter') +
       kv('Cukup untuk', T.fmt(Math.round(r.orang * 10) / 10) + ' orang (120 liter/orang/hari)') +
-      (r.toren ? kv('Ukuran toren yang pas', T.fmt(r.toren) + ' liter (menampung satu ' + per + ' penuh)') : kv('Ukuran toren', 'Di atas 5.000 liter, perlu toren besar atau beberapa toren')) +
+      (r.toren ? kv('Ukuran toren yang pas', T.fmt(r.toren) + ' liter (menampung sekitar 1 bulan: ' + T.fmt(Math.round(r.literPerBulan)) + ' liter/bulan)') : kv('Ukuran toren', 'Di atas 5.000 liter untuk sebulan — perlu toren besar atau beberapa toren')) +
       '<p class="hint">Hitungan memakai koefisien limpasan atap ' + ATAP[atapSel.value].nama.toLowerCase() + ' (' + T.fmt(r.koef * 100) + '%) dan efisiensi saringan 90%: sekitar 10% air hilang di saringan dan pembuangan awal. Curah hujan bulanan di Indonesia umumnya 100–400 mm di musim hujan. Air hujan tampungan cocok untuk siram tanaman, cuci, dan flush; untuk minum harus disaring dan dimasak dulu.</p>');
   };
   [luasI, hujanI, periodeSel, atapSel].forEach((i) => i.addEventListener('input', hitung));

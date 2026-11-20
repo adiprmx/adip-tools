@@ -61,7 +61,15 @@ export function render(root) {
   const totalBox = T.out();
   const KUNCI = 'at-kalori-' + new Date().toISOString().slice(0, 10);
   let dimakan = [];
-  try { dimakan = JSON.parse(localStorage.getItem(KUNCI) || '[]'); } catch (e) { dimakan = []; }
+  try {
+    dimakan = JSON.parse(localStorage.getItem(KUNCI) || '[]');
+    if (!Array.isArray(dimakan)) dimakan = [];
+    // Data lama yang strukturnya rusak dibuang (tidak pernah dihasilkan
+    // tool ini sendiri); nama makanan lama TETAP ditampilkan — dirender
+    // lewat T.esc di tampilHariIni, jadi kode HTML di dalamnya tampil
+    // sebagai teks biasa, bukan dieksekusi.
+    dimakan = dimakan.filter((d) => d && typeof d.nama === 'string' && Number.isFinite(+d.kkal) && Number.isFinite(+d.porsi));
+  } catch (e) { dimakan = []; }
 
   function simpan() {
     try { localStorage.setItem(KUNCI, JSON.stringify(dimakan)); } catch (e) { /* abaikan */ }
@@ -76,7 +84,7 @@ export function render(root) {
     }
     daftar.forEach((m) => {
       const row = T.el('<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #2a2a2a"></div>');
-      row.appendChild(T.el(`<span style="font-size:14px">${m.nama} <span style="color:#a1a1aa">(${m.gram} g)</span></span>`));
+      row.appendChild(T.el(`<span style="font-size:14px">${T.esc(m.nama)} <span style="color:#a1a1aa">(${m.gram} g)</span></span>`));
       const kanan = T.el('<span style="display:flex;gap:8px;align-items:center"></span>');
       kanan.appendChild(T.el(`<b style="font-size:14px">${m.kkal} kkal</b>`));
       kanan.appendChild(T.btn('Tambah', () => {
@@ -99,7 +107,7 @@ export function render(root) {
     }
     dimakan.forEach((d, i) => {
       const row = T.el('<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #2a2a2a"></div>');
-      row.appendChild(T.el(`<span style="font-size:14px">${d.nama} x ${d.porsi}</span>`));
+      row.appendChild(T.el(`<span style="font-size:14px">${T.esc(d.nama)} x ${d.porsi}</span>`));
       const kanan = T.el('<span style="display:flex;gap:6px;align-items:center"></span>');
       kanan.appendChild(T.el(`<b style="font-size:14px">${Math.round(d.kkal * d.porsi)} kkal</b>`));
       const kurangBtn = T.btn('-', () => {

@@ -24,7 +24,7 @@ export function klasifikasiError(e) {
   const nama = (e && e.name) || '';
   const pesan = String((e && e.message) || e || '').toLowerCase();
   if (nama === 'PasswordException' || pesan.includes('password') || pesan.includes('encrypted')) {
-    return 'PDF ini dikunci kata sandi, jadi tidak bisa diperbaiki di sini. Buka kuncinya dulu dengan tool Buka Kunci PDF.';
+    return 'PDF ini dikunci kata sandi, jadi tidak bisa diperbaiki di sini. Buka kuncinya dulu dengan tool Kunci PDF, tab Buka kunci.';
   }
   if (pesan.includes('invalid pdf') || pesan.includes('no pdf header') || pesan.includes('not a pdf')) {
     return 'Struktur file PDF ini rusak parah dan tidak bisa dibaca lagi.';

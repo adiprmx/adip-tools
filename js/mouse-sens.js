@@ -1,8 +1,7 @@
 // Tabel yaw game + rumus cm/360: modul bersama (kanonis, G4 C1G4-R).
-// Dikonsolidasi dari fun/kalkulator-cm360.js + fun/kalkulator-edpi.js +
-// fun/konverter-sensitivitas-mouse.js (G4 B17): YAW dan cm360
-// byte-identik di ketiganya. Komentar di kode sumber ketiga file itu
-// sendiri menandai keduanya sebagai kandidat konsolidasi C1G4-R.
+// Dikonsolidasi dari fun/kalkulator-edpi.js + fun/konverter-sensitivitas-
+// mouse.js (G4 B17) dan fun/kalkulator-cm360.js (digabung ke
+// kalkulator-edpi, v6.21.0): YAW dan cm360 byte-identik di ketiganya.
 // yaw = derajat per hitungan mouse pada sens 1 (nilai komunitas;
 // `yakin: false` = nilai perkiraan, ditandai '*' di UI).
 export const YAW = {

@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "trivia-umum", "name": "Trivia Umum", "cat": "fun", "icon": "🧠", "desc": "Kuis 10 soal pengetahuan umum: soal Indonesia atau soal dunia dari Open Trivia DB.", "keywords": "trivia,kuis,umum,pengetahuan,soal,dunia,indonesia", "since": "6.12.0"};
+export const meta = {"id": "trivia-umum", "name": "Trivia Umum", "cat": "fun", "icon": "🧠", "desc": "Kuis 5 atau 10 soal pengetahuan umum: soal Indonesia atau soal dunia dari Open Trivia DB.", "keywords": "trivia,kuis,umum,pengetahuan,soal,dunia,indonesia,kuis trivia,ronde singkat,pilihan ganda", "since": "6.12.0"};
 
 // Bank soal lokal (Bahasa Indonesia) — dipakai untuk mode "Soal Indonesia" dan
 // sebagai cadangan otomatis bila soal dunia dari internet gagal dimuat.
@@ -57,8 +57,11 @@ const KAT_DUNIA = [
   ['0', 'Acak — semua topik'], ['9', 'Pengetahuan umum'], ['17', 'Sains & alam'],
   ['18', 'Komputer'], ['11', 'Film'], ['12', 'Musik'], ['15', 'Video game'],
   ['22', 'Geografi'], ['23', 'Sejarah'], ['27', 'Hewan'], ['25', 'Seni'], ['21', 'Olahraga'],
+  ['10', 'Buku'], ['14', 'Televisi'], ['19', 'Matematika'], ['28', 'Kendaraan'],
 ];
-const TOTAL_SOAL = 10;
+// Panjang ronde dipilih user (diserap dari kuis-trivia, v6.21.0): 5 soal
+// (ronde singkat) atau 10 soal. TOTAL_SOAL lama diganti jumlahSoal().
+const PANJANG_RONDE = [5, 10];
 const LS_KEY = 'trivia-umum-best';
 
 // shuffle kanonis tinggal di utils (core.js).
@@ -77,17 +80,27 @@ export function render(root) {
   const katLokalSel = T.select([['semua', 'Semua topik'], ['Indonesia', 'Indonesia'], ['Dunia', 'Dunia'], ['Sains', 'Sains'], ['Campuran', 'Campuran']], 'semua');
   const katDuniaSel = T.select(KAT_DUNIA, '0');
   const sulitSel = T.select([['acak', 'Acak — semua level'], ['easy', 'Mudah'], ['medium', 'Sedang'], ['hard', 'Sulit']], 'acak');
+  const jumlahSel = T.select([['5', '5 soal (ronde singkat)'], ['10', '10 soal']], '10');
+  const jumlahSoal = () => {
+    const n = Number(jumlahSel.value);
+    return PANJANG_RONDE.includes(n) ? n : 10;
+  };
   const quiz = { list: [], idx: 0, score: 0, answered: false, sumber: 'lokal' };
   let best = utils.loadBestObj(LS_KEY);
+  // Migrasi sekali jalan: skor terbaik lama tersimpan sebagai angka (dari 10).
+  for (const k of ['lokal', 'dunia']) {
+    if (typeof best[k] === 'number') best[k] = { s: best[k], t: 10 };
+    if (!best[k] || typeof best[k].s !== 'number' || typeof best[k].t !== 'number') best[k] = { s: 0, t: 10 };
+  }
   let memuat = false;
 
   const gambarBest = () => {
-    bestBox.textContent = 'Skor terbaik — Indonesia: ' + (best.lokal || 0) + '/10 · Dunia: ' + (best.dunia || 0) + '/10';
+    bestBox.textContent = 'Skor terbaik — Indonesia: ' + best.lokal.s + '/' + best.lokal.t + ' · Dunia: ' + best.dunia.s + '/' + best.dunia.t;
   };
 
   const soalLokal = () => {
     const pool = katLokalSel.value === 'semua' ? BANK_LOKAL : BANK_LOKAL.filter((s) => s.k === katLokalSel.value);
-    return utils.shuffle(pool).slice(0, TOTAL_SOAL).map((s) => ({
+    return utils.shuffle(pool).slice(0, jumlahSoal()).map((s) => ({
       q: s.q, kat: s.k, jawab: s.a, opsi: utils.shuffle([s.a].concat(s.w)),
     }));
   };
@@ -96,7 +109,7 @@ export function render(root) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 12000);
     try {
-      let url = 'https://opentdb.com/api.php?amount=' + TOTAL_SOAL + '&type=multiple';
+      let url = 'https://opentdb.com/api.php?amount=' + jumlahSoal() + '&type=multiple';
       if (katDuniaSel.value !== '0') url += '&category=' + katDuniaSel.value;
       if (sulitSel.value !== 'acak') url += '&difficulty=' + sulitSel.value;
       const res = await fetch(url, { signal: ctrl.signal });
@@ -155,14 +168,23 @@ export function render(root) {
 
   const finish = () => {
     const s = quiz.score;
+    const total = quiz.list.length;
     const key = quiz.sumber;
     let baru = '';
-    if (s > (best[key] || 0)) { best[key] = s; utils.saveBestObj(LS_KEY, best); baru = ' <b style="color:var(--acc)">Rekor baru!</b>'; }
+    // Rekor dibanding sebagai pecahan (ronde 5 dan 10 soal bisa dibanding),
+    // seri dipecah ke total soal yang lebih besar.
+    const lama = best[key];
+    if (s / total > lama.s / lama.t || (s / total === lama.s / lama.t && total > lama.t)) {
+      best[key] = { s, t: total };
+      utils.saveBestObj(LS_KEY, best);
+      baru = ' <b style="color:var(--acc)">Rekor baru!</b>';
+    }
     gambarBest();
-    const msg = s === quiz.list.length ? 'Sempurna! Otak ensiklopedia berjalan. 🧠✨'
-      : s >= 8 ? 'Keren! Wawasanmu luas banget.'
-      : s >= 6 ? 'Lumayan! Beberapa soal memang menjebak.'
-      : s >= 4 ? 'Masih bisa diasah. Coba lagi, soalnya beda tiap main.'
+    const f = s / total;
+    const msg = s === total ? 'Sempurna! Otak ensiklopedia berjalan. 🧠✨'
+      : f >= 0.8 ? 'Keren! Wawasanmu luas banget.'
+      : f >= 0.6 ? 'Lumayan! Beberapa soal memang menjebak.'
+      : f >= 0.4 ? 'Masih bisa diasah. Coba lagi, soalnya beda tiap main.'
       : 'Yah… coba mode lain, siapa tahu topiknya lebih cocok. 😅';
     const teks = '🧠 Trivia Umum (' + (key === 'dunia' ? 'Soal Dunia' : 'Soal Indonesia') + '): aku dapat ' + s + '/' + quiz.list.length + '! Coba kalahin aku di Adip Tools.';
     const wrap = T.el('<div class="row center" style="margin-top:12px"></div>');
@@ -216,9 +238,11 @@ export function render(root) {
   katLokalSel.addEventListener('change', start);
   katDuniaSel.addEventListener('change', start);
   sulitSel.addEventListener('change', start);
+  jumlahSel.addEventListener('change', start);
 
-  root.appendChild(T.el('<p class="hint">10 soal pilihan ganda. Mode Indonesia pakai soal Bahasa Indonesia; mode Dunia mengambil soal baru dari Open Trivia DB tiap main.</p>'));
+  root.appendChild(T.el('<p class="hint">5 atau 10 soal pilihan ganda. Mode Indonesia pakai soal Bahasa Indonesia; mode Dunia mengambil soal baru dari Open Trivia DB tiap main.</p>'));
   root.appendChild(T.field('Mode soal', modeSel));
+  root.appendChild(T.field('Jumlah soal', jumlahSel));
   root.appendChild(katLokalWrap);
   root.appendChild(katDuniaWrap);
   root.appendChild(sulitWrap);

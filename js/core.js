@@ -222,10 +222,16 @@ export function dlBtn(filename, getContent, mime, label) {
 }
 
 /* PNG export untuk fake-sosmed: render node DOM -> PNG via html2canvas (CDN).
-   Dipakai >1 tool (10 tools fakesos), jadi tinggal di core.js per kontrak. */
-const H2C_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+   Dipakai ~55 tool (seluruh fakesos + ekspor PNG tool lain), jadi tinggal
+   di core.js per kontrak. Dua CDN (jsDelivr + cdnjs, keduanya sudah ada di
+   SRI_HASH) lewat loadLibOnce kanonis: timeout 30 dtk per URL — pola yang
+   sama dengan html-ke-pdf (F10 v6.21.0, I2 R-04). */
+const H2C_CDNS = [
+  'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+];
 export async function dlNodePng(node, filename) {
-  const ok = await loadScript(H2C_CDN);
+  const ok = await utils.loadLibOnce(H2C_CDNS, () => typeof window.html2canvas === 'function');
   if (!ok || typeof window.html2canvas !== 'function') { toast('Gagal memuat pustaka export. Cek koneksi lalu coba lagi.'); return false; }
   // html2canvas mengabaikan backdrop-filter: pakai class png-export agar CSS tool
   // mengganti efek kaca jadi background solid selama capture; dihapus lagi di finally
@@ -627,8 +633,27 @@ utils.extractEmails = function (s) {
 
 utils.extractPhones = function (s) {
     const str = String(s == null ? '' : s);
-    const m = str.match(/(?:\+?62|0)8\d{7,11}\b/g);
-    return [...new Set((m || []).map((x) => x.replace(/^\+/, '')))];
+    // Nomor HP Indonesia: 08xx atau +62/62 8xx. Pemisah spasi/strip di
+    // antara kelompok angka ikut ditangkap ("0812-3456-7890",
+    // "0812 3456 7890", "+62 812-3456-7890"), dan "+" dari +62
+    // DIPERTAHANKAN. Yang dikembalikan adalah bentuk ASLI seperti
+    // tertulis di teks (bukan dinormalisasi): sensor-teks.js menyensor
+    // lewat split(p) sehingga butuh substring persis; dedup hanya untuk
+    // string yang persis sama — dua penulisan berbeda dari nomor yang
+    // sama ("0812-3456-7890" vs "081234567890") sengaja TIDAK digabung
+    // supaya sensor tidak melewatkan satu pun varian penulisannya.
+    // Total digit: 08 + 7-11 digit (9-13 digit) atau 62 + 8 + 7-11 digit.
+    const re = /(?:\+?62[ -]?|0)8(?:[ -]?\d){7,11}\b/g;
+    const keluar = [];
+    const sudah = new Set();
+    let m;
+    while ((m = re.exec(str))) {
+      const asli = m[0];
+      if (sudah.has(asli)) continue;
+      sudah.add(asli);
+      keluar.push(asli);
+    }
+    return keluar;
   };
 
 /* ================= Statistik: distribusi (kanonis, G3 C1) =================
@@ -907,6 +932,46 @@ utils.encodeWav = function (channels, sampleRate) {
   return new Blob([buf], { type: 'audio/wav' });
 };
 
+// Durasi aman (detik): hanya angka finite positif; NaN, Infinity, 0, dan
+// negatif menjadi 0. Pola lama `v.duration || 0` meloloskan Infinity:
+// Chrome melaporkan duration Infinity untuk WebM tanpa metadata durasi
+// (umum pada hasil MediaRecorder) sampai dilakukan trik seek.
+utils.durasiAman = function (d) {
+  return Number.isFinite(d) && d > 0 ? d : 0;
+};
+
+// Baca durasi elemen media, menyelesaikan Infinity lewat trik seek standar:
+// set currentTime ke nilai sangat besar memicu durationchange dengan durasi
+// nyata. Timeout (default 3 detik) + fallback 0. Posisi elemen dikembalikan
+// ke 0 sesudahnya. Mengembalikan Promise<number> (0 bila tidak terbaca).
+utils.resolveDurasi = function (media, timeoutMs) {
+  return new Promise((resolve) => {
+    const langsung = utils.durasiAman(media.duration);
+    if (langsung > 0 || media.duration !== Infinity) { resolve(langsung); return; }
+    let selesai = false;
+    const akhiri = (nilai) => {
+      if (selesai) return;
+      selesai = true;
+      try { media.removeEventListener('durationchange', onChange); } catch (e) {}
+      resolve(utils.durasiAman(nilai));
+    };
+    const onChange = () => {
+      if (Number.isFinite(media.duration)) {
+        const d = media.duration;
+        try { media.currentTime = 0; } catch (e) {}
+        akhiri(d);
+      }
+    };
+    media.addEventListener('durationchange', onChange);
+    setTimeout(() => akhiri(0), timeoutMs || 3000);
+    try { media.currentTime = Number.MAX_SAFE_INTEGER; }
+    catch (e) {
+      try { media.currentTime = 1e7; }
+      catch (err) { akhiri(0); }
+    }
+  });
+};
+
 // Durasi blob media (detik; 0 bila gagal dibaca). tag: 'video' | 'audio'.
 // Dua varian lokal (video x5, audio x4) hanya beda tag elemennya.
 utils.measureDur = function (blob, tag) {
@@ -914,7 +979,11 @@ utils.measureDur = function (blob, tag) {
     const url = URL.createObjectURL(blob);
     const m = document.createElement(tag);
     m.preload = 'metadata';
-    m.onloadedmetadata = () => { const d = m.duration || 0; URL.revokeObjectURL(url); resolve(d); };
+    m.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(m);
+      URL.revokeObjectURL(url);
+      resolve(d);
+    };
     m.onerror = () => { URL.revokeObjectURL(url); resolve(0); };
     m.src = url;
   });
@@ -1340,18 +1409,9 @@ utils.saveState = function (key, s) {
 
 /* ================= Minecraft & lain-lain (kanonis, G3 C1R) ================= */
 
-// Sel-sel lingkaran (koordinat "x,y") dengan jari-jari r.
-utils.isiLingkaran = function (r) {
-  const sel = new Set();
-  const m = Math.ceil(r);
-  for (let y = -m; y <= m; y++) {
-    for (let x = -m; x <= m; x++) {
-      const nx = (x + 0.5) / (r + 0.5), ny = (y + 0.5) / (r + 0.5);
-      if (nx * nx + ny * ny <= 1) sel.add(x + ',' + y);
-    }
-  }
-  return sel;
-};
+// (utils.isiLingkaran dihapus v6.21.0: konvensinya ((x+0.5)/(r+0.5))
+// salah — mengecilkan diameter ganjil 1 blok; file Minecraft memakai
+// konvensi diameter lokal masing-masing. Jangan tambah lagi.)
 
 // Sel tepi dari himpunan sel (yang punya tetangga kosong).
 utils.tepiDariIsi = function (sel) {
@@ -1610,7 +1670,7 @@ utils.bungkusKata = function (x, teks, maks) {
 
 // Bungkus teks per kata memakai fungsi ukur (ukur(teks) -> lebar),
 // memotong kata tunggal yang lebih lebar dari batas per huruf.
-// Teks kosong -> ['']. (produktivitas/excel-ke-pdf.js, bungkusSel.)
+// Teks kosong -> ['']. (produktivitas/pdf-ke-excel.js, bungkusSel.)
 // Varian produktivitas/perbaiki-pdf-rusak.js (bungkusBaris) identik
 // kecuali teks kosong -> []; tool itu memakai wrapper 1-baris.
 utils.bungkusTeks = function (teks, lebarMaks, ukur) {
@@ -1752,9 +1812,13 @@ utils.byok = {
  * website-scanner, removebg, genmail). Dipakai untuk mengambil konten dari
  * URL arbitrer yang TIDAK BISA di-allowlist statis — fetch langsung dicoba
  * dulu (paling cepat + privat), proxy hanya cadangan.
- * Jina TIDAK dipakai di sini: ia mengubah isi jadi markdown/teks. */
+ * Jina TIDAK dipakai di sini: ia mengubah isi jadi markdown/teks.
+ * F10 v6.21.0 (I2 R-03): cors-anyway.huskymobile.com DICABUT dari rantai
+ * — operatornya tidak teridentifikasi, dan semua URL target (termasuk
+ * yang ber-token) lewat situ bila fetch langsung gagal. Rantai kini:
+ * langsung → AllOrigins. Bila suatu hari perlu proxy kedua, pakai yang
+ * operatornya jelas / dikendalikan sendiri. */
 const PROXY_CHAIN = [
-  (u) => 'https://cors-anyway.huskymobile.com/?' + u,
   (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
 ];
 // R-11 (Blue-B, 19 Nov 2026): tolak target privat/lokal SEBELUM fetch
@@ -1807,7 +1871,7 @@ utils.isPrivateTarget = function (url) {
   if (o[0] === 192 && o[1] === 168) return true;
   return false;
 };
-// Ambil URL arbitrer: langsung → CorsAnyway → AllOrigins. Mengembalikan
+// Ambil URL arbitrer: langsung → AllOrigins. Mengembalikan
 // Response pertama yang ok; throw bila semua gagal. Hanya http(s) yang
 // lewat proxy — data:/blob: langsung di-fetch biasa.
 utils.fetchViaProxyChain = async function (url, opts) {
@@ -1878,14 +1942,29 @@ utils.dlUrl = async function (url, filename) {
 /* ================= Pola akun Puter milik user (Puter.js) =================
    AI dipakai dari akun Puter user sendiri (gratis, tanpa API key).
    Wajib atribusi "Powered by Puter" (syarat docs Puter) — sudah termasuk
-   di panel bawah. SDK: https://js.puter.com/v2/ */
+   di panel bawah. SDK: https://js.puter.com/v2/
+   CATATAN VERSI (F10 v6.21.0, I2 R-02): URL SDK berversi TIDAK ditemukan
+   — semua docs resmi Puter hanya memakai /v2/ tanpa nomor versi (cek
+   20 Nov 2026). Pin versi belum dimungkinkan dari CDN Puter; yang ada
+   hanya paket npm @heyputer/puter.js (jalur lain, perlu keputusan
+   koordinator bila mau dipakai). Sementara itu SDK dilindungi timeout. */
 utils.puter = {
   SDK: 'https://js.puter.com/v2/',
   ok() { return typeof window !== 'undefined' && !!window.puter && !!window.puter.ai; },
   // Muat SDK sekali; resolve true bila siap dipakai.
+  // Timeout 15 dtk (pola aiimage.js, F10 v6.21.0): loadScript tidak pernah
+  // settle bila koneksi macet — tanpa ini 29 tool AI menggantung selamanya
+  // tanpa pesan. Bila habis waktu, entri _loaded dihapus supaya percobaan
+  // berikutnya memakai elemen script baru (pola loadLibOnce).
   load() {
     if (utils.puter.ok()) return Promise.resolve(true);
-    return loadScript(utils.puter.SDK).then((ok) => ok && utils.puter.ok());
+    let timer = null;
+    const batas = new Promise((resolve) => { timer = setTimeout(() => resolve('habis'), 15000); });
+    return Promise.race([loadScript(utils.puter.SDK), batas]).then((ok) => {
+      if (timer) clearTimeout(timer);
+      if (ok === 'habis') { delete _loaded[utils.puter.SDK]; return false; }
+      return ok && utils.puter.ok();
+    });
   },
   // Ambil src dari hasil puter.ai.* (bisa HTMLImageElement / string data-URL).
   srcOf(res) {

@@ -49,6 +49,76 @@ export const ROUTES = [
   { name: 'home', pattern: '*' },
 ];
 
+/* R1 (v6.21.0): ALIAS REDIRECT — ID tool yang dipensiunkan di gelombang 3
+   (merge M1/M2/M4) mendarat di survivor-nya, supaya bookmark dan tautan
+   lama pengunjung tetap jalan alih-alih "Tools tidak ditemukan".
+   Nilai = target hash setelah '#/t/' — boleh membawa query:
+   - 'pdflab?tab=N' : langsung ke tab PDFLab yang menyerap tool lama
+     (nomor tab dari tim M2, 0-based: TAB 10 -> tab=9, TAB 19 -> tab=18,
+     TAB 4 -> tab=3; render pdflab membaca ?tab= dari location.hash).
+   - '<survivor>?dir=b' : konverter dua arah M4, langsung ke panel arah B
+     (arah yang dipensiunkan); render survivor membaca ?dir=b dari
+     location.hash, tanpa ?dir=b arah A tetap default.
+   Kunci di sini TIDAK ADA di manifest (ID pensiun, file sudah dihapus);
+   survivor-nya WAJIB ada di manifest. resolveToolAlias() dipakai
+   toolPage() di app.js sebelum byId() — route tool yang masih hidup
+   tidak pernah menyentuh peta ini. */
+export const TOOL_ALIASES = {
+  /* M1 — merge sejati (survivor menyerap fitur tool lama) */
+  'penulis-ulang-kalimat-ai': 'parafrase-teks-ai',
+  'cek-operator': 'format-hp',
+  'konverter-audio-lanjutan': 'konverter-audio',
+  'dice': 'dadu-dnd',
+  'kuis-trivia': 'trivia-umum',
+  'kalkulator-langkah-ke-km': 'kalkulator-langkah-ke-kalori',
+  'sample-size': 'margin-of-error',
+  'kalkulator-cm360': 'kalkulator-edpi',
+  'kalkulator-rfm': 'lemak-tubuh',
+  'reorder-point': 'kalkulator-safety-stock',
+  'konverter-subtitle-ass-sbv-ttml': 'konverter-subtitle',
+  'subtitle-ke-teks-polos': 'konverter-subtitle',
+  'ambil-teks-dari-epub': 'ambil-teks-dari-word',
+  'ambil-teks-dari-odt': 'ambil-teks-dari-word',
+  'lihat-data-foto': 'exif-clean',
+  'edit-exif-foto': 'exif-clean',
+  'frekuensi-nada': 'generator-nada-frekuensi',
+  'jadwal-hasil-f1': 'data-f1-live',
+  'alamat-dari-koordinat': 'cari-lokasi',
+  'barcode': 'qr-generator',
+  /* M2 — PDFLab + kunci/arsip */
+  'pdf-ke-jpg-png': 'pdflab?tab=9',
+  'pembuat-buklet-pdf': 'pdflab?tab=18',
+  'gambar-ke-pdf': 'pdflab?tab=3',
+  'buka-kunci-pdf': 'kunci-pdf',
+  'buat-arsip-tar-gz': 'ekstrak-arsip-7z-rar-tar-gz',
+  /* M4 — konverter dua arah (arah B = yang dipensiunkan) */
+  'excel-ke-csv': 'csv-ke-excel?dir=b',
+  'vcf-ke-csv': 'csv-ke-vcf?dir=b',
+  'pdf-ke-epub': 'epub-ke-pdf?dir=b',
+  'json-ke-excel': 'excel-ke-json?dir=b',
+  'excel-ke-pdf': 'pdf-ke-excel?dir=b',
+  'xml-ke-excel': 'excel-ke-xml?dir=b',
+  'gif-ke-video': 'video-ke-gif?dir=b',
+  'pdf-ke-html': 'html-ke-pdf?dir=b',
+  'html-ke-word': 'word-ke-html?dir=b',
+  'pdf-ke-markdown': 'markdown-ke-pdf?dir=b',
+  'word-ke-markdown': 'markdown-ke-word?dir=b',
+  'word-ke-pdf': 'pdf-ke-word?dir=b',
+  'woff2-ke-ttf': 'ttf-ke-woff2?dir=b',
+};
+
+/* Kembalikan target redirect ('<id-survivor>[?query]') bila id adalah ID
+   tool pensiun, undefined bila bukan (route hidup & ID tak dikenal
+   tidak berubah perilakunya). */
+export function resolveToolAlias(id) {
+  // Q3 (v6.21.0): guard hasOwnProperty — tanpa ini id warisan seperti
+  // '__proto__'/'constructor'/'toString' mengembalikan nilai truthy
+  // non-string yang melempar di normList (store.js) dan mengosongkan
+  // beranda + #/favorit. Peta statis; tidak ada perubahan perilaku lain.
+  if (!Object.prototype.hasOwnProperty.call(TOOL_ALIASES, id)) return undefined;
+  return TOOL_ALIASES[id];
+}
+
 /* Cocokkan satu definisi route terhadap hash. Mengembalikan params
    (objek, mungkin kosong) bila cocok, null bila tidak. */
 function matchOne(route, hash) {

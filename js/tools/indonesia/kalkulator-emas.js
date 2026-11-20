@@ -10,13 +10,18 @@ export const meta = {
 };
 
 export function render(root) {
-  let harga = 2518000;
+  // Harga default disamakan dengan tool zakat (satu sumber tanggal yang
+  // sama): Antam Rp2.500.000/gram, 20 November 2026 (Logam Mulia, turun
+  // Rp11.000 dari Rp2.511.000; diverifikasi Q5 v6.21.0 dari FORTUNE/
+  // investor.id/Bloomberg Technoz). Bila mengubah default di sini, ubah
+  // juga di js/tools/indonesia/zakat.js.
+  let harga = 2500000;
   try {
     const s = localStorage.getItem('kalkulator-emas-harga');
     if (s != null && T.num(s) > 0) harga = T.num(s);
   } catch (e) { /* abaikan */ }
 
-  const hargaI = T.input('text', 'cth: 2518000', String(harga));
+  const hargaI = T.input('text', 'cth: 2500000', String(harga));
   hargaI.inputMode = 'decimal';
 
   const modeSel = T.select([
@@ -74,7 +79,7 @@ export function render(root) {
   };
 
   root.appendChild(T.el('<p class="note">Mau nabung emas? Hitung dulu di sini — dari berat ke harga, atau dari budget ke berat. Biar nggak kaget di depan etalase.</p>'));
-  root.appendChild(T.field('Harga emas per gram (Rp)', hargaI, 'Harga Antam 12 Nov 2026: Rp2.518.000/gram — ganti sesuai harga hari ini.'));
+  root.appendChild(T.field('Harga emas per gram (Rp)', hargaI, 'Harga Antam 20 Nov 2026: Rp2.500.000/gram — ganti sesuai harga hari ini.'));
   root.appendChild(T.field('Mode hitung', modeSel));
   root.appendChild(wrapBerat);
   root.appendChild(wrapBudget);

@@ -427,7 +427,8 @@ export function render(root) {
     if (worker) return worker;
     if (!window.Tesseract) {
       T.show(out, '<p class="dim">Mengunduh engine OCR (~3 MB, sekali saja)…</p>');
-      await T.loadScript(TS_CDN);
+      // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+      await utils.loadLibOnce(TS_CDN, () => !!window.Tesseract);
       if (!window.Tesseract) throw new Error('Engine OCR gagal dimuat.');
     }
     T.show(out, '<p class="dim">Menyiapkan model bahasa…</p>');

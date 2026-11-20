@@ -1,6 +1,6 @@
 import { h as T, utils, kv, tabs, parseISO, todayISO } from '../../core.js';
 
-export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari/bulan/tahun, hitung mundur, dan hitung hari kerja dengan libur nasional 2026.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari,hitung mundur,countdown,libur nasional,cuti bersama,deadline,hrd,payroll,business days"};
+export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari/bulan/tahun, hitung mundur, dan hitung hari kerja dengan libur nasional 2026–2027.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari,hitung mundur,countdown,libur nasional,cuti bersama,deadline,hrd,payroll,business days"};
 
 const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -37,6 +37,39 @@ export const LIBUR_2026 = [
   ['2026-12-25', 'Kelahiran Yesus Kristus (Natal)', 'Libur nasional'],
 ];
 
+/* Libur nasional + cuti bersama 2027, sumber: SKB 3 Menteri No. 1205/2026,
+   No. 3/2026, No. 2/2026 (ditetapkan 15 September 2026; 18 hari libur
+   nasional + 8 cuti bersama). Hari dalam seminggu tiap tanggal sudah
+   dicocokkan dengan lampiran SKB. Format sama dengan LIBUR_2026. */
+export const LIBUR_2027 = [
+  ['2027-01-01', 'Tahun Baru 2027 Masehi', 'Libur nasional'],
+  ['2027-01-05', 'Isra Mikraj Nabi Muhammad SAW', 'Libur nasional'],
+  ['2027-02-05', 'Cuti Bersama Tahun Baru Imlek 2578 Kongzili', 'Cuti bersama'],
+  ['2027-02-06', 'Tahun Baru Imlek 2578 Kongzili', 'Libur nasional'],
+  ['2027-03-08', 'Hari Suci Nyepi (Tahun Baru Saka 1949)', 'Libur nasional'],
+  ['2027-03-09', 'Cuti Bersama Hari Raya Idulfitri 1448 H', 'Cuti bersama'],
+  ['2027-03-10', 'Hari Raya Idulfitri 1448 H', 'Libur nasional'],
+  ['2027-03-11', 'Hari Raya Idulfitri 1448 H', 'Libur nasional'],
+  ['2027-03-12', 'Cuti Bersama Hari Raya Idulfitri 1448 H', 'Cuti bersama'],
+  ['2027-03-15', 'Cuti Bersama Hari Raya Idulfitri 1448 H', 'Cuti bersama'],
+  ['2027-03-25', 'Cuti Bersama Wafat Yesus Kristus', 'Cuti bersama'],
+  ['2027-03-26', 'Wafat Yesus Kristus', 'Libur nasional'],
+  ['2027-03-28', 'Kebangkitan Yesus Kristus (Paskah)', 'Libur nasional'],
+  ['2027-05-01', 'Hari Buruh Internasional', 'Libur nasional'],
+  ['2027-05-06', 'Kenaikan Yesus Kristus', 'Libur nasional'],
+  ['2027-05-17', 'Hari Raya Iduladha 1448 H', 'Libur nasional'],
+  ['2027-05-18', 'Cuti Bersama Hari Raya Iduladha 1448 H', 'Cuti bersama'],
+  ['2027-05-19', 'Cuti Bersama Hari Raya Waisak 2571 BE', 'Cuti bersama'],
+  ['2027-05-20', 'Hari Raya Waisak 2571 BE', 'Libur nasional'],
+  ['2027-06-01', 'Hari Lahir Pancasila', 'Libur nasional'],
+  ['2027-06-06', '1 Muharam Tahun Baru Islam 1449 H', 'Libur nasional'],
+  ['2027-08-15', 'Maulid Nabi Muhammad SAW', 'Libur nasional'],
+  ['2027-08-17', 'Proklamasi Kemerdekaan RI', 'Libur nasional'],
+  ['2027-12-24', 'Cuti Bersama Hari Raya Natal', 'Cuti bersama'],
+  ['2027-12-25', 'Kelahiran Yesus Kristus (Natal)', 'Libur nasional'],
+  ['2027-12-26', 'Isra Mikraj Nabi Muhammad SAW', 'Libur nasional'],
+];
+
 /* Hitung hari kerja INKLUSIF (tanggal mulai & akhir sama-sama dihitung),
    loop per hari — dari Kalkulator Hari Kerja. libur: Map iso -> nama.
    Libur yang jatuh di Sabtu/Minggu tidak dihitung ganda (sudah terhitung
@@ -65,6 +98,7 @@ export function hitungHariKerjaInklusif(mulai, akhir, libur) {
 
 utils.hariKerjaHitung = hitungHariKerjaInklusif;
 utils.hariKerjaLibur2026 = LIBUR_2026;
+utils.hariKerjaLibur2027 = LIBUR_2027;
 
 /* Pilihan akhir pekan: set angka hari (0=Minggu … 6=Sabtu) yang dianggap libur. */
 export const AKHIR_PEKAN = {
@@ -203,6 +237,8 @@ export function render(root) {
   const akhirPekanSel = pilihAkhirPekan();
   const cekLiburNasional = document.createElement('input');
   cekLiburNasional.type = 'checkbox'; cekLiburNasional.id = 'dd-ln';
+  const cekLiburNasional2027 = document.createElement('input');
+  cekLiburNasional2027.type = 'checkbox'; cekLiburNasional2027.id = 'dd-ln27';
   const liburTa = T.ta(3, 'Satu tanggal per baris, mis.\n2026-12-25\n2027-01-01', '');
   const box = T.out();
   const hitung = () => {
@@ -221,26 +257,24 @@ export function render(root) {
     if (cekKerja.checked) {
       const libur = bacaLibur(liburTa.value);
       const akhirPekan = AKHIR_PEKAN[akhirPekanSel.value] || [0, 6];
-      let nasionalDipakai = 0;
-      if (cekLiburNasional.checked) {
-        LIBUR_2026.forEach(([iso]) => {
-          if (!libur.set.has(iso)) { libur.set.add(iso); nasionalDipakai++; }
-        });
-      }
+      const tabelNasional = [];
+      if (cekLiburNasional.checked) tabelNasional.push(...LIBUR_2026);
+      if (cekLiburNasional2027.checked) tabelNasional.push(...LIBUR_2027);
+      tabelNasional.forEach(([iso]) => { libur.set.add(iso); });
       const kerja = hitungHariKerja(awal, akhir, libur.set, akhirPekan);
       // Hanya libur yang jatuh di dalam rentang DAN di hari kerja yang
       // benar-benar mengurangi hitungan — sisanya tidak berpengaruh.
       let berdampak = 0, nasionalBerdampak = 0;
-      const setNasional = new Set(LIBUR_2026.map(([iso]) => iso));
+      const setNasional = new Set(tabelNasional.map(([iso]) => iso));
       libur.set.forEach((iso) => {
         const d = parseISO(iso);
         if (d && d >= awal && d < akhir && !akhirPekan.includes(d.getUTCDay())) {
           berdampak++;
-          if (cekLiburNasional.checked && setNasional.has(iso)) nasionalBerdampak++;
+          if (setNasional.has(iso)) nasionalBerdampak++;
         }
       });
       html += '<div class="kv"><span class="k">Hari kerja (' + T.esc(AKHIR_PEKAN_LABEL[akhirPekanSel.value] || 'Sabtu–Minggu') + ' libur)</span><span class="v">' + T.fmt(kerja) + ' hari</span></div>';
-      if (berdampak > 0) html += '<p class="hint">' + berdampak + ' hari libur dikurangi dari hitungan hari kerja' + (nasionalBerdampak > 0 ? ' (termasuk ' + nasionalBerdampak + ' libur nasional 2026)' : '') + '.</p>';
+      if (berdampak > 0) html += '<p class="hint">' + berdampak + ' hari libur dikurangi dari hitungan hari kerja' + (nasionalBerdampak > 0 ? ' (termasuk ' + nasionalBerdampak + ' libur nasional)' : '') + '.</p>';
       if (libur.tidakValid > 0) html += '<p class="warn">' + libur.tidakValid + ' baris libur tidak bisa dibaca (formatnya YYYY-MM-DD, mis. 2026-12-25).</p>';
     }
     T.show(box, html);
@@ -255,6 +289,10 @@ export function render(root) {
   lblLn.appendChild(cekLiburNasional);
   lblLn.appendChild(document.createTextNode('Pakai libur nasional Indonesia 2026 (25 hari, SKB 3 Menteri)'));
   p1.appendChild(lblLn);
+  const lblLn27 = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0 10px"></label>');
+  lblLn27.appendChild(cekLiburNasional2027);
+  lblLn27.appendChild(document.createTextNode('Pakai libur nasional Indonesia 2027 (26 hari, SKB 3 Menteri)'));
+  p1.appendChild(lblLn27);
   p1.appendChild(T.field('Hari libur tambahan (opsional)', liburTa, 'Satu tanggal per baris, format tahun-bulan-tanggal. Libur yang jatuh di akhir pekan tidak berpengaruh.'));
   p1.appendChild(T.btn('Hitung', hitung, true));
   p1.appendChild(box);
@@ -376,7 +414,7 @@ export function render(root) {
 
   // ---- Panel 4: hari kerja (dari Kalkulator Hari Kerja) ----
   // Beda dengan tab "Selisih tanggal": tanggal mulai & akhir sama-sama
-  // dihitung, libur tahun selain 2026 diambil dari Nager.Date, ada opsi
+  // dihitung, libur tahun selain 2026–2027 diambil dari Nager.Date, ada opsi
   // cuti bersama, dan daftar libur di rentang ditampilkan beserta namanya.
   const hkMulai = T.input('date', '', todayISO());
   const hkAkhirD = new Date();
@@ -389,8 +427,9 @@ export function render(root) {
   const hkCacheNager = {};
 
   const hkMuatLiburTahun = async (th) => {
-    // 2026: data lokal SKB 3 Menteri (lengkap, tanpa internet).
+    // 2026-2027: data lokal SKB 3 Menteri (lengkap, tanpa internet).
     if (th === 2026) return { map: new Map(LIBUR_2026.map(([d, n, j]) => [d, n + ' (' + j + ')'])), sumber: 'skb' };
+    if (th === 2027) return { map: new Map(LIBUR_2027.map(([d, n, j]) => [d, n + ' (' + j + ')'])), sumber: 'skb' };
     if (hkCacheNager[th]) return hkCacheNager[th];
     // Tahun lain: Nager.Date (sama seperti tool hari-libur), bisa tidak lengkap.
     const ctrl = new AbortController();
@@ -466,7 +505,7 @@ export function render(root) {
         h.liburDalamRentang.map((l) => '<div class="kv"><span class="k">' + T.esc(fmtTanggalPanjang(l.tgl)) + '</span><span class="v">' + T.esc(l.nama) + '</span></div>').join('') + '</div>';
     }
     let catatan = 'Tanggal mulai dan tanggal akhir sama-sama dihitung. Sabtu dan Minggu bukan hari kerja.';
-    if (sumberNager) catatan += ' Data libur tahun selain 2026 diambil dari Nager.Date — daftarnya bisa tidak lengkap, cek SKB 3 Menteri untuk daftar resmi.';
+    if (sumberNager) catatan += ' Data libur tahun selain 2026–2027 diambil dari Nager.Date — daftarnya bisa tidak lengkap, cek SKB 3 Menteri untuk daftar resmi.';
     if (sumberGagal) catatan += ' Data libur untuk sebagian tahun gagal dimuat (perlu internet) — tahun itu hanya Sabtu–Minggu yang dikurangi.';
     if (tambahan.gagal.length) catatan += ' Tanggal tambahan yang tidak dikenali dan dilewati: ' + tambahan.gagal.map((g) => T.esc(g)).join(', ') + '.';
     T.show(hkBox,

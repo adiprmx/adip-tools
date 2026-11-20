@@ -3,10 +3,10 @@ import { h as T, utils, imglyRemoval } from '../../core.js';
 export const meta = {"id": "removebg", "name": "Remove BG", "cat": "gambar", "icon": "🪄", "desc": "Hapus background foto otomatis, 100% di perangkat. Bisa pecah jadi layer PNG per objek.", "keywords": "hapus background,remove bg,transparan,foto,produk,layer,cutout,alight,zip"};
 
 const MAX_FILE = 12 * 1024 * 1024;
-// Rantai ambil gambar dari URL: langsung → CorsAnyway → AllOrigins (terakhir,
-// flaky). Jina TIDAK dipakai: ia mengembalikan teks/markdown, bukan biner gambar.
-const PROXY_CA = 'https://cors-anyway.huskymobile.com/?';
-const ALLORIGINS = 'https://api.allorigins.win/raw?url=';
+// F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak
+// teridentifikasi). Ambil gambar dari URL kini lewat rantai kanonis
+// utils.fetchViaProxyChain (langsung → AllOrigins) di ambilGambarUrl.
+// Jina TIDAK dipakai: ia mengembalikan teks/markdown, bukan biner gambar.
 
 /** Validasi magic byte (tanpa DOM — bisa diuji). Return 'png'|'jpg'|'webp'|null. */
 export function magicType(b) {
@@ -50,6 +50,24 @@ export function chromaKeyAlpha(data, w, h, tol) {
 }
 export function withTimeout(p, ms, msg) {
   return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(msg || 'timeout')), ms))]);
+}
+
+// Ambil gambar dari URL lewat rantai kanonis utils.fetchViaProxyChain
+// (langsung → AllOrigins), lalu validasi magic byte. Return Blob atau null
+// (null = semua jalur gagal atau yang kembali bukan gambar). Di-export agar
+// bisa di-unit-test via node. Catatan F13: tidak seperti rantai lama yang
+// memvalidasi tiap kandidat satu per satu, rantai kanonis mengembalikan
+// respons ok pertama — bila respons ok itu ternyata bukan gambar (mis.
+// halaman blokir hotlink berstatus 200), tidak ada percobaan kandidat
+// berikutnya; pemanggil menampilkan pesan jujur + arahan upload manual.
+export async function ambilGambarUrl(u) {
+  try {
+    const r = await utils.fetchViaProxyChain(u, {timeout: 25000});
+    const b = await r.blob();
+    const head = new Uint8Array(await b.slice(0, 12).arrayBuffer());
+    if (magicType(head)) return b;
+  } catch (e) { /* gagal — pemanggil menampilkan pesan jujur */ }
+  return null;
 }
 
 // ---------- Pecah jadi layer per objek (dari Auto Cut) ----------
@@ -264,16 +282,7 @@ export function render(root) {
     const u = urlInp.value.trim();
     if (!/^https?:\/\//i.test(u)) { T.show(out, '<span class="err">URL harus diawali http(s)://</span>'); return; }
     T.show(out, '<span class="dim">Mengambil gambar…</span>');
-    let blob = null;
-    for (const cand of [u, PROXY_CA + u, ALLORIGINS + encodeURIComponent(u)]) {
-      try {
-        const r = await withTimeout(fetch(cand), 25000, 'timeout-url');
-        if (!r.ok) continue;
-        const b = await r.blob();
-        const head = new Uint8Array(await b.slice(0, 12).arrayBuffer());
-        if (magicType(head)) { blob = b; break; }
-      } catch (e) { /* coba berikutnya */ }
-    }
+    const blob = await ambilGambarUrl(u);
     if (!blob) { T.show(out, '<span class="err">Gagal mengambil gambar dari URL itu — situsnya mungkin memblokir pengambilan dari luar, atau semua proxy sedang sibuk. Coba unduh gambarnya dulu lalu upload dari perangkat.</span>'); return; }
     st.fname = 'hasil-url';
     process(blob, URL.createObjectURL(blob));

@@ -31,8 +31,9 @@ export function kotakSlide(gaya, i) {
 }
 
 // Gambar satu slide ke context canvas (context sudah berukuran LEBAR x TINGGI).
-// img: HTMLImageElement (atau canvas), caption: teks di bawah foto.
-export function gambarSlide(ctx, img, gaya, i, caption) {
+// img: HTMLImageElement (atau canvas), caption: teks di bawah foto,
+// total: jumlah slide (penyebut nomor halaman majalah "01 / 05").
+export function gambarSlide(ctx, img, gaya, i, caption, total) {
   const g = GAYA[gaya] || GAYA.scrapbook;
   const k = kotakSlide(gaya, i);
   ctx.save();
@@ -54,7 +55,7 @@ export function gambarSlide(ctx, img, gaya, i, caption) {
     ctx.fillRect(60, 150, LEBAR - 120, 3);
     ctx.font = '400 28px Georgia, serif';
     ctx.fillStyle = '#55504a';
-    ctx.fillText(String(i + 1).padStart(2, '0') + ' / ' + String(Math.max(1, i + 1)).padStart(2, '0'), 60, TINGGI - 60);
+    ctx.fillText(String(i + 1).padStart(2, '0') + ' / ' + String(Math.max(1, total || i + 1)).padStart(2, '0'), 60, TINGGI - 60);
   }
   const cx = k.x + k.sisi / 2, cy = k.y + k.sisi / 2;
   ctx.translate(cx, cy);
@@ -182,7 +183,7 @@ export function render(root) {
       for (let i = 0; i < daftar.length; i++) {
         T.show(statusBox, `<span class="dim">Membuat slide ${i + 1} dari ${daftar.length}…</span>`);
         await new Promise((r) => setTimeout(r, 0));
-        gambarSlide(ctx, daftar[i].img, gaya, i, caption);
+        gambarSlide(ctx, daftar[i].img, gaya, i, caption, daftar.length);
         const blob = await new Promise((res) => c.toBlob(res, 'image/png'));
         if (!blob) continue;
         slideBlob.push(blob);

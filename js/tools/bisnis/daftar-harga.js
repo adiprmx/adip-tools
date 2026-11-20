@@ -13,7 +13,6 @@ export function render(root) {
   const catatan = T.input('text', 'Contoh: Harga sudah termasuk pajak', '');
   const namaItem = T.input('text', 'Nama layanan / barang', '');
   const hargaItem = T.input('text', 'Harga (Rp)', ''); hargaItem.inputMode = 'decimal';
-  const box = T.out();
   const KUNCI = 'at-daftar-harga';
   let daftar = [];
   try { daftar = JSON.parse(localStorage.getItem(KUNCI) || '[]'); } catch (e) { daftar = []; }
@@ -31,13 +30,13 @@ export function render(root) {
     }
     const rows = daftar.map((d, i) =>
       `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #2a2a2a">` +
-      `<span style="font-size:15px">${d.nama}</span>` +
+      `<span style="font-size:15px">${T.esc(d.nama)}</span>` +
       `<span style="display:flex;gap:8px;align-items:center"><b style="font-size:15px;white-space:nowrap">Rp${T.fmt(d.harga)}</b>` +
       `<button data-hapus="${i}" style="background:none;border:1px solid #3a3a3a;color:#a1a1aa;border-radius:8px;padding:4px 10px;cursor:pointer;font-size:13px">Hapus</button></span></div>`
     ).join('');
     kartu.innerHTML =
-      `<div style="text-align:center;margin-bottom:16px"><div style="font-size:20px;font-weight:700">${namaUsaha.value.trim() || 'Daftar Harga'}</div>` +
-      (catatan.value.trim() ? `<div style="font-size:13px;color:#a1a1aa;margin-top:4px">${catatan.value.trim()}</div>` : '') + `</div>` + rows;
+      `<div style="text-align:center;margin-bottom:16px"><div style="font-size:20px;font-weight:700">${T.esc(namaUsaha.value.trim() || 'Daftar Harga')}</div>` +
+      (catatan.value.trim() ? `<div style="font-size:13px;color:#a1a1aa;margin-top:4px">${T.esc(catatan.value.trim())}</div>` : '') + `</div>` + rows;
     kartu.querySelectorAll('[data-hapus]').forEach((b) => {
       b.addEventListener('click', () => {
         daftar.splice(Number(b.dataset.hapus), 1);
@@ -83,6 +82,5 @@ export function render(root) {
       T.toast(ok ? 'Gambar berhasil diunduh' : 'Gambarnya tidak bisa dibuat, coba salin sebagai teks');
     })
   ));
-  root.appendChild(box);
   tampilKartu();
 }

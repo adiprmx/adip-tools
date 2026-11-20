@@ -44,8 +44,35 @@ function diffBaris(a, b) {
   return { baris, terpotong };
 }
 
-export const meta = {"id": "pdflab", "name": "PDF Lab", "cat": "produktivitas", "icon": "🧪", "desc": "Toolkit PDF lokal: gabung, pisah, watermark & lainnya.", "keywords": "pdf,merge,split,watermark,metadata,form,gabung,kompres,compress"};
+export const meta = {"id": "pdflab", "name": "PDF Lab", "cat": "produktivitas", "icon": "🧪", "desc": "Toolkit PDF lokal: gabung, pisah, watermark, gambar ke PDF, PDF ke gambar, buklet & lainnya.", "keywords": "pdf,merge,split,watermark,metadata,form,gabung,kompres,compress,pdf ke jpg,pdf ke png,pdf ke gambar,gambar ke pdf,foto ke pdf,jpg ke pdf,png ke pdf,buklet pdf,booklet pdf,zine pdf,cetak buklet,lipat pdf"};
 export { diffBaris, normalisasiBaris };
+
+// ---------- Urutan cetak buklet (diserap dari Pembuat Buklet PDF, v6.21.0) ----------
+// Hitung urutan cetak buklet. total = jumlah halaman asli (dibulatkan
+// ke atas jadi kelipatan 4 dengan halaman kosong, 0 = halaman kosong).
+// Mengembalikan daftar lembar: [{depan: [kiri, kanan], belakang: [kiri,
+// kanan]}] dengan nomor halaman 1-based. Murni, bisa diuji di Node.
+export function urutanBuklet(total) {
+  const t = Math.max(4, Math.ceil(Math.max(0, total || 0) / 4) * 4);
+  const lembar = [];
+  const jumlah = t / 4;
+  for (let i = 0; i < jumlah; i++) {
+    const depanKiri = t - 2 * i;
+    const depanKanan = 2 * i + 1;
+    const belakangKiri = 2 * i + 2;
+    const belakangKanan = t - 2 * i - 1;
+    lembar.push({
+      depan: [depanKiri <= total ? depanKiri : 0, depanKanan <= total ? depanKanan : 0],
+      belakang: [belakangKiri <= total ? belakangKiri : 0, belakangKanan <= total ? belakangKanan : 0],
+    });
+  }
+  return lembar;
+}
+
+// Jumlah lembar kertas yang dibutuhkan untuk buklet. Murni, bisa diuji di Node.
+export function hitungLembar(total) {
+  return Math.max(1, Math.ceil(Math.max(0, total || 0) / 4));
+}
 
 // ---------- Redact sejati: hapus teks dari content stream ----------
 // Cara kerja: baca content stream halaman (decode Flate bila perlu), jalankan
@@ -919,12 +946,53 @@ export function render(root) {
   const pImg = T.el('<div></div>');
   {
     const fi = fileInput('image/*,.heic,.heif,.tiff,.tif,.webp'); fi.multiple = true; fi.style.margin = '6px 0';
-    const sizeSel = T.select([['follow', 'Ikuti ukuran gambar'], ['a4', 'Kertas A4']], 'follow');
+    const sizeSel = T.select([['follow', 'Sepas foto (halaman mengikuti foto)'], ['a4', 'Kertas A4 tegak'], ['a4-l', 'Kertas A4 mendatar']], 'follow');
     const mInp = T.input('number', '0-50', '8');
     mInp.min = '0'; mInp.max = '50';
     const box = T.out();
+    const daftarBox = T.el('<div style="display:grid;gap:8px;margin:12px 0"></div>');
+    // Daftar foto + urutannya (diserap dari Gambar ke PDF, v6.21.0):
+    // [{file, url}] — url pratinjau dicabut saat foto dihapus.
+    let daftar = [];
+    const gambarDaftar = () => {
+      daftarBox.innerHTML = '';
+      if (!daftar.length) {
+        daftarBox.appendChild(T.el('<p class="dim">Belum ada foto. Pilih foto JPG, PNG, WebP, HEIC, atau TIFF di atas.</p>'));
+        return;
+      }
+      daftar.forEach((item, i) => {
+        const baris = T.el('<div style="border:1px solid #ffffff20;border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:10px"></div>');
+        const thumb = document.createElement('img');
+        thumb.src = item.url; thumb.alt = item.file.name || 'foto';
+        thumb.style.cssText = 'width:56px;height:56px;object-fit:cover;border-radius:8px;flex:none;background:#fff';
+        baris.appendChild(thumb);
+        const nama = T.el('<div style="flex:1;min-width:0;word-break:break-word;font-size:13px"><b>Halaman ' + (i + 1) + ': ' + T.esc(fileName(item.file)) + '</b><div class="dim" style="font-size:12px">' + fmtSize(item.file.size || 0) + '</div></div>');
+        baris.appendChild(nama);
+        const tombol = T.el('<div style="display:flex;gap:6px;flex:none"></div>');
+        const naikB = T.btn('↑', () => { if (i > 0) { const t = daftar[i - 1]; daftar[i - 1] = daftar[i]; daftar[i] = t; gambarDaftar(); } }, false, i === 0);
+        const turunB = T.btn('↓', () => { if (i < daftar.length - 1) { const t = daftar[i + 1]; daftar[i + 1] = daftar[i]; daftar[i] = t; gambarDaftar(); } }, false, i === daftar.length - 1);
+        const hapusB = T.btn('Hapus', () => { try { URL.revokeObjectURL(daftar[i].url); } catch (e) {} daftar.splice(i, 1); gambarDaftar(); });
+        [naikB, turunB, hapusB].forEach((b) => { b.classList.add('small'); b.style.padding = '4px 8px'; tombol.appendChild(b); });
+        baris.appendChild(tombol);
+        daftarBox.appendChild(baris);
+      });
+    };
+    fi.addEventListener('change', () => {
+      const baru = [...(fi.files || [])];
+      fi.value = '';
+      if (!baru.length) return;
+      baru.forEach((f) => {
+        let url = '';
+        try { url = URL.createObjectURL(f); } catch (e) {}
+        daftar.push({ file: f, url });
+      });
+      T.hide(box);
+      gambarDaftar();
+    });
+    T.onLeave(() => { daftar.forEach((item) => { try { URL.revokeObjectURL(item.url); } catch (e) {} }); });
+    const tambahB = T.btn('Tambah Foto Lagi', () => fi.click());
     const bGo = T.btn('Buat PDF & Unduh', async () => {
-      const files = [...(fi.files || [])];
+      const files = daftar.map((d) => d.file);
       if (!files.length) { T.show(box, errBox('Pilih dulu gambar (bisa banyak).')); return; }
       const ok = await needLib(); if (!ok) return;
       T.show(box, '<span class="dim">Menyusun ' + files.length + ' gambar…</span>');
@@ -971,6 +1039,7 @@ export function render(root) {
           dims = img.scale(1);
           let pw, ph;
           if (sizeSel.value === 'a4') { pw = 595.28; ph = 841.89; }
+          else if (sizeSel.value === 'a4-l') { pw = 841.89; ph = 595.28; }
           else { pw = dims.width + mm * 2; ph = dims.height + mm * 2; }
           const page = out.addPage([pw, ph]);
           const maxW = pw - mm * 2, maxH = ph - mm * 2;
@@ -983,11 +1052,13 @@ export function render(root) {
         T.show(box, '<span class="ok">Berhasil: ' + made + ' halaman terunduh.' + (gagal.length ? ' ' + gagal.length + ' file dilewati karena tidak bisa dibaca browser ini: ' + gagal.slice(0, 3).map(T.esc).join(', ') + (gagal.length > 3 ? ' dan lainnya' : '') + '.' : '') + '</span>');
       } catch (e) { T.show(box, errBox('Tidak bisa membuat PDF dari gambar ini. Pastikan filenya benar-benar gambar (JPG, PNG, atau WEBP), lalu coba lagi.')); }
     }, true);
-    pImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah kumpulan gambar jadi satu PDF. PNG, JPG, WEBP, dan BMP bisa langsung. HEIC (foto iPhone) dan TIFF diubah dulu di perangkat — pertama kali butuh internet untuk mengunduh pengubahnya.</p>'));
+    pImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah kumpulan gambar jadi satu PDF. Atur urutan fotonya dengan tombol panah sebelum dibuat. PNG, JPG, WEBP, dan BMP bisa langsung. HEIC (foto iPhone) dan TIFF diubah dulu di perangkat — pertama kali butuh internet untuk mengunduh pengubahnya.</p>'));
     pImg.appendChild(fi);
+    pImg.appendChild(daftarBox);
     pImg.appendChild(T.grid2(T.field('Ukuran halaman', sizeSel), T.field('Margin (mm, 0-50)', mInp)));
-    pImg.appendChild(T.row(bGo));
+    pImg.appendChild(T.row(tambahB, bGo));
     pImg.appendChild(box);
+    gambarDaftar();
   }
 
   /* ============ TAB 5: Watermark ============ */
@@ -1496,8 +1567,8 @@ export function render(root) {
   const pPdfImg = T.el('<div></div>');
   {
     const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
-    const fmtSel = T.select([['jpeg', 'JPG'], ['png', 'PNG']], 'jpeg');
-    const scSel = T.select([['1', '72 dpi (standar)'], ['1.5', '108 dpi'], ['2', '144 dpi (tajam)'], ['3', '216 dpi (sangat tajam)']], '2');
+    const fmtSel = T.select([['jpeg', 'JPG (ukuran kecil)'], ['png', 'PNG (tanpa pecah)']], 'jpeg');
+    const scSel = T.select([['1', 'Biasa (72 dpi, cukup untuk dibaca)'], ['1.5', '108 dpi'], ['2', 'Tajam (144 dpi, cocok untuk dibagikan)'], ['3', 'Sangat tajam (216 dpi, file besar)']], '2');
     const box = T.out();
     const grid = T.el('<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:12px 0"></div>');
     let shots = [];
@@ -1556,7 +1627,12 @@ export function render(root) {
         }
         bZip.hidden = false;
         T.show(box, '<span class="ok">' + n + ' halaman diubah jadi ' + fmt.toUpperCase() + '. Unduh satu per satu atau semuanya sekaligus.</span>');
-      } catch (e) { T.show(box, errBox('Halaman tidak bisa diubah jadi gambar. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
+      } catch (e) {
+        const terkunci = e && e.name === 'PasswordException';
+        T.show(box, errBox(terkunci
+          ? 'PDF ini dikunci kata sandi. Buka kuncinya dulu di tool Kunci PDF, tab Buka kunci.'
+          : 'Halaman tidak bisa diubah jadi gambar. Pastikan file PDF-nya tidak rusak, lalu coba lagi.'));
+      }
     }, true);
     pPdfImg.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah tiap halaman PDF jadi gambar JPG atau PNG. Cocok untuk dibagikan atau dimasukkan ke dokumen lain.</p>'));
     pPdfImg.appendChild(fi);
@@ -2365,6 +2441,9 @@ export function render(root) {
       ['booklet', 'Booklet (lipat jadi buku kecil)'],
       ['reverse', 'Balik urutan halaman'],
     ], '2up');
+    const petunjukBuklet = T.el('<p class="dim" style="font-size:13px;line-height:1.6">Cara pakai: unduh hasilnya, cetak bolak-balik (balik sisi pendek), lipat di tengah, lalu staples. Bila jumlah halaman bukan kelipatan 4, sisa lembar diisi halaman kosong.</p>');
+    petunjukBuklet.hidden = true;
+    modeSel.addEventListener('change', () => { petunjukBuklet.hidden = modeSel.value !== 'booklet'; });
     const box = T.out();
     const bGo = T.btn('Susun & Unduh', async () => {
       const f = fi.files && fi.files[0];
@@ -2376,25 +2455,25 @@ export function render(root) {
         const n = src.getPageCount();
         const out = await window.PDFLib.PDFDocument.create();
         const mode = modeSel.value;
+        let jumlahLembar = 0;
         if (mode === 'reverse') {
           const idx = Array.from({ length: n }, (_, i) => n - 1 - i);
           const pages = await out.copyPages(src, idx);
           pages.forEach((p) => out.addPage(p));
         } else if (mode === 'booklet') {
-          const total = Math.ceil(n / 4) * 4;
-          const order = [];
-          for (let s = 0; s < total / 4; s++) {
-            order.push(total - 2 * s, 1 + 2 * s, 2 + 2 * s, total - 1 - 2 * s);
-          }
+          const lembar = urutanBuklet(n);
+          jumlahLembar = lembar.length;
           const first = src.getPage(0);
           const { width: W, height: H } = first.getSize();
-          for (let i = 0; i < order.length; i += 2) {
-            const sheet = out.addPage([W * 2, H]);
-            for (let k = 0; k < 2; k++) {
-              const p1 = order[i + k];
-              if (p1 < 1 || p1 > n) continue;
-              const emb = await out.embedPage(src.getPage(p1 - 1));
-              sheet.drawPage(emb, { x: k * W, y: 0 });
+          for (const l of lembar) {
+            for (const sisi of [l.depan, l.belakang]) {
+              const sheet = out.addPage([W * 2, H]);
+              for (let k = 0; k < 2; k++) {
+                const p1 = sisi[k];
+                if (!p1 || p1 < 1 || p1 > n) continue;
+                const emb = await out.embedPage(src.getPage(p1 - 1));
+                sheet.drawPage(emb, { x: k * W, y: 0 });
+              }
             }
           }
         } else {
@@ -2413,12 +2492,17 @@ export function render(root) {
           }
         }
         dlPdf(await out.save(), 'pdf-susun.pdf');
-        T.show(box, '<span class="ok">Berhasil disusun & terunduh.' + (mode === 'booklet' ? ' Cetak bolak-balik lalu lipat di tengah.' : '') + '</span>');
+        if (mode === 'booklet') {
+          T.show(box, '<span class="ok">Buklet jadi: <b>' + n + ' halaman</b> disusun ke <b>' + jumlahLembar + ' lembar</b> (' + (jumlahLembar * 2) + ' sisi cetak). Cetak bolak-balik dengan sisi pendek sebagai sumbu lipat, lalu lipat di tengah dan staples.</span>');
+        } else {
+          T.show(box, '<span class="ok">Berhasil disusun & terunduh.</span>');
+        }
       } catch (e) { T.show(box, errBox('Halaman tidak bisa disusun. Pastikan file PDF-nya tidak rusak, lalu coba lagi.')); }
     }, true);
     pArrange.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Susun ulang halaman: beberapa halaman dalam satu lembar untuk hemat kertas, booklet untuk dilipat jadi buku kecil, atau balik urutan. Ukuran lembar mengikuti halaman pertama.</p>'));
     pArrange.appendChild(fi);
     pArrange.appendChild(T.field('Cara menyusun', modeSel));
+    pArrange.appendChild(petunjukBuklet);
     pArrange.appendChild(T.row(bGo));
     pArrange.appendChild(box);
   }
@@ -2835,15 +2919,34 @@ export function render(root) {
     [['Atur', 0], ['Gabung', 1], ['Pisah', 2], ['Gambar→PDF', 3], ['Watermark', 4], ['Teks & Bentuk', 5], ['Metadata', 6], ['Form', 7], ['Kompres', 8], ['PDF→Gambar', 9], ['Nomor', 10], ['Tanda Tangan', 11], ['Potong', 12], ['Sensor', 13], ['PDF ke Teks', 14], ['Ambil Gambar', 15], ['Target KB', 16], ['Form Baru', 17], ['Susun', 18], ['Info', 19], ['Banding', 20], ['Corat-coret', 21], ['Lampiran', 22]],
     pages
   );
+  const btnsTab = tabBar.querySelectorAll('button');
+  // Jalan pintas ke tab yang dulu tool terpisah (v6.21.0): satu ketukan
+  // langsung ke tab yang dicari, tanpa menggulir daftar tab.
+  const pintas = T.el('<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 12px"></div>');
+  pintas.appendChild(T.el('<span class="dim" style="font-size:13px">Jalan pintas:</span>'));
+  [
+    ['PDF → Gambar', 9],
+    ['Gambar → PDF', 3],
+    ['Buklet / Susun', 18],
+  ].forEach(([label, idx]) => {
+    const b = T.btn(label, () => { if (btnsTab[idx]) btnsTab[idx].click(); });
+    b.classList.add('small');
+    pintas.appendChild(b);
+  });
+  root.appendChild(pintas);
   root.appendChild(tabBar);
   pages.forEach((p) => root.appendChild(p));
   root.appendChild(status);
-  // Pindah ke tab tertentu bila diminta tool lain (mis. Tanda Tangan).
+  // Pindah ke tab tertentu bila diminta tool lain (mis. Tanda Tangan),
+  // atau lewat tautan dalam ?tab=N (mis. #/t/pdflab?tab=9). Tautan
+  // diutamakan supaya hasil pencarian mendarat di tab yang tepat.
   try {
-    const want = parseInt(localStorage.getItem('adip-pdflab-tab') || '', 10);
+    const hash = (typeof location !== 'undefined' && location.hash) || '';
+    const q = hash.split('?')[1] || '';
+    const mTab = /(?:^|&)tab=(\d+)/.exec(q);
+    let want = mTab ? parseInt(mTab[1], 10) : parseInt(localStorage.getItem('adip-pdflab-tab') || '', 10);
     if (Number.isFinite(want) && want >= 0 && want < pages.length) {
-      const btns = tabBar.querySelectorAll('button');
-      if (btns[want]) btns[want].click();
+      if (btnsTab[want]) btnsTab[want].click();
     }
     localStorage.removeItem('adip-pdflab-tab');
   } catch (e) {}

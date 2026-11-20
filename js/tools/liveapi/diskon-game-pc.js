@@ -42,8 +42,8 @@ export function render(root) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 20000);
     try {
-      let url = API + '/deals?storeID=1&upperPrice=' + encodeURIComponent(atas) + '&pageSize=12&sortBy=Savings&desc=0';
-      if (judul) url = API + '/deals?title=' + encodeURIComponent(judul) + '&pageSize=12&sortBy=Savings&desc=0';
+      let url = API + '/deals?storeID=1&upperPrice=' + encodeURIComponent(atas) + '&pageSize=12&sortBy=Savings&desc=1';
+      if (judul) url = API + '/deals?title=' + encodeURIComponent(judul) + '&pageSize=12&sortBy=Savings&desc=1';
       const r = await fetch(url, { signal: ctrl.signal });
       if (!r.ok) throw new Error('http ' + r.status);
       const j = await r.json();

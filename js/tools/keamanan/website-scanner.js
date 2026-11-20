@@ -1,7 +1,12 @@
 /* Website Security Scanner — 100% client-side, tanpa backend.
- * Cara kerja: homepage target diambil via proxy CORS (CorsAnyway utama,
- * fallback AllOrigins), DNS/email via DoH dns.google, umur domain via RDAP,
+ * Cara kerja: homepage target diambil lewat rantai kanonis
+ * utils.fetchViaProxyChain (langsung dulu, fallback AllOrigins),
+ * DNS/email via DoH dns.google, umur domain via RDAP,
  * subdomain + info sertifikat via crt.sh, arsip via web.archive.org.
+ * F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT dari sini
+ * (operator tak dikenal, mengikuti pencabutan F10 di core.js) — tanpa
+ * proxy itu, header upstream target biasanya tidak terbaca browser,
+ * jadi modul header/cookie/CORS jujur melapor "tidak dapat dicek".
  * 25 modul jalan langsung di browser; 2 limitasi yang memang tak bisa
  * diakali dari browser (hsts-preload: API menolak CORS; TLS: browser tidak
  * mengekspos versi/cipher ke JS) ditandai JUJUR — tidak ada fake pass.
@@ -16,12 +21,12 @@ import { h as T, utils } from '../../core.js';
 export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
 
 const DOH = 'https://dns.google/resolve';
-// Rantai proxy: CorsAnyway utama (terverifikasi hidup, meneruskan isi mentah),
-// AllOrigins terakhir (flaky, 522 berulang). test.cors.workers.dev DIHAPUS —
-// mengembalikan 403 sejak probe 12 Nov 2026. Jina TIDAK dipakai di sini: ia
-// mengubah HTML jadi markdown sehingga modul analisa HTML tidak bisa jalan.
-const PROXY_CA = (u) => 'https://cors-anyway.huskymobile.com/?' + u;
-const PROXY_AO = (u) => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u);
+// F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak
+// teridentifikasi — semua URL target, termasuk yang ber-token, lewat situ
+// bila fetch langsung gagal). Pengambilan halaman kini lewat rantai kanonis
+// utils.fetchViaProxyChain (langsung → AllOrigins) di fetchProxied.
+// Jina TIDAK dipakai di sini: ia mengubah HTML jadi markdown sehingga
+// modul analisa HTML tidak bisa jalan.
 const IANA_RDAP = 'https://data.iana.org/rdap/dns.json';
 const HIST_KEY = 'aq_website_scanner_history';
 const COOLDOWN_MS = 30000;
@@ -795,35 +800,54 @@ function tFetch(url, {timeout = 15000, ...opts} = {}) {
   const t = setTimeout(() => c.abort(), timeout);
   return fetch(url, {...opts, signal: c.signal}).finally(() => clearTimeout(t));
 }
-// Ambil URL target via proxy. Return {ok, status, headers(map lowercase), headersOk, text, via, error}
-// headersOk = true hanya bila ada BUKTI proxy meneruskan header upstream
-// (blob cors-received-headers, atau setidaknya satu header keamanan target
-// terbaca). Tanpa bukti itu, modul header/CORS/disclosure/fingerprint TIDAK
-// BOLEH menuduh dari header yang kosong — itu false positive, bukan temuan.
-// method/body/headers opsional untuk probe read-only (OPTIONS, POST GraphQL).
+// Ambil URL target lewat rantai kanonis utils.fetchViaProxyChain
+// (langsung → AllOrigins). Return {ok, status, headers(map lowercase),
+// headersOk, text, via, error}. Di-export agar bisa di-unit-test via node.
+// headersOk = true hanya bila ada BUKTI header keamanan target terbaca
+// (setidaknya satu dari HEADER_EVIDENCE). Tanpa bukti itu, modul
+// header/CORS/disclosure/fingerprint TIDAK BOLEH menuduh dari header yang
+// kosong — itu false positive, bukan temuan. Catatan F13: rantai kanonis
+// hanya GET dan tidak meneruskan header upstream (AllOrigins /raw tidak
+// membeberkan header target ke JS), jadi headersOk biasanya false dan
+// modul-modul itu jujur melapor "tidak dapat dicek" — harga pencabutan
+// proxy tak dikenal; hanya proxy sendiri yang bisa mengembalikan kemampuan
+// baca header ini.
+// method/body/headers opsional untuk probe read-only (OPTIONS, POST
+// GraphQL) — probe non-GET HANYA dicoba langsung (rantai kanonis tidak
+// mendukungnya, dan AllOrigins /raw juga GET-only); browser biasanya
+// memblokirnya via CORS, pemanggil sudah menangani ok:false dengan jujur.
 const HEADER_EVIDENCE = ['content-security-policy', 'strict-transport-security', 'x-frame-options', 'x-content-type-options', 'referrer-policy', 'permissions-policy'];
-async function fetchProxied(url, {timeout = 15000, method = 'GET', body = null, headers = null} = {}) {
-  try {
-    const r = await tFetch(PROXY_CA(url), {timeout, method, body, headers: headers || undefined});
+const HEADER_KEYS = ['content-security-policy','strict-transport-security','x-frame-options','x-content-type-options','referrer-policy','permissions-policy','server','x-powered-by','content-type','location','access-control-allow-origin','access-control-allow-credentials','allow'];
+export async function fetchProxied(url, {timeout = 15000, method = 'GET', body = null, headers = null} = {}) {
+  const bacaHeader = (r) => {
     const h = {};
-    const blob = r.headers.get('cors-received-headers');
-    // Simpan mentah juga di key-nya sendiri — modul cookies butuh blob aslinya.
-    if (blob) h['cors-received-headers'] = blob;
-    if (blob) { try { const j = JSON.parse(blob); for (const k in j) h[String(k).toLowerCase()] = String(j[k]); } catch (e) {} }
-    for (const k of ['content-security-policy','strict-transport-security','x-frame-options','x-content-type-options','referrer-policy','permissions-policy','server','x-powered-by','content-type','location','access-control-allow-origin','access-control-allow-credentials','allow']) {
-      if (!h[k]) { const v = r.headers.get(k); if (v) h[k] = v; }
+    for (const k of HEADER_KEYS) {
+      const v = r.headers.get(k);
+      if (v) h[k] = v;
     }
-    const headersOk = !!blob || HEADER_EVIDENCE.some((k) => !!h[k]);
+    return h;
+  };
+  if (method && method !== 'GET') {
+    // Probe non-GET: hanya langsung (lihat catatan di atas).
+    try {
+      const r = await tFetch(url, {timeout, method, body, headers: headers || undefined});
+      const h = bacaHeader(r);
+      const headersOk = HEADER_EVIDENCE.some((k) => !!h[k]);
+      const text = await r.text();
+      return {ok: true, status: r.status, headers: h, headersOk, text, via: 'langsung'};
+    } catch (e) {
+      return {ok: false, error: 'Probe ' + method + ' tidak merespons — browser biasanya memblokir request lintas-origin semacam ini.'};
+    }
+  }
+  try {
+    const r = await utils.fetchViaProxyChain(url, {timeout});
+    const h = bacaHeader(r);
+    const headersOk = HEADER_EVIDENCE.some((k) => !!h[k]);
     const text = await r.text();
-    return {ok: true, status: r.status, headers: h, headersOk, text, via: 'corsanyway'};
-  } catch (e1) { /* proxy pertama gagal — lanjut ke proxy cadangan */ }
-  try { // fallback terakhir: allorigins /get (body + status, tanpa header)
-    const r = await tFetch(PROXY_AO(url), {timeout});
-    const j = await r.json();
-    if (!j || typeof j.contents !== 'string') throw new Error('proxy gagal');
-    return {ok: true, status: (j.status && j.status.http_code) || 200, headers: {}, headersOk: false, text: j.contents, via: 'allorigins'};
-  } catch (e2) {
-    return {ok: false, error: 'Semua proxy gagal mengambil halaman. Proxy publik kadang sedang sibuk — coba lagi beberapa saat lagi.'};
+    const via = (r.url && r.url.indexOf('allorigins') !== -1) ? 'allorigins' : 'langsung';
+    return {ok: true, status: r.status, headers: h, headersOk, text, via};
+  } catch (e) {
+    return {ok: false, error: 'Halaman tidak bisa diambil — situsnya mungkin memblokir pengambilan dari luar, atau proxy cadangan sedang sibuk. Coba lagi beberapa saat lagi.'};
   }
 }
 async function doh(name, type) {
@@ -978,18 +1002,11 @@ async function mHeaders(ctx) {
 }
 async function mCookies(ctx) {
   if (!ctx.page) return [mkInfo('cookies','Cookie tidak dapat dicek','Halaman tidak bisa diambil via proxy.')];
-  const blob = ctx.page.headers['cors-received-headers'];
-  let raw = [];
-  if (blob) {
-    try {
-      const j = JSON.parse(blob);
-      const sc = j['set-cookie'] || j['Set-Cookie'] || '';
-      raw = String(sc).split(/,(?=[A-Za-z0-9_-]+\s*=)/).map((s) => s.trim()).filter(Boolean);
-    } catch (e) {}
-  }
-  if (!raw.length) return [mkInfo('cookies','Tidak ada cookie terdeteksi','Respons tidak mengirim Set-Cookie (atau tidak terbaca).')];
-  ctx.cookieNames = raw.map((s) => s.split('=')[0]);
-  return cookiesFindings(raw, ctx.isHttps);
+  // F13: Set-Cookie target dulu dibaca dari blob cors-received-headers milik
+  // proxy CorsAnyway — proxy itu sudah dicabut, dan browser tidak pernah
+  // mengizinkan JavaScript membaca header Set-Cookie. Modul ini tidak bisa
+  // menilai cookie sampai ada proxy sendiri yang meneruskan header upstream.
+  return [mkInfo('cookies','Cookie tidak dapat dicek','Browser tidak mengizinkan JavaScript membaca header Set-Cookie situs target, jadi cookie tidak bisa dinilai dari sini.')];
 }
 async function mCors(ctx) {
   const f = [];
@@ -1589,7 +1606,7 @@ async function mHttpmethods(ctx) {
   const f = [];
   try {
     const r = await fetchProxied(ctx.origin + '/', {timeout: 10000, method:'OPTIONS'});
-    if (!r.ok) return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak merespons via proxy.')];
+    if (!r.ok) return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak merespons (browser biasanya memblokir probe lintas-origin ini).')];
     const allow = r.headers['allow'] || '';
     if (!allow) return [mkInfo('httpmethods','Header Allow tidak ada','Server tidak mengumumkan metode via OPTIONS.')];
     const p = parseAllowHeader(allow);
@@ -1728,15 +1745,20 @@ export function render(root) {
     '<div id="aqws-modinfo" style="margin-top:8px;font-size:11px" class="dim">' + footerInfoText() + '</div></div>');
 
   // ---- form ----
-  const inp = T.input('https://contoh.com', 'URL website yang mau dipindai');
+  const inp = T.input('text', 'https://contoh.com');
   inp.style.cssText += ';font-family:monospace';
   inp.setAttribute('inputmode', 'url'); inp.setAttribute('autocomplete', 'url');
   const btnScan = T.btn('🔍 Pindai Sekarang', startScan, true);
   const cdNote = T.el('<div class="dim" style="font-size:11px;margin-top:6px">Scan bisa 30–90 detik tergantung situs. Cooldown 30 detik antar scan.</div>');
+  // Pesan error/cooldown punya wadahnya sendiri. JANGAN PERNAH pakai
+  // T.show(box, …) untuk pesan: box adalah wadah SELURUH UI tool
+  // (form, tombol, progres, hasil, riwayat) dan T.show mengganti
+  // innerHTML-nya — tool langsung mati sampai di-render ulang.
+  const msgBox = T.out();
   const formRow = T.el('<div style="display:flex;gap:8px;margin-bottom:4px"></div>');
   inp.style.flex = '1';
   formRow.appendChild(inp); formRow.appendChild(btnScan);
-  box.appendChild(formRow); box.appendChild(cdNote);
+  box.appendChild(formRow); box.appendChild(cdNote); box.appendChild(msgBox);
 
   // ---- progress ----
   const progBox = T.el('<div style="margin:14px 0;display:none"></div>');
@@ -1784,12 +1806,13 @@ export function render(root) {
     if (scanning) return;
     let target;
     try { target = normalizeTarget(inp.value); }
-    catch (e) { T.show(box, '<div style="color:#f87171;font-size:13px;margin:8px 0">❌ Alamat websitenya tidak benar. Periksa lagi penulisannya lalu coba lagi.</div>'); return; }
+    catch (e) { T.show(msgBox, '<div style="color:#f87171;font-size:13px;margin:8px 0">❌ Alamat websitenya tidak benar. Periksa lagi penulisannya lalu coba lagi.</div>'); return; }
     const now = Date.now();
     if (now < lastCooldownUntil) {
-      T.show(box, '<div style="color:#eab308;font-size:13px;margin:8px 0">⏳ Tunggu ' + Math.ceil((lastCooldownUntil - now) / 1000) + ' detik sebelum scan lagi.</div>');
+      T.show(msgBox, '<div style="color:#eab308;font-size:13px;margin:8px 0">⏳ Tunggu ' + Math.ceil((lastCooldownUntil - now) / 1000) + ' detik sebelum scan lagi.</div>');
       return;
     }
+    T.hide(msgBox);
     scanning = true; btnScan.disabled = true; btnScan.textContent = '⏳ Memindai…';
     resBox.innerHTML = '';
     const fi = box.querySelector('#aqws-modinfo');
@@ -1921,8 +1944,8 @@ export function render(root) {
     const bCopy = T.btn('📋 Salin Ringkasan', () => {
       const md = mdSummary(url, res);
       (navigator.clipboard ? navigator.clipboard.writeText(md) : Promise.reject()).then(
-        () => T.show(box, '<div style="color:#4ade80;font-size:12px">✅ Ringkasan tersalin.</div>'),
-        () => T.show(box, '<div style="color:#f87171;font-size:12px">❌ Gagal menyalin.</div>'));
+        () => T.toast('Ringkasan tersalin.'),
+        () => T.toast('Gagal menyalin.'));
     }, false);
     const bJson = T.btn('⬇️ Unduh JSON', () => {
       const blob = new Blob([JSON.stringify({url, date: new Date().toISOString(), score: res.score, grade: res.grade, findings: res.findings}, null, 2)], {type: 'application/json'});

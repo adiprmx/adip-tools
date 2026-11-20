@@ -2,9 +2,23 @@ import { h as T, utils, kv } from '../../core.js';
 
 // parseRp kanonis tinggal di utils (core.js).
 
-// Fee per kategori (% dari harga jual) — angka awal 2026, SEMUA bisa diubah user.
-// Shopee 2,5–10% per kategori; Tokopedia & TikTok Shop komisi 3–8% (maks Rp60.000/item).
-const FEE = {
+// Fee per kategori (% dari harga jual). SUMBER TUNGGAL: tabel ini diimpor
+// langsung oleh fee-marketplace.js (kategori indonesia) — tidak ada lagi
+// dua salinan yang bisa melenceng. Bila diubah, kedua tool ikut berubah.
+// Angka awal dicek 20 Nov 2026 (riset web F3, dicek ulang tim U1 hari yang
+// sama; tarif per subkategori hanya terlihat di Seller Center masing-masing,
+// jadi SEMUA bisa diubah user):
+// - Shopee: biaya admin 2,5–10% per kategori (Non-Star/Star/Star+; naik
+//   1 Jan 2026) + biaya proses Rp1.250/pesanan.
+// - Tokopedia & TikTok Shop (satu sistem pasca-integrasi): komisi platform
+//   2,5–10% (non-Mall; Mall sampai 12,2%) DITAMBAH komisi dinamis 3–8% per
+//   kategori, komisi dinamis dibatasi maks Rp60.000/item sejak 16 Sep 2026,
+//   + biaya proses Rp1.250/pesanan + biaya layanan logistik Rp540–5.060
+//   (sejak 1 Mei 2026).
+// Kolom Tokopedia/TikTok di bawah ini adalah perkiraan gabungan satu angka
+// (bukan rincian platform + dinamis) — isi dengan total yang tertera di
+// Seller Centermu bila beda. Jangan jadikan patokan mati: fee berubah berkala.
+export const FEE = {
   'fashion':    { label: 'Fashion / Pakaian', shopee: 10, tokopedia: 6, tiktok: 7 },
   'elektronik': { label: 'Elektronik', shopee: 9.5, tokopedia: 3, tiktok: 5 },
   'kecantikan': { label: 'Kecantikan / Perawatan', shopee: 8, tokopedia: 5, tiktok: 6 },
@@ -13,6 +27,9 @@ const FEE = {
   'ibuanak':    { label: 'Ibu & Anak', shopee: 6, tokopedia: 5, tiktok: 6 },
   'umum':       { label: 'Lainnya / Umum', shopee: 6, tokopedia: 5, tiktok: 6 },
 };
+export const BIAYA_PROSES_PER_PESANAN = 1250; // Rp1.250/pesanan, ketiga marketplace (dicek 20 Nov 2026)
+export const CAP_KOMISI_DINAMIS = 60000; // maks komisi dinamis Tokopedia/TikTok per item, sejak 16 Sep 2026
+utils.feeMarketplaceKategori = FEE;
 
 export const meta = {"id": "harga-jual-marketplace", "name": "Harga Jual Marketplace", "cat": "bisnis", "icon": "🛒", "desc": "Dari modal + target untung, ketahuan harga jual minimal di Shopee, Tokopedia, dan TikTok Shop setelah dipotong fee.", "keywords": "harga jual,marketplace,shopee,tokopedia,tiktok shop,fee,admin,komisi,seller"};
 export function render(root) {
@@ -33,6 +50,7 @@ export function render(root) {
       feeShopeeI.value = String(f.shopee);
       feeTokpedI.value = String(f.tokopedia);
       feeTiktokI.value = String(f.tiktok);
+      calc(true); // hitung-live: ganti kategori langsung hitung ulang (diam)
     };
     katI.addEventListener('change', isiFee);
 
@@ -42,7 +60,7 @@ export function render(root) {
       return Math.ceil(h / 100) * 100;
     };
 
-    const calc = () => {
+    const calc = (diam = false) => {
       const modal = utils.parseRp(modalI.value);
       const untung = utils.parseRp(untungI.value);
       const tetap = utils.parseRp(tetapI.value);
@@ -53,7 +71,7 @@ export function render(root) {
       if (!isFinite(modal) || modal < 0 || !isFinite(untung) || untung < 0 || !isFinite(tetap) || tetap < 0 ||
           !isFinite(cap) || cap < 0 || !isFinite(aff) || aff < 0 || aff >= 100 ||
           !fees.every((f) => isFinite(f) && f >= 0 && f < 100) || fs + aff >= 100 || ft + aff >= 100 || fk + aff >= 100) {
-        T.toast('Isi semua kolom dengan angka yang benar ya (fee di bawah 100%).'); return;
+        if (!diam) T.toast('Isi semua kolom dengan angka yang benar ya (fee di bawah 100%).'); return;
       }
       const list = [
         { nama: 'Shopee', fee: fs, aff: 0, cap: 0 },
@@ -81,9 +99,13 @@ export function render(root) {
         kv('Modal per produk', T.rp(modal)) +
         kv('Target untung', T.rp(untung)) +
         kv('Biaya tetap per pesanan', T.rp(tetap)) +
-        '<p class="warn">⚠️ Fee marketplace berubah-ubah dan beda per kategori — cek Seller Center masing-masing sebelum pasang harga. Fee di atas adalah angka awal 2026 dan semuanya bisa diubah.</p>' +
+        '<p class="warn">⚠️ Fee marketplace berubah-ubah dan beda per kategori — cek Seller Center masing-masing sebelum pasang harga. Fee di atas adalah angka awal yang dicek 20 Nov 2026 dan semuanya bisa diubah. Tokopedia/TikTok Shop menagih dua lapis (komisi platform + komisi dinamis maks Rp60.000/item), jadi kolom fee di sini isi dengan total keduanya.</p>' +
         '<p class="hint">Rumus: harga jual = (modal + target untung + biaya tetap) ÷ (1 − fee%). Komisi Tokopedia/TikTok dibatasi maks ' + T.rp(cap) + '/item. Harga dibulatkan ke atas per Rp100.</p>');
     };
+
+    // Hitung-live (Q4 v6.21.0): hasil ikut berubah saat mengetik (diam —
+    // tanpa toast selagi mengetik; tombol tetap memberi toast).
+    [modalI, untungI, feeShopeeI, feeTokpedI, feeTiktokI, tetapI, capI, affI].forEach((i) => i.addEventListener('input', () => calc(true)));
 
     root.appendChild(T.el('<p class="note">Jangan asal pasang harga — fee marketplace bisa makan untungmu. Isi modal dan target untung, nanti ketahuan harga jual minimalnya di tiap marketplace.</p>'));
     root.appendChild(T.grid2(

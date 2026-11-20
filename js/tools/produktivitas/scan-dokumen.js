@@ -52,6 +52,17 @@ export function terapkanAmbang(data, ambang) {
   return data;
 }
 
+// Ubah koordinat sentuh (px CSS, relatif ke kotak kanvas) jadi koordinat
+// gambar asli. Memperhitungkan penyusutan CSS kanvas (lebar tampil bisa
+// jauh lebih kecil dari lebar kanvas di layar HP, karena max-width:100%)
+// dan skala tampil editor. Murni, bisa diuji di Node.
+// o: {lebarTampil, tinggiTampil, lebarKanvas, tinggiKanvas, skalaTampil, x, y}
+export function sentuhKeGambar(o) {
+  const kx = o.lebarKanvas / o.lebarTampil;
+  const ky = o.tinggiKanvas / o.tinggiTampil;
+  return [o.x * kx / o.skalaTampil, o.y * ky / o.skalaTampil];
+}
+
 export function render(root) {
   const fi = fileInput('image/*');
   fi.setAttribute('capture', 'environment');
@@ -111,13 +122,20 @@ export function render(root) {
 
   function titikDariEvent(ev) {
     const r = kanvasTampil.getBoundingClientRect();
-    return [(ev.clientX - r.left) / skalaTampil, (ev.clientY - r.top) / skalaTampil];
+    return sentuhKeGambar({
+      lebarTampil: r.width, tinggiTampil: r.height,
+      lebarKanvas: kanvasTampil.width, tinggiKanvas: kanvasTampil.height,
+      skalaTampil, x: ev.clientX - r.left, y: ev.clientY - r.top,
+    });
   }
 
   kanvasTampil.addEventListener('pointerdown', (ev) => {
     if (!img) return;
     const [x, y] = titikDariEvent(ev);
-    let terbaik = -1, jarakTerbaik = 36 / skalaTampil;
+    // Radius tangkap 36 px layar: kembalikan ke koordinat gambar asli
+    // dengan memperhitungkan penyusutan CSS yang sama.
+    const r = kanvasTampil.getBoundingClientRect();
+    let terbaik = -1, jarakTerbaik = (36 * (kanvasTampil.width / r.width)) / skalaTampil;
     titik.forEach((t, i) => {
       const j = Math.hypot(t[0] - x, t[1] - y);
       if (j < jarakTerbaik) { jarakTerbaik = j; terbaik = i; }
@@ -201,23 +219,28 @@ export function render(root) {
     const ok = await utils.loadLibOnce(PDFLIB_CDN, () => !!window.PDFLib);
     if (!ok) { T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div>'); return; }
     T.hide(statusBox);
-    const L = window.PDFLib;
-    const doc = await L.PDFDocument.create();
-    const w = kanvasHasil.width, h = kanvasHasil.height;
-    // Halaman mengikuti rasio gambar, lebar dasar A4 (595 pt).
-    const lebarPt = 595.28;
-    const tinggiPt = lebarPt * (h / w);
-    const page = doc.addPage([lebarPt, tinggiPt]);
-    const jpg = await new Promise((res) => kanvasHasil.toBlob((b) => res(b), 'image/jpeg', 0.92));
-    const bytes = new Uint8Array(await jpg.arrayBuffer());
-    const gambar = await doc.embedJpg(bytes);
-    page.drawImage(gambar, { x: 0, y: 0, width: lebarPt, height: tinggiPt });
-    const out = await doc.save();
-    const blob = new Blob([out], { type: 'application/pdf' });
-    T.show(hasilBox, '');
-    hasilBox.appendChild(T.el(`<p class="dim">Ukuran file: ${fmtBytes(blob.size)}.</p>`));
-    hasilBox.appendChild(T.btn('Unduh PDF', () => { T.dl('hasil-scan.pdf', blob, 'application/pdf'); T.toast('Berhasil diunduh'); }, true));
-    hasilBox.appendChild(T.btn('Unduh Gambar (JPG)', () => { T.dl('hasil-scan.jpg', jpg, 'image/jpeg'); T.toast('Berhasil diunduh'); }));
+    try {
+      const L = window.PDFLib;
+      const doc = await L.PDFDocument.create();
+      const w = kanvasHasil.width, h = kanvasHasil.height;
+      // Halaman mengikuti rasio gambar, lebar dasar A4 (595 pt).
+      const lebarPt = 595.28;
+      const tinggiPt = lebarPt * (h / w);
+      const page = doc.addPage([lebarPt, tinggiPt]);
+      const jpg = await new Promise((res) => kanvasHasil.toBlob((b) => res(b), 'image/jpeg', 0.92));
+      if (!jpg) throw new Error('toBlob gagal');
+      const bytes = new Uint8Array(await jpg.arrayBuffer());
+      const gambar = await doc.embedJpg(bytes);
+      page.drawImage(gambar, { x: 0, y: 0, width: lebarPt, height: tinggiPt });
+      const out = await doc.save();
+      const blob = new Blob([out], { type: 'application/pdf' });
+      T.show(hasilBox, '');
+      hasilBox.appendChild(T.el(`<p class="dim">Ukuran file: ${fmtBytes(blob.size)}.</p>`));
+      hasilBox.appendChild(T.btn('Unduh PDF', () => { T.dl('hasil-scan.pdf', blob, 'application/pdf'); T.toast('Berhasil diunduh'); }, true));
+      hasilBox.appendChild(T.btn('Unduh Gambar (JPG)', () => { T.dl('hasil-scan.jpg', jpg, 'image/jpeg'); T.toast('Berhasil diunduh'); }));
+    } catch (e) {
+      T.show(statusBox, '<div class="err">Gagal membuat PDF. Coba lagi.</div>');
+    }
   }
 
   fi.addEventListener('change', async () => {

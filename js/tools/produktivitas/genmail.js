@@ -3,10 +3,11 @@ import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js';
 export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas", "icon": "📧", "desc": "Email sementara: buat alamat, terima & baca pesan tanpa daftar.", "keywords": "temp mail,email sementara,inbox,otp,spam,guerrillamail"};
 
 const API = 'https://api.guerrillamail.com/ajax.php';
-// Cadangan bila fetch langsung diblokir browser (CORS Guerrilla Mail
-// diperdebatkan — getfreeapis bilang tanpa header CORS, publicapis.io bilang
-// ada). CorsAnyway terverifikasi hidup; dipakai hanya bila langsung gagal.
-const PROXY_CA = 'https://cors-anyway.huskymobile.com/?';
+// F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak
+// teridentifikasi). Cadangan bila fetch langsung diblokir browser kini
+// lewat rantai kanonis utils.fetchViaProxyChain (langsung → AllOrigins).
+// (CORS Guerrilla Mail diperdebatkan — getfreeapis bilang tanpa header CORS,
+// publicapis.io bilang ada.)
 const AGENT = 'adip-tools-tempmail';
 const EXPIRY_MS = 60 * 60 * 1000; // alamat GuerrillaMail kedaluwarsa ±60 menit
 const REQ_TIMEOUT = 14000; // timeout tiap request, mengikuti acuan alur asli
@@ -16,60 +17,80 @@ const q = (p) => Object.entries(p).map(([k, v]) => encodeURIComponent(k) + '=' +
 let ctl = null;
 
 // API call dengan AbortController + timeout 14 detik (satu anggaran waktu
-// untuk kedua percobaan). Coba fetch langsung dulu; bila gagal karena
-// jaringan/CORS, coba sekali lagi lewat proxy CorsAnyway.
+// untuk seluruh rantai). Coba lewat rantai kanonis utils.fetchViaProxyChain
+// (langsung → AllOrigins). Rantai itu tidak menerima signal luar, jadi
+// abort (request baru / pindah tool / timeout 14 dtk) diwujudkan lewat
+// race — fetch latar yang tertinggal hasilnya dibuang, pemanggil tetap
+// melihat AbortError seperti sebelumnya.
 // AbortError karena timeout dilempar sebagai Error biasa agar bisa ditampilkan;
 // AbortError lain (pindah tool / request baru) tetap silent di caller.
-async function api(params) {
+// Di-export agar bisa di-unit-test via node.
+export async function api(params) {
   if (ctl) ctl.abort();
   ctl = new AbortController();
   const my = ctl;
   let timedOut = false;
   const t = setTimeout(() => { timedOut = true; my.abort(); }, REQ_TIMEOUT);
   const target = API + '?' + q(params);
-  const sekali = async (url) => {
-    const r = await fetch(url, { signal: my.signal });
+  try {
+    const dibatalkan = new Promise((_, rej) => {
+      my.signal.addEventListener('abort', () => {
+        const e = new Error('dibatalkan');
+        e.name = 'AbortError';
+        rej(e);
+      }, { once: true });
+    });
+    const r = await Promise.race([
+      utils.fetchViaProxyChain(target, { timeout: REQ_TIMEOUT }),
+      dibatalkan,
+    ]);
     if (!r.ok) throw new Error('http ' + r.status);
     return await r.json();
-  };
-  try {
-    return await sekali(target);
   } catch (e) {
     if (e.name === 'AbortError') {
       if (timedOut) throw new Error('timeout 14 detik — server tidak merespons, coba lagi');
       throw e;
     }
-    // Fetch langsung gagal (kemungkinan diblokir CORS oleh browser) —
-    // coba sekali lagi lewat proxy publik.
-    try {
-      return await sekali(PROXY_CA + target);
-    } catch (e2) {
-      if (e2.name === 'AbortError') {
-        if (timedOut) throw new Error('timeout 14 detik — server tidak merespons, coba lagi');
-        throw e2;
-      }
-      throw new Error('tidak bisa terhubung ke Guerrilla Mail — kemungkinan diblokir browser (CORS) dan proxy cadangan juga gagal. Coba buka guerrillamail.com langsung di tab baru');
-    }
+    throw new Error('tidak bisa terhubung ke Guerrilla Mail — kemungkinan diblokir browser (CORS) dan proxy cadangan juga gagal. Coba buka guerrillamail.com langsung di tab baru');
   } finally {
     clearTimeout(t);
   }
 }
 
+// Normalisasi URL ala parser browser (WHATWG): tab/LF/CR dibuang di mana
+// saja, karakter kontrol + spasi dibuang di ujung. Tanpa ini "java\tscript:"
+// dan "\x01javascript:" lolos uji skema tapi tetap jalan sebagai
+// javascript: saat diklik (Q3 v6.21.0).
+const normalUrl = (v) => String(v || '').replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
+const urlBerbahaya = (v) => /^(javascript|vbscript):/i.test(normalUrl(v));
+const tautanOk = (v) => /^(https?:|mailto:)/i.test(normalUrl(v));
+// xlink:href di SVG: tautan web + gambar data: boleh, sisanya dibuang.
+const xlinkOk = (v) => /^(https?:|mailto:|data:image\/)/i.test(normalUrl(v));
+
 // Sanitasi HTML email: buang script/style/iframe/form + event handler,
 // link hanya http/https/mailto. Kembalikan {html, links}.
-function sanitizeEmailHtml(raw) {
+export function sanitizeEmailHtml(raw) {
   const doc = new DOMParser().parseFromString(String(raw || ''), 'text/html');
-  doc.querySelectorAll('script,style,iframe,object,embed,form,link,meta,base').forEach((n) => n.remove());
+  // Elemen animasi SVG + foreignObject ikut dibuang (Q3): <animate> bisa
+  // mengubah href lewat attributeName, foreignObject menampung HTML di
+  // dalam SVG.
+  doc.querySelectorAll('script,style,iframe,object,embed,form,link,meta,base,animate,animateTransform,animateMotion,set,mpath,foreignObject').forEach((n) => n.remove());
   doc.querySelectorAll('*').forEach((n) => {
     [...n.attributes].forEach((a) => {
       if (/^on/i.test(a.name)) n.removeAttribute(a.name);
-      if ((a.name === 'src' || a.name === 'href') && /^\s*javascript:/i.test(a.value)) n.removeAttribute(a.name);
+      // xlink:href ikut diperiksa (Q3): <svg><a xlink:href="javascript:">
+      // lolos bila hanya src/href yang diperiksa. Uji skema pakai nilai
+      // yang sudah dinormalisasi ala parser browser.
+      if ((a.name === 'src' || a.name === 'href' || a.name === 'xlink:href') && urlBerbahaya(a.value)) n.removeAttribute(a.name);
+      if (a.name === 'xlink:href' && !xlinkOk(a.value)) n.removeAttribute(a.name);
     });
   });
   const links = [];
-  doc.querySelectorAll('a[href]').forEach((a) => {
+  // <area> ikut pass allowlist (Q3): href-nya tidak tercakup pass a[href]
+  // sebelumnya, jadi javascript: yang diobfusikasi lolos ke kotak baca.
+  doc.querySelectorAll('a[href], area[href]').forEach((a) => {
     const href = a.getAttribute('href') || '';
-    if (/^(https?:|mailto:)/i.test(href)) {
+    if (tautanOk(href)) {
       a.setAttribute('target', '_blank');
       a.setAttribute('rel', 'noopener');
       a.style.color = '#8ab8ff';
@@ -78,7 +99,7 @@ function sanitizeEmailHtml(raw) {
   });
   doc.querySelectorAll('img').forEach((img) => {
     const src = img.getAttribute('src') || '';
-    if (!/^(https?:|data:image\/)/i.test(src)) img.removeAttribute('src');
+    if (!/^(https?:|data:image\/)/i.test(normalUrl(src))) img.removeAttribute('src');
     img.style.maxWidth = '100%';
   });
   return { html: doc.body.innerHTML, links: [...new Set(links)] };

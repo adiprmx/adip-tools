@@ -1,10 +1,11 @@
 import { h as T, utils, kv } from '../../core.js';
+import { HARGA_BBM_PERTALITE, HARGA_BBM_LABEL } from '../../harga-bbm.js';
 
 // Biaya pulang-pergi kerja per bulan. Kendaraan pribadi: biaya BBM =
 // jarak x hari / konsumsi x harga, ditambah tol dan parkir. Transportasi
-// umum: tarif pulang-pergi x hari. Harga BBM default Pertalite
-// Rp10.000/liter (berlaku sejak 2 September 2026, Pertamina), sama
-// seperti kalkulator konsumsi BBM, dan bisa diubah.
+// umum: tarif pulang-pergi x hari. Harga BBM default dari modul bersama
+// js/harga-bbm.js (satu sumber kebenaran dengan 4 tool BBM lain), dan
+// bisa diubah.
 export function hitungBiayaKomuter(o) {
   const jarak = Math.max(0, Number(o.jarakPP) || 0);
   const hari = Math.max(0, Number(o.hari) || 0);
@@ -40,7 +41,7 @@ export function render(root) {
   const jarakI = T.input('text', 'cth: 30', ''); jarakI.inputMode = 'decimal';
   const hariI = T.input('text', 'cth: 22', '22'); hariI.inputMode = 'decimal';
   const kmlI = T.input('text', 'cth: 40', ''); kmlI.inputMode = 'decimal';
-  const hargaI = T.input('text', 'cth: 10000', '10000'); hargaI.inputMode = 'decimal';
+  const hargaI = T.input('text', 'cth: 10000', String(HARGA_BBM_PERTALITE)); hargaI.inputMode = 'decimal';
   const tolI = T.input('text', 'cth: 300000', '0'); tolI.inputMode = 'decimal';
   const parkirI = T.input('text', 'cth: 150000', '0'); parkirI.inputMode = 'decimal';
   const tarifI = T.input('text', 'cth: 20000', ''); tarifI.inputMode = 'decimal';
@@ -93,7 +94,7 @@ export function render(root) {
       kv('Parkir / bulan', T.rp(Math.round(T.num(parkirI.value) || 0))) +
       kv('Biaya / hari kerja', T.rp(Math.round(r.perHari))) +
       kv('Biaya / tahun', T.rp(Math.round(r.perTahun))) +
-      '<p class="hint">Harga BBM default Pertalite Rp10.000/liter (berlaku sejak 2 September 2026), sesuaikan dengan BBM yang kamu pakai. Biaya ini belum termasuk servis, pajak, dan cicilan kendaraan.</p>');
+      '<p class="hint">Harga BBM default ' + HARGA_BBM_LABEL + ', sesuaikan dengan BBM yang kamu pakai. Biaya ini belum termasuk servis, pajak, dan cicilan kendaraan.</p>');
   };
   modeSel.addEventListener('change', () => {
     fldPribadi.hidden = modeSel.value !== 'pribadi';

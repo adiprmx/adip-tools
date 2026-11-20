@@ -35,12 +35,25 @@ export function render(root) {
     }
     const url = urlFavicon(domain);
     T.show(box,
-      '<div class="center"><img src="' + esc(url) + '" alt="Favicon ' + esc(domain) + '" style="width:64px;height:64px;image-rendering:auto" data-err="hide">' +
+      '<div class="center"><div data-gambar><img src="' + esc(url) + '" alt="Favicon ' + esc(domain) + '" style="width:64px;height:64px;image-rendering:auto">' +
+      '<div class="dim" data-memuat style="font-size:12.5px;margin-top:6px">Memuat ikon…</div></div>' +
       '<div style="font-weight:700;margin-top:10px;word-break:break-all">' + esc(domain) + '</div>' +
       '<p class="dim" style="font-size:13px;margin-top:6px">Ini ikon yang dipakai situs itu di tab browser dan bookmark.</p>' +
       '<p style="margin-top:10px"><a class="btn" href="' + esc(url) + '" target="_blank" rel="noopener">Buka ukuran penuh</a></p></div>' +
-      '<p class="hint">Sumber: icon.horse. Domain yang kamu tulis dikirim ke layanan itu untuk diambil ikonnya. Kalau gambar tidak muncul, situs itu mungkin tidak punya favicon atau memblokir pengambilan ikon.</p>');
-    T.wireImgErr(box);
+      '<p class="hint">Sumber: icon.horse. Domain yang kamu tulis dikirim ke layanan itu untuk diambil ikonnya.</p>');
+    // Gambar gagal dimuat harus TERLIHAT, bukan hilang diam-diam:
+    // ganti slot gambar dengan pesan + tombol coba lagi.
+    const slot = box.querySelector('[data-gambar]');
+    const img = slot && slot.querySelector('img');
+    if (img) {
+      img.addEventListener('load', () => { const m = slot.querySelector('[data-memuat]'); if (m) m.remove(); });
+      img.addEventListener('error', () => {
+        T.show(slot, errBox('Ikon situs ini tidak bisa dimuat. Situs itu mungkin tidak punya ikon, atau layanannya sedang bermasalah.'));
+        const w = T.el('<div style="margin-top:8px"></div>');
+        w.appendChild(T.btn('Coba lagi', ambil));
+        slot.appendChild(w);
+      });
+    }
   };
 
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') ambil(); });

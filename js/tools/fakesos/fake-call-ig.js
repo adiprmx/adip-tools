@@ -96,6 +96,17 @@ export function render(root) {
             '<div class="' + P + '-roundbtn ' + P + '-decline">' + ic('phone', true) + '</div>' +
             '<div class="' + P + '-roundbtn ' + P + '-accept">' + ic('phone') + '</div></div>' +
         '</div><div class="' + P + '-home"></div><span class="' + P + '-pranktag">palsu · cuma prank</span></div>';
+    } else if (S.tipe === 'keluar') {
+      const lbl = S.media === 'video' ? 'Memanggil video…' : 'Memanggil…';
+      html = '<div class="' + P + '-screen">' +
+        '<div class="' + P + '-ct">' + sb() +
+          '<div class="' + P + '-inhead"><div class="' + P + '-av">' + fotoHtml + '</div>' +
+            '<div class="' + P + '-inname">' + T.esc(S.nama) + '</div>' +
+            '<div class="' + P + '-inlbl">' + lbl + '</div></div>' +
+          '<div class="' + P + '-sp"></div>' +
+          '<div class="' + P + '-inbtns" style="justify-content:center">' +
+            '<div class="' + P + '-roundbtn ' + P + '-decline">' + ic('phone', true) + '</div></div>' +
+        '</div><div class="' + P + '-home"></div><span class="' + P + '-pranktag">palsu · cuma prank</span></div>';
     } else if (S.media === 'audio') {
       html = '<div class="' + P + '-screen">' +
         '<div class="' + P + '-ct">' + sb() +
@@ -128,7 +139,7 @@ export function render(root) {
     stage.appendChild(frame);
   }
 
-  const selTipe = T.select([['berlangsung', 'Panggilan berlangsung'], ['masuk', 'Panggilan masuk']], S.tipe);
+  const selTipe = T.select([['berlangsung', 'Panggilan berlangsung'], ['masuk', 'Panggilan masuk'], ['keluar', 'Panggilan keluar']], S.tipe);
   const selMedia = T.select([['video', 'Video'], ['audio', 'Audio']], S.media);
   const inNama = T.input('text', 'Username', S.nama);
   const inDurasi = T.input('text', 'Durasi', S.durasi);
@@ -166,6 +177,7 @@ export function render(root) {
   wrap.appendChild(fi2Field);
   wrap.appendChild(T.row(bContoh, bDl));
   wrap.appendChild(stage);
+  wrap.appendChild(T.el('<p class="note">🎭 Hanya untuk prank, bukan panggilan Instagram asli. Jangan dipakai untuk menipu orang.</p>'));
   wrap.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
   wrap.appendChild(T.el('<p class="hint">Tips: export PNG butuh koneksi internet sekali untuk memuat pustaka export.</p>'));
   root.appendChild(wrap);

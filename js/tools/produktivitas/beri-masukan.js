@@ -1,20 +1,19 @@
-import { h as T, utils } from '../../core.js';
+import { h as T } from '../../core.js';
 
-export const meta = {"id":"beri-masukan","name":"Beri Masukan","cat":"produktivitas","icon":"💬","desc":"Laporkan masalah atau beri saran untuk Adip Tools, lewat email atau GitHub.","keywords":"masukan,feedback,lapor,masalah,bug,saran,github,email","since":"6.12.0"};
+export const meta = {"id":"beri-masukan","name":"Beri Masukan","cat":"produktivitas","icon":"💬","desc":"Laporkan masalah atau beri saran untuk Adip Tools lewat GitHub.","keywords":"masukan,feedback,lapor,masalah,bug,saran,github","since":"6.12.0"};
 
 /*
  * TIDAK ADA BACKEND: situs ini 100% statis, jadi masukan tidak dikirim dari
  * halaman ini. Pengguna menulis laporannya di sini, lalu mengirimnya sendiri
- * lewat aplikasi emailnya atau lewat GitHub Issues. Tidak ada data yang
- * keluar dari perangkat sebelum pengguna menekan tombol kirim.
+ * lewat GitHub Issues. Tidak ada data yang keluar dari perangkat sebelum
+ * pengguna menekan tombol kirim.
  *
- * ALAMAT EMAIL: belum ada alamat email kontak publik di repo maupun di
- * profil GitHub pemilik (dicek 15 Nov 2026). Isi EMAIL_TUJUAN di bawah
- * dengan alamat email publik pemilik sebelum tombol email diaktifkan.
- * Selama masih kosong, tombol email memberi tahu pengguna dan mengarahkan
- * ke GitHub Issues / tombol salin.
+ * TIDAK ADA JALUR EMAIL: belum ada alamat email kontak publik di repo
+ * maupun di profil GitHub pemilik (dicek 15 Nov 2026), jadi tombol
+ * "Kirim lewat email" dihapus — tombol yang hanya menampilkan pesan
+ * "belum tersedia" adalah tombol mati. Bila suatu saat ada alamat email
+ * kontak publik, jalur email bisa ditambahkan lagi di sini.
  */
-const EMAIL_TUJUAN = '';
 const REPO_ISSUES = 'https://github.com/adiprmx/adip-tools/issues/new';
 
 const JENIS = [
@@ -58,20 +57,6 @@ export function render(root) {
     return { judul, isi: baris.join('\n'), kosong: !teks };
   };
 
-  const kirimEmail = () => {
-    const lap = susun();
-    if (lap.kosong) { T.toast('Tulis dulu masukanmu di kotak di atas'); isi.focus(); return; }
-    if (!EMAIL_TUJUAN) {
-      T.toast('Alamat email pengembang belum tersedia — pakai GitHub Issues atau tombol salin di bawah');
-      return;
-    }
-    const href = 'mailto:' + EMAIL_TUJUAN +
-      '?subject=' + encodeURIComponent(lap.judul) +
-      '&body=' + encodeURIComponent(lap.isi);
-    location.href = href;
-    T.toast('Aplikasi email kamu dibuka — tinggal tekan kirim');
-  };
-
   const bukaGithub = () => {
     const lap = susun();
     if (lap.kosong) { T.toast('Tulis dulu masukanmu di kotak di atas'); isi.focus(); return; }
@@ -88,12 +73,11 @@ export function render(root) {
     return lap.judul + '\n\n' + lap.isi;
   }, 'Salin isi laporan');
 
-  root.appendChild(T.el('<p class="hint">Ketemu yang rusak, atau ada ide biar Adip Tools makin enak dipakai? Tulis di sini, lalu kirim lewat email atau GitHub. Tidak ada yang terkirim otomatis — kamu yang pegang tombol kirimnya.</p>'));
+  root.appendChild(T.el('<p class="hint">Ketemu yang rusak, atau ada ide biar Adip Tools makin enak dipakai? Tulis di sini, lalu kirim lewat GitHub. Tidak ada yang terkirim otomatis — kamu yang pegang tombol kirimnya.</p>'));
   root.appendChild(T.field('Jenis masukan', jenis));
   root.appendChild(T.field('Tool yang dimaksud (kalau ada)', namaTool));
   root.appendChild(T.field('Ceritamu', isi));
-  root.appendChild(T.row(T.btn('Kirim lewat email', kirimEmail, true)));
-  root.appendChild(T.row(T.btn('Buka GitHub Issues', bukaGithub)));
+  root.appendChild(T.row(T.btn('Buka GitHub Issues', bukaGithub, true)));
   root.appendChild(T.row(salin));
   root.appendChild(hasil);
 

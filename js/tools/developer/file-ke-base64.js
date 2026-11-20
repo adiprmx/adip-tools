@@ -36,19 +36,27 @@ export function render(root) {
         dataUri = String(rd.result);
         base64 = dataUri.split(',')[1] || '';
         const b64len = base64.length;
-        const b64size = Math.ceil(b64len * 3 / 4);
+        // Ukuran Base64 = panjang teksnya (1 karakter ASCII = 1 byte).
+        // (Sebelumnya memakai ceil(len*3/4) — itu ukuran hasil decode,
+        // kira-kira sama dengan ukuran file, sehingga "Bengkak" ~0%.)
+        const bengkak = f.size > 0 ? Math.round((b64len / f.size - 1) * 100) : 0;
         const tampil = b64len > 600;
         const ta = T.ta(6);
         ta.readOnly = true;
         ta.value = tampil ? base64.slice(0, 600) + '…' : base64;
         T.show(out, '');
+        // Satu wadah pembungkus: T.el hanya mengembalikan elemen pertama,
+        // jadi tanpa pembungkus ini hanya baris "Nama file" yang tampil
+        // dan semua baris ukuran hilang.
         const infoEl = T.el(
+          '<div>' +
           '<div class="kv"><span class="k">Nama file</span><span class="v">' + T.esc(f.name) + '</span></div>' +
           '<div class="kv"><span class="k">Tipe</span><span class="v">' + T.esc(f.type || 'tidak diketahui') + '</span></div>' +
           '<div class="kv"><span class="k">Ukuran file</span><span class="v">' + fmtSize(f.size) + '</span></div>' +
-          '<div class="kv"><span class="k">Ukuran Base64</span><span class="v">' + fmtSize(b64size) + ' (' + T.fmt(b64len) + ' karakter)</span></div>' +
-          '<div class="kv"><span class="k">Bengkak</span><span class="v">+' + Math.round(b64size / Math.max(f.size, 1) * 100 - 100) + '% — wajar, Base64 memang ~33% lebih gemuk</span></div>' +
-          '<div class="kv"><span class="k">Panjang kode</span><span class="v">' + T.fmt(dataUri.length) + ' karakter</span></div>'
+          '<div class="kv"><span class="k">Ukuran Base64</span><span class="v">' + fmtSize(b64len) + ' (' + T.fmt(b64len) + ' karakter)</span></div>' +
+          '<div class="kv"><span class="k">Bengkak</span><span class="v">+' + bengkak + '% — wajar, Base64 memang ~33% lebih gemuk</span></div>' +
+          '<div class="kv"><span class="k">Panjang kode</span><span class="v">' + T.fmt(dataUri.length) + ' karakter</span></div>' +
+          '</div>'
         );
         out.appendChild(infoEl);
         const prevWrap = T.el('<div></div>');
@@ -83,7 +91,7 @@ export function render(root) {
           T.copyBtn(() => dataUri, 'Salin Data URI'),
           T.dlBtn(namaTxt, () => dataUri, 'text/plain', 'Unduh .txt')
         ));
-        out.appendChild(T.el('<div class="hint" style="margin-top:8px">Siap ditempel ke kode: <span style="font-family:ui-monospace,monospace">src="data:…"</span>. ' + T.esc(fmtSize(f.size)) + ' file jadi ' + T.esc(fmtSize(b64size)) + ' teks — makanya jangan buat file gede ya.</div>'));
+        out.appendChild(T.el('<div class="hint" style="margin-top:8px">Siap ditempel ke kode: <span style="font-family:ui-monospace,monospace">src="data:…"</span>. ' + T.esc(fmtSize(f.size)) + ' file jadi ' + T.esc(fmtSize(b64len)) + ' teks — makanya jangan buat file gede ya.</div>'));
       };
       rd.onerror = () => T.show(out, '<span class="err">Filenya tidak bisa dibaca. Coba file lain.</span>');
       rd.readAsDataURL(f);

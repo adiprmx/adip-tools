@@ -7,6 +7,8 @@ export function render(root) {
   // Ekspresi crop FFmpeg. Koma di dalam min() WAJIB di-escape (\,) karena
   // koma adalah pemisah filter. trunc(/2)*2 menjaga lebar/tinggi genap
   // (syarat encoder H.264). Potongan diambil dari tengah layar.
+  // Dua backslash di string JS sampai ke ffmpeg sebagai satu backslash —
+  // bentuk yang benar, terverifikasi ffmpeg 8.1.2 (20 Nov 2026).
   const CROPS = {
     asli: null,
     '1:1': 'crop=trunc(min(iw\\,ih)/2)*2:trunc(min(iw\\,ih)/2)*2',
@@ -98,7 +100,11 @@ export function render(root) {
       T.toast('Video terunduh');
     } catch (e) {
       if (isCancelled(e)) { T.show(outBox, '<span class="dim">Dibatalkan.</span>'); }
-      else T.show(outBox, errBox(friendlyError(e)));
+      else {
+        T.show(outBox, errBox(friendlyError(e)));
+        const retry = T.btn('Coba lagi', () => goBtn.click());
+        outBox.appendChild(retry);
+      }
     } finally {
       busy = false;
       goBtn.disabled = false;
@@ -116,9 +122,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       if (duration > 0 && !endIn.value) endIn.value = duration.toFixed(2);
       T.show(infoBox,
         kv('File', T.esc(fileObj.name)) +

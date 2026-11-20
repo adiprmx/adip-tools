@@ -9,6 +9,7 @@ export const meta = {"id": "surat-duka", "name": "Pembuat Surat Belasungkawa", "
 export function render(root) {
 
     utils.ensurePrintCss('surat-duka-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-duka-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+    T.onLeave(() => utils.removePrintCss('surat-duka-print'));
 
     const pengirimI = T.input('text', 'Nama kamu (pengirim)', '');
     const namaAlmI = T.input('text', 'Nama almarhum / almarhumah', '');

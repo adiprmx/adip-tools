@@ -4,11 +4,28 @@ import { h as T, esc, errBox } from '../../core.js';
 // (tanpa daftar). Terverifikasi 19 Nov 2026: key MASIH HIDUP,
 // /api/v1/json/123/searchteams.php?t=Arsenal -> 200, CORS *.
 // PERINGATAN: provider bisa menonaktifkan key ini sewaktu-waktu (key "3"
-// sudah pernah dimatikan); bila suatu hari API balas gagal, tool menampilkan
-// pesan gagal jujur, bukan data karangan.
+// sudah pernah dimatikan). Karena itu tool ini menyediakan kolom kunci
+// sendiri: pengguna bisa daftar gratis di thesportsdb.com, masukkan kuncinya,
+// dan tool memakai kunci itu (tersimpan di perangkat saja). Bila kunci bawaan
+// mati, pesan gagalnya menyebut itu dengan jelas, bukan data karangan.
 export const meta = {"id":"info-tim-olahraga","name":"Info Tim Olahraga","cat":"liveapi","icon":"🏟️","desc":"Cari tim olahraga dunia dan lihat stadion, tahun berdiri, dan liganya.","keywords":"tim,olahraga,sepak bola,basket,klub,stadion,liga","since":"6.19.0"};
 
-const API = 'https://www.thesportsdb.com/api/v1/json/123/searchteams.php?t=';
+const KEY_BAWAAN = '123';
+const KEY_LS = 'at-info-tim-olahraga-key-v1';
+
+export function kunciAktif() {
+  try { return (localStorage.getItem(KEY_LS) || '').trim() || KEY_BAWAAN; } catch (e) { return KEY_BAWAAN; }
+}
+export function simpanKunci(k) {
+  try {
+    const v = String(k || '').trim();
+    if (v) localStorage.setItem(KEY_LS, v);
+    else localStorage.removeItem(KEY_LS);
+  } catch (e) {}
+}
+export function urlCariTim(q) {
+  return 'https://www.thesportsdb.com/api/v1/json/' + encodeURIComponent(kunciAktif()) + '/searchteams.php?t=' + encodeURIComponent(q);
+}
 
 const gambarAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 const teksAman = (u) => typeof u === 'string' && (u.indexOf('https://') === 0 || u.indexOf('http://') === 0);
@@ -60,8 +77,10 @@ export function render(root) {
     T.show(detailBox, '');
     const c = new AbortController();
     const t = setTimeout(() => c.abort(), 20000);
+    let status = 0;
     try {
-      const r = await fetch(API + encodeURIComponent(q), { signal: c.signal });
+      const r = await fetch(urlCariTim(q), { signal: c.signal });
+      status = r.status;
       if (!r.ok) throw new Error('http ' + r.status);
       const j = await r.json();
       const list = j && Array.isArray(j.teams) ? j.teams.filter(Boolean) : [];
@@ -74,9 +93,15 @@ export function render(root) {
       if (list.length === 1) tampilDetail(list[0]);
       else T.show(detailBox, '<p class="center dim">Pilih tim di atas untuk melihat detailnya.</p>');
     } catch (e) {
-      const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 20 detik.'
-        : 'Gagal mencari tim. Cek koneksi internet, lalu coba lagi.';
+      const pakaiKunciSendiri = kunciAktif() !== KEY_BAWAAN;
+      let msg;
+      if (e.name === 'AbortError') msg = 'Waktu habis, server tidak merespons dalam 20 detik.';
+      else if (status === 401 || status === 403) {
+        msg = pakaiKunciSendiri
+          ? 'Kunci yang kamu masukkan ditolak server. Periksa lagi kuncinya, atau kosongkan kolom kunci untuk kembali ke kunci bawaan.'
+          : 'Kunci bawaan alat ini sudah tidak berlaku lagi (kunci uji publik bisa dimatikan penyedia kapan saja). Masukkan kunci TheSportsDB-mu sendiri di bawah, atau coba lagi nanti.';
+      } else if (status >= 500) msg = 'Server TheSportsDB sedang bermasalah. Coba lagi sebentar.';
+      else msg = 'Gagal mencari tim. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');
       wr.appendChild(T.btn('🔄 Coba lagi', cari));
@@ -84,11 +109,21 @@ export function render(root) {
     } finally { clearTimeout(t); }
   };
 
+  const kunciInp = T.input('text', 'Kosong = pakai kunci bawaan');
+  kunciInp.setAttribute('autocomplete', 'off');
+  try { const tersimpan = localStorage.getItem(KEY_LS) || ''; if (tersimpan) kunciInp.value = tersimpan; } catch (e) {}
+  const simpanKunciBtn = T.btn('Simpan kunci', () => {
+    simpanKunci(kunciInp.value);
+    T.toast(kunciInp.value.trim() ? 'Kunci tersimpan di perangkat ini.' : 'Kembali memakai kunci bawaan.');
+  });
+
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') cari(); });
   root.appendChild(T.el('<p class="note">Tulis nama tim olahraga apa pun, dari sepak bola sampai basket, lalu ketuk Cari.</p>'));
   root.appendChild(T.field('Nama tim', inp));
   root.appendChild(T.row(T.btn('🔍 Cari tim', cari, true)));
   root.appendChild(box);
   root.appendChild(detailBox);
+  root.appendChild(T.field('Kunci API sendiri (opsional)', kunciInp, 'Alat ini memakai kunci uji publik yang bisa dimatikan penyedia kapan saja. Kalau suatu hari pencarian gagal terus, daftar gratis di thesportsdb.com, masukkan kuncimu di sini, lalu ketuk Simpan kunci. Kunci hanya tersimpan di perangkatmu.'));
+  root.appendChild(T.row(simpanKunciBtn));
   T.show(box, '<p class="center dim">Belum ada yang dicari. Coba tulis Arsenal lalu ketuk Cari tim.</p>');
 }

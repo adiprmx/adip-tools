@@ -4,12 +4,15 @@ import { h as T, kv } from '../../core.js';
    Entri log: { mulai: ms, selesai: ms|null }. */
 
 /** Cek aturan 5-1-1: kontraksi tiap ≤5 menit, durasi ≥1 menit, selama 1 jam.
+    Ambang di bawah ini HARUS sama persis dengan aturan yang ditulis di layar
+    (tiap 5 menit = 12 kontraksi dalam 1 jam) — jangan dilonggarkan diam-diam.
     Mengembalikan { memenuhi, kontraksiSejam, alasan }. */
+export const ATURAN_511 = { durasiMinDetik: 60, jarakMaksMenit: 5, jumlahMinSejam: 12 };
 export function cekAturan511(entri, sekarang) {
   const selesai = entri.filter((e) => e.selesai).sort((a, b) => a.mulai - b.mulai);
   const sejamLalu = (sekarang || Date.now()) - 60 * 60 * 1000;
   const sejam = selesai.filter((e) => e.mulai >= sejamLalu);
-  const yangMemenuhi = sejam.filter((e) => (e.selesai - e.mulai) >= 55 * 1000);
+  const yangMemenuhi = sejam.filter((e) => (e.selesai - e.mulai) >= ATURAN_511.durasiMinDetik * 1000);
   // Jarak antar kontraksi dihitung dari awal ke awal.
   let jarakRata = null;
   if (yangMemenuhi.length >= 2) {
@@ -19,16 +22,16 @@ export function cekAturan511(entri, sekarang) {
     }
     jarakRata = jarak.reduce((a, b) => a + b, 0) / jarak.length;
   }
-  const memenuhi = yangMemenuhi.length >= 6 && jarakRata != null && jarakRata <= 6 * 60 * 1000;
+  const memenuhi = yangMemenuhi.length >= ATURAN_511.jumlahMinSejam && jarakRata != null && jarakRata <= ATURAN_511.jarakMaksMenit * 60 * 1000;
   return {
     memenuhi,
     kontraksiSejam: yangMemenuhi.length,
     jarakRataMenit: jarakRata == null ? null : jarakRata / 60000,
     alasan: memenuhi
-      ? 'Pola 5-1-1 terpenuhi: ' + yangMemenuhi.length + ' kontraksi dalam 1 jam terakhir, jarak rata-rata ' + (jarakRata / 60000).toFixed(1).replace('.', ',') + ' menit, tiap kontraksi sekitar 1 menit atau lebih.'
+      ? 'Pola 5-1-1 terpenuhi: ' + yangMemenuhi.length + ' kontraksi dalam 1 jam terakhir, jarak rata-rata ' + (jarakRata / 60000).toFixed(1).replace('.', ',') + ' menit, tiap kontraksi 1 menit atau lebih.'
       : yangMemenuhi.length === 0
         ? 'Belum ada kontraksi yang tercatat 1 jam terakhir.'
-        : 'Baru ' + yangMemenuhi.length + ' kontraksi (durasi ≥1 menit) dalam 1 jam terakhir — aturan 5-1-1 butuh pola tiap 5 menit selama 1 jam.',
+        : 'Baru ' + yangMemenuhi.length + ' kontraksi (durasi 1 menit atau lebih) dalam 1 jam terakhir — aturan 5-1-1 butuh 12 kontraksi tiap 5 menit selama 1 jam.',
   };
 }
 

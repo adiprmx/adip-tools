@@ -25,9 +25,10 @@ function permSteps(n, r) {
 
 const fmtBig = (b) => {
   const s = b.toString();
-  if (s.length <= 24) return T.fmt(Number(b));
-  // Angka raksasa: tampilkan ringkas + jumlah digit
-  return s.slice(0, 12) + '…' + s.slice(-6) + ' <span class="mut">(' + s.length + ' digit)</span>';
+  if (s.length <= 15) return T.fmt(Number(b));
+  // Di atas 15 digit, Number kehilangan ketelitian: kelompokkan dari string.
+  if (s.length <= 30) return s.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return s.slice(0, 15) + '…' + s.slice(-10) + ' <span class="mut">(' + s.length + ' digit)</span>';
 };
 
 function termStr(terms, maxShow) {

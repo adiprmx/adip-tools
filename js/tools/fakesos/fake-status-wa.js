@@ -70,8 +70,16 @@ export function render(root) {
   const ctl = T.el('<div class="fswa-ctl"></div>');
   const inNama = T.input('text', 'Nama pemilik status', 'Adip');
   const inWaktu = T.input('text', 'Waktu posting', '2 jam lalu');
-  const inTeks = T.input('text', 'Teks status (bila tanpa foto)', 'Beat baru rilis minggu ini! 🎧');
+  const inTeks = T.input('text', 'Teks status', 'Beat baru rilis minggu ini! 🎧');
   const inLike = T.input('text', 'Jumlah like', '24');
+  const inSeg = T.input('number', 'Jumlah story (1-8)', '3');
+  inSeg.min = '1'; inSeg.max = '8';
+  const inAktif = T.input('number', 'Story yang sedang dibuka', '1');
+  inAktif.min = '1';
+  const inProg = T.input('range', '', '65');
+  inProg.min = '0'; inProg.max = '100';
+  const fldProg = T.field('Story ini sudah jalan (65%)', inProg, 'Seberapa jauh story yang sedang dibuka sudah berjalan.');
+  const labProg = fldProg.querySelector('label');
   const selGrad = T.select(Object.keys(GRADASI).map((k) => [k, GRADASI[k].label]), 'hijau');
   const selPlatform = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
@@ -85,9 +93,14 @@ export function render(root) {
 
   ctl.appendChild(T.field('Nama pemilik status', inNama));
   ctl.appendChild(T.field('Waktu posting', inWaktu));
-  ctl.appendChild(T.field('Teks status', inTeks));
+  ctl.appendChild(T.field('Teks status', inTeks, 'Teks tampil di tengah layar, di atas foto bila ada.'));
   ctl.appendChild(T.field('Jumlah like', inLike));
   ctl.appendChild(T.field('Latar (bila tanpa foto)', selGrad));
+  const segRow = T.el('<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>');
+  segRow.appendChild(T.field('Jumlah story', inSeg, '1 sampai 8 segmen.'));
+  segRow.appendChild(T.field('Story yang dibuka', inAktif, 'Dihitung dari kiri. Bila melebihi jumlah, dipakai yang terakhir.'));
+  ctl.appendChild(segRow);
+  ctl.appendChild(fldProg);
   ctl.appendChild(T.field('Platform', selPlatform));
   const brandField = T.field('Merk HP', selBrand);
   ctl.appendChild(brandField);
@@ -100,7 +113,9 @@ export function render(root) {
     T.btn('🎲 Contoh', () => {
       inNama.value = 'Adip'; inWaktu.value = '2 jam lalu';
       inTeks.value = 'Beat baru rilis minggu ini! 🎧'; inLike.value = '24';
-      selGrad.value = 'hijau'; taPenonton.value = 'Rizky\nDina\nSari\nBudi\nMama';
+      selGrad.value = 'hijau'; inSeg.value = '3'; inAktif.value = '1'; inProg.value = '65';
+      labProg.textContent = 'Story ini sudah jalan (65%)';
+      taPenonton.value = 'Rizky\nDina\nSari\nBudi\nMama';
       fotoUrl = null; draw(); T.scrollToPreview(phone);
     }),
     T.btn('⬇️ Unduh PNG', () => dlNodePng(phone, 'fake-status-wa.png'), true)
@@ -115,6 +130,15 @@ export function render(root) {
     const like = inLike.value.trim() || '0';
     const grad = GRADASI[selGrad.value] || GRADASI.hijau;
     const penonton = parsePenonton(taPenonton.value);
+    const totalSeg = Math.max(1, Math.min(8, parseInt(inSeg.value, 10) || 3));
+    const segAktif = Math.max(1, Math.min(totalSeg, parseInt(inAktif.value, 10) || 1));
+    const progPersen = Math.max(0, Math.min(100, parseInt(inProg.value, 10) || 0));
+    let progHtml = '<div class="fswa-prog">';
+    for (let i = 1; i <= totalSeg; i++) {
+      const w = i < segAktif ? 100 : (i === segAktif ? progPersen : 0);
+      progHtml += '<i>' + (w > 0 ? '<b style="width:' + w + '%"></b>' : '') + '</i>';
+    }
+    progHtml += '</div>';
 
     let viewersHtml = '';
     penonton.forEach((p) => {
@@ -124,9 +148,10 @@ export function render(root) {
 
     const sbHtml = '<div class="fswa-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, true) + '</div>';
     const stageHtml = '<div class="fswa-stage" style="background:' + grad.bg + '">' +
-      (fotoUrl ? '<img src="' + fotoUrl + '" alt="">' : '<div class="fswa-teks">' + T.esc(teks) + '</div>') +
+      (fotoUrl ? '<img src="' + fotoUrl + '" alt="">' : '') +
+      (teks ? '<div class="fswa-teks">' + T.esc(teks) + '</div>' : '') +
       sbHtml +
-      '<div class="fswa-prog"><i><b style="width:65%"></b></i><i></i><i></i></div>' +
+      progHtml +
       '<div class="fswa-hd"><button class="fswa-bk" type="button" tabindex="-1">' + SVG_BACK + '</button>' +
       '<div class="fswa-av" style="background:' + utils.avaColor(nama) + '">' + T.esc((nama[0] || '?').toUpperCase()) + '</div>' +
       '<div class="fswa-nm"><b>' + T.esc(nama) + '</b>' + (waktu ? '<span>' + T.esc(waktu) + '</span>' : '') + '</div>' +
@@ -142,8 +167,8 @@ export function render(root) {
       '<div class="fswa-pranktag-wrap"><span class="fswa-pranktag">palsu · cuma prank</span></div>';
   }
 
-  [inNama, inWaktu, inTeks, inLike, selGrad, selPlatform, selBrand, taPenonton].forEach((el) => {
-    el.addEventListener('input', draw);
+  [inNama, inWaktu, inTeks, inLike, selGrad, selPlatform, selBrand, taPenonton, inSeg, inAktif, inProg].forEach((el) => {
+    el.addEventListener('input', () => { labProg.textContent = 'Story ini sudah jalan (' + (parseInt(inProg.value, 10) || 0) + '%)'; draw(); });
     el.addEventListener('change', draw);
   });
 

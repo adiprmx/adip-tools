@@ -3,42 +3,52 @@ import { h as T, utils } from '../../core.js';
 export const meta = { id: 'generator-bola-minecraft', name: 'Generator Bola Minecraft', cat: 'fun', icon: '⚽', desc: 'Rencanakan bola atau ellipsoid Minecraft lapis per lapis, dengan tampilan 3D dan hitungan blok.', keywords: 'minecraft,bola,sphere,ellipsoid,lapis,blok,bangunan,3d', since: '6.17.0' };
 
 // Lingkaran terisi pada satu lapis: set "x,y" relatif ke pusat.
-// isiLingkaran kanonis tinggal di utils (core.js).
+// (Helper lama utils.isiLingkaran sudah dihapus dari core.js di v6.21.0 —
+// konvensinya salah; file ini memakai konvensi diameter lokal di bawah.)
 
 // Bola/ellipsoid: diameter dx, dy (tinggi), dz.
 // Kembalikan array lapis dari bawah ke atas: [{ lapis, sel, jumlah }].
+// Konvensi diameter (v6.21.0): tiap voxel terisi bila titik tengahnya masuk
+// ellipsoid berjari-jari d/2 per sumbu. Konvensi lama ((x+0.5)/(rx+0.5))
+// menggeser pusat 0,5 blok sehingga diameter ganjil jadi 1 blok lebih kecil
+// (bola d=11 jadi 10 lebar × 11 lapis = ellipsoid, bukan bola). Kini d=11 →
+// 11 lebar × 11 lapis, bola sungguhan. Kulit = voxel yang punya tetangga
+// 6-arah di luar bola (dulu hanya tetangga 2D dalam lapis, sehingga puncak
+// dan lembah bola berlubang).
 export function bangunBola(dx, dy, dz, isi) {
-  const rx = (dx - 1) / 2, ry = (dy - 1) / 2, rz = (dz - 1) / 2;
-  const lapis = [];
-  for (let ly = -(dy - 1) / 2; ly <= (dy - 1) / 2 + 1e-9; ly += 1) {
-    const t = ly / (ry + 0.5);
-    const sisa = 1 - t * t;
-    if (sisa < 0) continue;
-    const f = Math.sqrt(sisa);
-    const sel = utils.isiLingkaran(Math.min(rx, rz) * f + Math.max(0, Math.min(rx, rz) - Math.min(rx, rz)));
-    // Ellipsoid umum: skala x dan z terpisah.
-    const selE = new Set();
-    const mx = Math.ceil(rx), mz = Math.ceil(rz);
-    for (let z = -mz; z <= mz; z++) {
-      for (let x = -mx; x <= mx; x++) {
-        const nx = (x + 0.5) / (rx + 0.5), nz = (z + 0.5) / (rz + 0.5);
-        if (nx * nx / (f * f) + nz * nz / (f * f) <= 1) selE.add(x + ',' + z);
+  const penuh = new Set();
+  const x0 = -Math.floor(dx / 2), y0 = -Math.floor(dy / 2), z0 = -Math.floor(dz / 2);
+  for (let j = 0; j < dy; j++) {
+    for (let k = 0; k < dz; k++) {
+      for (let i = 0; i < dx; i++) {
+        const nx = (i - (dx - 1) / 2) / (dx / 2);
+        const ny = (j - (dy - 1) / 2) / (dy / 2);
+        const nz = (k - (dz - 1) / 2) / (dz / 2);
+        if (nx * nx + ny * ny + nz * nz <= 1) penuh.add((x0 + i) + ',' + (y0 + j) + ',' + (z0 + k));
       }
     }
-    let pakai = selE;
-    if (!isi) {
-      // Kulit saja: blok yang punya tetangga di luar ellipsoid 3D.
-      // Pendekatan lapis: tepi lingkaran lapis ini + lapis atas/bawah bila ada.
-      const tepi = new Set();
-      selE.forEach((k) => {
-        const [x, z] = k.split(',').map(Number);
-        if (!selE.has((x + 1) + ',' + z) || !selE.has((x - 1) + ',' + z) || !selE.has(x + ',' + (z + 1)) || !selE.has(x + ',' + (z - 1))) tepi.add(k);
-      });
-      pakai = tepi;
-    }
-    if (pakai.size) lapis.push({ lapis: lapis.length + 1, sel: pakai, jumlah: pakai.size });
-    void sel;
   }
+  let pakai = penuh;
+  if (!isi) {
+    pakai = new Set();
+    penuh.forEach((v) => {
+      const [x, y, z] = v.split(',').map(Number);
+      if (!penuh.has((x + 1) + ',' + y + ',' + z) || !penuh.has((x - 1) + ',' + y + ',' + z) ||
+        !penuh.has(x + ',' + (y + 1) + ',' + z) || !penuh.has(x + ',' + (y - 1) + ',' + z) ||
+        !penuh.has(x + ',' + y + ',' + (z + 1)) || !penuh.has(x + ',' + y + ',' + (z - 1))) pakai.add(v);
+    });
+  }
+  const perLapis = new Map();
+  pakai.forEach((v) => {
+    const [x, y, z] = v.split(',').map(Number);
+    if (!perLapis.has(y)) perLapis.set(y, new Set());
+    perLapis.get(y).add(x + ',' + z);
+  });
+  const lapis = [];
+  [...perLapis.keys()].sort((a, b) => a - b).forEach((y) => {
+    const sel = perLapis.get(y);
+    lapis.push({ lapis: lapis.length + 1, sel, jumlah: sel.size });
+  });
   return lapis;
 }
 
@@ -86,10 +96,8 @@ export function render(root) {
       return mx;
     });
     const rMax = Math.max(...rLapis, 1);
-    const tinggiTotal = n * 10;
     for (let i = n - 1; i >= 0; i--) {
       const r = rLapis[i] / rMax * maxR;
-      const y = cy + (i - n / 2) * 10 + (n * 5 - tinggiTotal / 2) * 0 + (i * 8) - (n * 4);
       const terang = 0.45 + 0.55 * (i / Math.max(1, n - 1));
       ctx.fillStyle = 'rgba(255,111,97,' + (0.35 + 0.5 * terang).toFixed(2) + ')';
       ctx.strokeStyle = '#ff6f61';

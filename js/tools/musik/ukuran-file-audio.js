@@ -10,13 +10,16 @@ const PRESETS = [
   ['custom', 'Custom...'],
 ];
 
-const parseDur = (s) => {
+export const parseDur = (s) => {
   const m = /^\s*(?:(\d+)\s*:\s*)?(\d+(?:[.,]\d+)?)\s*$/.exec(String(s == null ? '' : s));
   if (!m) return NaN;
   return (m[1] ? parseInt(m[1], 10) * 60 : 0) + parseFloat(m[2].replace(',', '.'));
 };
-const fmtDur = (det) => {
-  const m = Math.floor(det / 60), s = Math.round(det % 60);
+export const fmtDur = (det) => {
+  // Bulatkan TOTAL detik dulu, baru bagi — membulatkan sisa detiknya saja
+  // bisa menghasilkan "3:60" (cth. 239,7 dtk -> 59,7 dibulatkan jadi 60).
+  const t = Math.round(det);
+  const m = Math.floor(t / 60), s = t % 60;
   return m + ':' + String(s).padStart(2, '0');
 };
 

@@ -78,6 +78,38 @@ export function render(root) {
       html += '<p class="center hint">Jam paling sering menonton: pukul ' + String(data.jamSibuk).padStart(2, '0') + '.00 (' + T.fmt(data.jamSibukJumlah) + ' video).</p>';
     }
     T.show(box, html);
+    const dl = T.btn('⬇️ Unduh kartu PNG', () => unduhKartu(), true);
+    dl.style.marginTop = '14px';
+    box.appendChild(dl);
+  };
+
+  const unduhKartu = () => {
+    if (!data) return;
+    const c = document.createElement('canvas');
+    c.width = 900; c.height = 1200;
+    const x = c.getContext('2d');
+    x.fillStyle = '#171923'; x.fillRect(0, 0, 900, 1200);
+    x.textAlign = 'left';
+    x.fillStyle = '#fff'; x.font = '700 34px system-ui, sans-serif';
+    x.fillText('TikTok Wrapped', 48, 80);
+    x.font = '400 22px system-ui, sans-serif'; x.fillStyle = '#a1a1aa';
+    x.fillText('Rangkuman setahunmu', 48, 118);
+    const r = hitungRingkasan(data);
+    x.fillStyle = '#fff'; x.font = '800 96px system-ui, sans-serif';
+    x.fillText(T.fmt(data.ditonton), 48, 240);
+    x.font = '400 26px system-ui, sans-serif'; x.fillStyle = '#a1a1aa';
+    x.fillText('video ditonton', 48, 285);
+    let y = 380;
+    x.fillStyle = '#fff'; x.font = '400 26px system-ui, sans-serif';
+    x.fillText(T.fmt(data.suka) + ' suka', 48, y); y += 44;
+    x.fillText(T.fmt(data.komen) + ' komentar', 48, y); y += 44;
+    x.fillText(T.fmt(data.bagikan) + ' dibagikan', 48, y); y += 44;
+    if (data.hariAktif > 0) { x.fillText('Aktif di ' + T.fmt(data.hariAktif) + ' hari · ' + T.fmt(r.perHari) + ' video per hari', 48, y); y += 44; }
+    if (r.rasioSuka > 0) { x.fillText('Menyukai ' + T.fmt(r.rasioSuka) + '% dari video yang ditonton', 48, y); y += 44; }
+    if (data.jamSibuk !== null && data.jamSibuk !== undefined) { x.fillText('Jam paling sibuk: pukul ' + String(data.jamSibuk).padStart(2, '0') + '.00', 48, y); y += 44; }
+    x.fillStyle = '#52525b'; x.font = '400 20px system-ui, sans-serif';
+    x.fillText('Dibuat di Adip Tools', 48, 1140);
+    c.toBlob((b) => { if (b) T.dl('tiktok-wrapped.png', b, 'image/png'); else T.toast('Gagal membuat PNG.'); }, 'image/png');
   };
 
   const dariManual = () => {

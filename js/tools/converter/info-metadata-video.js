@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "info-metadata-video", "name": "Info Metadata Video", "cat": "converter", "icon": "📹", "desc": "Detail teknis video: format gambar, durasi, ukuran layar, dan lainnya.", "keywords": "video,metadata,info,detail,codec,durasi,bitrate,resolusi", "since": "6.17.0"};
@@ -54,7 +54,7 @@ export function render(root) {
     barFill.style.width = Math.max(0, Math.min(100, pct || 0)) + '%';
   };
   const fmtDur = (d) => {
-    if (!d) return '-';
+    if (!Number.isFinite(d) || d <= 0) return '-';
     const mnt = Math.floor(d / 60);
     const dtk = (d % 60).toFixed(1);
     return mnt > 0 ? mnt + ' menit ' + dtk + ' detik' : dtk + ' detik';
@@ -90,9 +90,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      dasar = { durasi: v.duration || 0, w: v.videoWidth || 0, h: v.videoHeight || 0 };
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      dasar = { durasi: d, w: v.videoWidth || 0, h: v.videoHeight || 0 };
       T.show(infoBox,
         kv('File', T.esc(fileObj.name)) +
         kv('Durasi', fmtDur(dasar.durasi)) +
@@ -150,7 +153,11 @@ export function render(root) {
       tampilkan(ff);
     } catch (e) {
       if (isCancelled(e)) { T.show(outBox, '<span class="dim">Dibatalkan.</span>'); }
-      else T.show(outBox, errBox(friendlyError(e)));
+      else {
+        T.show(outBox, errBox(friendlyError(e)));
+        const retry = T.btn('Coba lagi', () => goBtn.click());
+        outBox.appendChild(retry);
+      }
     } finally {
       busy = false;
       goBtn.disabled = false;

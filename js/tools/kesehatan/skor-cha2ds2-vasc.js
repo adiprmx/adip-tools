@@ -6,9 +6,12 @@ import { h as T, esc, utils } from '../../core.js';
 // D diabetes: 1. S2 riwayat stroke/TIA/darah beku: 2. V penyakit pembuluh
 // darah (serangan jantung, penyakit arteri kaki, plak aorta): 1.
 // A umur 65-74: 1. Sc perempuan: 1. Total 0-9.
-// Risiko stroke per tahun (Lip 2010): 0: 0%, 1: 1,3%, 2: 2,2%, 3: 3,2%,
-// 4: 4,0%, 5: 6,7%, 6: 9,7%, 7: 9,6%, 8: 6,7%, 9: 15,2%.
-export const RISIKO_TAHUNAN = [0, 1.3, 2.2, 3.2, 4.0, 6.7, 9.7, 9.6, 6.7, 15.2];
+// Risiko stroke per tahun (Lip 2010, tabel adjusted stroke rate; diverifikasi
+// 20 Nov 2026 terhadap PMC/Medscape/MSD Manual — skor 6 = 9,8%, BUKAN 9,7%):
+// 0: 0%, 1: 1,3%, 2: 2,2%, 3: 3,2%, 4: 4,0%, 5: 6,7%, 6: 9,8%, 7: 9,6%,
+// 8: 6,7%, 9: 15,2%. (Angka 9,7% di skor 6 adalah nilai Friberg 2012, bukan
+// tabel Lip 2010 — dikoreksi Q5 v6.21.0.)
+export const RISIKO_TAHUNAN = [0, 1.3, 2.2, 3.2, 4.0, 6.7, 9.8, 9.6, 6.7, 15.2];
 
 export function cha2ds2vasc(f) {
   let s = 0;

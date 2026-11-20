@@ -81,6 +81,48 @@ export function render(root) {
     if (data.topChannel.length) html += '<h3 style="margin-top:14px">Channel teratas</h3>' + data.topChannel.map((c) => barisBatang(c.nama, c.jumlah, maksC, 'video')).join('');
     if (data.topKata.length) html += '<h3 style="margin-top:14px">Kata teratas di judul video</h3>' + data.topKata.map((k) => barisBatang(k.nama, k.jumlah, maksK, 'x')).join('');
     T.show(box, html);
+    const dl = T.btn('⬇️ Unduh kartu PNG', () => unduhKartu(), true);
+    dl.style.marginTop = '14px';
+    box.appendChild(dl);
+  };
+
+  const unduhKartu = () => {
+    if (!data) return;
+    const c = document.createElement('canvas');
+    c.width = 900; c.height = 1200;
+    const x = c.getContext('2d');
+    x.fillStyle = '#171923'; x.fillRect(0, 0, 900, 1200);
+    x.textAlign = 'left';
+    x.fillStyle = '#fff'; x.font = '700 34px system-ui, sans-serif';
+    x.fillText('YouTube Wrapped', 48, 80);
+    x.font = '400 22px system-ui, sans-serif'; x.fillStyle = '#a1a1aa';
+    x.fillText('Rangkuman setahunmu', 48, 118);
+    x.fillStyle = '#fff'; x.font = '800 96px system-ui, sans-serif';
+    x.fillText(T.fmt(data.totalTonton), 48, 240);
+    x.font = '400 26px system-ui, sans-serif'; x.fillStyle = '#a1a1aa';
+    x.fillText('video ditonton', 48, 285);
+    let y = 380;
+    if (data.totalChannel) {
+      x.fillStyle = '#fff'; x.font = '400 26px system-ui, sans-serif';
+      x.fillText('Dari ' + T.fmt(data.totalChannel) + ' channel' + (data.hariAktif ? ', aktif di ' + T.fmt(data.hariAktif) + ' hari' : ''), 48, y); y += 44;
+      y += 16;
+    }
+    const tulisDaftar = (judul, list, satuan) => {
+      if (!list || !list.length) return;
+      x.fillStyle = '#fff'; x.font = '700 30px system-ui, sans-serif';
+      x.fillText(judul, 48, y); y += 48;
+      x.font = '400 26px system-ui, sans-serif';
+      list.forEach((s, i) => {
+        x.fillStyle = '#fff'; x.fillText((i + 1) + '. ' + String(s.nama).slice(0, 30), 48, y);
+        x.fillStyle = '#a1a1aa'; x.fillText(T.fmt(s.jumlah) + ' ' + satuan, 700, y); y += 44;
+      });
+      y += 30;
+    };
+    tulisDaftar('Channel teratas', data.topChannel, 'video');
+    tulisDaftar('Kata teratas', data.topKata, 'x');
+    x.fillStyle = '#52525b'; x.font = '400 20px system-ui, sans-serif';
+    x.fillText('Dibuat di Adip Tools', 48, 1140);
+    c.toBlob((b) => { if (b) T.dl('youtube-wrapped.png', b, 'image/png'); else T.toast('Gagal membuat PNG.'); }, 'image/png');
   };
 
   const dariManual = () => {

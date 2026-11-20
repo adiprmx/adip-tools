@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"parafrase-teks-ai","name":"Parafrase Teks AI","cat":"teks","icon":"🔄","desc":"Tulis ulang teks dengan kalimat berbeda, makna sama.","keywords":"parafrase,tulis ulang,teks,ai,puter","since":"6.18.0"};
+export const meta = {"id":"parafrase-teks-ai","name":"Parafrase Teks AI","cat":"teks","icon":"🔄","desc":"Tulis ulang teks dengan kalimat berbeda, makna sama. Pilih tingkat perubahan dan gaya penulisan: santai, formal, singkat, atau lebih hidup.","keywords":"parafrase,tulis ulang,teks,ai,puter,gaya,kalimat,santai,formal,penulis ulang kalimat","since":"6.18.0"};
 
 const MAX_TEKS = 5000;
 const TINGKAT = [
@@ -9,13 +9,26 @@ const TINGKAT = [
   ['menyeluruh', 'Menyeluruh', 'menyeluruh: tulis ulang total dengan struktur kalimat yang baru'],
 ];
 
+// Sumbu kedua (diserap dari penulis-ulang-kalimat-ai, v6.21.0): gaya
+// penulisan. 'netral' = tanpa arahan gaya, prompt sama persis seperti
+// sebelum merge.
+export const GAYA = [
+  ['netral', 'Apa adanya', ''],
+  ['santai', 'Santai', 'tulis ulang dengan gaya santai sehari-hari, tetap sopan'],
+  ['formal', 'Formal', 'tulis ulang dengan gaya formal dan rapi'],
+  ['singkat', 'Singkat & padat', 'tulis ulang jadi lebih singkat dan padat tanpa mengubah maksud'],
+  ['hidup', 'Lebih hidup', 'tulis ulang dengan gaya yang lebih hidup dan menarik'],
+];
+
 // Ekstrak teks dari respons puter.ai.chat (bentuknya bisa string / objek).
 // chatText, errPesan kanonis tinggal di utils (core.js).
 
 // Pembentuk prompt murni (bisa diuji tanpa SDK).
 export function buatPrompt(o) {
   const t = TINGKAT.find(([v]) => v === (o && o.tingkat)) || TINGKAT[1];
-  return 'Parafrase teks berikut ini secara ' + t[2] + '. ' +
+  const g = GAYA.find(([v]) => v === (o && o.gaya)) || GAYA[0];
+  const gaya = g[2] ? ' ' + g[2][0].toUpperCase() + g[2].slice(1) + '.' : '';
+  return 'Parafrase teks berikut ini secara ' + t[2] + '.' + gaya + ' ' +
     'Pertahankan arti, fakta, dan angka aslinya. Pertahankan jumlah paragrafnya. ' +
     'Jawab HANYA dengan hasil parafarsenya, tanpa penjelasan tambahan.\n\nTeks:\n' + (o.teks || '');
 }
@@ -28,7 +41,7 @@ export function render(root) {
   let alive = true, busy = false, lastHasil = '';
   T.onLeave(() => { alive = false; });
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel teksmu, pilih seberapa jauh diubah, dan AI akan menulis ulangnya dengan kalimat berbeda tapi makna yang sama. Cocok untuk teks panjang sampai beberapa paragraf. Diproses lewat <b>akun Puter milikmu</b> (login gratis, sekali saja). Teksmu tidak disimpan di mana pun.</p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Tempel teksmu, pilih seberapa jauh diubah dan gaya penulisannya, dan AI akan menulis ulangnya dengan kalimat berbeda tapi makna yang sama. Cocok untuk satu kalimat sampai teks panjang beberapa paragraf. Diproses lewat <b>akun Puter milikmu</b> (login gratis, sekali saja). Teksmu tidak disimpan di mana pun.</p>'));
 
   /* ---------- Input ---------- */
   const ta = T.ta(6, 'Tempel teksmu di sini…\nContoh: Membaca buku setiap hari membantu kita memperluas wawasan dan melatih kemampuan berpikir. Selain itu, membaca juga bisa menjadi cara yang baik untuk bersantai setelah seharian bekerja.');
@@ -40,6 +53,9 @@ export function render(root) {
 
   const tingkatSel = T.select(TINGKAT.map(([v, l]) => [v, l]), 'sedang');
   root.appendChild(T.field('Tingkat perubahan', tingkatSel));
+
+  const gayaSel = T.select(GAYA.map(([v, l]) => [v, l]), 'netral');
+  root.appendChild(T.field('Gaya penulisan', gayaSel, 'Apa adanya berarti AI tidak diarahkan ke gaya tertentu.'));
 
   const statusBox = T.el('<div class="dim" style="font-size:12.5px;margin:8px 0;min-height:18px" role="status" aria-live="polite"></div>');
   const setStatus = (t, cls) => { if (alive) statusBox.innerHTML = t ? '<span class="' + (cls || '') + '">' + t + '</span>' : ''; };
@@ -72,14 +88,14 @@ export function render(root) {
   async function jalan() {
     if (busy || !alive) return;
     const teks = ta.value.trim();
-    if (teks.length < 10) { setStatus('Tulis dulu teksnya (minimal 10 huruf).', 'err'); ta.focus(); return; }
+    if (teks.length < 3) { setStatus('Tulis dulu teksnya (minimal 3 huruf).', 'err'); ta.focus(); return; }
     await puter.need(async () => {
       busy = true; aksiBtn.disabled = true; aksiBtn.textContent = 'AI sedang menulis…';
       setStatus('AI sedang memparafrase teksmu…', '');
       T.show(out, '<div class="dim center" style="padding:18px 0">Menunggu jawaban AI…</div>');
       const t0 = performance.now();
       try {
-        const prompt = buatPrompt({ teks, tingkat: tingkatSel.value });
+        const prompt = buatPrompt({ teks, tingkat: tingkatSel.value, gaya: gayaSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
           new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),

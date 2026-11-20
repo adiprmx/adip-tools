@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "bisukan-video", "name": "Bisukan Video", "cat": "converter", "icon": "🔇", "desc": "Hapus suara dari video.", "keywords": "video,bisu,suara,mute,diam,senyap", "since": "6.17.0"};
@@ -29,9 +29,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       T.show(infoBox,
         kv('File', T.esc(fileObj.name)) +
         kv('Durasi', duration ? duration.toFixed(1) + ' detik' : 'tidak terbaca') +

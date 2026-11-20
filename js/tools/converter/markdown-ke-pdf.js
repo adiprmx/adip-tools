@@ -1,6 +1,12 @@
-import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
+// MERGE B24 (v6.21.0, D2): satu tool dua arah. Mesin kedua arah
+// dipertahankan berdampingan di file ini (NOL fungsi hilang):
+// arah A = markdown-ke-pdf (survivor), arah B = pdf-ke-markdown (dipensiunkan,
+// diserap ke sini). Sakelar arah ada di paling atas render().
 
-export const meta = {"id":"markdown-ke-pdf","name":"Markdown ke PDF","cat":"converter","icon":"📝","desc":"Ubah tulisan Markdown jadi PDF A4 dengan pratinjau dulu.","keywords":"markdown,pdf,dokumen,tulisan,md,a4","since":"6.11.0"};
+import { h as T, utils, kv, fmtBytes, errBox, fileInput, LOCAL_NOTE } from '../../core.js';
+
+export const meta = {"id": "markdown-ke-pdf", "name": "Markdown ↔ PDF", "cat": "converter", "icon": "📝", "desc": "Ubah tulisan Markdown jadi PDF A4, atau ambil teks PDF jadi Markdown.", "keywords": "markdown,pdf,dokumen,tulisan,md,a4,markdown ke pdf,pdf ke markdown,pdf ke md,ambil teks pdf", "since": "6.11.0"};
+
 
 /* Markdown ke PDF: parser marked 12.0.2 (CDN, pin versi) + html2canvas
    1.4.1 + jsPDF 2.5.1. Bila marked gagal dimuat, dipakai parser kecil
@@ -19,6 +25,51 @@ const JSPDF_CDNS = [
   'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js',
 ];
 const MAX_MD = 100000;
+
+// Normalisasi URL ala parser browser (WHATWG): tab/LF/CR dibuang di mana
+// saja, karakter kontrol + spasi dibuang di ujung. Tanpa ini "java\tscript:"
+// dan "\x01javascript:" lolos uji skema tapi tetap jalan sebagai
+// javascript: saat diklik (Q3 v6.21.0).
+const normalUrl = (v) => String(v || '').replace(/[\t\n\r]/g, '').replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
+const urlBerbahaya = (v) => /^(javascript|vbscript):/i.test(normalUrl(v));
+const tautanOk = (v) => /^(https?:|mailto:)/i.test(normalUrl(v));
+// xlink:href di SVG: tautan web + gambar data: boleh, sisanya dibuang.
+const xlinkOk = (v) => /^(https?:|mailto:|data:image\/)/i.test(normalUrl(v));
+
+/* Bersihkan HTML hasil Markdown sebelum innerHTML (T04 S1/S2): marked
+   tidak menyaring HTML mentah — <img onerror> dari Markdown tempel bisa
+   jalan di origin situs. Pola sama seperti sanitizeEmailHtml di genmail.
+   Murni + diekspor (Q3): bisa diuji langsung di browser tanpa render. */
+export const sanitizeHtml = (raw) => {
+  const doc = new DOMParser().parseFromString(String(raw || ''), 'text/html');
+  // Elemen animasi SVG + foreignObject ikut dibuang (Q3): <animate> bisa
+  // mengubah href lewat attributeName, foreignObject menampung HTML di
+  // dalam SVG.
+  doc.querySelectorAll('script,style,iframe,object,embed,form,link,meta,base,animate,animateTransform,animateMotion,set,mpath,foreignObject').forEach((n) => n.remove());
+  doc.querySelectorAll('*').forEach((n) => {
+    [...n.attributes].forEach((a) => {
+      if (/^on/i.test(a.name)) n.removeAttribute(a.name);
+      // xlink:href ikut diperiksa (Q3): <svg><a xlink:href="javascript:">
+      // lolos bila hanya src/href yang diperiksa. Uji skema pakai nilai
+      // yang sudah dinormalisasi ala parser browser.
+      if ((a.name === 'src' || a.name === 'href' || a.name === 'xlink:href') && urlBerbahaya(a.value)) n.removeAttribute(a.name);
+      if (a.name === 'xlink:href' && !xlinkOk(a.value)) n.removeAttribute(a.name);
+    });
+  });
+  // <area> ikut pass allowlist (Q3): href-nya tidak tercakup pass a[href]
+  // sebelumnya, jadi javascript: yang diobfusikasi lolos ke pratinjau.
+  doc.querySelectorAll('a[href], area[href]').forEach((a) => {
+    const href = a.getAttribute('href') || '';
+    if (tautanOk(href)) { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); }
+    else a.removeAttribute('href');
+  });
+  doc.querySelectorAll('img').forEach((img) => {
+    const src = img.getAttribute('src') || '';
+    if (!/^(https?:|data:image\/)/i.test(normalUrl(src))) img.removeAttribute('src');
+    img.style.maxWidth = '100%';
+  });
+  return doc.body.innerHTML;
+};
 
 /* Parser kecil cadangan bila marked gagal dimuat. */
 export function miniMd(md) {
@@ -56,7 +107,115 @@ export function miniMd(md) {
   return html;
 }
 
-export function render(root) {
+// ---------- Mesin arah B: PDF → Markdown (dari pdf-ke-markdown.js) ----------
+const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+const MAKS_HALAMAN = 200;
+
+// Kelompokkan potongan teks pdf.js jadi baris, lalu susun jadi Markdown:
+// baris yang tingginya >= 1,4x tinggi huruf paling umum jadi judul (##),
+// sisanya digabung jadi paragraf. Murni, bisa diuji di Node.
+export function itemsKeMarkdown(items) {
+  const urut = (items || []).slice().sort((a, b) => {
+    const dy = (b.transform[5] || 0) - (a.transform[5] || 0);
+    if (Math.abs(dy) > 2) return dy;
+    return (a.transform[4] || 0) - (b.transform[4] || 0);
+  });
+  const baris = [];
+  for (const it of urut) {
+    const teks = String(it.str || '');
+    if (!teks.trim()) continue;
+    const y = it.transform[5] || 0;
+    const x = it.transform[4] || 0;
+    const h = Math.abs(it.transform[3] || it.height || 12) || 12;
+    const lebar = it.width || teks.length * h * 0.5;
+    const terakhir = baris[baris.length - 1];
+    if (terakhir && Math.abs(terakhir.y - y) <= Math.max(2, h * 0.4)) {
+      terakhir.potong.push({ x, teks, lebar });
+      if (h > terakhir.h) terakhir.h = h;
+    } else {
+      baris.push({ y, h, potong: [{ x, teks, lebar }] });
+    }
+  }
+  if (!baris.length) return '';
+  const tinggi = baris.map((b) => b.h).sort((a, b) => a - b);
+  const tengah = tinggi[Math.floor(tinggi.length / 2)] || 12;
+  const blok = [];
+  let jalan = '';
+  let ySebelumnya = null;
+  const siram = () => { if (jalan) { blok.push(jalan); jalan = ''; } };
+  for (const b of baris) {
+    b.potong.sort((a, c) => a.x - c.x);
+    let teksBaris = '';
+    let ujung = null;
+    for (const p of b.potong) {
+      if (ujung !== null && p.x > ujung + 1) teksBaris += ' ';
+      teksBaris += p.teks;
+      ujung = p.x + p.lebar;
+    }
+    teksBaris = teksBaris.replace(/\s+/g, ' ').trim();
+    if (!teksBaris) continue;
+    if (b.h >= tengah * 1.4) {
+      siram();
+      blok.push('## ' + teksBaris);
+      ySebelumnya = b.y;
+      continue;
+    }
+    if (ySebelumnya !== null && Math.abs(ySebelumnya - b.y) > b.h * 1.8 && jalan) {
+      siram();
+    }
+    jalan = jalan ? jalan + ' ' + teksBaris : teksBaris;
+    ySebelumnya = b.y;
+  }
+  siram();
+  return blok.join('\n\n');
+}
+
+// Sakelar arah: dua tombol besar di paling atas. Arah yang aktif tampil
+// terbalik (putih di atas hitam) supaya langsung kelihatan tanpa membaca
+// kecil-kecil. Kedua panel tetap hidup berdampingan — pindah arah tidak
+// menghapus isian di panel yang ditinggalkan.
+/* R1 (v6.21.0): alias redirect — kunjungan dari tautan lama arah B
+   (#/t/<id-pensiun>) mendarat di sini dengan ?dir=b; buka langsung
+   panel arah B. Tanpa ?dir=b, perilaku lama (arah A) tidak berubah. */
+function mintaArahB() {
+  try {
+    const q = (typeof location !== 'undefined' && location.hash.split('?')[1]) || '';
+    return /(?:^|&)dir=b(?:&|$)/.test(q);
+  } catch {
+    return false;
+  }
+}
+
+function buatSakelarArah(labelA, labelB, panelA, panelB) {
+  const bungkus = T.el('<div role="tablist" aria-label="Arah konversi" style="display:flex;gap:8px;margin:2px 0 16px"></div>');
+  const GAYA_AKTIF = 'flex:1;min-height:48px;padding:12px 8px;border-radius:10px;border:1px solid #ffffff;font-size:15px;font-weight:700;background:#ffffff;color:#000000;cursor:pointer;transition:background .15s,color .15s,border-color .15s';
+  const GAYA_MATI = 'flex:1;min-height:48px;padding:12px 8px;border-radius:10px;border:1px solid #ffffff33;font-size:15px;font-weight:600;background:transparent;color:#a1a1aa;cursor:pointer;transition:background .15s,color .15s,border-color .15s';
+  const tombolA = document.createElement('button');
+  tombolA.type = 'button';
+  tombolA.textContent = labelA;
+  tombolA.setAttribute('role', 'tab');
+  const tombolB = document.createElement('button');
+  tombolB.type = 'button';
+  tombolB.textContent = labelB;
+  tombolB.setAttribute('role', 'tab');
+  const atur = (keA) => {
+    tombolA.style.cssText = keA ? GAYA_AKTIF : GAYA_MATI;
+    tombolB.style.cssText = keA ? GAYA_MATI : GAYA_AKTIF;
+    tombolA.setAttribute('aria-selected', keA ? 'true' : 'false');
+    tombolB.setAttribute('aria-selected', keA ? 'false' : 'true');
+    panelA.hidden = !keA;
+    panelB.hidden = keA;
+  };
+  tombolA.addEventListener('click', () => atur(true));
+  tombolB.addEventListener('click', () => atur(false));
+  bungkus.appendChild(tombolA);
+  bungkus.appendChild(tombolB);
+  atur(!mintaArahB());
+  return bungkus;
+}
+
+function renderMarkdownKePdf(panel) {
   const ta = T.ta(10, '# Laporan Mingguan\n\nMinggu ini berjalan **lancar**. Beberapa hal yang selesai:\n\n- Laporan penjualan dikirim\n- Stok gudang dicek ulang\n- Jadwal kirim minggu depan disusun\n\n> Catatan: harga bahan naik sedikit minggu ini.\n\nTerima kasih.');
   const prev = T.el('<div style="background:#ffffff;color:#111111;border:1px solid #ffffff20;border-radius:10px;padding:28px 24px;font-size:15px;line-height:1.7;min-height:160px"></div>');
   prev.innerHTML = '<span style="color:#71717a">Pratinjau muncul di sini…</span>';
@@ -78,30 +237,8 @@ export function render(root) {
     return pdfLibsOk;
   };
 
-  /* Bersihkan HTML hasil Markdown sebelum innerHTML (T04 S1/S2): marked
-     tidak menyaring HTML mentah — <img onerror> dari Markdown tempel bisa
-     jalan di origin situs. Pola sama seperti sanitizeEmailHtml di genmail. */
-  const sanitizeHtml = (raw) => {
-    const doc = new DOMParser().parseFromString(String(raw || ''), 'text/html');
-    doc.querySelectorAll('script,style,iframe,object,embed,form,link,meta,base').forEach((n) => n.remove());
-    doc.querySelectorAll('*').forEach((n) => {
-      [...n.attributes].forEach((a) => {
-        if (/^on/i.test(a.name)) n.removeAttribute(a.name);
-        if ((a.name === 'src' || a.name === 'href') && /^\s*javascript:/i.test(a.value)) n.removeAttribute(a.name);
-      });
-    });
-    doc.querySelectorAll('a[href]').forEach((a) => {
-      const href = a.getAttribute('href') || '';
-      if (/^(https?:|mailto:)/i.test(href)) { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); }
-      else a.removeAttribute('href');
-    });
-    doc.querySelectorAll('img').forEach((img) => {
-      const src = img.getAttribute('src') || '';
-      if (!/^(https?:|data:image\/)/i.test(src)) img.removeAttribute('src');
-      img.style.maxWidth = '100%';
-    });
-    return doc.body.innerHTML;
-  };
+  // sanitizeHtml kini di level modul (diekspor, Q3) — parse() di bawah
+  // memakai versi modul itu.
   const parse = (md) => sanitizeHtml(markedOk && window.marked ? window.marked.parse(md) : miniMd(md));
 
   const pratinjau = async () => {
@@ -171,12 +308,91 @@ export function render(root) {
     ta.value = '# Catatan Rapat\n\n**Tanggal:** Senin, 16 November 2026\n\n## Yang dibahas\n\n- Stok minggu ini aman\n- Promo akhir bulan disiapkan\n- Jadwal kirim diatur ulang\n\n## Tindak lanjut\n\n1. Cek harga pemasok\n2. Hubungi pelanggan yang menunggu\n\n> Semua poin di atas perlu selesai minggu ini.';
   });
 
-  root.appendChild(T.el('<p class="note">Diproses di browser. Alat Markdown dan PDF dimuat sekali dari internet saat tombol ditekan.</p>'));
-  root.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Tulis dengan format Markdown (judul pakai #, tebal pakai **, daftar pakai -), lihat pratinjaunya, lalu unduh PDF A4.</p>'));
-  root.appendChild(T.field('Tulisan Markdown', ta));
-  root.appendChild(T.row(contohBtn));
-  root.appendChild(T.row(T.btn('Lihat pratinjau', pratinjau), T.btn('Buat PDF', buatPdf, true)));
-  root.appendChild(T.el('<div class="hint" style="margin:12px 0 6px">Pratinjau:</div>'));
-  root.appendChild(prev);
-  root.appendChild(box);
+  panel.appendChild(T.el('<p class="note">Diproses di browser. Alat Markdown dan PDF dimuat sekali dari internet saat tombol ditekan.</p>'));
+  panel.appendChild(T.el('<p class="mut" style="font-size:13.5px;line-height:1.6">Tulis dengan format Markdown (judul pakai #, tebal pakai **, daftar pakai -), lihat pratinjaunya, lalu unduh PDF A4.</p>'));
+  panel.appendChild(T.field('Tulisan Markdown', ta));
+  panel.appendChild(T.row(contohBtn));
+  panel.appendChild(T.row(T.btn('Lihat pratinjau', pratinjau), T.btn('Buat PDF', buatPdf, true)));
+  panel.appendChild(T.el('<div class="hint" style="margin:12px 0 6px">Pratinjau:</div>'));
+  panel.appendChild(prev);
+  panel.appendChild(box);
+}
+
+function renderPdfKeMarkdown(panel) {
+  const fi = fileInput('application/pdf,.pdf');
+  const box = T.out();
+  const statusBox = T.out();
+  const hasilBox = T.out();
+  // Loader library kanonis: utils.loadLibOnce (core.js).
+
+  async function proses() {
+    const f = fi.files && fi.files[0];
+    if (!f) { T.toast('Pilih file PDF dulu'); return; }
+    T.hide(box); T.hide(hasilBox);
+    prosesB.disabled = true;
+    T.show(statusBox, '<span class="dim">Memuat mesin PDF… (perlu internet sekali saja)</span>');
+    const ok = await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; });
+    if (!ok) {
+      T.show(statusBox, '<div class="err">Mesin PDF gagal dimuat. Cek koneksi internetmu lalu coba lagi.</div> <button class="btn" type="button">Coba lagi</button>');
+      statusBox.querySelector('button').addEventListener('click', proses);
+      prosesB.disabled = false;
+      return;
+    }
+    try {
+      const namaDasar = (f.name || 'dokumen').replace(/\.[^.]*$/, '');
+      const data = new Uint8Array(await f.arrayBuffer());
+      const doc = await window.pdfjsLib.getDocument({ data }).promise;
+      const total = Math.min(doc.numPages, MAKS_HALAMAN);
+      const bagian = [];
+      for (let i = 1; i <= total; i++) {
+        T.show(statusBox, `<span class="dim">Membaca halaman ${i} dari ${total}…</span>`);
+        const page = await doc.getPage(i);
+        const konten = await page.getTextContent();
+        const md = itemsKeMarkdown(konten.items || []);
+        if (md) bagian.push((total > 1 ? '# Halaman ' + i + '\n\n' : '') + md);
+      }
+      await doc.destroy();
+      if (!bagian.length) {
+        T.show(statusBox, '<div class="err">Tidak ada teks yang bisa diambil dari PDF ini. Kemungkinan PDF-nya hasil scan (isinya hanya gambar).</div>');
+        prosesB.disabled = false;
+        return;
+      }
+      const hasil = bagian.join('\n\n');
+      T.hide(statusBox);
+      T.show(box, '<pre style="white-space:pre-wrap;word-break:break-word;background:#12100d;border:1px solid #2e2823;border-radius:8px;padding:12px;font-size:13px;line-height:1.6;max-height:420px;overflow:auto">' + T.esc(hasil) + '</pre>');
+      T.show(hasilBox, '');
+      hasilBox.appendChild(T.btn('Unduh Markdown (.md)', () => { T.dl(namaDasar + '.md', hasil, 'text/markdown;charset=utf-8'); T.toast('Berhasil diunduh'); }, true));
+      hasilBox.appendChild(T.copyBtn(() => hasil, 'Salin Markdown'));
+      T.scrollToPreview(box);
+    } catch (e) {
+      const terkunci = e && e.name === 'PasswordException';
+      T.show(statusBox, terkunci
+        ? '<div class="err">PDF ini dikunci kata sandi. Buka kuncinya dulu dengan tool Kunci PDF, tab Buka kunci.</div>'
+        : '<div class="err">PDF tidak bisa dibaca. Pastikan filenya PDF yang benar dan tidak rusak.</div> <button class="btn" type="button">Coba lagi</button>');
+      const tombol = statusBox.querySelector('button');
+      if (tombol) tombol.addEventListener('click', proses);
+    } finally {
+      prosesB.disabled = false;
+    }
+  }
+
+  const prosesB = T.btn('Ubah Jadi Markdown', proses, true);
+
+  panel.appendChild(T.el(`<p class="note">🔒 ${LOCAL_NOTE}</p>`));
+  panel.appendChild(T.el('<p class="note">Judul ditebak dari ukuran hurufnya, jadi bisa salah. Tata letak rumit dan PDF hasil scan tidak bisa diambil teksnya.</p>'));
+  panel.appendChild(T.field('Pilih file PDF', fi));
+  panel.appendChild(prosesB);
+  panel.appendChild(statusBox);
+  panel.appendChild(box);
+  panel.appendChild(hasilBox);
+}
+
+export function render(root) {
+  const panelA = T.el('<div></div>');
+  const panelB = T.el('<div></div>');
+  renderMarkdownKePdf(panelA);
+  renderPdfKeMarkdown(panelB);
+  root.appendChild(buatSakelarArah('Markdown → PDF', 'PDF → Markdown', panelA, panelB));
+  root.appendChild(panelA);
+  root.appendChild(panelB);
 }

@@ -152,11 +152,19 @@ function evalFx(node, x) {
   }
 }
 
+// Apakah rumus memakai sin/cos/tan? Bila ya, sudutnya dalam radian
+// (Math.sin/cos/tan memang memakai radian) — UI wajib melabelinya,
+// karena siswa umumnya berpikir dalam derajat.
+export function pakaiTrigonometri(src) {
+  return /\b(sin|cos|tan)\s*\(/.test(String(src == null ? '' : src).toLowerCase());
+}
+
 export function render(root) {
   const inp = T.input('text', 'mis. x*x+2*x', 'x*x');
   inp.setAttribute('spellcheck', 'false');
   inp.setAttribute('autocapitalize', 'off');
   const errBox = T.out();
+  const noteEl = T.out();
   const wrap = T.el('<div style="margin:12px 0"></div>');
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'width:100%;height:320px;display:block;border:1px solid var(--line);border-radius:12px;background:var(--deep)';
@@ -177,10 +185,14 @@ export function render(root) {
   };
 
   const gambar = () => {
-    T.hide(errBox); T.hide(tblBox);
+    T.hide(errBox); T.hide(tblBox); T.hide(noteEl);
     let fn;
     try { fn = compileFx(inp.value); }
     catch (e) { T.show(errBox, '<p style="color:var(--err);font-size:13px">' + T.esc(e.message) + '</p>'); return; }
+    const trig = pakaiTrigonometri(inp.value);
+    if (trig) {
+      T.show(noteEl, '<p class="hint">Sudut dihitung dalam <b>radian</b>, bukan derajat — x = 3,14 artinya π (180°). Jadi sin(3,14) = 0, bukan sin(180°).</p>');
+    }
     const N = 400, xs = [], ys = [];
     for (let i = 0; i <= N; i++) {
       const x = -10 + (20 * i) / N;
@@ -212,6 +224,19 @@ export function render(root) {
       ctx.beginPath(); ctx.moveTo(X(gx), 0); ctx.lineTo(X(gx), H); ctx.stroke();
       if (gx % 2 === 0) ctx.fillText(String(gx), X(gx) + 3, H - 6);
     }
+    // Fungsi trigonometri: tandai kelipatan π di sumbu x (label di
+    // atas supaya tidak bertumpuk dengan label angka di bawah).
+    if (trig) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+      for (let k = -3; k <= 3; k++) {
+        if (k === 0) continue;
+        const px = X(k * Math.PI);
+        ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke();
+        const label = (k === -1 ? '-' : k === 1 ? '' : String(k)) + 'π';
+        ctx.fillText(label, px + 3, 12);
+      }
+      ctx.fillText('x (radian)', W - 62, 12);
+    }
     const span = ymax - ymin;
     const base = Math.pow(10, Math.floor(Math.log10(span / 5)));
     const step = [1, 2, 2.5, 5, 10].map((m) => m * base).filter((st) => span / st <= 7)[0] || base * 10;
@@ -240,13 +265,14 @@ export function render(root) {
       rows += '<tr><td style="padding:6px 8px;border-bottom:1px solid var(--line-soft);text-align:center;color:var(--mut)">x = ' + x + '</td>' +
         '<td style="padding:6px 8px;border-bottom:1px solid var(--line-soft);text-align:center;font-family:monospace">f(x) = ' + T.esc(fmtY(y)) + '</td></tr>';
     }
-    T.show(tblBox, '<h3 style="font-size:14px;margin:4px 0 8px">Tabel nilai</h3>' +
+    T.show(tblBox, '<h3 style="font-size:14px;margin:4px 0 8px">Tabel nilai' + (trig ? ' (x dalam radian)' : '') + '</h3>' +
       '<table style="width:100%;border-collapse:collapse;font-size:13px">' + rows + '</table>');
   };
 
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') gambar(); });
-  root.appendChild(T.field('Rumus f(x)', inp, 'Boleh pakai: angka, x, + − * / ^ ( ), dan sin cos tan sqrt'));
+  root.appendChild(T.field('Rumus f(x)', inp, 'Boleh pakai: angka, x, + − * / ^ ( ), dan sin cos tan sqrt. sin, cos, tan memakai radian.'));
   root.appendChild(chips);
+  root.appendChild(noteEl);
   root.appendChild(T.row(T.btn('Gambar Grafiknya', gambar, true)));
   root.appendChild(errBox);
   root.appendChild(wrap);

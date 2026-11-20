@@ -26,6 +26,7 @@ export function render(root) {
   const infoBox = T.out();
   const listBox = T.el('<div></div>');
   const statBox = T.out();
+  const daftarJudul = T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Daftar pembayaran (0)</p>');
 
   const perKK = () => {
     const t = T.num(targetI.value);
@@ -86,6 +87,8 @@ export function render(root) {
   const renderList = () => {
     listBox.innerHTML = '';
     const p = perKK();
+    const sudah = st.warga.filter((w) => w.lunas).length;
+    daftarJudul.textContent = 'Daftar pembayaran (' + st.warga.length + ' KK, ' + sudah + ' sudah lunas)';
     if (!st.warga.length) {
       listBox.appendChild(T.el('<p class="mut">Belum ada KK. Tambahkan nama di bawah.</p>'));
       return;
@@ -142,7 +145,7 @@ export function render(root) {
   root.appendChild(T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Tambah KK</p>'));
   root.appendChild(T.row(namaI, T.btn('＋ Tambah', addWarga, true)));
   root.appendChild(T.field('Nominal per KK ini (Rp) — kosongkan = pakai iuran per KK', nominalI));
-  root.appendChild(T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Daftar pembayaran (' + (st.warga.length) + ')</p>'));
+  root.appendChild(daftarJudul);
   root.appendChild(listBox);
   root.appendChild(T.el('<p class="mut" style="margin:14px 0 6px;font-weight:600">Ringkasan</p>'));
   root.appendChild(statBox);

@@ -1,4 +1,4 @@
-import { h as T, kv, errBox } from '../../core.js';
+import { h as T, utils, kv, errBox } from '../../core.js';
 
 export const meta = {"id": "lihat-jejak-gpx", "name": "Lihat Jejak GPX di Peta", "cat": "converter", "icon": "🗺️", "desc": "Tampilkan rute lari atau sepeda dari file GPX di peta.", "keywords": "gpx,peta,rute,lari,sepeda,jejak,track", "since": "6.19.0"};
 
@@ -159,7 +159,8 @@ export function render(root) {
 
   const gambarPeta = async (segmen) => {
     if (typeof window.L === 'undefined') {
-      const ok = await T.loadScript(LEAFLET_JS);
+      // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+      const ok = await utils.loadLibOnce(LEAFLET_JS, () => typeof window.L !== 'undefined');
       if (!ok || typeof window.L === 'undefined') { gambarSvgCadangan(segmen); return; }
     }
     if (!document.getElementById('leaflet-css-b2')) {

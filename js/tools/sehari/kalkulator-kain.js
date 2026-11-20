@@ -45,6 +45,8 @@ export function render(root) {
   const lengan = T.input('text', 'cth: 60', '60');
   lengan.inputMode = 'decimal';
   const lebarKain = T.select([['115', '115 cm'], ['150', '150 cm'], ['280', '280 cm (kain lebar)']], '150');
+  const gsm = T.input('text', 'cth: 150', '');
+  gsm.inputMode = 'decimal';
   const box = T.out();
 
   const wrapLengan = T.el('<div></div>');
@@ -57,13 +59,20 @@ export function render(root) {
     const r = kainPakaian(jenis.value, T.num(panjang.value), T.num(lingkar.value), T.num(lengan.value), Number(lebarKain.value));
     if (!r) { T.show(box, '<span class="err">Isi panjang dan lingkar dengan angka lebih dari 0.</span>'); return; }
     const labelLingkar = jenis.value === 'sprei' ? 'Lebar kasur' : 'Lingkar badan';
+    const g = T.num(gsm.value);
+    const beratGram = g > 0 ? beratKain(r.meter, Number(lebarKain.value) / 100, g) : null;
+    const beratHtml = beratGram != null
+      ? kv('Berat kain yang dibeli', beratGram >= 1000 ? utils.fmtDes(beratGram / 1000, 2) + ' kg' : Math.round(beratGram) + ' gram')
+      : '';
     T.show(box,
       '<div class="center"><div class="dim">Kain yang dibutuhkan</div>' +
       '<div class="big">' + utils.fmtDes(r.meter, 2) + ' meter</div>' +
       '<div class="dim">Lebar kain ' + T.esc(String(lebarKain.value)) + ' cm, ' + T.esc(PAKAIAN[jenis.value].potongan) + '</div></div>' +
       kv('Luas potongan', utils.fmtDes(r.luasM2, 2) + ' m2') +
       kv('Sisa potong', '25 persen sudah termasuk') +
-      '<p class="hint">Ini perkiraan dari luas potongan. Kain bermotif besar atau searah butuh kain lebih banyak karena motifnya harus ketemu. Beli 20 sampai 30 cm lebih untuk jaga-jaga salah potong. Untuk sprei, kolom lingkar diisi lebar kasur.</p>');
+      beratHtml +
+      '<p class="hint">Ini perkiraan dari luas potongan. Kain bermotif besar atau searah butuh kain lebih banyak karena motifnya harus ketemu. Beli 20 sampai 30 cm lebih untuk jaga-jaga salah potong. Untuk sprei, kolom lingkar diisi lebar kasur.' +
+      (beratGram == null ? ' Isi GSM kain di bawah untuk melihat berat kainnya.' : ' Berat dihitung dari panjang x lebar x GSM.') + '</p>');
   };
 
   root.appendChild(T.el('<p class="note">Pilih pakaian yang mau dijahit dan isi ukurannya. Hasilnya meter kain yang harus dibeli pada lebar kain yang kamu pilih.</p>'));
@@ -74,7 +83,14 @@ export function render(root) {
     T.field('Lebar kain (cm)', lebarKain),
   ));
   root.appendChild(wrapLengan);
+  root.appendChild(T.field('GSM kain (gram per meter persegi, opsional)', gsm, 'Angka ini biasanya tertulis di label kain atau deskripsi toko. Bila diisi, berat kain yang harus dibeli ikut ditampilkan.'));
   root.appendChild(T.btn('Hitung Kain', hitung, true));
   root.appendChild(box);
+
+  // Hitung-live (Q4 v6.21.0, observasi utang lama): hasil ikut berubah
+  // saat mengetik / ganti pilihan.
+  [panjang, lingkar, lengan, gsm].forEach((i) => i.addEventListener('input', hitung));
+  jenis.addEventListener('change', hitung);
+  lebarKain.addEventListener('change', hitung);
   hitung();
 }

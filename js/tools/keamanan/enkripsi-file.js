@@ -1,27 +1,32 @@
 import { h as T, tabs, errBox, fmtBytes, fileInput } from '../../core.js';
 
 // Enkripsi file AES-GCM (WebCrypto). Kunci diturunkan dari kata sandi
-// dengan PBKDF2 (250.000 iterasi, SHA-256), sama seperti tool Enkripsi Teks.
-// Format file hasil: magic "ATF1" (4 byte) + salt 16 byte + IV 12 byte +
+// dengan PBKDF2-HMAC-SHA256 600.000 iterasi (batas minimum panduan OWASP
+// Password Storage Cheat Sheet).
+// Format file hasil: magic "ATF2" (4 byte) + salt 16 byte + IV 12 byte +
 // ciphertext. Nama file asli ikut TERENKRIPSI di dalam ciphertext (2 byte
 // panjang nama + nama + isi) — tidak ada lagi metadata terang-terangan di
 // header (RED-G2-07): tanpa kata sandi, nama file pun tidak bisa dibaca.
+// File lama bermagic "ATF1" (dibuat saat iterasi masih 250.000) tetap bisa
+// dibuka: dekripsi membaca magic-nya dan memakai iterasi yang sesuai.
 // Semua proses 100% di perangkat ini.
-const MAGIC = 'ATF1';
-const ITER = 250000;
+const MAGIC = 'ATF2';
+const MAGIC_LAMA = 'ATF1';
+const ITER = 600000;
+const ITER_LAMA = 250000;
 const PANJANG_SANDI_MIN = 8;
 
-async function deriveKey(password, salt) {
+async function deriveKey(password, salt, iterasi) {
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: ITER, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations: iterasi, hash: 'SHA-256' },
     base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
 
 export async function encryptFileBytes(data, fileName, password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await deriveKey(password, salt);
+  const key = await deriveKey(password, salt, ITER);
   // Nama file dibungkus ke dalam plaintext (panjang 2 byte + nama + isi)
   // supaya ikut terenkripsi — header hanya berisi magic, salt, dan IV.
   const nameBytes = new TextEncoder().encode(String(fileName || 'file').slice(0, 500));
@@ -42,11 +47,13 @@ export async function encryptFileBytes(data, fileName, password) {
 export async function decryptFileBytes(packed, password) {
   const bytes = packed instanceof Uint8Array ? packed : new Uint8Array(packed);
   if (bytes.length < 32 + 2 + 16) throw new Error('pendek');
-  if (new TextDecoder().decode(bytes.slice(0, 4)) !== MAGIC) throw new Error('format');
+  const magic = new TextDecoder().decode(bytes.slice(0, 4));
+  const iterasi = magic === MAGIC ? ITER : magic === MAGIC_LAMA ? ITER_LAMA : null;
+  if (iterasi === null) throw new Error('format');
   const salt = bytes.slice(4, 20);
   const iv = bytes.slice(20, 32);
   const ct = bytes.slice(32);
-  const key = await deriveKey(password, salt);
+  const key = await deriveKey(password, salt, iterasi);
   const pt = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct));
   const nameLen = (pt[0] << 8) | pt[1];
   if (pt.length < 2 + nameLen) throw new Error('pendek');
@@ -135,5 +142,5 @@ export function render(root) {
   root.appendChild(tabs([['Kunci file', 0], ['Buka file', 1]], [pEnc, pDec]));
   root.appendChild(pEnc);
   root.appendChild(pDec);
-  root.appendChild(T.el('<div class="hint" style="margin-top:12px">Teknisnya: AES-GCM 256-bit, kunci dari kata sandi lewat PBKDF2 250.000 iterasi (SHA-256). File terkunci hanya bisa dibuka dengan kata sandi yang sama. Lupa kata sandi berarti file tidak bisa dibuka lagi oleh siapa pun.</div>'));
+  root.appendChild(T.el('<div class="hint" style="margin-top:12px">Teknisnya: AES-GCM 256-bit, kunci dari kata sandi lewat PBKDF2 600.000 iterasi (SHA-256). File terkunci hanya bisa dibuka dengan kata sandi yang sama. Lupa kata sandi berarti file tidak bisa dibuka lagi oleh siapa pun. File lama (250.000 iterasi) tetap bisa dibuka.</div>'));
 }

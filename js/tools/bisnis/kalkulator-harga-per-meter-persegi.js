@@ -35,11 +35,15 @@ export function render(root) {
     let banding = '';
     if (p2 != null) {
       const selisih = Math.abs(p1 - p2);
-      const persen = (selisih / Math.min(p1, p2)) * 100;
       const murah = p1 < p2 ? 'pertama' : p2 < p1 ? 'kedua' : null;
+      // Pembagi persen adalah harga per m² yang lebih murah; bila salah satu
+      // harga Rp0, persen selisih tidak bisa dihitung (bagi nol) — tampilkan
+      // selisih rupiahnya saja, tanpa persen.
+      const termurah = Math.min(p1, p2);
+      const persenTxt = termurah > 0 ? ' (' + ((selisih / termurah) * 100).toFixed(1).replace('.', ',') + '%)' : '';
       banding = murah == null
         ? '<p class="info">Harga per m² kedua properti sama persis.</p>'
-        : '<p class="info">Properti ' + murah + ' lebih murah per m², selisihnya ' + T.rp(selisih) + ' per m² (' + persen.toFixed(1).replace('.', ',') + '%).</p>';
+        : '<p class="info">Properti ' + murah + ' lebih murah per m², selisihnya ' + T.rp(selisih) + ' per m²' + persenTxt + '.</p>';
     }
     T.show(box,
       '<div class="big center">' + T.rp(p1) + '</div>' +

@@ -19,18 +19,27 @@ export const WARNA = [
 
 const byNama = (n) => WARNA.find((w) => w.nama === n);
 
+// Koefisien suhu (ppm/K) gelang ke-6, IEC 60062:2016. Putih, Emas, dan
+// Perak tidak punya nilai koefisien suhu (bukan warna gelang ke-6 yang sah).
+export const TEMPCO = {
+  Hitam: 250, Cokelat: 100, Merah: 50, Oranye: 15, Kuning: 25,
+  Hijau: 20, Biru: 10, Ungu: 5, 'Abu-abu': 1,
+};
+
 // gelang: array nama warna. 4 gelang: [d1, d2, pengali, toleransi].
-// 5 gelang: [d1, d2, d3, pengali, toleransi]. 6 gelang: + koefisien suhu (ppm/K).
+// 5 gelang: [d1, d2, d3, pengali, toleransi].
+// 6 gelang: [d1, d2, d3, pengali, toleransi, koefisien suhu (ppm/K)].
 export function nilaiDariGelang(gelang) {
   const n = gelang.length;
   if (n !== 4 && n !== 5 && n !== 6) return null;
-  const digit = gelang.slice(0, n - 2).map(byNama);
-  const pengali = byNama(gelang[n - 2]);
-  const tol = byNama(gelang[n - 1]);
+  const jmlDigit = n === 6 ? 3 : n - 2;
+  const digit = gelang.slice(0, jmlDigit).map(byNama);
+  const pengali = byNama(gelang[jmlDigit]);
+  const tol = byNama(gelang[jmlDigit + 1]);
   if (digit.some((d) => !d || d.angka == null) || !pengali || !tol) return null;
   const angka = Number(digit.map((d) => d.angka).join(''));
   const nilai = angka * pengali.pengali;
-  const ppm = n === 6 ? null : null;
+  const ppm = n === 6 ? (TEMPCO[gelang[5]] ?? null) : null;
   return { nilai, toleransi: tol.toleransi, angka, pengali: pengali.pengali, ppm };
 }
 
@@ -65,7 +74,7 @@ export function render(root) {
     '.rs-sw.pilih{border-color:var(--acc);box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--acc)}';
   root.appendChild(st);
 
-  root.appendChild(T.el('<p class="hint">Ketuk warna gelang satu per satu, dari gelang pertama sampai gelang toleransi. Gelang toleransi biasanya agak berjarak dari yang lain.</p>'));
+  root.appendChild(T.el('<p class="hint">Ketuk warna gelang satu per satu, dari gelang pertama sampai gelang terakhir. Gelang toleransi biasanya agak berjarak dari yang lain.</p>'));
 
   const mode = T.select([['4', '4 gelang (paling umum)'], ['5', '5 gelang (lebih teliti)'], ['6', '6 gelang (dengan koefisien suhu)']], '4');
   const badan = T.el('<div></div>');
@@ -100,11 +109,12 @@ export function render(root) {
   function gambarPemilih() {
     pemilih.innerHTML = '';
     const n = parseInt(mode.value, 10);
-    const peran = gelangAktif < n - 2 ? 'angka' : gelangAktif === n - 2 ? 'pengali' : 'toleransi';
+    const jmlDigit = n === 6 ? 3 : n - 2;
+    const peran = gelangAktif < jmlDigit ? 'angka' : gelangAktif === jmlDigit ? 'pengali' : gelangAktif === jmlDigit + 1 ? 'toleransi' : 'koefisien suhu';
     const label = T.el('<p style="font-weight:700;margin:8px 0 2px">Gelang ' + (gelangAktif + 1) + ' (' + peran + ')</p>');
     const wrap = T.el('<div class="rs-warna"></div>');
     WARNA.forEach((w) => {
-      const boleh = peran === 'angka' ? w.angka != null : peran === 'pengali' ? w.pengali != null : w.toleransi != null;
+      const boleh = peran === 'angka' ? w.angka != null : peran === 'pengali' ? w.pengali != null : peran === 'toleransi' ? w.toleransi != null : TEMPCO[w.nama] != null;
       if (!boleh) return;
       const b = document.createElement('button');
       b.type = 'button';
@@ -131,9 +141,10 @@ export function render(root) {
     const bawah = h.toleransi != null ? h.nilai * (1 - h.toleransi / 100) : null;
     const atas = h.toleransi != null ? h.nilai * (1 + h.toleransi / 100) : null;
     T.show(box,
-      '<p class="big">' + fmtOhm(h.nilai) + (h.toleransi != null ? ' ± ' + String(h.toleransi).replace('.', ',') + '%' : '') + '</p>' +
+      '<p class="big">' + fmtOhm(h.nilai) + (h.toleransi != null ? ' ± ' + String(h.toleransi).replace('.', ',') + '%' : '') + (h.ppm != null ? ' · ' + h.ppm + ' ppm/K' : '') + '</p>' +
       '<p class="hint">Angka: ' + h.angka + ' × pengali ' + T.fmt(h.pengali) + ' = ' + T.fmt(h.nilai) + ' Ω.' +
-      (bawah != null ? ' Nilai sebenarnya antara ' + fmtOhm(bawah) + ' dan ' + fmtOhm(atas) + '.' : '') + '</p>');
+      (bawah != null ? ' Nilai sebenarnya antara ' + fmtOhm(bawah) + ' dan ' + fmtOhm(atas) + '.' : '') +
+      (h.ppm != null ? ' Koefisien suhu ' + h.ppm + ' ppm/K: nilainya berubah sekitar ' + h.ppm + ' per sejuta tiap naik 1 derajat.' : '') + '</p>');
   }
 
   mode.addEventListener('change', () => { gelangAktif = 0; gambarBadan(); gambarPemilih(); hitung(); });

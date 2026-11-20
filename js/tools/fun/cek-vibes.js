@@ -1,6 +1,6 @@
 import { h as T } from '../../core.js';
 
-export const meta = {"id":"cek-vibes","name":"Cek Vibes","cat":"fun","icon":"✨","desc":"Kuis 6 pertanyaan buat nentuin vibes kamu hari ini. 100% nggak ilmiah.","keywords":"vibes,kuis,kepribadian,fun,hiburan,zodiak"};
+export const meta = {"id":"cek-vibes","name":"Cek Vibes","cat":"fun","icon":"✨","desc":"Kuis 10 pertanyaan buat nentuin vibes kamu hari ini. 100% nggak ilmiah.","keywords":"vibes,kuis,kepribadian,fun,hiburan,zodiak"};
 
 const VIBES = [
   { key: 'senja', nama: 'Vibes Anak Senja Hujan-hujanan', emoji: '🌧️',
@@ -60,6 +60,34 @@ const SOAL = [
       { t: 'Beli buku / album', s: { senja: 2, introvert: 1 } },
       { t: 'Traktir teman', s: { gas: 2, jajan: 1 } },
     ] },
+  { t: 'Kalau lagi stres, kamu biasanya?',
+    opsi: [
+      { t: 'Dengerin lagu sambil lihat langit', s: { senja: 2, introvert: 1 } },
+      { t: 'Ngemil apa aja yang ada', s: { jajan: 2, mager: 1 } },
+      { t: 'Tidur aja, besok dipikir', s: { mager: 2, introvert: 1 } },
+      { t: 'Ngajak teman keluar dadakan', s: { gas: 2, jajan: 1 } },
+    ] },
+  { t: 'Notifikasi HP kamu sekarang?',
+    opsi: [
+      { t: 'Numpuk ratusan, males buka', s: { mager: 2, introvert: 1 } },
+      { t: 'Selalu bersih, dibalas cepat', s: { ceo: 2, gas: 1 } },
+      { t: 'Isinya grup jajan & promo makanan', s: { jajan: 2, gas: 1 } },
+      { t: 'Mode senyap permanen', s: { introvert: 2, senja: 1 } },
+    ] },
+  { t: 'Pilih satu kekuatan super:',
+    opsi: [
+      { t: 'Bisa tidur di mana aja', s: { mager: 2, introvert: 1 } },
+      { t: 'Makan apa aja tanpa gendut', s: { jajan: 2, gas: 1 } },
+      { t: 'Teleport ke mana aja', s: { gas: 2, senja: 1 } },
+      { t: 'Baca pikiran orang', s: { ceo: 2, introvert: 1 } },
+    ] },
+  { t: 'Kalau bangun pagi, hal pertama yang kamu lakukan?',
+    opsi: [
+      { t: 'Cek HP sambil rebahan', s: { mager: 2, jajan: 1 } },
+      { t: 'Langsung nyeduh kopi', s: { ceo: 2, senja: 1 } },
+      { t: 'Sarapan dulu, itu wajib', s: { jajan: 2, gas: 1 } },
+      { t: 'Buka jendela, hirup udara pagi', s: { senja: 2, gas: 1 } },
+    ] },
 ];
 
 export function render(root) {
@@ -103,7 +131,7 @@ export function render(root) {
     box.appendChild(T.row(T.btn('Cek lagi', ulang, true)));
   };
 
-  root.appendChild(T.el('<p class="hint">Jawab 6 pertanyaan receh, nanti ketahuan vibes kamu lagi kayak apa. Siap-siap ketawa sendiri.</p>'));
+  root.appendChild(T.el('<p class="hint">Jawab ' + SOAL.length + ' pertanyaan receh, nanti ketahuan vibes kamu lagi kayak apa. Siap-siap ketawa sendiri.</p>'));
   root.appendChild(box);
   ulang();
 }

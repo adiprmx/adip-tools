@@ -3,7 +3,7 @@ import { h as T, utils, kv } from '../../core.js';
 export const meta = {"id":"tabel-periodik","name":"Tabel Periodik","cat":"pelajar","icon":"⚛️","desc":"118 unsur kimia: ketuk buat lihat detailnya.","keywords":"tabel periodik,unsur,kimia,atom,simbol,massa"};
 
 // [nomor, simbol, nama, massa atom, kategori]
-const UNSUR = [
+export const UNSUR = [
 [1,"H","Hidrogen","1,008","Nonlogam"],[2,"He","Helium","4,003","Gas mulia"],
 [3,"Li","Litium","6,94","Logam alkali"],[4,"Be","Berilium","9,012","Alkali tanah"],
 [5,"B","Boron","10,81","Metaloid"],[6,"C","Karbon","12,011","Nonlogam"],
@@ -72,12 +72,159 @@ const WARNA = {
   'Aktinida': '#fb7185', 'Belum diketahui': '#6b7280',
 };
 
+// Posisi unsur di tabel periodik: { golongan (1-18, atau null untuk
+// deret lantanida/aktinida di luar La/Ac), periode (1-7), blok }.
+// La (57) dan Ac (89) duduk di golongan 3; Ce–Lu dan Th–Lr tampil di
+// dua baris bawah (konvensi buku sekolah yang umum).
+export function posisiUnsur(z) {
+  if (!Number.isInteger(z) || z < 1 || z > 118) return null;
+  let periode;
+  if (z <= 2) periode = 1;
+  else if (z <= 10) periode = 2;
+  else if (z <= 18) periode = 3;
+  else if (z <= 36) periode = 4;
+  else if (z <= 54) periode = 5;
+  else if (z <= 86) periode = 6;
+  else periode = 7;
+  let golongan = null, blok = 's';
+  if (z === 1) { golongan = 1; blok = 's'; }
+  else if (z === 2) { golongan = 18; blok = 's'; }
+  else if (periode === 2) {
+    if (z <= 4) { golongan = z - 2; blok = 's'; }
+    else { golongan = z + 8; blok = 'p'; }
+  } else if (periode === 3) {
+    if (z <= 12) { golongan = z - 10; blok = 's'; }
+    else { golongan = z; blok = 'p'; }
+  } else if (periode === 4) {
+    if (z <= 20) { golongan = z - 18; blok = 's'; }
+    else if (z <= 30) { golongan = z - 18; blok = 'd'; }
+    else { golongan = z - 18; blok = 'p'; }
+  } else if (periode === 5) {
+    if (z <= 38) { golongan = z - 36; blok = 's'; }
+    else if (z <= 48) { golongan = z - 36; blok = 'd'; }
+    else { golongan = z - 36; blok = 'p'; }
+  } else if (periode === 6) {
+    if (z <= 56) { golongan = z - 54; blok = 's'; }
+    else if (z === 57) { golongan = 3; blok = 'f'; }
+    else if (z <= 71) { golongan = null; blok = 'f'; }
+    else if (z <= 80) { golongan = z - 68; blok = 'd'; }
+    else { golongan = z - 68; blok = 'p'; }
+  } else {
+    if (z <= 88) { golongan = z - 86; blok = 's'; }
+    else if (z === 89) { golongan = 3; blok = 'f'; }
+    else if (z <= 103) { golongan = null; blok = 'f'; }
+    else if (z <= 112) { golongan = z - 100; blok = 'd'; }
+    else { golongan = z - 100; blok = 'p'; }
+  }
+  return { golongan, periode, blok };
+}
+
+// ---------- Konfigurasi elektron ----------
+// Urutan pengisian Aufbau (aturan Madelung) + kapasitas tiap subkulit.
+const URUTAN_AUFBAU = [
+  ['1s', 2], ['2s', 2], ['2p', 6], ['3s', 2], ['3p', 6], ['4s', 2],
+  ['3d', 10], ['4p', 6], ['5s', 2], ['4d', 10], ['5p', 6], ['6s', 2],
+  ['4f', 14], ['5d', 10], ['6p', 6], ['7s', 2], ['5f', 14], ['6d', 10], ['7p', 6],
+];
+// Pengecualian konfigurasi dasar yang sudah mapan (20 unsur): subkulit
+// setengah/penuh penuh (d⁵, d¹⁰, f⁷) lebih stabil sehingga satu elektron
+// pindah dari s ke d/f. Ditulis lengkap agar jumlah elektronnya bisa
+// dicek (= nomor atom). Diverifikasi Q5 v6.21.0 (20 Nov 2026) terhadap
+// Wikipedia "Electron configurations of the elements (data page)":
+// 20/20 pengecualian cocok persis, termasuk Cr, Cu, Nb, Mo, Ru, Rh, Pd,
+// Ag, Pt, Au.
+const PENGECUALIAN = {
+  24: '1s2 2s2 2p6 3s2 3p6 3d5 4s1',
+  29: '1s2 2s2 2p6 3s2 3p6 3d10 4s1',
+  41: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d4 5s1',
+  42: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d5 5s1',
+  44: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d7 5s1',
+  45: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d8 5s1',
+  46: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10',
+  47: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 5s1',
+  57: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 5s2 5p6 5d1 6s2',
+  58: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 5s2 5p6 4f1 5d1 6s2',
+  64: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 5s2 5p6 4f7 5d1 6s2',
+  78: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d9 6s1',
+  79: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s1',
+  89: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s2 6p6 6d1 7s2',
+  90: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s2 6p6 6d2 7s2',
+  91: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s2 6p6 5f2 6d1 7s2',
+  92: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s2 6p6 5f3 6d1 7s2',
+  93: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s2 6p6 5f4 6d1 7s2',
+  96: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s2 6p6 5f7 6d1 7s2',
+  103: '1s2 2s2 2p6 3s2 3p6 3d10 4s2 4p6 4d10 4f14 5s2 5p6 5d10 6s2 6p6 5f14 7s2 7p1',
+};
+const SUPER = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+const sup = (n) => String(n).split('').map((d) => SUPER[d] || d).join('');
+const urutOrbital = (a, b) => {
+  const na = +a[0], nb = +b[0];
+  if (na !== nb) return na - nb;
+  return 'spdf'.indexOf(a[1]) - 'spdf'.indexOf(b[1]);
+};
+function isiAufbau(z) {
+  const ok = {};
+  let sisa = z;
+  for (const [orb, kap] of URUTAN_AUFBAU) {
+    if (sisa <= 0) break;
+    const isi = Math.min(kap, sisa);
+    ok[orb] = isi;
+    sisa -= isi;
+  }
+  return ok;
+}
+function uraiKonfigurasi(teks) {
+  const ok = {};
+  String(teks).split(/\s+/).forEach((t) => {
+    const m = /^(\d[spdf])(\d+)$/.exec(t);
+    if (m) ok[m[1]] = +m[2];
+  });
+  return ok;
+}
+// Konfigurasi elektron: { kulit: "2, 8, 14, 2" (per kulit K, L, M, …),
+// subkulit: "[Ar] 3d⁶ 4s²" (singkatan gas mulia), penuh: "1s² 2s² …" }.
+export function konfigurasiElektron(z) {
+  if (!Number.isInteger(z) || z < 1 || z > 118) return null;
+  const ok = PENGECUALIAN[z] ? uraiKonfigurasi(PENGECUALIAN[z]) : isiAufbau(z);
+  const kulit = [0, 0, 0, 0, 0, 0, 0];
+  Object.keys(ok).forEach((o) => { kulit[+o[0] - 1] += ok[o]; });
+  while (kulit.length && kulit[kulit.length - 1] === 0) kulit.pop();
+  const fmtOrbital = (peta) => Object.keys(peta).sort(urutOrbital)
+    .map((o) => o + sup(peta[o])).join(' ');
+  const penuh = fmtOrbital(ok);
+  // Singkatan gas mulia: kurangi inti gas mulia terbesar di bawah z.
+  const GAS = [[86, 'Rn'], [54, 'Xe'], [36, 'Kr'], [18, 'Ar'], [10, 'Ne'], [2, 'He']];
+  const gas = GAS.find(([gz]) => z >= gz);
+  let subkulit = penuh;
+  if (gas) {
+    const inti = isiAufbau(gas[0]);
+    const sisa = {};
+    Object.keys(ok).forEach((o) => {
+      const s = ok[o] - (inti[o] || 0);
+      if (s > 0) sisa[o] = s;
+    });
+    const sSisa = fmtOrbital(sisa);
+    subkulit = sSisa ? '[' + gas[1] + '] ' + sSisa : '[' + gas[1] + ']';
+  }
+  return { kulit: kulit.join(', '), subkulit, penuh };
+}
+
 export function render(root) {
   const detail = T.out();
-  const grid = T.el('<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:6px"></div>');
+  // Tata letak tabel periodik yang benar: 18 kolom golongan, baris 1 =
+  // nomor golongan, baris 2–8 = periode 1–7, baris 9 = jeda, baris 10–11
+  // = lantanida & aktinida. Lebar minimum + geser horizontal supaya
+  // tetap terbaca di HP (tabel periodik memang lebar).
+  const gridWrap = T.el('<div style="overflow-x:auto"></div>');
+  const grid = T.el('<div style="display:grid;grid-template-columns:repeat(18,minmax(40px,1fr));gap:4px;min-width:700px"></div>');
+  gridWrap.appendChild(grid);
 
   const showDetail = (u) => {
     const w = WARNA[u[4]] || '#888';
+    const pos = posisiUnsur(u[0]);
+    const konf = konfigurasiElektron(u[0]);
+    const golonganTxt = pos.golongan != null ? String(pos.golongan)
+      : '– (deret ' + (u[4] === 'Lantanida' ? 'lantanida' : 'aktinida') + ')';
     T.show(detail,
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">' +
       '<div style="width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;background:' + w + '22;border:1px solid ' + w + ';color:#fff">' + T.esc(u[1]) + '</div>' +
@@ -85,29 +232,49 @@ export function render(root) {
       '<div class="mut" style="font-size:12px">Unsur no. ' + u[0] + ' · ' + T.esc(u[4]) + '</div></div></div>' +
       kv('Simbol', T.esc(u[1])) +
       kv('Massa atom', T.esc(u[3]) + ' <span class="mut">u</span>') +
-      kv('Kategori', T.esc(u[4])));
+      kv('Kategori', T.esc(u[4])) +
+      kv('Golongan', T.esc(golonganTxt)) +
+      kv('Periode', String(pos.periode)) +
+      kv('Konfigurasi elektron', T.esc(konf.subkulit)) +
+      kv('Elektron per kulit', T.esc(konf.kulit) + ' <span class="mut">(K, L, M, …)</span>'));
     detail.scrollIntoView && detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+
+  const buatSel = (u) => {
+    const w = WARNA[u[4]] || '#888';
+    const pos = posisiUnsur(u[0]);
+    const cell = T.el(
+      '<button type="button" style="border:1px solid ' + w + '66;background:' + w + '1a;border-radius:8px;padding:6px 2px;color:#fff;cursor:pointer;grid-column:' + (pos.golongan != null ? pos.golongan : (u[0] <= 71 ? u[0] - 57 + 3 : u[0] - 89 + 3)) + ';grid-row:' + (pos.golongan != null ? pos.periode + 1 : (u[0] <= 71 ? 10 : 11)) + '">' +
+      '<div style="font-size:9px;opacity:.6">' + u[0] + '</div>' +
+      '<div style="font-weight:800;font-size:15px">' + T.esc(u[1]) + '</div>' +
+      '<div style="font-size:8.5px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + T.esc(u[2]) + '</div>' +
+      '</button>');
+    cell.addEventListener('click', () => showDetail(u));
+    return cell;
   };
 
   const draw = (filter) => {
     grid.innerHTML = '';
-    const q = (filter || '').trim().toLowerCase();
-    const shown = UNSUR.filter((u) => !q || u[2].toLowerCase().includes(q) || u[1].toLowerCase() === q);
-    if (!shown.length) {
-      grid.appendChild(T.el('<p class="mut" style="grid-column:1/-1">Nggak ada unsur yang cocok.</p>'));
-      return;
+    // Baris nomor golongan 1–18.
+    for (let g = 1; g <= 18; g++) {
+      grid.appendChild(T.el('<div style="grid-column:' + g + ';grid-row:1;text-align:center;font-size:10px;color:var(--mut);padding:2px 0">' + g + '</div>'));
     }
-    shown.forEach((u) => {
-      const w = WARNA[u[4]] || '#888';
-      const cell = T.el(
-        '<button type="button" style="border:1px solid ' + w + '66;background:' + w + '1a;border-radius:8px;padding:6px 2px;color:#fff;cursor:pointer">' +
-        '<div style="font-size:9px;opacity:.6">' + u[0] + '</div>' +
-        '<div style="font-weight:800;font-size:15px">' + T.esc(u[1]) + '</div>' +
-        '<div style="font-size:8.5px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + T.esc(u[2]) + '</div>' +
-        '</button>');
-      cell.addEventListener('click', () => showDetail(u));
+    // Label dua baris bawah.
+    grid.appendChild(T.el('<div style="grid-column:1/-1;grid-row:9;height:10px"></div>'));
+    grid.appendChild(T.el('<div style="grid-column:1/4;grid-row:10;display:flex;align-items:center;font-size:10px;color:var(--mut)">Lantanida</div>'));
+    grid.appendChild(T.el('<div style="grid-column:1/4;grid-row:11;display:flex;align-items:center;font-size:10px;color:var(--mut)">Aktinida</div>'));
+    const q = (filter || '').trim().toLowerCase();
+    let cocok = 0;
+    UNSUR.forEach((u) => {
+      const cell = buatSel(u);
+      const kena = !q || u[2].toLowerCase().includes(q) || u[1].toLowerCase() === q;
+      if (!kena) cell.style.visibility = 'hidden'; // posisi tetap terjaga
+      else cocok++;
       grid.appendChild(cell);
     });
+    if (!cocok) {
+      grid.appendChild(T.el('<p class="mut" style="grid-column:1/-1;grid-row:12">Nggak ada unsur yang cocok.</p>'));
+    }
   };
 
   const legend = T.el('<div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div>');
@@ -118,10 +285,10 @@ export function render(root) {
   const search = T.input('text', '🔍 Cari nama atau simbol, mis. "emas" / "Au"');
   search.addEventListener('input', () => { draw(search.value); });
 
-  root.appendChild(T.el('<p class="hint">118 unsur, urut nomor atom. Ketuk salah satu buat lihat detailnya.</p>'));
+  root.appendChild(T.el('<p class="hint">118 unsur dalam tata letak tabel periodik: kolom = golongan (1–18), baris = periode (1–7), dua baris bawah = lantanida &amp; aktinida. Ketuk salah satu buat lihat detailnya, termasuk konfigurasi elektron.</p>'));
   root.appendChild(T.field('Cari unsur', search));
   root.appendChild(detail);
-  root.appendChild(grid);
+  root.appendChild(gridWrap);
   root.appendChild(T.el('<p class="hint">Legenda kategori:</p>'));
   root.appendChild(legend);
   draw('');

@@ -56,7 +56,10 @@ function drawText(img, opts) {
 
 export function render(root) {
   const fi = fileInput('image/*');
-  const teksI = T.input('text', 'cth: Liburan seru!', lsGet('teks', ''));
+  // Textarea multi-baris: janji "Enter buat baris baru" di keterangan hanya
+  // bisa dipenuhi input multi-baris (input satu baris tidak pernah
+  // menghasilkan newline, jadi drawText tidak pernah dapat teks 2 baris).
+  const teksI = T.ta(3, 'cth: Liburan seru!', lsGet('teks', ''));
   // Posisi grid 3x3 (dari Watermark Foto). Nilai lama (top/mid/bot)
   // yang tersimpan di perangkat dipetakan ke kolom tengah.
   const POS_LABEL = [

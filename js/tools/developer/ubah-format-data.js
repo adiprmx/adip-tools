@@ -1,4 +1,4 @@
-import { h as T, errBox, esc } from '../../core.js';
+import { h as T, utils, errBox, esc } from '../../core.js';
 
 // JSON <-> YAML <-> TOML <-> XML.
 // YAML: js-yaml (dipakai repo). TOML: smol-toml (ESM, via dynamic import).
@@ -14,7 +14,8 @@ const failed = { yaml: false, toml: false, xml: false };
 async function getYaml() {
   if (libs.yaml) return libs.yaml;
   if (failed.yaml) throw new Error('yaml');
-  const ok = await T.loadScript(YAML_CDN);
+  // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+  const ok = await utils.loadLibOnce(YAML_CDN, () => !!window.jsyaml);
   if (!ok || !window.jsyaml) { failed.yaml = true; throw new Error('yaml'); }
   libs.yaml = window.jsyaml;
   return libs.yaml;

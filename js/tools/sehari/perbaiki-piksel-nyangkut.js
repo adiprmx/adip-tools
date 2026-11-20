@@ -19,7 +19,8 @@ export function render(root) {
     ['solid', 'Warna solid bergantian (pelan)'],
   ], 'kedip');
   const durasiSel = T.select([['60', '1 menit'], ['300', '5 menit'], ['600', '10 menit'], ['0', 'Sampai dihentikan']], '300');
-  const area = T.el('<div style="height:220px;border-radius:12px;border:1px solid rgba(127,127,127,.35);background:#111;display:flex;align-items:center;justify-content:center;margin:12px 0;overflow:hidden"><p class="mut" style="font-size:13px;padding:0 16px;text-align:center">Pola warna muncul di sini setelah tombol mulai ditekan. Perbesar jendela browser dan dekatkan area ini ke piksel yang nyangkut.</p></div>');
+  root.appendChild(T.el('<style>.pxn-area:fullscreen{width:100vw!important;height:100vh!important;border-radius:0!important;border:none!important;margin:0!important}</style>'));
+  const area = T.el('<div class="pxn-area" style="height:220px;border-radius:12px;border:1px solid rgba(127,127,127,.35);background:#111;display:flex;align-items:center;justify-content:center;margin:12px 0;overflow:hidden"><p class="mut" style="font-size:13px;padding:0 16px;text-align:center">Pola warna muncul di sini setelah tombol mulai ditekan. Tekan Layar penuh agar polanya menutupi seluruh layar, lalu dekatkan ke piksel yang nyangkut.</p></div>');
   const statusBox = T.out();
   const tombolBox = T.el('<div style="display:flex;gap:8px;flex-wrap:wrap"></div>');
   let timer = null;
@@ -30,6 +31,7 @@ export function render(root) {
   const berhenti = (pesan) => {
     if (timer) { clearInterval(timer); timer = null; }
     jalan = false;
+    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
     area.style.background = '#111';
     area.innerHTML = '<p class="mut" style="font-size:13px;padding:0 16px;text-align:center">' + T.esc(pesan || 'Berhenti. Cek apakah pikselnya sudah normal dengan latar gelap dan terang.') + '</p>';
     T.show(statusBox, '<p class="mut" style="font-size:13px">Jalan ' + detikJalan + ' detik. ' + T.esc(pesan || 'Cek hasilnya sekarang.') + '</p>');
@@ -57,8 +59,14 @@ export function render(root) {
     }, jeda);
   }, true);
   const tombolStop = T.btn('Berhenti', () => berhenti(), false, true);
+  const tombolLayar = T.btn('Layar penuh', () => {
+    if (document.fullscreenElement) { if (document.exitFullscreen) document.exitFullscreen().catch(() => {}); return; }
+    if (area.requestFullscreen) area.requestFullscreen().catch(() => T.toast('Layar penuh tidak bisa dibuka di perangkat ini'));
+    else T.toast('Layar penuh tidak tersedia di perangkat ini');
+  });
   tombolBox.appendChild(tombolMulai);
   tombolBox.appendChild(tombolStop);
+  tombolBox.appendChild(tombolLayar);
 
   T.onLeave(() => { if (timer) clearInterval(timer); });
 

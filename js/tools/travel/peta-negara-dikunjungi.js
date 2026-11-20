@@ -57,7 +57,20 @@ export const PETA_SKETSA = {
   oseania: 'M80,30 L95,29 L97,35 L88,40 L80,36 Z',
 };
 export const STORAGE_KEY = 'adip-tools:negara-dikunjungi';
-utils.petaNegara = { regionDariISO, negaraPerRegion, hitungProgres };
+// ISO yang sah = yang ada di daftar NEGARA. Data lama di localStorage
+// bisa berisi kode basi (negara dihapus/diubah di daftar) — tanpa
+// validasi, kode basi itu menggelembungkan hitungan.
+const ISO_SAH = new Set(NEGARA.map((n) => n[2]));
+export function validasiISO(daftar) {
+  const bersih = new Set();
+  let dibuang = 0;
+  (Array.isArray(daftar) ? daftar : []).forEach((iso) => {
+    if (typeof iso === 'string' && ISO_SAH.has(iso)) bersih.add(iso);
+    else dibuang++;
+  });
+  return { bersih, dibuang };
+}
+utils.petaNegara = { regionDariISO, negaraPerRegion, hitungProgres, validasiISO };
 
 export const meta = {"id": "peta-negara-dikunjungi", "name": "Peta Negara yang Dikunjungi", "cat": "travel", "icon": "🌍", "desc": "Tandai negara yang pernah kamu kunjungi, lihat progresmu per region dan berapa persen dunia yang sudah dijelajahi.", "keywords": "negara dikunjungi,peta negara,visited countries,travel map,daftar negara,jejak travel", "since": "6.19.0"};
 export function render(root) {
@@ -69,13 +82,20 @@ export function render(root) {
   const pesanBox = T.out();
 
   let dikunjungi = new Set();
+  let dibuangBasi = 0;
   try {
     const tersimpan = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (Array.isArray(tersimpan)) tersimpan.forEach((iso) => { if (typeof iso === 'string') dikunjungi.add(iso); });
+    if (Array.isArray(tersimpan)) {
+      const v = validasiISO(tersimpan);
+      dikunjungi = v.bersih;
+      dibuangBasi = v.dibuang;
+    }
   } catch (e) { /* data lama rusak, mulai kosong */ }
   const simpan = () => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(dikunjungi))); } catch (e) { /* penyimpanan penuh atau diblokir */ }
   };
+  // Self-heal: bila ada kode basi yang dibuang, simpan ulang daftar bersih.
+  if (dibuangBasi > 0) simpan();
 
   const gambarPeta = (prog) => {
     const isi = Object.keys(PETA_SKETSA).map((r) => {
@@ -151,9 +171,7 @@ export function render(root) {
         const data = JSON.parse(String(baca.result || ''));
         const daftar = Array.isArray(data) ? data : data.dikunjungi;
         if (!Array.isArray(daftar)) throw new Error('format');
-        const valid = new Set(NEGARA.map((n) => n[2]));
-        const baru = new Set();
-        daftar.forEach((iso) => { if (valid.has(iso)) baru.add(iso); });
+        const baru = validasiISO(daftar).bersih;
         dikunjungi = baru;
         simpan();
         tampil();

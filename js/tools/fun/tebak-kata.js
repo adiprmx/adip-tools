@@ -50,8 +50,13 @@ export function render(root) {
   };
 
   const gambarOrang = () => {
-    const ctx = canvas.getContext('2d');
     const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+    // Backing store WAJIB dikali DPR sebelum setTransform (pola spinwheel.js):
+    // tanpa ini gambar dikali DPR dan keluar kanvas di HP (DPR 2–3).
+    if (canvas.width !== 160 * dpr || canvas.height !== 180 * dpr) {
+      canvas.width = 160 * dpr; canvas.height = 180 * dpr;
+    }
+    const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, 160, 180);
     ctx.strokeStyle = '#c9bda9'; ctx.lineWidth = 3; ctx.lineCap = 'round';

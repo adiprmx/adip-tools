@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "kompres-video", "name": "Kompres Video", "cat": "converter", "icon": "🗜️", "desc": "Perkecil ukuran video, termasuk pilihan pas untuk WhatsApp.", "keywords": "video,kompres,perkecil,whatsapp,ukuran,mp4,kecil", "since": "6.11.0"};
@@ -90,6 +90,11 @@ export function render(root) {
       setStage('Menyalin video ke mesin…', 0);
       await ffmpeg.writeFile(inName, await fetchFile(fileObj));
       const args = ['-i', inName];
+      // Escape koma di dalam min(): dua backslash di string JS ini sampai
+      // ke ffmpeg sebagai satu backslash — bentuk yang benar dan
+      // terverifikasi (ffmpeg 8.1.2, 20 Nov 2026). Satu backslash di
+      // source JS justru hilang (bukan escape JS yang valid) dan memecah
+      // filter ('No such filter').
       if (p === 'whatsapp') {
         const vk = waVideoKbps();
         args.push('-vf', 'scale=-2:min(ih\\,480)', '-c:v', 'libx264', '-preset', 'veryfast');
@@ -123,7 +128,11 @@ export function render(root) {
       T.toast('Video terunduh');
     } catch (e) {
       if (isCancelled(e)) { T.show(outBox, '<span class="dim">Dibatalkan.</span>'); }
-      else T.show(outBox, errBox(friendlyError(e)));
+      else {
+        T.show(outBox, errBox(friendlyError(e)));
+        const retry = T.btn('Coba lagi', () => goBtn.click());
+        outBox.appendChild(retry);
+      }
     } finally {
       busy = false;
       goBtn.disabled = false;
@@ -141,9 +150,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); refreshEst(); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       vWidth = v.videoWidth || 0;
       vHeight = v.videoHeight || 0;
       const big = fileObj.size > 200 * 1024 * 1024;

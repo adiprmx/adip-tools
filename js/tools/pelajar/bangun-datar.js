@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"bangun-datar","name":"Rumus Bangun Datar & Ruang","cat":"pelajar","icon":"📐","desc":"Hitung luas, keliling & volume lengkap dengan rumusnya.","keywords":"bangun datar,bangun ruang,luas,keliling,volume,rumus,matematika,geometri,persegi,lingkaran,kubus"};
+export const meta = {"id":"bangun-datar","name":"Rumus Bangun Datar & Ruang","cat":"pelajar","icon":"📐","desc":"Hitung luas, keliling & volume lengkap dengan rumusnya.","keywords":"bangun datar,bangun ruang,luas,keliling,volume,rumus,matematika,geometri,persegi,lingkaran,kubus,jajar genjang,trapesium,belah ketupat,layang-layang,prisma,limas"};
 
 const PI = Math.PI;
 const r2 = (x) => Math.round(x * 100) / 100;
@@ -12,7 +12,7 @@ function langkah(rumus, subs, hasil) {
     '<div style="font-size:13.5px">' + subs + ' = <b>' + fn(hasil) + '</b></div></div>';
 }
 
-const SHAPES = [
+export const SHAPES = [
   {
     id: 'persegi', name: 'Persegi',
     fields: [['s', 'Sisi (s)']],
@@ -37,7 +37,7 @@ const SHAPES = [
   },
   {
     id: 'segitiga', name: 'Segitiga',
-    fields: [['a', 'Alas (a) — untuk luas'], ['t', 'Tinggi (t) — untuk luas'], ['s1', 'Sisi 1 — untuk keliling'], ['s2', 'Sisi 2 — untuk keliling'], ['s3', 'Sisi 3 — untuk keliling']],
+    fields: [['a', 'Alas (a), untuk luas'], ['t', 'Tinggi (t), untuk luas'], ['s1', 'Sisi 1, untuk keliling'], ['s2', 'Sisi 2, untuk keliling'], ['s3', 'Sisi 3, untuk keliling']],
     calc: (v) => {
       const out = [];
       if (v.a > 0 && v.t > 0) out.push(['Luas', langkah('L = ½ × a × t', 'L = ½ × ' + fn(v.a) + ' × ' + fn(v.t), 0.5 * v.a * v.t)]);
@@ -54,6 +54,46 @@ const SHAPES = [
         ['Luas', langkah('L = π × r²', 'L = π × ' + fn(r) + '²', PI * r * r)],
         ['Keliling', langkah('K = 2 × π × r', 'K = 2 × π × ' + fn(r), 2 * PI * r)],
       ];
+    },
+  },
+  {
+    id: 'jajargenjang', name: 'Jajar Genjang', parsial: true,
+    fields: [['a', 'Alas (a)'], ['t', 'Tinggi (t), untuk luas'], ['b', 'Sisi miring (b), untuk keliling']],
+    calc: (v) => {
+      const out = [];
+      if (v.a > 0 && v.t > 0) out.push(['Luas', langkah('L = a × t', 'L = ' + fn(v.a) + ' × ' + fn(v.t), v.a * v.t)]);
+      if (v.a > 0 && v.b > 0) out.push(['Keliling', langkah('K = 2 × (a + b)', 'K = 2 × (' + fn(v.a) + ' + ' + fn(v.b) + ')', 2 * (v.a + v.b))]);
+      return out;
+    },
+  },
+  {
+    id: 'trapesium', name: 'Trapesium', parsial: true,
+    fields: [['a', 'Sisi sejajar atas (a)'], ['b', 'Sisi sejajar bawah (b)'], ['t', 'Tinggi (t), untuk luas'], ['c', 'Sisi miring 1 (c), untuk keliling'], ['d', 'Sisi miring 2 (d), untuk keliling']],
+    calc: (v) => {
+      const out = [];
+      if (v.a > 0 && v.b > 0 && v.t > 0) out.push(['Luas', langkah('L = ½ × (a + b) × t', 'L = ½ × (' + fn(v.a) + ' + ' + fn(v.b) + ') × ' + fn(v.t), 0.5 * (v.a + v.b) * v.t)]);
+      if (v.a > 0 && v.b > 0 && v.c > 0 && v.d > 0) out.push(['Keliling', langkah('K = a + b + c + d', 'K = ' + fn(v.a) + ' + ' + fn(v.b) + ' + ' + fn(v.c) + ' + ' + fn(v.d), v.a + v.b + v.c + v.d)]);
+      return out;
+    },
+  },
+  {
+    id: 'belahketupat', name: 'Belah Ketupat', parsial: true,
+    fields: [['d1', 'Diagonal 1 (d₁), untuk luas'], ['d2', 'Diagonal 2 (d₂), untuk luas'], ['s', 'Sisi (s), untuk keliling']],
+    calc: (v) => {
+      const out = [];
+      if (v.d1 > 0 && v.d2 > 0) out.push(['Luas', langkah('L = ½ × d₁ × d₂', 'L = ½ × ' + fn(v.d1) + ' × ' + fn(v.d2), 0.5 * v.d1 * v.d2)]);
+      if (v.s > 0) out.push(['Keliling', langkah('K = 4 × s', 'K = 4 × ' + fn(v.s), 4 * v.s)]);
+      return out;
+    },
+  },
+  {
+    id: 'layanglayang', name: 'Layang-Layang', parsial: true,
+    fields: [['d1', 'Diagonal 1 (d₁), untuk luas'], ['d2', 'Diagonal 2 (d₂), untuk luas'], ['a', 'Sisi pendek (a), untuk keliling'], ['b', 'Sisi panjang (b), untuk keliling']],
+    calc: (v) => {
+      const out = [];
+      if (v.d1 > 0 && v.d2 > 0) out.push(['Luas', langkah('L = ½ × d₁ × d₂', 'L = ½ × ' + fn(v.d1) + ' × ' + fn(v.d2), 0.5 * v.d1 * v.d2)]);
+      if (v.a > 0 && v.b > 0) out.push(['Keliling', langkah('K = 2 × (a + b)', 'K = 2 × (' + fn(v.a) + ' + ' + fn(v.b) + ')', 2 * (v.a + v.b))]);
+      return out;
     },
   },
   {
@@ -113,6 +153,35 @@ const SHAPES = [
       ];
     },
   },
+  {
+    id: 'prisma', name: 'Prisma Segitiga', parsial: true,
+    fields: [['a', 'Alas segitiga (a)'], ['t', 'Tinggi segitiga (t)'], ['tp', 'Tinggi prisma (tp)'], ['s1', 'Sisi segitiga 1, untuk luas permukaan'], ['s2', 'Sisi segitiga 2, untuk luas permukaan'], ['s3', 'Sisi segitiga 3, untuk luas permukaan']],
+    calc: (v) => {
+      const out = [];
+      if (v.a > 0 && v.t > 0 && v.tp > 0) {
+        const luasAlas = 0.5 * v.a * v.t;
+        out.push(['Volume', langkah('V = luas alas × tinggi prisma', 'V = (½ × ' + fn(v.a) + ' × ' + fn(v.t) + ') × ' + fn(v.tp), luasAlas * v.tp)]);
+        if (v.s1 > 0 && v.s2 > 0 && v.s3 > 0) {
+          const kelAlas = v.s1 + v.s2 + v.s3;
+          out.push(['Luas permukaan', langkah('LP = (keliling alas × tinggi prisma) + (2 × luas alas)', 'LP = (' + fn(kelAlas) + ' × ' + fn(v.tp) + ') + (2 × ' + fn(luasAlas) + ')', kelAlas * v.tp + 2 * luasAlas)]);
+        }
+      }
+      return out;
+    },
+  },
+  {
+    id: 'limas', name: 'Limas Segiempat',
+    fields: [['s', 'Sisi alas (s)'], ['t', 'Tinggi limas (t)']],
+    calc: (v) => {
+      const s = v.s, t = v.t;
+      const m = Math.sqrt(t * t + (s / 2) * (s / 2)); // tinggi segitiga sisi tegak
+      return [
+        ['Tinggi sisi tegak (m)', langkah('m = √(t² + (s/2)²)', 'm = √(' + fn(t) + '² + (' + fn(s) + '/2)²)', m)],
+        ['Volume', langkah('V = ⅓ × s² × t', 'V = ⅓ × ' + fn(s) + '² × ' + fn(t), (1 / 3) * s * s * t)],
+        ['Luas permukaan', langkah('LP = s² + (2 × s × m)', 'LP = ' + fn(s) + '² + (2 × ' + fn(s) + ' × ' + fn(m) + ')', s * s + 2 * s * m)],
+      ];
+    },
+  },
 ];
 
 export function render(root) {
@@ -128,6 +197,7 @@ export function render(root) {
       const inp = T.input('number', label);
       inp.dataset.key = key;
       inp.className += ' bd-inp';
+      inp.addEventListener('input', hitung); // hitung-live (Q4 v6.21.0)
       fieldsBox.appendChild(T.field(label, inp));
     });
     T.hide(out);
@@ -144,7 +214,10 @@ export function render(root) {
         T.show(out, '<p class="warn">Isi alas + tinggi (buat luas) atau ketiga sisinya (buat keliling).</p>');
         return;
       }
-    } else {
+    } else if (!sh.parsial) {
+      // Bangun parsial (jajar genjang, trapesium, belah ketupat,
+      // layang-layang, prisma): tiap hasil dihitung dari field yang
+      // terisi saja, tidak semua field wajib diisi.
       for (const [key, label] of sh.fields) {
         if (!(v[key] > 0)) { T.show(out, '<p class="warn">Isi "' + T.esc(label) + '" dengan angka lebih dari 0 dulu ya.</p>'); return; }
       }

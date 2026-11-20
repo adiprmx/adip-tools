@@ -8,7 +8,12 @@
    - adip_fav / adip_recent : [{ id, t }] (t = timestamp ms).
    - Migrasi otomatis: format lama [id] dibaca sebagai { id, t: 0 }.
    - Batas: favorit maks 50 (terbaru di depan), riwayat maks 20.
+   - Migrasi v6.21.0: ID tool pensiun (merge) dipetakan ke penyintas
+     lewat resolveToolAlias saat dibaca (in-memory); tersimpan permanen
+     saat pengguna berikutnya mengubah favorit/riwayat.
    ============================================================ */
+
+import { resolveToolAlias } from './routes.js';
 
 const FKEY = 'adip_fav', RKEY = 'adip_recent';
 const loadJson = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : fb; } catch { return fb; } };
@@ -21,9 +26,22 @@ const saveJson = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); }
 // pengunjung tidak bisa memakai situs tanpa menghapus storage manual.
 // String (format lama) tetap dimigrasi; angka/boolean ikut terbuang karena
 // tidak pernah menghasilkan tool valid (byId(undefined) -> undefined).
-const normList = (list) => list
-  .map((x) => (typeof x === 'string' ? { id: x, t: 0 } : x))
-  .filter((x) => x && typeof x === 'object');
+const normList = (list) => {
+  const seen = new Set();
+  return list
+    .map((x) => (typeof x === 'string' ? { id: x, t: 0 } : x))
+    .filter((x) => x && typeof x === 'object')
+    // v6.21.0: ID tool pensiun (merge) dipetakan ke penyintas lewat
+    // resolveToolAlias (query ?tab=/?dir= dibuang — favorit/riwayat
+    // menyimpan ID murni). Dedup: pensiun + penyintas yang sama-sama
+    // tersimpan jadi satu entri (yang terbaru dipertahankan).
+    .map((x) => {
+      if (typeof x.id !== 'string') return x;
+      const alias = resolveToolAlias(x.id);
+      return alias ? { ...x, id: alias.split('?')[0] } : x;
+    })
+    .filter((x) => { if (seen.has(x.id)) return false; seen.add(x.id); return true; });
+};
 const getFav = () => normList(loadJson(FKEY, []));
 const isFav = (id) => getFav().some((x) => x.id === id);
 function toggleFav(id) {

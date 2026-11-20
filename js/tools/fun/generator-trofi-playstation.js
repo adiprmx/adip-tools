@@ -22,6 +22,29 @@ export function labelRarity(kode) {
   return r ? r[1] : RARITY[0][1];
 }
 
+// Potong teks dengan '…' berdasarkan LEBAR TERUKUR (bukan jumlah karakter),
+// supaya teks panjang tidak pernah meluber keluar kanvas.
+function potongElipsis(x, teks, maksW) {
+  if (x.measureText(teks).width <= maksW) return teks;
+  let s = teks;
+  while (s.length > 1 && x.measureText(s + '…').width > maksW) s = s.slice(0, -1);
+  return s + '…';
+}
+
+// Bungkus kata + batasi jumlah baris + elipsis bila ada teks terpotong
+// (bungkusKata membuang kata di luar 2 baris secara diam-diam).
+function bungkusTerbatas(x, teks, maksW, maksBaris) {
+  const rapi = String(teks).replace(/\s+/g, ' ').trim();
+  let baris = utils.bungkusKata(x, rapi, maksW).map((b) => potongElipsis(x, b, maksW));
+  const terpotong = baris.join(' ') !== rapi || baris.length > maksBaris;
+  if (baris.length > maksBaris) baris = baris.slice(0, maksBaris);
+  if (terpotong && baris.length) {
+    const t = baris.length - 1;
+    baris[t] = potongElipsis(x, baris[t].replace(/…$/, '') + '…', maksW);
+  }
+  return baris;
+}
+
 /* Ikon trofi digambar di kanvas: cangkir + gagang + kaki + alas. */
 export function gambarTrofi(x, px, py, s, warna, warnaGelap) {
   x.save();
@@ -74,12 +97,14 @@ export function render(root) {
     x.fillStyle = tier.warna; x.font = '700 26px system-ui, sans-serif';
     x.fillText('🏆 ' + tier.nama + ' · ' + tier.poin + ' poin', 178, 58);
     x.fillStyle = '#fff'; x.font = '700 30px system-ui, sans-serif';
-    x.fillText((judulI.value.trim() || 'Trofi').slice(0, 32), 178, 92);
+    // Judul satu baris: dulu 32 karakter bisa melewati lebar kanvas.
+    x.fillText(potongElipsis(x, (judulI.value.trim() || 'Trofi').slice(0, 32), 470), 178, 92);
     x.fillStyle = '#dbe7ff'; x.font = '400 21px system-ui, sans-serif';
-    const baris = utils.bungkusKata(x, descI.value.trim().slice(0, 90), 470);
+    // 2 baris (y=130 & 156, bawah ≈177) — aman dari baris nama game di y=180.
+    const baris = bungkusTerbatas(x, descI.value.trim().slice(0, 90), 470, 2);
     baris.forEach((b, i) => x.fillText(b, 178, 130 + i * 26));
     x.fillStyle = '#a8c0ff'; x.font = '400 19px system-ui, sans-serif';
-    x.fillText((gameI.value.trim() || 'Game').slice(0, 36) + '  ·  ' + labelRarity(rarityI.value).split(' (')[0], 24, 180);
+    x.fillText(potongElipsis(x, (gameI.value.trim() || 'Game').slice(0, 36) + '  ·  ' + labelRarity(rarityI.value).split(' (')[0], 632), 24, 180);
   };
 
   const unduh = () => {

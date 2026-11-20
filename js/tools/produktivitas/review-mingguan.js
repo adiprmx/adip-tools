@@ -29,16 +29,38 @@ export function render(root) {
 
   const weekInp = T.input('week');
   weekInp.value = mingguIni();
+  let mingguAktif = weekInp.value || mingguIni();
 
   const tas = {};
   const kolomWrap = T.el('<div></div>');
 
+  // Ada ketikan yang belum disimpan di minggu yang sedang dibuka?
+  const isDirty = () => {
+    const entry = data[mingguAktif] || {};
+    return KOLS.some(([k]) => tas[k].some((ta, i) => ta.value !== ((entry[k] && entry[k][i]) || '')));
+  };
+
   const muat = () => {
     const w = weekInp.value || mingguIni();
+    if (w !== mingguAktif && isDirty()) {
+      if (!confirm('Tulisan minggu ini belum disimpan. Pindah minggu? Tulisan yang belum disimpan akan hilang.')) {
+        weekInp.value = mingguAktif;
+        return;
+      }
+    }
+    mingguAktif = w;
     const entry = data[w] || {};
     KOLS.forEach(([k]) => {
       tas[k].forEach((ta, i) => { ta.value = (entry[k] && entry[k][i]) || ''; });
     });
+  };
+
+  // Kosongkan benar-benar mengosongkan 9 kolom di layar (bukan me-reload).
+  // Data yang sudah tersimpan tidak ikut terhapus.
+  const kosongkan = () => {
+    const adaIsi = KOLS.some(([k]) => tas[k].some((ta) => ta.value.trim()));
+    if (adaIsi && !confirm('Kosongkan semua kolom di layar? Data yang sudah tersimpan tetap aman.')) return;
+    KOLS.forEach(([k]) => tas[k].forEach((ta) => { ta.value = ''; }));
   };
 
   const simpan = () => {
@@ -69,7 +91,7 @@ export function render(root) {
     }
   });
   root.appendChild(kolomWrap);
-  root.appendChild(T.row(T.btn('Simpan review', simpan, true), T.btn('Kosongkan', muat)));
+  root.appendChild(T.row(T.btn('Simpan review', simpan, true), T.btn('Kosongkan', kosongkan)));
   root.appendChild(T.el('<div style="height:14px"></div>'));
 
   const riwBox = T.el('<div></div>');

@@ -29,7 +29,7 @@ export function render(root) {
 
   function chip(it) {
     const c = T.el('<span style="display:inline-flex;align-items:center;gap:4px;background:#1c1c1c;border:1px solid #3a3a3a;border-radius:8px;padding:5px 6px;font-size:14px;margin:3px"></span>');
-    c.appendChild(T.el(`<span>${it.teks}</span>`));
+    c.appendChild(T.el(`<span>${T.esc(it.teks)}</span>`));
     const pilih = document.createElement('select');
     pilih.style.cssText = 'background:#2a2a2a;color:#fff;border:1px solid #3a3a3a;border-radius:6px;font-size:12px;padding:2px 4px';
     [['pool', 'Pool'], ...utils.TIER_LIST_BARIS.map((t) => [t, t])].forEach(([v, l]) => {
@@ -56,7 +56,7 @@ export function render(root) {
 
   function tampil() {
     papan.innerHTML = '';
-    const judulEl = T.el(`<h3 style="margin-bottom:12px">${judul.value.trim() || 'Tier List'}</h3>`);
+    const judulEl = T.el(`<h3 style="margin-bottom:12px">${T.esc(judul.value.trim() || 'Tier List')}</h3>`);
     papan.appendChild(judulEl);
     utils.TIER_LIST_BARIS.forEach((t) => {
       const baris = T.el('<div style="display:flex;min-height:56px;border:1px solid #2a2a2a;border-bottom:none"></div>');

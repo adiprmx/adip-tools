@@ -5,8 +5,25 @@ import { h as T, utils, kv } from '../../core.js';
 // dan angka mentah analog): tool ini fokus mendiagnosis drift, dengan
 // kalibrasi posisi diam, besar drift per stik, dan putusan aman atau tidak.
 // Ambang umum: di bawah 0,08 aman, 0,08-0,15 waspada, di atas 0,15 drift.
+// SKALA GAMBAR: lingkaran luar = defleksi 0,30 (diperbesar 3,3x) supaya
+// geseran kecil tetap kelihatan — pada skala 1:1 zona aman 0,08 hanya
+// beradius ~3,7 px dan tidak terbaca. Radius zona & posisi titik WAJIB
+// dihitung dari ambang yang sama dengan putusan (radiusZona/posisiTitik),
+// supaya gambar tidak pernah bertentangan dengan putusan. Lingkaran luar
+// (r=46) hanya bingkai; titik & zona memakai radius plot 44 supaya titik
+// di ujung skala tidak terpotong tepi.
 export const AMBANG_AMAN = 0.08;
 export const AMBANG_WASPADA = 0.15;
+export const SKALA_MAKS = 0.3;
+export const R_LUAR = 46;
+export const R_PLOT = 44;
+export function radiusZona(ambang) {
+  return Math.round(ambang / SKALA_MAKS * R_PLOT * 10) / 10;
+}
+export function posisiTitik(nilai) {
+  const k = Math.max(-1, Math.min(1, Number(nilai) / SKALA_MAKS));
+  return 50 + k * R_PLOT;
+}
 export function nilaiDrift(axes, baseline) {
   const a = Array.isArray(axes) ? axes : [];
   const b = Array.isArray(baseline) ? baseline : [0, 0, 0, 0];
@@ -33,7 +50,7 @@ export function labelPutusan(putusan) {
   if (putusan === 'drift') return 'Drift, analog bergeser sendiri';
   return '';
 }
-utils.stickDrift = { nilaiDrift, putusanDrift, labelPutusan };
+utils.stickDrift = { nilaiDrift, putusanDrift, labelPutusan, radiusZona, posisiTitik };
 
 export const meta = {"id": "tes-stick-drift", "name": "Tes Stick Drift", "cat": "sehari", "icon": "🕹️", "desc": "Diagnosis analog stik yang bergeser sendiri: kalibrasi posisi diam, ukur besar driftnya, dan lihat putusannya.", "keywords": "stick drift,drift analog,stik ngedrift,gamepad drift,controller drift,analog bergeser", "since": "6.19.0"};
 export function render(root) {
@@ -49,9 +66,9 @@ export function render(root) {
     svg.setAttribute('width', '140');
     svg.setAttribute('height', '140');
     svg.setAttribute('viewBox', '0 0 100 100');
-    svg.innerHTML = '<circle cx="50" cy="50" r="46" fill="none" stroke="rgba(127,127,127,.4)" stroke-width="1.5"/>' +
-      '<circle cx="50" cy="50" r="12" fill="none" stroke="rgba(120,200,120,.7)" stroke-width="1.5"/>' +
-      '<circle cx="50" cy="50" r="22" fill="none" stroke="rgba(255,180,0,.6)" stroke-width="1.5"/>' +
+    svg.innerHTML = '<circle cx="50" cy="50" r="' + R_LUAR + '" fill="none" stroke="rgba(127,127,127,.4)" stroke-width="1.5"/>' +
+      '<circle cx="50" cy="50" r="' + radiusZona(AMBANG_AMAN) + '" fill="none" stroke="rgba(120,200,120,.7)" stroke-width="1.5"/>' +
+      '<circle cx="50" cy="50" r="' + radiusZona(AMBANG_WASPADA) + '" fill="none" stroke="rgba(255,180,0,.6)" stroke-width="1.5"/>' +
       '<line x1="50" y1="4" x2="50" y2="96" stroke="rgba(127,127,127,.25)" stroke-width="1"/>' +
       '<line x1="4" y1="50" x2="96" y2="50" stroke="rgba(127,127,127,.25)" stroke-width="1"/>' +
       '<circle class="dot" cx="50" cy="50" r="5" fill="#fff"/>';
@@ -73,8 +90,8 @@ export function render(root) {
   let padTerdeteksi = false;
 
   const gambarTitik = (v, d) => {
-    const x = 50 + Math.max(-1, Math.min(1, d.x)) * 44;
-    const y = 50 + Math.max(-1, Math.min(1, d.y)) * 44;
+    const x = posisiTitik(d.x);
+    const y = posisiTitik(d.y);
     v.dot.setAttribute('cx', x.toFixed(1));
     v.dot.setAttribute('cy', y.toFixed(1));
     const p = putusanDrift(d.besar);
@@ -115,7 +132,7 @@ export function render(root) {
         kv('Analog kiri sekarang', labelPutusan(pk) + ' (' + utils.fmtDes(d.kiri.besar, 2) + ')') +
         kv('Analog kanan sekarang', labelPutusan(pn) + ' (' + utils.fmtDes(d.kanan.besar, 2) + ')') +
         kv('Drift terbesar tercatat', 'Kiri ' + utils.fmtDes(maksKiri, 2) + ' · Kanan ' + utils.fmtDes(maksKanan, 2)) +
-        '<p class="hint">Lingkaran hijau dalam = zona aman (di bawah 0,08), lingkaran kuning = zona waspada (0,08 sampai 0,15). Titik putih adalah posisi analogmu sekarang. Bila titik tidak diam di tengah saat analog dilepas, stikmu drift. Coba bersihkan pangkal analog atau naikkan deadzone di pengaturan game.</p>');
+        '<p class="hint">Lingkaran hijau dalam = zona aman (di bawah 0,08), lingkaran kuning = zona waspada (0,08 sampai 0,15). Gambarnya diperbesar supaya geseran kecil kelihatan: lingkaran luar sama dengan geseran 0,30, jadi titik yang mentok di tepi artinya driftnya sudah besar. Titik berwarna adalah posisi analogmu sekarang. Bila titik tidak diam di tengah saat analog dilepas, stikmu drift. Coba bersihkan pangkal analog atau naikkan deadzone di pengaturan game.</p>');
     }
   };
 

@@ -32,35 +32,96 @@ export const FRASA = [
 ];
 
 export const KATEGORI = ['Semua', 'Menolak', 'Minta maaf', 'Follow-up', 'Minta bantuan', 'Kritik', 'Tidak tahu', 'Minta waktu', 'Negosiasi', 'Ucapan'];
+export const KATEGORI_TAMBAH = KATEGORI.slice(1); // tanpa "Semua", untuk form tambah frasa
+
+/** Kunci stabil satu frasa (dipakai untuk favorit & hapus frasa sendiri). */
+export function kunciFrase(f) {
+  return [f[0], f[1], f[3]].join('\n');
+}
+
+/** Validasi frasa baru dari user. Mengembalikan pesan salah, atau null bila oke. */
+export function validasiFrase(f) {
+  if (!Array.isArray(f) || f.length < 4) return 'Frasa tidak lengkap.';
+  const [kat, situasi, biasa, pro] = f.map((x) => String(x == null ? '' : x).trim());
+  if (!KATEGORI_TAMBAH.includes(kat)) return 'Pilih kategorinya dulu.';
+  if (!situasi) return 'Isi situasinya dulu, misal: menolak lembur mendadak.';
+  if (situasi.length > 120) return 'Situasinya kepanjangan, ringkas sampai 120 huruf.';
+  if (!biasa) return 'Isi kalimat biasanya dulu.';
+  if (!pro) return 'Isi kalimat profesionalnya dulu.';
+  if (pro.length > 500) return 'Kalimat profesionalnya kepanjangan, ringkas sampai 500 huruf.';
+  return null;
+}
+
+/** Gabungkan bank bawaan dengan frasa user (yang tidak valid dibuang,
+    yang sudah ada — sama persis — tidak didobel). */
+export function gabungFrase(custom) {
+  const daftar = FRASA.slice();
+  const kunci = new Set(daftar.map(kunciFrase));
+  (Array.isArray(custom) ? custom : []).forEach((f) => {
+    if (validasiFrase(f)) return;
+    const bersih = f.map((x) => String(x).trim());
+    if (kunci.has(kunciFrase(bersih))) return;
+    kunci.add(kunciFrase(bersih));
+    daftar.push(bersih);
+  });
+  return daftar;
+}
+
+/** Saring daftar ke frasa yang kuncinya ada di set favorit. */
+export function filterFavorit(daftar, favKeys) {
+  const set = new Set(Array.isArray(favKeys) ? favKeys : []);
+  return daftar.filter((f) => set.has(kunciFrase(f)));
+}
 
 /** Filter bank kalimat berdasarkan kategori dan kata kunci (cocok di situasi
-    atau di isi kalimat). Mengembalikan array frasa yang cocok. */
-export function cariFrase(kategori, kata) {
+    atau di isi kalimat). Mengembalikan array frasa yang cocok.
+    `daftar` default bank bawaan; `favKeys` dipakai saat kategori = Favorit. */
+export function cariFrase(kategori, kata, daftar, favKeys) {
   const k = String(kata == null ? '' : kata).trim().toLowerCase();
-  return FRASA.filter((f) => {
-    if (kategori && kategori !== 'Semua' && f[0] !== kategori) return false;
+  let sumber = Array.isArray(daftar) ? daftar : FRASA;
+  if (kategori === 'Favorit') sumber = filterFavorit(sumber, favKeys);
+  return sumber.filter((f) => {
+    if (kategori && kategori !== 'Semua' && kategori !== 'Favorit' && f[0] !== kategori) return false;
     if (!k) return true;
     return (f[1] + ' ' + f[2] + ' ' + f[3]).toLowerCase().includes(k);
   });
 }
 
 export function render(root) {
-  const katS = T.select(KATEGORI.map((k) => [k, k]), 'Semua');
+  const K_CUSTOM = 'tool:cara-bilang-profesional:custom';
+  const K_FAV = 'tool:cara-bilang-profesional:fav';
+  const bacaLs = (k) => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
+  const tulisLs = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  let custom = bacaLs(K_CUSTOM).filter((f) => !validasiFrase(f));
+  let fav = bacaLs(K_FAV).filter((k) => typeof k === 'string');
+  const kunciCustom = () => new Set(custom.map(kunciFrase));
+  const daftarSemua = () => gabungFrase(custom);
+
+  const katS = T.select(['Semua', 'Favorit'].concat(KATEGORI_TAMBAH).map((k) => [k, k === 'Favorit' ? '⭐ Favoritku' : k]), 'Semua');
   const cariI = T.input('text', 'cth: telat, bayar, gaji', '');
   const box = T.out();
 
   const tampil = () => {
-    const hasil = cariFrase(katS.value, cariI.value);
+    const hasil = cariFrase(katS.value, cariI.value, daftarSemua(), fav);
     if (!hasil.length) {
-      T.show(box, '<p class="warn">Tidak ada kalimat yang cocok. Coba kata kunci lain, atau pilih kategori Semua.</p>');
+      T.show(box, katS.value === 'Favorit'
+        ? '<p class="warn">Belum ada favorit. Ketuk tombol ☆ di kalimat yang kamu suka untuk menyimpannya di sini.</p>'
+        : '<p class="warn">Tidak ada kalimat yang cocok. Coba kata kunci lain, pilih kategori Semua, atau tambah frasamu sendiri di bawah.</p>');
       return;
     }
-    let html = '<p class="hint">' + hasil.length + ' kalimat ditemukan. Ketuk "Salin" untuk memakai kalimatnya, lalu ganti bagian dalam kurung siku dengan datamu.</p>';
+    const kc = kunciCustom();
+    const favSet = new Set(fav);
+    let html = '<p class="hint">' + hasil.length + ' kalimat ditemukan. Ketuk "Salin" untuk memakai kalimatnya, lalu ganti bagian dalam kurung siku dengan datamu. Ketuk ☆ untuk menyimpan ke favorit.</p>';
     hasil.forEach((f, i) => {
-      html += '<div class="kv" style="display:block;margin-bottom:12px"><span class="k">' + T.esc(f[1]) + ' <span class="hint">(' + T.esc(f[0]) + ')</span></span>' +
+      const kunci = kunciFrase(f);
+      const isFav = favSet.has(kunci);
+      const buatanmu = kc.has(kunci);
+      html += '<div class="kv" style="display:block;margin-bottom:12px"><span class="k">' + T.esc(f[1]) + ' <span class="hint">(' + T.esc(f[0]) + (buatanmu ? ' · buatanmu' : '') + ')</span></span>' +
         '<p style="margin:6px 0 2px"><span class="hint">Biasa: </span>' + T.esc(f[2]) + '</p>' +
         '<p style="margin:2px 0 6px"><b>Profesional: </b>' + T.esc(f[3]) + '</p>' +
-        '<button type="button" class="btn" data-salin="' + i + '">Salin kalimat profesional</button></div>';
+        '<button type="button" class="btn" data-salin="' + i + '">Salin kalimat profesional</button> ' +
+        '<button type="button" class="btn" data-fav="' + i + '" aria-label="' + (isFav ? 'Hapus dari favorit' : 'Simpan ke favorit') + '">' + (isFav ? '★ Favorit' : '☆ Favorit') + '</button>' +
+        (buatanmu ? ' <button type="button" class="btn" data-hapus="' + i + '">Hapus</button>' : '') + '</div>';
     });
     T.show(box, html);
     box.querySelectorAll('[data-salin]').forEach((b) => {
@@ -69,14 +130,65 @@ export function render(root) {
         T.copy(f[3]);
       });
     });
+    box.querySelectorAll('[data-fav]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const f = hasil[Number(b.getAttribute('data-fav'))];
+        const kunci = kunciFrase(f);
+        if (fav.includes(kunci)) { fav = fav.filter((k) => k !== kunci); T.toast('Dihapus dari favorit.'); }
+        else { fav.push(kunci); T.toast('Disimpan ke favorit.'); }
+        tulisLs(K_FAV, fav);
+        tampil();
+      });
+    });
+    box.querySelectorAll('[data-hapus]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const f = hasil[Number(b.getAttribute('data-hapus'))];
+        const kunci = kunciFrase(f);
+        custom = custom.filter((c) => kunciFrase(c) !== kunci);
+        fav = fav.filter((k) => k !== kunci);
+        tulisLs(K_CUSTOM, custom);
+        tulisLs(K_FAV, fav);
+        T.toast('Frasa dihapus.');
+        tampil();
+      });
+    });
   };
 
   katS.addEventListener('change', tampil);
   cariI.addEventListener('input', tampil);
 
+  // ---- Form tambah frasa sendiri ----
+  const tKat = T.select(KATEGORI_TAMBAH.map((k) => [k, k]), 'Menolak');
+  const tSituasi = T.input('text', 'cth: menolak lembur mendadak', '');
+  const tBiasa = T.input('text', 'cth: Nggak bisa, saya mau pulang.', '');
+  const tPro = T.input('text', 'cth: Mohon maaf, saya sudah ada janji malam ini. Bisakah kita lanjutkan besok pagi?', '');
+  const tambahBox = T.out();
+  const tambah = () => {
+    const f = [tKat.value, tSituasi.value, tBiasa.value, tPro.value];
+    const salah = validasiFrase(f);
+    if (salah) { T.show(tambahBox, '<p class="err">' + T.esc(salah) + '</p>'); return; }
+    const bersih = f.map((x) => String(x).trim());
+    if (daftarSemua().some((d) => kunciFrase(d) === kunciFrase(bersih))) {
+      T.show(tambahBox, '<p class="warn">Frasa itu sudah ada di daftar.</p>'); return;
+    }
+    custom.push(bersih);
+    tulisLs(K_CUSTOM, custom);
+    tSituasi.value = ''; tBiasa.value = ''; tPro.value = '';
+    T.show(tambahBox, '<p class="hint">Frasamu tersimpan dan langsung bisa dicari. Frasa buatanmu tersimpan di perangkat ini saja.</p>');
+    katS.value = 'Semua'; cariI.value = '';
+    tampil();
+  };
+
   root.appendChild(T.el('<p class="note">Bingung merangkai kalimat sopan di tempat kerja? Cari situasimu di bawah, lalu salin kalimat profesionalnya. Ganti bagian dalam kurung siku [seperti ini] dengan datamu sendiri.</p>'));
-  root.appendChild(T.field('Kategori', katS, 'Pilih situasi yang paling dekat dengan kebutuhanmu.'));
+  root.appendChild(T.field('Kategori', katS, 'Pilih situasi yang paling dekat dengan kebutuhanmu, atau lihat favoritmu.'));
   root.appendChild(T.field('Cari kalimat', cariI, 'Ketik kata kunci, misal: telat, bayar, gaji.'));
   root.appendChild(box);
+  root.appendChild(T.el('<p class="mut" style="margin:18px 0 6px;font-weight:600">Tambah frasamu sendiri</p>'));
+  root.appendChild(T.field('Kategori', tKat));
+  root.appendChild(T.field('Situasi', tSituasi, 'Kapan kalimat ini dipakai.'));
+  root.appendChild(T.field('Kalimat biasa', tBiasa, 'Versi apa adanya, seperti yang biasa kamu ucapkan.'));
+  root.appendChild(T.field('Kalimat profesional', tPro, 'Versi sopan dan profesionalnya.'));
+  root.appendChild(T.row(T.btn('Simpan frasaku', tambah, true)));
+  root.appendChild(tambahBox);
   tampil();
 }

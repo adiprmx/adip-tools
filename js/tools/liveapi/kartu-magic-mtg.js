@@ -5,13 +5,18 @@ import { h as T, esc, errBox } from '../../core.js';
 // Batas Scryfall: sekitar 10 permintaan per detik.
 export const meta = {"id":"kartu-magic-mtg","name":"Kartu Magic MTG","cat":"liveapi","icon":"🃏","desc":"Cari kartu Magic: The Gathering lengkap dengan gambar, teks, dan harganya.","keywords":"magic,mtg,kartu magic,scryfall,card game,tcg,kartu","since":"6.17.0"};
 
-async function getJSON(url) {
+export async function getJSON(url) {
   const c = new AbortController();
   const t = setTimeout(() => c.abort(), 15000);
   try {
     const r = await fetch(url, { signal: c.signal });
     const j = await r.json().catch(() => null);
-    if (!r.ok || (j && j.object === 'error')) throw new Error('not-found');
+    // Bedakan jenis gagalnya: 429 = dibatasi, 404/not_found = kartu memang
+    // tidak ada, sisanya = server bermasalah. Jangan samakan semuanya jadi
+    // "kartu tidak ditemukan".
+    if (r.status === 429) throw new Error('rate-limit');
+    if (r.status === 404 || (j && j.object === 'error' && j.code === 'not_found')) throw new Error('not-found');
+    if (!r.ok || (j && j.object === 'error')) throw new Error('server-error');
     return j;
   } finally { clearTimeout(t); }
 }
@@ -71,9 +76,18 @@ export function render(root) {
         T.show(box, '<p class="center dim">Kartu tidak ditemukan. Coba nama dalam bahasa Inggris atau kata kunci yang lebih umum.</p>');
         return;
       }
-      const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Scryfall tidak merespons dalam 15 detik.'
-        : 'Gagal mencari kartu. Cek koneksi internet, lalu coba lagi.';
+      if (e.message === 'rate-limit') {
+        T.show(box, errBox('Terlalu sering mencari — Scryfall membatasi permintaan sebentar. Tunggu beberapa detik lalu coba lagi.'));
+        const wr = T.el('<div style="margin-top:8px"></div>');
+        wr.appendChild(T.btn('🔄 Coba lagi', cari));
+        box.appendChild(wr);
+        return;
+      }
+      const msg = e.message === 'server-error'
+        ? 'Server Scryfall sedang bermasalah — bukan salah kartunya. Coba lagi sebentar.'
+        : e.name === 'AbortError'
+          ? 'Waktu habis, server Scryfall tidak merespons dalam 15 detik.'
+          : 'Gagal mencari kartu. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');
       wr.appendChild(T.btn('🔄 Coba lagi', cari));

@@ -11,6 +11,7 @@ const PENUTUP_STANDAR = 'Demikian surat ini kami sampaikan. Atas perhatian dan k
 export function render(root) {
 
     utils.ensurePrintCss('surat-resmi-print', { page: '@page{size:A4;margin:18mm 20mm}', extra: '#surat-resmi-print .surat-page{box-shadow:none !important;border:none !important;margin:0 !important;width:100% !important}' });
+    T.onLeave(() => utils.removePrintCss('surat-resmi-print'));
 
     const instansiI = T.input('text', 'Nama instansi / organisasi', '');
     const alamatInstansiI = T.ta(2, 'Alamat instansi (untuk kop surat)', '');

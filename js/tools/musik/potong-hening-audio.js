@@ -126,8 +126,11 @@ export function render(root) {
     const url = URL.createObjectURL(fileObj);
     const a = document.createElement('audio');
     a.preload = 'metadata';
-    a.onloadedmetadata = () => {
-      duration = a.duration || 0;
+    const fDipilih = fileObj;
+    a.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(a);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       T.show(infoBox,
         kv('File', T.esc(fileObj.name)) +
         kv('Durasi', duration ? duration.toFixed(1) + ' detik' : 'tidak terbaca') +

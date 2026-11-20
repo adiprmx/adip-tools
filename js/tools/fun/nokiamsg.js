@@ -165,6 +165,17 @@ export function drawScreen(ctx, mk, o) {
 
   // ---- badan pesan ----
   ctx.fillStyle = BODY; ctx.fillRect(0, 234, W, 845);
+  // Penanda kejujuran 1/2: kata PRANK samar di tengah badan pesan (pola kata
+  // latar fake-achievement) — digambar sebelum teks pesan, ikut terunduh,
+  // dan tidak bisa di-crop tanpa memotong isi pesan.
+  ctx.save();
+  ctx.translate(W / 2, 650);
+  ctx.rotate(-0.42);
+  ctx.font = '700 150px system-ui, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(0,0,0,0.10)';
+  ctx.fillText('PRANK', 0, 0);
+  ctx.restore();
   const meas = (t) => {
     const m = mk(8, 8).getContext('2d');
     m.font = '700 16px "Courier New", monospace';
@@ -181,6 +192,22 @@ export function drawScreen(ctx, mk, o) {
   ctx.fillStyle = '#000'; ctx.fillRect(0, 1079, W, 121);
   pxText('Pilihan', 15, 1074, 108, '#e1eaf2', 'left');
   pxText('Kembali', 885, 1074, 108, '#e1eaf2', 'right');
+
+  // Penanda kejujuran 2/2: pil "PALSU · CUMA PRANK" di tengah navibar
+  // (pola pranktag fakesos) — di antara tombol Pilihan dan Kembali, ikut
+  // terunduh bersama gambar. SMS ini bohongan, jangan dipakai menipu.
+  ctx.font = '700 26px system-ui, sans-serif';
+  const tagW = Math.ceil(ctx.measureText('CUMA PRANK').width) + 36;
+  const tagX = (W - tagW) / 2, tagY = 1092, tagH = 84;
+  ctx.fillStyle = 'rgba(255,255,255,0.16)';
+  rrect(tagX, tagY, tagW, tagH, 20); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = 2;
+  rrect(tagX, tagY, tagW, tagH, 20); ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('PALSU', W / 2, tagY + 24);
+  ctx.fillText('CUMA PRANK', W / 2, tagY + 58);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 }
 // ==DRAW-END==
 
@@ -228,7 +255,7 @@ export function render(root) {
     }, 'image/png');
   });
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bikin gambar SMS ala HP Nokia jadul (gaya layar Symbian pixel) — digambar langsung di perangkatmu, tanpa server.<br><span class="dim" style="font-size:12px">Aproksimasi gaya visual aslinya, bukan piksel-identik dengan render server.</span></p>'));
+  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Bikin gambar SMS ala HP Nokia jadul (gaya layar Symbian pixel) — digambar langsung di perangkatmu, tanpa server.<br><span class="dim" style="font-size:12px">Aproksimasi gaya visual aslinya, bukan piksel-identik dengan render server.</span><br><b>Hanya untuk prank, bukan SMS asli.</b> Gambar yang diunduh sudah ada penanda "PALSU · CUMA PRANK" — jangan dipakai untuk menipu orang.</p>'));
   root.appendChild(T.field('Pesan', fPesan));
   root.appendChild(T.grid2(T.field('Dari', fDari), T.field('Judul', fJudul)));
   root.appendChild(T.grid2(T.field('Tanggal', fTgl), T.field('Jam', fJam)));

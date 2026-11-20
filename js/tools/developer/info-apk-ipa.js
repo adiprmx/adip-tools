@@ -2,12 +2,14 @@ import { h as T, utils, kv, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
 // Lihat info aplikasi dari file APK (Android) atau IPA (iOS): nama,
 // versi, paket, izin, ikon, dan ringkasan isi file. Semua parser ditulis
-// sendiri tanpa pustaka: pembaca ZIP (stored + deflate), parser
-// AndroidManifest.xml biner (AXML), dan parser Info.plist.
+// sendiri tanpa pustaka: pembaca ZIP (stored + deflate, termasuk
+// format ZIP64 untuk arsip di atas 4 GB), parser AndroidManifest.xml
+// biner (AXML), dan parser Info.plist.
 // Batasan jujur: label aplikasi yang tersimpan sebagai referensi
 // resource (@0x...) tidak bisa dibaca tanpa tabel resources.arsc, dan
 // ikon IPA berformat PNG khusus iOS (CgBI) tidak bisa ditampilkan
-// browser — keduanya dilaporkan apa adanya, bukan ditebak.
+// browser — keduanya dilaporkan apa adanya, bukan ditebak. File di
+// atas 512 MB ditolak karena dibaca utuh ke memori.
 
 export const meta = { id: 'info-apk-ipa', name: 'Info APK/IPA', cat: 'developer', icon: '📱', desc: 'Lihat nama aplikasi, versi, ikon, dan izin dari file APK atau IPA tanpa memasang apa pun.', keywords: 'apk,ipa,android,ios,aplikasi,versi,izin,manifest,plist', since: '6.19.0' };
 
@@ -45,6 +47,34 @@ export const IZIN_ANDROID = {
 };
 
 // ---------- Pembaca ZIP (central directory) ----------
+// Batas ukuran file: dibaca utuh ke memori, jadi file raksasa bisa
+// bikin tab kehabisan memori. 512 MB masih jauh di atas APK/IPA biasa.
+export const MAKS_FILE = 512 * 1024 * 1024;
+
+// Baca field ekstra ZIP64 (tag 0x0001) dari sebuah entri central
+// directory: nilai 64-bit muncul berurutan HANYA untuk field yang
+// bernilai 0xFFFFFFFF di header 32-bit (urutan: ukuran asli, ukuran
+// kompres, offset header lokal, nomor disk).
+function bacaExtraZip64(dv, p, panjangExtra, butuh) {
+  const keluar = {};
+  let q = p;
+  const akhir = p + panjangExtra;
+  while (q + 4 <= akhir) {
+    const tag = dv.getUint16(q, true);
+    const len = dv.getUint16(q + 2, true);
+    if (tag === 0x0001) {
+      let r = q + 4;
+      const baca64 = () => { const v = Number(dv.getBigUint64(r, true)); r += 8; return v; };
+      if (butuh.ukuran) keluar.ukuran = baca64();
+      if (butuh.ukuranKompres) keluar.ukuranKompres = baca64();
+      if (butuh.offset) keluar.offset = baca64();
+      return keluar;
+    }
+    q += 4 + len;
+  }
+  return keluar;
+}
+
 export function bacaZip(u8) {
   if (u8.length < 22) throw new Error('File terlalu kecil untuk arsip ZIP.');
   const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
@@ -54,19 +84,45 @@ export function bacaZip(u8) {
     if (dv.getUint32(p, true) === 0x06054b50) { eocd = p; break; }
   }
   if (eocd < 0) throw new Error('File ini bukan arsip ZIP (APK/IPA adalah ZIP).');
-  const jumlah = dv.getUint16(eocd + 10, true);
-  const offsetCd = dv.getUint32(eocd + 16, true);
+  let jumlah = dv.getUint16(eocd + 10, true);
+  const ukuranCd = dv.getUint32(eocd + 12, true);
+  let offsetCd = dv.getUint32(eocd + 16, true);
+  // ZIP64: bila ada field yang bernilai maksimum 32-bit, angka
+  // sebenarnya tersimpan di record ZIP64 EOCD (ditunjuk locator
+  // 0x07064b50 yang terletak 20 byte sebelum EOCD biasa).
+  if (jumlah === 0xffff || ukuranCd === 0xffffffff || offsetCd === 0xffffffff) {
+    const loc = eocd - 20;
+    if (loc < 0 || dv.getUint32(loc, true) !== 0x07064b50) {
+      throw new Error('File ini memakai format ZIP64 tapi penanda ZIP64-nya tidak ketemu — arsipnya mungkin rusak.');
+    }
+    const off64 = Number(dv.getBigUint64(loc + 8, true));
+    if (off64 + 56 > u8.length || dv.getUint32(off64, true) !== 0x06064b50) {
+      throw new Error('File ini memakai format ZIP64 tapi record ZIP64-nya tidak ketemu — arsipnya mungkin rusak.');
+    }
+    jumlah = Number(dv.getBigUint64(off64 + 32, true));
+    offsetCd = Number(dv.getBigUint64(off64 + 48, true));
+  }
   const entri = [];
   let p = offsetCd;
   for (let i = 0; i < jumlah; i++) {
     if (p + 46 > u8.length || dv.getUint32(p, true) !== 0x02014b50) break;
     const metode = dv.getUint16(p + 10, true);
-    const ukuranKompres = dv.getUint32(p + 20, true);
-    const ukuran = dv.getUint32(p + 24, true);
+    let ukuranKompres = dv.getUint32(p + 20, true);
+    let ukuran = dv.getUint32(p + 24, true);
     const panjangNama = dv.getUint16(p + 28, true);
     const panjangExtra = dv.getUint16(p + 30, true);
     const panjangKomen = dv.getUint16(p + 32, true);
-    const offsetLokal = dv.getUint32(p + 42, true);
+    let offsetLokal = dv.getUint32(p + 42, true);
+    if (ukuran === 0xffffffff || ukuranKompres === 0xffffffff || offsetLokal === 0xffffffff) {
+      const z64 = bacaExtraZip64(dv, p + 46 + panjangNama, panjangExtra, {
+        ukuran: ukuran === 0xffffffff,
+        ukuranKompres: ukuranKompres === 0xffffffff,
+        offset: offsetLokal === 0xffffffff,
+      });
+      if (z64.ukuran != null) ukuran = z64.ukuran;
+      if (z64.ukuranKompres != null) ukuranKompres = z64.ukuranKompres;
+      if (z64.offset != null) offsetLokal = z64.offset;
+    }
     const nama = new TextDecoder().decode(u8.slice(p + 46, p + 46 + panjangNama));
     entri.push({ nama, metode, ukuran, ukuranKompres, offset: offsetLokal });
     p += 46 + panjangNama + panjangExtra + panjangKomen;
@@ -366,8 +422,13 @@ export function render(root) {
   async function bukaFile() {
     const f = fileI.files && fileI.files[0];
     if (!f) return;
-    statusEl.textContent = 'Membaca file...';
+    statusEl.textContent = '';
     hasilEl.innerHTML = '';
+    if (f.size > MAKS_FILE) {
+      hasilEl.innerHTML = '<p style="color:var(--err)">File ini ' + fmtBytes(f.size) + ' — di atas batas 512 MB. File dibaca utuh ke memori, jadi file sebesar itu belum didukung.</p>';
+      return;
+    }
+    statusEl.textContent = 'Membaca file...';
     try {
       const u8 = new Uint8Array(await f.arrayBuffer());
       const zip = bacaZip(u8);
@@ -492,7 +553,7 @@ export function render(root) {
 
   fileI.addEventListener('change', bukaFile);
   root.append(
-    T.field('Pilih file APK atau IPA', fileI, 'Contoh: aplikasi.apk dari Android, atau aplikasi.ipa dari iOS.'),
+    T.field('Pilih file APK atau IPA', fileI, 'Contoh: aplikasi.apk dari Android, atau aplikasi.ipa dari iOS. Maksimal 512 MB.'),
     statusEl,
     hasilEl,
   );

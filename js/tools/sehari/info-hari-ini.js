@@ -1,6 +1,6 @@
-import { h as T, utils, beep, actx, onLeave, kvRows, errBox } from '../../core.js';
+import { h as T, kvRows } from '../../core.js';
 
-export const meta = {"id": "info-hari-ini", "name": "Info Hari Ini", "cat": "liveapi", "icon": "📅", "desc": "Info tanggal hari ini, 100% dihitung lokal di HP-mu.", "keywords": "tanggal,hari ini,kalender,hari ke,lokal,offline,pekan"};
+export const meta = {"id": "info-hari-ini", "name": "Info Hari Ini", "cat": "sehari", "icon": "📅", "desc": "Info tanggal hari ini, 100% dihitung lokal di HP-mu.", "keywords": "tanggal,hari ini,kalender,hari ke,lokal,offline,pekan"};
 
 export function render(root) {
     // Semua dihitung dari jam perangkat — tidak ada API, tidak ada klaim data luar.

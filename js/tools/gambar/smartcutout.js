@@ -132,7 +132,7 @@ export function render(root) {
     const out = T.out();
     editor.appendChild(T.row(
       T.btn('✂️ Potong objek', extract, true),
-      T.btn('⬇ Unduh mask', () => { if (st.mask) T.dl('mask.png', maskToBlob(), 'image/png'); else T.toast('Belum ada mask — ketuk objek dulu'); })
+      T.btn('⬇ Unduh mask', async () => { if (st.mask) T.dl('mask.png', await maskToBlob(), 'image/png'); else T.toast('Belum ada mask — ketuk objek dulu'); })
     ));
     editor.appendChild(out);
     st.out = out;
@@ -287,10 +287,13 @@ export function render(root) {
       out.width = ow; out.height = oh;
       const octx = out.getContext('2d');
       octx.drawImage(st.img, ox, oy, ow, oh, 0, 0, ow, oh);
-      // aplikasikan mask sebagai alpha
+      // aplikasikan mask sebagai alpha: mask diskala ke ukuran penuh
+      // tw x th (bukan ukuran infer kecil), lalu digeser -ox/-oy supaya
+      // sejajar dengan potongan crop. Rumus lama (dw/dh = maskW/maskH)
+      // membuat mask hanya menutupi pojok kiri-atas di foto besar.
       octx.globalCompositeOperation = 'destination-in';
       if (st.edge === 'soft') { octx.filter = 'blur(1px)'; }
-      octx.drawImage(mc, -ox * (st.maskW / tw), -oy * (st.maskH / th), tw * (st.maskW / tw), th * (st.maskH / th));
+      octx.drawImage(mc, -ox, -oy, tw, th);
       octx.filter = 'none';
       octx.globalCompositeOperation = 'source-over';
       const blob = await new Promise((res) => out.toBlob(res, 'image/png'));

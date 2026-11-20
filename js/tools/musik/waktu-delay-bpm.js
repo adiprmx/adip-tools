@@ -2,12 +2,14 @@ import { h as T } from '../../core.js';
 
 export const meta = {"id": "waktu-delay-bpm", "name": "Delay/Reverb Time dari BPM", "cat": "musik", "icon": "🎛️", "desc": "Waktu delay & reverb yang nempel sama BPM.", "keywords": "delay,reverb,bpm,waktu,ms,daw,tempo,musik,echo"};
 
-const ROWS = [
+export const ROWS = [
   ['1/2', 2],
+  ['1/4 dot', 1.5],
   ['1/4', 1],
   ['1/8 dot', 0.75],
+  ['1/4 trip', 2 / 3],
   ['1/8', 0.5],
-  ['1/8 trip', 2 / 3],
+  ['1/8 trip', 1 / 3],
   ['1/16', 0.25],
   ['1/32', 0.125],
 ];

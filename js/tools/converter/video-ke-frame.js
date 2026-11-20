@@ -67,8 +67,11 @@ export function render(root) {
     if (videoUrl) { URL.revokeObjectURL(videoUrl); videoUrl = null; }
     if (!fileObj) { T.hide(infoBox); return; }
     videoUrl = URL.createObjectURL(fileObj);
-    video.onloadedmetadata = () => {
-      duration = video.duration || 0;
+    const fDipilih = fileObj;
+    video.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(video);
+      if (fileObj !== fDipilih) return;
+      duration = d;
       vw = video.videoWidth || 0;
       vh = video.videoHeight || 0;
       const rencana = rencanaFrame(duration, parseFloat(jedaSel.value));
@@ -120,7 +123,8 @@ export function render(root) {
 
   const goBtn = T.btn('Ambil frame', async () => {
     if (busy) return;
-    if (!fileObj || !duration) { T.show(outBox, errBox('Pilih dulu file videonya.')); return; }
+    if (!fileObj) { T.show(outBox, errBox('Pilih dulu file videonya.')); return; }
+    if (!duration) { T.show(outBox, errBox('Durasi video tidak terbaca, jadi frame tidak bisa diambil. Coba file MP4 atau WebM lain.')); return; }
     busy = true;
     goBtn.disabled = true;
     cancelBtn.hidden = false;

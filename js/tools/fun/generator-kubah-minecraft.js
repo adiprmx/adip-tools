@@ -2,32 +2,78 @@ import { h as T, utils } from '../../core.js';
 
 export const meta = { id: 'generator-kubah-minecraft', name: 'Generator Kubah Minecraft', cat: 'fun', icon: '🕌', desc: 'Rencanakan kubah, menara bundar, atau atap kerucut Minecraft lapis per lapis, dengan tampilan 3D.', keywords: 'minecraft,kubah,dome,menara,kerucut,atap,blok,bangunan,lapis', since: '6.17.0' };
 
-// Lingkaran terisi radius r (blok).
-// isiLingkaran, tepiDariIsi kanonis tinggal di utils (core.js).
+// Lingkaran terisi diameter d blok (konvensi benar: grid d×d, blok terisi
+// bila titik tengahnya masuk lingkaran berjari-jari d/2). Pengganti lokal
+// untuk utils.isiLingkaran, yang konvensinya ((x+0.5)/(r+0.5)) mengecilkan
+// diameter ganjil 1 blok (d=11→10). Helper itu sudah dihapus dari core.js
+// di v6.21.0 (0 pemakai), jadi ketiga file Minecraft memakai konvensi
+// benarnya masing-masing.
+// tepiDariIsi kanonis tetap dipakai dari utils (core.js).
+function lingkaranDiameter(d) {
+  const sel = new Set();
+  const x0 = -Math.floor(d / 2);
+  for (let j = 0; j < d; j++) {
+    for (let i = 0; i < d; i++) {
+      const nx = (i - (d - 1) / 2) / (d / 2);
+      const ny = (j - (d - 1) / 2) / (d / 2);
+      if (nx * nx + ny * ny <= 1) sel.add((x0 + i) + ',' + (x0 + j));
+    }
+  }
+  return sel;
+}
 
 // Kubah setengah bola: lapis dari bawah (radius penuh) ke atas (mengecil).
 // diameter = lebar dasar. Kembalikan array lapis [{ lapis, sel, jumlah }].
+// Voxel terisi bila titik tengahnya masuk setengah bola berjari-jari d/2
+// dengan pusat di dasar — dasar kubah kini tepat d blok lebarnya (dulu
+// diameter ganjil jadi d-1 blok). Kulit = voxel bertetangga 6-arah di luar
+// kubah, kecuali arah bawah lapis dasar (kubah berdiri di tanah — lapis
+// dasar tetap cincin, bukan lantai padat).
 export function bangunKubah(diameter, isi) {
-  const R = (diameter - 1) / 2;
-  const tinggi = Math.ceil(diameter / 2);
-  const lapis = [];
-  for (let i = 0; i < tinggi; i++) {
-    const y = i + 0.5; // jarak dari dasar
-    const r = Math.sqrt(Math.max(0, R * R - (R - y) * (R - y) + (R - y) * 0));
-    // Profil setengah bola: radius pada ketinggian y dari pusat bola di dasar.
-    const yy = y - 0.5;
-    const rr = Math.sqrt(Math.max(0, (R + 0.5) * (R + 0.5) - yy * yy)) - 0.5;
-    const penuh = utils.isiLingkaran(Math.max(0, rr));
-    const pakai = isi ? penuh : utils.tepiDariIsi(penuh);
-    if (pakai.size) lapis.push({ lapis: lapis.length + 1, sel: pakai, jumlah: pakai.size });
-    void r;
+  const d = diameter, R = d / 2;
+  const x0 = -Math.floor(d / 2);
+  const yOff = d % 2 === 0 ? 0.5 : 0; // pusat y di dasar (ganjil) / di antara lapis (genap)
+  const nLapis = Math.ceil(d / 2);
+  const penuh = new Set();
+  for (let j = 0; j < nLapis; j++) {
+    const yc = j + yOff;
+    for (let k = 0; k < d; k++) {
+      for (let i = 0; i < d; i++) {
+        const nx = (i - (d - 1) / 2) / R;
+        const ny = yc / R;
+        const nz = (k - (d - 1) / 2) / R;
+        if (nx * nx + ny * ny + nz * nz <= 1) penuh.add((x0 + i) + ',' + j + ',' + (x0 + k));
+      }
+    }
   }
+  let pakai = penuh;
+  if (!isi) {
+    pakai = new Set();
+    penuh.forEach((v) => {
+      const [x, y, z] = v.split(',').map(Number);
+      const diDasar = y === 0;
+      if (!penuh.has((x + 1) + ',' + y + ',' + z) || !penuh.has((x - 1) + ',' + y + ',' + z) ||
+        !penuh.has(x + ',' + (y + 1) + ',' + z) || (!diDasar && !penuh.has(x + ',' + (y - 1) + ',' + z)) ||
+        !penuh.has(x + ',' + y + ',' + (z + 1)) || !penuh.has(x + ',' + y + ',' + (z - 1))) pakai.add(v);
+    });
+  }
+  const perLapis = new Map();
+  pakai.forEach((v) => {
+    const [x, y, z] = v.split(',').map(Number);
+    if (!perLapis.has(y)) perLapis.set(y, new Set());
+    perLapis.get(y).add(x + ',' + z);
+  });
+  const lapis = [];
+  [...perLapis.keys()].sort((a, b) => a - b).forEach((y) => {
+    const sel = perLapis.get(y);
+    lapis.push({ lapis: lapis.length + 1, sel, jumlah: sel.size });
+  });
   return lapis;
 }
 
 // Menara bundar: silinder setinggi n lapis + kubah di atasnya.
 export function bangunMenara(diameter, tinggiDinding, isi) {
-  const penuh = utils.isiLingkaran((diameter - 1) / 2);
+  const penuh = lingkaranDiameter(diameter);
   const dinding = isi ? penuh : utils.tepiDariIsi(penuh);
   const lapis = [];
   for (let i = 0; i < tinggiDinding; i++) lapis.push({ lapis: lapis.length + 1, sel: dinding, jumlah: dinding.size });
@@ -36,13 +82,13 @@ export function bangunMenara(diameter, tinggiDinding, isi) {
   return lapis;
 }
 
-// Atap kerucut: lingkaran mengecil linear sampai 1 blok.
+// Atap kerucut: lingkaran mengecil linear sampai 1 blok (diameter ganjil)
+// atau 2 blok (diameter genap).
 export function bangunKerucut(diameter, tinggi, isi) {
-  const R = (diameter - 1) / 2;
   const lapis = [];
   for (let i = 0; i < tinggi; i++) {
-    const r = R * (1 - i / tinggi);
-    const penuh = utils.isiLingkaran(Math.max(0, r));
+    const d = Math.max(1, Math.floor(diameter * (1 - i / tinggi)));
+    const penuh = lingkaranDiameter(d);
     const pakai = isi ? penuh : utils.tepiDariIsi(penuh);
     if (pakai.size) lapis.push({ lapis: lapis.length + 1, sel: pakai, jumlah: pakai.size });
   }

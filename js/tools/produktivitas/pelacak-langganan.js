@@ -2,6 +2,14 @@ import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"pelacak-langganan","name":"Pelacak Langganan","cat":"produktivitas","icon":"💳","desc":"Catat semua langganan bulananmu, lihat total per bulan & tahun, dan tahu mana yang paling menguras.","keywords":"langganan,subscription,biaya,bulanan,hemat,pengeluaran,streaming"};
 
+// Parse angka rupiah gaya Indonesia: titik = pemisah ribuan ("65.000"
+// jadi 65000, bukan 65), koma = pemisah desimal. Murni, bisa diuji di Node.
+export function parseRupiah(v) {
+  const s = String(v == null ? '' : v).replace(/[^0-9.,]/g, '');
+  const bersih = s.replace(/\./g, '').replace(',', '.');
+  return Math.round(Number(bersih) || 0);
+}
+
 export function render(root) {
   const KEY = 'adip-tools:langganan';
   let subs = [];
@@ -9,7 +17,7 @@ export function render(root) {
   if (!Array.isArray(subs)) subs = [];
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(subs)); } catch (e) {} };
   const uid = () => 's' + Date.now().toString(36) + Math.floor(Math.random() * 999);
-  const num = (v) => Math.round(Number(String(v).replace(/[^0-9.]/g, '')) || 0);
+  const num = parseRupiah;
 
   const sumBox = T.el('<div></div>');
   const box = T.el('<div></div>');
@@ -74,7 +82,7 @@ export function render(root) {
   };
 
   const nameInp = T.input('text', 'Nama langganan, mis. Netflix');
-  const costInp = T.input('text', 'Biaya per bulan, mis. 65000');
+  const costInp = T.input('text', 'Biaya per bulan, mis. 65.000');
   costInp.inputMode = 'decimal';
   const add = () => {
     const name = nameInp.value.trim();

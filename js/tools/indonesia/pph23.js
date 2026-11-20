@@ -57,7 +57,7 @@ export function render(root) {
     const labelPajak = r.final ? 'PPh final Pasal 4 ayat (2)' : 'PPh 23 yang dipotong';
     let catatan = '';
     if (r.jenis === 'dividen') catatan = 'Catatan: dividen yang diterima wajib pajak badan dalam negeri bukan objek pajak, dan dividen orang pribadi dikenai PPh final 10% yang bisa dibebaskan bila diinvestasikan (UU HPP). Tarif 15% di sini hanya untuk dividen yang masih menjadi objek PPh 23.';
-    else if (r.final) catatan = 'Sewa tanah dan bangunan tidak masuk PPh 23. Pajaknya PPh final 10% dari nilai sewa (PP 34/2016), dipotong penyewa bila penyewa ditunjuk sebagai pemotong.';
+    else if (r.final) catatan = 'Sewa tanah dan bangunan tidak masuk PPh 23. Pajaknya PPh final 10% dari nilai sewa (PP 34/2017), dipotong penyewa bila penyewa ditunjuk sebagai pemotong.';
     else if (!npwpSel.value || npwpSel.value === 'tidak') catatan = 'Penerima tanpa NPWP dikenai tarif 100% lebih tinggi, jadi ' + T.esc(String(tarifInput)) + '% menjadi ' + T.esc(String(r.tarif)) + '% (Pasal 23 ayat 1a UU PPh).';
     T.show(box,
       '<div class="big">' + T.rp(Math.round(r.pajak)) + '</div>' +

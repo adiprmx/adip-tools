@@ -5,6 +5,13 @@ export const meta = {"id": "waktu-masak-daging", "name": "Waktu Masak Daging", "
 // Patokan waktu dari panduan masak umum (USDA dan buku resep rumahan).
 // menitDasar: waktu minimum walau potongan kecil; menitPer500g: tambahan
 // per 500 gram. Suhu dalam adalah suhu aman minimum daging matang.
+// Batas aman USDA (FoodSafety.gov, diverifikasi 20 Nov 2026): daging
+// sapi/kambing/babi utuh (steak, panggang) minimal 63 derajat C (145
+// derajat F) + diamkan 3 menit; daging giling 71 derajat C; ayam 74
+// derajat C; ikan 63 derajat C. Suhu rare 52 derajat C dan medium 60
+// derajat C BERADA DI BAWAH batas aman USDA — hanya untuk potongan utuh
+// dari sumber terpercaya, dan tidak untuk anak, ibu hamil, atau lansia.
+export const SUHU_AMAN_USDA = 63;
 export const DAGING = {
   ayamUtuh: {
     label: 'Ayam utuh (panggang)', metode: 'Panggang di oven 200 derajat C',
@@ -95,10 +102,14 @@ export function render(root) {
     const r = hitungWaktuDaging(jenisSel.value, berat, matangSel.value);
     if (!r) { T.show(box, errBox('Jenis daging tidak dikenal.')); return; }
     const waktu = r.jam ? r.jam + ' jam ' + (r.sisaMenit ? r.sisaMenit + ' menit' : '') : r.menit + ' menit';
+    const diBawahAman = r.suhuDalam < SUHU_AMAN_USDA;
     T.show(box,
       '<div class="big center">' + waktu + '</div>' +
       kv('Cara masak', T.esc(r.metode)) +
       kv('Suhu dalam daging', 'Minimal ' + r.suhuDalam + ' derajat C (cek pakai termometer dapur)') +
+      (diBawahAman
+        ? '<p class="warn" style="margin-top:10px">Hati-hati: suhu ini di bawah batas aman USDA ' + SUHU_AMAN_USDA + ' derajat C (145 derajat F, diamkan 3 menit). Daging setengah matang seperti ini hanya untuk potongan utuh (steak/panggang) dari sumber terpercaya — bakteri hanya di permukaan dan mati saat daging disear. Jangan untuk daging giling, anak-anak, ibu hamil, atau lansia. Sumber: FoodSafety.gov (USDA).</p>'
+        : '') +
       '<p class="dim" style="font-size:13px;line-height:1.6;margin:10px 0 0">' + T.esc(r.catatan) + ' Angka ini patokan umum, ukuran potongan dan oven bisa mengubah hasilnya.</p>');
   };
 

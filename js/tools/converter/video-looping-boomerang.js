@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
 export const meta = {"id": "video-looping-boomerang", "name": "Video Looping/Boomerang", "cat": "converter", "icon": "🔁", "desc": "Ulangi video berkali-kali, atau buat maju mundur.", "keywords": "video,loop,boomerang,ulang,maju mundur,repeat", "since": "6.17.0"};
@@ -6,7 +6,7 @@ export const meta = {"id": "video-looping-boomerang", "name": "Video Looping/Boo
 // Durasi hasil dari durasi awal. Mode 'loop' mengulang sejumlah n kali,
 // mode 'boomerang' maju sekali lalu mundur sekali. Murni, bisa diuji di Node.
 export function durasiHasilLoop(durasi, mode, jumlah) {
-  if (!durasi) return 0;
+  if (!Number.isFinite(durasi) || durasi <= 0) return 0;
   if (mode === 'boomerang') return durasi * 2;
   return durasi * Math.max(1, jumlah || 1);
 }
@@ -64,9 +64,12 @@ export function render(root) {
     if (!fileObj) { T.hide(infoBox); return; }
     const url = URL.createObjectURL(fileObj);
     const v = document.createElement('video');
+    const fDipilih = fileObj;
     v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      duration = v.duration || 0;
+    v.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(v);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       URL.revokeObjectURL(url);
       refreshInfo();
     };

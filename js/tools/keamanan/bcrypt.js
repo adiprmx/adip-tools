@@ -48,12 +48,14 @@ export function render(root) {
     root.appendChild(wrap);
     T.hide(wrap);
 
-    T.loadScript(CDN).then((ok) => {
+    // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk, hanya
+    // sukses yang di-cache sehingga tombol "Coba Lagi" tetap bisa jalan.
+    utils.loadLibOnce(CDN, () => !!B()).then((ok) => {
       if (!ok || !B()) {
         status.innerHTML = '<span class="err">⚠️ Alat bcrypt tidak bisa dimuat, cek koneksi internet kamu.</span>';
         const retry = T.btn('🔄 Coba Lagi', () => {
           status.innerHTML = '<span class="dim">⏳ Menyiapkan alat bcrypt…</span>';
-          T.loadScript(CDN).then((ok2) => {
+          utils.loadLibOnce(CDN, () => !!B()).then((ok2) => {
             if (!ok2 || !B()) {
               status.innerHTML = '<span class="err">⚠️ Masih gagal. Coba lagi nanti.</span>';
               status.appendChild(retry);

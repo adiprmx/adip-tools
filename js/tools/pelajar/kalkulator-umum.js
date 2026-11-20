@@ -211,7 +211,11 @@ function evaluate(expr, deg) {
     if (!isFinite(v)) return { ok: false, error: 'Hasilnya terlalu besar untuk ditampilkan.' };
     return { ok: true, value: v };
   } catch (e) {
-    return { ok: false, error: 'Ada yang belum beres di hitungannya.' };
+    // Teruskan pesan spesifik yang dilempar parser/evaluator (semuanya kalimat
+    // Indonesia ramah yang diakhiri titik). Pesan mesin (tanpa titik akhir)
+    // tetap diganti pesan umum supaya tidak muncul istilah teknis.
+    const m = e && typeof e.message === 'string' ? e.message : '';
+    return { ok: false, error: /\.$/.test(m) ? m : 'Ada yang belum beres di hitungannya.' };
   }
 }
 

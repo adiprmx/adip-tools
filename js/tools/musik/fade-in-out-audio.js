@@ -6,7 +6,7 @@ export const meta = {"id": "fade-in-out-audio", "name": "Fade In/Out Audio", "ca
 /* Susun filter afade ffmpeg. Fade dijaga supaya totalnya tidak melebihi
    durasi (tiap fade maksimal setengah durasi). Fungsi murni, diuji di Node. */
 export function buildFadeFilter(duration, fadeIn, fadeOut) {
-  const dur = Math.max(0, duration || 0);
+  const dur = utils.durasiAman(duration);
   const fi = Math.max(0, Math.min(fadeIn || 0, dur / 2));
   const fo = Math.max(0, Math.min(fadeOut || 0, dur / 2));
   const parts = [];
@@ -58,7 +58,7 @@ export function render(root) {
     try {
       const ab = await fileObj.arrayBuffer();
       const decoded = await T.actx().decodeAudioData(ab);
-      duration = decoded.duration || 0;
+      duration = utils.durasiAman(decoded.duration);
     } catch (e) { duration = 0; }
     return duration;
   };
@@ -128,8 +128,11 @@ export function render(root) {
     const url = URL.createObjectURL(fileObj);
     const a = document.createElement('audio');
     a.preload = 'metadata';
-    a.onloadedmetadata = () => {
-      duration = a.duration || 0;
+    const fDipilih = fileObj;
+    a.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(a);
+      if (fileObj !== fDipilih) { URL.revokeObjectURL(url); return; }
+      duration = d;
       T.show(infoBox,
         kv('File', T.esc(fileObj.name)) +
         kv('Durasi', duration ? duration.toFixed(1) + ' detik' : 'tidak terbaca') +

@@ -6,7 +6,10 @@ import { h as T, esc, utils } from '../../core.js';
 // 20 tahun = 20 pack-year; 2 bungkus sehari selama 10 tahun = 20 pack-year.
 // Penggolongan yang umum dipakai: di bawah 10 ringan, 10-20 sedang,
 // di atas 20 berat. Ambang 20 pack-year dipakai sebagai salah satu syarat
-// skrining kanker paru (USPSTF: umur 50-80 tahun, 20 pack-year atau lebih).
+// skrining kanker paru (USPSTF 2021, JAMA 325(10):962-970: umur 50-80
+// tahun, 20 pack-year atau lebih, DAN masih merokok atau berhenti dalam
+// 15 tahun terakhir — kualifikasi berhenti ≤15 tahun wajib disebut,
+// diverifikasi Q5 v6.21.0 dari uspreventiveservicestaskforce.org).
 export function packYear(batangPerHari, tahun, isiBungkus) {
   const isi = isiBungkus || 20;
   return (batangPerHari / isi) * tahun;
@@ -57,7 +60,7 @@ export function render(root) {
       '<div class="kv"><span class="k">Di atas 20</span><span class="v">Berat' + (py > 20 ? ' <b>&larr; kamu di sini</b>' : '') + '</span></div>' +
       '<p class="hint">Pack-year hanya mengukur jumlah rokok, BUKAN diagnosis. Risiko penyakit juga dipengaruhi umur mulai merokok, jenis rokok, riwayat keluarga, dan paparan lain. ' +
       'Berhenti merokok kapan pun tetap menurunkan risiko, dan manfaatnya mulai terasa dalam hitungan minggu. ' +
-      'Bila pack-year-mu 20 atau lebih dan umurmu 50 tahun ke atas, tanyakan ke dokter soal skrining kanker paru. ' +
+      'Bila pack-year-mu 20 atau lebih, umurmu 50-80 tahun, dan kamu masih merokok atau baru berhenti kurang dari 15 tahun, tanyakan ke dokter soal skrining kanker paru. ' +
       'Butuh bantuan berhenti? Ceritakan ke dokter atau layanan berhenti merokok di puskesmas terdekat.</p>');
   };
 

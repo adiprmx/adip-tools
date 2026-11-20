@@ -90,8 +90,8 @@ export function render(root) {
         const kartu = T.el('<div style="border:1px solid #2a2a2a;border-radius:10px;padding:10px;margin-bottom:12px;background:#111"></div>');
         const barisNama = (nama, skor, sisi) => {
           const s = T.el('<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;padding:4px 0"></div>');
-          const namaEl = T.el(`<span>${nama || '<span style="color:#666">Bye</span>'}</span>`);
-          if (m.pemenang && m.pemenang === nama) namaEl.innerHTML = '<b>' + nama + ' ✓</b>';
+          const namaEl = T.el(`<span>${nama ? T.esc(nama) : '<span style="color:#666">Bye</span>'}</span>`);
+          if (m.pemenang && m.pemenang === nama) namaEl.innerHTML = '<b>' + T.esc(nama) + ' ✓</b>';
           s.appendChild(namaEl);
           if (nama) {
             const inp = T.input('text', '', skor);
@@ -107,6 +107,10 @@ export function render(root) {
         if (m.a && m.b && !m.pemenang) {
           kartu.appendChild(T.btn('Simpan skor', () => {
             const sa = T.num(m.skorA), sb = T.num(m.skorB);
+            // Skor kosong/bukan angka = NaN; tanpa cek ini, NaN > NaN false
+            // sehingga peserta B diam-diam diloloskan. Tolak dulu.
+            if (!Number.isFinite(sa) || !Number.isFinite(sb)) { T.toast('Isi dulu skor kedua tim dengan angka'); return; }
+            if (sa < 0 || sb < 0) { T.toast('Skor tidak boleh minus'); return; }
             if (sa === sb) { T.toast('Skor seri, isi skor yang berbeda untuk menentukan pemenang'); return; }
             m.pemenang = sa > sb ? m.a : m.b;
             utils.lanjutBagan(state);
@@ -131,7 +135,7 @@ export function render(root) {
     });
     wadah.appendChild(flex);
     T.show(box, juara
-      ? `<div class="note">🏆 Juara turnamen: <b>${juara}</b></div>`
+      ? `<div class="note">🏆 Juara turnamen: <b>${T.esc(juara)}</b></div>`
       : `<div class="hint">Isi skor tiap pertandingan lalu tekan Simpan skor. Pemenang otomatis maju ke babak berikutnya. Bagan tersimpan di HP ini.</div>`);
   }
 

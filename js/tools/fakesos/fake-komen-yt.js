@@ -5,7 +5,7 @@ export const meta = {
   name: 'Fake Komen YouTube',
   cat: 'fakesos',
   icon: '<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81zM9.55 15.57V8.43L15.82 12l-6.27 3.57z"/></svg>',
-  desc: 'Bikin screenshot komentar YouTube palsu + unduh PNG.',
+  desc: 'Bikin screenshot komentar YouTube palsu, satu atau daftar + unduh PNG.',
   keywords: 'youtube,komen,komentar,fake,palsu,screenshot,prank',
 };
 
@@ -21,6 +21,25 @@ const ICO_DISLIKE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"
 const ICO_PIN = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z"/></svg>';
 
 // avaColor kanonis tinggal di utils (core.js).
+
+const SAMPLE_LIST =
+  'Adip RMX | 2 jam yang lalu | Akhirnya nemu channel yang ngebahas ini dengan jelas. Auto subscribe! 🔥 | 1,2 rb\n' +
+  'Rizky | 1 jam yang lalu | Setuju banget, penjelasannya gampang diikuti | 856\n' +
+  'Dina | 45 menit yang lalu | Baru nonton sampai tengah, udah ketagihan | 214';
+
+/* Format daftar: satu baris = satu komentar, "Nama | waktu | isi | likes".
+   Likes boleh kosong. Baris yang tidak lengkap dilewati. */
+export function parseKomenList(text) {
+  const out = [];
+  String(text).split('\n').forEach((raw) => {
+    const parts = raw.split('|').map((s) => s.trim());
+    if (parts.length < 3) return;
+    const nama = parts[0], waktu = parts[1], teks = parts[2];
+    if (!nama || !teks) return;
+    out.push({ nama, waktu, teks, likes: parts[3] || '' });
+  });
+  return out;
+}
 
 export function render(root) {
   const wrap = T.el('<div class="fy-wrap"></div>');
@@ -65,6 +84,8 @@ export function render(root) {
   const pinI = T.select([['tidak', 'Tidak'], ['ya', '📌 Disematkan']], 'tidak');
   const pinByI = T.input('text', 'Nama channel yang menyematkan', 'Adip RMX');
   const themeI = T.select([['gelap', 'Gelap'], ['terang', 'Terang']], 'gelap');
+  const modeI = T.select([['satu', 'Satu komentar'], ['daftar', 'Daftar komentar']], 'satu');
+  const listI = T.ta(6, 'Satu baris = satu komentar. Format: Nama | waktu | isi | likes', SAMPLE_LIST);
 
   const fi = fileInput('image/*');
   let imgUrl = null;
@@ -75,31 +96,39 @@ export function render(root) {
   };
 
   const ctl = T.el('<div class="fy-ctl"></div>');
-  ctl.appendChild(T.field('Nama channel', nameI));
-  ctl.appendChild(T.field('Badge verified', verI));
-  ctl.appendChild(T.field('Waktu', timeI, 'cth: 2 jam yang lalu, 3 hari yang lalu'));
-  ctl.appendChild(T.field('Komentar', textI));
+  const singleWrap = T.el('<div class="fy-ctl"></div>');
+  const listWrap = T.el('<div class="fy-ctl"></div>');
+  singleWrap.appendChild(T.field('Nama channel', nameI));
+  singleWrap.appendChild(T.field('Badge verified', verI));
+  singleWrap.appendChild(T.field('Waktu', timeI, 'cth: 2 jam yang lalu, 3 hari yang lalu'));
+  singleWrap.appendChild(T.field('Komentar', textI));
   const mrow = T.el('<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>');
   mrow.appendChild(T.field('Jumlah like', likeI));
   mrow.appendChild(T.field('Jumlah balasan', repI));
-  ctl.appendChild(mrow);
-  ctl.appendChild(T.field('Disukai oleh kreator', heartI));
-  ctl.appendChild(T.field('Disematkan', pinI));
+  singleWrap.appendChild(mrow);
+  singleWrap.appendChild(T.field('Disukai oleh kreator', heartI));
+  singleWrap.appendChild(T.field('Disematkan', pinI));
   const pinByField = T.field('Disematkan oleh channel', pinByI, 'Hanya tampil bila "Disematkan" dipilih.');
-  ctl.appendChild(pinByField);
+  singleWrap.appendChild(pinByField);
+  listWrap.appendChild(T.field('Daftar komentar (satu baris = satu)', listI, 'Format tiap baris: Nama | waktu | isi komentar | likes. Likes boleh kosong.'));
+  ctl.appendChild(T.field('Mode', modeI));
+  ctl.appendChild(singleWrap);
+  ctl.appendChild(listWrap);
   ctl.appendChild(T.field('Tema', themeI));
   wrap.appendChild(ctl);
 
   const btns = T.el('<div class="fy-btns"></div>');
   const card = T.el('<div class="fy-card"></div>');
 
-  btns.appendChild(T.btn('🖼️ Pilih avatar', () => fi.click()));
-  btns.appendChild(T.btn('✕ Hapus avatar', () => { imgUrl = null; draw(); }));
+  const btnAv = T.btn('🖼️ Pilih avatar', () => fi.click());
+  const btnDelAv = T.btn('✕ Hapus avatar', () => { imgUrl = null; draw(); });
+  btns.appendChild(btnAv);
+  btns.appendChild(btnDelAv);
   btns.appendChild(T.btn('🎲 Contoh', () => {
     nameI.value = 'Adip RMX'; verI.value = 'ya'; timeI.value = '2 jam yang lalu';
     textI.value = 'Akhirnya nemu channel yang ngebahas ini dengan jelas. Auto subscribe! 🔥';
     likeI.value = '1,2 rb'; repI.value = '18'; heartI.value = 'ya'; pinI.value = 'tidak';
-    pinByI.value = 'Adip RMX'; themeI.value = 'gelap';
+    pinByI.value = 'Adip RMX'; themeI.value = 'gelap'; listI.value = SAMPLE_LIST;
     draw(); T.scrollToPreview(card);
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(card, 'fake-komen-yt.png'), true));
@@ -116,6 +145,36 @@ export function render(root) {
   function draw() {
     const th = THEMES[themeI.value] || THEMES.gelap;
     pinByField.style.display = pinI.value === 'ya' ? '' : 'none';
+    const listMode = modeI.value === 'daftar';
+    singleWrap.style.display = listMode ? 'none' : '';
+    listWrap.style.display = listMode ? '' : 'none';
+    btnAv.style.display = listMode ? 'none' : '';
+    btnDelAv.style.display = listMode ? 'none' : '';
+    card.setAttribute('style', '--fy-bg:' + th.bg + ';--fy-fg:' + th.fg + ';--fy-muted:' + th.muted + ';--fy-chip:' + th.chip);
+    const prankHtml = '<div class="fy-pranktag-wrap"><span class="fy-pranktag">palsu · cuma prank</span></div>';
+    if (listMode) {
+      const items = parseKomenList(listI.value);
+      if (!items.length) {
+        card.innerHTML = '<div style="padding:20px 16px"><p class="center mut" style="font-size:13px;margin:0">Belum ada komentar. Isi daftarnya, satu baris satu komentar.</p></div>' + prankHtml;
+        return;
+      }
+      card.innerHTML = items.map((c) => {
+        const initial = T.esc((c.nama.charAt(0) || '?').toUpperCase());
+        return '<div class="fy-cmt">' +
+          '<div class="fy-ava" style="background:' + utils.avaColor(c.nama) + '">' + initial + '</div>' +
+          '<div class="fy-main">' +
+          '<div class="fy-top"><span class="fy-name">' + T.esc(c.nama) + '</span>' +
+          '<span class="fy-time">' + T.esc(c.waktu || 'baru saja') + '</span></div>' +
+          '<p class="fy-text">' + T.esc(c.teks) + '</p>' +
+          '<div class="fy-act">' +
+            '<span class="fy-a">' + ICO_LIKE + '</span><span class="fy-like">' + T.esc(c.likes || '0') + '</span>' +
+            '<span class="fy-a">' + ICO_DISLIKE + '</span>' +
+            '<span class="fy-reply">Balas</span>' +
+          '</div>' +
+          '</div></div>';
+      }).join('') + prankHtml;
+      return;
+    }
     const name = nameI.value.trim() || 'Channel';
     const initial = T.esc(name.charAt(0).toUpperCase() || '?');
     const ava = imgUrl
@@ -132,7 +191,6 @@ export function render(root) {
     const repRow = repN && repN !== '0'
       ? '<div class="fy-repcount"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>' + T.esc(repN) + ' balasan</div>'
       : '';
-    card.setAttribute('style', '--fy-bg:' + th.bg + ';--fy-fg:' + th.fg + ';--fy-muted:' + th.muted + ';--fy-chip:' + th.chip);
     card.innerHTML =
       '<div class="fy-cmt">' +
         ava +
@@ -150,10 +208,10 @@ export function render(root) {
         '</div>' +
       '</div>' +
       repRow +
-      '<div class="fy-pranktag-wrap"><span class="fy-pranktag">palsu · cuma prank</span></div>';
+      prankHtml;
   }
 
-  [nameI, verI, timeI, textI, likeI, repI, heartI, pinI, pinByI, themeI].forEach((elx) => {
+  [nameI, verI, timeI, textI, likeI, repI, heartI, pinI, pinByI, themeI, modeI, listI].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

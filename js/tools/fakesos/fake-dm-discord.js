@@ -132,6 +132,7 @@ export function render(root) {
 
   const ctl = T.el('<div class="fdd-ctl"></div>');
   const inNameA = T.input('text', 'Username lawan', 'rizky.png');
+  const inHandleA = T.input('text', '@handle lawan (opsional)', '');
   const inNameB = T.input('text', 'Username sendiri', 'adip.rmx');
   const selStatus = T.select([['online', 'Online (hijau)'], ['idle', 'Idle (kuning)'], ['dnd', 'Do Not Disturb (merah)'], ['offline', 'Offline (abu-abu)']], 'online');
   const selTheme = T.select([['gelap', 'Gelap (Dark)'], ['onyx', 'Onyx (hitam pekat)'], ['terang', 'Terang']], 'gelap');
@@ -150,6 +151,7 @@ export function render(root) {
   fiB.addEventListener('change', () => { if (fiB.files && fiB.files[0]) { avB = URL.createObjectURL(fiB.files[0]); draw(); } });
 
   ctl.appendChild(T.field('Username lawan', inNameA));
+  ctl.appendChild(T.field('@handle lawan', inHandleA, 'Tampil sebagai @handle di blok sambutan dan kolom kirim pesan. Kosongkan bila sama dengan username.'));
   ctl.appendChild(T.field('Username sendiri', inNameB));
   ctl.appendChild(T.field('Status lawan', selStatus));
   ctl.appendChild(T.field('Tema', selTheme));
@@ -166,7 +168,7 @@ export function render(root) {
 
   const btnRow = T.row(
     T.btn('🎲 Contoh', () => {
-      inNameA.value = 'rizky.png'; inNameB.value = 'adip.rmx'; selStatus.value = 'online';
+      inNameA.value = 'rizky.png'; inHandleA.value = ''; inNameB.value = 'adip.rmx'; selStatus.value = 'online';
       selTheme.value = 'gelap'; inDiv.value = '15 November 2026'; selWelcome.value = '1';
       taMsg.value = SAMPLE; avA = null; avB = null;
       draw(); T.scrollToPreview(phone);
@@ -181,6 +183,7 @@ export function render(root) {
     brandField.style.display = isIPh ? 'none' : '';
     const nameA = inNameA.value.trim() || 'user';
     const nameB = inNameB.value.trim() || 'aku';
+    const handleA = inHandleA.value.trim().replace(/^@+/, '') || nameA;
     const st = STATUS[selStatus.value] || STATUS.online;
     const divTxt = inDiv.value.trim();
     const showWelcome = selWelcome.value === '1';
@@ -194,8 +197,8 @@ export function render(root) {
       chatHtml += '<div class="fdd-welcome">' +
         '<div class="fdd-wav" style="background:' + utils.avaColor(nameA) + '">' + avHtmlA + '</div>' +
         '<p class="fdd-wname" style="color:' + th.name + '">' + T.esc(nameA) + '</p>' +
-        '<p class="fdd-whandle" style="color:' + th.muted + '">@' + T.esc(nameA) + '</p>' +
-        '<p class="fdd-wtext" style="color:' + th.muted + '">Ini awal riwayat DM kamu dengan <b style="color:' + th.name + '">@' + T.esc(nameA) + '</b>.</p>' +
+        '<p class="fdd-whandle" style="color:' + th.muted + '">@' + T.esc(handleA) + '</p>' +
+        '<p class="fdd-wtext" style="color:' + th.muted + '">Ini awal riwayat DM kamu dengan <b style="color:' + th.name + '">@' + T.esc(handleA) + '</b>.</p>' +
         '</div>';
     }
     if (divTxt) chatHtml += '<div class="fdd-div"><span style="color:' + th.muted + '">' + T.esc(divTxt) + '</span></div>';
@@ -233,7 +236,7 @@ export function render(root) {
     const ibarHtml = '<div class="fdd-ibar" style="background:' + th.bg + '">' +
       '<span class="fdd-plus">' + SVG_PLUS + '</span>' +
       '<div class="fdd-pill" style="background:' + th.inputBg + '">' +
-      '<span class="fdd-ph" style="color:' + th.inputPh + '">Kirim pesan ke @' + T.esc(nameA) + '</span>' +
+      '<span class="fdd-ph" style="color:' + th.inputPh + '">Kirim pesan ke @' + T.esc(handleA) + '</span>' +
       '<span class="fdd-tic" style="color:' + th.muted + '">' + SVG_GIFT + '</span>' +
       '<span class="fdd-tic" style="color:' + th.muted + ';font-weight:700;font-size:13px">GIF</span>' +
       '<span class="fdd-tic" style="color:' + th.muted + '">' + SVG_EMOJI + '</span></div>' +
@@ -255,7 +258,7 @@ export function render(root) {
     phone.innerHTML = sbHtml + hdHtml + '<div class="fdd-chat">' + chatHtml + '</div>' + ibarHtml + tabHtml + '<div class="fdd-pranktag-wrap" style="background:' + th.navBg + '"><span class="fdd-pranktag">palsu · cuma prank</span></div>';
   }
 
-  [inNameA, inNameB, selStatus, selTheme, selPlatform, selBrand, inDiv, selWelcome, taMsg].forEach((el) => {
+  [inNameA, inHandleA, inNameB, selStatus, selTheme, selPlatform, selBrand, inDiv, selWelcome, taMsg].forEach((el) => {
     el.addEventListener('input', draw);
     el.addEventListener('change', draw);
   });

@@ -1,4 +1,4 @@
-import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js';
+import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js';
 
 export const meta = {"id": "blur-foto", "name": "Blur Foto (Sensor)", "cat": "gambar", "icon": "🫣", "desc": "Sensor area foto (NIK, wajah, plat nomor), atau blur latar potret otomatis.", "keywords": "blur,sensor,foto,pixel,privasi,latar,potret,nik,ktp,dokumen,kotak hitam"};
 export function render(root) {
@@ -230,10 +230,10 @@ export function render(root) {
     async function loadFace() {
       if (fd) return fd;
       if (!fdSiap) {
-        fdSiap = Promise.race([
-          T.loadScript(FD_CDN).then((ok) => ok && !!window.FaceDetection),
-          new Promise((res) => setTimeout(() => res(false), 60000)),
-        ]).then((ok) => { if (!ok) fdSiap = null; return ok; });
+        // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
+        // Gagal tidak di-cache (fdSiap di-reset) supaya tombol proses bisa coba lagi.
+        fdSiap = utils.loadLibOnce(FD_CDN, () => !!window.FaceDetection)
+          .then((ok) => { if (!ok) fdSiap = null; return ok; });
       }
       const ok = await fdSiap;
       if (!ok) throw new Error('cdn');
@@ -297,12 +297,10 @@ export function render(root) {
     async function loadSeg() {
       if (seg) return seg;
       if (!mpSiap) {
-        // timeout 60 dtk: script CDN yang nyangkut tidak boleh menggantung selamanya.
+        // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
         // Gagal tidak di-cache (mpSiap di-reset) supaya tombol proses bisa coba lagi.
-        mpSiap = Promise.race([
-          T.loadScript(MP_CDN).then((ok) => ok && !!window.SelfieSegmentation),
-          new Promise((res) => setTimeout(() => res(false), 60000)),
-        ]).then((ok) => { if (!ok) mpSiap = null; return ok; });
+        mpSiap = utils.loadLibOnce(MP_CDN, () => !!window.SelfieSegmentation)
+          .then((ok) => { if (!ok) mpSiap = null; return ok; });
       }
       const ok = await mpSiap;
       if (!ok) throw new Error('cdn');

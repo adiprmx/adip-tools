@@ -51,7 +51,7 @@ function buatSoal() {
     jawab = deret[5];
     pola = 'Gabungan 2 pola';
     bahas = 'Polanya bergantian: tambah ' + t + ' lalu kali ' + k + '. ' +
-      deret[4] + ' adalah suku ke-5, langkah berikutnya kali ' + k + ' → ' + deret[4] + ' × ' + k + ' = ' + jawab + '.';
+      'Suku ke-5 (' + deret[4] + ') didapat dari ' + deret[3] + ' × ' + k + ', langkah berikutnya tambah ' + t + ' → ' + deret[4] + ' + ' + t + ' = ' + jawab + '.';
   }
   return { tampil: deret.slice(0, 5), jawab, pola, bahas };
 }

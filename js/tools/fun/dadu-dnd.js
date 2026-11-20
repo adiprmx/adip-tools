@@ -5,7 +5,7 @@ import { h as T } from '../../core.js';
 // (advantage), 2d20kl1 (disadvantage), 1d20+5, 3d6-2, 2d6+1d4+3.
 // Ada juga pembuat skor ability (4d6 buang yang terendah, 6 skor) dan
 // serangan tersimpan.
-export const meta = {"id": "dadu-dnd", "name": "Dadu D&D", "cat": "fun", "icon": "🎲", "desc": "Lempar dadu D&D dengan notasi lengkap, advantage, dan skor ability.", "keywords": "dadu dnd,dice roller d&d,4d6kh3,advantage,disadvantage,ability score,d20,lempar dadu", "since": "6.18.0"};
+export const meta = {"id": "dadu-dnd", "name": "Dadu D&D", "cat": "fun", "icon": "🎲", "desc": "Lempar dadu D&D dengan notasi lengkap, advantage, dan skor ability. Ada mode lempar cepat tanpa ketik notasi.", "keywords": "dadu dnd,dice roller d&d,4d6kh3,advantage,disadvantage,ability score,d20,lempar dadu,dadu,acak,random", "since": "6.18.0"};
 
 const LS_KEY = 'adip-tools:dadu-dnd-serangan';
 
@@ -70,6 +70,17 @@ export function lemparNotasi(notasi, rng) {
     });
   });
   return { total, mod: urai.mod, rincian };
+}
+
+// Mode simpel (diserap dari dice, v6.21.0): jumlah 1-6 + sisi d4-d20
+// jadi notasi "NdS", dilempar lewat mesin notasi yang sama (riwayat +
+// bunyi ikut jalan). Kembalikan null bila di luar pilihan.
+export const SISI_SIMPEL = [4, 6, 8, 10, 12, 20];
+export function notasiSimpel(jumlah, sisi) {
+  const n = Number(jumlah), s = Number(sisi);
+  if (!Number.isInteger(n) || n < 1 || n > 6) return null;
+  if (!SISI_SIMPEL.includes(s)) return null;
+  return n + 'd' + s;
 }
 
 // Modifier skor ability D&D: (skor - 10) / 2 dibulatkan ke bawah.
@@ -163,7 +174,21 @@ export function render(root) {
 
   notasiI.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); lempar(); } });
 
+  // ---- Lempar cepat (mode simpel): tanpa ketik notasi ----
+  const jmlSimpel = T.select([['1', '1 dadu'], ['2', '2 dadu'], ['3', '3 dadu'], ['4', '4 dadu'], ['5', '5 dadu'], ['6', '6 dadu']], '2');
+  const sisiSimpel = T.select(SISI_SIMPEL.map((s) => [String(s), 'd' + s]), '6');
+  const lemparCepat = () => {
+    const n = notasiSimpel(jmlSimpel.value, sisiSimpel.value);
+    if (!n) return;
+    notasiI.value = n;
+    lempar();
+  };
+
   root.appendChild(T.el('<p class="note">Tulis notasi dadumu. kh = ambil yang tertinggi, kl = ambil yang terendah. Contoh: 4d6kh3, 2d20kh1 (advantage), 2d20kl1 (disadvantage), 1d20+5.</p>'));
+  root.appendChild(T.el('<div class="dim" style="margin:4px 0"><b>Lempar cepat</b> <span class="hint">tanpa ketik notasi</span></div>'));
+  root.appendChild(T.grid2(T.field('Jumlah dadu', jmlSimpel), T.field('Sisi dadu', sisiSimpel)));
+  root.appendChild(T.row(T.btn('Lempar cepat', lemparCepat, true)));
+  root.appendChild(T.el('<div class="dim" style="margin:16px 0 4px"><b>Lempar pakai notasi</b></div>'));
   root.appendChild(T.field('Notasi dadu', notasiI));
   root.appendChild(T.row(T.btn('Lempar', lempar, true), T.btn('Advantage (2d20kh1)', () => { notasiI.value = '2d20kh1'; lempar(); }), T.btn('Disadvantage (2d20kl1)', () => { notasiI.value = '2d20kl1'; lempar(); })));
   root.appendChild(box);

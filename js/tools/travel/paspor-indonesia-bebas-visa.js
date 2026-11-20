@@ -1,7 +1,15 @@
 import { h as T } from '../../core.js';
 
 // Data: Wikipedia "Visa requirements for Indonesian citizens" (merujuk
-// Henley Passport Index & Timatic), diambil & diparse 18 Nov 2026.
+// Henley Passport Index & Timatic), diambil & diparse 18 Nov 2026,
+// dicek ulang 20 Nov 2026.
+// Vietnam: 14 hari BENAR — dulu 30 hari, dipotong jadi 14 hari sejak
+// 15 Juli 2026 (wisata/kunjungan keluarga saja), diumumkan KBRI Hanoi &
+// dikonfirmasi Safe Travel Kemlu. Banyak situs lama masih menulis 30 hari.
+// Henley Passport Index 2026: 70 destinasi (bebas visa + VOA). Hitungan
+// halaman ini (41 bebas + 25 VOA = 66 negara, + 5 wilayah bebas visa = 71)
+// sedikit berbeda karena daftar destinasi Henley tidak persis sama dengan
+// daftar di sini — keduanya ditampilkan apa adanya, bukan disamakan paksa.
 // Format: [nama, status, lama tinggal, catatan]
 // status: bebas = bebas visa, voa = visa on arrival,
 //         evisa = eVisa/izin online, visa = butuh visa.
@@ -27,7 +35,7 @@ const NEGARA = [
   ['Thailand', 'bebas', '60 hari'], ['Timor-Leste', 'bebas', '30 hari'],
   ['Tunisia', 'bebas', '30 hari'], ['Turkey', 'bebas', '30 hari'],
   ['Uzbekistan', 'bebas', '30 hari'], ['Venezuela', 'bebas', '90 hari'],
-  ['Vietnam', 'bebas', '14 hari'],
+  ['Vietnam', 'bebas', '14 hari', 'Dulu 30 hari; sejak 15 Juli 2026 jadi 14 hari (wisata/kunjungan keluarga)'],
   ['Armenia', 'voa', '120 hari', 'eVisa juga tersedia'],
   ['Azerbaijan', 'voa', '30 hari', 'eVisa juga tersedia'],
   ['Bahrain', 'voa', '14 hari', 'eVisa juga tersedia'],
@@ -213,10 +221,10 @@ export function render(root) {
 
   cariI.addEventListener('input', tampil);
 
-  root.appendChild(T.el('<p class="note">Pemegang paspor Indonesia bisa masuk <b>' + hitung('bebas') + ' negara tanpa visa</b>, <b>' + hitung('voa') + ' negara dengan visa on arrival</b>, dan <b>' + hitung('evisa') + ' negara dengan eVisa</b> — dari ' + NEGARA.length + ' negara yang didata. Menurut Henley Passport Index 2026, paspor Indonesia bisa masuk 70 destinasi tanpa visa atau visa on arrival (peringkat 63 dunia).</p>'));
+  root.appendChild(T.el('<p class="note">Pemegang paspor Indonesia bisa masuk <b>' + hitung('bebas') + ' negara tanpa visa</b>, <b>' + hitung('voa') + ' negara dengan visa on arrival</b>, dan <b>' + hitung('evisa') + ' negara dengan eVisa</b> — dari ' + NEGARA.length + ' negara yang didata. Menurut Henley Passport Index 2026, totalnya 70 destinasi tanpa visa atau visa on arrival (termasuk wilayah seperti Hong Kong dan Makau). Hitungan di halaman ini sedikit berbeda (' + (hitung('bebas') + hitung('voa')) + ' negara + ' + WILAYAH.filter((e) => e[1] === 'bebas').length + ' wilayah = ' + (hitung('bebas') + hitung('voa') + WILAYAH.filter((e) => e[1] === 'bebas').length) + ') karena daftar destinasi Henley tidak persis sama dengan daftar di sini.</p>'));
   root.appendChild(T.field('Cari negara', cariI));
   root.appendChild(chips);
   root.appendChild(daftar);
-  root.appendChild(T.el('<p class="hint">Data 18 November 2026 — sumber Wikipedia "Visa requirements for Indonesian citizens" (merujuk Henley Passport Index &amp; Timatic). Aturan visa bisa berubah sewaktu-waktu: periksa ke kedutaan sebelum berangkat. Nama negara ditulis dalam bahasa Inggris sesuai sumber; lama tinggal kosong berarti sumber tidak mencantumkannya.</p>'));
+  root.appendChild(T.el('<p class="hint">Data 18 November 2026, dicek ulang 20 November 2026 — sumber Wikipedia "Visa requirements for Indonesian citizens" (merujuk Henley Passport Index &amp; Timatic). Aturan visa bisa berubah sewaktu-waktu: periksa ke kedutaan sebelum berangkat. Nama negara ditulis dalam bahasa Inggris sesuai sumber; lama tinggal kosong berarti sumber tidak mencantumkannya.</p>'));
   tampil();
 }

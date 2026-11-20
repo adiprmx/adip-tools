@@ -153,7 +153,18 @@ export function render(root) {
       const hasil = efekEmboss(data.data, nw, nh, parseInt(kuatR.value, 10), arahSel.value, warnaSel.value === 'abu');
       ctx.putImageData(new ImageData(new Uint8ClampedArray(hasil), nw, nh), 0, 0);
       const mime = fmtSel.value === 'png' ? 'image/png' : 'image/jpeg';
-      const blob = await canvasToBlob(c, mime, 0.92);
+      // JPEG tidak punya transparansi: timpa di atas latar putih supaya
+      // bagian tembus pandang tidak jadi hitam (pola banding-foto).
+      let sumber = c;
+      if (mime === 'image/jpeg') {
+        const putih = document.createElement('canvas');
+        putih.width = c.width; putih.height = c.height;
+        const px = putih.getContext('2d');
+        px.fillStyle = '#ffffff'; px.fillRect(0, 0, c.width, c.height);
+        px.drawImage(c, 0, 0);
+        sumber = putih;
+      }
+      const blob = await canvasToBlob(sumber, mime, 0.92);
       if (!blob) throw new Error('gagal');
       T.dl(`${namaFile}-emboss.${fmtSel.value === 'png' ? 'png' : 'jpg'}`, blob, mime);
       T.toast('Berhasil diunduh');

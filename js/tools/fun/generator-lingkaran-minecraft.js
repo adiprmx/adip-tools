@@ -4,14 +4,21 @@ export const meta = { id: 'generator-lingkaran-minecraft', name: 'Generator Ling
 
 // Lingkaran/oval terisi: kembalikan set "x,y" (koordinat relatif ke pusat).
 // rx, ry = jari-jari mendatar dan tegak dalam blok (boleh pecahan .5 untuk diameter genap).
+// Konvensi diameter (v6.21.0): diameter d blok = grid d×d; blok terisi bila
+// titik tengahnya masuk elips berjari-jari d/2. Konvensi lama
+// ((x+0.5)/(rx+0.5)) menggeser pusat 0,5 blok sehingga diameter ganjil
+// jadi 1 blok lebih kecil (d=5→4×4, d=11→10×10). Ganjil maupun genap kini
+// tepat d blok lebarnya (terverifikasi: d=5→5×5/21 blok, d=6→6×6/32 blok,
+// d=11→11×11/97 blok — cocok dengan pola lingkaran Minecraft standar).
 export function isiOval(rx, ry) {
   const sel = new Set();
-  const xMax = Math.ceil(rx), yMax = Math.ceil(ry);
-  for (let y = -yMax; y <= yMax; y++) {
-    for (let x = -xMax; x <= xMax; x++) {
-      // Titik tengah blok di (x+0.5, y+0.5) untuk diameter genap yang simetris.
-      const nx = (x + 0.5) / (rx + 0.5), ny = (y + 0.5) / (ry + 0.5);
-      if (nx * nx + ny * ny <= 1) sel.add(x + ',' + y);
+  const dx = 2 * rx + 1, dy = 2 * ry + 1;
+  const x0 = -Math.floor(dx / 2), y0 = -Math.floor(dy / 2);
+  for (let j = 0; j < dy; j++) {
+    for (let i = 0; i < dx; i++) {
+      const nx = (i - (dx - 1) / 2) / (dx / 2);
+      const ny = (j - (dy - 1) / 2) / (dy / 2);
+      if (nx * nx + ny * ny <= 1) sel.add((x0 + i) + ',' + (y0 + j));
     }
   }
   return sel;
@@ -25,9 +32,12 @@ export function busur(r, sudutAwal, sudutAkhir) {
   const isi = isiOval(r, r);
   const tepi = utils.tepiDariIsi(isi);
   const out = new Set();
+  // Titik tengah blok relatif ke pusat: koordinat bulat bila diameter ganjil,
+  // +0,5 bila diameter genap (pusat di antara blok).
+  const off = Number.isInteger(r) ? 0 : 0.5;
   tepi.forEach((k) => {
     const [x, y] = k.split(',').map(Number);
-    let a = Math.atan2(-(y + 0.5), x + 0.5) * 180 / Math.PI;
+    let a = Math.atan2(-(y + off), x + off) * 180 / Math.PI;
     if (a < 0) a += 360;
     // Rentang bisa melewati 0 derajat.
     const dalam = sudutAwal <= sudutAkhir

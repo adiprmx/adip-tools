@@ -1,4 +1,4 @@
-import { h as T, kv, fmtBytes, errBox } from '../../core.js';
+import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 
 export const meta = {"id": "thumbnail-video", "name": "Thumbnail Video", "cat": "converter", "icon": "🖼️", "desc": "Tangkap satu frame video jadi gambar sampul.", "keywords": "video,thumbnail,frame,gambar,sampul,cover,jepret", "since": "6.17.0"};
 
@@ -86,8 +86,11 @@ export function render(root) {
     if (videoUrl) { URL.revokeObjectURL(videoUrl); videoUrl = null; }
     if (!fileObj) { T.hide(infoBox); waktuWrap.hidden = true; return; }
     videoUrl = URL.createObjectURL(fileObj);
-    video.onloadedmetadata = () => {
-      duration = video.duration || 0;
+    const fDipilih = fileObj;
+    video.onloadedmetadata = async () => {
+      const d = await utils.resolveDurasi(video);
+      if (fileObj !== fDipilih) return;
+      duration = d;
       vw = video.videoWidth || 0;
       vh = video.videoHeight || 0;
       waktuRange.max = String(Math.max(0, duration - 0.05));
@@ -112,7 +115,8 @@ export function render(root) {
 
   const goBtn = T.btn('Tangkap frame ini', async () => {
     if (busy) return;
-    if (!fileObj || !duration) { T.show(outBox, errBox('Pilih dulu file videonya.')); return; }
+    if (!fileObj) { T.show(outBox, errBox('Pilih dulu file videonya.')); return; }
+    if (!duration) { T.show(outBox, errBox('Durasi video tidak terbaca, jadi posisi frame tidak bisa dipilih. Coba file MP4 atau WebM lain.')); return; }
     busy = true;
     goBtn.disabled = true;
     T.hide(outBox);

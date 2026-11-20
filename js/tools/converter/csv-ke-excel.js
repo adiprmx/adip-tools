@@ -1,6 +1,12 @@
+// MERGE B15 (v6.21.0, D2): satu tool dua arah. Mesin kedua arah
+// dipertahankan berdampingan di file ini (NOL fungsi hilang):
+// arah A = csv-ke-excel (survivor), arah B = excel-ke-csv (dipensiunkan,
+// diserap ke sini). Sakelar arah ada di paling atas render().
+
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id": "csv-ke-excel", "name": "CSV ke Excel", "cat": "converter", "icon": "📊", "desc": "Ubah file CSV jadi spreadsheet Excel.", "keywords": "csv,excel,xlsx,spreadsheet,tabel,konversi", "since": "6.17.0"};
+export const meta = {"id": "csv-ke-excel", "name": "CSV ↔ Excel", "cat": "converter", "icon": "📊", "desc": "Ubah CSV jadi Excel, atau Excel jadi CSV. Pilih arahnya di atas.", "keywords": "csv,excel,xlsx,spreadsheet,tabel,konversi,csv ke excel,excel ke csv", "since": "6.17.0"};
+
 
 // SheetJS 0.18.5. Hash SRI ada di peta SRI_HASH core.js
 // (terverifikasi identik dari 3 sumber).
@@ -58,7 +64,55 @@ export function nilaiSel(v, isHeader) {
   return s;
 }
 
-export function render(root) {
+// ---------- Mesin arah B: Excel → CSV (dari excel-ke-csv.js) ----------
+// SheetJS 0.18.5. Hash SRI ada di peta SRI_HASH core.js
+// (terverifikasi identik dari 3 sumber).
+
+// Sakelar arah: dua tombol besar di paling atas. Arah yang aktif tampil
+// terbalik (putih di atas hitam) supaya langsung kelihatan tanpa membaca
+// kecil-kecil. Kedua panel tetap hidup berdampingan — pindah arah tidak
+// menghapus isian di panel yang ditinggalkan.
+/* R1 (v6.21.0): alias redirect — kunjungan dari tautan lama arah B
+   (#/t/<id-pensiun>) mendarat di sini dengan ?dir=b; buka langsung
+   panel arah B. Tanpa ?dir=b, perilaku lama (arah A) tidak berubah. */
+function mintaArahB() {
+  try {
+    const q = (typeof location !== 'undefined' && location.hash.split('?')[1]) || '';
+    return /(?:^|&)dir=b(?:&|$)/.test(q);
+  } catch {
+    return false;
+  }
+}
+
+function buatSakelarArah(labelA, labelB, panelA, panelB) {
+  const bungkus = T.el('<div role="tablist" aria-label="Arah konversi" style="display:flex;gap:8px;margin:2px 0 16px"></div>');
+  const GAYA_AKTIF = 'flex:1;min-height:48px;padding:12px 8px;border-radius:10px;border:1px solid #ffffff;font-size:15px;font-weight:700;background:#ffffff;color:#000000;cursor:pointer;transition:background .15s,color .15s,border-color .15s';
+  const GAYA_MATI = 'flex:1;min-height:48px;padding:12px 8px;border-radius:10px;border:1px solid #ffffff33;font-size:15px;font-weight:600;background:transparent;color:#a1a1aa;cursor:pointer;transition:background .15s,color .15s,border-color .15s';
+  const tombolA = document.createElement('button');
+  tombolA.type = 'button';
+  tombolA.textContent = labelA;
+  tombolA.setAttribute('role', 'tab');
+  const tombolB = document.createElement('button');
+  tombolB.type = 'button';
+  tombolB.textContent = labelB;
+  tombolB.setAttribute('role', 'tab');
+  const atur = (keA) => {
+    tombolA.style.cssText = keA ? GAYA_AKTIF : GAYA_MATI;
+    tombolB.style.cssText = keA ? GAYA_MATI : GAYA_AKTIF;
+    tombolA.setAttribute('aria-selected', keA ? 'true' : 'false');
+    tombolB.setAttribute('aria-selected', keA ? 'false' : 'true');
+    panelA.hidden = !keA;
+    panelB.hidden = keA;
+  };
+  tombolA.addEventListener('click', () => atur(true));
+  tombolB.addEventListener('click', () => atur(false));
+  bungkus.appendChild(tombolA);
+  bungkus.appendChild(tombolB);
+  atur(!mintaArahB());
+  return bungkus;
+}
+
+function renderCsvKeExcel(panel) {
   const fi = T.input('file');
   fi.accept = '.csv,.txt,text/csv,text/plain';
   const delimSel = T.select([
@@ -123,11 +177,116 @@ export function render(root) {
     }
   }, true);
 
-  root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah file CSV jadi spreadsheet Excel (.xlsx) yang bisa dibuka di Excel, Google Sheets, dan WPS. Baris pertama dianggap judul kolom.</p>'));
-  root.appendChild(T.field('Pilih file CSV', fi));
-  root.appendChild(T.field('Pemisah kolom', delimSel, 'CSV dari Excel Indonesia biasanya memakai titik koma.'));
-  root.appendChild(T.row(goBtn));
-  root.appendChild(box);
-  root.appendChild(prevBox);
-  root.appendChild(T.el('<p class="hint">Diproses di browser. Filemu tidak diunggah ke mana-mana.</p>'));
+  panel.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah file CSV jadi spreadsheet Excel (.xlsx) yang bisa dibuka di Excel, Google Sheets, dan WPS. Baris pertama dianggap judul kolom.</p>'));
+  panel.appendChild(T.field('Pilih file CSV', fi));
+  panel.appendChild(T.field('Pemisah kolom', delimSel, 'CSV dari Excel Indonesia biasanya memakai titik koma.'));
+  panel.appendChild(T.row(goBtn));
+  panel.appendChild(box);
+  panel.appendChild(prevBox);
+  panel.appendChild(T.el('<p class="hint">Diproses di browser. Filemu tidak diunggah ke mana-mana.</p>'));
+}
+
+function renderExcelKeCsv(panel) {
+  const fi = T.input('file');
+  fi.accept = '.xlsx,.xls,.xlsm,.xlsb,.ods,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const sheetSel = T.select([], '');
+  const sheetWrap = T.el('<div></div>');
+  sheetWrap.hidden = true;
+  sheetWrap.appendChild(T.field('Lembar yang diubah', sheetSel));
+  const delimSel = T.select([
+    [',', 'Koma (,)'],
+    [';', 'Titik koma (;)'],
+  ], ',');
+  const box = T.out();
+  const prevBox = T.out();
+
+  // Loader library kanonis: utils.loadLibOnce (core.js).
+
+  let fileObj = null;
+  let workbook = null;
+  let busy = false;
+
+  fi.addEventListener('change', async () => {
+    fileObj = fi.files && fi.files[0] ? fi.files[0] : null;
+    workbook = null;
+    sheetWrap.hidden = true;
+    T.hide(box); T.hide(prevBox);
+    if (!fileObj) return;
+    T.show(box, '<span class="dim">Membaca spreadsheet…</span>');
+    const ok = await utils.loadLibOnce(XLSX_CDNS, () => typeof window.XLSX !== 'undefined');
+    if (!ok) { T.show(box, errBox('Alat spreadsheet tidak bisa dimuat dari internet. Cek koneksi lalu coba lagi.')); return; }
+    try {
+      const data = new Uint8Array(await fileObj.arrayBuffer());
+      workbook = window.XLSX.read(data, { type: 'array' });
+      const names = workbook.SheetNames || [];
+      if (!names.length) { T.show(box, errBox('Spreadsheet ini tidak punya lembar apa-apa.')); return; }
+      while (sheetSel.options.length) sheetSel.remove(0);
+      names.forEach((n) => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        sheetSel.appendChild(o);
+      });
+      sheetWrap.hidden = names.length < 2;
+      const ws = workbook.Sheets[names[0]];
+      const range = window.XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+      T.show(box, kv('File', T.esc(fileObj.name)) +
+        kv('Lembar', names.length + ' lembar') +
+        kv('Baris', (range.e.r + 1) + ' baris') +
+        kv('Kolom', (range.e.c + 1) + ' kolom'));
+    } catch (e) {
+      workbook = null;
+      T.show(box, errBox('File ini bukan spreadsheet yang benar, atau filenya rusak.'));
+    }
+  });
+
+  const goBtn = T.btn('Ubah jadi CSV', async () => {
+    if (busy) return;
+    if (!workbook) { T.show(box, errBox('Pilih dulu file spreadsheetnya.')); return; }
+    busy = true;
+    goBtn.disabled = true;
+    try {
+      const namaSheet = sheetSel.value || workbook.SheetNames[0];
+      const ws = workbook.Sheets[namaSheet];
+      const csv = window.XLSX.utils.sheet_to_csv(ws, { FS: delimSel.value, RS: '\n' });
+      if (!csv.trim()) { T.show(box, errBox('Lembar ini kosong, tidak ada yang bisa diubah.')); return; }
+      // BOM UTF-8 supaya Excel Windows membuka huruf Indonesia dengan benar.
+      const blob = new Blob([String.fromCharCode(0xfeff) + csv], { type: 'text/csv;charset=utf-8' });
+      const nama = fileObj.name.replace(/\.[^.]+$/, '') || 'data';
+      T.dl(nama + '.csv', blob, 'text/csv;charset=utf-8');
+      const jumlahBaris = csv.split('\n').filter((l) => l.trim() !== '').length;
+      T.show(box, '<span class="ok">Selesai. File CSV terunduh.</span>' +
+        kv('Lembar', T.esc(namaSheet)) +
+        kv('Baris', jumlahBaris + ' baris') +
+        kv('Ukuran hasil', fmtBytes(blob.size)));
+      T.show(prevBox, '<p class="hint">Pratinjau baris awal:</p><pre style="white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height:1.6;max-height:160px;overflow:auto"></pre>');
+      prevBox.querySelector('pre').textContent = csv.split('\n').slice(0, 5).join('\n');
+      T.toast('File CSV terunduh');
+    } catch (e) {
+      T.show(box, errBox('Spreadsheet tidak bisa diubah. Coba lagi.'));
+      const retry = T.btn('Coba lagi', () => goBtn.click());
+      box.appendChild(retry);
+    } finally {
+      busy = false;
+      goBtn.disabled = false;
+    }
+  }, true);
+
+  panel.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ubah satu lembar spreadsheet jadi file CSV. Bila spreadsheet punya banyak lembar, pilih dulu lembar yang mau diubah.</p>'));
+  panel.appendChild(T.field('Pilih file spreadsheet', fi, 'Excel (.xlsx, .xls) dan ODS.'));
+  panel.appendChild(sheetWrap);
+  panel.appendChild(T.field('Pemisah kolom', delimSel, 'Untuk dibuka di Excel Indonesia, titik koma biasanya lebih cocok.'));
+  panel.appendChild(T.row(goBtn));
+  panel.appendChild(box);
+  panel.appendChild(prevBox);
+  panel.appendChild(T.el('<p class="hint">Diproses di browser. Filemu tidak diunggah ke mana-mana.</p>'));
+}
+
+export function render(root) {
+  const panelA = T.el('<div></div>');
+  const panelB = T.el('<div></div>');
+  renderCsvKeExcel(panelA);
+  renderExcelKeCsv(panelB);
+  root.appendChild(buatSakelarArah('CSV → Excel', 'Excel → CSV', panelA, panelB));
+  root.appendChild(panelA);
+  root.appendChild(panelB);
 }

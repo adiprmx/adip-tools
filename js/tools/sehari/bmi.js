@@ -45,6 +45,8 @@ utils.bmrKatch = function (beratKg, kadarLemakPct) {
 // Semua ukuran dalam inci (cm dibagi 2,54), logaritma basis 10.
 // Pria: 86,010 x log10(pinggang-leher) - 70,041 x log10(tinggi) + 36,76
 // Wanita: 163,205 x log10(pinggang+pinggul-leher) - 97,684 x log10(tinggi) - 78,387
+// RUMUS INI HARUS SAMA PERSIS dengan hitungLemakNavy() di
+// js/tools/sehari/lemak-tubuh.js (lihat komentar di sana).
 utils.bodyFatNavy = function (pria, tinggiCm, leherCm, pinggangCm, pinggulCm) {
     const h = Number(tinggiCm) / 2.54;
     const le = Number(leherCm) / 2.54;
@@ -58,19 +60,21 @@ utils.bodyFatNavy = function (pria, tinggiCm, leherCm, pinggangCm, pinggulCm) {
     return 163.205 * Math.log10(pg + pu - le) - 97.684 * Math.log10(h) - 78.387;
   };
 
-// Kategori kadar lemak (American Council on Exercise).
-function kategoriLemak(pct, pria) {
+// Kategori kadar lemak (American Council on Exercise) — batas atas tiap
+// kategori (inklusif): pria 5/13/17/24, wanita 13/20/24/31.
+// HARUS SAMA dengan KAT_PRIA/KAT_WANITA di js/tools/sehari/lemak-tubuh.js.
+export function kategoriLemak(pct, pria) {
   if (pria) {
-    if (pct < 6) return 'Sangat rendah (atlet elit)';
-    if (pct < 14) return 'Atlet';
-    if (pct < 18) return 'Bugar';
-    if (pct < 25) return 'Rata-rata';
+    if (pct <= 5) return 'Sangat rendah (atlet elit)';
+    if (pct <= 13) return 'Atlet';
+    if (pct <= 17) return 'Bugar';
+    if (pct <= 24) return 'Rata-rata';
     return 'Di atas rata-rata';
   }
-  if (pct < 14) return 'Sangat rendah (atlet elit)';
-  if (pct < 21) return 'Atlet';
-  if (pct < 25) return 'Bugar';
-  if (pct < 32) return 'Rata-rata';
+  if (pct <= 13) return 'Sangat rendah (atlet elit)';
+  if (pct <= 20) return 'Atlet';
+  if (pct <= 24) return 'Bugar';
+  if (pct <= 31) return 'Rata-rata';
   return 'Di atas rata-rata';
 }
 
@@ -188,7 +192,7 @@ export function render(root) {
       const daftarTdee = tdeeK === null ? [tdeeM, tdeeH] : [tdeeM, tdeeH, tdeeK];
       const tdeeRata = Math.round(daftarTdee.reduce((a, x) => a + x, 0) / daftarTdee.length);
       const goal = tujuan.value;
-      const targetRata = goal === 'turun' ? tdeeRata - 500 : goal === 'naik' ? tdeeRata + 500 : tdeeRata;
+      const targetRata = goal === 'turun' ? Math.max(1200, tdeeRata - 500) : goal === 'naik' ? tdeeRata + 500 : tdeeRata;
       const mGoal = MAKRO_TUJUAN[goal];
       const goalLabel = goal === 'turun'
         ? 'Turun sekitar 0,5 kg/minggu (kurangi 500 kkal)'

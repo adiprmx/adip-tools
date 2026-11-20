@@ -53,6 +53,15 @@ export function render(root) {
     return "'" + s.replace(/'/g, "'\\''") + "'";
   };
   const svcName = (n) => n.trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-') || 'app';
+  // Kutip nilai YAML: nilai polos hanya aman bila tanpa spasi/karakter
+  // khusus dan tidak mirip boolean/angka/null. Selain itu pakai kutip
+  // ganda dengan escape backslash + kutip, supaya nilai seperti
+  // "value with spaces" atau "yes" tidak merusak YAML.
+  const yq = (s) => {
+    s = String(s);
+    if (/^[A-Za-z0-9_][A-Za-z0-9_./:@-]*$/.test(s) && !/^(true|false|null|yes|no|on|off)$/i.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) return s;
+    return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+  };
 
   const build = () => {
     const img = image.value.trim();
@@ -73,13 +82,15 @@ export function render(root) {
     const cmd = parts.join(' ');
 
     const svc = svcName(name || img.split(':')[0]);
-    const y = ['services:', '  ' + svc + ':', '    image: ' + img];
-    if (name) y.push('    container_name: ' + name);
-    if (detach.c.checked) y.push('    stdin_open: false');
+    const y = ['services:', '  ' + svc + ':', '    image: ' + yq(img)];
+    if (name) y.push('    container_name: ' + yq(name));
+    // -d (detach) TIDAK punya padanan kunci di compose — detach adalah
+    // flag perintah `docker compose up -d`, bukan pengaturan service.
+    // (Sebelumnya salah dipetakan ke `stdin_open: false`.)
     if (it.c.checked) { y.push('    stdin_open: true', '    tty: true'); }
     if (P.length) { y.push('    ports:'); P.forEach(([a, b]) => y.push('      - "' + a + ':' + b + '"')); }
     if (V.length) { y.push('    volumes:'); V.forEach(([a, b]) => y.push('      - "' + a + ':' + b + '"')); }
-    if (E.length) { y.push('    environment:'); E.forEach(([a, b]) => y.push('      - ' + a + '=' + b)); }
+    if (E.length) { y.push('    environment:'); E.forEach(([a, b]) => y.push('      - ' + yq(a + '=' + b))); }
     if (restart.value !== 'no') y.push('    restart: ' + restart.value);
     const compose = y.join('\n');
 

@@ -1,7 +1,15 @@
 import { h as T, utils, kv } from '../../core.js';
 
 // Lem untuk dua bahan. Kunci pasangan diurutkan alfabetis ("kayu|logam").
-// Rekomendasi dari praktik umum pertukangan dan perbaikan rumah tangga:
+// Rekomendasi mengikuti panduan perekat umum dan praktik pertukangan —
+// sumber (dicek 20 Nov 2026):
+// - The Glue Chart, cheatsheets.davidveksler.com/the-glue-chart.html
+//   (matriks perekat per pasangan bahan; PE/PP butuh lem khusus
+//   polyolefin atau primer + cyanoacrylate, epoxy biasa kurang nempel)
+// - Complete Guide to Adhesive Selection by Substrate, jomebond.com
+// - Adhesive Guide: Which Glue for Which Material, rothkoandfrost.com
+// (PVA untuk kayu-kayu; epoxy untuk kayu-logam dan beda bahan; solvent
+// cement untuk akrilik-akrilik; lem kontak untuk kain/kulit/karet).
 // PVAc = lem kayu putih/kuning; cyanoacrylate = lem super (lem G/Korea);
 // epoxy = lem dua komponen yang dicampur; lem kontak = lem kuning yang
 // dioles dua sisi lalu ditekan (Aibon dsb.); solvent cement = lem yang
@@ -89,7 +97,7 @@ const LEM = {
   'logam|logam': ['Epoxy logam', 'Untuk sambungan struktural, las jauh lebih kuat daripada lem apa pun.'],
   'logam|plastik': ['Epoxy', 'Amplas kedua permukaan supaya lem menggigit.'],
   'logam|styrofoam': ['Lem PVAc atau epoxy', 'Jangan pakai lem solvent.'],
-  'plastik|plastik': ['Lem khusus plastik', 'Plastik PP/PE sulit dilem, butuh primer khusus atau epoxy. Plastik keras (ABS, PVC) bisa pakai cyanoacrylate atau solvent cement.'],
+  'plastik|plastik': ['Lem khusus plastik', 'Plastik PP/PE sulit dilem, butuh primer khusus + lem super atau lem khusus polyolefin — epoxy biasa kurang nempel di PP/PE. Plastik keras (ABS, PVC) bisa pakai cyanoacrylate atau solvent cement.'],
   'plastik|styrofoam': ['Lem PVAc atau lem khusus styrofoam', 'Jangan pakai lem solvent atau lem pipa PVC.'],
   'styrofoam|styrofoam': ['Lem PVAc atau lem khusus styrofoam', 'Jangan pakai lem solvent, thinner, atau lem tembak panas.'],
 };
@@ -114,7 +122,8 @@ export function render(root) {
       '<div class="big">' + T.esc(r[0]) + '</div>' +
       '<p class="center mut">Untuk ' + T.esc(BAHAN[a].toLowerCase()) + ' + ' + T.esc(BAHAN[b].toLowerCase()) + '.</p>' +
       kv('Catatan', T.esc(r[1])) +
-      '<p class="hint">Aturan umum semua lem: permukaan harus bersih, kering, dan bebas minyak. Amplas sedikit permukaan yang licin supaya lem menggigit. Selalu baca kemasan lemnya: beberapa lem butuh waktu kering berjam-jam sebelum kuat penuh, dan lem solvent melarutkan styrofoam.</p>');
+      '<p class="hint">Aturan umum semua lem: permukaan harus bersih, kering, dan bebas minyak. Amplas sedikit permukaan yang licin supaya lem menggigit. Selalu baca kemasan lemnya: beberapa lem butuh waktu kering berjam-jam sebelum kuat penuh, dan lem solvent melarutkan styrofoam.</p>' +
+      '<p class="hint">Sumber rekomendasi: The Glue Chart (cheatsheets.davidveksler.com), panduan pemilihan perekat JOME (jomebond.com), dan Adhesive Guide Rothko &amp; Frost (rothkoandfrost.com) — dicek 20 November 2026. Rekomendasi di sini adalah panduan umum; untuk sambungan yang menahan beban berat atau keselamatan, ikuti petunjuk pabrik lemnya.</p>');
   };
   [aSel, bSel].forEach((i) => i.addEventListener('input', hitung));
   [aSel, bSel].forEach((i) => i.addEventListener('change', hitung));

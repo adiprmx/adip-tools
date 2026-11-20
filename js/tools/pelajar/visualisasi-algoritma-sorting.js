@@ -114,6 +114,25 @@ export function langkahQuick(input) {
   return out;
 }
 
+// Urai angka ala Indonesia: koma di dalam angka adalah desimal ("7,5" = 7,5),
+// pemisah antar angka adalah spasi / titik koma / koma di ujung token.
+// Pola yang sama dengan bacaDeretDesimal di kalkulator-uji-chi-square.
+export function bacaAngka(teks) {
+  const keluar = [];
+  String(teks || '').split(/[\s;]+/).forEach((tok) => {
+    const t = tok.trim().replace(/,+$/, '');
+    if (!t) return;
+    const koma = (t.match(/,/g) || []).length;
+    if (koma > 1) {
+      t.split(',').forEach((p) => { const v = T.num(p); if (isFinite(v)) keluar.push(v); });
+    } else {
+      const v = T.num(t);
+      if (isFinite(v)) keluar.push(v);
+    }
+  });
+  return keluar;
+}
+
 export const ALGORITMA = {
   bubble: { nama: 'Bubble Sort', fn: langkahBubble, jelas: 'Bandingkan pasangan sebelah-sebelahan, yang besar menggelembung ke kanan.' },
   insertion: { nama: 'Insertion Sort', fn: langkahInsertion, jelas: 'Ambil satu angka, selipkan ke tempat yang benar di bagian kiri yang sudah urut.' },
@@ -140,7 +159,7 @@ export function render(root) {
   const jelasEl = T.el('<p class="hint"></p>');
   const jumlahSel = T.select([['8', '8 angka'], ['12', '12 angka'], ['20', '20 angka'], ['30', '30 angka']], '12');
   const kecepatanSel = T.select([['600', 'Pelan'], ['300', 'Sedang'], ['120', 'Cepat'], ['40', 'Sangat cepat']], '300');
-  const angkaI = T.input('text', 'Atau tulis angkamu sendiri, pisahkan koma. Contoh: 5, 2, 9, 1');
+  const angkaI = T.input('text', 'Atau tulis angkamu sendiri, pisahkan koma atau spasi. Desimal pakai koma, contoh: 7,5');
 
   const panggung = T.el('<div class="sv-panggung"></div>');
   const pesanEl = T.el('<p class="sv-pesan" aria-live="polite"></p>');
@@ -189,8 +208,8 @@ export function render(root) {
     let awal;
     const tulis = angkaI.value.trim();
     if (tulis) {
-      awal = tulis.split(/[,;\s]+/).map((x) => Number(x)).filter((v) => isFinite(v));
-      if (awal.length < 2 || awal.length > 40) { T.toast('Tulis 2 sampai 40 angka, pisahkan dengan koma'); return; }
+      awal = bacaAngka(tulis);
+      if (awal.length < 2 || awal.length > 40) { T.toast('Tulis 2 sampai 40 angka, pisahkan dengan koma atau spasi'); return; }
       if (awal.some((v) => v <= 0)) { T.toast('Angkanya harus lebih dari 0'); return; }
     } else {
       awal = acakAngka(parseInt(jumlahSel.value, 10));

@@ -1,23 +1,26 @@
 import { h as T, utils } from '../../core.js';
+import { TARIF_PLN, PPJ_DEFAULT, PPJ_KETERANGAN, TARIF_PLN_PERIODE, TARIF_PLN_BERLAKU, TARIF_PLN_CATATAN_Q1 } from '../../tarif-pln.js';
 
 export const meta = {"id": "token-listrik", "name": "Kalkulator Token Listrik", "cat": "indonesia", "icon": "⚡", "desc": "Konversi rupiah ke kWh token listrik & sebaliknya.", "keywords": "token,listrik,kwh,pln,prabayar,tarif"};
 export function render(root) {
+  // Tarif dari modul bersama js/tarif-pln.js (satu sumber kebenaran dengan
+  // tagihan-listrik & kalkulator-biaya-cas-mobil-listrik).
   const TARIF = [
-    ['415', 'R-1 450 VA (subsidi) — Rp415/kWh'],
-    ['605', 'R-1 900 VA (subsidi) — Rp605/kWh'],
-    ['1352', 'R-1 900 VA — Rp1.352/kWh'],
-    ['1444.7', 'R-1 1.300–2.200 VA — Rp1.444,70/kWh'],
-    ['1699.53', 'R-2 / R-3 (>2.200 VA) — Rp1.699,53/kWh'],
-    ['1444.7', 'B-2 (bisnis) — Rp1.444,70/kWh'],
-    ['1114.74', 'I-3 (industri) — Rp1.114,74/kWh'],
-    ['996.74', 'I-4 (industri besar) — Rp996,74/kWh'],
+    [String(TARIF_PLN.r1_450), 'R-1 450 VA (subsidi) — Rp415/kWh'],
+    [String(TARIF_PLN.r1_900_subsidi), 'R-1 900 VA (subsidi) — Rp605/kWh'],
+    [String(TARIF_PLN.r1_900_rtm), 'R-1 900 VA — Rp1.352/kWh'],
+    [String(TARIF_PLN.r1_1300_2200), 'R-1 1.300–2.200 VA — Rp1.444,70/kWh'],
+    [String(TARIF_PLN.r2_r3), 'R-2 / R-3 (>2.200 VA) — Rp1.699,53/kWh'],
+    [String(TARIF_PLN.b2), 'B-2 (bisnis) — Rp1.444,70/kWh'],
+    [String(TARIF_PLN.i3), 'I-3 (industri) — Rp1.114,74/kWh'],
+    [String(TARIF_PLN.i4), 'I-4 (industri besar) — Rp996,74/kWh'],
   ];
   const fmtTarif = (n) => 'Rp' + n.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const fmtKwh = (n) => n.toLocaleString('id-ID', { maximumFractionDigits: 2 });
-  const golSel = T.select(TARIF, '1352');
-  // PPJ (Pajak Penerangan Jalan) 3–10% tergantung daerah; default 0% =
-  // belum dihitung, ubah sesuai daerahmu.
-  const ppjI = T.input('text', 'cth: 3', '0');
+  const golSel = T.select(TARIF, String(TARIF_PLN.r1_900_rtm));
+  // PPJ (Pajak Penerangan Jalan) 3–10% tergantung daerah; default sama
+  // dengan tagihan-listrik (3%). Isi 0 bila PPJ belum mau dihitung.
+  const ppjI = T.input('text', 'cth: 3', String(PPJ_DEFAULT));
   ppjI.inputMode = 'decimal';
   const rpInp = T.input('text', 'Contoh: 100000');
   rpInp.inputMode = 'decimal';
@@ -27,7 +30,7 @@ export function render(root) {
   const box2 = T.out();
   const ppjRate = () => (T.num(ppjI.value) || 0) / 100;
   const hitungRp = () => {
-    const tarif = parseFloat(golSel.value) || 1352;
+    const tarif = parseFloat(golSel.value) || TARIF_PLN.r1_900_rtm;
     const rp = T.num(rpInp.value) || 0;
     if (rp <= 0) { T.hide(box1); return; }
     const kwh = rp / (tarif * (1 + ppjRate()));
@@ -37,7 +40,7 @@ export function render(root) {
       (ppjRate() > 0 ? ' (termasuk PPJ ' + T.esc(String(T.num(ppjI.value))) + '%)' : ' (PPJ belum dihitung)') + '</p>');
   };
   const hitungKwh = () => {
-    const tarif = parseFloat(golSel.value) || 1352;
+    const tarif = parseFloat(golSel.value) || TARIF_PLN.r1_900_rtm;
     const kwh = T.num(kwhInp.value) || 0;
     if (kwh <= 0) { T.hide(box2); return; }
     const rp = kwh * tarif * (1 + ppjRate());
@@ -52,12 +55,12 @@ export function render(root) {
   rpInp.addEventListener('input', hitungRp);
   kwhInp.addEventListener('input', hitungKwh);
   root.appendChild(T.field('Golongan tarif', golSel));
-  root.appendChild(T.field('PPJ — Pajak Penerangan Jalan (%)', ppjI, '3–10% tergantung daerah (cek struk tokenmu). Default 0% = belum dihitung.'));
+  root.appendChild(T.field('PPJ — Pajak Penerangan Jalan (%)', ppjI, PPJ_KETERANGAN + ' (cek struk tokenmu). Default 3%, isi 0 bila belum mau dihitung.'));
   root.appendChild(T.el('<p class="mut" style="margin:14px 0 4px;font-weight:600">Rupiah → kWh</p>'));
   root.appendChild(T.field('Nominal token (Rp)', rpInp));
   root.appendChild(box1);
   root.appendChild(T.el('<p class="mut" style="margin:14px 0 4px;font-weight:600">kWh → Rupiah</p>'));
   root.appendChild(T.field('Jumlah kWh', kwhInp));
   root.appendChild(box2);
-  root.appendChild(T.el('<p class="hint">PPJ dihitung dari tarif dasar × kWh. Belum termasuk biaya admin pembelian token. Tarif listrik bisa berubah sewaktu-waktu mengikuti kebijakan PLN.</p>'));
+  root.appendChild(T.el('<p class="hint">PPJ dihitung dari tarif dasar × kWh. Belum termasuk biaya admin pembelian token. Tarif PLN ' + TARIF_PLN_PERIODE + ' (' + TARIF_PLN_BERLAKU + '). ' + TARIF_PLN_CATATAN_Q1 + '</p>'));
 }

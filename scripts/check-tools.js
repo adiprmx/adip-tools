@@ -85,7 +85,8 @@ async function main() {
     'routes.js', 'catalog.js', 'store.js', 'supabase.js', 'shell-ui.js',
     'beranda.js', 'search-plus.js', 'onboarding.js', 'components.js',
     'regex-aman.js', 'dxf.js', 'model-3d.js', 'tokenizer-js.js',
-    'gif-encoder.js', 'mouse-sens.js', 'screen-time.js', 'wrapped.js'];
+    'gif-encoder.js', 'mouse-sens.js', 'screen-time.js', 'wrapped.js',
+    'tarif-pln.js', 'harga-bbm.js'];
   for (const sf of shellFiles) {
     const full = path.join(JS, sf);
     if (!fs.existsSync(full)) { errors.push(`file shell hilang: js/${sf}`); continue; }

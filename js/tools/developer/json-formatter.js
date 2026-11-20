@@ -4,7 +4,8 @@ import { polaRegexBerbahaya } from '../../regex-aman.js';
 // Perbaiki JSON rusak dengan toleransi: komentar, koma berlebih,
 // kutip tunggal, dan kunci tanpa kutip. Scanner karakter, bukan regex
 // buta, supaya isi string tidak ikut diubah.
-function repairJson(raw) {
+// Diekspor agar bisa diuji di Node.
+export function repairJson(raw) {
   let out = '', i = 0, n = raw.length;
   let inStr = null, inLineComment = false, inBlockComment = false;
   while (i < n) {
@@ -20,7 +21,19 @@ function repairJson(raw) {
       continue;
     }
     if (inStr) {
-      if (ch === '\\' && i + 1 < n) { out += ch + raw[i + 1]; i += 2; continue; }
+      if (ch === '\\' && i + 1 < n) {
+        const e = raw[i + 1];
+        // Escape JSON yang sah dipertahankan apa adanya.
+        if ('"\\/bfnrt'.includes(e)) { out += ch + e; i += 2; continue; }
+        if (e === 'u' && /^[0-9a-fA-F]{4}$/.test(raw.slice(i + 2, i + 6))) { out += raw.slice(i, i + 6); i += 6; continue; }
+        // \' bukan escape JSON yang sah: di string kutip ganda hasil
+        // perbaikan, ' tidak perlu di-escape — backslash-nya dibuang
+        // (sebelumnya disalin mentah jadi "it\'s" yang tidak valid).
+        if (e === "'") { out += "'"; i += 2; continue; }
+        // Escape lain yang tidak dikenal (\d, \a, …): backslash-nya
+        // di-escape supaya hasil tetap JSON valid dan isinya tidak hilang.
+        out += '\\\\' + e; i += 2; continue;
+      }
       if (ch === inStr) {
         // Kutip tunggal diubah jadi kutip ganda saat menutup string.
         out += inStr === "'" ? '"' : ch;
@@ -178,8 +191,10 @@ function validateSchema(value, schema, path, errors, root, depth) {
   if (schema.type) {
     const want = schema.type;
     const got = typeOf(value);
-    const ok = want === 'number' ? (got === 'number' || got === 'integer') : want === got;
-    if (!ok) { errors.push(p + ': harus bertipe ' + want + ', dapat ' + got); return; }
+    const cocokTipe = (w) => w === 'number' ? (got === 'number' || got === 'integer') : w === got;
+    // type boleh array (mis. ["string","null"]): cukup satu yang cocok.
+    const ok = Array.isArray(want) ? want.some(cocokTipe) : cocokTipe(want);
+    if (!ok) { errors.push(p + ': harus bertipe ' + (Array.isArray(want) ? want.join(' atau ') : want) + ', dapat ' + got); return; }
   }
   if (schema.enum && !schema.enum.some((e) => JSON.stringify(e) === JSON.stringify(value))) {
     errors.push(p + ': nilai tidak ada di daftar enum');

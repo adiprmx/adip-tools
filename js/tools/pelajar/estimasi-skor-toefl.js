@@ -2,10 +2,20 @@ import { h as T, utils } from '../../core.js';
 
 export const meta = {"id":"estimasi-skor-toefl","name":"Estimasi TOEFL","cat":"pelajar","icon":"🎓","desc":"Perkirakan skor TOEFL dari nilai latihan listening, structure, reading.","keywords":"toefl,skor,estimasi,itp,listening,structure,reading,tes bahasa inggris,latihan"};
 
+// Rentang skor riil TOEFL ITP Level 1 (ETS): Listening 31–68, Structure 31–68,
+// Reading 31–67; total 310–677. Sumber: ETS "TOEFL ITP Test and Data Score
+// Summary" (data 2024) + halaman skor ITP ETS, diverifikasi 20 Nov 2026.
+// Rumus (L+S+R)×10÷3 adalah aproksimasi ITP standar.
+export const RENTANG = { Listening: [31, 68], Structure: [31, 68], Reading: [31, 67] };
+
+export function totalToefl(l, s, r) {
+  return Math.round(((l + s + r) * 10) / 3);
+}
+
 export function render(root) {
-  const inL = T.input('number', '0 – 68');
-  const inS = T.input('number', '0 – 68');
-  const inR = T.input('number', '0 – 68');
+  const inL = T.input('number', '31 – 68');
+  const inS = T.input('number', '31 – 68');
+  const inR = T.input('number', '31 – 67');
   const out = T.out();
 
   const BANDS = [
@@ -18,14 +28,15 @@ export function render(root) {
   const hitung = () => {
     const vals = [['Listening', T.num(inL.value)], ['Structure', T.num(inS.value)], ['Reading', T.num(inR.value)]];
     for (const [label, v] of vals) {
-      if (!Number.isFinite(v) || v < 0 || v > 68) {
-        T.show(out, '<p class="warn">Skor ' + T.esc(label) + ' harus angka 0–68. Cek lagi ya.</p>');
+      const [mn, mx] = RENTANG[label];
+      if (!Number.isFinite(v) || v < mn || v > mx) {
+        T.show(out, '<p class="warn">Skor ' + T.esc(label) + ' harus angka ' + mn + '–' + mx + ' (rentang asli TOEFL ITP). Cek lagi ya.</p>');
         return;
       }
     }
     const L = vals[0][1], S = vals[1][1], R = vals[2][1];
     const mentah = ((L + S + R) * 10) / 3;
-    const total = Math.round(mentah);
+    const total = totalToefl(L, S, R);
     const band = BANDS.find(([rentang]) => {
       const [a, b] = rentang.split('–').map((x) => parseInt(x.trim(), 10));
       return total >= a && total <= b;
@@ -45,7 +56,7 @@ export function render(root) {
   };
 
   root.appendChild(T.el('<div class="warn" style="margin-bottom:12px;padding:10px 12px;border-radius:10px">Ini <b>estimasi latihan, bukan skor resmi</b> — buat ngukur progress belajarmu aja.</div>'));
-  root.appendChild(T.el('<p class="hint">Masukin skor per section dari hasil latihanmu (skala 0–68 kayak TOEFL ITP), nanti dihitung totalnya.</p>'));
+  root.appendChild(T.el('<p class="hint">Masukin skor per section dari hasil latihanmu (TOEFL ITP Level 1: Listening 31–68, Structure 31–68, Reading 31–67), nanti dihitung totalnya (310–677).</p>'));
   root.appendChild(T.grid2(
     T.field('Listening', inL),
     T.field('Structure & Written Expression', inS),

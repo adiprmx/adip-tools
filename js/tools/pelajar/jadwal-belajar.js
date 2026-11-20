@@ -5,6 +5,54 @@ export const meta = {"id":"jadwal-belajar","name":"Jadwal Belajar","cat":"pelaja
 const HARI = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 const fm = (m) => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(((m % 60) + 60) % 60).padStart(2, '0');
 
+// Susun jadwal mingguan. Murni, bisa diuji di Node.
+// mapels: [{ nama, target }] target dalam jam/minggu.
+// Alokasi dikunci per INDEKS mapel, bukan per nama — dua baris mapel
+// bernama sama ("Matematika" 3 jam dan "Matematika" 2 jam) adalah dua
+// target berbeda dan tidak boleh bergabung. Nama tampil diberi nomor
+// "(2)", "(3)" bila namanya duplikat, supaya ringkasan tidak membingungkan.
+export function susunJadwal(mapels, jumlahHari, jamHari, sesiLen, istirahat, mulaiMenit) {
+  const daftar = (mapels || []).filter((m) => m && m.target > 0);
+  // Nama tampil: duplikat diberi nomor urut.
+  const hitungNama = {};
+  const tampilNama = daftar.map((m) => {
+    const nama = m.nama || 'Tanpa nama';
+    hitungNama[nama] = (hitungNama[nama] || 0) + 1;
+    return hitungNama[nama] > 1 ? nama + ' (' + hitungNama[nama] + ')' : nama;
+  });
+  // Bagi jam/hari jadi beberapa sesi (menit per sesi, sisa dibagi rata)
+  const totalHari = Math.round(jamHari * 60);
+  const nSesi = Math.max(1, Math.round(totalHari / sesiLen));
+  const base = Math.floor(totalHari / nSesi);
+  const lens = Array(nSesi).fill(base);
+  let rem = totalHari - base * nSesi;
+  for (let i = 0; rem > 0; i = (i + 1) % nSesi) { lens[i]++; rem--; }
+
+  // Alokasi: tiap sesi ambil mapel dengan sisa target terbesar.
+  // Sisa dicatat per indeks — bukan per nama.
+  const remain = daftar.map((m) => m.target * 60);
+  const terjadwal = daftar.map(() => 0);
+  const sched = [];
+  for (let di = 0; di < jumlahHari; di++) {
+    const baris = [];
+    let cur = mulaiMenit;
+    lens.forEach((len) => {
+      let best = -1, bv = 0;
+      for (let k = 0; k < remain.length; k++) {
+        if (remain[k] > bv) { bv = remain[k]; best = k; }
+      }
+      if (best < 0) { baris.push(null); cur += len + istirahat; return; }
+      const take = Math.min(len, remain[best]);
+      baris.push({ mapel: best, m0: cur, m1: cur + take });
+      remain[best] -= take;
+      terjadwal[best] += take;
+      cur += take + istirahat;
+    });
+    sched.push(baris);
+  }
+  return { daftar, tampilNama, nSesi, lens, sched, terjadwal };
+}
+
 export function render(root) {
   root.appendChild(T.el('<p class="mut">Masukkan mata pelajaran + target jam per minggu, pilih hari luangmu, dan jadwal mingguan tersusun otomatis.</p>'));
 
@@ -82,32 +130,8 @@ export function render(root) {
     const mm = (mulaiInp.value.trim() || '16:00').split(':');
     const startMin = (Number(mm[0]) || 0) * 60 + (Number(mm[1]) || 0);
 
-    // Bagi jam/hari jadi beberapa sesi (menit per sesi, sisa dibagi rata)
-    const totalHari = Math.round(jamHari * 60);
-    const nSesi = Math.max(1, Math.round(totalHari / sesiLen));
-    const base = Math.floor(totalHari / nSesi);
-    const lens = Array(nSesi).fill(base);
-    let rem = totalHari - base * nSesi;
-    for (let i = 0; rem > 0; i = (i + 1) % nSesi) { lens[i]++; rem--; }
-
-    // Alokasi: tiap sesi ambil mapel dengan sisa target terbesar
-    const remain = {};
-    mapels.forEach((m) => { remain[m.nama] = (remain[m.nama] || 0) + m.target * 60; });
-    const terjadwal = {};
-    const sched = days.map(() => []);
-    days.forEach((d, di) => {
-      let cur = startMin;
-      lens.forEach((len) => {
-        let best = null, bv = 0;
-        for (const k in remain) if (remain[k] > bv) { bv = remain[k]; best = k; }
-        if (!best) { sched[di].push(null); cur += len + rest; return; }
-        const take = Math.min(len, remain[best]);
-        sched[di].push({ mapel: best, m0: cur, m1: cur + take });
-        remain[best] -= take;
-        terjadwal[best] = (terjadwal[best] || 0) + take;
-        cur += take + rest;
-      });
-    });
+    const hasil = susunJadwal(mapels, days.length, jamHari, sesiLen, rest, startMin);
+    const { nSesi, sched, terjadwal, tampilNama } = hasil;
 
     // Tabel: baris = sesi, kolom = hari
     let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:' + (days.length * 130) + 'px">';
@@ -119,21 +143,22 @@ export function render(root) {
         const cell = sched[di][s];
         html += '<td style="border:1px solid var(--line);padding:8px;vertical-align:top">' +
           (cell
-            ? '<b>' + T.esc(cell.mapel) + '</b><br><span class="dim">' + fm(cell.m0) + '–' + fm(cell.m1) + '</span>'
+            ? '<b>' + T.esc(tampilNama[cell.mapel]) + '</b><br><span class="dim">' + fm(cell.m0) + '–' + fm(cell.m1) + '</span>'
             : '<span class="dim">—</span>') + '</td>';
       }
       html += '</tr>';
     }
     html += '</table></div>';
 
-    // Ringkasan per mapel
+    // Ringkasan per mapel (per baris input, bukan per nama — mapel
+    // bernama sama tampil sebagai baris terpisah dengan angkanya sendiri).
     html += '<h4 style="margin:16px 0 8px">Ringkasan</h4>';
     const kurang = [];
-    mapels.forEach((m) => {
-      const sudah = (terjadwal[m.nama] || 0) / 60;
+    mapels.forEach((m, i) => {
+      const sudah = (terjadwal[i] || 0) / 60;
       const ok = sudah >= m.target - 0.01;
-      if (!ok) kurang.push({ nama: m.nama, sisa: m.target - sudah });
-      html += '<div class="kv"><span class="k">' + T.esc(m.nama) + '</span><span class="v ' + (ok ? 'ok' : 'warn') + '">' +
+      if (!ok) kurang.push({ nama: tampilNama[i], sisa: m.target - sudah });
+      html += '<div class="kv"><span class="k">' + T.esc(tampilNama[i]) + '</span><span class="v ' + (ok ? 'ok' : 'warn') + '">' +
         sudah.toFixed(1).replace(/\.0$/, '') + ' / ' + m.target + ' jam' + '</span></div>';
     });
     html += '<div class="kv"><span class="k">Total waktu belajar</span><span class="v">' +

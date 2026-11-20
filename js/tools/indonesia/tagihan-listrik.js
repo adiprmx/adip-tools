@@ -1,19 +1,22 @@
 import { h as T, utils } from '../../core.js';
+import { TARIF_PLN, PPJ_DEFAULT, TARIF_PLN_PERIODE, TARIF_PLN_BERLAKU, TARIF_PLN_CATATAN_Q1 } from '../../tarif-pln.js';
 
 export const meta = {"id": "tagihan-listrik", "name": "Hitung Tagihan Listrik", "cat": "indonesia", "icon": "💡", "desc": "Hitung tagihan listrik bulanan dari alat elektronik di rumahmu, ketahuan alat mana yang paling boros.", "keywords": "listrik,tagihan,pln,kwh,watt,tarif,hemat,token,boros"};
 export function render(root) {
+  // Tarif dari modul bersama js/tarif-pln.js (satu sumber kebenaran dengan
+  // token-listrik & kalkulator-biaya-cas-mobil-listrik).
   const TARIF = [
-    ['415', '450 VA (subsidi) — Rp415/kWh'],
-    ['605', '900 VA (subsidi) — Rp605/kWh'],
-    ['1352', '900 VA (nonsubsidi/RTM) — Rp1.352/kWh'],
-    ['1444.7', '1.300 & 2.200 VA — Rp1.444,70/kWh'],
-    ['1699.53', '3.500 VA ke atas — Rp1.699,53/kWh'],
+    [String(TARIF_PLN.r1_450), '450 VA (subsidi) — Rp415/kWh'],
+    [String(TARIF_PLN.r1_900_subsidi), '900 VA (subsidi) — Rp605/kWh'],
+    [String(TARIF_PLN.r1_900_rtm), '900 VA (nonsubsidi/RTM) — Rp1.352/kWh'],
+    [String(TARIF_PLN.r1_1300_2200), '1.300 & 2.200 VA — Rp1.444,70/kWh'],
+    [String(TARIF_PLN.r2_r3), '3.500 VA ke atas — Rp1.699,53/kWh'],
   ];
   const fmtRp2 = (n) => 'Rp' + n.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   const fmtKwh = (n) => n.toLocaleString('id-ID', { maximumFractionDigits: 2 });
   const fmtTarif = (n) => 'Rp' + n.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const golSel = T.select(TARIF, '1444.7');
-  const ppjI = T.input('number', 'cth: 3', '3');
+  const golSel = T.select(TARIF, String(TARIF_PLN.r1_1300_2200));
+  const ppjI = T.input('number', 'cth: 3', String(PPJ_DEFAULT));
   const listBox = T.el('<div></div>');
   const box = T.out();
   const rows = [];
@@ -48,7 +51,7 @@ export function render(root) {
       '<p class="mut" style="font-weight:600;margin:14px 0 4px">Alat paling boros ke paling irit</p>' +
       '<table style="width:100%;border-collapse:collapse;font-size:13.5px">' + baris + '</table>' +
       '<p class="hint">Paling boros: <b>' + T.esc(terboros.nama) + '</b> (' + fmtRp2(terboros.rp) + '/bulan). Mengurangi jam pakainya paling terasa di tagihan. ' +
-      'Dihitung 30 hari/bulan. Tarif PLN Triwulan IV 2026 (berlaku s.d. 31 Desember 2026). Tagihan asli bisa beda karena ada biaya lain di rekening PLN.</p>');
+      'Dihitung 30 hari/bulan. Tarif PLN ' + TARIF_PLN_PERIODE + ' (' + TARIF_PLN_BERLAKU + '). ' + TARIF_PLN_CATATAN_Q1 + ' Tagihan asli bisa beda karena ada biaya lain di rekening PLN.</p>');
   };
 
   const tambahBaris = (nama, watt, jam) => {

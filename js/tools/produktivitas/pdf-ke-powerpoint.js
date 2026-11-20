@@ -109,6 +109,10 @@ export function render(root) {
         const viewport = page.getViewport({ scale: SKALA_GAMBAR });
         canvas.width = Math.round(viewport.width);
         canvas.height = Math.round(viewport.height);
+        // Isi putih dulu: tanpa ini, area transparan PDF jadi hitam saat
+        // diubah ke JPEG (JPEG tidak punya transparansi).
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         await page.render({ canvasContext: ctx, viewport }).promise;
         const gambar = canvas.toDataURL('image/jpeg', 0.85);
         const konten = await page.getTextContent();
@@ -132,7 +136,7 @@ export function render(root) {
     } catch (e) {
       const terkunci = e && e.name === 'PasswordException';
       T.show(statusBox, terkunci
-        ? '<div class="err">PDF ini dikunci kata sandi. Buka kuncinya dulu dengan tool Buka Kunci PDF.</div>'
+        ? '<div class="err">PDF ini dikunci kata sandi. Buka kuncinya dulu dengan tool Kunci PDF, tab Buka kunci.</div>'
         : '<div class="err">PDF tidak bisa dibaca. Pastikan filenya PDF yang benar dan tidak rusak.</div> <button class="btn" type="button">Coba lagi</button>');
       const tombol = statusBox.querySelector('button');
       if (tombol) tombol.addEventListener('click', proses);

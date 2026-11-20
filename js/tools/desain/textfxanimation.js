@@ -91,7 +91,7 @@ const FONTS = ['Lexend', 'Exo', 'Inter', 'Poppins'];
 const WEIGHTS = [['400', 'Regular'], ['500', 'Medium'], ['600', 'Semi Bold'], ['700', 'Bold'], ['800', 'Extra Bold'], ['900', 'Black']];
 
 /* Normalisasi teks seperti rujukan: maks 2 baris, tiap baris maks 2 kata. */
-function normalizeText(raw, fallback) {
+export function normalizeText(raw, fallback) {
   raw = String(raw == null ? '' : raw).replace(/\r/g, '').trim();
   if (!raw) return fallback;
   const lines = raw.split('\n').map((x) => x.trim()).filter(Boolean);
@@ -144,13 +144,18 @@ export function generate(o) {
   let id = 9; const parentId = 8;
   const fill = roles[0] || '#FFFFFF';
   const stroke = roles[1] || null; // role kedua jadi outline tipis (aproksimasi glow)
+  // Role ke-3 dst. jadi lapisan bayangan di belakang teks utama: salinan
+  // teks yang sama, digeser sedikit ke kanan-bawah, tanpa outline. Setiap
+  // role yang dipilih di UI memengaruhi output; tidak ada kontrol mati.
+  const echoRoles = roles.slice(2).filter(Boolean);
+  const echoStep = Math.max(2, Math.round((+o.size || 56) * 0.06));
 
   const nz = (a) => (a && a.length ? a : null); // kosong -> elemen XML tidak di-emit
-  units.forEach((u, i) => {
+  const lapisanTeks = (u, i, label, isi, garis) => {
     const fx = preset.build(kfT, u, i);
     const loc = fx.location || [AL.kf(0, AL.f6(u.x) + ',' + AL.f6(u.y) + ',0.000000')];
-    layers.push(AL.textLayer({
-      id: id++, parent: parentId, label: u.ch, startMs: plan.starts[i], endMs: plan.ends[i],
+    return AL.textLayer({
+      id: id++, parent: parentId, label, startMs: plan.starts[i], endMs: plan.ends[i],
       size: o.size, font: fontAttr(o.font, o.weight), content: u.ch,
       transform: AL.xform({
         location: loc,
@@ -159,10 +164,18 @@ export function generate(o) {
         opacity: fx.opacity || [AL.kf(0, '1.000000')],
         blur: nz(fx.blur),
       }),
-      fillArgb: AL.argb(fill),
-      strokeArgb: stroke ? AL.argb(stroke) : null,
+      fillArgb: AL.argb(isi),
+      strokeArgb: garis ? AL.argb(garis) : null,
       strokeW: 2,
-    }));
+    });
+  };
+  units.forEach((u, i) => {
+    // Bayangan dulu (di belakang), lalu teks utama.
+    echoRoles.forEach((warna, ei) => {
+      const d = (ei + 1) * echoStep;
+      layers.push(lapisanTeks({ ...u, x: u.x + d, y: u.y + d }, i, u.ch + ' bayangan ' + (ei + 1), warna, null));
+    });
+    layers.push(lapisanTeks(u, i, u.ch, fill, stroke));
   });
   layers.push(AL.nullLayer({ id: parentId, label: 'FX Teks', startMs: 0, endMs: plan.total, x: 540, y: 540, hidden: true }));
 
@@ -171,7 +184,7 @@ export function generate(o) {
   const v = AL.validate(xml);
   if (!v.ok) throw new Error(v.error);
   const firstLine = text.split('\n')[0];
-  return { xml, filename: AL.fileFor(o.filename, preset.slug, firstLine), totalMs: plan.total, layers: units.length, preset: preset.name };
+  return { xml, filename: AL.fileFor(o.filename, preset.slug, firstLine), totalMs: plan.total, layers: units.length * (1 + echoRoles.length), preset: preset.name };
 }
 
 export function render(root) {
@@ -187,7 +200,19 @@ export function render(root) {
   const inpProject = T.input('text', 'Nama project…', 'FX Teks');
   const inpFile = T.input('text', 'Otomatis: teks#preset', '');
 
-  root.appendChild(T.field('Teks (maks 2 baris)', inpText));
+  root.appendChild(T.field('Teks (maks 2 baris, 2 kata tiap baris)', inpText));
+  // Pratinjau teks yang benar-benar dipakai: pemotongan 2 baris x 2 kata
+  // terlihat langsung saat mengetik, bukan diam-diam.
+  const pratinjauTeks = T.el('<div class="dim" style="font-size:12.5px;line-height:1.6;margin:2px 0 8px"></div>');
+  const segarkanPratinjau = () => {
+    const dipakai = normalizeText(inpText.value, '');
+    const dipotong = dipakai !== String(inpText.value || '').replace(/\r/g, '').trim();
+    pratinjauTeks.innerHTML = 'Yang dipakai: <b>' + T.esc(dipakai.replace(/\n/g, ' / ') || '(kosong)') + '</b>' +
+      (dipotong ? '<br>Teks dipotong jadi 2 baris, 2 kata tiap baris.' : '');
+  };
+  inpText.addEventListener('input', segarkanPratinjau);
+  root.appendChild(pratinjauTeks);
+  segarkanPratinjau();
   root.appendChild(T.grid2(T.field('Pilihan efek', selPreset), T.field('Animasi per', selMode)));
   root.appendChild(T.grid2(T.field('Font', selFont), T.field('Weight', selWeight)));
   root.appendChild(T.grid2(T.field('Ukuran font (8–120)', inpSize), T.field('Jarak huruf (0–420)', inpSpacing)));
@@ -221,6 +246,7 @@ export function render(root) {
   selPreset.addEventListener('change', () => { syncMode(); drawRoles(); });
   root.appendChild(rolesHead);
   root.appendChild(rolesBox);
+  root.appendChild(T.el('<p class="dim" style="font-size:12.5px;line-height:1.6;margin:4px 0">Warna ke-1 mengisi teks, ke-2 jadi garis tepi, sisanya jadi lapisan bayangan di belakang teks.</p>'));
   drawRoles(); syncMode();
 
   root.appendChild(T.grid2(T.field('Nama project', inpProject), T.field('Nama file (opsional)', inpFile)));

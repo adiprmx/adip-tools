@@ -12,7 +12,7 @@
 #   Tanpa ini, workflow sukses tapi Pages tetap menyajikan branch lama.
 #
 # Catatan: langkah `npm run check` AKTIF (check-tools.js sudah diadaptasi
-# ke aturan hash Vite oleh P0-B, v6.14.0 — hijau 627/627).
+# ke aturan hash Vite oleh P0-B, v6.14.0 — hijau 1.299/1.299).
 name: Deploy preview ke GitHub Pages
 
 on:

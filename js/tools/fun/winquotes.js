@@ -802,7 +802,10 @@ export function render(root) {
       setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     }, 'image/png');
   });
-  const bCopy = T.copyBtn(() => null, 'Salin Gambar');
+  // Tombol biasa (bukan copyBtn): copyBtn(() => null) memunculkan toast salah
+  // "Belum ada yang bisa disalin nih" dari handler bawaannya, padahal
+  // listener di bawah ini berhasil menyalin gambar.
+  const bCopy = T.btn('Salin Gambar', null);
   bCopy.addEventListener('click', async () => {
     if (!imgPrev.src) { T.show(box, errBox('Generate dulu gambarnya.')); return; }
     try {

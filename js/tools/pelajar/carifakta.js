@@ -60,7 +60,9 @@ async function analisisAI(teks, signal) {
   } catch (e) { terakhir = e; }
   // cadangan: GET sederhana
   try {
-    const r = await fetch(AI_GET + encodeURIComponent(SYS_PROMPT + '\n\nINPUT:\n' + teks).slice(0, 6000), { signal: sig });
+    // Potong teks SEBELUM encode: memotong sesudah encode bisa membelah
+    // escape %XX di tengah dan merusak URL.
+    const r = await fetch(AI_GET + encodeURIComponent((SYS_PROMPT + '\n\nINPUT:\n' + teks).slice(0, 6000)), { signal: sig });
     if (!r.ok) throw errStatus(r.status);
     return ekstrakJSON(await r.text());
   } catch (e) { terakhir = e; }
@@ -106,7 +108,7 @@ const SINYAL = [
   [/(menurut (penelitian|studi|survey)).{0,40}(tanpa|tidak).{0,20}(nama|lembaga|disebut)/i, -8, '"Penelitian" tanpa sumber jelas'],
 ];
 const SINYAL_BAIK = [
-  [/(bmkg|kpk|kemenkes|kemendikbud|polri|kejagung|bnpb|bpom|ojk|bi\.go\.id|kominfo)/i, 10, 'Menyebut lembaga resmi'],
+  [/(bmkg|kpk|kemenkes|kemendikdasmen|kemendiktisaintek|polri|kejagung|bnpb|bpom|ojk|bi\.go\.id|komdigi)/i, 10, 'Menyebut lembaga resmi'],
   [/(detik\.com|kompas\.com|tempo\.co|antaranews|tirto\.id|liputan6|cekfakta|turnbackhoax)/i, 10, 'Menyebut media/situs cek fakta'],
   [/(kata|ujar|tutur|menurut)\s+[A-Z][a-z]+/i, 6, 'Ada atribusi narasumber ("kata …")'],
   [/\d{1,2}\s+(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s+\d{4}/i, 6, 'Ada tanggal spesifik'],

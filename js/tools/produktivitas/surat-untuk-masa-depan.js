@@ -59,7 +59,8 @@ function muatDaftar() {
 }
 
 function simpanDaftar(daftar) {
-  try { localStorage.setItem(LS_KUNCI, JSON.stringify(daftar)); } catch (e) {}
+  try { localStorage.setItem(LS_KUNCI, JSON.stringify(daftar)); return true; }
+  catch (e) { return false; }
 }
 
 export function render(root) {
@@ -90,9 +91,14 @@ export function render(root) {
           T.toast('Berhasil diunduh');
         }));
         baris.appendChild(T.btn('Hapus', () => {
-          simpanDaftar(muatDaftar().filter((x) => x.id !== s.id));
-          catatDaftar();
-          T.toast('Surat dihapus');
+          if (confirm('Hapus surat ini? Surat yang sudah dihapus tidak bisa kembali.')) {
+            if (simpanDaftar(muatDaftar().filter((x) => x.id !== s.id))) {
+              catatDaftar();
+              T.toast('Surat dihapus');
+            } else {
+              T.toast('Surat tidak bisa dihapus, coba lagi');
+            }
+          }
         }));
         kartu.appendChild(baris);
       } else {
@@ -100,9 +106,14 @@ export function render(root) {
         kartu.appendChild(T.el('<p class="dim" style="font-size:13px;margin:4px 0 8px">Surat ini masih tersegel sampai tanggalnya tiba.</p>'));
         const baris = T.el('<div class="row"></div>');
         baris.appendChild(T.btn('Hapus', () => {
-          simpanDaftar(muatDaftar().filter((x) => x.id !== s.id));
-          catatDaftar();
-          T.toast('Surat dihapus');
+          if (confirm('Hapus surat ini? Surat yang sudah dihapus tidak bisa kembali.')) {
+            if (simpanDaftar(muatDaftar().filter((x) => x.id !== s.id))) {
+              catatDaftar();
+              T.toast('Surat dihapus');
+            } else {
+              T.toast('Surat tidak bisa dihapus, coba lagi');
+            }
+          }
         }));
         kartu.appendChild(baris);
       }
@@ -121,7 +132,13 @@ export function render(root) {
       tanggal: tanggalI.value,
       dibuat: Date.now(),
     });
-    simpanDaftar(daftar);
+    // Hanya tampilkan "tersimpan" bila benar-benar tersimpan. Bila gagal
+    // (misal penyimpanan browser penuh), beri tahu dengan jujur dan JANGAN
+    // kosongkan form — suratnya belum tersimpan ke mana-mana.
+    if (!simpanDaftar(daftar)) {
+      T.show(statusBox, '<p class="err">Surat tidak bisa disimpan karena penyimpanan browser penuh. Hapus dulu surat lama atau data lain, lalu coba simpan lagi.</p>');
+      return;
+    }
     judulI.value = '';
     isiI.value = '';
     tanggalI.value = '';

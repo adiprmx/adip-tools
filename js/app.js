@@ -48,7 +48,7 @@ import { CATS, CAT_ICON, catLabel, byId, visibleTools, isNew, COLLECTIONS, colle
 import { getFav, isFav, toggleFav, getRecent, touchRecent } from './store.js';
 import { fetchPopularTerms, trackSearch, trackSearchDebounced } from './supabase.js';
 import { hcardHTML, watchFadeX, footerHTML } from './shell-ui.js';
-import { matchRoute, queryParam } from './routes.js';
+import { matchRoute, queryParam, resolveToolAlias } from './routes.js';
 import { renderBaru, renderSpotlight, renderCatIntro, pickRandomTool, acakButtonHTML, greet, PH_EXAMPLES, startPlaceholderRotation, stopPlaceholderRotation, renderContinue, renderPopuler, renderRecent } from './beranda.js';
 import { isNewVisitor, maybeShowOnboarding, heroProofHTML, mulaiDariSiniHTML, HERO_SUB } from './onboarding.js';
 import { recentLineHTML, prevToolChip, catMoreLink } from './detail-riwayat.js';
@@ -715,6 +715,15 @@ function runLeaveCbs() {
    tidak boleh me-render ke halaman tool B bila user sudah pindah. */
 let toolSeq = 0;
 async function toolPage(id) {
+  /* R1 (v6.21.0): alias redirect — ID tool pensiun gelombang 3 mendarat
+     di survivor-nya (peta TOOL_ALIASES di routes.js). location.replace:
+     entri riwayat DIGANTI (bukan ditambah), jadi tombol kembali tidak
+     mengulang redirect; hashchange memicu route() lagi dan survivor
+     dirender normal, termasuk query-nya (?tab= / ?dir=b). Dicek SEBELUM
+     byId() — route hidup tidak pernah menyentuh peta ini, ID tak dikenal
+     tetap jatuh ke "Tools tidak ditemukan" di bawah. */
+  const alias = resolveToolAlias(id);
+  if (alias) { location.replace('#/t/' + alias); return; }
   const mySeq = ++toolSeq;
   const m = byId(id);
   const app = document.getElementById('app');

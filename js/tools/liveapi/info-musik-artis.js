@@ -5,8 +5,24 @@ import { h as T, esc, errBox } from '../../core.js';
 // MusicBrainz membatasi 1 permintaan per detik. Browser tidak bisa mengirim
 // User-Agent kustom (header terlarang di fetch), jadi permintaan memakai
 // User-Agent browser pengunjung apa adanya, sesuai aturan MusicBrainz untuk
-// pemakaian lewat browser.
+// pemakaian lewat browser. Batas 1/detik ditegakkan di bawah (giliranMusicBrainz).
 export const meta = {"id":"info-musik-artis","name":"Info Musik Artis","cat":"liveapi","icon":"🎤","desc":"Cari artis atau band: asal negara, tahun aktif, dan jenis musiknya.","keywords":"musik,artis,band,penyanyi,musicbrainz,musisi,grup musik","since":"6.17.0"};
+
+// Antrean throttle 1 permintaan/detik: pencarian berurutan (klik cepat,
+// Enter berulang) tidak pernah menembak lebih cepat dari batas MusicBrainz,
+// walau dipanggil bersamaan. Rantai janji membuat tiap panggilan menunggu
+// gilirannya; kegagalan satu tugas tidak memacetkan antrean.
+let terakhirPanggil = 0;
+let antrean = Promise.resolve();
+export function giliranMusicBrainz() {
+  const tugas = antrean.then(async () => {
+    const tunggu = 1000 - (Date.now() - terakhirPanggil);
+    if (tunggu > 0) await new Promise((r) => setTimeout(r, tunggu));
+    terakhirPanggil = Date.now();
+  });
+  antrean = tugas.catch(() => {});
+  return tugas;
+}
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -30,6 +46,7 @@ export function render(root) {
     if (!q) { T.show(box, errBox('Tulis nama artis atau band dulu.')); return; }
     T.show(box, '<p class="mut">Mencari artis ' + esc(q) + '…</p>');
     try {
+      await giliranMusicBrainz();
       const j = await getJSON('https://musicbrainz.org/ws/2/artist/?query=artist:' + encodeURIComponent(q) + '&fmt=json&limit=5');
       const list = (j && j.artists) || [];
       if (!list.length) {

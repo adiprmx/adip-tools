@@ -130,6 +130,7 @@ export function render(root) {
   root.appendChild(style);
 
   let photoUrl = null;
+  let photoUrl2 = null;
 
   const mkPost = (n) => ({
     user: T.input('text', 'cth: adip.rmx', ''),
@@ -145,6 +146,7 @@ export function render(root) {
   const p2 = mkPost(2);
   const storyInps = [1, 2, 3, 4].map((i) => T.input('text', 'cth: teman' + i, ''));
   const fi = fileInput('image/*');
+  const fi2 = fileInput('image/*');
   const gradSel = T.select([['sunset', 'Sunset'], ['ocean', 'Ocean'], ['ungu', 'Ungu'], ['hijau', 'Hijau']], 'sunset');
   const grad2Sel = T.select([['ocean', 'Ocean'], ['sunset', 'Sunset'], ['ungu', 'Ungu'], ['hijau', 'Hijau']], 'ocean');
   const themeSel = T.select([['terang', 'Terang'], ['gelap', 'Gelap']], 'terang');
@@ -152,6 +154,8 @@ export function render(root) {
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
   const delPhoto = T.el('<button type="button" class="ffi-delphoto">Hapus foto sendiri</button>');
   delPhoto.style.display = 'none';
+  const delPhoto2 = T.el('<button type="button" class="ffi-delphoto">Hapus foto kedua</button>');
+  delPhoto2.style.display = 'none';
   const preview = T.out();
 
   fi.addEventListener('change', () => {
@@ -159,6 +163,12 @@ export function render(root) {
   });
   delPhoto.addEventListener('click', () => {
     photoUrl = null; fi.value = ''; delPhoto.style.display = 'none'; draw();
+  });
+  fi2.addEventListener('change', () => {
+    if (fi2.files[0]) { photoUrl2 = URL.createObjectURL(fi2.files[0]); delPhoto2.style.display = ''; draw(); }
+  });
+  delPhoto2.addEventListener('click', () => {
+    photoUrl2 = null; fi2.value = ''; delPhoto2.style.display = 'none'; draw();
   });
 
   function postHtml(p, photo) {
@@ -206,7 +216,9 @@ export function render(root) {
     const foto1 = photoUrl
       ? '<img src="' + T.esc(photoUrl) + '" alt="">'
       : '<div class="ffi-grad" style="background:' + FFI_GRADS[gradSel.value] + '"></div>';
-    const foto2 = '<div class="ffi-grad" style="background:' + FFI_GRADS[grad2Sel.value] + '"></div>';
+    const foto2 = photoUrl2
+      ? '<img src="' + T.esc(photoUrl2) + '" alt="">'
+      : '<div class="ffi-grad" style="background:' + FFI_GRADS[grad2Sel.value] + '"></div>';
 
     let h = '<div class="ffi-topbar">'
       + '<span class="ffi-wm">' + ffiWordmark() + '</span>'
@@ -251,6 +263,9 @@ export function render(root) {
   const fiWrap = T.el('<div></div>');
   fiWrap.appendChild(fi);
   fiWrap.appendChild(delPhoto);
+  const fiWrap2 = T.el('<div></div>');
+  fiWrap2.appendChild(fi2);
+  fiWrap2.appendChild(delPhoto2);
 
   const postFields = (p, judul) => {
     const grup = T.el('<div></div>');
@@ -263,13 +278,14 @@ export function render(root) {
   };
 
   root.appendChild(T.el('<p class="note">🔒 ' + LOCAL_NOTE + '</p>'));
+  root.appendChild(T.el('<p class="note">🎭 Hanya untuk prank, bukan feed Instagram asli. Jangan dipakai untuk menipu orang.</p>'));
   root.appendChild(T.el('<div class="hint" style="margin:4px 0;font-weight:600">Baris story</div>'));
   root.appendChild(T.grid2(T.field('Story 1', storyInps[0]), T.field('Story 2', storyInps[1])));
   root.appendChild(T.grid2(T.field('Story 3', storyInps[2]), T.field('Story 4', storyInps[3])));
   root.appendChild(postFields(p1, 'Postingan pertama'));
   root.appendChild(postFields(p2, 'Postingan kedua'));
   root.appendChild(T.grid2(T.field('Upload foto postingan pertama', fiWrap), T.field('Atau pakai gradient', gradSel)));
-  root.appendChild(T.field('Gradient postingan kedua', grad2Sel));
+  root.appendChild(T.grid2(T.field('Upload foto postingan kedua', fiWrap2), T.field('Atau pakai gradient', grad2Sel)));
   root.appendChild(T.grid2(T.field('Tema', themeSel), T.field('Platform', selPlatform)));
   const brandField = T.field('Merk HP', selBrand);
   root.appendChild(brandField);

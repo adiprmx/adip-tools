@@ -28,7 +28,7 @@ export function render(root) {
         box.appendChild(cardP);
       }
 
-      root.appendChild(T.el('<p class="note">Mendeteksi email umum dan nomor HP Indonesia (08xx, +62, 62xx). ' + T.esc(LOCAL_NOTE) + '</p>'));
+      root.appendChild(T.el('<p class="note">Mendeteksi email umum dan nomor HP Indonesia (08xx, +62, 62xx) — termasuk yang ditulis pakai strip atau spasi, mis. 0812-3456-7890. ' + T.esc(LOCAL_NOTE) + '</p>'));
       root.appendChild(T.field('Teks', taIn));
       root.appendChild(T.btn('Cari', extract, true));
       root.appendChild(box);

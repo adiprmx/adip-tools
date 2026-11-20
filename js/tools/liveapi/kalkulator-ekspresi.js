@@ -20,7 +20,7 @@ async function hitungApi(expr) {
 
 export function render(root) {
   const box = T.out();
-  const inp = T.input('text', 'Contoh: 2*(7-3), sqrt(144), 15% dari 200000');
+  const inp = T.input('text', 'Contoh: 2*(7-3), sqrt(144), 15%*200000');
   inp.setAttribute('autocomplete', 'off');
   inp.setAttribute('inputmode', 'text');
   let riwayat = [];
@@ -51,7 +51,7 @@ export function render(root) {
       T.show(box,
         '<div class="center"><div class="dim" style="font-size:13px">' + esc(expr) + '</div>' +
         '<div style="font-weight:800;font-size:28px;margin:6px 0;word-break:break-word">' + esc(hasil) + '</div></div>' +
-        '<p class="hint">Sumber: math.js. Tanda kali pakai *, bagi pakai /, pangkat pakai ^, akar pakai sqrt().</p>' +
+        '<p class="hint">Sumber: math.js. Tanda kali pakai *, bagi pakai /, pangkat pakai ^, akar pakai sqrt(), persen pakai %, contoh 15%*200000.</p>' +
         tampilRiwayat());
       box.querySelectorAll('[data-isi]').forEach((b) => {
         b.addEventListener('click', () => { inp.value = b.getAttribute('data-isi'); jalankan(); });
@@ -69,9 +69,19 @@ export function render(root) {
     }
   };
 
+  // Contoh sekali ketuk: mengisi kolom lalu langsung menghitung, supaya
+  // pengguna baru tidak perlu menebak format yang benar.
+  const contoh = T.el('<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px"></div>');
+  ['2*(7-3)', 'sqrt(144)', '15%*200000'].forEach((c) => {
+    const b = T.btn(c, () => { inp.value = c; jalankan(); });
+    b.style.fontSize = '12.5px';
+    contoh.appendChild(b);
+  });
+
   inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') jalankan(); });
   root.appendChild(T.el('<p class="note">Ketik ekspresi matematika, lalu ketuk Hitung. Hasilnya dihitung server math.js, jadi bisa akar, pangkat, sampai fungsi seperti sin dan log.</p>'));
   root.appendChild(T.field('Ekspresi', inp));
+  root.appendChild(contoh);
   root.appendChild(T.row(T.btn('= Hitung', jalankan, true)));
   root.appendChild(box);
   T.show(box, '<p class="center dim">Belum ada yang dihitung. Coba tulis 2*(7-3) lalu ketuk Hitung.</p>');

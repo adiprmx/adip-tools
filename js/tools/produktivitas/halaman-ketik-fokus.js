@@ -129,26 +129,39 @@ export function render(root) {
   }));
   barisAksi.appendChild(T.btn('Hapus tulisan', () => {
     if (!teksI.value) return;
+    if (!confirm('Hapus tulisan ini? Tulisan yang sudah dihapus tidak bisa kembali.')) return;
     teksI.value = '';
     simpan();
     catat();
     T.toast('Tulisan dihapus');
   }));
+  // Mode fokus menyembunyikan semua yang bukan area tulis: catatan,
+  // kolom target, statistik, timer, dan semua tombol kecuali tombol
+  // ini sendiri. Sebelumnya hanya kelas .mode-fokus yang di-toggle,
+  // padahal kelas itu tidak punya definisi CSS di mana pun — modenya
+  // tidak melakukan apa-apa.
   const fokusB = T.btn('Mode fokus', () => {
     fokusAktif = !fokusAktif;
-    wadah.classList.toggle('mode-fokus', fokusAktif);
     document.querySelectorAll('.mode-fokus-sembunyi').forEach((n) => { n.style.display = fokusAktif ? 'none' : ''; });
+    Array.from(barisAksi.children).forEach((n) => { if (n !== fokusB) n.style.display = fokusAktif ? 'none' : ''; });
+    teksI.style.minHeight = fokusAktif ? '70vh' : '340px';
     fokusB.textContent = fokusAktif ? 'Keluar mode fokus' : 'Mode fokus';
     if (fokusAktif) teksI.focus();
   });
   barisAksi.appendChild(fokusB);
 
   const kepala = T.el(`<p class="note mode-fokus-sembunyi">🔒 ${LOCAL_NOTE}</p>`);
-  const petunjuk = T.el('<p class="note mode-fokus-sembunyi">Tulisan tersimpan otomatis di browser ini. Mode fokus menyembunyikan semua tombol supaya kamu bisa konsentrasi.</p>');
+  const petunjuk = T.el('<p class="note mode-fokus-sembunyi">Tulisan tersimpan otomatis di browser ini. Mode fokus menyembunyikan tombol, catatan, dan angka-angka supaya kamu bisa konsentrasi.</p>');
+  const targetField = T.field('Target kata (boleh kosong)', targetI, 'Isi target kalau kamu menulis dengan patokan jumlah kata.');
+  targetField.classList.add('mode-fokus-sembunyi');
+  statBox.classList.add('mode-fokus-sembunyi');
+  progresBox.classList.add('mode-fokus-sembunyi');
+  timerBox.classList.add('mode-fokus-sembunyi');
+  statusBox.classList.add('mode-fokus-sembunyi');
 
   wadah.appendChild(kepala);
   wadah.appendChild(petunjuk);
-  wadah.appendChild(T.field('Target kata (boleh kosong)', targetI, 'Isi target kalau kamu menulis dengan patokan jumlah kata.'));
+  wadah.appendChild(targetField);
   wadah.appendChild(teksI);
   wadah.appendChild(statBox);
   wadah.appendChild(progresBox);

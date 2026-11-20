@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"arah-kiblat","name":"Arah Kiblat","cat":"liveapi","icon":"🧭","desc":"Cari arah kiblat dari lokasimu.","keywords":"kiblat,kabah,ka'bah,kompas,arah,sholat"};
+export const meta = {"id":"arah-kiblat","name":"Arah Kiblat","cat":"sehari","icon":"🧭","desc":"Cari arah kiblat dari lokasimu.","keywords":"kiblat,kabah,ka'bah,kompas,arah,sholat"};
 
 const KAA = { lat: 21.4225, lon: 39.8262 }; // Ka'bah, Mekkah
 const DIRS = ['Utara', 'Timur Laut', 'Timur', 'Tenggara', 'Selatan', 'Barat Daya', 'Barat', 'Barat Laut'];

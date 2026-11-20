@@ -31,7 +31,14 @@ export function render(root) {
       const j = await getJSON('https://rickandmortyapi.com/api/character/?name=' + encodeURIComponent(q));
       const list = (j && j.results) || [];
       if (!list.length) throw new Error('not-found');
-      T.show(box, '<p class="hint">' + list.length + ' karakter ditemukan</p>' + list.slice(0, 12).map((k) => {
+      // Hitungan memakai total dari API (j.info.count), bukan jumlah satu
+      // halaman; bila ada halaman berikut, beri tahu pengguna.
+      const total = (j && j.info && typeof j.info.count === 'number') ? j.info.count : list.length;
+      const tampil = list.slice(0, 12);
+      const adaBerikutnya = !!(j && j.info && j.info.next);
+      T.show(box, '<p class="hint">' + total + ' karakter ditemukan' + (tampil.length < total ? ', ' + tampil.length + ' ditampilkan di sini' : '') + '</p>' +
+        (adaBerikutnya ? '<p class="hint">Ada halaman berikut. Ketik nama yang lebih spesifik untuk mempersempit hasil.</p>' : '') +
+        tampil.map((k) => {
         return '<div style="border-top:1px solid #ffffff14;padding:12px 0;display:flex;gap:12px">' +
           (gambarAman(k.image) ? '<img src="' + esc(k.image) + '" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:8px;flex:none" loading="lazy" data-err="hide">' : '') +
           '<div style="min-width:0">' +

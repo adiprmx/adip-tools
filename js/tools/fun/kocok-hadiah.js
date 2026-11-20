@@ -35,7 +35,7 @@ export function render(root) {
     if (!hasil) { wadah.appendChild(T.el('<div class="hint">Belum dikocok. Isi nama peserta lalu tekan Kocok.</div>')); return; }
     hasil.forEach((pasangan) => {
       const kartu = T.el('<div style="border:1px solid #2a2a2a;border-radius:10px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px"></div>');
-      const kiri = T.el(`<span style="font-size:15px"><b>${pasangan.dari}</b> memberi hadiah untuk <span data-target style="color:#a1a1aa">??? (ketuk untuk lihat)</span></span>`);
+      const kiri = T.el(`<span style="font-size:15px"><b>${T.esc(pasangan.dari)}</b> memberi hadiah untuk <span data-target style="color:#a1a1aa">??? (ketuk untuk lihat)</span></span>`);
       kartu.appendChild(kiri);
       const kanan = T.el('<span style="display:flex;gap:6px;flex-shrink:0"></span>');
       kanan.appendChild(T.btn('Lihat', () => {

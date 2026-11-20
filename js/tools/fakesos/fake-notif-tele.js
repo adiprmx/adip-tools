@@ -49,6 +49,7 @@ export function render(root) {
   const msgI = T.ta(3, 'Isi pesan…', 'Nak, pulang sekarang! Ada kejutan buat kamu 🎁');
   const whenI = T.input('text', 'cth: sekarang, 09.41', 'sekarang');
   const dateI = T.input('text', 'cth: Rabu, 7 Oktober', 'Rabu, 7 Oktober');
+  const jamI = T.input('text', 'cth: 9:41', '9:41');
   const wallI = T.select([['malam', 'Malam biru'], ['senja', 'Senja'], ['laut', 'Laut gelap'], ['hutan', 'Hutan']], 'malam');
   const platI = T.select([['android', 'Android'], ['iphone', 'iPhone']], 'android');
   const selBrand = T.select([['xiaomi', 'Xiaomi'], ['samsung', 'Samsung'], ['oppo', 'Oppo'], ['vivo', 'Vivo'], ['realme', 'Realme'], ['oneplus', 'OnePlus'], ['infinix', 'Infinix'], ['tecno', 'Tecno'], ['motorola', 'Motorola'], ['nothing', 'Nothing'], ['pixel', 'Pixel'], ['huawei', 'Huawei'], ['honor', 'Honor']], 'xiaomi');
@@ -69,6 +70,7 @@ export function render(root) {
   mrow.appendChild(T.field('Waktu notif', whenI));
   mrow.appendChild(T.field('Tanggal layar kunci', dateI));
   ctl.appendChild(mrow);
+  ctl.appendChild(T.field('Jam layar kunci', jamI, 'Tampil besar di tengah layar kunci, mis. 9:41.'));
   ctl.appendChild(T.field('Wallpaper', wallI));
   ctl.appendChild(T.field('Platform', platI));
   const brandField = T.field('Merk HP', selBrand);
@@ -82,7 +84,7 @@ export function render(root) {
   btns.appendChild(T.btn('✕ Hapus foto', () => { avUrl = null; draw(); }));
   btns.appendChild(T.btn('🎲 Contoh', () => {
     senderI.value = 'Mama'; msgI.value = 'Nak, pulang sekarang! Ada kejutan buat kamu 🎁';
-    whenI.value = 'sekarang'; dateI.value = 'Rabu, 7 Oktober'; wallI.value = 'malam';
+    whenI.value = 'sekarang'; dateI.value = 'Rabu, 7 Oktober'; jamI.value = '9:41'; wallI.value = 'malam';
     platI.value = 'android'; avUrl = null; draw(); T.scrollToPreview(screen);
   }));
   btns.appendChild(T.btn('⬇️ Unduh PNG', () => dlNodePng(screen, 'fake-notif-tele.png'), true));
@@ -106,7 +108,7 @@ export function render(root) {
     screen.setAttribute('style', 'background:' + (WALLS[wallI.value] || WALLS.malam));
     screen.innerHTML =
       '<div class="fnt-sb">' + T.sysbar(isIPh ? 'iphone' : 'android', selBrand.value, true) + '</div>' +
-      '<div class="fnt-clock"><div class="t">9:41</div><div class="d">' + T.esc(dateI.value.trim() || 'Hari ini') + '</div></div>' +
+      '<div class="fnt-clock"><div class="t">' + T.esc(jamI.value.trim() || '9:41') + '</div><div class="d">' + T.esc(dateI.value.trim() || 'Hari ini') + '</div></div>' +
       '<div class="fnt-notifwrap">' +
         '<div class="fnt-notif">' +
           '<div class="fnt-app">' + appIcon + '</div>' +
@@ -121,7 +123,7 @@ export function render(root) {
       (isIPh ? '<div class="fnt-homebar"><span></span></div>' : '<div class="fnt-navpill"><span></span></div>');
   }
 
-  [senderI, msgI, whenI, dateI, wallI, platI, selBrand].forEach((elx) => {
+  [senderI, msgI, whenI, dateI, jamI, wallI, platI, selBrand].forEach((elx) => {
     elx.addEventListener('input', draw);
     elx.addEventListener('change', draw);
   });

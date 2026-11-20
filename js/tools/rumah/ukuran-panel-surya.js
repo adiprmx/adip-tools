@@ -4,7 +4,17 @@ import { h as T, utils, kv } from '../../core.js';
 // pemakaian harian (Wh) / jam matahari puncak / (1 - rugi sistem).
 // Jam matahari puncak di Indonesia umumnya 4 sampai 5 jam per hari.
 // Rugi sistem 20% menutup panas, kabel, inverter, dan debu.
-// Luas atap memakai 2,3 m2 per panel 550 Wp sebagai patokan umum.
+// Luas atap: panel modern butuh sekitar 4,2–4,9 m2 per kWp (modul saja,
+// tanpa jarak antar-panel) — patokan 4,7 m2/kWp dipakai di sini.
+// Jangkar terverifikasi 20 Nov 2026 dari lembar data pabrikan: 550 Wp
+// 2278x1134 mm = 2,58 m2 (Tata TP530-550, Blue Carbon SP-550, PWSolar);
+// 450-470 Wp 1728x1205 mm = 2,08 m2 (REC Alpha Pure-RX); 420-440 Wp
+// 1722x1134 mm = 1,95 m2 (Qcells Q.TRON). Nilai lama 2,3 m2 flat untuk
+// semua watt sudah dicabut — panel 550 Wp nyatanya 2,58 m2.
+export const LUAS_PER_KWP_M2 = 4.7;
+export function luasPerPanelM2(watt) {
+  return Number(watt) * LUAS_PER_KWP_M2 / 1000;
+}
 export function hitungPanelSurya(kwhPerHari, jamMatahari, wattPanel, rugiPersen) {
   const kwh = Number(kwhPerHari);
   const jam = Number(jamMatahari);
@@ -13,11 +23,13 @@ export function hitungPanelSurya(kwhPerHari, jamMatahari, wattPanel, rugiPersen)
   if (![kwh, jam, watt, rugi].every(isFinite) || kwh <= 0 || jam <= 0 || watt <= 0 || rugi < 0 || rugi >= 100) return null;
   const kebutuhanWatt = kwh * 1000 / jam / (1 - rugi / 100);
   const jumlahPanel = Math.ceil(kebutuhanWatt / watt);
+  const luasPerPanel = luasPerPanelM2(watt);
   return {
     kebutuhanWatt,
     jumlahPanel,
     kapasitasTerpasang: jumlahPanel * watt,
-    luasAtap: jumlahPanel * 2.3,
+    luasPerPanel,
+    luasAtap: jumlahPanel * luasPerPanel,
   };
 }
 utils.panelSurya = hitungPanelSurya;
@@ -60,8 +72,9 @@ export function render(root) {
       kv('Pemakaian per hari', kwhHari.toFixed(1).replace('.', ',') + ' kWh') +
       kv('Daya minimal yang dibutuhkan', T.fmt(Math.round(r.kebutuhanWatt)) + ' Wp') +
       kv('Kapasitas terpasang', T.fmt(r.kapasitasTerpasang) + ' Wp') +
+      kv('Luas per panel (' + T.fmt(watt) + ' Wp)', r.luasPerPanel.toFixed(2).replace('.', ',') + ' m2') +
       kv('Luas atap yang dibutuhkan', r.luasAtap.toFixed(1).replace('.', ',') + ' m2') +
-      '<p class="hint">Ini perkiraan awal untuk merencanakan. Pasang panel surya butuh survei atap (arah, kemiringan, bayangan) dan izin PLN untuk sistem yang tersambung ke jaringan. Jam matahari 4,5 jam adalah nilai tengah untuk Indonesia, sesuaikan dengan daerahmu.</p>');
+      '<p class="hint">Luas dihitung dari daya panelmu (sekitar 4,7 m2 per kWp — panel 550 Wp sekitar 2,58 m2, panel 450 Wp sekitar 2,1 m2). Ini luas modulnya saja; atap aslinya butuh lebih karena ada jarak antar-panel, jalan perawatan, dan bagian atap yang tidak bisa dipakai. Ini perkiraan awal untuk merencanakan. Pasang panel surya butuh survei atap (arah, kemiringan, bayangan) dan izin PLN untuk sistem yang tersambung ke jaringan. Jam matahari 4,5 jam adalah nilai tengah untuk Indonesia, sesuaikan dengan daerahmu.</p>');
   };
   [kwhI, jamI, wattI, rugiI].forEach((i) => i.addEventListener('input', hitung));
 

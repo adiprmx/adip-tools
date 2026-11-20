@@ -14,6 +14,29 @@ export function labelProgress(persen) {
 
 export const IKON_STEAM = ['trofi', 'bintang', 'medali', 'pedang'];
 
+// Potong teks dengan '…' berdasarkan LEBAR TERUKUR (bukan jumlah karakter),
+// supaya teks panjang tidak pernah meluber keluar kanvas.
+function potongElipsis(x, teks, maksW) {
+  if (x.measureText(teks).width <= maksW) return teks;
+  let s = teks;
+  while (s.length > 1 && x.measureText(s + '…').width > maksW) s = s.slice(0, -1);
+  return s + '…';
+}
+
+// Bungkus kata + batasi jumlah baris + elipsis bila ada teks terpotong
+// (bungkusKata membuang kata di luar 2 baris secara diam-diam).
+function bungkusTerbatas(x, teks, maksW, maksBaris) {
+  const rapi = String(teks).replace(/\s+/g, ' ').trim();
+  let baris = utils.bungkusKata(x, rapi, maksW).map((b) => potongElipsis(x, b, maksW));
+  const terpotong = baris.join(' ') !== rapi || baris.length > maksBaris;
+  if (baris.length > maksBaris) baris = baris.slice(0, maksBaris);
+  if (terpotong && baris.length) {
+    const t = baris.length - 1;
+    baris[t] = potongElipsis(x, baris[t].replace(/…$/, '') + '…', maksW);
+  }
+  return baris;
+}
+
 export function gambarIkonSteam(x, nama, px, py, s, warna) {
   x.save();
   x.translate(px + s / 2, py + s / 2);
@@ -88,10 +111,12 @@ export function render(root) {
     x.fillText(labelProgress(persen), 168, 28);
     x.fillStyle = '#fff'; x.font = '700 30px system-ui, sans-serif';
     const judul = (judulI.value.trim() || 'Achievement').slice(0, 42);
-    x.fillText(judul, 168, 58);
+    // Judul satu baris: dulu 42 karakter bisa melewati 480px dan keluar kanvas.
+    x.fillText(potongElipsis(x, judul, 480), 168, 58);
     x.fillStyle = '#8f98a0'; x.font = '400 22px system-ui, sans-serif';
     const desc = descI.value.trim().slice(0, 90);
-    const baris = utils.bungkusKata(x, desc, 480);
+    // 2 baris (y=98 & 126, bawah ≈148) — aman dari progress bar di y=158.
+    const baris = bungkusTerbatas(x, desc, 480, 2);
     baris.forEach((b, i) => x.fillText(b, 168, 98 + i * 28));
     /* progress bar */
     x.fillStyle = '#0e1621'; x.fillRect(168, 158, 480, 14);
@@ -99,7 +124,7 @@ export function render(root) {
     x.fillRect(168, 158, Math.round(480 * persen / 100), 14);
     /* nama game */
     x.fillStyle = '#66c0f4'; x.font = '400 19px system-ui, sans-serif';
-    x.fillText((gameI.value.trim() || 'Game').slice(0, 40), 24, 172);
+    x.fillText(potongElipsis(x, (gameI.value.trim() || 'Game').slice(0, 40), 632), 24, 172);
   };
 
   const unduh = () => {
