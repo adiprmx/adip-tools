@@ -1,8 +1,8 @@
-/* ADIP Tools v6.20.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.20.1 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.20.0';
+export const VERSION = '6.20.1';
 export const manifest = [
   {"id":"analisis-swot","name":"Analisis SWOT","cat":"bisnis","icon":"🧭","desc":"Petakan kekuatan, kelemahan, peluang, dan ancaman usahamu dalam satu matriks.","keywords":"swot,analisis,strength,weakness,opportunity,threat,usaha,bisnis,strategi,matriks","file":"tools/bisnis/analisis-swot.js","since":"6.18.0"},
   {"id":"anggaran-50-30-20","name":"Anggaran 50/30/20","cat":"bisnis","icon":"💰","desc":"Bagi penghasilan jadi kebutuhan, keinginan, dan tabungan, lalu cek apakah pengeluaranmu sudah sesuai.","keywords":"anggaran,budget,50 30 20,keuangan,penghasilan,tabungan,kebutuhan","file":"tools/bisnis/anggaran-50-30-20.js","since":"6.11.0"},

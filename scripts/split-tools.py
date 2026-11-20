@@ -15,7 +15,7 @@ import json, os, re, shutil, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JS = os.path.join(ROOT, 'js')
-VERSION = '6.20.0'
+VERSION = '6.20.1'
 
 # --- PENGAMAN (T05, 15 Nov 2026) -------------------------------------------
 # Skrip ini adalah generator SATU KALI untuk migrasi Fase 2 (100 tool).

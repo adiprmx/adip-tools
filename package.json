@@ -8,10 +8,10 @@
   "private": true,
   "scripts": {
     "build": "vite build && node scripts/gen-sw-precache.js",
-    "check": "node scripts/check-tools.js",
+    "check": "node scripts/check-tools.js && node scripts/check-vercel-schema.js",
     "dev": "vite",
     "preview": "vite preview",
     "sync-manifest": "node scripts/sync-manifest.js"
   },
-  "version": "6.20.0"
+  "version": "6.20.1"
 }

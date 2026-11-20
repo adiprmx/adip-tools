@@ -66,6 +66,14 @@ export function createPreviewFrame(opts = {}) {
   let pending = null;
   let disposed = false;
   let fallbackTries = 0;
+  // RACE FIX (v6.20.1): HTML terakhir yang diserahkan ke setHtml + penanda
+  // fallback sudah menembak. Fallback 5 dtk TIDAK definitif: bila
+  // preview.html/preview.js belum termuat saat fallback menembak, flush-nya
+  // hilang ke frame yang belum siap mendengarkan. Saat 'at-preview-ready'
+  // akhirnya tiba, HTML terakhir dikirim ULANG (idempotent — preview.js
+  // hanya menimpa srcdoc yang sama, jadi kirim ganda tidak berbahaya).
+  let lastHtml = null;
+  let fallbackFired = false;
 
   const send = (html) => {
     if (!frame.contentWindow) return;
@@ -83,11 +91,14 @@ export function createPreviewFrame(opts = {}) {
   // Pengaman: bila pesan ready hilang (tidak seharusnya terjadi — listener
   // dipasang sebelum src di-set), coba kirim juga setelah 5 detik. Dibatasi
   // 3x percobaan agar tidak berputar selamanya bila frame gagal dimuat.
+  // CATATAN v6.20.1: tembakan ini TIDAK definitif — bila frame ternyata
+  // belum siap, kirimannya hilang dan dikirim ulang saat ready tiba (lihat
+  // onMsg). Jangan pernah menganggap fallback = frame siap.
   const armFallback = () => {
     setTimeout(() => {
       if (disposed || ready) return;
       fallbackTries++;
-      if (frame.contentWindow) { ready = true; flush(); }
+      if (frame.contentWindow) { fallbackFired = true; ready = true; flush(); }
       else if (fallbackTries < 3) armFallback();
     }, 5000);
   };
@@ -100,7 +111,19 @@ export function createPreviewFrame(opts = {}) {
     const d = e.data;
     if (!d || d.type !== 'at-preview-ready' || d.token !== token) return;
     ready = true;
-    flush();
+    // RACE FIX (v6.20.1): bila fallback sudah menembak sebelum frame siap,
+    // flush-nya hilang ke frame yang belum mendengarkan (pending sudah
+    // terhapus) — kirim ulang HTML terakhir sekarang, saat frame BENAR-BENAR
+    // siap. Bila fallback ternyata tidak hilang (frame sudah siap, hanya
+    // pesan ready-nya yang telat), kirim ulang ini idempotent: preview.js
+    // menimpa srcdoc dengan HTML yang sama. Flag dibersihkan supaya ready
+    // duplikat tidak mengirim berulang.
+    if (fallbackFired) {
+      fallbackFired = false;
+      if (lastHtml !== null) send(lastHtml);
+    } else {
+      flush();
+    }
   };
   window.addEventListener('message', onMsg);
   frame.src = pageUrl + '?t=' + encodeURIComponent(token);
@@ -110,6 +133,7 @@ export function createPreviewFrame(opts = {}) {
     frame,
     setHtml(html) {
       if (disposed) return;
+      lastHtml = html;
       if (ready) send(html);
       else pending = html;
     },
