@@ -5,7 +5,7 @@
 
 import { h as T, fileInput, LOCAL_NOTE, utils, fmtBytes } from '../../core.js';
 
-export const meta = {"id": "word-ke-html", "name": "Word ↔ HTML", "cat": "produktivitas", "icon": "🌐", "desc": "Ubah dokumen Word jadi kode HTML, atau halaman HTML jadi dokumen Word.", "keywords": "word ke html,docx ke html,konversi word,kode html,html ke word,html ke docx,halaman web ke word,konversi html,word,html", "since": "6.17.0"};
+export const meta = {"id": "word-ke-html", "name": "Word ↔ HTML", "cat": "produktivitas", "icon": "🌐", "desc": "Ubah dokumen Word jadi kode HTML, atau halaman HTML jadi dokumen Word.", "keywords": "word ke html,docx ke html,konversi word,kode html,html ke word,html ke docx,halaman web ke word,konversi html,word,html", "since": "6.17.0", "online": true};
 
 
 const MAMMOTH_CDN = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';

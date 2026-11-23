@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Info karakter Disney lewat Disney API, tanpa key.
 // Terverifikasi 17 Nov 2026: /character?pageSize=1 -> 200, CORS *.
-export const meta = {"id":"karakter-disney","name":"Karakter Disney","cat":"liveapi","icon":"🏰","desc":"Cari karakter Disney: film, serial, dan game tempat mereka muncul.","keywords":"disney,karakter,mickey,princess,pixar,film disney,animasi","since":"6.17.0"};
+export const meta = {"id":"karakter-disney","name":"Karakter Disney","cat":"liveapi","icon":"🏰","desc":"Cari karakter Disney: film, serial, dan game tempat mereka muncul.","keywords":"disney,karakter,mickey,princess,pixar,film disney,animasi","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -57,7 +57,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Disney API tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Disney API tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari karakter. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');
@@ -77,7 +77,7 @@ export function render(root) {
       tampil(list);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Disney API tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Disney API tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil karakter. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

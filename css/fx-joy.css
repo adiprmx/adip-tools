@@ -25,7 +25,7 @@
 .pal-item { position: relative; }
 .pal-item::before {
   content: ""; position: absolute; left: 2px; top: 11px; bottom: 11px;
-  width: 3px; border-radius: 3px; background: var(--acc);
+  width: 3px; border-radius: var(--r-xs); background: var(--acc);
   transform: scaleY(0); opacity: 0; transform-origin: center;
   transition: transform 0.28s var(--spring), opacity 0.2s;
   pointer-events: none;
@@ -42,11 +42,14 @@
    skeleton yang hidup tinggal di fx-p3.css (fx-sk-sweep, matematika
    sapuan yang sama). Tidak ada lagi .skel i di markup mana pun. */
 
-/* ---------- 4. Empty state: bernapas pelan + chip stagger ---------- */
-.empty b { animation: empty-breathe 4.2s ease-in-out infinite; }
-@keyframes empty-breathe {
-  50% { transform: translateY(-3px); opacity: 0.82; }
-}
+/* ---------- 4. Empty state: chip stagger ----------
+   S-U6 (v6.22.0, S-A6 F-14): napas infinite pada judul (.empty b,
+   empty-breathe 4,2 dtk) DICABUT — satu-satunya animasi infinite
+   pada TEKS konten; judul yang tidak pernah berhenti bergerak
+   terbaca gelisah, bukan hidup, dan geraknya tidak mengabarkan
+   apa pun (taste skill: motion harus termotivasi). Stagger chip
+   dipertahankan — itu entrance sekali jalan yang mengarahkan
+   mata ke jalan keluar. */
 .empty .sugx .schip { animation: rise-in 0.45s var(--snappy) both; }
 .empty .sugx .schip:nth-child(1) { animation-delay: 0.05s; }
 .empty .sugx .schip:nth-child(2) { animation-delay: 0.11s; }
@@ -67,7 +70,7 @@
 @media (prefers-reduced-motion: reduce) {
   .toast, .toast.show,
   .pal-item::before, .pal-item .pic,
-  .empty b, .empty .sugx .schip,
+  .empty .sugx .schip,
   .tab.on .ti {
     animation: none !important;
     transition: none !important;

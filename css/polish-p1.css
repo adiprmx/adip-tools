@@ -53,14 +53,12 @@
        6.13.0" tetap benar dan tidak diubah.
    ============================================================ */
 
-/* ---------- (a) hapus garis bawah hero ---------- */
-/* Menimpa .hero h1 .w:last-child::after di fx-hero.css
-   (spesifisitas sama, file ini dimuat belakangan sehingga
-   menang). Animasi ul-draw/ul-sheen ikut mati karena
-   elemennya tidak dirender; tidak ada gerak baru. */
-.hero h1 .w:last-child::after {
-  display: none;
-}
+/* ---------- (a) hapus garis bawah hero ----------
+   Alasan lengkap ada di KEPUTUSAN DESAIN (a) di header file ini.
+   v6.22.0 S-F4: aturan garis + keyframes ul-draw/ul-sheen di
+   fx-hero.css sudah DIHAPUS (S-A6 F-09, 0 pemakaian lain), jadi
+   override display:none di sini ikut dicabut, tidak ada lagi
+   yang disembunyikan. */
 
 /* ---------- (b) bukti hero jadi chip berikon ---------- */
 /* Menimpa .hero-proof di onboarding.css (spesifisitas sama,
@@ -128,13 +126,13 @@
   padding: 14px;
   border-radius: var(--r-card);
   text-decoration: none;
-  transition: transform 0.14s var(--ease), border-color 0.15s;
+  /* Transisi + angkat hover (-4px) + tekan di fx-micro.css §2
+     (satu pemilik gerak kartu, S-U6 v6.22.0): file ini dimuat
+     sesudah fx-micro, jadi transisi/:active lokal di sini akan
+     MENANG dan memecah keluarga kartu — dicabut. */
 }
 .baru-card:hover {
   border-color: var(--hair-hover);
-}
-.baru-card:active {
-  transform: scale(0.98);
 }
 .baru-card:focus-visible {
   outline: 2px solid var(--acc);
@@ -183,4 +181,11 @@
   text-transform: uppercase;
   color: var(--dim);
   margin-top: 2px;
+  /* Badge kategori (v6.22.0 S-F4, S-A6 F-10): pill outline netral,
+     sama persis dengan .pal-item .pct / .tcard .ct / .hcard .hct.
+     Coral hanya untuk .tool-head .tag di halaman tool. */
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 4px 10px;
+  align-self: flex-start;
 }

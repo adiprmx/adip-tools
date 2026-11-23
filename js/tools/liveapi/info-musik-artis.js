@@ -6,7 +6,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // User-Agent kustom (header terlarang di fetch), jadi permintaan memakai
 // User-Agent browser pengunjung apa adanya, sesuai aturan MusicBrainz untuk
 // pemakaian lewat browser. Batas 1/detik ditegakkan di bawah (giliranMusicBrainz).
-export const meta = {"id":"info-musik-artis","name":"Info Musik Artis","cat":"liveapi","icon":"🎤","desc":"Cari artis atau band: asal negara, tahun aktif, dan jenis musiknya.","keywords":"musik,artis,band,penyanyi,musicbrainz,musisi,grup musik","since":"6.17.0"};
+export const meta = {"id":"info-musik-artis","name":"Info Musik Artis","cat":"liveapi","icon":"🎤","desc":"Cari artis atau band: asal negara, tahun aktif, dan jenis musiknya.","keywords":"musik,artis,band,penyanyi,musicbrainz,musisi,grup musik","since":"6.17.0", "online": true};
 
 // Antrean throttle 1 permintaan/detik: pencarian berurutan (klik cepat,
 // Enter berulang) tidak pernah menembak lebih cepat dari batas MusicBrainz,
@@ -73,7 +73,7 @@ export function render(root) {
       }).join('') + '<p class="hint">Sumber: MusicBrainz, basis data musik terbuka yang dirawat komunitas.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server MusicBrainz tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server MusicBrainz tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari artis. MusicBrainz membatasi 1 permintaan per detik, tunggu sebentar lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

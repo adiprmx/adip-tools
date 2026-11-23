@@ -21,7 +21,7 @@ export async function cariKualitasPas(ukur, targetBytes, batas) {
   return best;
 }
 
-export const meta = {"id": "image-compress", "name": "Kompres Gambar", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran foto langsung di HP.", "keywords": "kompres,gambar,foto,kecil,ukuran,heic,avif,tiff,batch"};
+export const meta = {"id": "image-compress", "name": "Kompres Gambar", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran foto langsung di HP.", "keywords": "kompres,gambar,foto,kecil,ukuran,heic,avif,tiff,batch", "online": true};
 export function render(root) {
 
       const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';

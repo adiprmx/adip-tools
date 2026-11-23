@@ -136,7 +136,7 @@ export function render(root) {
       const teks = T.el('<span style="flex:1"></span>');
       teks.textContent = s.nama + ' (' + s.notasi + ')';
       const lemparB = T.btn('Lempar', () => { notasiI.value = s.notasi; lempar(); });
-      const hapusB = T.btn('✕', () => { serangan.splice(idx, 1); simpanSerangan(); gambarSerangan(); });
+      const hapusB = T.btn('✕', () => { if (!confirm('Hapus serangan "' + s.nama + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return; serangan.splice(idx, 1); simpanSerangan(); gambarSerangan(); });
       hapusB.setAttribute('aria-label', 'Hapus ' + s.nama);
       baris.appendChild(teks);
       baris.appendChild(lemparB);

@@ -1,10 +1,10 @@
 import { h as T, kv, fmtBytes, errBox } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL, fetchFileLokal } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "bakar-subtitle-ke-video", "name": "Bakar Subtitle ke Video", "cat": "converter", "icon": "🔤", "desc": "Tempel subtitle jadi teks permanen di dalam video.", "keywords": "subtitle,srt,vtt,teks,video,bakar,tempel", "since": "6.17.0"};
+export const meta = {"id": "bakar-subtitle-ke-video", "name": "Bakar Subtitle ke Video", "cat": "converter", "icon": "🔤", "desc": "Tempel subtitle jadi teks permanen di dalam video.", "keywords": "subtitle,srt,vtt,teks,video,bakar,tempel", "since": "6.17.0", "online": true};
 
 // Font DejaVu Sans (TTF, lisensi bebas) untuk huruf subtitle. Diunduh sekali
-// dari CDN saat proses berjalan, lalu ditulis ke memori mesin ffmpeg.
+// dari internet saat proses berjalan, lalu ditulis ke memori mesin ffmpeg.
 const FONT_URL = 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf';
 
 export function render(root) {

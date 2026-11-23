@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Ambil favicon situs apa pun lewat icon.horse (gambar dipakai via <img>).
 // Terverifikasi 18 Nov 2026: https://icon.horse/icon/google.com -> 200, CORS *.
 // Dicek ulang 19 Nov 2026: 200.
-export const meta = {"id":"ambil-favicon-situs","name":"Ambil Favicon Situs","cat":"liveapi","icon":"🖼️","desc":"Lihat dan unduh ikon kecil (favicon) dari situs web apa pun.","keywords":"favicon,ikon situs,icon,logo situs,unduh favicon","since":"6.18.0"};
+export const meta = {"id":"ambil-favicon-situs","name":"Ambil Favicon Situs","cat":"liveapi","icon":"🖼️","desc":"Lihat dan unduh ikon kecil (favicon) dari situs web apa pun.","keywords":"favicon,ikon situs,icon,logo situs,unduh favicon","since":"6.18.0", "online": true};
 
 // Bersihkan input jadi domain polos, atau null bila bukan domain yang sah.
 // Menerima "google.com", "https://google.com", "www.google.com/beranda".

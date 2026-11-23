@@ -5,7 +5,7 @@ import { h as T, fileInput, fmtBytes, LOCAL_NOTE, utils } from '../../core.js';
 // yang ditampilkan adalah ukuran file BENAR-BENAR (diukur dari Blob),
 // bukan perkiraan. Pembaca GIF-nya gifuct-js, penulisnya gifenc —
 // keduanya murni JavaScript, sama seperti tool GIF lain di sini.
-export const meta = {"id": "kompres-gif", "name": "Kompres GIF", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran GIF animasi. Lihat ukuran sebelum dan sesudah yang sebenarnya.", "keywords": "kompres gif,kecilkan gif,ukuran gif,optimasi gif", "since": "6.17.0"};
+export const meta = {"id": "kompres-gif", "name": "Kompres GIF", "cat": "gambar", "icon": "🗜️", "desc": "Kecilkan ukuran GIF animasi. Lihat ukuran sebelum dan sesudah yang sebenarnya.", "keywords": "kompres gif,kecilkan gif,ukuran gif,optimasi gif", "since": "6.17.0", "online": true};
 
 const GIFUCT_CDN = 'https://esm.sh/gifuct-js@2.1.2';
 const GIFENC_CDN = 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js';

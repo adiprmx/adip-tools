@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "balik-video-reverse", "name": "Video Reverse", "cat": "converter", "icon": "⏪", "desc": "Putar isi video mundur, dari akhir kembali ke awal.", "keywords": "video,reverse,balik,mundur,putar balik,rewind", "since": "6.17.0"};
+export const meta = {"id": "balik-video-reverse", "name": "Video Reverse", "cat": "converter", "icon": "⏪", "desc": "Putar isi video mundur, dari akhir kembali ke awal.", "keywords": "video,reverse,balik,mundur,putar balik,rewind", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const file = T.input('file');

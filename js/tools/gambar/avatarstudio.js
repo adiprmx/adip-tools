@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "avatarstudio", "name": "Avatar Studio", "cat": "gambar", "icon": "🎭", "desc": "Avatar SVG unik puluhan style + editor visual (DiceBear).", "keywords": "avatar,profil,svg,dicebear,editor,seed"};
+export const meta = {"id": "avatarstudio", "name": "Avatar Studio", "cat": "gambar", "icon": "🎭", "desc": "Avatar SVG unik puluhan style + editor visual (DiceBear).", "keywords": "avatar,profil,svg,dicebear,editor,seed", "online": true};
 
 // API publik independen (bukan milik siapa pun yang direplika): DiceBear HTTP API v10.
 const API = 'https://api.dicebear.com/10.x';

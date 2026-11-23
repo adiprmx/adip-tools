@@ -5,7 +5,7 @@
 
 import { h as T, utils, kv, fmtBytes, LOCAL_NOTE, errBox } from '../../core.js';
 
-export const meta = {"id": "excel-ke-xml", "name": "Excel ↔ XML", "cat": "developer", "icon": "📄", "desc": "Ubah spreadsheet Excel jadi XML, atau file XML jadi Excel.", "keywords": "excel,xml,xlsx,spreadsheet,konversi,tabel,sheet,data,excel ke xml,xml ke excel", "since": "6.19.0"};
+export const meta = {"id": "excel-ke-xml", "name": "Excel ↔ XML", "cat": "developer", "icon": "📄", "desc": "Ubah spreadsheet Excel jadi XML, atau file XML jadi Excel.", "keywords": "excel,xml,xlsx,spreadsheet,konversi,tabel,sheet,data,excel ke xml,xml ke excel", "since": "6.19.0", "online": true};
 
 
 const XLSX_CDNS = [
@@ -113,7 +113,7 @@ export function domKePohon(el, dalam) {
 }
 
 export function xmlTeksKePohon(xml) {
-  if (typeof DOMParser === 'undefined') throw new Error('DOMParser tidak tersedia di lingkungan ini');
+  if (typeof DOMParser === 'undefined') throw new Error('Browser ini tidak bisa membaca XML.');
   const doc = new DOMParser().parseFromString(String(xml == null ? '' : xml), 'text/xml');
   const galat = doc.getElementsByTagName('parsererror')[0];
   if (galat) throw new Error('XML-nya tidak benar: ' + (galat.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 200));

@@ -28,7 +28,7 @@ function waktuLalu(ts) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "berita-hacker-news", "name": "Berita Hacker News", "cat": "liveapi", "icon": "📰", "desc": "Berita teknologi teratas dari Hacker News: startup, pemrograman, dan sains.", "keywords": "hacker news,berita,teknologi,startup,programming,hn,y combinator", "since": "6.17.0"};
+export const meta = {"id": "berita-hacker-news", "name": "Berita Hacker News", "cat": "liveapi", "icon": "📰", "desc": "Berita teknologi teratas dari Hacker News: startup, pemrograman, dan sains.", "keywords": "hacker news,berita,teknologi,startup,programming,hn,y combinator", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -63,7 +63,7 @@ export function render(root) {
         '<p class="hint">Sumber: Hacker News (Y Combinator). Berita berbahasa Inggris.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server Hacker News tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Hacker News tidak bisa dihubungi dalam 15 detik.'
         : 'Berita gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

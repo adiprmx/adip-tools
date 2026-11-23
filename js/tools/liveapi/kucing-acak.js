@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 17 Nov 2026: /v1/images/search?limit=1 -> 200, CORS *.
 // Catatan: tanpa key, batas permintaan The Cat API rendah, jadi tool ini
 // hanya memanggil sekali per ketukan tombol, tanpa muat ulang otomatis.
-export const meta = {"id":"kucing-acak","name":"Kucing Acak","cat":"liveapi","icon":"🐱","desc":"Foto kucing acak setiap kali kamu mengetuk tombolnya.","keywords":"kucing,cat,foto kucing,acak,hewan,lucu","since":"6.17.0"};
+export const meta = {"id":"kucing-acak","name":"Kucing Acak","cat":"liveapi","icon":"🐱","desc":"Foto kucing acak setiap kali kamu mengetuk tombolnya.","keywords":"kucing,cat,foto kucing,acak,hewan,lucu","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -36,7 +36,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil foto kucing. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

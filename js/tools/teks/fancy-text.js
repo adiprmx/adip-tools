@@ -52,7 +52,7 @@ utils.fancy = function (text, style) {
 
 utils.fancyStyles = FANCY_STYLES;
 
-export const meta = {"id": "fancy-text", "name": "Fancy Text", "cat": "teks", "icon": "✨", "desc": "Teks gaya unik untuk sosmed.", "keywords": "fancy,teks,sosmed,keren,gaya"};
+export const meta = {"id": "fancy-text", "name": "Fancy Text", "cat": "teks", "icon": "✨", "desc": "Ubah tulisan biasa jadi gaya tebal, miring, coret, dan lainnya untuk sosmed.", "keywords": "fancy,teks,sosmed,keren,gaya"};
 export function render(root) {
 
       const inI = T.input('text', 'Ketik teks…', 'Adip Store');

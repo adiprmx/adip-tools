@@ -1,6 +1,6 @@
 import { h as T, esc, errBox, onLeave } from '../../core.js';
 
-export const meta = {"id":"radio-online","name":"Radio Online","cat":"liveapi","icon":"📻","desc":"Dengarkan stasiun radio Indonesia dan dunia, langsung dari browser.","keywords":"radio,online,streaming,musik,fm,stasiun","since":"6.16.0"};
+export const meta = {"id":"radio-online","name":"Radio Online","cat":"liveapi","icon":"📻","desc":"Dengarkan stasiun radio Indonesia dan dunia, langsung dari browser.","keywords":"radio,online,streaming,musik,fm,stasiun","since":"6.16.0", "online": true};
 
 const API = 'https://de1.api.radio-browser.info/json';
 
@@ -83,7 +83,7 @@ export function render(root) {
       tampilDaftar(j);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server direktori radio tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server direktori radio tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal ambil daftar stasiun. Cek koneksi internet, lalu coba lagi.';
       T.show(daftarBox, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

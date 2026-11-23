@@ -21,9 +21,9 @@
      ("Produktivitas", 78px pada 12px) tidak muat satu baris di
      kolom 4 (teks cuma ~62px) kecuali font dikecilkan sampai 10px
      - terlalu kecil untuk dibaca nyaman. 3 kolom memberi teks
-     ~90px: semua 15 label muat satu baris pada 12px, tanpa
-     mengganti nama kategori dan tanpa mengecilkan huruf. 15 ubin
-     = tepat 5 baris penuh. min-width: 0 membuat kolom sama lebar
+     ~90px: semua 22 label muat satu baris pada 12px, tanpa
+     mengganti nama kategori dan tanpa mengecilkan huruf. 22 ubin
+     = 7 baris penuh + 1. min-width: 0 membuat kolom sama lebar
      (tanpa itu, kolom melebar mengikuti label terpanjang).
    - (c) Rail Populer: kartu 132px di HP supaya kartu ketiga
      mengintip ~60px (ikon + awal judul terlihat jelas), bukan
@@ -43,7 +43,7 @@
    lalu tag + deskripsi selebar penuh di bawahnya. Struktur HTML
    diubah di app.js (toolPage); kelas .th-top baru di sana. */
 .tool-head { flex-direction: column; gap: 12px; }
-.tool-head .th-top { display: flex; gap: 14px; align-items: flex-start; }
+.tool-head .th-top { display: flex; gap: 14px; align-items: flex-start; min-width: 0; /* S-F10 R-01: baris boleh menyusut ke lebar wadah — tanpa ini min-content judul memaksa meluber 3px di 320px. Kata panjang diatasi overflow-wrap di .tool-head h2 (style.css). */ }
 .tool-head .meta { margin-top: 0; }
 /* Hapus batas 2 baris (P2-B1 v6.14.0): deskripsi tampil utuh. */
 .tool-head .meta .ds {
@@ -64,7 +64,7 @@
   .cattile .cl {
     white-space: nowrap;
     overflow: hidden;
-    /* Pengaman saja: tidak terpicu oleh 15 label yang ada
+    /* Pengaman saja: tidak terpicu oleh 22 label yang ada
        (terpanjang 78px < 90px); mencegah teks lolos wadah bila
        suatu hari ada kategori bernama lebih panjang. */
     text-overflow: ellipsis;

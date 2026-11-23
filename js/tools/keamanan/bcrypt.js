@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "bcrypt", "name": "Bcrypt Hasher", "cat": "keamanan", "icon": "🔐", "desc": "Hash password ala bcrypt + verifikasi.", "keywords": "bcrypt,hash,password"};
+export const meta = {"id": "bcrypt", "name": "Bcrypt Hasher", "cat": "keamanan", "icon": "🔐", "desc": "Hash password ala bcrypt + verifikasi.", "keywords": "bcrypt,hash,password,hash password,verifikasi password", "online": true};
 export function render(root) {
 
     const CDN = 'https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js';

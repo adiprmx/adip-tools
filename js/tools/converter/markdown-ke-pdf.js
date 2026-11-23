@@ -5,7 +5,7 @@
 
 import { h as T, utils, kv, fmtBytes, errBox, fileInput, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id": "markdown-ke-pdf", "name": "Markdown ↔ PDF", "cat": "converter", "icon": "📝", "desc": "Ubah tulisan Markdown jadi PDF A4, atau ambil teks PDF jadi Markdown.", "keywords": "markdown,pdf,dokumen,tulisan,md,a4,markdown ke pdf,pdf ke markdown,pdf ke md,ambil teks pdf", "since": "6.11.0"};
+export const meta = {"id": "markdown-ke-pdf", "name": "Markdown ↔ PDF", "cat": "converter", "icon": "📝", "desc": "Ubah tulisan Markdown jadi PDF A4, atau ambil teks PDF jadi Markdown.", "keywords": "markdown,pdf,dokumen,tulisan,md,a4,markdown ke pdf,pdf ke markdown,pdf ke md,ambil teks pdf", "since": "6.11.0", "online": true};
 
 
 /* Markdown ke PDF: parser marked 12.0.2 (CDN, pin versi) + html2canvas

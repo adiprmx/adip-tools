@@ -44,6 +44,7 @@ export function render(root) {
         const del = T.el('<button class="btn ghost" style="padding:4px 10px;font-size:12px">✕</button>');
         del.setAttribute('aria-label', 'Hapus milestone ' + m.name);
         del.addEventListener('click', () => {
+          if (!confirm('Hapus milestone "' + m.name + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
           g.milestones = g.milestones.filter((x) => x.id !== m.id);
           save(); draw();
         });

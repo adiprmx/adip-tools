@@ -10,7 +10,7 @@ utils.ipk = function (entries) {
     return Math.round((bobotSks / sks) * 100) / 100;
   };
 
-export const meta = {"id": "ipk", "name": "Kalkulator IPK", "cat": "pelajar", "icon": "🎓", "desc": "Hitung IPK semester.", "keywords": "ipk,nilai,kuliah,semester"};
+export const meta = {"id": "ipk", "name": "Kalkulator IPK", "cat": "pelajar", "icon": "🎓", "desc": "Hitung IPK semestermu dari nilai dan SKS tiap mata kuliah.", "keywords": "ipk,nilai,kuliah,semester"};
 export function render(root) {
 
     const GRADES = [['4', 'A (4,0)'], ['3.7', 'A− (3,7)'], ['3.3', 'B+ (3,3)'], ['3', 'B (3,0)'], ['2.7', 'B− (2,7)'], ['2.3', 'C+ (2,3)'], ['2', 'C (2,0)'], ['1.7', 'C− (1,7)'], ['1', 'D (1,0)'], ['0', 'E (0,0)'], ['custom', 'Bobot sendiri…']];

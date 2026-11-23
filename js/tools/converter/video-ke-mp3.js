@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "video-ke-mp3", "name": "Video ke MP3", "cat": "converter", "icon": "🎵", "desc": "Ambil suara dari video jadi file MP3.", "keywords": "video,mp3,audio,ekstrak,musik,suara,lagu", "since": "6.11.0"};
+export const meta = {"id": "video-ke-mp3", "name": "Video ke MP3", "cat": "converter", "icon": "🎵", "desc": "Ambil suara dari video jadi file MP3.", "keywords": "video,mp3,audio,ekstrak,musik,suara,lagu", "since": "6.11.0", "online": true};
 
 export function render(root) {
   const file = T.input('file');

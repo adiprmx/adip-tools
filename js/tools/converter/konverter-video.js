@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "konverter-video", "name": "Konverter Video", "cat": "converter", "icon": "🎬", "desc": "Ubah video ke MP4, WebM, MKV, MOV, atau AVI.", "keywords": "video,konversi,mp4,webm,mkv,mov,avi,format", "since": "6.16.0"};
+export const meta = {"id": "konverter-video", "name": "Konverter Video", "cat": "converter", "icon": "🎬", "desc": "Ubah video ke MP4, WebM, MKV, MOV, atau AVI.", "keywords": "video,konversi,mp4,webm,mkv,mov,avi,format", "since": "6.16.0", "online": true};
 
 export function render(root) {
   // Per format: encoder gambar + suara yang didukung mesin di browser.

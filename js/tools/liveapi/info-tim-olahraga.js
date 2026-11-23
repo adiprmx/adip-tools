@@ -8,7 +8,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // sendiri: pengguna bisa daftar gratis di thesportsdb.com, masukkan kuncinya,
 // dan tool memakai kunci itu (tersimpan di perangkat saja). Bila kunci bawaan
 // mati, pesan gagalnya menyebut itu dengan jelas, bukan data karangan.
-export const meta = {"id":"info-tim-olahraga","name":"Info Tim Olahraga","cat":"liveapi","icon":"🏟️","desc":"Cari tim olahraga dunia dan lihat stadion, tahun berdiri, dan liganya.","keywords":"tim,olahraga,sepak bola,basket,klub,stadion,liga","since":"6.19.0"};
+export const meta = {"id":"info-tim-olahraga","name":"Info Tim Olahraga","cat":"liveapi","icon":"🏟️","desc":"Cari tim olahraga dunia dan lihat stadion, tahun berdiri, dan liganya.","keywords":"tim,olahraga,sepak bola,basket,klub,stadion,liga","since":"6.19.0", "online": true};
 
 const KEY_BAWAAN = '123';
 const KEY_LS = 'at-info-tim-olahraga-key-v1';
@@ -95,7 +95,7 @@ export function render(root) {
     } catch (e) {
       const pakaiKunciSendiri = kunciAktif() !== KEY_BAWAAN;
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu habis, server tidak merespons dalam 20 detik.';
+      if (e.name === 'AbortError') msg = 'Waktu habis, server tidak bisa dihubungi dalam 20 detik.';
       else if (status === 401 || status === 403) {
         msg = pakaiKunciSendiri
           ? 'Kunci yang kamu masukkan ditolak server. Periksa lagi kuncinya, atau kosongkan kolom kunci untuk kembali ke kunci bawaan.'

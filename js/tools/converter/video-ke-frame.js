@@ -1,6 +1,6 @@
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id": "video-ke-frame", "name": "Video ke Frame", "cat": "converter", "icon": "📸", "desc": "Simpan frame-frame video jadi gambar.", "keywords": "video,frame,gambar,ekstrak,detik,cuplikan", "since": "6.17.0"};
+export const meta = {"id": "video-ke-frame", "name": "Video ke Frame", "cat": "converter", "icon": "📸", "desc": "Simpan frame-frame video jadi gambar.", "keywords": "video,frame,gambar,ekstrak,detik,cuplikan", "since": "6.17.0", "online": true};
 
 const JSZIP_CDNS = [
   'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',

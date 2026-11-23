@@ -18,7 +18,7 @@ async function getJSON(url) {
 
 // imgAman kanonis tinggal di utils.urlAman (core.js).
 
-export const meta = {"id": "generator-data-dummy", "name": "Generator Data Dummy", "cat": "liveapi", "icon": "👤", "desc": "Buat profil acak untuk keperluan tes dan desain: nama, foto, email, dan alamat contoh.", "keywords": "dummy,data dummy,profil acak,random user,tes,desain,data contoh,fake data", "since": "6.17.0"};
+export const meta = {"id": "generator-data-dummy", "name": "Generator Data Dummy", "cat": "liveapi", "icon": "👤", "desc": "Buat profil acak untuk keperluan tes dan desain: nama, foto, email, dan alamat contoh.", "keywords": "dummy,data dummy,profil acak,random user,tes,desain,data contoh,fake data", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -65,7 +65,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server pembuat profil tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server pembuat profil tidak bisa dihubungi dalam 15 detik.'
         : 'Profil gagal dibuat. Cek koneksi internet, lalu coba lagi.');
     }
   };

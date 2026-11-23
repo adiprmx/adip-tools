@@ -1,6 +1,6 @@
 import { h as T, LOCAL_NOTE, canvasToBlob, fileInput, fmtBytes, imgEl, loadImage } from '../../core.js';
 
-export const meta = {"id":"foto-sketca","name":"Foto ke Sketsa","cat":"gambar","icon":"✏️","desc":"Ubah foto jadi sketsa pensil.","keywords":"sketsa,pensil,foto,efek,grayscale,hitam putih"};
+export const meta = {"id":"foto-sketca","name":"Foto ke Sketsa","cat":"gambar","icon":"✏️","desc":"Ubah fotomu jadi sketsa pensil hitam putih, lalu unduh hasilnya sebagai PNG.","keywords":"sketsa,pensil,foto,efek,grayscale,hitam putih"};
 
 /* Efek sketsa klasik: grayscale -> (invert + blur) -> blend color-dodge.
    Jalur cepat pakai ctx.filter; kalau browser tidak mendukung, pakai

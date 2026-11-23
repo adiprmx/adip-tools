@@ -118,7 +118,7 @@ export function render(root) {
       });
       kurangBtn.setAttribute('aria-label', 'Kurangi porsi ' + d.nama);
       kanan.appendChild(kurangBtn);
-      kanan.appendChild(T.btn('Hapus', () => { dimakan.splice(i, 1); simpan(); tampilHariIni(); }));
+      kanan.appendChild(T.btn('Hapus', () => { if (!confirm('Hapus "' + d.nama + '" dari makanan hari ini? Data ini akan hilang dan tidak bisa dikembalikan.')) return; dimakan.splice(i, 1); simpan(); tampilHariIni(); }));
       row.appendChild(kanan);
       daftarHariIni.appendChild(row);
     });
@@ -158,7 +158,7 @@ export function render(root) {
       namaBaru.value = ''; kkalBaru.value = '';
       tampilHariIni();
     }),
-    T.btn('Kosongkan hari ini', () => { dimakan = []; simpan(); tampilHariIni(); })
+    T.btn('Kosongkan hari ini', () => { if (!confirm('Kosongkan semua makanan hari ini? Data hari ini akan hilang dan tidak bisa dikembalikan.')) return; dimakan = []; simpan(); tampilHariIni(); })
   ));
   tampilHasil();
   tampilHariIni();

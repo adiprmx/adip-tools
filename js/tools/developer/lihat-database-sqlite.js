@@ -1,6 +1,6 @@
 import { h as T, utils, LOCAL_NOTE } from '../../core.js';
 
-export const meta = { id: 'lihat-database-sqlite', name: 'Lihat Database SQLite', cat: 'developer', icon: '🗄️', desc: 'Buka file database .db atau .sqlite di browser, jelajahi tabelnya, dan jalankan query SELECT. Baca saja, tidak bisa mengubah.', keywords: 'sqlite,database,db,sql,query,tabel,buka database,select', since: '6.17.0' };
+export const meta = { id: 'lihat-database-sqlite', name: 'Lihat Database SQLite', cat: 'developer', icon: '🗄️', desc: 'Buka file database .db atau .sqlite di browser, jelajahi tabelnya, dan jalankan query SELECT. Baca saja, tidak bisa mengubah.', keywords: 'sqlite,database,db,sql,query,tabel,buka database,select', since: '6.17.0', online: true };
 
 // sql.js 1.13.0 via jsDelivr. Hash SRI dibaca dari peta core.js
 // (T.scriptIntegrity) — satu sumber kebenaran, bukan konstanta lokal

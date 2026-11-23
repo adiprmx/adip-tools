@@ -5,7 +5,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Fitur caption (menulis teks ke meme) MEMBUTUHKAN akun Imgflip, jadi
 // TIDAK ada di tool ini. Tool ini hanya menjelajah template dan
 // mengunduh gambar templatenya. Kredensial user tidak pernah diminta.
-export const meta = {"id":"template-meme-populer","name":"Template Meme Populer","cat":"liveapi","icon":"😂","desc":"Jelajahi template meme paling populer dari Imgflip dan unduh gambarnya.","keywords":"meme,template meme,imgflip,lucu,template,meme populer","since":"6.17.0"};
+export const meta = {"id":"template-meme-populer","name":"Template Meme Populer","cat":"liveapi","icon":"😂","desc":"Jelajahi template meme paling populer dari Imgflip dan unduh gambarnya.","keywords":"meme,template meme,imgflip,lucu,template,meme populer","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -55,7 +55,7 @@ export function render(root) {
       tampil();
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Imgflip tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Imgflip tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil template meme. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

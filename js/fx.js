@@ -111,7 +111,7 @@ function initRipple() {
    (Hanya kartu/ubin: base style mereka = state akhir, aman dibebaskan.
     .rise/.w punya opacity:0 bawaan → JANGAN dibebaskan.) ---------- */
 function initFreeEntrance() {
-  const SEL = '.tcard,.hcard,.cattile,.colcard';
+  const SEL = '.tcard,.hcard,.cattile,.colcard,.schip';
   const ENTRANCE = new Set(['fx-card', 'fx-hcard', 'fx-tile', 'rise-in']);
   document.addEventListener('animationend', (e) => {
     const t = e.target;
@@ -119,12 +119,27 @@ function initFreeEntrance() {
       t.style.animation = 'none';
     }
   });
+  // S-U6 (v6.22.0): .schip masuk daftar — chip saran empty state
+  // memakai rise-in fill "both" (fx-joy.css §4) sehingga :hover
+  // lift-nya mati selamanya tanpa dibebaskan (sama seperti kartu
+  // dulu). Base style .schip = state akhir rise-in, aman dibebaskan.
+  // .tcard-wrap TIDAK masuk daftar: entrance-nya fill "backwards"
+  // (fx-entrance.css, S-F10) sehingga membebaskan diri sendiri.
 }
 
-/* ---------- 2. TILT 3D: kartu miring mengikuti pointer ---------- */
+/* ---------- 2. TILT 3D: kartu miring mengikuti pointer ----------
+   S-U6 (v6.22.0, S-F10 A-07 ripple): tilt dipindah dari .tcard
+   DALAM ke .tcard-wrap — sejak A-07 tombol ♥ adalah saudara di
+   luar .tcard, sehingga tilt lama membuat kartu miring sementara
+   tombol tetap datar (terukur baseline: kartu rotateX 4,56°/
+   rotateY 4,7°, fav tidak bergerak di sumbu X sama sekali).
+   .hcard tetap ditilt langsung (tidak punya pembungkus).
+   translateY -4px (dulu -3px): menyamai hover-lift CSS
+   (fx-micro.css §2) supaya angkat desktop (tilt) dan sentuh
+   (CSS) satu nilai. */
 function initTilt() {
   if (!FINE_POINTER) return; // mati di touch
-  const SEL = '.tcard,.hcard';
+  const SEL = '.tcard-wrap,.hcard';
   const MAX = 5; // derajat maks — sangat halus
   let cur = null, raf = 0, px = 0, py = 0;
 
@@ -134,9 +149,9 @@ function initTilt() {
     const r = cur.getBoundingClientRect();
     const nx = (px - r.left) / r.width - 0.5;
     const ny = (py - r.top) / r.height - 0.5;
-    // sertakan translateY(-3px) agar hover-lift CSS tetap terasa
+    // sertakan translateY(-4px) agar hover-lift CSS tetap terasa
     cur.style.transform =
-      `translateY(-3px) perspective(700px) ` +
+      `translateY(-4px) perspective(700px) ` +
       `rotateX(${(-ny * MAX * 2).toFixed(2)}deg) ` +
       `rotateY(${(nx * MAX * 2).toFixed(2)}deg)`;
   };
@@ -219,7 +234,7 @@ function initConfetti() {
   });
 }
 
-/* ---------- 4. COUNT-UP PILL NAVBAR: "1.299 tools" naik dari 0 ----------
+/* ---------- 4. PILL NAVBAR: angka akhir STATIS ----------
    P3 (v6.14.0): count-up lama di home() (app.js) MATI sejak P2-B2 —
    renderNavbar() menghapus header.top home() yang berisi
    [data-countup] SEBELUM rAF pertamanya jalan (app.js route()
@@ -229,20 +244,14 @@ function initConfetti() {
    (data nyata manifest, bukan hardcode). Jalan SEKALI per muat
    halaman: navbar di-render ulang tiap route, pill berikutnya
    tampil statis di angka akhir (bukan mengulang hitungan).
-   Durasi + easing sama dengan count-up lama (900ms, easeOutQuart).
-   Hormat reduced-motion via gerbang !RM di bawah. ---------- */
+   S-U1 (v6.22.0, F-14): animasi 0 -> 1.261 selama 0,9 dtk DICABUT
+   — sesaat menampilkan angka yang salah (0, 412, 900...) di
+   tempat yang seharusnya fakta. Pill kini tampil statis di angka
+   akhir sejak awal; tidak ada angka baru yang ditambahkan, tidak
+   ada animasi pengganti. Fungsi dipertahankan sebagai no-op
+   berdokumentasi supaya pemanggil di bawah tidak berubah. ---------- */
 function initPillCountUp() {
-  const b = document.querySelector('.top-shell .topcount b');
-  if (!b) return;
-  const target = parseInt(b.textContent.replace(/\D/g, ''), 10) || 0;
-  if (target <= 0) return;
-  const t0 = performance.now(), dur = 900;
-  const tick = (t) => {
-    const p = Math.min(1, (t - t0) / dur);
-    b.textContent = Math.round(target * (1 - Math.pow(1 - p, 4)));
-    if (p < 1) requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
+  return; /* F-14: angka akhir statis — count-up dicabut, lihat atas. */
 }
 
 /* ---------- jalan ---------- */

@@ -32,7 +32,7 @@ function skorCvss(metrics) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "info-cve", "name": "Info CVE", "cat": "liveapi", "icon": "🛡️", "desc": "Lihat detail kerentanan keamanan (CVE) dari basis data NIST: skor, deskripsi, dan referensinya.", "keywords": "cve,kerentanan,vulnerability,nvd,nist,keamanan,skor cvss,exploit", "since": "6.17.0"};
+export const meta = {"id": "info-cve", "name": "Info CVE", "cat": "liveapi", "icon": "🛡️", "desc": "Lihat detail kerentanan keamanan (CVE) dari basis data NIST: skor, deskripsi, dan referensinya.", "keywords": "cve,kerentanan,vulnerability,nvd,nist,keamanan,skor cvss,exploit", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -80,7 +80,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server NVD tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server NVD tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

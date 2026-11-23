@@ -45,7 +45,7 @@ utils.lorem = function (mode, count) {
     return paras.join('\n\n');
   };
 
-export const meta = {"id": "lorem-ipsum", "name": "Lorem Ipsum Generator", "cat": "teks", "icon": "📄", "desc": "Teks contoh untuk mengisi desain.", "keywords": "lorem,dummy,teks"};
+export const meta = {"id": "lorem-ipsum", "name": "Lorem Ipsum Generator", "cat": "teks", "icon": "📄", "desc": "Teks contoh untuk mengisi desain.", "keywords": "lorem,dummy,teks,teks contoh,paragraf contoh"};
 export function render(root) {
 
       const modeSel = T.select([['paragraf', 'Paragraf'], ['kalimat', 'Kalimat'], ['kata', 'Kata']], 'paragraf');

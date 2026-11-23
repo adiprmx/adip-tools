@@ -1,6 +1,6 @@
 import { h as T, utils, fileInput, fmtBytes, tabs, errBox } from '../../core.js';
 
-export const meta = {"id": "virusscan", "name": "Virus Scan", "cat": "keamanan", "icon": "🛡️", "desc": "Pindai URL, file, hash, domain & IP dengan heuristik lokal.", "keywords": "virus,scan,malware,phising,keamanan,hash,sha256"};
+export const meta = {"id": "virusscan", "name": "Virus Scan", "cat": "keamanan", "icon": "🛡️", "desc": "Pindai URL, file, hash, domain & IP dengan heuristik lokal.", "keywords": "virus,scan,malware,phising,keamanan,hash,sha256", "online": true};
 
 export function render(root) {
 
@@ -347,7 +347,7 @@ export function render(root) {
         return '<div style="border:1px solid #ffffff20;border-radius:10px;padding:10px 12px;font-size:13px"><b>' + T.esc(h.jenis) + '</b> <span class="dim">·</span> <span style="font-family:monospace">' + T.esc(h.target) + '</span><div style="margin-top:4px"><span class="' + cls + '">' + lbl + ' (' + h.skor + ')</span> <span class="dim">· ' + new Date(h.waktu).toLocaleString('id-ID') + '</span></div></div>';
       }).join('') + '</div>');
     };
-    const bHapus = T.btn('Hapus Riwayat', () => { try { localStorage.removeItem(HIST_KEY); } catch (e) {} gambar(); });
+    const bHapus = T.btn('Hapus Riwayat', () => { if (!confirm('Hapus seluruh riwayat VirusScan? Data ini akan hilang dan tidak bisa dikembalikan.')) return; try { localStorage.removeItem(HIST_KEY); } catch (e) {} gambar(); });
     bHapus.classList.add('small');
     pHis.appendChild(T.row(bHapus));
     pHis.appendChild(box);

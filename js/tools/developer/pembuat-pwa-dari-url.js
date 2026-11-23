@@ -123,7 +123,7 @@ export function buatInstruksi({ nama, url }) {
     'worker aktif + HTTPS). Tool ini hanya menyiapkan file-file-nya.';
 }
 
-export const meta = { id: 'pembuat-pwa-dari-url', name: 'Pembuat PWA dari URL', cat: 'developer', icon: '📱', desc: 'Buat file PWA (manifest + service worker + ikon) untuk situs apa pun, lengkap dengan cara pasangnya.', keywords: 'pwa,manifest,service worker,install,situs,aplikasi web,offline', since: '6.19.0' };
+export const meta = { id: 'pembuat-pwa-dari-url', name: 'Pembuat PWA dari URL', cat: 'developer', icon: '📱', desc: 'Buat file PWA (manifest + service worker + ikon) untuk situs apa pun, lengkap dengan cara pasangnya.', keywords: 'pwa,manifest,service worker,install,situs,aplikasi web,offline', since: '6.19.0', online: true };
 
 export function render(root) {
   const urlI = T.input('url', 'Mis. https://example.com');

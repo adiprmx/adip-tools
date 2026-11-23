@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js';
 
-export const meta = {"id": "animegallery", "name": "Anime Discover", "cat": "fun", "icon": "🖼️", "desc": "Jelajah ilustrasi & GIF reaksi anime SFW dari Waifu.im & NEKOSBEST.", "keywords": "anime,waifu,neko,ilustrasi,reaction,gif,sfw"};
+export const meta = {"id": "animegallery", "name": "Anime Discover", "cat": "fun", "icon": "🖼️", "desc": "Jelajah ilustrasi & GIF reaksi anime SFW dari Waifu.im & NEKOSBEST.", "keywords": "anime,waifu,neko,ilustrasi,reaction,gif,sfw", "online": true};
 
 const NB = 'https://nekos.best/api/v2';
 const WI = 'https://api.waifu.im/search/';
@@ -226,7 +226,7 @@ export function render(root) {
       // TimeoutError = AbortSignal.timeout habis — beri pesan yang jelas.
       if (e.name === 'AbortError') return;
       const msg = e.name === 'TimeoutError'
-        ? 'Waktu habis — sumber gambar tidak merespons. Periksa internetmu, lalu coba lagi.'
+        ? 'Waktu habis — sumber gambar tidak bisa dihubungi. Periksa internetmu, lalu coba lagi.'
         : e.message === 'tidak ada hasil untuk tag tersebut'
           ? 'Tidak ada gambar untuk tag itu. Coba tag lain — mis. maid.'
           : e.message === 'semua provider gagal'
@@ -241,7 +241,7 @@ export function render(root) {
 
   const campur = (a, b) => [...a, ...b].sort(() => Math.random() - 0.5);
   const catatanProvider = (gagal) => {
-    if (gagal.length) T.show(notices, '<p class="dim" style="font-size:12.5px">Catatan: ' + gagal.map(T.esc).join(', ') + ' tidak merespons — menampilkan hasil dari sumber lain.</p>');
+    if (gagal.length) T.show(notices, '<p class="dim" style="font-size:12.5px">Catatan: ' + gagal.map(T.esc).join(', ') + ' tidak bisa dihubungi — menampilkan hasil dari sumber lain.</p>');
   };
 
   const ambilCampuran = (wi, nbEp, jml) => async (sig) => {

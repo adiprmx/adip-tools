@@ -76,6 +76,7 @@ export function render(root) {
         T.toast(it.kebeli ? 'Selamat! Barang impian kebeli 🎉' : 'Dikembalikan ke daftar incaran');
       });
       const hapus = T.btn('🗑️', () => {
+        if (!confirm('Hapus "' + it.nama + '" dari wishlist? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
         items = items.filter((x) => x.id !== it.id);
         save(items);
         paintSemua();

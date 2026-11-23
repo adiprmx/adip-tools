@@ -30,7 +30,7 @@ function barisSkala(kunci, data) {
     '<br><span class="hint" style="font-size:12px;font-weight:400">' + esc(teks) + '</span></span></div>';
 }
 
-export const meta = {"id": "cuaca-antariksa-aurora", "name": "Cuaca Antariksa/Aurora", "cat": "liveapi", "icon": "🌌", "desc": "Skala badai Matahari terkini dari NOAA: gangguan radio, radiasi, dan peluang aurora.", "keywords": "cuaca antariksa,aurora,badai matahari,noaa,geomagnet,radio,matahari,space weather", "since": "6.17.0"};
+export const meta = {"id": "cuaca-antariksa-aurora", "name": "Cuaca Antariksa/Aurora", "cat": "liveapi", "icon": "🌌", "desc": "Skala badai Matahari terkini dari NOAA: gangguan radio, radiasi, dan peluang aurora.", "keywords": "cuaca antariksa,aurora,badai matahari,noaa,geomagnet,radio,matahari,space weather", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -60,7 +60,7 @@ export function render(root) {
         '<p class="hint">Sumber: NOAA Space Weather Prediction Center (SWPC), Amerika Serikat.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server NOAA tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server NOAA tidak bisa dihubungi dalam 15 detik.'
         : 'Data cuaca antariksa gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

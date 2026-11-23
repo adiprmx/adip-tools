@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"diskon-game-pc","name":"Diskon Game PC","cat":"liveapi","icon":"🎮","desc":"Cari diskon game PC termurah di berbagai toko.","keywords":"diskon,game,pc,steam,murah,promo,cheapshark","since":"6.16.0"};
+export const meta = {"id":"diskon-game-pc","name":"Diskon Game PC","cat":"liveapi","icon":"🎮","desc":"Cari diskon game PC termurah di berbagai toko.","keywords":"diskon,game,pc,steam,murah,promo,cheapshark","since":"6.16.0", "online": true};
 
 const API = 'https://www.cheapshark.com/api/1.0';
 
@@ -67,7 +67,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server CheapShark tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server CheapShark tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal mencari diskon. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

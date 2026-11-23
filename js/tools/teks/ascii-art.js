@@ -66,7 +66,7 @@ utils.asciiArt = function (text) {
     return rows.join('\n').replace(/[ \t]+$/gm, '');
   };
 
-export const meta = {"id": "ascii-art", "name": "ASCII Art", "cat": "teks", "icon": "⌨️", "desc": "Teks jadi seni ASCII.", "keywords": "ascii,seni,teks"};
+export const meta = {"id": "ascii-art", "name": "ASCII Art", "cat": "teks", "icon": "⌨️", "desc": "Ubah tulisanmu jadi seni huruf ASCII berukuran besar.", "keywords": "ascii,seni,teks,huruf ascii,teks besar,seni huruf"};
 export function render(root) {
 
       const inI = T.input('text', 'Ketik teks…', 'ADIP');

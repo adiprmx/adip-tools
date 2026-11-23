@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"ringkasan-wikipedia","name":"Ringkasan Wikipedia","cat":"liveapi","icon":"📖","desc":"Ringkasan artikel Wikipedia apa pun, dalam bahasa Indonesia atau Inggris.","keywords":"wikipedia,ringkasan,artikel,ensiklopedia,cari tahu","since":"6.16.0"};
+export const meta = {"id":"ringkasan-wikipedia","name":"Ringkasan Wikipedia","cat":"liveapi","icon":"📖","desc":"Ringkasan artikel Wikipedia apa pun, dalam bahasa Indonesia atau Inggris.","keywords":"wikipedia,ringkasan,artikel,ensiklopedia,cari tahu","since":"6.16.0", "online": true};
 
 // Hanya tautan https yang dirender sebagai <a> — skema lain (javascript:,
 // data:, ...) dari respons API TIDAK pernah jadi tautan yang bisa diklik
@@ -43,7 +43,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Wikipedia tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Wikipedia tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari artikel. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

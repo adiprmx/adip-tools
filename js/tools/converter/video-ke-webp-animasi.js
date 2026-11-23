@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "video-ke-webp-animasi", "name": "Video ke WebP Animasi", "cat": "converter", "icon": "🎞️", "desc": "Ubah klip video jadi animasi WebP yang ringan.", "keywords": "video,webp,animasi,bergerak,stiker,ringan", "since": "6.19.0"};
+export const meta = {"id": "video-ke-webp-animasi", "name": "Video ke WebP Animasi", "cat": "converter", "icon": "🎞️", "desc": "Ubah klip video jadi animasi WebP yang ringan.", "keywords": "video,webp,animasi,bergerak,stiker,ringan", "since": "6.19.0", "online": true};
 
 // Encoder animasi WebP di ffmpeg ada dua: libwebp_anim (khusus animasi,
 // ffmpeg 6.1+) dan libwebp (masih gambar, tapi menerima -loop). Coba yang

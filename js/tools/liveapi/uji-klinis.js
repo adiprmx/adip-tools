@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 19 Nov 2026: /api/v2/studies?query.cond=cancer&pageSize=1
 // -> JSON hidup (studi NCT00083720). Endpoint sama, parameter query.cond
 // diisi kata kunci pengguna dan pageSize=5.
-export const meta = {"id":"uji-klinis","name":"Uji Klinis","cat":"liveapi","icon":"🔬","desc":"Cari uji klinis medis di seluruh dunia berdasarkan penyakit atau obat.","keywords":"uji klinis,clinical trial,penelitian medis,obat,penyakit,kanker","since":"6.19.0"};
+export const meta = {"id":"uji-klinis","name":"Uji Klinis","cat":"liveapi","icon":"🔬","desc":"Cari uji klinis medis di seluruh dunia berdasarkan penyakit atau obat.","keywords":"uji klinis,clinical trial,penelitian medis,obat,penyakit,kanker","since":"6.19.0", "online": true};
 
 const STATUS = {
   RECRUITING: 'Merekrut peserta',
@@ -68,7 +68,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal mencari uji klinis. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

@@ -73,10 +73,20 @@
    ritardando dipertahankan untuk seksi awal (i≤5 tak kena batas).
    Kopling: .colgrid > .colcard di bawah memakai jeda --i:6 baru
    (200ms, kena batas). Bila urutan seksi beranda berubah,
-   sesuaikan angka itu dengan rumus di sini. */
+   sesuaikan angka itu dengan rumus di sini.
+   S-U6 (v6.22.0): fill "forwards" + opacity:0 bawaan DICABUT,
+   diganti fill "backwards" tanpa opacity bawaan (pola yang sama
+   dengan .tcard-wrap, S-F10 A-07). Alasannya: fill forwards
+   menahan keyframe akhir (transform: none) SELAMANYA sehingga
+   :hover kartu/baris .rise TIDAK PERNAH jalan — terukur live:
+   .allbtn/.contd hover tetap matrix identitas padahal :hover
+   cocok (border berubah). Keyframe akhir fx-rise = state
+   natural (opacity 1, transform none), jadi tidak ada yang
+   perlu ditahan; backwards menutup jeda dengan keyframe awal
+   (opacity 0) persis seperti sebelumnya. JANGAN kembalikan
+   opacity:0 bawaan + forwards — itu yang membunuh hover. */
 .rise {
-  opacity: 0;
-  animation: fx-rise 0.3s var(--snappy) forwards;
+  animation: fx-rise 0.3s var(--snappy) backwards;
   animation-delay: min(calc(var(--i, 0) * 30ms + var(--i, 0) * var(--i, 0) * 2ms), 200ms);
 }
 
@@ -84,23 +94,29 @@
    jeda menyempit tiap kartu, seperti ombak yang menyatu.
    P4: durasi 0.5s -> 0.3s, jeda dikompres (kartu ke-16: 0.326s
    -> 0.18s); grid 16 kartu beres ~0.48 dtk, bukan ~0.83 dtk. */
-.tgrid > .tcard { animation: fx-card 0.3s var(--snappy) both; }
-.tgrid > .tcard:nth-child(1)  { animation-delay: 0.01s; }
-.tgrid > .tcard:nth-child(2)  { animation-delay: 0.03s; }
-.tgrid > .tcard:nth-child(3)  { animation-delay: 0.05s; }
-.tgrid > .tcard:nth-child(4)  { animation-delay: 0.07s; }
-.tgrid > .tcard:nth-child(5)  { animation-delay: 0.09s; }
-.tgrid > .tcard:nth-child(6)  { animation-delay: 0.105s; }
-.tgrid > .tcard:nth-child(7)  { animation-delay: 0.115s; }
-.tgrid > .tcard:nth-child(8)  { animation-delay: 0.125s; }
-.tgrid > .tcard:nth-child(9)  { animation-delay: 0.135s; }
-.tgrid > .tcard:nth-child(10) { animation-delay: 0.145s; }
-.tgrid > .tcard:nth-child(11) { animation-delay: 0.15s; }
-.tgrid > .tcard:nth-child(12) { animation-delay: 0.16s; }
-.tgrid > .tcard:nth-child(13) { animation-delay: 0.165s; }
-.tgrid > .tcard:nth-child(14) { animation-delay: 0.17s; }
-.tgrid > .tcard:nth-child(15) { animation-delay: 0.175s; }
-.tgrid > .tcard:nth-child(16) { animation-delay: 0.18s; }
+/* S-F10 (v6.22.0, A-07): entrance pindah ke .tcard-wrap (item grid)
+   supaya tombol ♥ ikut naik bersama kartu. Fill "backwards" —
+   bukan "both": keyframe akhir fx-card = state natural (opacity 1,
+   transform none), jadi tidak ada yang perlu ditahan; "both" akan
+   menimpa :hover selamanya dan fx.js tidak bisa membebaskannya
+   (initFreeEntrance hanya mengenal .tcard). */
+.tgrid > .tcard-wrap { animation: fx-card 0.3s var(--snappy) backwards; }
+.tgrid > .tcard-wrap:nth-child(1)  { animation-delay: 0.01s; }
+.tgrid > .tcard-wrap:nth-child(2)  { animation-delay: 0.03s; }
+.tgrid > .tcard-wrap:nth-child(3)  { animation-delay: 0.05s; }
+.tgrid > .tcard-wrap:nth-child(4)  { animation-delay: 0.07s; }
+.tgrid > .tcard-wrap:nth-child(5)  { animation-delay: 0.09s; }
+.tgrid > .tcard-wrap:nth-child(6)  { animation-delay: 0.105s; }
+.tgrid > .tcard-wrap:nth-child(7)  { animation-delay: 0.115s; }
+.tgrid > .tcard-wrap:nth-child(8)  { animation-delay: 0.125s; }
+.tgrid > .tcard-wrap:nth-child(9)  { animation-delay: 0.135s; }
+.tgrid > .tcard-wrap:nth-child(10) { animation-delay: 0.145s; }
+.tgrid > .tcard-wrap:nth-child(11) { animation-delay: 0.15s; }
+.tgrid > .tcard-wrap:nth-child(12) { animation-delay: 0.16s; }
+.tgrid > .tcard-wrap:nth-child(13) { animation-delay: 0.165s; }
+.tgrid > .tcard-wrap:nth-child(14) { animation-delay: 0.17s; }
+.tgrid > .tcard-wrap:nth-child(15) { animation-delay: 0.175s; }
+.tgrid > .tcard-wrap:nth-child(16) { animation-delay: 0.18s; }
 
 /* ---------- ubin kategori ----------
    P4: durasi 0.45s -> 0.3s, jeda dikompres (ubin ke-14: 0.275s
@@ -156,11 +172,12 @@
 .colgrid > .colcard:nth-child(4) { animation-delay: 0.31s; }
 
 /* ---------- hcard di GRID (bukan rail): naik, bukan meluncur ----------
-   .hcard di .hgrid (Baru ditambahkan) + .coba-grid (Coba dulu) adalah
-   grid statis P2-B1 — gerakan meluncur dari kanan milik rail
-   (.hscroll) yang bisa digeser. Di grid, kartu naik seperti kartu
-   lain (fx-card); jeda stagger .hcard tetap dipakai. */
-.hgrid > .hcard, .coba-grid > .hcard { animation-name: fx-card; }
+   .hcard di .coba-grid (Coba dulu) adalah grid statis P2-B1,
+   gerakan meluncur dari kanan milik rail (.hscroll) yang bisa
+   digeser. Di grid, kartu naik seperti kartu lain (fx-card);
+   jeda stagger .hcard tetap dipakai. (.hgrid dicabut v6.22.0
+   S-F4, S-A6 F-09: 0 pemakaian, diganti .baru-grid.) */
+.coba-grid > .hcard { animation-name: fx-card; }
 
 /* ikon kepala tool: pop pegas (menggantikan tic-pop yang lama).
    P4: 0.55s -> 0.35s. Overshoot pegas butuh sedikit ruang di atas
@@ -171,7 +188,7 @@
    (.rise & .w punya opacity:0 bawaan — tanpa ini mereka tak terlihat) */
 @media (prefers-reduced-motion: reduce) {
   .view, .rise,
-  .tgrid > .tcard, .catgrid > .cattile, .hcard,
+  .tgrid > .tcard-wrap, .catgrid > .cattile, .hcard,
   .colgrid > .colcard,
   .pagetitle, .cat-head, .tool-head, .tool-head .tic,
   .hero h1 .w {

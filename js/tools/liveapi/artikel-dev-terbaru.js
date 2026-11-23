@@ -18,7 +18,7 @@ async function getJSON(url) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "artikel-dev-terbaru", "name": "Artikel Dev Terbaru", "cat": "liveapi", "icon": "💻", "desc": "Artikel pemrograman terbaru dari komunitas DEV.to, bisa difilter per topik.", "keywords": "dev.to,artikel,programming,pemrograman,developer,blog,teknologi,dev", "since": "6.17.0"};
+export const meta = {"id": "artikel-dev-terbaru", "name": "Artikel Dev Terbaru", "cat": "liveapi", "icon": "💻", "desc": "Artikel pemrograman terbaru dari komunitas DEV.to, bisa difilter per topik.", "keywords": "dev.to,artikel,programming,pemrograman,developer,blog,teknologi,dev", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -58,7 +58,7 @@ export function render(root) {
         '<p class="hint">Sumber: DEV Community (dev.to). Artikel berbahasa Inggris.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server DEV tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server DEV tidak bisa dihubungi dalam 15 detik.'
         : 'Artikel gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

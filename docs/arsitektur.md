@@ -17,13 +17,13 @@ index.html (21 baris: <div id="app"> + 2 <script type="module">)
        ├─ js/supabase.js   tracking + istilah Populer (best-effort)
        ├─ js/shell-ui.js   helper tampilan bersama (hcard, fade, footer)
        ├─ js/beranda.js    view beranda + helpernya (Lanjutkan, Populer, Riwayat)
-       ├─ js/manifest.js   metadata ringan 1.299 tool (GENERATED)
+       ├─ js/manifest.js   metadata ringan 1.261 tool (GENERATED)
        ├─ js/core.js       helper bersama (namespace `h`, `utils`)
        └─ js/tools/<cat>/<id>.js   diimpor DINAMIS saat halamannya dibuka
   └─ js/fx.js         efek visual (terpisah dari logika)
 ```
 
-Beranda tidak memuat kode 1.299 tool — hanya manifest (~1.299 entri JSON, satu baris per tool). Kode tool dimuat on-demand lewat peta `import.meta.glob('./tools/**/*.js')` di `app.js` (satu chunk ber-hash per tool di build), dengan skeleton loading selama modul dimuat dan pesan "Gagal memuat" kalau import gagal.
+Beranda tidak memuat kode 1.261 tool — hanya manifest (~1.261 entri JSON, satu baris per tool). Kode tool dimuat on-demand lewat peta `import.meta.glob('./tools/**/*.js')` di `app.js` (satu chunk ber-hash per tool di build), dengan skeleton loading selama modul dimuat dan pesan "Gagal memuat" kalau import gagal.
 
 ## Routing (hash)
 

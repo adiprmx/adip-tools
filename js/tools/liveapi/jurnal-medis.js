@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Cari jurnal medis lewat Europe PMC, tanpa key.
 // Terverifikasi 17 Nov 2026: /webservices/rest/search?query=diabetes&format=json&pageSize=1 -> 200, CORS *.
 // Europe PMC mencakup seluruh isi PubMed ditambah teks lengkap dan sitasi.
-export const meta = {"id":"jurnal-medis","name":"Jurnal Medis","cat":"liveapi","icon":"🔬","desc":"Cari artikel dan jurnal medis dari Europe PMC, mencakup isi PubMed.","keywords":"jurnal medis,artikel medis,pubmed,europe pmc,penelitian,kesehatan,riset","since":"6.17.0"};
+export const meta = {"id":"jurnal-medis","name":"Jurnal Medis","cat":"liveapi","icon":"🔬","desc":"Cari artikel dan jurnal medis dari Europe PMC, mencakup isi PubMed.","keywords":"jurnal medis,artikel medis,pubmed,europe pmc,penelitian,kesehatan,riset","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -48,7 +48,7 @@ export function render(root) {
       }).join('') + '<p class="hint">Sumber: Europe PMC. Artikel umumnya berbahasa Inggris.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Europe PMC tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Europe PMC tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari jurnal. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

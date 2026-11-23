@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id": "quotes-random", "name": "Quotes Acak", "cat": "liveapi", "icon": "💬", "desc": "Dapatkan quotes inspiratif acak setiap kali dibuka.", "keywords": "quotes,kutipan,acak,inspirasi,motivasi,random,quote"};
+export const meta = {"id": "quotes-random", "name": "Quotes Acak", "cat": "liveapi", "icon": "💬", "desc": "Dapatkan quotes inspiratif acak setiap kali dibuka.", "keywords": "quotes,kutipan,acak,inspirasi,motivasi,random,quote", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -26,7 +26,7 @@ export function render(root) {
     } catch (e) {
       clearTimeout(timer);
       const msg = (e && e.name === 'AbortError')
-        ? 'Waktu habis — server quotes tidak merespons dalam 15 detik. Periksa koneksi internet lalu coba lagi.'
+        ? 'Waktu habis — server quotes tidak bisa dihubungi dalam 15 detik. Periksa koneksi internet lalu coba lagi.'
         : 'Gagal mengambil quote. Periksa koneksi internet lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span>');
       const wrap = T.el('<div class="mt8"></div>');

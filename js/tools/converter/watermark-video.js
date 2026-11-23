@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "watermark-video", "name": "Watermark Video", "cat": "converter", "icon": "💧", "desc": "Tempel logo atau gambar di sudut video.", "keywords": "video,watermark,logo,gambar,tanda,cap", "since": "6.17.0"};
+export const meta = {"id": "watermark-video", "name": "Watermark Video", "cat": "converter", "icon": "💧", "desc": "Tempel logo atau gambar di sudut video.", "keywords": "video,watermark,logo,gambar,tanda,cap", "since": "6.17.0", "online": true};
 
 // Posisi overlay ffmpeg (margin 16px dari tepi). Murni, bisa diuji di Node.
 export function posisiOverlay(posisi) {

@@ -1,8 +1,7 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"aiimage","name":"AI Image","cat":"gambar","icon":"🎨","desc":"Generate & edit gambar AI pakai akun Puter milikmu.","keywords":"ai,gambar,generator,edit foto,puter,image"};
+export const meta = {"id":"aiimage","name":"AI Image","cat":"gambar","icon":"🎨","desc":"Generate & edit gambar AI pakai akun Puter milikmu.","keywords":"ai,gambar,generator,edit foto,puter,image", "online": true};
 
-const PUTER_SDK_URL = 'https://js.puter.com/v2/';
 const POLL_IMG = 'https://image.pollinations.ai/prompt/';
 const POLL_DIM = { '1:1': [1024, 1024], '3:4': [768, 1024], '4:3': [1024, 768], '9:16': [576, 1024], '16:9': [1024, 576] };
 const RATIOS = ['1:1', '3:4', '4:3', '9:16', '16:9'];
@@ -51,30 +50,20 @@ function catalogModel(id) {
   return MODEL_CATALOG.find((m) => normId(m.id) === n || (m.aliases || []).some((a) => normId(a) === n)) || null;
 }
 
-// Muat Puter.js sekali, dengan timeout 15 detik.
+// Muat Puter.js sekali lewat utils.puter.load() (S-Q3 v6.22.0, RED-1 F1b):
+// jalur tunggal core.js — timeout 15 detik + warn SRI + cache loadScript.
+// DILARANG membuat <script> Puter sendiri (bypass lama tanpa warn SRI).
 let _sdkP = null;
 function loadSdk() {
   if (window.puter && window.puter.auth && window.puter.ai) return Promise.resolve(window.puter);
   if (_sdkP) return _sdkP;
-  _sdkP = new Promise((resolve, reject) => {
-    let done = false;
-    const timer = setTimeout(() => fin(new Error('Puter terlalu lama merespons. Periksa internet lalu coba lagi.')), 15000);
-    const fin = (err) => {
-      if (done) return; done = true; clearTimeout(timer);
-      if (err) { _sdkP = null; reject(err); } else resolve(window.puter);
-    };
-    const ready = () => { if (window.puter && window.puter.auth && window.puter.ai) fin(); };
-    let s = document.querySelector('script[data-adip-puter-sdk="1"]');
-    if (!s) {
-      s = document.createElement('script');
-      s.src = PUTER_SDK_URL; s.async = true; s.dataset.adipPuterSdk = '1';
-      s.addEventListener('load', ready, { once: true });
-      s.addEventListener('error', () => fin(new Error('Gagal memuat Puter. Periksa koneksi internet atau pemblokir iklan.')), { once: true });
-      document.head.appendChild(s);
-    } else { s.addEventListener('load', ready, { once: true }); }
-    const poll = setInterval(() => { if (done) clearInterval(poll); else ready(); }, 80);
-    ready();
+  _sdkP = utils.puter.load().then((ok) => {
+    if (!ok || !window.puter || !window.puter.auth || !window.puter.ai) {
+      throw new Error('Gagal memuat Puter. Periksa koneksi internet atau pemblokir iklan.');
+    }
+    return window.puter;
   });
+  _sdkP.catch(() => { _sdkP = null; });
   return _sdkP;
 }
 
@@ -102,7 +91,7 @@ function errPesan(e) {
   if (/unsupported capability|input image.*not supported|reference.*not supported/.test(raw)) return 'Model ini tidak mendukung mode gambar yang dipilih.';
   if (/model not found|unknown model|model.*unavailable|unsupported model|no provider|excluded route/.test(raw)) return 'Model ini sedang tidak tersedia.';
   if (/network|failed to fetch|offline|connection/.test(raw)) return 'Koneksi ke Puter terputus.';
-  if (/timeout|waktu habis/.test(raw)) return 'AI tidak merespons dalam 90 detik. Coba lagi.';
+  if (/timeout|waktu habis/.test(raw)) return 'AI tidak bisa dihubungi dalam 90 detik. Coba lagi.';
   if (d.status >= 500 || /upstream|provider|internal_error|unknown_error|service_unavailable|something went wrong|temporar/.test(raw)) return 'Provider model sedang bermasalah.';
   return 'Puter belum bisa memproses gambar. Coba lagi beberapa saat.';
 }
@@ -616,7 +605,7 @@ export function render(root) {
           const o = opsiGenerate(md.id ? md : { id: md, maxRef: 4, qualities: [], defaultQuality: '' }, ratioTerpilih, mode, q, inputs);
           const res = await Promise.race([
             Promise.resolve(window.puter.ai.txt2img(p, o)),
-            new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: Puter tidak merespons dalam 90 detik.')), 90000)),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: Puter tidak bisa dihubungi dalam 90 detik.')), 90000)),
           ]);
           return { res, id: md.id || md };
         };

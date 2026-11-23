@@ -105,7 +105,7 @@ export function render(root) {
         save(); renderList(); renderStats();
       });
       if (w.lunas) tggl.style.borderColor = '#16a34a';
-      const del = T.btn('✕', () => { st.warga.splice(i, 1); save(); renderList(); renderStats(); });
+      const del = T.btn('✕', () => { if (!confirm('Hapus warga "' + (w.nama || '') + '" dari iuran kas? Data ini akan hilang dan tidak bisa dikembalikan.')) return; st.warga.splice(i, 1); save(); renderList(); renderStats(); });
       del.setAttribute('aria-label', 'Hapus warga ' + (w.nama || (i + 1)));
       nom.addEventListener('input', () => { w.nominal = T.num(nom.value); save(); renderStats(); });
       row.appendChild(nama); row.appendChild(nom); row.appendChild(tggl); row.appendChild(del);

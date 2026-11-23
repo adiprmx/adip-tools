@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "tes-mengetik-kode", "name": "Tes Mengetik Kode", "cat": "pelajar", "icon": "💻", "desc": "Ukur kecepatan mengetik kode program: JavaScript, Python, HTML, dan JSON, lengkap dengan hitungan salah per simbol.", "keywords": "tes mengetik kode,typing code,programmer,kecepatan mengetik,kode,javascript,python", "since": "6.19.0"};
+export const meta = {"id": "tes-mengetik-kode", "name": "Tes Mengetik Kode", "cat": "pelajar", "icon": "💻", "desc": "Ukur kecepatan mengetik kode program: JavaScript, Python, HTML, dan JSON, lengkap dengan hitungan salah per simbol.", "keywords": "tes mengetik kode,typing code,programmer,kecepatan mengetik,kode,javascript,python,teks,produktivitas", "since": "6.19.0"};
 
 const KEY = 'adip-tools:tes-mengetik-kode';
 

@@ -1,7 +1,7 @@
 import { h as T, utils } from '../../core.js';
 import { loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop pas foto, ganti latar, lembar cetak 4R, cek kelayakan.","keywords":"pas foto,crop,ktp,lamaran,rasio,latar merah,lembar cetak"};
+export const meta = {"id":"crop-pas-foto","name":"Crop Pas Foto","cat":"gambar","icon":"🪪","desc":"Crop pas foto, ganti latar, lembar cetak 4R, cek kelayakan.","keywords":"pas foto,crop,ktp,lamaran,rasio,latar merah,lembar cetak", "online": true};
 
 /* Crop pas foto: bingkai rasio tetap (2:3 / 3:4 / 4:6), fotonya bisa
    digeser pakai jari di dalam bingkai. Saat unduh, area bingkai dihitung

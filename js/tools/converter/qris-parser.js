@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {id:"qris-parser", name:"Bedah Kode QRIS", cat:"converter", icon:"🧾", desc:"Lihat isi kode QRIS bagian per bagian, plus cek CRC-nya.", keywords:"qris,emvco,parser,crc,payload"};
+export const meta = {id:"qris-parser", name:"Bedah Kode QRIS", cat:"converter", icon:"🧾", desc:"Lihat isi kode QRIS bagian per bagian, plus cek CRC-nya.", keywords:"qris,emvco,parser,crc,payload,qr,desain,keamanan"};
 export function render(root) {
 
     // ---------- CRC16-CCITT (poly 0x1021, init 0xFFFF), sesuai standar EMVCo ----------

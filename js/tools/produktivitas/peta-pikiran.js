@@ -134,6 +134,8 @@ export function render(root) {
   });
   const hapusBtn = T.btn('🗑 Hapus simpul', () => {
     if (nodes.length <= 1) { T.toast('Simpul terakhir tidak bisa dihapus'); return; }
+    const simpulHapus = nodes.find((n) => n.id === terpilih);
+    if (!confirm('Hapus simpul "' + (simpulHapus ? simpulHapus.text : '') + '" beserta semua cabangnya? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
     const hapus = new Set([terpilih]);
     let berubah = true;
     while (berubah) {

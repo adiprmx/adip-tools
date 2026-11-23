@@ -6,7 +6,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // -> 429 + CORS * (kuota harian IP proxy bersama habis; endpoint hidup,
 // pengunjung memakai IP masing-masing). Respons sukses: {"elevation":[15.0]}.
 // Angka negatif berarti di bawah permukaan laut.
-export const meta = {"id":"ketinggian-lokasi","name":"Ketinggian Lokasi","cat":"liveapi","icon":"⛰️","desc":"Cek ketinggian sebuah titik di atas permukaan laut dari koordinatnya.","keywords":"ketinggian,elevasi,mdpl,koordinat,lintang,bujur,gunung,laut","since":"6.19.0"};
+export const meta = {"id":"ketinggian-lokasi","name":"Ketinggian Lokasi","cat":"liveapi","icon":"⛰️","desc":"Cek ketinggian sebuah titik di atas permukaan laut dari koordinatnya.","keywords":"ketinggian,elevasi,mdpl,koordinat,lintang,bujur,gunung,laut","since":"6.19.0", "online": true};
 
 const API = 'https://api.open-meteo.com/v1/elevation?latitude=';
 
@@ -48,7 +48,7 @@ export function render(root) {
         '<p class="hint">Sumber: Open-Meteo. Angka berasal dari model ketinggian global, bisa selisih beberapa meter dari kondisi di lapangan.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : e.message === 'rate'
           ? 'Server sedang membatasi permintaan dari jaringan ini. Coba lagi beberapa saat lagi.'
           : 'Gagal mengecek ketinggian. Cek koneksi internet, lalu coba lagi.';

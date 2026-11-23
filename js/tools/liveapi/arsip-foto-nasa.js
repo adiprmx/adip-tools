@@ -19,7 +19,7 @@ async function getJSON(url) {
 
 // tglCantik kanonis tinggal di utils (core.js).
 
-export const meta = {"id": "arsip-foto-nasa", "name": "Arsip Foto NASA", "cat": "liveapi", "icon": "🚀", "desc": "Cari foto dan gambar dari arsip NASA: planet, roket, astronot, sampai galaksi.", "keywords": "nasa,foto,antariksa,arsip,planet,roket,astronot,galaksi,gambar", "since": "6.17.0"};
+export const meta = {"id": "arsip-foto-nasa", "name": "Arsip Foto NASA", "cat": "liveapi", "icon": "🚀", "desc": "Cari foto dan gambar dari arsip NASA: planet, roket, astronot, sampai galaksi.", "keywords": "nasa,foto,antariksa,arsip,planet,roket,astronot,galaksi,gambar", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -59,7 +59,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server NASA tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server NASA tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

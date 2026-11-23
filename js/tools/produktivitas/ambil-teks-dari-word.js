@@ -9,7 +9,7 @@ import { h as T, utils, fileInput, LOCAL_NOTE } from '../../core.js';
 // BATASAN JUJUR: yang keluar hanya teks polos, tanpa tebal, miring,
 // atau tata letak. File .doc lama (bukan .docx) tidak bisa dibaca.
 // EPUB yang dikunci tidak bisa dibaca.
-export const meta = {"id": "ambil-teks-dari-word", "name": "Ambil Teks dari Dokumen", "cat": "produktivitas", "icon": "📄", "desc": "Tarik semua teks dari dokumen Word (.docx), ebook EPUB, atau LibreOffice (.odt) jadi teks biasa.", "keywords": "ambil teks word,docx ke teks,ekstrak teks word,baca docx,epub ke teks,ambil teks epub,baca epub,odt ke teks,ambil teks odt,libreoffice,dokumen", "since": "6.17.0"};
+export const meta = {"id": "ambil-teks-dari-word", "name": "Ambil Teks dari Dokumen", "cat": "produktivitas", "icon": "📄", "desc": "Tarik semua teks dari dokumen Word (.docx), ebook EPUB, atau LibreOffice (.odt) jadi teks biasa.", "keywords": "ambil teks word,docx ke teks,ekstrak teks word,baca docx,epub ke teks,ambil teks epub,baca epub,odt ke teks,ambil teks odt,libreoffice,dokumen", "since": "6.17.0", "online": true};
 
 const MAMMOTH_CDN = 'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js';
 const JSZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';

@@ -26,7 +26,7 @@ import { h as T, utils } from '../../core.js';
     utils.morseMap = M;
   })();
 
-export const meta = {"id": "morse", "name": "Sandi Morse", "cat": "converter", "icon": "📻", "desc": "Teks ↔ sandi Morse + bunyi.", "keywords": "morse,sandi,kode"};
+export const meta = {"id": "morse", "name": "Sandi Morse", "cat": "converter", "icon": "📻", "desc": "Ubah teks jadi sandi Morse dan sebaliknya, lengkap dengan bunyi tiap kodenya.", "keywords": "morse,sandi,kode,teks ke morse,morse ke teks,bunyi morse"};
 export function render(root) {
 
     const inp = T.ta(4, 'Tulis teks di sini…');

@@ -61,7 +61,7 @@ export async function probeSite(url, opts) {
   return selesai({ status: 'down', method: null, ms: ms() });
 }
 
-export const meta = {"id": "apakah-situs-down", "name": "Apakah Situs Down?", "cat": "developer", "icon": "📶", "desc": "Cek apakah sebuah situs merespons atau tidak dari koneksimu.", "keywords": "down,offline,situs,website,cek,up,error,koneksi", "since": "6.18.0"};
+export const meta = {"id": "apakah-situs-down", "name": "Apakah Situs Down?", "cat": "developer", "icon": "📶", "desc": "Cek apakah sebuah situs merespons atau tidak dari koneksimu.", "keywords": "down,offline,situs,website,cek,up,error,koneksi", "since": "6.18.0", "online": true};
 export function render(root) {
 
     const inp = T.input('text', 'cth: google.com atau https://contoh.id', '');
@@ -91,7 +91,7 @@ export function render(root) {
           '<div class="hint" style="margin-top:8px">Cek langsung ke situs ini tidak bisa jalan karena kebijakan keamanan situs ini, dan cek cadangannya juga tidak memberi jawaban. Ini bukan berarti situsnya mati — coba buka langsung situsnya di browser.</div>');
       } else {
         T.show(box,
-          '<div style="font-size:16px;margin-bottom:6px"><span class="err">✗ Situs tidak merespons.</span></div>' +
+          '<div style="font-size:16px;margin-bottom:6px"><span class="err">✗ Situs tidak bisa dihubungi.</span></div>' +
           '<div class="kv"><span class="k">Alamat dicek</span><span class="v" style="word-break:break-all">' + T.esc(n.url) + '</span></div>' +
           '<div class="kv"><span class="k">Waktu tunggu</span><span class="v">' + r.ms + ' ms</span></div>' +
           '<div class="hint" style="margin-top:8px">Bisa jadi situsnya sedang mati, bisa juga koneksimu yang bermasalah, atau situsnya memblokir cek dari browser. Coba buka situs lain dulu: kalau situs lain bisa dibuka, kemungkinan besar situs ini yang bermasalah.</div>');
@@ -102,6 +102,6 @@ export function render(root) {
     root.appendChild(T.field('Alamat situs', inp));
     root.appendChild(T.row(T.btn('Cek sekarang', cek, true)));
     root.appendChild(box);
-    root.appendChild(T.el('<div class="hint" style="margin-top:12px">Batas cek ini: browser tidak mengizinkan halaman ini membaca jawaban situs lain, jadi hasilnya hanya "merespons" atau "tidak merespons". Halaman error seperti 404 atau 500 tetap terhitung merespons.</div>'));
+    root.appendChild(T.el('<div class="hint" style="margin-top:12px">Batas cek ini: browser tidak mengizinkan halaman ini membaca jawaban situs lain, jadi hasilnya hanya "bisa dihubungi" atau "tidak bisa dihubungi". Halaman error seperti 404 atau 500 tetap terhitung bisa dihubungi.</div>'));
 
 }

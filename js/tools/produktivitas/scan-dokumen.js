@@ -8,7 +8,7 @@ import { h as T, utils, fileInput, loadImage, fmtBytes, LOCAL_NOTE } from '../..
 // BATASAN JUJUR: sudut dokumen diatur manual dengan menyeret titik,
 // bukan deteksi otomatis; hasil lurusnya tergantung ketepatan geseranmu.
 // Foto yang sangat miring atau blur tetap sulit diluruskan.
-export const meta = {"id": "scan-dokumen", "name": "Scan Dokumen", "cat": "produktivitas", "icon": "📷", "desc": "Foto dokumen, luruskan sudutnya, jadi hitam-putih bersih, ekspor PDF.", "keywords": "scan dokumen,foto dokumen,luruskan dokumen,scan ke pdf", "since": "6.17.0"};
+export const meta = {"id": "scan-dokumen", "name": "Scan Dokumen", "cat": "produktivitas", "icon": "📷", "desc": "Foto dokumen, luruskan sudutnya, jadi hitam-putih bersih, ekspor PDF.", "keywords": "scan dokumen,foto dokumen,luruskan dokumen,scan ke pdf", "since": "6.17.0", "online": true};
 
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 const MAKS_SISI = 2000;

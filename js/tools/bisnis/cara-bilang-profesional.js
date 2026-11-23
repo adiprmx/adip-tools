@@ -143,6 +143,7 @@ export function render(root) {
     box.querySelectorAll('[data-hapus]').forEach((b) => {
       b.addEventListener('click', () => {
         const f = hasil[Number(b.getAttribute('data-hapus'))];
+        if (!confirm('Hapus frasa buatanmu ini dari daftar? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
         const kunci = kunciFrase(f);
         custom = custom.filter((c) => kunciFrase(c) !== kunci);
         fav = fav.filter((k) => k !== kunci);

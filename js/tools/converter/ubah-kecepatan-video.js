@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "ubah-kecepatan-video", "name": "Ubah Kecepatan Video", "cat": "converter", "icon": "⏩", "desc": "Percepat atau perlambat video, suaranya ikut menyesuaikan.", "keywords": "video,kecepatan,cepat,lambat,tempo", "since": "6.16.0"};
+export const meta = {"id": "ubah-kecepatan-video", "name": "Ubah Kecepatan Video", "cat": "converter", "icon": "⏩", "desc": "Percepat atau perlambat video, suaranya ikut menyesuaikan.", "keywords": "video,kecepatan,cepat,lambat,tempo", "since": "6.16.0", "online": true};
 
 export function render(root) {
   const SPEEDS = [

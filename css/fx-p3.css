@@ -72,14 +72,14 @@
 .skel > .sk-line:nth-child(5)::after { animation-delay: 0.72s; }
 
 /* garis teks + varian ukuran (meniru .inp / tombol / area hasil) */
-.sk-line { display: block; height: 14px; width: 100%; border-radius: 6px; }
+.sk-line { display: block; height: 14px; width: 100%; border-radius: var(--r-sm); }
 .sk-line.w25 { width: 25%; }
 .sk-line.w45 { width: 45%; }
 .sk-line.w60 { width: 60%; }
 .sk-line.w70 { width: 70%; }
 .sk-line.h-inp { height: 48px; border-radius: var(--r-ctl); }
 .sk-line.h-btn { height: var(--tap); border-radius: var(--r-ctl); }
-.sk-line.h-area { height: 120px; border-radius: 8px; }
+.sk-line.h-area { height: 120px; border-radius: var(--r-sm); }
 .sk-line.push { margin-top: auto; }
 
 /* kartu: meniru .tcard (ikon 44 + judul + 2 baris + label bawah) */
@@ -90,7 +90,7 @@
   background: var(--surface); border: 1px solid var(--hair);
 }
 .sk-ic { width: 44px; height: 44px; border-radius: var(--r-ctl); }
-.sk-ic.sm { width: 36px; height: 36px; border-radius: 10px; }
+.sk-ic.sm { width: 36px; height: 36px; border-radius: var(--r-md); }
 
 /* kartu rail: meniru .hcard (ikon 42 + nama + label) */
 .sk-hcard {
@@ -117,14 +117,14 @@
 .navlink { transition: transform 0.12s var(--ease), color 0.15s, background 0.15s; }
 .navlink:active { transform: scale(0.96); }
 .drop-item { transition: transform 0.12s var(--ease), color 0.15s, background 0.15s; }
-.drop-item:active { transform: scale(0.97); }
+.drop-item:active { transform: scale(0.96); } /* S-U6: 0,97 -> 0,96, selaras .navlink/.back (tangga gerak) */
 /* ikon item dropdown ikut membesar sedikit saat hover — sekeluarga
-   dengan ikon kartu (.tcard:hover .tic, fx-micro.css). */
+   dengan ikon kartu (.tcard-wrap:hover .tic, fx-micro.css). */
 .drop-item .di-ic { transition: transform 0.2s var(--spring); }
 .drop-item:hover .di-ic, .drop-item:focus-visible .di-ic { transform: scale(1.12); }
 
 /* chip di luar empty state (pencarian terakhir, lompat Metodologi,
-   filter kategori, saran "Maksud Anda"): angkat 1px saat hover.
+   filter kategori, saran "Maksud kamu"): angkat 1px saat hover.
    Transisi .schip di components.css sudah mencakup transform. */
 .schip:hover { transform: translateY(-1px); }
 
@@ -134,7 +134,7 @@
    (debounce 180ms) atau filter — 48 kartu yang naik-turun tiap
    ketikan adalah kedip, bukan umpan balik. Hitungan "N hasil"
    sudah mengabarkan perubahan. Paint pertama tetap ber-stagger. */
-.tgrid.fx-steady > .tcard { animation: none; }
+.tgrid.fx-steady > .tcard-wrap { animation: none; }
 
 /* ---------- E. Reduced motion ----------
    Pertahanan lapis kedua: blok global style.css (durasi 0,01ms)

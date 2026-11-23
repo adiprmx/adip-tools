@@ -5,7 +5,7 @@
 
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id": "csv-ke-excel", "name": "CSV ↔ Excel", "cat": "converter", "icon": "📊", "desc": "Ubah CSV jadi Excel, atau Excel jadi CSV. Pilih arahnya di atas.", "keywords": "csv,excel,xlsx,spreadsheet,tabel,konversi,csv ke excel,excel ke csv", "since": "6.17.0"};
+export const meta = {"id": "csv-ke-excel", "name": "CSV ↔ Excel", "cat": "converter", "icon": "📊", "desc": "Ubah CSV jadi Excel, atau Excel jadi CSV. Pilih arahnya di atas.", "keywords": "csv,excel,xlsx,spreadsheet,tabel,konversi,csv ke excel,excel ke csv", "since": "6.17.0", "online": true};
 
 
 // SheetJS 0.18.5. Hash SRI ada di peta SRI_HASH core.js

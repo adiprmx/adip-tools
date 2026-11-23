@@ -388,6 +388,7 @@ export function render(root) {
   const histRow = T.el('<div class="ku-hrow"></div>');
   histRow.appendChild(T.el('<p class="ku-htitle">Riwayat</p>'));
   const clearHistBtn = T.btn('Hapus', () => {
+    if (!confirm('Hapus seluruh riwayat hitung? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
     hist = [];
     saveHist(hist);
     renderHist();

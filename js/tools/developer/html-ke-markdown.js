@@ -125,7 +125,7 @@ function blokMd(node, kedalaman) {
 
 /** HTML -> Markdown. Butuh DOMParser (tersedia di browser). */
 export function htmlKeMarkdown(html) {
-  if (typeof DOMParser === 'undefined') throw new Error('DOMParser tidak tersedia di lingkungan ini');
+  if (typeof DOMParser === 'undefined') throw new Error('Browser ini tidak bisa membaca HTML.');
   // Pagar kedalaman (P4-14): 20.000 div bersarang membekukan tab 15,5 dtk
   // — DOMParser SENDIRI butuh ~14 dtk untuk mem-parse-nya, jadi estimasi
   // dari teks mentah berjalan SEBELUM parse (pagar DOM sesudah parse

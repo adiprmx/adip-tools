@@ -16,7 +16,7 @@ utils.weatherId = function (code) {
     return m[Number(code)] || 'Tidak diketahui';
   };
 
-export const meta = {"id": "kurs-cuaca", "name": "Kurs & Cuaca", "cat": "liveapi", "icon": "💱", "desc": "Kurs mata uang live & cuaca kota.", "keywords": "kurs,dollar,uang,cuaca,rupiah"};
+export const meta = {"id": "kurs-cuaca", "name": "Kurs & Cuaca", "cat": "liveapi", "icon": "💱", "desc": "Kurs mata uang live & cuaca kota.", "keywords": "kurs,dollar,uang,cuaca,rupiah", "online": true};
 export function render(root) {
 
     const CURS = [['IDR', 'IDR - Rupiah'], ['USD', 'USD - Dolar AS'], ['EUR', 'EUR - Euro'], ['SGD', 'SGD - Dolar Singapura'], ['MYR', 'MYR - Ringgit'], ['JPY', 'JPY - Yen'], ['GBP', 'GBP - Pound'], ['AUD', 'AUD - Dolar Australia'], ['THB', 'THB - Baht'], ['CNY', 'CNY - Yuan'], ['KRW', 'KRW - Won'], ['SAR', 'SAR - Riyal'], ['PHP', 'PHP - Peso'], ['VND', 'VND - Dong'], ['INR', 'INR - Rupee'], ['HKD', 'HKD - Dolar HK']];

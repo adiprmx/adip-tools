@@ -188,7 +188,7 @@ export function sisipExifKePng(pngBytes, tiffBytes) {
   return out;
 }
 
-export const meta = {"id": "image-convert", "name": "Convert Gambar", "cat": "gambar", "icon": "🔁", "desc": "Convert gambar antar format (WebP, JPG, PNG, dan lainnya) di browser — termasuk kode SVG dan foto HEIC iPhone, banyak sekaligus.", "keywords": "convert,gambar,webp,jpg,png,format,heic,tiff,avif,bmp,ico,svg,kode svg,iphone,batch,zip"};
+export const meta = {"id": "image-convert", "name": "Convert Gambar", "cat": "gambar", "icon": "🔁", "desc": "Convert gambar antar format (WebP, JPG, PNG, dan lainnya) di browser — termasuk kode SVG dan foto HEIC iPhone, banyak sekaligus.", "keywords": "convert,gambar,webp,jpg,png,format,heic,tiff,avif,bmp,ico,svg,kode svg,iphone,batch,zip,converter", "online": true};
 export function render(root) {
 
       const HEIC_CDN = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';

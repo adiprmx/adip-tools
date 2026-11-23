@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id":"ip-saya","name":"IP & Lokasi Saya","cat":"liveapi","icon":"🌐","desc":"Cek alamat IP publik & perkiraan lokasimu.","keywords":"ip,lokasi,saya,alamat,isp,internet"};
+export const meta = {"id":"ip-saya","name":"IP & Lokasi Saya","cat":"liveapi","icon":"🌐","desc":"Cek alamat IP publik & perkiraan lokasimu.","keywords":"ip,lokasi,saya,alamat,isp,internet", "online": true};
 export function render(root) {
   const box = T.out();
   const muat = async () => {
@@ -33,7 +33,7 @@ export function render(root) {
     } catch (e) {
       clearTimeout(timer);
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
       else if (status === 429) msg = 'Rate limit tercapai (429). Terlalu banyak permintaan — tunggu sebentar lalu coba lagi.';
       else msg = 'Gagal memuat data IP. Periksa koneksi internet lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span>');

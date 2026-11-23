@@ -4,7 +4,7 @@ import { h as T, utils, esc, errBox } from '../../core.js';
 // Terverifikasi 19 Nov 2026: /api/json/v1/1/random.php -> 200, key "1"
 // MASIH HIDUP (mengembalikan minuman Malibu Twister).
 // Hanya endpoint random.php yang dipakai (sesuai dokumen verifikasi).
-export const meta = {"id":"resep-koktail","name":"Resep Koktail & Minuman","cat":"liveapi","icon":"🍹","desc":"Resep minuman dan koktail acak, lengkap dengan bahan dan cara buat.","keywords":"koktail,cocktail,minuman,resep,bahan,minum,drink","since":"6.19.0"};
+export const meta = {"id":"resep-koktail","name":"Resep Koktail & Minuman","cat":"liveapi","icon":"🍹","desc":"Resep minuman dan koktail acak, lengkap dengan bahan dan cara buat.","keywords":"koktail,cocktail,minuman,resep,bahan,minum,drink","since":"6.19.0", "online": true};
 
 const API = 'https://www.thecocktaildb.com/api/json/v1/1/random.php';
 
@@ -50,7 +50,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil resep minuman. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

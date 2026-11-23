@@ -16,9 +16,9 @@ OUT = os.path.join(ROOT, 'TOOLS.md')
 # Nama tampil kategori (slug manifest -> label). Slug baru jatuh ke title-case.
 CAT_LABEL = {
     'bisnis': 'Bisnis', 'converter': 'Converter', 'desain': 'Desain',
-    'developer': 'Developer', 'fakesos': 'Fake Sosmed', 'fun': 'Fun & Hiburan',
+    'developer': 'Developer', 'fakesos': 'Sosmed Palsu', 'fun': 'Fun & Hiburan',
     'gambar': 'Gambar', 'indonesia': 'Indonesia', 'keamanan': 'Keamanan',
-    'liveapi': 'Live API', 'musik': 'Musik', 'pelajar': 'Pelajar',
+    'liveapi': 'Data Langsung', 'musik': 'Musik', 'pelajar': 'Pelajar',
     'produktivitas': 'Produktivitas', 'sehari': 'Sehari-hari', 'teks': 'Teks',
 }
 

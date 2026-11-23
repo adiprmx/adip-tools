@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "video-looping-boomerang", "name": "Video Looping/Boomerang", "cat": "converter", "icon": "🔁", "desc": "Ulangi video berkali-kali, atau buat maju mundur.", "keywords": "video,loop,boomerang,ulang,maju mundur,repeat", "since": "6.17.0"};
+export const meta = {"id": "video-looping-boomerang", "name": "Video Looping/Boomerang", "cat": "converter", "icon": "🔁", "desc": "Ulangi video berkali-kali, atau buat maju mundur.", "keywords": "video,loop,boomerang,ulang,maju mundur,repeat", "since": "6.17.0", "online": true};
 
 // Durasi hasil dari durasi awal. Mode 'loop' mengulang sejumlah n kali,
 // mode 'boomerang' maju sekali lalu mundur sekali. Murni, bisa diuji di Node.

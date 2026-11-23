@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"generator-caption-gambar-ai","name":"Generator Caption Gambar AI","cat":"gambar","icon":"🖼️","desc":"Caption untuk fotomu — AI melihat fotonya langsung, lalu menulis captionnya.","keywords":"caption,gambar,foto,deskripsi,ai,puter,vision","since":"6.18.0"};
+export const meta = {"id":"generator-caption-gambar-ai","name":"Generator Caption Gambar AI","cat":"gambar","icon":"🖼️","desc":"Caption untuk fotomu — AI melihat fotonya langsung, lalu menulis captionnya.","keywords":"caption,gambar,foto,deskripsi,ai,puter,vision","since":"6.18.0", "online": true};
 
 const MAX_DESKRIPSI = 2000;
 const MAX_MB = 10;
@@ -174,7 +174,7 @@ export function render(root) {
             const promptV = buatPromptVision({ deskripsi, gaya: gayaSel.value, jumlah: jumlahSel.value });
             const resV = await denganTimeout(
               window.puter.ai.chat(promptV, fotoFile, false, { model: MODEL_VISION }),
-              60000, 'TIMEOUT: AI tidak merespons dalam 60 detik.');
+              60000, 'TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.');
             hasil = utils.chatText(resV).trim();
             dariVision = !!hasil;
           } catch (eV) {
@@ -192,7 +192,7 @@ export function render(root) {
           const prompt = buatPrompt({ deskripsi, gaya: gayaSel.value, jumlah: jumlahSel.value });
           const res = await denganTimeout(
             window.puter.ai.chat(prompt, {}),
-            60000, 'TIMEOUT: AI tidak merespons dalam 60 detik.');
+            60000, 'TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.');
           hasil = utils.chatText(res).trim();
         }
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

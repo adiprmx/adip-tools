@@ -8,7 +8,7 @@ import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // posisi teks, bukan garis tabel asli. Tabel tanpa jarak kolom yang jelas
 // bisa berantakan; bila begitu, hasilnya tetap diunduh sebagai teks
 // per baris supaya tidak ada isi yang hilang diam-diam.
-export const meta = {"id": "ekstrak-tabel-pdf-ke-csv", "name": "Ekstrak Tabel PDF ke CSV", "cat": "produktivitas", "icon": "📋", "desc": "Ambil tabel dari PDF dan simpan sebagai file CSV.", "keywords": "tabel pdf ke csv,pdf ke csv,ekstrak tabel pdf,csv dari pdf", "since": "6.19.0"};
+export const meta = {"id": "ekstrak-tabel-pdf-ke-csv", "name": "Ekstrak Tabel PDF ke CSV", "cat": "produktivitas", "icon": "📋", "desc": "Ambil tabel dari PDF dan simpan sebagai file CSV.", "keywords": "tabel pdf ke csv,pdf ke csv,ekstrak tabel pdf,csv dari pdf", "since": "6.19.0", "online": true};
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';

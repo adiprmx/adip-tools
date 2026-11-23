@@ -1,6 +1,6 @@
 import { h as T, esc, errBox, kvRows, preHtml } from '../../core.js';
 
-export const meta = {"id": "tes-bot-telegram", "name": "Tes Token Bot Telegram", "cat": "developer", "icon": "🤖", "desc": "Cek token bot Telegram: tampilkan nama dan username bot bila token benar.", "keywords": "telegram,bot,token,getme,cek token,bot api", "since": "6.11.0"};
+export const meta = {"id": "tes-bot-telegram", "name": "Tes Token Bot Telegram", "cat": "developer", "icon": "🤖", "desc": "Cek token bot Telegram: tampilkan nama dan username bot bila token benar.", "keywords": "telegram,bot,token,getme,cek token,bot api", "since": "6.11.0", "online": true};
 
 // Bentuk token bot: angka, titik dua, lalu kode panjang. Cek longgar saja,
 // penentu benar atau salah tetap jawaban dari Telegram.

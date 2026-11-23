@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id": "lihat-update-telegram", "name": "Lihat Pesan Masuk Bot", "cat": "developer", "icon": "📥", "desc": "Lihat pesan terbaru yang masuk ke bot Telegram lewat getUpdates.", "keywords": "telegram,bot,getupdates,pesan masuk,update,bot api", "since": "6.11.0"};
+export const meta = {"id": "lihat-update-telegram", "name": "Lihat Pesan Masuk Bot", "cat": "developer", "icon": "📥", "desc": "Lihat pesan terbaru yang masuk ke bot Telegram lewat getUpdates.", "keywords": "telegram,bot,getupdates,pesan masuk,update,bot api", "since": "6.11.0", "online": true};
 
 function nameOf(p) {
   if (!p) return '-';

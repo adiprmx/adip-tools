@@ -36,6 +36,7 @@ export function render(root) {
         const del = T.el('<button class="btn ghost" style="padding:4px 10px;font-size:12px">✕</button>');
         del.setAttribute('aria-label', 'Hapus rencana ' + b.text);
         del.addEventListener('click', () => {
+          if (!confirm('Hapus rencana "' + b.text + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
           blocks = blocks.filter((x) => x.id !== b.id);
           save(); draw();
         });

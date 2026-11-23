@@ -1,6 +1,6 @@
 import { h as T, errBox } from '../../core.js';
 
-export const meta = {"id":"dikte-suara","name":"Dikte Suara","cat":"teks","icon":"🗣️","desc":"Ubah ucapan jadi teks langsung di browser.","keywords":"dikte,suara,teks,speech,mengetik,ucapan","since":"6.11.0"};
+export const meta = {"id":"dikte-suara","name":"Dikte Suara","cat":"teks","icon":"🗣️","desc":"Ubah ucapan jadi teks langsung di browser.","keywords":"dikte,suara,teks,speech,mengetik,ucapan,rekam","since":"6.11.0", "online": true};
 
 /* Dikte suara via Web Speech API (SpeechRecognition). Jujur soal dukungan:
    Chrome/Edge (desktop + Android) dan Safari 14.1+ mendukung; Firefox belum.

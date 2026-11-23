@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"data-valorant","name":"Data Valorant","cat":"liveapi","icon":"🎯","desc":"Info agen, senjata, dan versi terbaru game Valorant.","keywords":"valorant,agen,agent,senjata,weapon,versi,game,riot","since":"6.16.0"};
+export const meta = {"id":"data-valorant","name":"Data Valorant","cat":"liveapi","icon":"🎯","desc":"Info agen, senjata, dan versi terbaru game Valorant.","keywords":"valorant,agen,agent,senjata,weapon,versi,game,riot","since":"6.16.0", "online": true};
 
 const API = 'https://valorant-api.com/v1/';
 
@@ -22,7 +22,7 @@ export function render(root) {
 
   const gagal = (e, ulang) => {
     const msg = e && e.name === 'AbortError'
-      ? 'Waktu habis, server Valorant tidak merespons.'
+      ? 'Waktu habis, server Valorant tidak bisa dihubungi.'
       : 'Gagal ambil data Valorant. Cek koneksi internet, lalu coba lagi.';
     T.show(box, errBox(msg));
     const wr = T.el('<div style="margin-top:8px"></div>');

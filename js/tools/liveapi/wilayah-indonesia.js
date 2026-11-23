@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id":"wilayah-indonesia","name":"Wilayah Indonesia","cat":"liveapi","icon":"🗺️","desc":"Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.","keywords":"wilayah,provinsi,kabupaten,kota,kecamatan,kelurahan,desa,kode wilayah,indonesia","since":"6.12.0"};
+export const meta = {"id":"wilayah-indonesia","name":"Wilayah Indonesia","cat":"liveapi","icon":"🗺️","desc":"Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.","keywords":"wilayah,provinsi,kabupaten,kota,kecamatan,kelurahan,desa,kode wilayah,indonesia","since":"6.12.0", "online": true};
 
 const API = 'https://www.emsifa.com/api-wilayah-indonesia/api/';
 
@@ -64,7 +64,7 @@ export function render(root) {
 
   const gagal = (e, ulang) => {
     let msg;
-    if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+    if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
     else msg = 'Gagal memuat data wilayah. Periksa koneksi internet lalu coba lagi.';
     T.show(box, '<span class="err">' + esc(msg) + '</span>');
     const wrap = T.el('<div style="margin-top:8px"></div>');

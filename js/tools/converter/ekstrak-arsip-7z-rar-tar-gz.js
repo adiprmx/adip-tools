@@ -1,13 +1,13 @@
 import { h as T, utils, kv, fmtBytes, errBox, tabs } from '../../core.js';
 import { gunzipBytes, gzipBytes } from './gzip-gunzip-file.js';
 
-export const meta = {"id": "ekstrak-arsip-7z-rar-tar-gz", "name": "Arsip TAR/7Z/RAR", "cat": "converter", "icon": "🗄️", "desc": "Buka isi arsip 7Z, RAR, TAR, dan TAR.GZ, atau gabung file jadi arsip TAR.GZ.", "keywords": "ekstrak,arsip,7z,rar,tar,gz,buka,unzip,buat,tar.gz,kompres,gabung", "since": "6.17.0"};
+export const meta = {"id": "ekstrak-arsip-7z-rar-tar-gz", "name": "Arsip TAR/7Z/RAR", "cat": "converter", "icon": "🗄️", "desc": "Buka isi arsip 7Z, RAR, TAR, dan TAR.GZ, atau gabung file jadi arsip TAR.GZ.", "keywords": "ekstrak,arsip,7z,rar,tar,gz,buka,unzip,buat,tar.gz,kompres,gabung", "since": "6.17.0", "online": true};
 
 /* Dua jalur ekstraksi, keduanya 100% di browser:
    - TAR dan TAR.GZ: parser TAR tulisan sendiri + gunzip bawaan browser.
    - 7Z dan RAR: 7z-wasm 1.2.0 (7-Zip 24.09 yang dikompilasi ke WebAssembly,
      mendukung ekstrak RAR v4/v5, 7Z, dan format 7-Zip lainnya). Mesinnya
-     dimuat dari CDN saat tombol ditekan.
+     dimuat dari internet saat tombol ditekan.
    Batasan jujur (ditulis juga di UI): arsip yang terbagi jadi beberapa
    bagian (part1.rar, .7z.001) tidak bisa dibuka di sini karena hanya satu
    file yang bisa dipilih; arsip berkunci butuh kata sandi yang benar.

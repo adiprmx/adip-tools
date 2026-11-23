@@ -1,6 +1,6 @@
 import { h as T, utils, kv, errBox } from '../../core.js';
 
-export const meta = {"id": "lihat-jejak-gpx", "name": "Lihat Jejak GPX di Peta", "cat": "converter", "icon": "🗺️", "desc": "Tampilkan rute lari atau sepeda dari file GPX di peta.", "keywords": "gpx,peta,rute,lari,sepeda,jejak,track", "since": "6.19.0"};
+export const meta = {"id": "lihat-jejak-gpx", "name": "Lihat Jejak GPX di Peta", "cat": "converter", "icon": "🗺️", "desc": "Tampilkan rute lari atau sepeda dari file GPX di peta.", "keywords": "gpx,peta,rute,lari,sepeda,jejak,track", "since": "6.19.0", "online": true};
 
 // Leaflet 1.9.4 (jsDelivr). SRI diukur 19 Nov 2026 (B2, 2x identik)
 // dan MASUK ke peta SRI_HASH core.js (G4 Blue R1, D-G4-12 / RED-03):

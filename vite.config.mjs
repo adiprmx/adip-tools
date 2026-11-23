@@ -1,7 +1,7 @@
 // ADIP Tools — konfigurasi Vite (P0-A, v6.14.0).
 //
 // Arsitektur: SPA hash-routing vanilla ESM, TANPA framework. Vite hanya
-// membundel + memberi hash nama file (menggantikan ?v= manual); 1.299 tool
+// membundel + memberi hash nama file (menggantikan ?v= manual); 1.261 tool
 // tetap file vanilla JS yang dimuat on-demand lewat import.meta.glob
 // di js/app.js (satu chunk ber-hash per tool).
 //
@@ -18,10 +18,29 @@
 //   - Worker ffmpeg: js/ffmpeg-loader.js memakai `?worker&url` agar
 //     worker.js + import relatifnya dibundel jadi satu file ber-hash.
 import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   // URL relatif untuk semua aset (lihat catatan base di atas).
   base: './',
+  // S-U5 (v6.22.0, manifest split): impor './manifest.js' di browser
+  // build/dev dipetakan ke manifest-boot.js (entri RAMPING tanpa
+  // desc/keywords — hemat ~69 KB gzip di entry chunk). js/manifest.js
+  // TETAP PENUH sebagai sumber kebenaran Node (check-tools,
+  // gen-llms-txt, gen-sitemap, gen-tools-md, sync) — skrip Node
+  // tidak melewati Vite, jadi tidak kena alias ini.
+  // String find dicocokkan PERSIS oleh @rollup/plugin-alias
+  // (sama persis, atau diawali find + '/') — './manifest-details.js'
+  // TIDAK kena alias ini (karakter sesudah pola adalah '-', bukan '/').
+  // Detail dimuat malas oleh loader di manifest-boot.js.
+  resolve: {
+    alias: [
+      {
+        find: './manifest.js',
+        replacement: fileURLToPath(new URL('./js/manifest-boot.js', import.meta.url)),
+      },
+    ],
+  },
   // File statis yang disalin verbatim ke dist/: robots.txt, sitemap.xml,
   // llms.txt, .nojekyll. Generator sitemap/llms menulis ke public/
   // (scripts/gen-sitemap.js, scripts/gen-llms-txt.js).

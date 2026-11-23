@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"penulis-naskah-youtube-ai","name":"Penulis Naskah YouTube AI","cat":"kreator","icon":"▶️","desc":"Naskah video YouTube dari topik dan gayamu.","keywords":"youtube,naskah,video,skrip,ai,puter","since":"6.18.0"};
+export const meta = {"id":"penulis-naskah-youtube-ai","name":"Penulis Naskah YouTube AI","cat":"kreator","icon":"▶️","desc":"Naskah video YouTube dari topik dan gayamu.","keywords":"youtube,naskah,video,skrip,ai,puter","since":"6.18.0", "online": true};
 
 const DURASI = [
   ['5', 'Sekitar 5 menit', 'sekitar 5 menit'],
@@ -91,7 +91,7 @@ export function render(root) {
         const prompt = buatPrompt({ topik, durasi: durasiSel.value, gaya: gayaSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const hasil = utils.chatText(res).trim();
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

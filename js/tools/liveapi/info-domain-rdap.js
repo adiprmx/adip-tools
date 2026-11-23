@@ -4,7 +4,7 @@ import { h as T, esc, errBox, utils } from '../../core.js';
 // Terverifikasi 17 Nov 2026: https://rdap.org/domain/google.com -> 200, CORS *.
 // rdap.org mengalihkan ke server RDAP resmi pemilik domain (302); fetch
 // browser mengikuti pengalihan itu otomatis.
-export const meta = {"id":"info-domain-rdap","name":"Info Domain RDAP","cat":"liveapi","icon":"🌐","desc":"Lihat siapa pendaftar sebuah domain, kapan didaftarkan, dan kapan kedaluwarsanya.","keywords":"domain,rdap,whois,pendaftar,domain info,cek domain,kedaluwarsa","since":"6.17.0"};
+export const meta = {"id":"info-domain-rdap","name":"Info Domain RDAP","cat":"liveapi","icon":"🌐","desc":"Lihat siapa pendaftar sebuah domain, kapan didaftarkan, dan kapan kedaluwarsanya.","keywords":"domain,rdap,whois,pendaftar,domain info,cek domain,kedaluwarsa","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -65,7 +65,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server RDAP tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server RDAP tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil info domain. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

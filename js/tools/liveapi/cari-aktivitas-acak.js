@@ -31,7 +31,7 @@ function labelBiaya(p) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "cari-aktivitas-acak", "name": "Cari Aktivitas Acak", "cat": "liveapi", "icon": "🎲", "desc": "Bingung mau ngapain? Dapat ide kegiatan acak, bisa difilter jenis dan jumlah orang.", "keywords": "aktivitas,acak,bosan,ide,kegiatan,bored,hiburan,ngapain", "since": "6.17.0"};
+export const meta = {"id": "cari-aktivitas-acak", "name": "Cari Aktivitas Acak", "cat": "liveapi", "icon": "🎲", "desc": "Bingung mau ngapain? Dapat ide kegiatan acak, bisa difilter jenis dan jumlah orang.", "keywords": "aktivitas,acak,bosan,ide,kegiatan,bored,hiburan,ngapain", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -74,7 +74,7 @@ export function render(root) {
       box.appendChild(w);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server ide tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server ide tidak bisa dihubungi dalam 15 detik.'
         : 'Ide gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

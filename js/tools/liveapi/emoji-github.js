@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"emoji-github","name":"Emoji GitHub","cat":"liveapi","icon":"😀","desc":"Telusuri semua emoji GitHub lengkap dengan kodenya.","keywords":"emoji,github,kode emoji,emoticon","since":"6.18.0"};
+export const meta = {"id":"emoji-github","name":"Emoji GitHub","cat":"liveapi","icon":"😀","desc":"Telusuri semua emoji GitHub lengkap dengan kodenya.","keywords":"emoji,github,kode emoji,emoticon","since":"6.18.0", "online": true};
 
 // Daftar semua emoji GitHub lewat api.github.com/emojis, tanpa key.
 // Terverifikasi 18 Nov 2026: api.github.com/emojis -> 200, CORS *.
@@ -75,7 +75,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server GitHub tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server GitHub tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal memuat daftar emoji. Cek koneksi internet, lalu coba lagi.');
     }
   };

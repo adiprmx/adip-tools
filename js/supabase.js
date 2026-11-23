@@ -22,10 +22,31 @@ function sbHeaders() {
   return { 'apikey': SB_ANON, 'Authorization': 'Bearer ' + SB_ANON, 'Content-Type': 'application/json' };
 }
 
+/* S-Q8 (v6.22.0, utang S-U5): timeout internal 10 dtk di semua
+   pemanggilan jaringan modul ini (pola safety S-F5 — nilai yang
+   sama dengan timeout call-site S-U5 di components.js). Tanpa
+   ini fetch bisa menggantung tanpa batas saat jaringan macet.
+   Gagal karena timeout = jalur gagal jujur yang sudah ada:
+   fetchPopularTerms menolak (pemanggil memakai fallback lokal),
+   trackSearch diam. Timeout di sini adalah SATU-SATUNYA tempat
+   untuk jalur sbFetchPopular di app.js — call site tidak perlu
+   balapan lagi, dan timeout components.js tetap berlaku sebagai
+   lapis kedua yang tidak berbahaya. */
+const SB_TIMEOUT_MS = 10000;
+async function sbFetch(url, opts = {}) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), SB_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...opts, signal: ctrl.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 /* Istilah pencarian terpopuler (maks 8, urut jumlah terbanyak).
    Lihat kontrak hasil di header file. */
 async function fetchPopularTerms() {
-  const r = await fetch(SB_URL + '/rest/v1/tool_search_terms?select=term&order=count.desc&limit=8', { headers: sbHeaders() });
+  const r = await sbFetch(SB_URL + '/rest/v1/tool_search_terms?select=term&order=count.desc&limit=8', { headers: sbHeaders() });
   if (!r.ok) return null;
   const data = await r.json();
   if (!Array.isArray(data)) return [];
@@ -35,7 +56,7 @@ async function fetchPopularTerms() {
 /* Catat satu istilah pencarian (best-effort, diam bila gagal). */
 async function trackSearch(q) {
   try {
-    await fetch(SB_URL + '/rest/v1/rpc/track_search', {
+    await sbFetch(SB_URL + '/rest/v1/rpc/track_search', {
       method: 'POST', headers: sbHeaders(),
       body: JSON.stringify({ p_term: q.toLowerCase().slice(0, 40) }),
     });

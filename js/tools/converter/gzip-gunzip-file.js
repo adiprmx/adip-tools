@@ -1,6 +1,6 @@
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id": "gzip-gunzip-file", "name": "Gzip/Gunzip File", "cat": "converter", "icon": "🧊", "desc": "Kecilkan file jadi .gz, atau buka file .gz.", "keywords": "gzip,gunzip,gz,kompres,buka,kecilkan", "since": "6.17.0"};
+export const meta = {"id": "gzip-gunzip-file", "name": "Gzip/Gunzip File", "cat": "converter", "icon": "🧊", "desc": "Kecilkan file jadi .gz, atau buka file .gz.", "keywords": "gzip,gunzip,gz,kompres,buka,kecilkan", "since": "6.17.0", "online": true};
 
 // pako dipakai sebagai cadangan bila CompressionStream tidak tersedia.
 // Hash SRI ada di peta SRI_HASH core.js (terverifikasi dari 3 sumber).

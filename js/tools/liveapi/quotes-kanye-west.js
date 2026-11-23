@@ -2,7 +2,7 @@ import { h as T, utils, esc, errBox } from '../../core.js';
 
 // Kutipan acak Kanye West, tanpa key.
 // Terverifikasi 19 Nov 2026: / -> 200, CORS *.
-export const meta = {"id":"quotes-kanye-west","name":"Quotes Kanye West","cat":"liveapi","icon":"🎤","desc":"Kutipan acak Kanye West, dalam bahasa Inggris.","keywords":"kanye west,quotes,kutipan,acak,musik","since":"6.19.0"};
+export const meta = {"id":"quotes-kanye-west","name":"Quotes Kanye West","cat":"liveapi","icon":"🎤","desc":"Kutipan acak Kanye West, dalam bahasa Inggris.","keywords":"kanye west,quotes,kutipan,acak,musik","since":"6.19.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -23,7 +23,7 @@ export function render(root) {
       box.appendChild(wr);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil kutipan. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

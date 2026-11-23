@@ -183,11 +183,19 @@ ronde ini (laporan audit Red/Blue, di luar repo).
    (inline style dipakai di mana-mana) dan `script-src 'unsafe-eval'`
    (dibutuhkan `htmlvideo`/`plot-fungsi`) sampai refactor dilakukan —
    nilai CSP di sini adalah defense-in-depth, bukan obat XSS.
-5. **(Medium) Script CDN tanpa Subresource Integrity.** `loadScript()`
-   (`js/core.js`) memuat ±30 pustaka tanpa hash integritas; SDK Puter
-   (`js.puter.com/v2/`) bahkan tanpa pin versi. Tambah parameter integritas
-   di `loadScript` + hash SRI untuk pustaka klasik; dokumentasikan risiko
-   residu untuk modul ESM (dynamic `import()` tidak mendukung SRI).
+5. **(Medium → ditutup v6.22.0) Script CDN tanpa Subresource Integrity.**
+   `loadScript()` (`js/core.js`) kini fail-closed: URL skrip klasik tanpa
+   hash integritas DITOLAK keras (tanpa elemen `<script>`, dengan
+   `console.warn`), kecuali 2 pengecualian tercatat di `SRI_FAIL_OPEN_ALLOW`
+   (`core.js:464-475`): SDK Puter (`js.puter.com/v2/`, tanpa pin versi) dan
+   `face_detection.js` MediaPipe (hash butuh pengukuran saat egress hidup) —
+   keduanya tetap dimuat DENGAN peringatan sekali per URL. Peta SRI berisi
+   45 entri hash sha384; dari 74 URL CDN yang dienumerasi audit keamanan
+   v6.22.0, 29 tak terpetakan — tapi hanya 2 pengecualian di atas yang
+   berupa skrip klasik tanpa hash yang mencapai `loadScript`; sisanya modul
+   ESM (dynamic `import()` tidak mendukung SRI), Worker, fetch WASM/font,
+   file uji, atau awalan direktori. Sisa kerja: pin/vendor Puter + ukur hash
+   `face_detection.js`, lalu hapus keduanya dari allowlist.
 6. **(Medium → ditutup v6.12.1) Verifikasi RLS Supabase.** Kode kini memakai
    tabel agregat `tool_search_terms` + RPC `track_search` (skema di
    `supabase/tool_search_terms.sql`), sesuai dengan yang benar-benar ada di
@@ -213,15 +221,18 @@ ronde ini (laporan audit Red/Blue, di luar repo).
 - **`htmlvideo` mengeksekusi kode pengguna.** `new Function()` + iframe
   `sandbox="allow-scripts"` (origin OPAK, tanpa `allow-same-origin` sejak
   v6.19.1 — temuan R-01). Kode pengguna berjalan TERISOLASI: tidak punya
-  akses ke origin situs dan TIDAK BISA membaca `localStorage` berisi API
+  akses ke origin situs dan TIDAK BISA membaca penyimpanan berisi API
   key BYOK (dibuktikan probe browser, Red-2). Catatan: render animasi ke
   video (`drawImage` dari iframe) diketahui rusak di Chromium + Firefox —
   tombol render gagal jujur. Tetap jangan tempel kode HTML/JS dari sumber
   yang tidak dipercaya: kode itu tetap dieksekusi dan bisa membuat
   request jaringan dari dalam frame terisolasi.
-- **API key BYOK di `localStorage`.** Praktis dan terungkap di UI, tapi
-  kunci bisa dibaca oleh skrip apa pun yang berhasil berjalan di origin
-  ini — alasan lain menjaga kebersihan XSS tetap prioritas.
+- **API key BYOK di `sessionStorage` (sejak v6.22.0).** Kunci API yang
+  dimasukkan pengguna disimpan di sessionStorage dan hilang saat tab
+  ditutup; kunci lama di localStorage dipindah sekali saat pertama kali
+  dibuka sesudah update. Selama tab terbuka, kunci tetap bisa dibaca oleh
+  skrip apa pun yang berhasil berjalan di origin ini — alasan lain menjaga
+  kebersihan XSS tetap prioritas.
 - **Proxy CORS pihak ketiga.** Beberapa tool memakai proxy publik agar
   bisa mengambil konten lintas origin; operator proxy bisa melihat URL
   target dan isinya. Jangan pakai tool tersebut untuk URL yang sensitif.

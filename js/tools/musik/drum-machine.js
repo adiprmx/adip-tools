@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "drum-machine", "name": "Drum Machine", "cat": "musik", "icon": "🎛️", "desc": "Step sequencer drum sederhana.", "keywords": "drum,beat,musik"};
+export const meta = {"id": "drum-machine", "name": "Drum Machine", "cat": "musik", "icon": "🎛️", "desc": "Step sequencer drum sederhana.", "keywords": "drum,beat,musik,sequencer,ritme,hihat"};
 export function render(root) {
 
     const TRACKS = [

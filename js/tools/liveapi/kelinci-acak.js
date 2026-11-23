@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 19 Nov 2026: /v2/loop/random/?media=gif -> 200, CORS echo.
 // Respons: { media: { gif, poster } }. Poster dipakai sebagai gambar diam
 // cadangan bila GIF gagal dimuat.
-export const meta = {"id":"kelinci-acak","name":"Kelinci Acak","cat":"liveapi","icon":"🐰","desc":"GIF kelinci acak setiap kali kamu mengetuk tombolnya.","keywords":"kelinci,bunny,rabbit,gif,acak,hewan,lucu","since":"6.19.0"};
+export const meta = {"id":"kelinci-acak","name":"Kelinci Acak","cat":"liveapi","icon":"🐰","desc":"GIF kelinci acak setiap kali kamu mengetuk tombolnya.","keywords":"kelinci,bunny,rabbit,gif,acak,hewan,lucu","since":"6.19.0", "online": true};
 
 const API = 'https://api.bunnies.io/v2/loop/random/?media=gif';
 
@@ -31,7 +31,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil GIF kelinci. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

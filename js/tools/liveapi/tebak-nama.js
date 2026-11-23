@@ -1,6 +1,6 @@
 import { h as T, esc, utils } from '../../core.js';
 
-export const meta = {"id":"tebak-nama","name":"Tebak Profil Nama","cat":"liveapi","icon":"🔮","desc":"Tebak dulu umur & gender sebuah nama, lalu cek tebakanmu ke data nama dunia.","keywords":"nama,tebak,umur,usia,gender,jenis kelamin,negara,asal,kuis"};
+export const meta = {"id":"tebak-nama","name":"Tebak Profil Nama","cat":"liveapi","icon":"🔮","desc":"Tebak dulu umur & gender sebuah nama, lalu cek tebakanmu ke data nama dunia.","keywords":"nama,tebak,umur,usia,gender,jenis kelamin,negara,asal,kuis", "online": true};
 
 // Emoji bendera dari kode negara ISO 2 huruf (ID -> 🇮🇩)
 const flagOf = (cc) => {
@@ -45,7 +45,7 @@ export function render(root) {
 
     const errMsg = (r) => {
       const e = r.e;
-      if (e && e.name === 'AbortError') return 'timeout (server tidak merespons dalam 15 detik)';
+      if (e && e.name === 'AbortError') return 'timeout (server tidak bisa dihubungi dalam 15 detik)';
       if (e && e.status === 429) return 'kuota harian habis (429) — coba lagi besok';
       if (e && e.status) return 'HTTP ' + e.status;
       return 'gagal memuat';

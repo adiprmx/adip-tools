@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, kv } from '../../core.js';
 
-export const meta = {"id": "gempa-bmkg", "name": "Gempa BMKG Terkini", "cat": "liveapi", "icon": "🌊", "desc": "Info gempa bumi terbaru langsung dari BMKG.", "keywords": "gempa,bmkg,tsunami,lindu,magnitudo,gempa bumi,terkini"};
+export const meta = {"id": "gempa-bmkg", "name": "Gempa BMKG Terkini", "cat": "liveapi", "icon": "🌊", "desc": "Info gempa bumi terbaru langsung dari BMKG.", "keywords": "gempa,bmkg,tsunami,lindu,magnitudo,gempa bumi,terkini", "online": true};
 export function render(root) {
 
     const box = T.out();
@@ -40,7 +40,7 @@ export function render(root) {
         tampil(g);
       } catch (e) {
         const msg = e.name === 'AbortError'
-          ? 'Waktu habis — server BMKG tidak merespons dalam 15 detik.'
+          ? 'Waktu habis — server BMKG tidak bisa dihubungi dalam 15 detik.'
           : 'Gagal ambil data gempa. Cek koneksi internet, lalu coba lagi.';
         T.show(box, errBox(msg));
         const wr = T.el('<div style="margin-top:8px"></div>');

@@ -21,7 +21,7 @@
         "foto 3x4" (bukan crop-pas-foto), "suara ke teks" (bukan
         dikte-suara) — semuanya salah peringkat 1.
      3. Kueri tanpa hasil ("nickname", "wallpaper", "parafrase") hanya
-        dapat empty state statis tanpa saran "Maksud Anda...?".
+        dapat empty state statis tanpa saran "Maksud kamu...?".
 
    ISI MODUL (murni fungsi data, tanpa DOM — bisa dites di Node):
      - rankedSearchPlus(q, manifest, opts): ranker pengganti yang
@@ -53,6 +53,13 @@
    katalog di laporan TIM 09, bukan dipalsukan dengan tool yang tidak
    nyambung.
    ============================================================ */
+
+/* S-U5 (v6.22.0, manifest split): versi detail + loader dari
+   manifest-boot.js — SATU-SATUNYA impor modul ini. manifest-boot.js
+   tidak mengimpor apa pun, jadi tidak ada siklus. Di Node, manifest
+   yang dipakai pemanggil adalah manifest.js PENUH (desc selalu ada,
+   versi selalu 0) — perilaku cache persis seperti sebelum split. */
+import { manifestDetailsVersion, loadManifestDetails, needsDetails } from './manifest-boot.js';
 
 /* tool yang disembunyikan dari pencarian (sama seperti app.js) */
 export const SEARCH_DENY = ['muse-test'];
@@ -163,6 +170,9 @@ export const PHRASE_RULES = [
   { keys: ['cek ongkir', 'ongkir jne', 'ongkir jnt', 'biaya ongkir', 'hitung ongkir'], tools: ['berat-volumetrik'] },
   { keys: ['cek nomor hp', 'nomor hp', 'no hp', 'nomor handphone', 'nomor telepon'], tools: ['format-hp'] },
   { keys: ['buat qr', 'qr code', 'kode qr', 'bikin qr'], tools: ['qr-generator'] },
+  /* P1 S-A2 (v6.22.0): "barcode" juara qr-decoder (pembaca QR) padahal
+     niat umumnya membuat barcode; survivor merge D2 adalah qr-generator. */
+  { keys: ['barcode', 'buat barcode', 'kode batang'], tools: ['qr-generator'] },
   { keys: ['hitung umur', 'umur berapa', 'tanggal lahir'], tools: ['age-calc'] },
   { keys: ['jadwal haid', 'hitung haid', 'masa subur', 'siklus haid', 'jadwal mens'], tools: ['siklus-haid'] },
   { keys: ['kalkulator cinta', 'cek jodoh', 'kecocokan nama'], tools: ['cocoklogi-nama'] },
@@ -224,10 +234,22 @@ export function analyzeQuery(q) {
   return { norm, terms, ghosts, boosts };
 }
 
-/* ---------------- indeks token per tool (di-cache per array manifest) ---------------- */
+/* ---------------- indeks token per tool (di-cache per array manifest) ----------------
+   S-U5 (v6.22.0, manifest split): cache menyimpan versi detail
+   (manifestDetailsVersion) bersama indeksnya — begitu detail
+   desc/keywords ditempel (merge-in-place), versi berubah dan
+   indeks DIBANGUN ULANG supaya pencarian memakai data penuh.
+   Tanpa ini, pencarian pertama mengunci indeks nama-saja untuk
+   seluruh sesi. */
 const indexCache = new WeakMap();
 function buildIndex(manifest) {
-  if (indexCache.has(manifest)) return indexCache.get(manifest);
+  const hit = indexCache.get(manifest);
+  if (hit && hit.version === manifestDetailsVersion) return hit.idx;
+  /* Manifest masih ramping: mulai pemuatan detail (fire-and-forget).
+     Pencarian ini tetap jalan dengan indeks nama-saja; keystroke
+     berikutnya (debounce 150-180 ms) memakai indeks penuh begitu
+     versi berubah. loadManifestDetails tidak pernah reject. */
+  if (needsDetails(manifest)) loadManifestDetails().catch(() => {});
   const idx = manifest
     .filter((m) => !SEARCH_DENY.includes(m.id))
     .map((m, i) => {
@@ -251,20 +273,41 @@ function buildIndex(manifest) {
         tokens: [...tok.entries()].map(([w, weight]) => ({ w, weight, stem: stemId(w) })),
       };
     });
-  indexCache.set(manifest, idx);
+  indexCache.set(manifest, { version: manifestDetailsVersion, idx });
   return idx;
 }
 
-/* skor satu kata kueri terhadap satu tool (0-100, sebelum bobot kata) */
+/* Awalan (prefix) hanya dihitung kecocokan KUAT bila kata kueri cukup
+   panjang: >= 5 huruf, atau >= 4 huruf dan menutupi >= 60% kata target.
+   Tanpa penjaga ini, "resi" (4 huruf) prefix-cocok ke "resistensi" dan
+   dihitung exact (P0 S-A2: "cek resi" tampil yakin, skor 90). Batas bawah
+   4 huruf di cabang rasio menutup "res" (3 huruf) -> "resmi" (rasio 0,6)
+   yang selama ini juga lolos sebagai exact. Penjaga yang sama dipakai
+   skor saran (suggestScore) supaya "Maksud kamu" tidak menebak dari
+   potongan kata yang pendek. */
+function isStrongPrefix(q, t) {
+  if (q.length >= 5) return true;
+  if (q.length >= 4 && q.length / t.length >= 0.6) return true;
+  return false;
+}
+
+/* skor satu kata kueri terhadap satu tool (0-100, sebelum bobot kata),
+   plus flag exact: kata itu cocok KATA UTUH (sama persis / akar sama)
+   atau awalan yang kuat — bukan sekadar awalan pendek. Skornya TIDAK
+   berubah (peringkat hasil tetap sama); yang berubah hanya apakah
+   kecocokan itu dipercaya sebagai "exact" oleh assessQuery. */
 function termScore(term, entry) {
   const stem = stemId(term);
-  let best = 0;
+  let best = 0, exact = false;
   for (const t of entry.tokens) {
     let s = fuzzyScore(term, t.w) * t.weight;
-    if (stem.length >= 4 && stem === t.stem) s = Math.max(s, 85 * t.weight);
+    let full = t.w === term;
+    if (stem.length >= 4 && stem === t.stem) { s = Math.max(s, 85 * t.weight); full = true; }
+    if (!full && t.w !== term && t.w.startsWith(term)) full = isStrongPrefix(term, t.w);
     if (s > best) best = s;
+    if (s >= 80 && full) exact = true;
   }
-  return best;
+  return { s: best, exact };
 }
 
 const FAV_BOOST = 8, REC_BOOST = 6, TITLE_BONUS = 12, MULTI_BONUS = 12, THRESHOLD = 15;
@@ -276,8 +319,10 @@ const isStop = (t) => STOPWORDS.has(t) || STOPWORDS.has(stemId(t));
 
 /* ---------------- penilaian semua tool (dipakai ranker + assessQuery) ----------------
    Diagnostik per tool:
-   - exact: ada kata isi yang cocok PERSIS (skor mentah >= 80 = kata utuh
-     di nama/keyword; kecocokan awalan 90 di nama juga dihitung exact).
+   - exact: ada kata isi yang cocok KATA UTUH (skor mentah >= 80, kata
+     sama persis / akar sama) atau awalan yang kuat (isStrongPrefix).
+     Awalan pendek ("resi" -> "resistensi", "res" -> "resmi") TIDAK
+     dihitung exact — itu akar P0 S-A2.
    - multi: >= 1 kata isi TAMBAHAN yang cocok (di luar kata terbaik).
    - boosted: kena aturan frasa niat.
    Ketiganya dipakai assessQuery untuk membedakan "hasil yang bisa
@@ -294,15 +339,15 @@ function scoreAll(q, manifest, opts = {}) {
     const termHits = [];
     const rawByTerm = new Map();
     for (const t of terms) {
-      const raw = termScore(t, entry);
+      const { s: raw, exact: termExact } = termScore(t, entry);
       rawByTerm.set(t, raw);
       const stop = isStop(t);
-      termHits.push({ s: raw * (stop ? 0.35 : 1), raw, stop, counts: !stop && raw > THRESHOLD, ghost: false });
+      termHits.push({ s: raw * (stop ? 0.35 : 1), raw, stop, counts: !stop && raw > THRESHOLD, ghost: false, exact: termExact });
     }
     for (const { g, src } of ghosts) {
       if ((rawByTerm.get(src) || 0) >= 80) continue; // kata asal sudah cocok kuat
-      const raw = termScore(g, entry);
-      termHits.push({ s: raw * 0.7, raw, counts: raw > THRESHOLD, ghost: true });
+      const { s: raw, exact: termExact } = termScore(g, entry);
+      termHits.push({ s: raw * 0.7, raw, counts: raw > THRESHOLD, ghost: true, exact: termExact });
     }
     termHits.sort((a, b) => b.s - a.s);
     const best = termHits.length ? termHits[0].s : 0;
@@ -323,7 +368,7 @@ function scoreAll(q, manifest, opts = {}) {
     if (score > THRESHOLD) {
       scored.push({
         m: entry.m, s: score,
-        exact: termHits.some((h) => h.raw >= 80 && !h.stop),
+        exact: termHits.some((h) => h.exact && !h.stop),
         multi: extra >= 1,
         boosted: Boolean(boost),
         idLen: entry.m.id.length, nameLen: entry.m.name.length, i: entry.i,
@@ -361,11 +406,11 @@ export function rankedSearchPlus(q, manifest, opts = {}) {
      supaya "cek resi" tidak disarankan "Gaji Prorata" lewat keyword
      "resign"), atau null bila tidak ada yang cukup dekat. Hanya diisi
      bila TIDAK confident. BOLEH sama dengan peringkat 1 — chip "Maksud
-     Anda: X?" adalah jalan pintas utama, grid di bawahnya sekunder.
+     kamu: X?" adalah jalan pintas utama, grid di bawahnya sekunder.
    - topExact: peringkat 1 cocok persis dengan satu kata isi (dipakai UI
      untuk membedakan "hasil yang nyambung topiknya" dari "hasil kebetulan
      fuzzy" saat tidak confident — lihat dokumen integrasi di laporan). */
-/* skor saran yang KETAT (khusus "Maksud Anda...?"): typo 1 huruf hanya
+/* skor saran yang KETAT (khusus "Maksud kamu...?"): typo 1 huruf hanya
    dihitung bila katanya >= 5 huruf, typo 2 huruf bila >= 6 huruf; dan
    kecocokan awalan/substring dari ARAH kueri (q memuat t) hanya bila
    tokennya >= 4-5 huruf dan selisihnya <= 2 huruf. Tanpa penjaga ini,
@@ -375,9 +420,13 @@ export function rankedSearchPlus(q, manifest, opts = {}) {
 function suggestScore(q, t) {
   if (!q || !t) return 0;
   if (t === q) return 100;
-  if (q.length >= 3 && t.startsWith(q)) return 90;
+  /* Awalan/substring dari arah kueri memakai penjaga yang sama dengan
+     exact (isStrongPrefix): "resi" (4 huruf) tidak boleh menyarankan
+     "resistensi" — kalau tidak, "cek resi" tetap dapat chip "Maksud
+     kamu: Kalkulator HOMA-IR?" dan grid 24 hasil di bawahnya. */
+  if (t.startsWith(q) && isStrongPrefix(q, t)) return 90;
   if (t.length >= 4 && q.length - t.length <= 2 && q.startsWith(t)) return 90;
-  if (q.length >= 4 && t.includes(q)) return 70;
+  if (t.includes(q) && isStrongPrefix(q, t)) return 70;
   if (t.length >= 5 && q.length - t.length <= 2 && q.includes(t)) return 70;
   const d = lev(q, t);
   if (q.length >= 5 && d <= 1) return 55;
@@ -421,7 +470,7 @@ export function assessQuery(q, manifest, opts = {}) {
   };
 }
 
-/* ---------------- "Maksud Anda...?" untuk kueri tanpa hasil ----------------
+/* ---------------- "Maksud kamu...?" untuk kueri tanpa hasil ----------------
    Mengembalikan { id, name, score } tool terdekat, atau null bila tidak
    ada yang cukup dekat (skor ketat suggestScore, ambang 40). Mengembalikan
    null juga bila kueri sebenarnya ADA hasilnya — fungsi ini hanya untuk
@@ -452,7 +501,9 @@ export function suggestDidYouMean(q, manifest) {
 
 /* ---------------- riwayat KATA pencarian (baru; app.js hanya punya riwayat tool) ---------------- */
 const HIST_KEY = 'adip_search_hist';
-const HIST_MAX = 8;
+/* S-U2 (v6.22.0): batas 10 kata terakhir (dulu 8) — riwayat tampil
+   maks 5 chip di UI (components.js), sisanya cadangan putaran. */
+const HIST_MAX = 10;
 function lsGet() {
   try {
     if (typeof localStorage === 'undefined') return [];
@@ -472,5 +523,13 @@ export function addRecentSearch(q) {
   const list = lsGet().filter((x) => x !== term);
   list.unshift(term);
   lsSet(list.slice(0, HIST_MAX));
+}
+/* S-U2 (v6.22.0): hapus SATU kata dari riwayat (tombol × per chip di
+   app.js). Normalisasi sama seperti addRecentSearch supaya "QR" dan
+   "qr" menghapus entri yang sama. Istilah yang tidak ada = no-op. */
+export function removeRecentSearch(q) {
+  const term = String(q || '').trim().toLowerCase().slice(0, 80);
+  if (!term) return;
+  lsSet(lsGet().filter((x) => x !== term));
 }
 export function clearRecentSearches() { lsSet([]); }

@@ -5,7 +5,7 @@ import { h as T, esc, errBox, utils } from '../../core.js';
 // SYARAT ATRIBUSI RemoteOK: tampilkan tautan kembali ke RemoteOK dan
 // sebut RemoteOK sebagai sumber. Atribusi ada di bawah daftar.
 // Elemen pertama respons adalah catatan legal API, bukan lowongan.
-export const meta = {"id":"lowongan-kerja-remote","name":"Lowongan Kerja Remote","cat":"liveapi","icon":"🌍","desc":"Lowongan kerja remote dari seluruh dunia, dari berbagai bidang.","keywords":"lowongan kerja,loker,remote,kerja dari rumah,remoteok,pekerjaan,wfh","since":"6.17.0"};
+export const meta = {"id":"lowongan-kerja-remote","name":"Lowongan Kerja Remote","cat":"liveapi","icon":"🌍","desc":"Lowongan kerja remote dari seluruh dunia, dari berbagai bidang.","keywords":"lowongan kerja,loker,remote,kerja dari rumah,remoteok,pekerjaan,wfh","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -64,7 +64,7 @@ export function render(root) {
       tampil();
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil daftar lowongan. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

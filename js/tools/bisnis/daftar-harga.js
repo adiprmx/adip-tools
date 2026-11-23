@@ -39,7 +39,9 @@ export function render(root) {
       (catatan.value.trim() ? `<div style="font-size:13px;color:#a1a1aa;margin-top:4px">${T.esc(catatan.value.trim())}</div>` : '') + `</div>` + rows;
     kartu.querySelectorAll('[data-hapus]').forEach((b) => {
       b.addEventListener('click', () => {
-        daftar.splice(Number(b.dataset.hapus), 1);
+        const idxHapus = Number(b.dataset.hapus);
+        if (!confirm('Hapus harga "' + (daftar[idxHapus] ? daftar[idxHapus].nama : '') + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
+        daftar.splice(idxHapus, 1);
         simpan();
         tampilKartu();
       });

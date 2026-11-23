@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"novelcover","name":"Novel Cover","cat":"desain","icon":"📕","desc":"Buat cover novel AI dari sinopsis + overlay judul.","keywords":"novel,cover,sampul,buku,ai,desain,puter"};
+export const meta = {"id":"novelcover","name":"Novel Cover","cat":"desain","icon":"📕","desc":"Buat cover novel AI dari sinopsis + overlay judul.","keywords":"novel,cover,sampul,buku,ai,desain,puter", "online": true};
 
 const GENRES = ['Fantasy', 'Romance', 'Villainess', 'Yuri', 'Academy', 'Isekai', 'Action', 'Dark Fantasy', 'Sci-Fi', 'Mystery', 'Horror', 'Modern Fantasy'];
 // Profil art direction per genre (ditulis sendiri, perilaku teramati dari tool acuan).
@@ -147,7 +147,7 @@ export function render(root) {
           '. Jawab SINGKAT dalam format persis 8 baris:\nGAYA: ...\nMOOD: ...\nKOMPOSISI: ...\nZONA: ...\nTIPOGRAFI: ...\nPALET: ...\nPENCAHAYAAN: ...\nMOTIF: ...';
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const txt = (typeof res === 'string' ? res : (res && (res.text || res.content)) || '').trim();
         const ambil = (k) => { const m = new RegExp(k + ':\\s*(.+)', 'i').exec(txt); return m ? m[1].trim() : '-'; };
@@ -235,7 +235,7 @@ export function render(root) {
             try {
               const res = await Promise.race([
                 Promise.resolve(window.puter.ai.txt2img(prompt, opts)),
-                new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: Puter tidak merespons dalam 90 detik.')), 90000)),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: Puter tidak bisa dihubungi dalam 90 detik.')), 90000)),
               ]);
               src = utils.puter.srcOf(res);
               dipakai = mid;

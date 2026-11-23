@@ -133,6 +133,7 @@ export function render(root) {
       const row = T.el('<div class="card" style="padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:10px"></div>');
       const info = T.el(`<div style="flex:1"><b>${T.esc(med.nama)}</b><div style="font-size:12px;color:#999">${T.esc(med.dosis || '')}</div><div style="font-size:12px;color:#bbb">⏰ ${(med.times || []).map(T.esc).join(', ')}</div></div>`);
       const del = T.btn('Hapus', () => {
+        if (!confirm('Hapus obat "' + med.nama + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
         meds = meds.filter(x => x.id !== med.id);
         save(KEY, meds);
         renderMeds(); renderToday();

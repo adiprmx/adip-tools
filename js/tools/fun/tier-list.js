@@ -98,6 +98,7 @@ export function render(root) {
       T.toast(ok ? 'Gambar berhasil diunduh' : 'Gambarnya tidak bisa dibuat. Coba lagi.');
     }),
     T.btn('Kosongkan semua', () => {
+      if (!confirm('Kosongkan semua tier list? Semua item akan hilang dan tidak bisa dikembalikan.')) return;
       state.item = [];
       simpan();
       tampil();

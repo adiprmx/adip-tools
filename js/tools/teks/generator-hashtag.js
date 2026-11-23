@@ -319,6 +319,7 @@ export function render(root) {
             T.toast('Set favorit dimuat');
           });
           const bHapus = T.btn('✕', () => {
+            if (!confirm('Hapus set favorit "' + f.nama + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
             const semua = bacaLs(FAV_KEY);
             semua.splice(i, 1);
             tulisLs(FAV_KEY, semua);

@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id": "baby-name", "name": "Nama Bayi", "cat": "fun", "icon": "👶", "desc": "Nama bayi Indonesia + arti.", "keywords": "bayi,nama,arti,anak"};
+export const meta = {"id": "baby-name", "name": "Nama Bayi", "cat": "fun", "icon": "👶", "desc": "Cari nama bayi Indonesia secara acak, lengkap dengan arti namanya.", "keywords": "bayi,nama,arti,anak"};
 export function render(root) {
 
     const L = [

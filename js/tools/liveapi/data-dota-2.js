@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"data-dota-2","name":"Data Dota 2","cat":"liveapi","icon":"⚔️","desc":"Info hero Dota 2: atribut, peran, dan angka dasarnya.","keywords":"dota,dota 2,hero,atribut,peran,carry,game","since":"6.16.0"};
+export const meta = {"id":"data-dota-2","name":"Data Dota 2","cat":"liveapi","icon":"⚔️","desc":"Info hero Dota 2: atribut, peran, dan angka dasarnya.","keywords":"dota,dota 2,hero,atribut,peran,carry,game","since":"6.16.0", "online": true};
 
 const API = 'https://api.opendota.com/api/heroes';
 
@@ -67,7 +67,7 @@ export function render(root) {
       T.show(box, '<p class="center dim">Pilih hero di bawah untuk melihat detailnya.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server OpenDota tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server OpenDota tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal ambil data hero. Cek koneksi internet, lalu coba lagi.';
       T.show(daftarBox, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

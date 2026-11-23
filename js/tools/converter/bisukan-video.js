@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "bisukan-video", "name": "Bisukan Video", "cat": "converter", "icon": "🔇", "desc": "Hapus suara dari video.", "keywords": "video,bisu,suara,mute,diam,senyap", "since": "6.17.0"};
+export const meta = {"id": "bisukan-video", "name": "Bisukan Video", "cat": "converter", "icon": "🔇", "desc": "Hapus suara dari videomu, lalu unduh videonya tanpa audio.", "keywords": "video,bisu,suara,mute,diam,senyap", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const file = T.input('file');

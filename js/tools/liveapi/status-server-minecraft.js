@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 17 Nov 2026: /ping/mc.hypixel.net/25565 -> 200, CORS *.
 // Deskripsi server mengandung kode warna Minecraft (§a, §f, dst) yang
 // dibersihkan dulu sebelum tampil.
-export const meta = {"id":"status-server-minecraft","name":"Status Server Minecraft","cat":"liveapi","icon":"⛏️","desc":"Cek apakah server Minecraft sedang online, berapa pemainnya, dan versi apa yang dipakai.","keywords":"minecraft,server minecraft,status server,ping,mc,hypixel,pemain","since":"6.17.0"};
+export const meta = {"id":"status-server-minecraft","name":"Status Server Minecraft","cat":"liveapi","icon":"⛏️","desc":"Cek apakah server Minecraft sedang online, berapa pemainnya, dan versi apa yang dipakai.","keywords":"minecraft,server minecraft,status server,ping,mc,hypixel,pemain","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -77,7 +77,7 @@ export function render(root) {
       if (!j || j.error) {
         T.show(box,
           '<div class="center"><div style="font-weight:800;font-size:18px">Server offline</div>' +
-          '<div class="dim" style="font-size:13px;margin-top:4px">' + esc(host) + ':' + esc(String(port)) + ' tidak merespons. Server mungkin sedang mati atau alamatnya salah.</div></div>');
+          '<div class="dim" style="font-size:13px;margin-top:4px">' + esc(host) + ':' + esc(String(port)) + ' tidak bisa dihubungi. Server mungkin sedang mati atau alamatnya salah.</div></div>');
         return;
       }
       const pemain = j.players || {};
@@ -94,7 +94,7 @@ export function render(root) {
         '<p class="hint">Sumber: minetools. Waktu respons diukur dari server minetools, bukan dari perangkatmu.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server minetools tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server minetools tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengecek server. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

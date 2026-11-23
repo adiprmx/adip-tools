@@ -29,7 +29,7 @@ export const KOMPONEN = {
     <div style="height:14px;width:70%;background:${p.garisKuat};border-radius:${r.bar};margin-bottom:10px"></div>
     <div style="height:10px;width:100%;background:${p.blok};border-radius:${r.bar};margin-bottom:6px"></div>
     <div style="height:10px;width:85%;background:${p.blok};border-radius:${r.bar};margin-bottom:14px"></div>
-    <button style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 18px;font-size:13px;font-weight:600">Aksi</button>
+    <button tabindex="-1" aria-hidden="true" style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 18px;font-size:13px;font-weight:600;pointer-events:none">Aksi</button>
   </div>
 </div>` },
   navbar: { label: 'Navbar', buat: (p, r) =>
@@ -40,14 +40,14 @@ export const KOMPONEN = {
     <div style="width:52px;height:12px;background:${p.garisKuat};border-radius:${r.bar}"></div>
     <div style="width:52px;height:12px;background:${p.garisKuat};border-radius:${r.bar}"></div>
   </div>
-  <button style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 16px;font-size:13px;font-weight:600">Masuk</button>
+  <button tabindex="-1" aria-hidden="true" style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 16px;font-size:13px;font-weight:600;pointer-events:none">Masuk</button>
 </nav>` },
   login: { label: 'Form Login', buat: (p, r) =>
 `<form style="max-width:320px;background:${p.kartu};border:1px solid ${p.garis};border-radius:${r.kartu};padding:24px">
   <div style="height:16px;width:50%;background:${p.garisKuat};border-radius:${r.bar};margin:0 auto 20px"></div>
-  <input placeholder="Email" style="width:100%;box-sizing:border-box;background:${p.input};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:10px 12px;color:${p.teks};margin-bottom:10px">
-  <input placeholder="Kata sandi" type="password" style="width:100%;box-sizing:border-box;background:${p.input};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:10px 12px;color:${p.teks};margin-bottom:16px">
-  <button style="width:100%;background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:11px;font-size:14px;font-weight:600">Masuk</button>
+  <input tabindex="-1" aria-hidden="true" placeholder="Email" style="width:100%;box-sizing:border-box;background:${p.input};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:10px 12px;color:${p.teks};margin-bottom:10px;pointer-events:none">
+  <input tabindex="-1" aria-hidden="true" placeholder="Kata sandi" type="password" style="width:100%;box-sizing:border-box;background:${p.input};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:10px 12px;color:${p.teks};margin-bottom:16px;pointer-events:none">
+  <button tabindex="-1" aria-hidden="true" style="width:100%;background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:11px;font-size:14px;font-weight:600;pointer-events:none">Masuk</button>
 </form>` },
   pricing: { label: 'Pricing', buat: (p, r) =>
 `<div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -56,14 +56,14 @@ export const KOMPONEN = {
     <div style="height:26px;width:50%;background:${p.teks};border-radius:${r.bar};margin:0 auto 14px"></div>
     <div style="height:10px;width:80%;background:${p.blok};border-radius:${r.bar};margin:0 auto 6px"></div>
     <div style="height:10px;width:70%;background:${p.blok};border-radius:${r.bar};margin:0 auto 16px"></div>
-    <button style="background:transparent;color:${p.teks};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:8px 18px;font-size:13px">Pilih</button>
+    <button tabindex="-1" aria-hidden="true" style="background:transparent;color:${p.teks};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:8px 18px;font-size:13px;pointer-events:none">Pilih</button>
   </div>
   <div style="flex:1;min-width:160px;background:${p.blok};border:2px solid ${p.tombol};border-radius:${r.kartu};padding:20px;text-align:center">
     <div style="height:12px;width:60%;background:${p.garisKuat};border-radius:${r.bar};margin:0 auto 12px"></div>
     <div style="height:26px;width:50%;background:${p.teks};border-radius:${r.bar};margin:0 auto 14px"></div>
     <div style="height:10px;width:80%;background:${p.garisKuat};border-radius:${r.bar};margin:0 auto 6px"></div>
     <div style="height:10px;width:70%;background:${p.garisKuat};border-radius:${r.bar};margin:0 auto 16px"></div>
-    <button style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 18px;font-size:13px;font-weight:600">Pilih</button>
+    <button tabindex="-1" aria-hidden="true" style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 18px;font-size:13px;font-weight:600;pointer-events:none">Pilih</button>
   </div>
 </div>` },
   testimoni: { label: 'Testimoni', buat: (p, r) =>
@@ -87,8 +87,8 @@ export const KOMPONEN = {
   <div style="height:10px;width:65%;background:${p.blok};border-radius:${r.bar};margin:0 auto 6px"></div>
   <div style="height:10px;width:50%;background:${p.blok};border-radius:${r.bar};margin:0 auto 20px"></div>
   <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-    <button style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:10px 22px;font-size:14px;font-weight:600">Mulai</button>
-    <button style="background:transparent;color:${p.teks};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:10px 22px;font-size:14px">Pelajari</button>
+    <button tabindex="-1" aria-hidden="true" style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:10px 22px;font-size:14px;font-weight:600;pointer-events:none">Mulai</button>
+    <button tabindex="-1" aria-hidden="true" style="background:transparent;color:${p.teks};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:10px 22px;font-size:14px;pointer-events:none">Pelajari</button>
   </div>
 </div>` },
   footer: { label: 'Footer', buat: (p, r) =>
@@ -165,8 +165,8 @@ export const KOMPONEN = {
   <div style="height:10px;width:100%;background:${p.blok};border-radius:${r.bar};margin-bottom:6px"></div>
   <div style="height:10px;width:80%;background:${p.blok};border-radius:${r.bar};margin-bottom:20px"></div>
   <div style="display:flex;gap:10px;justify-content:flex-end">
-    <button style="background:transparent;color:${p.teks};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:8px 18px;font-size:13px">Batal</button>
-    <button style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 18px;font-size:13px;font-weight:600">Simpan</button>
+    <button tabindex="-1" aria-hidden="true" style="background:transparent;color:${p.teks};border:1px solid ${p.garisKuat};border-radius:${r.tombol};padding:8px 18px;font-size:13px;pointer-events:none">Batal</button>
+    <button tabindex="-1" aria-hidden="true" style="background:${p.tombol};color:${p.tombolTeks};border:none;border-radius:${r.tombol};padding:8px 18px;font-size:13px;font-weight:600;pointer-events:none">Simpan</button>
   </div>
 </div>` },
   pengumuman: { label: 'Bar Pengumuman', buat: (p, r) =>

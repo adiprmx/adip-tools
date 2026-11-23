@@ -37,7 +37,7 @@ function tglISO(hariLalu) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "gempa-dunia-terkini", "name": "Gempa Dunia Terkini", "cat": "liveapi", "icon": "🌍", "desc": "Gempa bumi terbaru di seluruh dunia dari USGS, bisa difilter kekuatan dan waktunya.", "keywords": "gempa,bumi,usgs,dunia,earthquake,magnitudo,terkini", "since": "6.17.0"};
+export const meta = {"id": "gempa-dunia-terkini", "name": "Gempa Dunia Terkini", "cat": "liveapi", "icon": "🌍", "desc": "Gempa bumi terbaru di seluruh dunia dari USGS, bisa difilter kekuatan dan waktunya.", "keywords": "gempa,bumi,usgs,dunia,earthquake,magnitudo,terkini", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -80,7 +80,7 @@ export function render(root) {
         '<p class="hint">Sumber: USGS (Survei Geologi Amerika Serikat). Waktu ditampilkan dalam zona waktu perangkatmu.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server USGS tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server USGS tidak bisa dihubungi dalam 15 detik.'
         : 'Data gempa gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

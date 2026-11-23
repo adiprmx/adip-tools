@@ -37,6 +37,7 @@ export function render(root) {
       const head = T.el('<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"></div>');
       head.appendChild(T.el('<div style="font-weight:700;font-size:15px">' + T.esc(it.istilah) + '</div>'));
       const del = T.btn('✕', () => {
+        if (!confirm('Hapus istilah "' + it.istilah + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
         items = items.filter((x) => x.id !== it.id);
         save(items); draw();
       });

@@ -5,7 +5,7 @@ import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // diubah jadi abu-abu, lalu disusun lagi jadi PDF dengan jsPDF.
 // BATASAN JUJUR: hasil akhirnya adalah gambar per halaman, jadi teksnya
 // tidak bisa dipilih atau dicari lagi, dan ukuran file bisa membesar.
-export const meta = {"id": "pdf-hitam-putih", "name": "PDF Hitam-Putih", "cat": "produktivitas", "icon": "⬛", "desc": "Ubah PDF berwarna jadi hitam-putih, hemat tinta saat mencetak.", "keywords": "pdf hitam putih,pdf grayscale,pdf abu-abu,hemat tinta", "since": "6.17.0"};
+export const meta = {"id": "pdf-hitam-putih", "name": "PDF Hitam-Putih", "cat": "produktivitas", "icon": "⬛", "desc": "Ubah PDF berwarna jadi hitam-putih, hemat tinta saat mencetak.", "keywords": "pdf hitam putih,pdf grayscale,pdf abu-abu,hemat tinta", "since": "6.17.0", "online": true};
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';

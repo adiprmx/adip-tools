@@ -43,7 +43,7 @@ export function render(root) {
       cb.style.marginTop = '3px';
       cb.setAttribute('aria-label', 'Tandai selesai: ' + t.text);
       const label = T.el('<div style="flex:1;font-size:13.5px;line-height:1.5' + (t.done ? ';text-decoration:line-through;opacity:.55' : '') + '">' + T.esc(t.text) + '</div>');
-      const del = T.btn('✕', () => { tasks().splice(i, 1); save(); draw(); });
+      const del = T.btn('✕', () => { if (!confirm('Hapus tugas "' + t.text + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return; tasks().splice(i, 1); save(); draw(); });
       del.style.padding = '4px 10px';
       del.setAttribute('aria-label', 'Hapus tugas');
       cb.addEventListener('change', () => { t.done = cb.checked; save(); draw(); });

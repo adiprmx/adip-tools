@@ -1,7 +1,7 @@
 import { h as T, utils } from '../../core.js';
 import { TARIF_PLN, PPJ_DEFAULT, TARIF_PLN_PERIODE, TARIF_PLN_BERLAKU, TARIF_PLN_CATATAN_Q1 } from '../../tarif-pln.js';
 
-export const meta = {"id": "tagihan-listrik", "name": "Hitung Tagihan Listrik", "cat": "indonesia", "icon": "💡", "desc": "Hitung tagihan listrik bulanan dari alat elektronik di rumahmu, ketahuan alat mana yang paling boros.", "keywords": "listrik,tagihan,pln,kwh,watt,tarif,hemat,token,boros"};
+export const meta = {"id": "tagihan-listrik", "name": "Hitung Tagihan Listrik", "cat": "indonesia", "icon": "💡", "desc": "Hitung tagihan listrik bulanan dari alat elektronik di rumahmu, ketahuan alat mana yang paling boros.", "keywords": "listrik,tagihan,pln,kwh,watt,tarif,hemat,token,boros", "dataValidUntil": "2026-12-31"};
 export function render(root) {
   // Tarif dari modul bersama js/tarif-pln.js (satu sumber kebenaran dengan
   // token-listrik & kalkulator-biaya-cas-mobil-listrik).

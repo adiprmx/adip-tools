@@ -18,7 +18,7 @@
  */
 import { h as T, utils } from '../../core.js';
 
-export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan"};
+export const meta = {id:"website-scanner", name:"Website Security Scanner", cat:"keamanan", icon:"🛡️", desc:"Pindai keamanan website: header, DNS, email, TLS, secrets & exposure. 25 modul browser + 2 ditandai jujur.", keywords:"security,scanner,keamanan,website,headers,dns,spf,dmarc,scan", online: true};
 
 const DOH = 'https://dns.google/resolve';
 // F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak
@@ -836,7 +836,7 @@ export async function fetchProxied(url, {timeout = 15000, method = 'GET', body =
       const text = await r.text();
       return {ok: true, status: r.status, headers: h, headersOk, text, via: 'langsung'};
     } catch (e) {
-      return {ok: false, error: 'Probe ' + method + ' tidak merespons — browser biasanya memblokir request lintas-origin semacam ini.'};
+      return {ok: false, error: 'Probe ' + method + ' tidak mendapat jawaban — browser biasanya memblokir request lintas-origin semacam ini.'};
     }
   }
   try {
@@ -1056,7 +1056,7 @@ async function mCors(ctx) {
 }
 async function mRedirect(ctx) {
   const r = await fetchProxied('http://' + ctx.host + '/');
-  if (!r.ok) return [mkInfo('redirect','Redirect HTTP→HTTPS tidak dapat dicek','Target tidak merespons via proxy.')];
+  if (!r.ok) return [mkInfo('redirect','Redirect HTTP→HTTPS tidak dapat dicek','Target tidak bisa dihubungi via proxy.')];
   const loc = (r.headers['location'] || '').toLowerCase();
   if ([301,302,303,307,308].includes(r.status) && loc.startsWith('https://'))
     return [mkInfo('redirect','HTTP dialihkan ke HTTPS','Status ' + r.status + ' → ' + loc.slice(0,60))];
@@ -1099,7 +1099,7 @@ async function mHtml(ctx) {
   ctx.scripts = scripts;
   const extNoSri = scripts.filter((s) => /^https?:\/\//i.test(s.src) && !s.integrity && !s.src.startsWith(ctx.origin));
   if (extNoSri.length) f.push(mk('html','medium', extNoSri.length + ' script eksternal tanpa SRI',
-    'Script dari CDN tanpa atribut integrity tidak bisa diverifikasi isinya.',
+    'Script dari internet tanpa atribut integrity tidak bisa diverifikasi isinya.',
     'Bila CDN terkompromi, pengunjung dimuati kode jahat tanpa disadari pemilik situs.',
     'Tambahkan integrity (SRI hash) + crossorigin="anonymous" pada script eksternal.', extNoSri.slice(0,3).map((s)=>s.src.slice(0,80)).join('\n')));
   if (ctx.isHttps) {
@@ -1574,7 +1574,7 @@ async function mGraphql(ctx) {
       if (r2.ok) text = r2.text;
     } catch (e) { /* abaikan */ }
   }
-  if (text == null) return [mkInfo('graphql','GraphQL tidak dapat dicek','Endpoint /graphql tidak merespons.')];
+  if (text == null) return [mkInfo('graphql','GraphQL tidak dapat dicek','Endpoint /graphql tidak bisa dihubungi.')];
   if (parseGraphqlIntrospection(text))
     return [mk('graphql','medium','GraphQL introspection aktif di /graphql',
       'Query {__typename} dijawab {"data":{"__typename":"Query"}} — introspection menyala.',
@@ -1606,7 +1606,7 @@ async function mHttpmethods(ctx) {
   const f = [];
   try {
     const r = await fetchProxied(ctx.origin + '/', {timeout: 10000, method:'OPTIONS'});
-    if (!r.ok) return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak merespons (browser biasanya memblokir probe lintas-origin ini).')];
+    if (!r.ok) return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak mendapat jawaban (browser biasanya memblokir probe lintas-origin ini).')];
     const allow = r.headers['allow'] || '';
     if (!allow) return [mkInfo('httpmethods','Header Allow tidak ada','Server tidak mengumumkan metode via OPTIONS.')];
     const p = parseAllowHeader(allow);
@@ -1622,7 +1622,7 @@ async function mHttpmethods(ctx) {
         'Nonaktifkan PUT/DELETE kecuali benar-benar dibutuhkan API dengan auth kuat.', 'Allow: ' + allow.slice(0, 100)));
     if (!f.length) f.push(mkInfo('httpmethods','Metode aman','Allow: ' + allow.slice(0, 80)));
   } catch (e) {
-    return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak merespons via proxy.')];
+    return [mkInfo('httpmethods','Tidak dapat dicek','OPTIONS tidak mendapat jawaban via proxy.')];
   }
   return f;
 }

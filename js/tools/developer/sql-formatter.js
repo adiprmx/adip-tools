@@ -91,7 +91,7 @@ export function sqlFormat(src) {
     return keluar.split('\n').map((l) => l.trimEnd()).join('\n').replace(/\n{3,}/g, '\n\n').trim();
   }
 
-export const meta = {"id": "sql-formatter", "name": "SQL Formatter", "cat": "developer", "icon": "🗄️", "desc": "Rapikan query SQL.", "keywords": "sql,query,database"};
+export const meta = {"id": "sql-formatter", "name": "SQL Formatter", "cat": "developer", "icon": "🗄️", "desc": "Rapikan query SQL jadi mudah dibaca, dengan kata kunci dan baris yang tertata rapi.", "keywords": "sql,query,database,rapikan sql,format sql"};
 export function render(root) {
 
     const ta = T.ta(8, 'Paste query SQL… misal: select id, nama from users where aktif = 1 order by nama');

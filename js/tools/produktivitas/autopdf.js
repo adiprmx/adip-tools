@@ -1,6 +1,6 @@
 import { h as T, utils, errBox } from '../../core.js';
 
-export const meta = {"id": "autopdf", "name": "Auto PDF", "cat": "produktivitas", "icon": "📄", "desc": "Ubah teks panjang jadi dokumen PDF rapi.", "keywords": "pdf,teks,dokumen,naskah,cetak"};
+export const meta = {"id": "autopdf", "name": "Auto PDF", "cat": "produktivitas", "icon": "📄", "desc": "Ubah teks panjang jadi dokumen PDF rapi.", "keywords": "pdf,teks,dokumen,naskah,cetak", "online": true};
 
 export function render(root) {
 
@@ -16,7 +16,7 @@ export function render(root) {
   const sizeSel = T.select([['8', '8'], ['9', '9'], ['10', '10'], ['11', '11'], ['12', '12'], ['14', '14'], ['16', '16'], ['18', '18']], '11');
   const lhSel = T.select([['1.1', '1,1'], ['1.3', '1,3'], ['1.5', '1,5'], ['1.8', '1,8'], ['2.2', '2,2']], '1.5');
   const marginSel = T.select([['20', '20 pt'], ['30', '30 pt'], ['42', '42 pt'], ['60', '60 pt'], ['90', '90 pt']], '42');
-  const newPageChk = T.el('<input type="checkbox" checked style="width:18px;height:18px;accent-color:#e07856">');
+  const newPageChk = T.el('<input type="checkbox" checked style="width:18px;height:18px;accent-color:#ff6f61">');
   const fnameInp = T.input('text', 'nama-file', 'dokumen');
 
   const secWrap = T.el('<div style="display:grid;gap:12px;margin:12px 0"></div>');

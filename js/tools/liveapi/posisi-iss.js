@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "posisi-iss", "name": "Posisi ISS", "cat": "liveapi", "icon": "🛰️", "desc": "Lacak posisi Stasiun Luar Angkasa Internasional secara live.", "keywords": "iss,satelit,posisi,stasiun luar angkasa,nasa,live"};
+export const meta = {"id": "posisi-iss", "name": "Posisi ISS", "cat": "liveapi", "icon": "🛰️", "desc": "Lacak posisi Stasiun Luar Angkasa Internasional secara live.", "keywords": "iss,satelit,posisi,stasiun luar angkasa,nasa,live", "online": true};
 export function render(root) {
 
     const box = T.out();

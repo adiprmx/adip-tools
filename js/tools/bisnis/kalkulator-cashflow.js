@@ -98,6 +98,7 @@ export function render(root) {
       rLbl.appendChild(rCek);
       rLbl.appendChild(document.createTextNode('Rutin'));
       const del = T.btn('✕', () => {
+        if (!confirm('Hapus baris' + (nI.value.trim() ? ' "' + nI.value.trim() + '"' : '') + ' ini? Data baris ini akan hilang dan tidak bisa dikembalikan.')) return;
         // Hapus dari array juga, bukan cuma DOM — kalau tidak, baris tetap
         // dihitung dan bangkit lagi setelah reload (P-R2-01).
         const iIn = inRows.findIndex((r) => r.wrap === wrap);
@@ -377,6 +378,7 @@ export function render(root) {
       renderChart();
     };
     const hapusRiwayat = () => {
+      if (!confirm('Hapus seluruh riwayat tren? Data tren yang sudah tersimpan akan hilang dan tidak bisa dikembalikan.')) return;
       try { localStorage.removeItem(KH); } catch (e) {}
       T.toast('Riwayat tren dihapus.');
       renderChart();

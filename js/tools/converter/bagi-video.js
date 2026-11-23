@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "bagi-video", "name": "Bagi Video", "cat": "converter", "icon": "✂️", "desc": "Bagi video panjang jadi beberapa bagian per durasi.", "keywords": "video,bagi,potong,bagian,durasi,split", "since": "6.17.0"};
+export const meta = {"id": "bagi-video", "name": "Bagi Video", "cat": "converter", "icon": "✂️", "desc": "Bagi video panjang jadi beberapa bagian per durasi.", "keywords": "video,bagi,potong,bagian,durasi,split", "since": "6.17.0", "online": true};
 
 // Batas jumlah segmen: tanpa cap, durasi Infinity (atau video sangat
 // panjang) membuat loop di bawah jalan selamanya dan tab hang.

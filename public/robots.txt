@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /preview.html
 
 Sitemap: https://tools.adipmusic.my.id/sitemap.xml

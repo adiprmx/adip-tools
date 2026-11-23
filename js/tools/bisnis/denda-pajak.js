@@ -1,6 +1,6 @@
 import { h as T } from '../../core.js';
 
-export const meta = {"id": "denda-pajak", "name": "Kalkulator Denda Pajak", "cat": "bisnis", "icon": "🧾", "desc": "Estimasi denda telat lapor & bayar pajak, termasuk hitungan gabungan denda + bunga SPT Tahunan.", "keywords": "pajak,denda,spt,telat,spt tahunan,bunga,djp,wajib pajak", "file": "tools/bisnis/denda-pajak.js"};
+export const meta = {"id": "denda-pajak", "name": "Kalkulator Denda Pajak", "cat": "bisnis", "icon": "🧾", "desc": "Estimasi denda telat lapor & bayar pajak, termasuk hitungan gabungan denda + bunga SPT Tahunan.", "keywords": "pajak,denda,spt,telat,spt tahunan,bunga,djp,wajib pajak"};
 
 export function render(root) {
   const jenis = T.select([

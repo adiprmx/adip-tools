@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Ubah teks jadi kode Base64 dan sebaliknya, termasuk versi aman untuk link.", "keywords": "base64,encode,decode"};
+export const meta = {"id": "base64", "name": "Base64 Encode/Decode", "cat": "converter", "icon": "🔤", "desc": "Ubah teks jadi kode Base64 dan sebaliknya, termasuk versi aman untuk link.", "keywords": "base64,encode,decode,teks ke base64,base64 ke teks,url safe"};
 export function render(root) {
 
     const inp = T.ta(5, 'Tulis atau tempel teks di sini…');

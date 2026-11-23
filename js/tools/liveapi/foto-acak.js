@@ -22,7 +22,7 @@ async function getJSON(url) {
 // imgAman kanonis tinggal di utils.urlAman (core.js) — definisi lokal ini tidak pernah dipakai.
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "foto-acak", "name": "Foto Acak", "cat": "liveapi", "icon": "🖼️", "desc": "Foto acak berkualitas tinggi dari Lorem Picsum, bisa diunduh dalam ukuran pilihanmu.", "keywords": "foto,acak,random,picsum,gambar,placeholder,unsplash,unduh foto", "since": "6.17.0"};
+export const meta = {"id": "foto-acak", "name": "Foto Acak", "cat": "liveapi", "icon": "🖼️", "desc": "Foto acak berkualitas tinggi dari Lorem Picsum, bisa diunduh dalam ukuran pilihanmu.", "keywords": "foto,acak,random,picsum,gambar,placeholder,unsplash,unduh foto", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -61,7 +61,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server Picsum tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Picsum tidak bisa dihubungi dalam 15 detik.'
         : 'Foto gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

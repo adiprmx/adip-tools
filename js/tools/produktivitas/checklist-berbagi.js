@@ -99,7 +99,7 @@ export function render(root) {
       cb.addEventListener('change', () => { state.items[idx].c = cb.checked; simpanLokal(); gambar(); });
       const teks = T.el('<span style="flex:1;word-break:break-word' + (it.c ? ';text-decoration:line-through;opacity:.6' : '') + '"></span>');
       teks.textContent = it.t;
-      const hapus = T.btn('✕', () => { state.items.splice(idx, 1); simpanLokal(); gambar(); });
+      const hapus = T.btn('✕', () => { if (!confirm('Hapus "' + it.t + '" dari checklist? Data ini akan hilang dan tidak bisa dikembalikan.')) return; state.items.splice(idx, 1); simpanLokal(); gambar(); });
       hapus.setAttribute('aria-label', 'Hapus: ' + it.t);
       baris.appendChild(cb);
       baris.appendChild(teks);
@@ -146,7 +146,7 @@ export function render(root) {
   root.appendChild(T.row(T.field('Tambah butir', baruI), T.btn('Tambah', tambah, true)));
   root.appendChild(T.row(
     T.btn('Buat Tautan Berbagi', buatTautan, true),
-    T.btn('Bersihkan Semua', () => { state.items = []; state.judul = ''; judulI.value = ''; simpanLokal(); gambar(); }),
+    T.btn('Bersihkan Semua', () => { if (!confirm('Hapus semua butir checklist dan judulnya? Data ini akan hilang dan tidak bisa dikembalikan.')) return; state.items = []; state.judul = ''; judulI.value = ''; simpanLokal(); gambar(); }),
   ));
   root.appendChild(linkBox);
   gambar();

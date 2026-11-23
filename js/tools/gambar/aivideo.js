@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"aivideo","name":"AI Video","cat":"gambar","icon":"🎬","desc":"Generate video AI (teks/gambar jadi video) pakai akun Puter milikmu.","keywords":"ai,video,generator,sora,veo,puter"};
+export const meta = {"id":"aivideo","name":"AI Video","cat":"gambar","icon":"🎬","desc":"Generate video AI (teks/gambar jadi video) pakai akun Puter milikmu.","keywords":"ai,video,generator,sora,veo,puter", "online": true};
 
 const MAX_PROMPT = 3000;
 const MAX_IMG_MB = 10;

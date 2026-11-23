@@ -4,7 +4,7 @@ import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // satu per satu, bisa diunduh satuan atau sekaligus dalam ZIP.
 // Pembaca GIF-nya gifuct-js (parser GIF murni JavaScript). Tiap frame
 // disusun lengkap (bukan potongan mentah), jadi gambarnya utuh.
-export const meta = {"id": "pecah-gif-jadi-frame", "name": "Pecah GIF jadi Frame", "cat": "gambar", "icon": "🎞️", "desc": "Ambil semua gambar di dalam GIF animasi, unduh satu per satu atau sekaligus.", "keywords": "gif,frame,ekstrak,animasi,pecah gif,gambar", "since": "6.17.0"};
+export const meta = {"id": "pecah-gif-jadi-frame", "name": "Pecah GIF jadi Frame", "cat": "gambar", "icon": "🎞️", "desc": "Ambil semua gambar di dalam GIF animasi, unduh satu per satu atau sekaligus.", "keywords": "gif,frame,ekstrak,animasi,pecah gif,gambar", "since": "6.17.0", "online": true};
 
 const GIFUCT_CDN = 'https://esm.sh/gifuct-js@2.1.2';
 const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';

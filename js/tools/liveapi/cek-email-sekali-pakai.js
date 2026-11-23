@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"cek-email-sekali-pakai","name":"Cek Email Sekali Pakai","cat":"liveapi","icon":"📧","desc":"Cek apakah alamat email berasal dari layanan email sekali pakai.","keywords":"email,sekali pakai,disposable,cek email,validasi email,spam","since":"6.18.0"};
+export const meta = {"id":"cek-email-sekali-pakai","name":"Cek Email Sekali Pakai","cat":"liveapi","icon":"📧","desc":"Cek apakah alamat email berasal dari layanan email sekali pakai.","keywords":"email,sekali pakai,disposable,cek email,validasi email,spam","since":"6.18.0", "online": true};
 
 // Cek email sekali pakai (disposable) lewat validator.pizza, tanpa key.
 // Terverifikasi 18 Nov 2026: www.validator.pizza/email/test@example.com -> 200, CORS *.
@@ -77,7 +77,7 @@ export function render(root) {
         '<p class="hint">Sumber: validator.pizza. Email yang kamu tulis dikirim ke layanan itu untuk dicek.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server pemeriksa tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server pemeriksa tidak bisa dihubungi dalam 10 detik.'
         : 'Pemeriksaan gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

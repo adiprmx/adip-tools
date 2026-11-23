@@ -5,7 +5,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // ("I don't know what these changes are supposed to accomplish...").
 // Dokumen verifikasi mencatat varian HTTP; HTTP kini 308 ke HTTPS (curl
 // 19 Nov), jadi tool memakai HTTPS agar tidak diblokir mixed content.
-export const meta = {"id":"pesan-commit-acak","name":"Pesan Commit Acak","cat":"liveapi","icon":"💻","desc":"Pesan commit lucu acak untuk developer, dalam bahasa Inggris.","keywords":"commit,git,pesan commit,lucu,developer,acak","since":"6.19.0"};
+export const meta = {"id":"pesan-commit-acak","name":"Pesan Commit Acak","cat":"liveapi","icon":"💻","desc":"Pesan commit lucu acak untuk developer, dalam bahasa Inggris.","keywords":"commit,git,pesan commit,lucu,developer,acak","since":"6.19.0", "online": true};
 
 async function getText(url) {
   const c = new AbortController();
@@ -34,7 +34,7 @@ export function render(root) {
       box.appendChild(wr);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil pesan commit. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

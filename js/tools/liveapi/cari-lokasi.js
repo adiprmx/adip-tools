@@ -5,7 +5,7 @@ import { h as T, esc, errBox, tabs } from '../../core.js';
 // - Koordinat -> alamat lewat BigDataCloud (tanpa key, bahasa Indonesia).
 //   Terverifikasi 18 Nov 2026: /data/reverse-geocode-client 200, CORS *.
 // Hasil gabung v6.21.0 (B10): mode balik diserap dari Alamat dari Koordinat.
-export const meta = {"id":"cari-lokasi","name":"Cari Lokasi & Koordinat","cat":"liveapi","icon":"📍","desc":"Cari tempat apa pun dan dapatkan koordinatnya, atau balik: tulis koordinat untuk tahu nama tempat dan alamatnya.","keywords":"lokasi,koordinat,latitude,longitude,tempat,peta,alamat,osm,lintang,bujur,reverse geocoding,gps,alamat dari koordinat","since":"6.16.0"};
+export const meta = {"id":"cari-lokasi","name":"Cari Lokasi & Koordinat","cat":"liveapi","icon":"📍","desc":"Cari tempat apa pun dan dapatkan koordinatnya, atau balik: tulis koordinat untuk tahu nama tempat dan alamatnya.","keywords":"lokasi,koordinat,latitude,longitude,tempat,peta,alamat,osm,lintang,bujur,reverse geocoding,gps,alamat dari koordinat","since":"6.16.0", "online": true};
 
 const API = 'https://nominatim.openstreetmap.org/search';
 const API_BALIK = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
@@ -94,7 +94,7 @@ export function render(root) {
       });
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server peta tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server peta tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari tempat. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');
@@ -144,7 +144,7 @@ export function render(root) {
         '<p class="hint">Sumber: BigDataCloud. Koordinat yang kamu isi dikirim ke layanan itu untuk dicari alamatnya.</p>');
     } catch (e) {
       gagalBalik(e.name === 'AbortError'
-        ? 'Waktu habis, server alamat tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server alamat tidak bisa dihubungi dalam 15 detik.'
         : 'Alamat gagal dicari. Cek koneksi internet, lalu coba lagi.');
     }
   };

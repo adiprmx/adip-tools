@@ -15,7 +15,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-export const meta = {"id": "ayat-alkitab", "name": "Ayat Alkitab", "cat": "liveapi", "icon": "✝️", "desc": "Cari dan baca ayat Alkitab berdasarkan kitab, pasal, dan ayat.", "keywords": "alkitab,bible,ayat,firman,kitab,pasal,injil,renungan", "since": "6.17.0"};
+export const meta = {"id": "ayat-alkitab", "name": "Ayat Alkitab", "cat": "liveapi", "icon": "✝️", "desc": "Cari dan baca ayat Alkitab berdasarkan kitab, pasal, dan ayat.", "keywords": "alkitab,bible,ayat,firman,kitab,pasal,injil,renungan", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -48,7 +48,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server Alkitab tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Alkitab tidak bisa dihubungi dalam 15 detik.'
         : 'Ayat gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

@@ -3,7 +3,7 @@ import { h as T, esc, errBox, utils } from '../../core.js';
 // Profil pemain Chess.com, tanpa key.
 // Terverifikasi 17 Nov 2026: /pub/player/erik -> 200, CORS *.
 // Profil dan rating diambil terpisah, masing-masing satu panggilan per aksi.
-export const meta = {"id":"profil-catur-chess-com","name":"Profil Catur Chess.com","cat":"liveapi","icon":"♟️","desc":"Lihat profil dan rating pemain Chess.com dari nama penggunanya.","keywords":"catur,chess,chess.com,rating,profil catur,grandmaster,elo","since":"6.17.0"};
+export const meta = {"id":"profil-catur-chess-com","name":"Profil Catur Chess.com","cat":"liveapi","icon":"♟️","desc":"Lihat profil dan rating pemain Chess.com dari nama penggunanya.","keywords":"catur,chess,chess.com,rating,profil catur,grandmaster,elo","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -72,7 +72,7 @@ export function render(root) {
         return;
       }
       gagal(box, e.name === 'AbortError'
-        ? 'Waktu habis, server Chess.com tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Chess.com tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari pemain. Cek koneksi internet, lalu coba lagi.', cari);
     }
   };
@@ -101,7 +101,7 @@ export function render(root) {
         '<p class="hint">Semakin besar angkanya, semakin kuat pemainnya. Rating 2000 ke atas sudah tergolong sangat kuat.</p>');
     } catch (e) {
       gagal(ratingBox, e.name === 'AbortError'
-        ? 'Waktu habis, server Chess.com tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Chess.com tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil rating. Cek koneksi internet, lalu coba lagi.', muatRating);
     } finally { tombolRating.disabled = false; }
   };

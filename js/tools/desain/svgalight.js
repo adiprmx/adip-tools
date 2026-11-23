@@ -727,7 +727,7 @@ structNote.hidden = true;
 const fnameInp = T.input('text', 'nama-file', 'svg-alight');
 fnameInp.maxLength = 80;
 const primRow = T.el('<label style="display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer;margin:8px 0"></label>');
-const primChk = T.el('<input type="checkbox" checked style="width:16px;height:16px;accent-color:#e07856">');
+const primChk = T.el('<input type="checkbox" checked style="width:16px;height:16px;accent-color:#ff6f61">');
 primRow.appendChild(primChk);
 primRow.appendChild(T.el('<span>Deteksi primitive <span class="dim">(rect/circle kompatibel → primitif native AM)</span></span>'));
 const box = T.out();
@@ -776,7 +776,7 @@ function renderLayerList() {
   layerWrap.innerHTML = '';
   shapes.forEach((s, i) => {
     const row = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:13px;cursor:pointer;border:1px solid #ffffff14;border-radius:8px;padding:8px 10px"></label>');
-    const chk = T.el('<input type="checkbox" checked style="width:16px;height:16px;accent-color:#e07856">');
+    const chk = T.el('<input type="checkbox" checked style="width:16px;height:16px;accent-color:#ff6f61">');
     chk.dataset.i = i;
     const sw = T.el('<span style="width:18px;height:18px;border-radius:5px;border:1px solid #ffffff30;flex-shrink:0"></span>');
     if (s.paint.kind === 'color') sw.style.background = '#' + s.paint.arg.slice(3).toLowerCase();

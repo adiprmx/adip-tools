@@ -5,7 +5,7 @@ import { loadFFmpeg, runFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, suppo
 // WebP animasi jauh lebih ringan dari GIF dengan kualitas yang sama, dan
 // bisa dipakai sebagai stiker atau gambar bergerak di web. Encoding memakai
 // ffmpeg di peramban (perlu internet sekali untuk memuat mesinnya, ~31 MB).
-export const meta = {"id": "webp-animasi-maker", "name": "WebP Animasi Maker", "cat": "gambar", "icon": "🎞️", "desc": "Gabung beberapa foto jadi animasi WebP yang ringan.", "keywords": "webp,animasi,foto bergerak,stiker,ringan,gif", "since": "6.19.0"};
+export const meta = {"id": "webp-animasi-maker", "name": "WebP Animasi Maker", "cat": "gambar", "icon": "🎞️", "desc": "Gabung beberapa foto jadi animasi WebP yang ringan.", "keywords": "webp,animasi,foto bergerak,stiker,ringan,gif", "since": "6.19.0", "online": true};
 
 const MAKS_FOTO = 20;
 

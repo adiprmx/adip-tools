@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"data-covid-19-flu","name":"Data COVID-19","cat":"liveapi","icon":"🦠","desc":"Angka COVID-19 terbaru, seluruh dunia atau satu negara.","keywords":"covid,corona,statistik,virus,pandemi,negara","since":"6.18.0"};
+export const meta = {"id":"data-covid-19-flu","name":"Data COVID-19","cat":"liveapi","icon":"🦠","desc":"Angka COVID-19 terbaru, seluruh dunia atau satu negara.","keywords":"covid,corona,statistik,virus,pandemi,negara","since":"6.18.0", "online": true};
 
 // Statistik COVID-19 global dan per negara lewat disease.sh, tanpa key.
 // Terverifikasi 18 Nov 2026: disease.sh/v3/covid-19/all -> 200, CORS *.
@@ -100,7 +100,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server data tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server data tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mengambil data. Cek koneksi internet, lalu coba lagi.');
     }
   };

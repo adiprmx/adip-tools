@@ -1,6 +1,6 @@
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id": "penerjemah-pdf", "name": "Penerjemah PDF", "cat": "converter", "icon": "🌏", "desc": "Terjemahkan isi PDF ke bahasa lain, hasilnya tetap PDF.", "keywords": "terjemah,pdf,bahasa,inggris,indonesia,dokumen", "since": "6.19.0"};
+export const meta = {"id": "penerjemah-pdf", "name": "Penerjemah PDF", "cat": "converter", "icon": "🌏", "desc": "Terjemahkan isi PDF ke bahasa lain, hasilnya tetap PDF.", "keywords": "terjemah,pdf,bahasa,inggris,indonesia,dokumen", "since": "6.19.0", "online": true};
 
 // pdf.js 3.11.174 + pdf-lib 1.17.1. Hash SRI keduanya ada di peta SRI_HASH core.js.
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';

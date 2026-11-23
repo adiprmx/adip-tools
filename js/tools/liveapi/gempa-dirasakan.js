@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"gempa-dirasakan","name":"Gempa Dirasakan","cat":"liveapi","icon":"🌋","desc":"Gempa terbaru yang terasa di Indonesia, langsung dari BMKG.","keywords":"gempa,dirasakan,bmkg,guncangan,lindu,magnitudo,terkini","since":"6.16.0"};
+export const meta = {"id":"gempa-dirasakan","name":"Gempa Dirasakan","cat":"liveapi","icon":"🌋","desc":"Gempa terbaru yang terasa di Indonesia, langsung dari BMKG.","keywords":"gempa,dirasakan,bmkg,guncangan,lindu,magnitudo,terkini","since":"6.16.0", "online": true};
 
 const API = 'https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json';
 
@@ -52,7 +52,7 @@ export function render(root) {
       tampil(list);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server BMKG tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server BMKG tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal ambil data gempa. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

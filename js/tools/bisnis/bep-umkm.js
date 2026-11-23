@@ -1,6 +1,6 @@
 import { h as T } from '../../core.js';
 
-export const meta = {"id": "bep-umkm", "name": "Kalkulator BEP UMKM", "cat": "bisnis", "icon": "📊", "desc": "Hitung titik impas: jual berapa unit biar modal balik.", "keywords": "bep,impas,umkm,usaha,modal,break even,titik impas,modal balik,unit", "file": "tools/bisnis/bep-umkm.js"};
+export const meta = {"id": "bep-umkm", "name": "Kalkulator BEP UMKM", "cat": "bisnis", "icon": "📊", "desc": "Hitung titik impas: jual berapa unit biar modal balik.", "keywords": "bep,impas,umkm,usaha,modal,break even,titik impas,modal balik,unit"};
 
 export function render(root) {
   const tetap = T.input('text', 'cth: 3000000 (sewa + gaji + listrik)');

@@ -835,7 +835,7 @@ const ARAH = [
 
 /* ============ Akhir fungsi murni ============ */
 
-export const meta = {"id": "exif-clean", "name": "Data & EXIF Foto", "cat": "gambar", "icon": "🧹", "desc": "Lihat data di dalam foto (kamera, tanggal, lokasi), ubah datanya, atau bersihkan sebelum dibagikan.", "keywords": "exif,metadata,bersih,privasi,gps,foto,kamera,lokasi,lihat data foto,edit exif,ubah exif,tanggal foto,keterangan foto,orientasi"};
+export const meta = {"id": "exif-clean", "name": "Data & EXIF Foto", "cat": "gambar", "icon": "🧹", "desc": "Lihat data di dalam foto (kamera, tanggal, lokasi), ubah datanya, atau bersihkan sebelum dibagikan.", "keywords": "exif,metadata,bersih,privasi,gps,foto,kamera,lokasi,lihat data foto,edit exif,ubah exif,tanggal foto,keterangan foto,orientasi", "online": true};
 
 export function render(root) {
       /* Penampil EXIF sebelum menghapus: baca metadata pakai ExifReader

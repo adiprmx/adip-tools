@@ -5,7 +5,7 @@ import { h as T, utils, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // META-INF/container.xml, content.opf, nav.xhtml, toc.ncx (untuk pembaca
 // lama), dan satu file XHTML per bab. Tiap judul # atau ## jadi bab baru.
 // Mesinnya JSZip. Hasilnya bisa dibuka di pembaca ebook umum.
-export const meta = {"id": "epub-maker", "name": "EPUB Maker", "cat": "produktivitas", "icon": "📚", "desc": "Buat file ebook EPUB dari teks atau tulisan Markdown.", "keywords": "epub maker,buat epub,ebook,teks ke epub,markdown ke epub", "since": "6.17.0"};
+export const meta = {"id": "epub-maker", "name": "EPUB Maker", "cat": "produktivitas", "icon": "📚", "desc": "Buat file ebook EPUB dari teks atau tulisan Markdown.", "keywords": "epub maker,buat epub,ebook,teks ke epub,markdown ke epub", "since": "6.17.0", "online": true};
 
 const JSZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
 

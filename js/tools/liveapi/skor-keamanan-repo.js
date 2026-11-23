@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 17 Nov 2026: /projects/github.com/lodash/lodash -> 200, CORS *.
 // Skor 0 sampai 10. Semakin tinggi, semakin baik praktik keamanannya.
 // Skor -1 pada satu pemeriksaan berarti pemeriksaan itu tidak bisa dinilai.
-export const meta = {"id":"skor-keamanan-repo","name":"Skor Keamanan Repo","cat":"liveapi","icon":"🛡️","desc":"Nilai keamanan rantai pasok repo GitHub: skor 0 sampai 10 beserta penjelasan tiap pemeriksaannya.","keywords":"scorecard,openssf,keamanan repo,github,security score,supply chain,rantai pasok","since":"6.17.0"};
+export const meta = {"id":"skor-keamanan-repo","name":"Skor Keamanan Repo","cat":"liveapi","icon":"🛡️","desc":"Nilai keamanan rantai pasok repo GitHub: skor 0 sampai 10 beserta penjelasan tiap pemeriksaannya.","keywords":"scorecard,openssf,keamanan repo,github,security score,supply chain,rantai pasok","since":"6.17.0", "online": true};
 
 const ARTI = {
   'Binary-Artifacts': 'Tidak ada file hasil kompilasi yang tersimpan di repo',
@@ -82,7 +82,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Scorecard tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Scorecard tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil skor. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

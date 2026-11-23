@@ -1,6 +1,6 @@
 import { h as T, esc, utils } from '../../core.js';
 
-export const meta = {"id":"apod-harian","name":"Foto Antariksa Harian","cat":"liveapi","icon":"🪐","desc":"Foto astronomi harian resmi dari NASA (APOD).","keywords":"nasa,apod,antariksa,astronomi,foto,planet,luar angkasa"};
+export const meta = {"id":"apod-harian","name":"Foto Antariksa Harian","cat":"liveapi","icon":"🪐","desc":"Foto astronomi harian resmi dari NASA (APOD).","keywords":"nasa,apod,antariksa,astronomi,foto,planet,luar angkasa", "online": true};
 
 const API_BASE = 'https://api.nasa.gov/planetary/apod?api_key=';
 
@@ -103,7 +103,7 @@ export function render(root) {
         return;
       }
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu habis — NASA tidak merespons. Koneksi mungkin lambat, coba lagi.';
+      if (e.name === 'AbortError') msg = 'Waktu habis — NASA tidak bisa dihubungi. Koneksi mungkin lambat, coba lagi.';
       else if (status === 429) msg = kf.get()
         ? 'Batas key NASA milikmu tercapai (kode 429). Tunggu sebentar lalu coba lagi.'
         : 'Batas demo tercapai (kode 429). Key demo dipakai bersama (batas 30x/jam, 50x/hari) — tunggu sebentar lalu coba lagi, atau isi key NASA gratis milikmu di kolom atas supaya tidak rebutan.';

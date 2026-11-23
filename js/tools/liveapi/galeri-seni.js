@@ -1,6 +1,6 @@
 import { h as T, esc, utils } from '../../core.js';
 
-export const meta = {"id":"galeri-seni","name":"Galeri Seni Dunia","cat":"liveapi","icon":"🖼️","desc":"Jelajahi karya seni acak dari Art Institute of Chicago.","keywords":"seni,galeri,lukisan,museum,art,acak,karya,chicago"};
+export const meta = {"id":"galeri-seni","name":"Galeri Seni Dunia","cat":"liveapi","icon":"🖼️","desc":"Jelajahi karya seni acak dari Art Institute of Chicago.","keywords":"seni,galeri,lukisan,museum,art,acak,karya,chicago", "online": true};
 
 // Karya terakhir yang berhasil dimuat disimpan di browser ini, supaya tool
 // tetap menampilkan sesuatu saat API galeri sedang menolak akses / mati.
@@ -45,7 +45,7 @@ export function render(root) {
       const last = loadLast();
       if (last && last.image_id) { tampil(last, true); return; }
       let msg;
-      if (e && e.name === 'AbortError') msg = 'Waktu habis — galeri tidak merespons. Periksa koneksi internet lalu coba lagi.';
+      if (e && e.name === 'AbortError') msg = 'Waktu habis — galeri tidak bisa dihubungi. Periksa koneksi internet lalu coba lagi.';
       else if (e && e.message === 'no-image') msg = 'Kumpulan ini tidak ada gambarnya. Coba lagi.';
       else if (e && e.status === 403) msg = 'Galeri menolak akses dari jaringan ini (kode 403). Coba lagi nanti, atau pindah jaringan — mis. dari Wi-Fi ke data seluler.';
       else if (e && e.status === 429) msg = 'Terlalu sering membuka galeri. Tunggu sebentar lalu coba lagi.';

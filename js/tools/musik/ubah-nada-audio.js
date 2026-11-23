@@ -1,10 +1,10 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 
-export const meta = {"id": "ubah-nada-audio", "name": "Ubah Nada Audio", "cat": "musik", "icon": "🎵", "desc": "Naik atau turunkan nada lagu tanpa mengubah kecepatannya.", "keywords": "audio,nada,pitch,tinggi,rendah,naik turun,suara", "since": "6.17.0"};
+export const meta = {"id": "ubah-nada-audio", "name": "Ubah Nada Audio", "cat": "musik", "icon": "🎵", "desc": "Naik atau turunkan nada lagu tanpa mengubah kecepatannya.", "keywords": "audio,nada,pitch,tinggi,rendah,naik turun,suara", "since": "6.17.0", "online": true};
 
 /* Pitch-shift pakai SoundTouchJS 0.3.0 (port JS dari SoundTouch,
    algoritma time-stretch + resample; LGPL-2.1). Dimuat lewat dynamic
-   import ESM dari CDN karena paketnya hanya menyediakan build ESM
+   import ESM dari internet karena paketnya hanya menyediakan build ESM
    (tidak ada UMD/global). Konsekuensi: SRI tidak bisa dipasang pada
    dynamic import (keterbatasan browser, didokumentasi di core.js).
    Sebagai gantinya, isi file diverifikasi identik dari dua CDN
@@ -46,7 +46,7 @@ async function loadSoundTouch() {
 /* Geser nada satu buffer (AudioBuffer atau objek sejenis dengan
    getChannelData/numberOfChannels/length). Mengembalikan sampel stereo
    terjalin sepanjang buffer asli. Fungsi murni terhadap lib (diuji di
-   Node dengan lib asli yang dimuat dari CDN). */
+   Node dengan lib asli yang dimuat dari internet). */
 export async function pitchShiftBuffer(buffer, semitones, lib, onProgress) {
   const st = new lib.SoundTouch();
   st.pitchSemitones = semitones;

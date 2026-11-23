@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, kv } from '../../core.js';
 
-export const meta = {"id": "ocrintel", "name": "OCR", "cat": "produktivitas", "icon": "🔠", "desc": "Ekstrak teks dari gambar 100% lokal, tanpa upload, tanpa server.", "keywords": "ocr,teks,gambar,scan,ekstrak,tesseract,pdf,tabel,tiff"};
+export const meta = {"id": "ocrintel", "name": "OCR", "cat": "produktivitas", "icon": "🔠", "desc": "Ekstrak teks dari gambar 100% lokal, tanpa upload, tanpa server.", "keywords": "ocr,teks,gambar,scan,ekstrak,tesseract,pdf,tabel,tiff", "online": true};
 
 const HIST_KEY = 'at-ocrintel-history-v1';
 const MAX_MB = 8;
@@ -459,7 +459,7 @@ export function render(root) {
 
   // PDF → daftar canvas (1 per halaman, maks MAKS_HALAMAN)
   const pdfKeCanvas = async (buffer, onHal) => {
-    if (!(await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }))) throw new Error('Pustaka PDF gagal dimuat dari CDN.');
+    if (!(await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }))) throw new Error('Pustaka PDF gagal dimuat dari internet.');
     const doc = await window.pdfjsLib.getDocument({ data: buffer }).promise;
     const total = Math.min(doc.numPages, MAKS_HALAMAN);
     const out = [];
@@ -480,7 +480,7 @@ export function render(root) {
 
   // TIFF → daftar canvas (1 per halaman IFD, dukung multi-page)
   const tiffKeCanvas = async (buffer, onHal) => {
-    if (!(await utils.loadLibOnce(UTIF_CDN, () => !!window.UTIF))) throw new Error('Pustaka TIFF gagal dimuat dari CDN.');
+    if (!(await utils.loadLibOnce(UTIF_CDN, () => !!window.UTIF))) throw new Error('Pustaka TIFF gagal dimuat dari internet.');
     const ifds = window.UTIF.decode(buffer);
     if (!ifds || !ifds.length) throw new Error('File TIFF tidak terbaca.');
     const total = Math.min(ifds.length, MAKS_HALAMAN);
@@ -833,6 +833,7 @@ export function render(root) {
       l.map((h) => '<div class="dim" style="font-size:12.5px;border:1px solid #ffffff12;border-radius:8px;padding:8px 10px">' +
         T.esc(h.nama) + ' · ' + h.kata + ' kata · ' + (h.halaman || 1) + ' halaman' + (h.bahasa ? ' · ' + T.esc(h.bahasa) : '') + '</div>').join('') + '</div>');
     histBox.querySelector('#ocr-hapus-hist').onclick = () => {
+      if (!confirm('Hapus seluruh riwayat OCR? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
       try { localStorage.removeItem(HIST_KEY); } catch (e) {}
       T.hide(histBox);
       T.toast('Riwayat dihapus.');
@@ -852,7 +853,7 @@ export function render(root) {
   root.appendChild(previewBox);
   root.appendChild(scanBtn);
   root.appendChild(T.el('<p class="dim" style="font-size:12px;margin:8px 0 0">🔒 Privasi: OCR berjalan 100% lokal di perangkatmu — file tidak diupload ke server mana pun.</p>'));
-  root.appendChild(T.field('Bahasa dokumen', langSel, 'Model bahasa diunduh sekali dari CDN saat pertama dipilih (' + BAHASA.length + ' bahasa tersedia), lalu tersimpan di cache browser.'));
+  root.appendChild(T.field('Bahasa dokumen', langSel, 'Model bahasa diunduh sekali dari internet saat pertama dipilih (' + BAHASA.length + ' bahasa tersedia), lalu tersimpan di cache browser.'));
   root.appendChild(tabelChk);
   root.appendChild(out);
   root.appendChild(hasilBox);

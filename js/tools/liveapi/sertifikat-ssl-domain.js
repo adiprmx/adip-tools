@@ -3,7 +3,7 @@ import { h as T, esc, errBox, utils } from '../../core.js';
 // Daftar sertifikat SSL yang pernah diterbitkan untuk sebuah domain,
 // lewat crt.sh (log publik Certificate Transparency), tanpa key.
 // Terverifikasi 17 Nov 2026: https://crt.sh/?q=example.com&output=json -> 200, CORS *.
-export const meta = {"id":"sertifikat-ssl-domain","name":"Sertifikat SSL Domain","cat":"liveapi","icon":"🔒","desc":"Lihat sertifikat SSL yang pernah diterbitkan untuk sebuah domain beserta masa berlakunya.","keywords":"ssl,sertifikat,https,crt.sh,keamanan domain,certificate transparency","since":"6.17.0"};
+export const meta = {"id":"sertifikat-ssl-domain","name":"Sertifikat SSL Domain","cat":"liveapi","icon":"🔒","desc":"Lihat sertifikat SSL yang pernah diterbitkan untuk sebuah domain beserta masa berlakunya.","keywords":"ssl,sertifikat,https,crt.sh,keamanan domain,certificate transparency","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -50,7 +50,7 @@ export function render(root) {
       }).join('') + '<p class="hint">Sumber: crt.sh, log publik Certificate Transparency. Daftar ini berisi sertifikat yang pernah diterbitkan, termasuk yang sudah kedaluwarsa.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server crt.sh tidak merespons dalam 15 detik. Server ini kadang lambat, coba lagi.'
+        ? 'Waktu habis, server crt.sh tidak bisa dihubungi dalam 15 detik. Server ini kadang lambat, coba lagi.'
         : 'Gagal mencari sertifikat. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

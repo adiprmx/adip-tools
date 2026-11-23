@@ -50,7 +50,7 @@ export function fmtDurasi(menit) {
 }
 utils.roadTrip = { hitungRoadTrip, fmtDurasi };
 
-export const meta = {"id": "perencana-road-trip", "name": "Perencana Road Trip", "cat": "travel", "icon": "🛣️", "desc": "Rencanakan road trip: jarak, lama nyetir, bensin, biaya, dan saran istirahatnya.", "keywords": "road trip,perjalanan darat,rencana liburan,rute mobil,biaya bensin,roadtrip", "since": "6.19.0"};
+export const meta = {"id": "perencana-road-trip", "name": "Perencana Road Trip", "cat": "travel", "icon": "🛣️", "desc": "Rencanakan road trip: jarak, lama nyetir, bensin, biaya, dan saran istirahatnya.", "keywords": "road trip,perjalanan darat,rencana liburan,rute mobil,biaya bensin,roadtrip", "since": "6.19.0", "dataValidUntil": "2026-12-31"};
 export function render(root) {
   const kecI = T.input('text', 'cth: 60', '60'); kecI.inputMode = 'decimal';
   const konsI = T.input('text', 'cth: 14', '14'); konsI.inputMode = 'decimal';

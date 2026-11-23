@@ -4,7 +4,7 @@ import { h as T, utils, fileInput, LOCAL_NOTE } from '../../core.js';
 // sebuah PDF. Teks diambil per halaman dengan pdf.js, lalu dihitung
 // di browser ini saja. PDF hasil scan (isinya hanya gambar) tidak punya
 // teks yang bisa dihitung, dan itu disampaikan apa adanya.
-export const meta = {"id": "hitung-kata-pdf", "name": "Hitung Kata PDF", "cat": "produktivitas", "icon": "🔢", "desc": "Hitung jumlah kata, karakter, dan halaman sebuah PDF.", "keywords": "hitung kata pdf,jumlah kata pdf,word count pdf,karakter pdf", "since": "6.19.0"};
+export const meta = {"id": "hitung-kata-pdf", "name": "Hitung Kata PDF", "cat": "produktivitas", "icon": "🔢", "desc": "Hitung jumlah kata, karakter, dan halaman sebuah PDF.", "keywords": "hitung kata pdf,jumlah kata pdf,word count pdf,karakter pdf", "since": "6.19.0", "online": true};
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';

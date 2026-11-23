@@ -16,7 +16,7 @@ async function getJSON(url) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "fakta-tak-berguna", "name": "Fakta Tak Berguna", "cat": "liveapi", "icon": "🤓", "desc": "Fakta acak yang tidak berguna tapi seru buat bahan obrolan.", "keywords": "fakta,acak,tak berguna,random,useless facts,trivia,seru", "since": "6.17.0"};
+export const meta = {"id": "fakta-tak-berguna", "name": "Fakta Tak Berguna", "cat": "liveapi", "icon": "🤓", "desc": "Fakta acak yang tidak berguna tapi seru buat bahan obrolan.", "keywords": "fakta,acak,tak berguna,random,useless facts,trivia,seru", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -42,7 +42,7 @@ export function render(root) {
       box.appendChild(w);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server fakta tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server fakta tidak bisa dihubungi dalam 15 detik.'
         : 'Fakta gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

@@ -1,6 +1,6 @@
 import { h as T, utils, imglyRemoval } from '../../core.js';
 
-export const meta = {"id": "removebg", "name": "Remove BG", "cat": "gambar", "icon": "🪄", "desc": "Hapus background foto otomatis, 100% di perangkat. Bisa pecah jadi layer PNG per objek.", "keywords": "hapus background,remove bg,transparan,foto,produk,layer,cutout,alight,zip"};
+export const meta = {"id": "removebg", "name": "Remove BG", "cat": "gambar", "icon": "🪄", "desc": "Hapus background foto otomatis, 100% di perangkat. Bisa pecah jadi layer PNG per objek.", "keywords": "hapus background,remove bg,transparan,foto,produk,layer,cutout,alight,zip", "online": true};
 
 const MAX_FILE = 12 * 1024 * 1024;
 // F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak

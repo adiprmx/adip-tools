@@ -1,6 +1,6 @@
 import { h as T, utils, p2, parseISO, todayISO } from '../../core.js';
 
-export const meta = {"id": "couple-days", "name": "Hari Jadian", "cat": "fun", "icon": "💑", "desc": "Sudah berapa hari bareng?", "keywords": "jadian,pacar,pasangan,hari,anniversary"};
+export const meta = {"id": "couple-days", "name": "Hari Jadian", "cat": "fun", "icon": "💑", "desc": "Hitung sudah berapa hari, bulan, dan tahun sejak tanggal jadianmu.", "keywords": "jadian,pacar,pasangan,hari,anniversary"};
 export function render(root) {
 
     const tgl = T.input('date', 'Tanggal jadian', todayISO());

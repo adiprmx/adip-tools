@@ -80,18 +80,18 @@ const MEASURE_TTL_MS = 60_000;
 
 /* Copy tampil — bahasa sehari-hari, tanpa istilah teknis. */
 const COPY = {
-  measuring: 'Penyimpanan offline: mengukur…',
-  unmeasurable: 'Penyimpanan offline: tidak bisa diukur di browser ini',
-  empty: 'Penyimpanan offline: belum ada data',
-  size: (s) => `Penyimpanan offline: ${s}`,
-  clear: 'Hapus data offline',
+  measuring: 'Data tersimpan: mengukur…',
+  unmeasurable: 'Data tersimpan: tidak bisa diukur di browser ini',
+  empty: 'Data tersimpan: belum ada data',
+  size: (s) => `Data tersimpan: ${s}`,
+  clear: 'Hapus data tersimpan',
   clearing: 'Menghapus…',
-  confirmTitle: 'Hapus data offline?',
+  confirmTitle: 'Hapus data tersimpan?',
   confirmBody: 'Aplikasi akan mengunduh ulang saat dibuka lagi.',
   confirmLabel: 'Ya, hapus',
-  cleared: 'Data offline dihapus.',
-  clearedPartial: 'Sebagian data offline gagal dihapus.',
-  clearFailed: 'Gagal menghapus data offline.',
+  cleared: 'Data tersimpan dihapus.',
+  clearedPartial: 'Sebagian data tersimpan gagal dihapus.',
+  clearFailed: 'Gagal menghapus data tersimpan.',
 };
 
 let toastFn = null; /* toast yang disuntik P10; null -> coreToast */

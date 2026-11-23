@@ -2,7 +2,7 @@ import { h as T, esc, errBox, utils } from '../../core.js';
 
 // Observasi satwa dan tumbuhan lewat iNaturalist, tanpa key.
 // Terverifikasi 17 Nov 2026: /v1/observations?taxon_name=Panthera%20tigris&per_page=1 -> 200, CORS *.
-export const meta = {"id":"observasi-alam","name":"Observasi Alam","cat":"liveapi","icon":"🌿","desc":"Lihat foto dan lokasi pengamatan satwa atau tumbuhan dari masyarakat di iNaturalist.","keywords":"inaturalist,observasi,satwa,tumbuhan,alam,hewan,flora,fauna,pengamatan","since":"6.17.0"};
+export const meta = {"id":"observasi-alam","name":"Observasi Alam","cat":"liveapi","icon":"🌿","desc":"Lihat foto dan lokasi pengamatan satwa atau tumbuhan dari masyarakat di iNaturalist.","keywords":"inaturalist,observasi,satwa,tumbuhan,alam,hewan,flora,fauna,pengamatan","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -54,7 +54,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server iNaturalist tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server iNaturalist tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari pengamatan. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

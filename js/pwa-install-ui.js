@@ -20,6 +20,12 @@
    Copy FINAL R11 §4 (bahasa sehari-hari, tanpa istilah
    teknis): "Pasang ADIP Tools di HP kamu" / "Pasang
    aplikasi" / "Nanti saja".
+   PENGECUALIAN v6.22.0 (S-U4, S-A4 F-11): di mode ios-guide,
+   tombol utama TIDAK berlabel "Pasang aplikasi" — label itu
+   bohong, karena aksinya membuka panduan, bukan memasang.
+   Label iOS: "Cara pasang di iPhone" (sama dengan judul
+   dialog panduannya, jadi alurnya jelas: ketuk -> baca
+   panduan -> ikuti langkahnya).
    ============================================================ */
 import { openDialog } from './components.js';
 import { esc } from './core.js';
@@ -29,6 +35,11 @@ const SHEET_TITLE = 'Pasang ADIP Tools di HP kamu';
 const SHEET_SUB = 'Buka lebih cepat dari layar utama, tanpa ketik alamat lagi. Gratis, tanpa daftar.';
 const BTN_INSTALL = 'Pasang aplikasi';
 const BTN_LATER = 'Nanti saja';
+/* S-U4 (v6.22.0, S-A4 F-11): label JUJUR untuk mode ios-guide —
+   tombol ini membuka panduan, bukan memasang. Sama dengan judul
+   dialog (IOS_TITLE) supaya pengguna tahu persis apa yang akan
+   terbuka sesudah mengetuk. */
+const BTN_IOS_GUIDE = 'Cara pasang di iPhone';
 const FOOT_LINK_TEXT = 'Pasang aplikasi';
 /* Href sengaja BUKAN route nyata — tautan tidak boleh
    menavigasi bila JS gagal; preventDefault selalu mencegah
@@ -75,7 +86,7 @@ function openIosGuide() {
 function onKeyDown(e) {
   if (e.key === 'Escape' && sheetRoot) {
     e.preventDefault();
-    closeSheetByUser();
+    closeSheetByUser('dismiss');
   }
 }
 
@@ -113,7 +124,7 @@ function wireDrag(sheet) {
     startY = null;
     sheet.classList.remove('dragging');
     if (dragged && dy > DRAG_CLOSE_PX) {
-      closeSheetByUser();
+      closeSheetByUser('dismiss');
       return;
     }
     sheet.style.translate = '';
@@ -154,30 +165,43 @@ function teardownSheet() {
   lastFocus = null;
 }
 
-/* Semua cara menutup OLEH PENGGUNA memanggil onDismiss()
-   (pola onboarding: semua cara menutup = sudah dilihat).
+/* Semua cara menutup OLEH PENGGUNA menutup lembar; yang
+   membedakan hanyalah callback yang dipanggil (F-06, v6.22.0):
+   - 'later' (tombol "Nanti saja" — penolakan EKSPLISIT):
+     onDismiss() -> cooldown 14 hari (P10 dismissInstall).
+   - 'dismiss' (× / backdrop / Esc / geser — tutup TANPA
+     keputusan): onSnooze() -> snooze 24 jam saja (P10
+     snoozeInstall). Bila onSnooze tidak disediakan, tutup diam
+     tanpa callback — jangan pernah jatuh ke onDismiss.
    Dipanggil sekali: callbacks dikosongkan sebelum teardown. */
-function closeSheetByUser() {
+function closeSheetByUser(reason) {
   if (!sheetRoot) return;
   const cb = callbacks;
   callbacks = null;
   teardownSheet();
-  if (cb && typeof cb.onDismiss === 'function') {
-    try {
-      cb.onDismiss();
-    } catch { /* callback P10 tidak boleh merusak UI */ }
-  }
+  try {
+    if (reason === 'later') {
+      if (cb && typeof cb.onDismiss === 'function') cb.onDismiss();
+    } else if (cb && typeof cb.onSnooze === 'function') {
+      cb.onSnooze();
+    }
+  } catch { /* callback P10 tidak boleh merusak UI */ }
 }
 
 /* Tampilkan lembar ajakan pasang.
    mode 'prompt': tombol utama memanggil onInstall (P10
      menjalankan promptInstall()); lembar TIDAK ditutup di
      sini — P10 menutupnya sendiri bila perlu.
-   mode 'ios-guide': tombol utama membuka dialog panduan iOS
-     via openDialog(), BUKAN memanggil onInstall.
+   mode 'ios-guide': tombol utama berlabel "Cara pasang di
+     iPhone" (S-U4: label jujur — aksinya membuka dialog
+     panduan iOS via openDialog(), BUKAN memanggil onInstall).
+     Judul dialognya sama, jadi pengguna tahu apa yang terbuka.
+   onDismiss: penolakan EKSPLISIT ("Nanti saja") -> cooldown
+     14 hari. onSnooze: tutup tanpa keputusan (Esc / × /
+     backdrop / geser) -> snooze 24 jam (F-06).
    Idempotent: bila lembar sudah terbuka, tidak membuat
    duplikat. */
-export function showInstallSheet({ mode, onInstall, onDismiss } = {}) {
+export function showInstallSheet({ mode, onInstall, onDismiss, onSnooze } = {}) {
   try {
     if (typeof document === 'undefined') return;
     if (sheetRoot) return;
@@ -190,7 +214,7 @@ export function showInstallSheet({ mode, onInstall, onDismiss } = {}) {
       if (stale && stale.parentNode) stale.parentNode.removeChild(stale);
     }
     const ios = mode === 'ios-guide';
-    callbacks = { onInstall, onDismiss };
+    callbacks = { onInstall, onDismiss, onSnooze };
     lastFocus = document.activeElement instanceof Element ? document.activeElement : null;
     const root = document.createElement('div');
     root.id = 'pwaInstallSheet';
@@ -208,16 +232,16 @@ export function showInstallSheet({ mode, onInstall, onDismiss } = {}) {
       </div>
       ${ios ? `<div class="pwa-sheet-body"><ol>${IOS_STEPS.map((s) => `<li>${esc(s)}</li>`).join('')}</ol></div>` : ''}
       <div class="pwa-sheet-foot">
-        <button class="pwa-btn-primary" type="button" data-act="pasang">${esc(BTN_INSTALL)}</button>
+        <button class="pwa-btn-primary" type="button" data-act="pasang">${esc(ios ? BTN_IOS_GUIDE : BTN_INSTALL)}</button>
         <button class="pwa-btn-ghost" type="button" data-act="nanti">${esc(BTN_LATER)}</button>
       </div>
     </div>`;
     document.body.appendChild(root);
     sheetRoot = root;
     const sheet = root.querySelector('.pwa-sheet');
-    root.querySelector('.pwa-sheet-backdrop').addEventListener('click', closeSheetByUser);
-    root.querySelector('[data-act="tutup"]').addEventListener('click', closeSheetByUser);
-    root.querySelector('[data-act="nanti"]').addEventListener('click', closeSheetByUser);
+    root.querySelector('.pwa-sheet-backdrop').addEventListener('click', () => closeSheetByUser('dismiss'));
+    root.querySelector('[data-act="tutup"]').addEventListener('click', () => closeSheetByUser('dismiss'));
+    root.querySelector('[data-act="nanti"]').addEventListener('click', () => closeSheetByUser('later'));
     root.querySelector('[data-act="pasang"]').addEventListener('click', () => {
       if (ios) {
         openIosGuide();

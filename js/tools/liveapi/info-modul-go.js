@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"info-modul-go","name":"Info Modul Go","cat":"liveapi","icon":"🐹","desc":"Cari versi terbaru modul Go beserta tanggal rilisnya.","keywords":"go,golang,modul,proxy,versi,paket","since":"6.18.0"};
+export const meta = {"id":"info-modul-go","name":"Info Modul Go","cat":"liveapi","icon":"🐹","desc":"Cari versi terbaru modul Go beserta tanggal rilisnya.","keywords":"go,golang,modul,proxy,versi,paket","since":"6.18.0", "online": true};
 
 // Info modul Go terbaru lewat Go Module Proxy, tanpa key.
 // Terverifikasi 18 Nov 2026:
@@ -83,7 +83,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server proxy Go tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server proxy Go tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mencari modul. Cek koneksi internet, lalu coba lagi.');
     }
   };

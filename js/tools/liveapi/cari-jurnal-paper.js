@@ -22,7 +22,7 @@ function tahunTerbit(w) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "cari-jurnal-paper", "name": "Cari Jurnal/Paper", "cat": "liveapi", "icon": "📚", "desc": "Cari paper dan jurnal ilmiah lewat metadata DOI dari Crossref.", "keywords": "jurnal,paper,ilmiah,crossref,doi,riset,penelitian,skripsi,artikel ilmiah", "since": "6.17.0"};
+export const meta = {"id": "cari-jurnal-paper", "name": "Cari Jurnal/Paper", "cat": "liveapi", "icon": "📚", "desc": "Cari paper dan jurnal ilmiah lewat metadata DOI dari Crossref.", "keywords": "jurnal,paper,ilmiah,crossref,doi,riset,penelitian,skripsi,artikel ilmiah", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -69,7 +69,7 @@ export function render(root) {
         '<p class="hint">Sumber: Crossref. Tautan DOI mengarah ke halaman penerbit, sebagian paper mungkin berbayar.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server Crossref tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Crossref tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

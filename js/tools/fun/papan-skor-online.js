@@ -13,7 +13,7 @@ export function render(root) {
     '.ps-nama{font-size:17px;font-weight:700;word-break:break-word}' +
     '.ps-skor{font-family:var(--font-m);font-size:64px;font-weight:800;line-height:1}' +
     '.ps-vs{font-size:28px;color:var(--faint);font-weight:700}' +
-    '.ps-menang{color:#ffd166}' +
+    '.ps-menang{color:#ff6f61}' +
     '.ps-target{font-size:12.5px;color:var(--mut);margin-top:8px}' +
     '.ps-kontrol{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}' +
     '.ps-kontrol .btn{min-height:52px;font-size:16px}' +

@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, esc } from '../../core.js';
 
-export const meta = {"id": "regex-tester", "name": "Regex Tester", "cat": "developer", "icon": "🔍", "desc": "Tes regex + highlight hasil.", "keywords": "regex,tes,pola"};
+export const meta = {"id": "regex-tester", "name": "Regex Tester", "cat": "developer", "icon": "🔍", "desc": "Coba pola regex pada teksmu dan lihat bagian yang cocok langsung ditandai.", "keywords": "regex,tes,pola,regular expression,cari pola"};
 export function render(root) {
 
     const pat = T.input('text', 'Pattern, misal: \\d{4}-\\d{2}-\\d{2}', '');

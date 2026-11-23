@@ -7,7 +7,7 @@ import { h as T, fileInput, fmtBytes, LOCAL_NOTE, tabs } from '../../core.js';
 // (@neslinesli93/qpdf-wasm) — pdf-lib TIDAK bisa mengenkripsi atau
 // mendekripsi, jadi ini satu-satunya jalan client-side yang benar. Kata
 // sandi tidak pernah keluar dari browser; tidak ada pemulihan bila lupa.
-export const meta = {"id": "kunci-pdf", "name": "Kunci PDF", "cat": "produktivitas", "icon": "🔒", "desc": "Kunci PDF dengan kata sandi (AES-256), atau buka kunci PDF milikmu yang sandinya kamu ketahui.", "keywords": "kunci pdf,password pdf,enkripsi pdf,lindungi pdf,sandi pdf,buka kunci pdf,hapus password pdf,decrypt pdf,pdf terkunci", "since": "6.16.0"};
+export const meta = {"id": "kunci-pdf", "name": "Kunci PDF", "cat": "produktivitas", "icon": "🔒", "desc": "Kunci PDF dengan kata sandi (AES-256), atau buka kunci PDF milikmu yang sandinya kamu ketahui.", "keywords": "kunci pdf,password pdf,enkripsi pdf,lindungi pdf,sandi pdf,buka kunci pdf,hapus password pdf,decrypt pdf,pdf terkunci", "since": "6.16.0", "online": true};
 
 const QPDF_ESM = 'https://cdn.jsdelivr.net/npm/@neslinesli93/qpdf-wasm@0.3.1/+esm';
 const QPDF_WASM = 'https://cdn.jsdelivr.net/npm/@neslinesli93/qpdf-wasm@0.3.1/dist/qpdf.wasm';

@@ -89,6 +89,7 @@ export function render(root) {
       const line = T.el('<div class="card" style="margin-bottom:8px"><b style="font-size:13px">' + T.esc(c.front) + '</b><div class="mut" style="font-size:12.5px;margin-top:2px">→ ' + T.esc(c.back) + '</div></div>');
       if (!isContoh()) {
         const del = T.btn('Hapus', () => {
+          if (!confirm('Hapus kartu "' + c.front + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
           userCards = userCards.filter((_, j) => j !== i);
           save();
           resetOrder();

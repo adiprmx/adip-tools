@@ -17,7 +17,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-export const meta = {"id": "cari-sekolah", "name": "Cari Sekolah", "cat": "liveapi", "icon": "🏫", "desc": "Cari sekolah di seluruh Indonesia berdasarkan nama, lengkap dengan NPSN dan alamatnya.", "keywords": "sekolah,cari sekolah,npsn,pendidikan,sd,smp,sma,smk,indonesia", "since": "6.17.0"};
+export const meta = {"id": "cari-sekolah", "name": "Cari Sekolah", "cat": "liveapi", "icon": "🏫", "desc": "Cari sekolah di seluruh Indonesia berdasarkan nama, lengkap dengan NPSN dan alamatnya.", "keywords": "sekolah,cari sekolah,npsn,pendidikan,sd,smp,sma,smk,indonesia", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -72,7 +72,7 @@ export function render(root) {
       if (next) next.addEventListener('click', () => muat(hal + 1));
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server data sekolah tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server data sekolah tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

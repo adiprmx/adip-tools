@@ -4,7 +4,7 @@ import { h as T, esc, errBox, utils } from '../../core.js';
 // Terverifikasi 17 Nov 2026: /2.2.0/launch/upcoming/?limit=1 -> 200, CORS *.
 // Catatan: API ini membatasi bila dipanggil terlalu sering (throttle).
 // Tool ini hanya memanggil sekali per aksi, tanpa muat ulang otomatis.
-export const meta = {"id":"jadwal-peluncuran-roket","name":"Jadwal Peluncuran Roket","cat":"liveapi","icon":"🚀","desc":"Peluncuran roket dan misi antariksa yang akan datang.","keywords":"roket,peluncuran,antariksa,spacex,nasa,misi luar angkasa,launch","since":"6.17.0"};
+export const meta = {"id":"jadwal-peluncuran-roket","name":"Jadwal Peluncuran Roket","cat":"liveapi","icon":"🚀","desc":"Peluncuran roket dan misi antariksa yang akan datang.","keywords":"roket,peluncuran,antariksa,spacex,nasa,misi luar angkasa,launch","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -55,7 +55,7 @@ export function render(root) {
       const msg = e.message === 'throttle'
         ? 'Server peluncuran sedang membatasi permintaan. Tunggu sebentar lalu coba lagi.'
         : e.name === 'AbortError'
-          ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+          ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
           : 'Gagal mengambil jadwal peluncuran. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

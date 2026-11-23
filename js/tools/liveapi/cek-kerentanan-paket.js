@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"cek-kerentanan-paket","name":"Cek Kerentanan Paket","cat":"liveapi","icon":"🛡️","desc":"Cek apakah versi paket software yang kamu pakai punya celah keamanan yang sudah diketahui.","keywords":"kerentanan,vulnerability,osv,cve,paket,npm,pypi,keamanan,cve","since":"6.16.0"};
+export const meta = {"id":"cek-kerentanan-paket","name":"Cek Kerentanan Paket","cat":"liveapi","icon":"🛡️","desc":"Cek apakah versi paket software yang kamu pakai punya celah keamanan yang sudah diketahui.","keywords":"kerentanan,vulnerability,osv,cve,paket,npm,pypi,keamanan,cve","since":"6.16.0", "online": true};
 
 const API = 'https://api.osv.dev/v1/query';
 
@@ -86,7 +86,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server OSV tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server OSV tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal mengecek paket. Cek koneksi internet dan ejaan nama paket, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

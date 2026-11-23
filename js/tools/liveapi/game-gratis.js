@@ -26,7 +26,7 @@ async function getJSON(url) {
 // imgAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "game-gratis", "name": "Game Gratis", "cat": "liveapi", "icon": "🎮", "desc": "Daftar game PC dan peramban yang gratis dimainkan, diurutkan dari yang paling populer.", "keywords": "game,gratis,free to play,pc,browser,freetogame,main game", "since": "6.17.0"};
+export const meta = {"id": "game-gratis", "name": "Game Gratis", "cat": "liveapi", "icon": "🎮", "desc": "Daftar game PC dan peramban yang gratis dimainkan, diurutkan dari yang paling populer.", "keywords": "game,gratis,free to play,pc,browser,freetogame,main game", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -64,7 +64,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server FreeToGame tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server FreeToGame tidak bisa dihubungi dalam 15 detik.'
         : 'Daftar game gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

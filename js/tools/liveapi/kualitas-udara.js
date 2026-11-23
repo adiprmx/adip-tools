@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id": "kualitas-udara", "name": "Kualitas Udara", "cat": "liveapi", "icon": "🌫️", "desc": "Indeks kualitas udara (AQI), PM2.5 & PM10 kota pilihan.", "keywords": "kualitas,udara,aqi,polusi,pm2.5,pm10,polutan,sehat,indeks"};
+export const meta = {"id": "kualitas-udara", "name": "Kualitas Udara", "cat": "liveapi", "icon": "🌫️", "desc": "Indeks kualitas udara (AQI), PM2.5 & PM10 kota pilihan.", "keywords": "kualitas,udara,aqi,polusi,pm2.5,pm10,polutan,sehat,indeks", "online": true};
 
 function aqiKat(v) {
   if (v == null || isNaN(v)) return { label: 'Tidak tersedia', color: '#9ca3af', bg: '#9ca3af22' };

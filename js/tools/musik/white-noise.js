@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "white-noise", "name": "White Noise", "cat": "musik", "icon": "🌧️", "desc": "Suara fokus & tidur.", "keywords": "noise,tidur,fokus,suara,hujan"};
+export const meta = {"id": "white-noise", "name": "White Noise", "cat": "musik", "icon": "🌧️", "desc": "Putar suara hujan, kafe, api unggun, atau white noise untuk fokus dan tidur.", "keywords": "noise,tidur,fokus,suara,hujan"};
 export function render(root) {
 
     const jenis = T.select([

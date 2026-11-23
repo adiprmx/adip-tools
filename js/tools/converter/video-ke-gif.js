@@ -6,7 +6,7 @@
 import { h as T, kv, fmtBytes, errBox, utils, fileInput, LOCAL_NOTE } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "video-ke-gif", "name": "Video ↔ GIF", "cat": "converter", "icon": "🎞️", "desc": "Potong video jadi GIF bergerak, atau ubah GIF jadi video MP4/WebM.", "keywords": "video,gif,animasi,bergerak,stiker,meme,gif ke video,video ke gif,mp4,webm,ubah gif", "since": "6.11.0"};
+export const meta = {"id": "video-ke-gif", "name": "Video ↔ GIF", "cat": "converter", "icon": "🎞️", "desc": "Potong video jadi GIF bergerak, atau ubah GIF jadi video MP4/WebM.", "keywords": "video,gif,animasi,bergerak,stiker,meme,gif ke video,video ke gif,mp4,webm,ubah gif", "since": "6.11.0", "online": true};
 
 
 // ---------- Mesin arah B: GIF → Video (dari gif-ke-video.js) ----------

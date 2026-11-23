@@ -291,6 +291,8 @@ export function render(root) {
   });
   const hapusB = T.btn('Hapus yang dipilih', () => {
     if (!terpilih) { T.toast('Pilih dulu simpulnya di kanvas'); return; }
+    const simpulHapus = model.simpul.find((s) => s.id === terpilih);
+    if (!confirm('Hapus simpul "' + (simpulHapus ? simpulHapus.label : '') + '" beserta semua cabangnya? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
     hapusSimpul(model, terpilih);
     terpilih = null;
     labelUbahI.value = '';
@@ -325,6 +327,7 @@ export function render(root) {
     img.src = url;
   });
   const bersihB = T.btn('Hapus semua', () => {
+    if (!confirm('Hapus semua simpul di diagram ini? Data diagram akan hilang dan tidak bisa dikembalikan.')) return;
     model = buatModel();
     terpilih = null;
     simpan();

@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"animetoreal","name":"Anime to Real","cat":"gambar","icon":"🧑‍🎨","desc":"Ubah ilustrasi anime jadi foto realistik via akun Puter milikmu.","keywords":"anime,realistik,foto,ai,konversi,puter"};
+export const meta = {"id":"animetoreal","name":"Anime to Real","cat":"gambar","icon":"🧑‍🎨","desc":"Ubah ilustrasi anime jadi foto realistik via akun Puter milikmu.","keywords":"anime,realistik,foto,ai,konversi,puter", "online": true};
 
 const MAX_MB = 12;
 const MAX_UPLOAD_BYTES = 2.35 * 1024 * 1024;
@@ -204,7 +204,7 @@ export function render(root) {
     // allowlisted (CorsAnyway, AllOrigins). Tetap jalan saat CSP enforcing.
     try { r = await utils.fetchViaProxyChain(u, { timeout: 15000 }); }
     catch (e) {
-      if (e.name === 'AbortError') throw new Error('URL tidak merespons dalam 15 detik. Unduh gambarnya lalu upload sebagai file.');
+      if (e.name === 'AbortError') throw new Error('URL tidak bisa dihubungi dalam 15 detik. Unduh gambarnya lalu upload sebagai file.');
       throw new Error('URL tidak bisa diambil (kemungkinan diblokir CORS). Unduh gambarnya lalu upload sebagai file.');
     }
     const b = await r.blob();

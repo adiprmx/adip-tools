@@ -222,7 +222,7 @@
   color: var(--txt);
 }
 .onb-close:active {
-  transform: scale(0.93);
+  transform: scale(0.9);
 }
 .onb-sub {
   font-size: 13.5px;
@@ -269,7 +269,11 @@
   gap: 7px;
   min-height: var(--tap);
   padding: 10px 15px;
-  border: 1px solid var(--hair);
+  /* S-U6 (v6.22.0): border --hair (1,19:1) -> --line-ui (3,79:1,
+     K-01: chip ini tombol nyata, selaras .schip/.fchip). Latar
+     0,04 dipertahankan — chip duduk di atas lembar var(--surface),
+     butuh langkah terang itu supaya terbaca sebagai chip. */
+  border: 1px solid var(--line-ui);
   border-radius: var(--r-pill);
   background: rgba(255, 255, 255, 0.04);
   color: var(--txt);
@@ -280,7 +284,8 @@
   transition: border-color 0.15s, transform 0.12s var(--ease);
 }
 .onb-chip:hover {
-  border-color: var(--hair-hover);
+  border-color: var(--acc-line);
+  transform: translateY(-1px);
 }
 .onb-chip:active {
   transform: scale(0.97);
@@ -299,13 +304,14 @@
   gap: 12px;
   padding: 12px 14px;
   border: 1px solid var(--hair);
-  border-radius: 14px;
+  border-radius: var(--r-tile);
   background: rgba(255, 255, 255, 0.03);
   text-decoration: none;
   transition: border-color 0.15s, transform 0.12s var(--ease);
 }
 .onb-demo-card:hover {
   border-color: var(--hair-hover);
+  transform: translateY(-2px);
 }
 .onb-demo-card:active {
   transform: scale(0.98);
@@ -357,7 +363,9 @@
   gap: 8px;
   min-height: var(--tap);
   padding: 10px 16px;
-  border: 1px solid var(--hair);
+  /* S-U6 (v6.22.0): border --hair -> --line-ui (K-01: tombol nyata,
+     selaras .btn/.dlg-btn). */
+  border: 1px solid var(--line-ui);
   border-radius: var(--r-ctl);
   background: none;
   color: var(--txt);
@@ -366,6 +374,10 @@
   font-weight: 650;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.12s var(--ease);
+}
+.onb-favbtn:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
 }
 .onb-favbtn:active {
   transform: scale(0.98);
@@ -419,7 +431,9 @@
 .onb-back {
   min-height: var(--tap);
   padding: 0 16px;
-  border: 1px solid var(--hair);
+  /* S-U6 (v6.22.0): border --hair -> --line-ui (K-01: tombol nyata,
+     selaras .btn/.dlg-btn). */
+  border: 1px solid var(--line-ui);
   border-radius: var(--r-ctl);
   background: none;
   color: var(--txt);
@@ -430,7 +444,8 @@
   transition: border-color 0.15s, transform 0.12s var(--ease);
 }
 .onb-back:hover {
-  border-color: var(--hair-hover);
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
 }
 .onb-back:active {
   transform: scale(0.97);
@@ -449,7 +464,8 @@
   transition: transform 0.12s var(--ease), filter 0.15s;
 }
 .onb-next:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 .onb-next:active {
   transform: scale(0.97);

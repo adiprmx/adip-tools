@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "potong-video", "name": "Potong Video", "cat": "converter", "icon": "✂️", "desc": "Potong durasi video dan ubah bentuk layarnya.", "keywords": "video,potong,trim,crop,layar,rasio,pendek", "since": "6.11.0"};
+export const meta = {"id": "potong-video", "name": "Potong Video", "cat": "converter", "icon": "✂️", "desc": "Potong durasi video dan ubah bentuk layarnya.", "keywords": "video,potong,trim,crop,layar,rasio,pendek", "since": "6.11.0", "online": true};
 
 export function render(root) {
   // Ekspresi crop FFmpeg. Koma di dalam min() WAJIB di-escape (\,) karena

@@ -2,7 +2,7 @@ import { h as T, utils, esc, errBox } from '../../core.js';
 
 // Lelucon acak bertema Chuck Norris, lewat chucknorris.io, tanpa key.
 // Terverifikasi 19 Nov 2026: /jokes/random -> 200, CORS *.
-export const meta = {"id":"lelucon-chuck-norris","name":"Lelucon Chuck Norris","cat":"liveapi","icon":"🥋","desc":"Lelucon acak bertema Chuck Norris, dalam bahasa Inggris.","keywords":"chuck norris,lelucon,joke,lucu,hiburan,acak,komedi","since":"6.19.0"};
+export const meta = {"id":"lelucon-chuck-norris","name":"Lelucon Chuck Norris","cat":"liveapi","icon":"🥋","desc":"Lelucon acak bertema Chuck Norris, dalam bahasa Inggris.","keywords":"chuck norris,lelucon,joke,lucu,hiburan,acak,komedi","since":"6.19.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -21,7 +21,7 @@ export function render(root) {
       box.appendChild(wr);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil lelucon. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

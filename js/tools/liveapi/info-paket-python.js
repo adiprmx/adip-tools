@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Info paket Python lewat PyPI, tanpa key.
 // Terverifikasi 17 Nov 2026: https://pypi.org/pypi/requests/json -> 200, CORS *.
-export const meta = {"id":"info-paket-python","name":"Info Paket Python","cat":"liveapi","icon":"🐍","desc":"Lihat versi terbaru, ringkasan, dan kebutuhan Python sebuah paket di PyPI.","keywords":"pypi,python,paket,pip,versi paket,library python","since":"6.17.0"};
+export const meta = {"id":"info-paket-python","name":"Info Paket Python","cat":"liveapi","icon":"🐍","desc":"Lihat versi terbaru, ringkasan, dan kebutuhan Python sebuah paket di PyPI.","keywords":"pypi,python,paket,pip,versi paket,library python","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -54,7 +54,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server PyPI tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server PyPI tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari paket. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

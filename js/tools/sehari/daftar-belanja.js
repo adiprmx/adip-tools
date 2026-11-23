@@ -50,7 +50,7 @@ export function render(root) {
       const st = T.el('<div style="text-align:right;white-space:nowrap;font-size:13px"></div>');
       st.innerHTML = done ? '<s class="mut">' + T.rp(subtotal(it)) + '</s>' : '<b>' + T.rp(subtotal(it)) + '</b>';
       line.appendChild(st);
-      const del = T.btn('✕', () => { items.splice(idx, 1); save(); draw(); });
+      const del = T.btn('✕', () => { if (!confirm('Hapus "' + it.nama + '" dari daftar belanja? Data ini akan hilang dan tidak bisa dikembalikan.')) return; items.splice(idx, 1); save(); draw(); });
       del.setAttribute('aria-label', 'Hapus ' + it.nama);
       del.style.cssText = 'padding:4px 9px';
       del.title = 'Hapus item';

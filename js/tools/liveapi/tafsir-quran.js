@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"tafsir-quran","name":"Tafsir Quran","cat":"liveapi","icon":"📖","desc":"Tafsir Al-Qur'an per surah, ayat demi ayat, dalam bahasa Indonesia.","keywords":"tafsir,quran,al-quran,surah,ayat,arti,islam","since":"6.16.0"};
+export const meta = {"id":"tafsir-quran","name":"Tafsir Quran","cat":"liveapi","icon":"📖","desc":"Tafsir Al-Qur'an per surah, ayat demi ayat, dalam bahasa Indonesia.","keywords":"tafsir,quran,al-quran,surah,ayat,arti,islam","since":"6.16.0", "online": true};
 
 const API = 'https://equran.id/api/v2/tafsir/';
 
@@ -50,7 +50,7 @@ export function render(root) {
       tampil(j.data);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server equran.id tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server equran.id tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal ambil tafsir. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

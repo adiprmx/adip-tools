@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id":"cari-buku","name":"Pencari Buku","cat":"liveapi","icon":"📚","desc":"Cari jutaan buku dari Open Library berdasarkan judul atau penulis.","keywords":"buku,cari,open library,judul,penulis,cover,isbn"};
+export const meta = {"id":"cari-buku","name":"Pencari Buku","cat":"liveapi","icon":"📚","desc":"Cari jutaan buku dari Open Library berdasarkan judul atau penulis.","keywords":"buku,cari,open library,judul,penulis,cover,isbn", "online": true};
 
 export function render(root) {
   const q = T.input('text', 'Judul buku atau nama penulis…', '');
@@ -70,7 +70,7 @@ export function render(root) {
     } catch (e) {
       clearTimeout(timer);
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
       else if (status === 429) msg = 'Rate limit tercapai (429). Tunggu sebentar lalu coba lagi.';
       else msg = 'Gagal mencari buku. Periksa koneksi internet lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span>');

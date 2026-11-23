@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"teka-teki-catur-harian","name":"Teka-Teki Catur Harian","cat":"liveapi","icon":"♞","desc":"Teka-teki catur baru tiap hari dari Lichess, lengkap dengan papan dan jawabannya.","keywords":"catur,puzzle,teka-teki,lichess,skak,cekmat","since":"6.16.0"};
+export const meta = {"id":"teka-teki-catur-harian","name":"Teka-Teki Catur Harian","cat":"liveapi","icon":"♞","desc":"Teka-teki catur baru tiap hari dari Lichess, lengkap dengan papan dan jawabannya.","keywords":"catur,puzzle,teka-teki,lichess,skak,cekmat","since":"6.16.0", "online": true};
 
 const API = 'https://lichess.org/api/puzzle/daily';
 
@@ -117,7 +117,7 @@ export function render(root) {
       wadahJawaban.appendChild(tombol);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Lichess tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Lichess tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal ambil teka-teki. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

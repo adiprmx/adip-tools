@@ -179,7 +179,9 @@
    diwarisi) agar PWA tidak ikut berubah bila .btn berubah
    untuk tool. */
 .pwa-btn {
-  border: 1px solid var(--line);
+  /* S-U6 (v6.22.0): border --line (1,32:1) -> --line-ui (3,79:1,
+     K-01: tombol nyata, selaras .btn — terlewat S-F10). */
+  border: 1px solid var(--line-ui);
   background: var(--surface-2);
   color: var(--txt);
   border-radius: var(--r-ctl);
@@ -194,6 +196,7 @@
 }
 .pwa-btn:hover {
   border-color: var(--line-strong);
+  transform: translateY(-1px);
 }
 .pwa-btn:active {
   transform: scale(0.97);
@@ -224,6 +227,7 @@
 .pwa-btn-primary:hover,
 .pwa-update-btn:hover {
   filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 .pwa-btn-primary:active,
 .pwa-update-btn:active {
@@ -282,7 +286,7 @@
 }
 .pwa-close:active,
 .pwa-update-close:active {
-  transform: scale(0.93);
+  transform: scale(0.9);
 }
 
 /* ---------- bar notifikasi update (◆ dipakai P9) ---------- */

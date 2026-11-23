@@ -4,7 +4,7 @@ import { h as T, utils, esc, errBox } from '../../core.js';
 // Terverifikasi 19 Nov 2026: /cat?json=true -> 200, CORS *.
 // Pola /cat/{id}/says/{teks} adalah endpoint resmi Cataas yang sama
 // (gambar dimuat lewat <img>, jadi CORS tidak relevan untuk gambarnya).
-export const meta = {"id":"kucing-teks","name":"Kucing + Teks","cat":"liveapi","icon":"🐱","desc":"Foto kucing acak dengan tulisanmu sendiri di atasnya.","keywords":"kucing,cat,teks,gambar kucing,meme,cataas,tulisan","since":"6.19.0"};
+export const meta = {"id":"kucing-teks","name":"Kucing + Teks","cat":"liveapi","icon":"🐱","desc":"Foto kucing acak dengan tulisanmu sendiri di atasnya.","keywords":"kucing,cat,teks,gambar kucing,meme,cataas,tulisan","since":"6.19.0", "online": true};
 
 const idAman = (s) => typeof s === 'string' && /^[A-Za-z0-9_-]+$/.test(s);
 
@@ -36,7 +36,7 @@ export function render(root) {
       tampil();
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil foto kucing. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

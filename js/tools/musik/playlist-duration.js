@@ -15,7 +15,7 @@ const fmtDur = (sec) => {
     return h ? h + ':' + mm + ':' + ss : m + ':' + ss;
   };
 
-export const meta = {"id": "playlist-duration", "name": "Durasi Playlist", "cat": "musik", "icon": "📃", "desc": "Total durasi dari daftar lagu.", "keywords": "playlist,durasi,lagu"};
+export const meta = {"id": "playlist-duration", "name": "Durasi Playlist", "cat": "musik", "icon": "📃", "desc": "Total durasi dari daftar lagu.", "keywords": "playlist,durasi,lagu,total durasi,daftar lagu"};
 export function render(root) {
 
     const src = T.ta(8, 'Judul lagu - 3:45\nLagu kedua - 4:12\nIntro - 1:02:30');

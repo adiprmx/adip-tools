@@ -6,7 +6,7 @@ import { h as T, utils, dl, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // Ini template dokumen umum yang isinya diisi user; bukan dokumen palsu.
 // Disarankan tetap dibaca ulang dan ditandatangani kedua pihak di atas
 // meterai bila nilainya besar (ditulis juga di UI).
-export const meta = {"id": "pembuat-surat-jual-beli", "name": "Pembuat Surat Jual Beli", "cat": "produktivitas", "icon": "📜", "desc": "Susun surat jual beli motor, mobil, atau barang dari detail kedua pihak.", "keywords": "surat jual beli,jual beli motor,jual beli mobil,template surat", "since": "6.17.0"};
+export const meta = {"id": "pembuat-surat-jual-beli", "name": "Pembuat Surat Jual Beli", "cat": "produktivitas", "icon": "📜", "desc": "Susun surat jual beli motor, mobil, atau barang dari detail kedua pihak.", "keywords": "surat jual beli,jual beli motor,jual beli mobil,template surat", "since": "6.17.0", "online": true};
 
 const DOCX_CDN = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';

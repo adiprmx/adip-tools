@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"jawab-cepat","name":"Jawab Cepat","cat":"liveapi","icon":"💡","desc":"Jawaban singkat untuk pertanyaan umum, dari DuckDuckGo.","keywords":"jawab cepat,tanya,jawaban instan,duckduckgo,wikipedia,arti","since":"6.18.0"};
+export const meta = {"id":"jawab-cepat","name":"Jawab Cepat","cat":"liveapi","icon":"💡","desc":"Jawaban singkat untuk pertanyaan umum, dari DuckDuckGo.","keywords":"jawab cepat,tanya,jawaban instan,duckduckgo,wikipedia,arti","since":"6.18.0", "online": true};
 
 // Jawaban instan lewat DuckDuckGo Instant Answer, tanpa key.
 // Terverifikasi 18 Nov 2026: api.duckduckgo.com/?q=Jakarta&format=json -> 200, CORS *.
@@ -83,7 +83,7 @@ export function render(root) {
         '<p class="hint">Sumber: DuckDuckGo Instant Answer.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mencari jawaban. Cek koneksi internet, lalu coba lagi.');
     }
   };

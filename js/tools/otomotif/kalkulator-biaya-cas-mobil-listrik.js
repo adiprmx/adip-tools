@@ -34,7 +34,7 @@ const TARIF = {
   spkluUltra: { label: 'SPKLU ultra fast charging (di atas 50 kW)', tarif: TARIF_PLN.spklu, fee: SPKLU_FEE.ultra },
 };
 
-export const meta = {"id": "kalkulator-biaya-cas-mobil-listrik", "name": "Kalkulator Biaya Cas Mobil Listrik", "cat": "otomotif", "icon": "🔌", "desc": "Biaya ngecas mobil listrik di rumah atau SPKLU, dibanding isi bensin untuk jarak yang sama.", "keywords": "mobil listrik,cas,charging,ev,spklu,pln,kwh,baterai,bensin", "since": "6.17.0"};
+export const meta = {"id": "kalkulator-biaya-cas-mobil-listrik", "name": "Kalkulator Biaya Cas Mobil Listrik", "cat": "otomotif", "icon": "🔌", "desc": "Biaya ngecas mobil listrik di rumah atau SPKLU, dibanding isi bensin untuk jarak yang sama.", "keywords": "mobil listrik,cas,charging,ev,spklu,pln,kwh,baterai,bensin", "since": "6.17.0", "dataValidUntil": "2026-12-31"};
 export function render(root) {
   const kapI = T.input('text', 'cth: 50', '50'); kapI.inputMode = 'decimal';
   const awalI = T.input('text', 'cth: 20', '20'); awalI.inputMode = 'decimal';

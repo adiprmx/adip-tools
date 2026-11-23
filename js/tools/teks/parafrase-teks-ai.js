@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"parafrase-teks-ai","name":"Parafrase Teks AI","cat":"teks","icon":"🔄","desc":"Tulis ulang teks dengan kalimat berbeda, makna sama. Pilih tingkat perubahan dan gaya penulisan: santai, formal, singkat, atau lebih hidup.","keywords":"parafrase,tulis ulang,teks,ai,puter,gaya,kalimat,santai,formal,penulis ulang kalimat","since":"6.18.0"};
+export const meta = {"id":"parafrase-teks-ai","name":"Parafrase Teks AI","cat":"teks","icon":"🔄","desc":"Tulis ulang teks dengan kalimat berbeda, makna sama. Pilih tingkat perubahan dan gaya penulisan: santai, formal, singkat, atau lebih hidup.","keywords":"parafrase,tulis ulang,teks,ai,puter,gaya,kalimat,santai,formal,penulis ulang kalimat","since":"6.18.0", "online": true};
 
 const MAX_TEKS = 5000;
 const TINGKAT = [
@@ -98,7 +98,7 @@ export function render(root) {
         const prompt = buatPrompt({ teks, tingkat: tingkatSel.value, gaya: gayaSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const hasil = utils.chatText(res).trim();
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

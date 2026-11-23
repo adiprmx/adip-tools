@@ -5,7 +5,7 @@
 
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id": "excel-ke-json", "name": "Excel ↔ JSON", "cat": "converter", "icon": "🧾", "desc": "Ubah spreadsheet Excel jadi data JSON, atau data JSON jadi Excel.", "keywords": "excel,xlsx,json,data,spreadsheet,konversi,excel ke json,json ke excel", "since": "6.17.0"};
+export const meta = {"id": "excel-ke-json", "name": "Excel ↔ JSON", "cat": "converter", "icon": "🧾", "desc": "Ubah spreadsheet Excel jadi data JSON, atau data JSON jadi Excel.", "keywords": "excel,xlsx,json,data,spreadsheet,konversi,excel ke json,json ke excel", "since": "6.17.0", "online": true};
 
 
 // SheetJS 0.18.5. Hash SRI ada di peta SRI_HASH core.js

@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id":"resep-makanan","name":"Resep Makanan","cat":"liveapi","icon":"🍳","desc":"Cari resep masakan dari seluruh dunia, lengkap dengan bahan & cara masak.","keywords":"resep,masakan,makanan,masak,bahan,cara masak,themealdb","since":"6.12.0"};
+export const meta = {"id":"resep-makanan","name":"Resep Makanan","cat":"liveapi","icon":"🍳","desc":"Cari resep masakan dari seluruh dunia, lengkap dengan bahan & cara masak.","keywords":"resep,masakan,makanan,masak,bahan,cara masak,themealdb","since":"6.12.0", "online": true};
 
 const API = 'https://www.themealdb.com/api/json/v1/1/';
 
@@ -87,7 +87,7 @@ export function render(root) {
 
   const gagal = (e, ulang) => {
     let msg;
-    if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+    if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
     else if (/429/.test(e.message || '')) msg = 'Terlalu banyak permintaan — tunggu sebentar lalu coba lagi.';
     else msg = 'Gagal memuat resep. Periksa koneksi internet lalu coba lagi.';
     T.show(box, '<span class="err">' + esc(msg) + '</span>');

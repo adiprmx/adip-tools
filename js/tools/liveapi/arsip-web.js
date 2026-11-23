@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"arsip-web","name":"Arsip Web (Wayback)","cat":"liveapi","icon":"🕰️","desc":"Lihat versi lama sebuah situs dari arsip Wayback Machine.","keywords":"arsip,wayback,versi lama,situs lama,archive,web archive","since":"6.16.0"};
+export const meta = {"id":"arsip-web","name":"Arsip Web (Wayback)","cat":"liveapi","icon":"🕰️","desc":"Lihat versi lama sebuah situs dari arsip Wayback Machine.","keywords":"arsip,wayback,versi lama,situs lama,archive,web archive","since":"6.16.0", "online": true};
 
 function normalisasiUrl(s) {
   let u = String(s || '').trim();
@@ -53,7 +53,7 @@ export function render(root) {
         '<p class="hint">Sumber: Internet Archive Wayback Machine</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server arsip tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server arsip tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari arsip. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

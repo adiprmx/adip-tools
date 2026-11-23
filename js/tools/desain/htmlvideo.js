@@ -1,7 +1,7 @@
 import { h as T, utils } from '../../core.js';
 import { createPreviewFrame } from '../../preview-frame.js';
 
-export const meta = {"id": "htmlvideo", "name": "HTML/WebGL ke MP4", "cat": "desain", "icon": "🎬", "desc": "Render animasi canvas / HTML jadi video MP4 8 detik.", "keywords": "mp4,video,render,animasi,canvas,webcodecs,html,webgl,threejs"};
+export const meta = {"id": "htmlvideo", "name": "HTML/WebGL ke MP4", "cat": "desain", "icon": "🎬", "desc": "Render animasi canvas / HTML jadi video MP4 8 detik.", "keywords": "mp4,video,render,animasi,canvas,webcodecs,html,webgl,threejs", "online": true};
 
 const MP4_MUXER_ESM = 'https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.mjs';
 export const DUR = 8; // durasi kaku 8 detik (seperti tool aslinya)

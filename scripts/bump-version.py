@@ -32,7 +32,7 @@ Langkah (berurutan):
   (f) GERBANG RILIS (baru, v6.14.0 — P0-B): npm run check + npm run build
       + verifikasi manifest build. Jumlah entri js/tools/* di
       dist/.vite/manifest.json HARUS sama dengan jumlah entri
-      js/manifest.js (1.299 saat ini; angka harapan diambil dari manifest,
+      js/manifest.js (1.261 saat ini; angka harapan diambil dari manifest,
       bukan hardcode, supaya tetap benar saat tool bertambah).
       Gerbang ini gagal -> bump GAGAL, jangan commit/push.
   (g) ringkasan

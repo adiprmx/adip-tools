@@ -22,7 +22,7 @@ export function hitungKonsumsi(jarak, liter, harga) {
 }
 utils.konsumsiBbm = hitungKonsumsi;
 
-export const meta = {"id": "kalkulator-konsumsi-bbm", "name": "Kalkulator Konsumsi BBM (km/liter)", "cat": "otomotif", "icon": "⛽", "desc": "Seberapa irit kendaraanmu: km per liter dari jarak dan liter yang diisi, plus biaya per km.", "keywords": "bbm,bensin,konsumsi,km liter,irit,kendaraan,motor,mobil,solar", "since": "6.17.0"};
+export const meta = {"id": "kalkulator-konsumsi-bbm", "name": "Kalkulator Konsumsi BBM (km/liter)", "cat": "otomotif", "icon": "⛽", "desc": "Seberapa irit kendaraanmu: km per liter dari jarak dan liter yang diisi, plus biaya per km.", "keywords": "bbm,bensin,konsumsi,km liter,irit,kendaraan,motor,mobil,solar", "since": "6.17.0", "dataValidUntil": "2026-12-31"};
 export function render(root) {
   const jarakI = T.input('text', 'cth: 450', ''); jarakI.inputMode = 'decimal';
   const literI = T.input('text', 'cth: 30', ''); literI.inputMode = 'decimal';

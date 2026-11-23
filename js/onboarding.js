@@ -35,6 +35,7 @@
      utama. Tidak ada UI mati di lembar ini.
    ============================================================ */
 import { esc } from './core.js';
+import { manifest } from './manifest.js';
 import { byId, catLabel } from './catalog.js';
 import { getFav, getRecent, isFav, toggleFav } from './store.js';
 import { hcardHTML } from './shell-ui.js';
@@ -191,13 +192,36 @@ export function maybeShowOnboarding(manifest) {
   }
   if (timerId !== null) { clearTimeout(timerId); timerId = null; }
   if (sheetRoot) return;
-  if (!hashIsHome() || !isNewVisitor() || hasSeenOnboarding()) return;
+  if (!hashIsHome() || !isNewVisitor() || hasSeenOnboarding() || overlayOpen()) return;
   timerId = setTimeout(() => {
     timerId = null;
     if (sheetRoot) return;
-    if (!hashIsHome() || !isNewVisitor() || hasSeenOnboarding()) return;
+    if (!hashIsHome() || !isNewVisitor() || hasSeenOnboarding() || overlayOpen()) return;
     openSheet(manifest);
   }, ONB_DELAY_MS);
+}
+
+/* S-Q8 (v6.22.0, utang S-U1): palet Cari / lembar Kategori sedang
+   terbuka? Keduanya memakai kerangka .pal-wrap. Tanpa penjaga ini
+   ada balapan: Ctrl+K yang ditekan di antara pemasangan listener
+   keydown dan render home() membuka palet SEBELUM timer disetel,
+   jadi dismissOnboarding tidak punya timer untuk dibatalkan dan
+   lembar muncul di atas palet 1,2 dtk kemudian (terbukti tes W1).
+   Dilewati, bukan ditandai sudah dilihat — kunjungan beranda
+   berikut menjadwalkannya lagi. */
+function overlayOpen() {
+  return Boolean(document.querySelector('.pal-wrap'));
+}
+
+/* S-Q8 (v6.22.0, utang S-U1): tutup pengantar dari luar (palet Cari /
+   lembar Kategori). Membatalkan timer 1,2 dtk yang tertunda juga —
+   tanpa itu lembar akan muncul DI ATAS palet sesudah timer berbunyi
+   (z-onb 90 > z-pal 80) dan mencegat klik. Menutup lewat sini tetap
+   menulis flag "sudah dilihat", sama seperti semua cara menutup lain:
+   pengunjung yang sengaja membuka Cari sudah memilih jalannya sendiri. */
+export function dismissOnboarding() {
+  if (timerId !== null) { clearTimeout(timerId); timerId = null; }
+  closeSheet();
 }
 
 /* ---------- bangun + buka lembar ---------- */
@@ -388,6 +412,12 @@ export function closeSheet() {
   sheetRoot = null;
   root.classList.remove('open');
   root.classList.add('closing');
+  /* S-Q8 (v6.22.0, utang S-U1): backdrop + lembar langsung berhenti
+     mencegat klik begitu ditutup — tanpa ini keduanya masih
+     menangkap klik selama 380 ms transisi keluar, termasuk klik
+     ke palet yang dibuka di saat yang sama (z-onb 90 > z-pal 80). */
+  root.querySelector('.onb-backdrop')?.style.setProperty('pointer-events', 'none');
+  root.querySelector('.onb-sheet')?.style.setProperty('pointer-events', 'none');
   const remove = () => { if (root.parentNode) root.parentNode.removeChild(root); };
   /* Di bawah prefers-reduced-motion transisi berdurasi
      0,01 ms (aturan global style.css); timeout 380 ms memberi
@@ -397,4 +427,15 @@ export function closeSheet() {
     lastFocus.focus({ preventScroll: true });
   }
   lastFocus = null;
+}
+
+/* S-FIXUP F6 (v6.22.0): buka kembali panduan atas permintaan pengguna
+   (tombol footer "Lihat panduan lagi"). Mereset flag tampilan lalu
+   membuka lembarnya langsung — tanpa cek pengunjung baru dan tanpa
+   jeda 1,2 dtk. Menutup lembar selalu menandai sudah dilihat lagi
+   (closeSheet -> markOnboardingSeen), jadi flag pulih sendiri. */
+export function showOnboardingAgain() {
+  seenMemory = false;
+  try { localStorage.removeItem(ONB_KEY); } catch { /* mode privat */ }
+  openSheet(manifest);
 }

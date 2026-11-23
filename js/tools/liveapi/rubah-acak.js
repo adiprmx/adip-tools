@@ -3,7 +3,7 @@ import { h as T, utils, esc, errBox } from '../../core.js';
 // Foto rubah acak lewat randomfox.ca, tanpa key.
 // Terverifikasi 19 Nov 2026: /floof/ -> JSON hidup
 // ({"image":"https://randomfox.ca/images/90.jpg", ...}).
-export const meta = {"id":"rubah-acak","name":"Rubah Acak","cat":"liveapi","icon":"🦊","desc":"Foto rubah acak setiap kali kamu mengetuk tombolnya.","keywords":"rubah,fox,foto rubah,acak,hewan,lucu","since":"6.19.0"};
+export const meta = {"id":"rubah-acak","name":"Rubah Acak","cat":"liveapi","icon":"🦊","desc":"Foto rubah acak setiap kali kamu mengetuk tombolnya.","keywords":"rubah,fox,foto rubah,acak,hewan,lucu","since":"6.19.0", "online": true};
 
 const gambarAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
@@ -22,7 +22,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil foto rubah. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

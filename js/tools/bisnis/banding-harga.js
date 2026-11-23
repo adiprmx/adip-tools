@@ -18,7 +18,7 @@ utils.bandingHarga = function (a, b) {
     return { a: na, b: nb, sebanding, winner, selisihPct };
   };
 
-export const meta = {"id": "banding-harga", "name": "Perbandingan Harga", "cat": "bisnis", "icon": "⚖️", "desc": "Mana lebih hemat per unit?", "keywords": "banding,harga,murah,hemat,unit,belanja"};
+export const meta = {"id": "banding-harga", "name": "Perbandingan Harga", "cat": "bisnis", "icon": "⚖️", "desc": "Bandingkan harga dua barang per gram, ml, atau pcs, biar ketahuan mana yang lebih hemat.", "keywords": "banding,harga,murah,hemat,unit,belanja"};
 export function render(root) {
 
       function prodCard(label, dflt) {

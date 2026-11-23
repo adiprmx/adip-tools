@@ -13,7 +13,7 @@ function chmodToSym(oct) {
     return a.join('');
   }
 
-export const meta = {"id": "chmod", "name": "Kalkulator Chmod", "cat": "developer", "icon": "🔒", "desc": "Permission oktal ↔ simbolik.", "keywords": "chmod,permission,linux,server"};
+export const meta = {"id": "chmod", "name": "Kalkulator Chmod", "cat": "developer", "icon": "🔒", "desc": "Hitung izin file Linux dari angka ke huruf rwx dan sebaliknya, pakai centangan.", "keywords": "chmod,permission,linux,server"};
 export function render(root) {
 
     const roles = [['u', 'User'], ['g', 'Group'], ['o', 'Other']];

@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 17 Nov 2026: https://icanhazdadjoke.com/ -> 200, CORS *.
 // WAJIB header Accept: application/json. Tanpa header itu API
 // mengembalikan halaman HTML, bukan JSON.
-export const meta = {"id":"lelucon-bapak-bapak","name":"Lelucon Bapak-Bapak","cat":"liveapi","icon":"👨","desc":"Lelucon receh gaya bapak-bapak, satu ketukan satu lelucon baru.","keywords":"dad joke,lelucon bapak-bapak,joke,lucu,receh,hiburan","since":"6.17.0"};
+export const meta = {"id":"lelucon-bapak-bapak","name":"Lelucon Bapak-Bapak","cat":"liveapi","icon":"👨","desc":"Lelucon receh gaya bapak-bapak, satu ketukan satu lelucon baru.","keywords":"dad joke,lelucon bapak-bapak,joke,lucu,receh,hiburan","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -28,7 +28,7 @@ export function render(root) {
         '<p class="hint center">Sumber: icanhazdadjoke.com</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil lelucon. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

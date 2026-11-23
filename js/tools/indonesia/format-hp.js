@@ -176,6 +176,7 @@ export function render(root) {
     }));
     const hapus = riwBox.querySelector('[data-riw-hapus]');
     if (hapus) hapus.addEventListener('click', () => {
+      if (!confirm('Hapus seluruh riwayat nomor yang diformat? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
       try { localStorage.removeItem(RIWAYAT_K); } catch (e) {}
       tampilRiwayat();
     });

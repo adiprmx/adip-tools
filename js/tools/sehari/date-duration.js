@@ -1,6 +1,6 @@
 import { h as T, utils, kv, tabs, parseISO, todayISO } from '../../core.js';
 
-export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari/bulan/tahun, hitung mundur, dan hitung hari kerja dengan libur nasional 2026–2027.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari,hitung mundur,countdown,libur nasional,cuti bersama,deadline,hrd,payroll,business days"};
+export const meta = {"id": "date-duration", "name": "Durasi Tanggal", "cat": "sehari", "icon": "📅", "desc": "Durasi antara dua tanggal, tambah/kurang hari/bulan/tahun, hitung mundur, dan hitung hari kerja dengan libur nasional 2026–2027.", "keywords": "tanggal,durasi,selisih,hari,hari kerja,libur,tambah hari,hitung mundur,countdown,libur nasional,cuti bersama,deadline,hrd,payroll,business days", "online": true};
 
 const NAMA_HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const NAMA_BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];

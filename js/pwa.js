@@ -37,10 +37,21 @@
      onboarding sudah dilihat; >= 8 dtk sesudah load; tidak
      ada cooldown penolakan 14 hari; aturan ekslusi §3.6 lolos.
      Prioritas: update menang atas install.
+     S-U4 (v6.22.0): gerbang OTOMATIS ditambah syarat
+     KETERLIBATAN — kunjungan ke-2 ATAU sudah membuka 2 tool
+     berbeda (lihat isEngaged). Pengunjung baru yang belum
+     memakai apa-apa tidak ditawari pasang; tautan footer
+     "Pasang aplikasi" (niat eksplisit) tetap melewati syarat
+     ini, seperti delay + cooldown.
 
    Kunci localStorage (prefix `pwa:`, per instruksi tugas P10):
-   - pwa:install-dismissed — timestamp ms penolakan terakhir
-     (cooldown 14 hari)
+   - pwa:install-dismissed — timestamp ms penolakan EKSPLISIT
+     terakhir ("Nanti saja", cooldown 14 hari)
+   - pwa:install-snoozed — timestamp ms tutup lembar TANPA
+     keputusan (Esc / × / backdrop / geser, snooze 24 jam, F-06)
+   - pwa:visits — hitungan kunjungan (jumlah load halaman, S-U4)
+   - pwa:tools-used — array JSON id tool berbeda yang pernah
+     dibuka (maks 20, S-U4)
    - pwa:update-seen — string versi SW yang sudah ditolak
      (penolakan hanya berlaku untuk versi itu)
    - pwa:installed — timestamp ms event appinstalled
@@ -73,12 +84,34 @@
    ============================================================ */
 import '../css/pwa.css';
 import { hasSeenOnboarding } from './onboarding.js';
+/* VERSION dipakai entri footer "Versi …" (F-10): impor ini tidak
+   menambah bobot bundle — js/app.js sudah mengimpor modul yang
+   sama ke chunk shell. */
+import { VERSION } from './manifest.js';
 
 /* ---------- konstanta kontrak (R11 §3.1) ---------- */
 
 export const PWA_MIN_DELAY_MS = 8000;
 export const PWA_INSTALL_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000; // 14 hari
 export const PWA_INSTALL_DISMISSED_KEY = 'pwa:install-dismissed';
+/* F-06 (v6.22.0): tutup lembar TANPA keputusan (Esc / × / backdrop /
+   geser) tidak lagi menulis cooldown 14 hari — hanya snooze 24 jam
+   (kunci terpisah). Cooldown 14 hari HANYA untuk ketukan eksplisit
+   "Nanti saja" (dismissInstall). */
+export const PWA_INSTALL_SNOOZE_MS = 24 * 60 * 60 * 1000; // 24 jam
+export const PWA_INSTALL_SNOOZED_KEY = 'pwa:install-snoozed';
+/* S-U4 (v6.22.0): pemicu install berbasis KETERLIBATAN.
+   Lembar otomatis hanya tampil bila pengunjung sudah terlibat:
+   kunjungan ke-2 (PWA_ENGAGED_VISITS) ATAU sudah membuka 2 tool
+   berbeda (PWA_ENGAGED_TOOLS). Ambang sengaja RENDAH — tujuannya
+   menyaring pengunjung yang baru mampir sedetik, bukan menahan
+   ajakan dari pengguna setia. Niat eksplisit (tautan footer)
+   melewati syarat ini. */
+export const PWA_VISITS_KEY = 'pwa:visits';
+export const PWA_TOOLS_USED_KEY = 'pwa:tools-used';
+export const PWA_ENGAGED_VISITS = 2;
+export const PWA_ENGAGED_TOOLS = 2;
+const PWA_TOOLS_USED_MAX = 20;
 export const PWA_UPDATE_SEEN_KEY = 'pwa:update-seen';
 export const PWA_INSTALLED_KEY = 'pwa:installed';
 
@@ -144,6 +177,7 @@ let installTimer = null;
 let updateInterval = null;
 let observer = null;
 let recheckTimer = null;
+let focusoutTimer = null;
 let storageBroken = false;
 let installUiPromise = null;
 let updateUiPromise = null;
@@ -211,7 +245,10 @@ function installAvailable() {
 
 /* Kondisi 1-3 + 5: onboarding / dialog / palette terbuka, atau
    tab tidak terlihat. Kondisi 4 (UI PWA lain terbuka)
-   dicek terpisah per pemanggil karena arahnya berbeda. */
+   dicek terpisah per pemanggil karena arahnya berbeda.
+   F-05 (v6.22.0): ditambah kondisi draf — pengguna yang sedang
+   mengisi tool tidak diganggu bar/lembar; isian di memori bisa
+   hilang bila halaman dimuat ulang. */
 function uiBlocked() {
   try {
     if (typeof document === 'undefined') return true;
@@ -219,8 +256,98 @@ function uiBlocked() {
     if (document.querySelector('.onb-root')) return true;
     if (document.querySelector('.dlg-wrap')) return true;
     if (document.querySelector('.pal-wrap')) return true;
+    if (hasUnsavedDraft()) return true;
   } catch {
     return true;
+  }
+  return false;
+}
+
+/* Apakah elemen ini sedang diisi pengguna (fokus aktif)? */
+function isEditableElement(el) {
+  if (!el || !(el instanceof Element)) return false;
+  if (el.isContentEditable) return true;
+  const tag = el.tagName;
+  if (tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  if (tag !== 'INPUT') return false;
+  const type = (el.type || 'text').toLowerCase();
+  return type !== 'hidden' && type !== 'submit' && type !== 'button'
+    && type !== 'reset' && type !== 'checkbox' && type !== 'radio';
+}
+
+/* Apakah satu field berisi isian yang belum tersimpan (nilainya
+   berubah dari nilai awal)? Select dibandingkan per opsi
+   (defaultSelected); checkbox/radio via defaultChecked; file
+   via daftar berkas. Input readonly/disabled dikecualikan:
+   itu keluaran tool, bukan isian pengguna. */
+function fieldHasDraft(field) {
+  if (!field || field.disabled || field.readOnly) return false;
+  const tag = field.tagName;
+  if (tag === 'SELECT') {
+    const options = field.options || [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected !== options[i].defaultSelected) return true;
+    }
+    return false;
+  }
+  if (tag === 'TEXTAREA') return field.value !== field.defaultValue;
+  if (tag !== 'INPUT') return false;
+  const type = (field.type || 'text').toLowerCase();
+  if (type === 'checkbox' || type === 'radio') {
+    return field.checked !== field.defaultChecked;
+  }
+  if (type === 'file') return !!(field.files && field.files.length > 0);
+  if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') return false;
+  return field.value !== field.defaultValue;
+}
+
+/* Field yang PERNAH disentuh pengguna (ketik/ubah). WAJIB ada:
+   tool mengisi nilai awal field-nya sendiri secara programatik
+   saat render (terbukti kalkulator-gaji-bersih: 9 dari 14 field
+   sudah value !== defaultValue sebelum pengguna menyentuh apa
+   pun) — bandingkan nilai saja tanpa sinyal sentuhan akan
+   menganggap SEMUA halaman tool "berdraf" dan bar update tidak
+   pernah muncul. WeakSet: entri mati bersama elemennya saat
+   route di-render ulang, jadi tidak perlu reset manual. */
+const touchedFields = new WeakSet();
+
+function markTouched(event) {
+  try {
+    const t = event && event.target;
+    if (!t || !(t instanceof Element)) return;
+    if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable) {
+      touchedFields.add(t);
+    }
+  } catch { /* abaikan */ }
+}
+
+/* F-05 (v6.22.0): ada draf aktif yang belum tersimpan?
+   Dua sinyal: (1) elemen yang bisa diisi sedang FOKUS (di mana
+   pun di situs — pengguna sedang mengetik); (2) ada field yang
+   PERNAH disentuh pengguna di halaman tool dan nilainya sudah
+   berubah dari nilai awal.
+   Sinyal (2) dibatasi ke halaman tool (#/t/…): di halaman lain
+   isian tidak hilang saat reload — kueri cari tersimpan di hash
+   URL, jadi reload tidak membuangnya. */
+function hasUnsavedDraft() {
+  try {
+    if (typeof document === 'undefined') return false;
+    if (isEditableElement(document.activeElement)) return true;
+    if (!window.location.hash.startsWith('#/t/')) return false;
+    const app = document.getElementById('app');
+    if (!app) return false;
+    const fields = app.querySelectorAll('input, textarea, select');
+    for (let i = 0; i < fields.length; i++) {
+      const f = fields[i];
+      if (touchedFields.has(f) && fieldHasDraft(f)) return true;
+    }
+    const editables = app.querySelectorAll('[contenteditable="true"]');
+    for (let i = 0; i < editables.length; i++) {
+      const el = editables[i];
+      if (touchedFields.has(el) && (el.textContent || '').trim() !== '') return true;
+    }
+  } catch {
+    return false;
   }
   return false;
 }
@@ -307,10 +434,73 @@ function installCooldownActive() {
   /* Gagal baca storage = gerbang tidak lolos (R11 §3.5). */
   if (storageBroken) return true;
   const raw = storageGet(PWA_INSTALL_DISMISSED_KEY);
-  if (raw === null) return false;
-  const ts = Number(raw);
-  if (!Number.isFinite(ts)) return false;
-  return Date.now() - ts < PWA_INSTALL_COOLDOWN_MS;
+  if (raw !== null) {
+    const ts = Number(raw);
+    if (Number.isFinite(ts) && Date.now() - ts < PWA_INSTALL_COOLDOWN_MS) return true;
+  }
+  /* F-06: snooze 24 jam sesudah tutup tanpa keputusan. */
+  const snoozed = storageGet(PWA_INSTALL_SNOOZED_KEY);
+  if (snoozed !== null) {
+    const ts = Number(snoozed);
+    if (Number.isFinite(ts) && Date.now() - ts < PWA_INSTALL_SNOOZE_MS) return true;
+  }
+  return false;
+}
+
+/* ---------- keterlibatan (S-U4): syarat lembar otomatis ---------- */
+
+/* Hitung kunjungan: +1 tiap load halaman. Dipanggil sekali di
+   initPWA (modul diinstansiasi ulang tiap load, jadi tidak ada
+   hitungan ganda dalam satu halaman). Nilai rusak = mulai dari 1. */
+function recordVisit() {
+  try {
+    const raw = storageGet(PWA_VISITS_KEY);
+    const n = raw === null ? 0 : Number(raw);
+    storageSet(PWA_VISITS_KEY, String(Number.isFinite(n) ? n + 1 : 1));
+  } catch { /* gagal tertutup: tanpa hitungan, tanpa gerbang */ }
+}
+
+/* Daftar id tool berbeda yang pernah dibuka (JSON array, maks 20).
+   Nilai rusak/bukan array = daftar kosong. */
+function readToolsUsed() {
+  try {
+    const raw = storageGet(PWA_TOOLS_USED_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((x) => typeof x === 'string' && x);
+  } catch {
+    return [];
+  }
+}
+
+/* Catat satu tool yang dibuka dari hash route (#/t/<id>).
+   Hash lain (beranda, kategori, favorit) diabaikan. Id diambil
+   sampai '?' (query tab/dir dibuang) — satu tool = satu id. */
+function recordToolOpenFromHash(hash) {
+  try {
+    if (typeof hash !== 'string' || !hash.startsWith('#/t/')) return;
+    const id = hash.slice(4).split('?')[0].split('/')[0].trim();
+    if (!id) return;
+    const used = readToolsUsed();
+    if (used.includes(id)) return;
+    used.push(id);
+    if (used.length > PWA_TOOLS_USED_MAX) used.splice(0, used.length - PWA_TOOLS_USED_MAX);
+    storageSet(PWA_TOOLS_USED_KEY, JSON.stringify(used));
+  } catch { /* gagal tertutup */ }
+}
+
+/* Apakah pengunjung sudah cukup terlibat untuk ditawari pasang
+   OTOMATIS? Kunjungan berulang (ke-2 dst.) ATAU sudah memakai 2
+   tool berbeda. Storage rusak = tidak terlibat (gerbang gagal
+   tertutup; jalur eksplisit tidak memakai fungsi ini). */
+function isEngaged() {
+  if (storageBroken) return false;
+  try {
+    const visits = Number(storageGet(PWA_VISITS_KEY));
+    if (Number.isFinite(visits) && visits >= PWA_ENGAGED_VISITS) return true;
+  } catch { /* lanjut ke sinyal tool */ }
+  return readToolsUsed().length >= PWA_ENGAGED_TOOLS;
 }
 
 function installGateOk({ explicit = false } = {}) {
@@ -320,6 +510,10 @@ function installGateOk({ explicit = false } = {}) {
     if (!hasSeenOnboarding()) return false;
     if (!loadFired || Date.now() - loadAt < PWA_MIN_DELAY_MS) return false;
     if (installCooldownActive()) return false;
+    /* S-U4: tanpa keterlibatan, jangan tawarkan pasang otomatis —
+       pengunjung baru yang belum memakai apa-apa tidak diganggu.
+       Tautan footer (explicit) tidak kena syarat ini. */
+    if (!isEngaged()) return false;
   }
   if (uiBlocked()) return false;
   /* Prioritas: update menang (R11 §2.3) — install menunggu
@@ -340,6 +534,9 @@ async function maybeShowInstall(opts = {}) {
     mode: deferredPrompt !== null ? 'prompt' : 'ios-guide',
     onInstall: handleInstallClick,
     onDismiss: dismissInstall,
+    /* F-06: tutup tanpa keputusan = snooze 24 jam, bukan
+       penolakan 14 hari. */
+    onSnooze: snoozeInstall,
   });
 }
 
@@ -499,12 +696,44 @@ function askVersion(worker) {
   return pending;
 }
 
+/* Satu timer retry versi unknown (lihat resolveWaitingVersion).
+   unknownRetryWorker mencatat worker yang sudah dijadwalkan retry —
+   satu worker hanya di-retry SEKALI dari jalur ini (backstop
+   checkForUpdate 5 mnt tetap ada untuk kasus yang lebih bandel). */
+let unknownRetryTimer = null;
+let unknownRetryWorker = null;
+
 async function resolveWaitingVersion() {
   const worker = waitingWorker;
   if (!worker) return;
+  /* Kosongkan dulu: versi lama tidak boleh dibaca sebagai versi
+     worker baru selama query berjalan (fail-closed). */
+  waitingVersion = null;
   const version = await askVersion(worker);
   if (waitingWorker !== worker) return; // sudah diganti update yang lebih baru
   waitingVersion = version;
+  if (version === UNKNOWN_VERSION) {
+    /* S-U4: query versi bisa timeout karena worker dingin atau
+       install lambat — dan timeout itu bisa jatuh SESUDAH loop cek
+       manual 8 dtk selesai, sehingga tidak ada lagi yang menanyakan
+       ulang dan bar update hilang diam-diam sampai cek terjadwal
+       5 mnt berikutnya. Jadwalkan SATU retry 5 dtk lagi untuk
+       worker ini (sekali saja; backstop checkForUpdate tetap ada).
+       Tanpa ini, update yang sebenarnya sudah siap tidak pernah
+       diberitahukan. */
+    if (unknownRetryWorker !== worker) {
+      unknownRetryWorker = worker;
+      if (unknownRetryTimer !== null) clearTimeout(unknownRetryTimer);
+      unknownRetryTimer = setTimeout(() => {
+        unknownRetryTimer = null;
+        if (waitingWorker === worker && waitingVersion === UNKNOWN_VERSION) {
+          void resolveWaitingVersion();
+        }
+      }, 5000);
+    }
+  } else {
+    unknownRetryWorker = null;
+  }
   void maybeShowUpdate();
 }
 
@@ -661,7 +890,33 @@ async function registerSW() {
       waitingWorker = registration.waiting;
       void resolveWaitingVersion();
     }
-  } catch { /* registrasi gagal: situs tetap jalan tanpa SW */ }
+  } catch {
+    /* F-07 (v6.22.0): registrasi gagal TIDAK LAGI diam total —
+       beri tahu pengguna sekali per sesi tab, dengan bahasa
+       sehari-hari. Situs tetap jalan penuh tanpa PWA. */
+    void notifySwRegistrationFailed();
+  }
+}
+
+/* F-07: pesan jujur saat SW gagal didaftarkan (mis. mode privat
+   ketat, storage rusak, file SW tidak ketemu). Sekali per sesi
+   tab (sessionStorage) supaya tidak muncul di tiap kunjungan.
+   Browser tanpa service worker sama sekali BUKAN kegagalan —
+   tetap diam. */
+function notifySwRegistrationFailed() {
+  try {
+    if (typeof console !== 'undefined' && typeof console.warn === 'function') {
+      console.warn('[pwa] Registrasi service worker gagal; aplikasi tetap jalan tanpa mode offline.');
+    }
+  } catch { /* abaikan */ }
+  try {
+    if (typeof sessionStorage === 'undefined') return;
+    if (sessionStorage.getItem('pwa:sw-fail-noted')) return;
+    sessionStorage.setItem('pwa:sw-fail-noted', '1');
+  } catch {
+    /* sessionStorage rusak: tetap beri tahu sekali ini saja. */
+  }
+  showToast('Mode offline tidak bisa disiapkan di browser ini. Aplikasi tetap jalan seperti biasa.');
 }
 
 /* ---------- jadwal cek update (R5 §3.2) ---------- */
@@ -675,6 +930,14 @@ function checkForUpdate() {
     const p = registration.update();
     if (p && typeof p.catch === 'function') p.catch(() => {});
   } catch { /* gagal diam-diam; coba lagi di pemicu berikut */ }
+  /* S-U4: versi waiting yang gagal ditanyakan SEKALI ('unknown',
+     mis. worker dingin sehingga query 3 dtk timeout) dulu tidak
+     pernah ditanyakan ulang — bar update hilang permanen sampai
+     reload, padahal update-nya ada. Tanyakan ulang di tiap cek
+     terjadwal (ikut throttle 5 mnt, jadi tidak spam). */
+  if (waitingWorker && waitingVersion === UNKNOWN_VERSION) {
+    void resolveWaitingVersion();
+  }
 }
 
 function scheduleFirstUpdateCheck() {
@@ -686,6 +949,224 @@ function scheduleFirstUpdateCheck() {
     }
   } catch { /* jatuh ke setTimeout */ }
   setTimeout(run, FIRST_UPDATE_DELAY_MS);
+}
+
+/* ---------- lencana online/offline (F-02) ---------- */
+
+const NET_BADGE_ID = 'pwaNetBadge';
+
+/* Lencana kecil "Offline" di header — penanda status, bukan
+   spanduk. Coral hanya untuk status (design lock). Gaya inline
+   karena css/pwa.css milik tim lain di ronde ini; nilainya ikut
+   token lock yang sama (latar #161311, aksen #ff6f61). */
+function buildNetBadge() {
+  const badge = document.createElement('span');
+  badge.id = NET_BADGE_ID;
+  badge.setAttribute('role', 'status');
+  badge.setAttribute('aria-live', 'polite');
+  badge.style.display = 'none';
+  badge.style.alignItems = 'center';
+  badge.style.gap = '6px';
+  badge.style.padding = '5px 10px';
+  badge.style.borderRadius = '999px';
+  badge.style.border = '1px solid rgba(255,111,97,.55)';
+  badge.style.background = 'rgba(255,111,97,.10)';
+  badge.style.color = '#ff6f61';
+  badge.style.fontSize = '12px';
+  badge.style.fontWeight = '700';
+  badge.style.lineHeight = '1';
+  badge.style.whiteSpace = 'nowrap';
+  const dot = document.createElement('span');
+  dot.setAttribute('aria-hidden', 'true');
+  dot.style.width = '8px';
+  dot.style.height = '8px';
+  dot.style.borderRadius = '50%';
+  dot.style.background = '#ff6f61';
+  dot.style.flex = 'none';
+  badge.appendChild(dot);
+  badge.appendChild(document.createTextNode('Offline'));
+  return badge;
+}
+
+/* Tampilkan/sembunyikan lencana sesuai navigator.onLine.
+   Aman dipanggil sebelum lencana terpasang (no-op). */
+function updateNetBadge() {
+  try {
+    if (typeof document === 'undefined' || typeof navigator === 'undefined') return;
+    const badge = document.getElementById(NET_BADGE_ID);
+    if (!badge) return;
+    badge.style.display = navigator.onLine === false ? 'inline-flex' : 'none';
+  } catch { /* gagal tertutup */ }
+}
+
+/* Pasang lencana di header (.top-right, sebelum hitungan tool).
+   Header di-render ulang tiap route, jadi dipanggil ulang di
+   mountFooterEntries. Bila header tidak ada (rute tanpa header),
+   lencana menempel tetap di kanan atas viewport; bila header
+   muncul kemudian, lencana pindah ke header. Idempotent. */
+function mountNetBadge() {
+  try {
+    if (typeof document === 'undefined' || !document.body) return;
+    const slot = document.querySelector('.top .top-right');
+    const existing = document.getElementById(NET_BADGE_ID);
+    if (existing) {
+      if (slot && existing.parentElement !== slot) {
+        existing.style.position = '';
+        existing.style.top = '';
+        existing.style.right = '';
+        existing.style.zIndex = '';
+        slot.insertBefore(existing, slot.firstChild);
+      }
+      updateNetBadge();
+      return;
+    }
+    const badge = buildNetBadge();
+    if (slot) {
+      slot.insertBefore(badge, slot.firstChild);
+    } else {
+      badge.style.position = 'fixed';
+      badge.style.top = '8px';
+      badge.style.right = '8px';
+      badge.style.zIndex = '70';
+      document.body.appendChild(badge);
+    }
+    updateNetBadge();
+  } catch { /* gagal tertutup */ }
+}
+
+/* ---------- entri footer: versi + periksa update (F-09/F-10) ---------- */
+
+const VERSION_ENTRY_ID = 'pwaVersionEntry';
+const VERSION_CHECK_ID = 'pwaCheckUpdate';
+const MANUAL_CHECK_TIMEOUT_MS = 8000;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/* Periksa update manual (tombol footer). Melewati throttle 5 mnt
+   (niat eksplisit pengguna). Hasil jujur, per cabang:
+   - tidak ada registration -> "Periksa update belum bisa di sini."
+   - registration.update() melempar -> "Tidak bisa memeriksa update
+     sekarang."
+   - ada waiting + versi diketahui + belum ditolak -> bar update
+     muncul (atau, bila tertunda draf: "Ada versi baru. Bar update
+     muncul begitu kamu selesai mengisi.")
+   - ada waiting + versi sudah ditolak -> "Versi baru sudah ada,
+     kamu memilih "Nanti" tadi."
+   - ada waiting + versi TIDAK diketahui -> tanya ulang SEKALI
+     (S-U4: query pertama bisa timeout karena worker dingin);
+     bila tetap tidak diketahui -> "Belum bisa memastikan ada
+     update atau tidak."
+   - worker baru masih MENGUNDUH (installing, S-U4) saat batas
+     8 dtk habis -> "Update sedang diunduh. Bar update muncul
+     begitu siap." (dulu: salah lapor "Tidak ada update baru.")
+   - tidak ada apa-apa sesudah 8 dtk -> "Tidak ada update baru." */
+async function manualUpdateCheck(btn) {
+  if (!registration) {
+    showToast('Periksa update belum bisa di sini.');
+    return;
+  }
+  if (btn) btn.disabled = true;
+  try {
+    showToast('Memeriksa update…');
+    try {
+      await registration.update();
+    } catch {
+      showToast('Tidak bisa memeriksa update sekarang.');
+      return;
+    }
+    const started = Date.now();
+    let sawInstalling = false;
+    let retriedUnknown = false;
+    while (Date.now() - started < MANUAL_CHECK_TIMEOUT_MS) {
+      let waiting = null;
+      let installing = null;
+      try { waiting = registration.waiting; } catch { /* abaikan */ }
+      try { installing = registration.installing; } catch { /* abaikan */ }
+      if (waiting && waitingVersion === UNKNOWN_VERSION) {
+        /* S-U4: jangan langsung menyerah pada 'unknown' — query
+           pertama bisa timeout karena worker dingin. Tanya ulang
+           sekali, lalu nilai lagi di putaran berikut. */
+        if (!retriedUnknown) {
+          retriedUnknown = true;
+          void resolveWaitingVersion();
+          await sleep(500);
+          continue;
+        }
+        showToast('Belum bisa memastikan ada update atau tidak.');
+        return;
+      }
+      if (waiting && waitingVersion) {
+        const seen = storageGet(PWA_UPDATE_SEEN_KEY);
+        if (seen === waitingVersion) {
+          showToast('Versi baru sudah ada, kamu memilih "Nanti" tadi.');
+          return;
+        }
+        void maybeShowUpdate();
+        await sleep(400);
+        if (!updateBarOpen() && uiBlocked()) {
+          showToast('Ada versi baru. Bar update muncul begitu kamu selesai mengisi.');
+        }
+        return;
+      }
+      /* S-U4: worker baru masih mengunduh (installing). Hanya
+         dihitung sebagai "update" bila halaman sudah punya
+         controller — tanpa controller ini instal pertama, bukan
+         update, dan bar memang tidak akan muncul. */
+      if (installing) {
+        try {
+          if (navigator.serviceWorker.controller) sawInstalling = true;
+        } catch { /* abaikan */ }
+      }
+      await sleep(500);
+    }
+    /* Batas waktu: tidak ada waiting yang terdeteksi. */
+    if (sawInstalling) {
+      showToast('Update sedang diunduh. Bar update muncul begitu siap.');
+    } else {
+      showToast('Tidak ada update baru.');
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Periksa update';
+    }
+  }
+}
+
+/* Entri footer "Versi 6.21.0" + tombol "Periksa update".
+   Idempotent; footer di-render ulang tiap route (pola P17).
+   Nomor versi dari VERSION (js/manifest.js) — bukan hardcode,
+   supaya ikut bump-version.py. */
+function mountVersionEntry() {
+  try {
+    if (typeof document === 'undefined') return;
+    if (document.getElementById(VERSION_ENTRY_ID)) return;
+    const links = document.querySelector('.foot-links');
+    if (!links) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'rs-chips prevline pwa-version';
+    wrap.id = VERSION_ENTRY_ID;
+    const label = document.createElement('span');
+    label.className = 'pwa-version-label';
+    label.textContent = `Versi ${VERSION}`;
+    wrap.appendChild(label);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'schip pwa-version-check';
+    btn.id = VERSION_CHECK_ID;
+    btn.textContent = 'Periksa update';
+    btn.addEventListener('click', () => { void manualUpdateCheck(btn); });
+    wrap.appendChild(btn);
+    /* Sesudah entri cache bila ada, supaya urutan footer stabil. */
+    const cacheEntry = document.querySelector('.pwa-cache');
+    if (cacheEntry && cacheEntry.parentNode) {
+      cacheEntry.insertAdjacentElement('afterend', wrap);
+    } else {
+      links.insertAdjacentElement('afterend', wrap);
+    }
+  } catch { /* gagal tertutup */ }
 }
 
 /* ---------- entri footer + pemicu cek ulang ---------- */
@@ -708,6 +1189,8 @@ async function mountFooterEntries() {
       });
     }
   } catch { /* P17 belum selesai / gagal dimuat: diam */ }
+  mountVersionEntry();
+  mountNetBadge();
 }
 
 function onFooterInstallOpen() {
@@ -718,6 +1201,10 @@ function onFooterInstallOpen() {
 }
 
 function onHashChange() {
+  /* S-U4: kunjungan ke halaman tool = sinyal keterlibatan. */
+  try {
+    recordToolOpenFromHash(window.location.hash);
+  } catch { /* abaikan */ }
   /* Lembar install tidak boleh menggantung antar-halaman;
      bar update TIDAK ditutup navigasi (berlaku seluruh situs). */
   hideInstallSheetSafe();
@@ -787,6 +1274,11 @@ function onLoad() {
   if (loadFired) return;
   loadFired = true;
   loadAt = Date.now();
+  /* S-U4: deep link langsung ke tool juga dihitung sebagai
+     pemakaian tool (pengunjung dari mesin pencari, misal). */
+  try {
+    recordToolOpenFromHash(window.location.hash);
+  } catch { /* abaikan */ }
   startExclusionObserver();
   void mountFooterEntries();
   /* Registrasi + cek update pertama HANYA sesudah load (ZB-6). */
@@ -807,6 +1299,8 @@ export function initPWA({ toast } = {}) {
   if (inited) return;
   inited = true;
   if (typeof toast === 'function') toastFn = toast;
+  /* S-U4: hitung kunjungan (syarat keterlibatan lembar otomatis). */
+  recordVisit();
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
   /* Tangkap beforeinstallprompt SEAWAL MUNGKIN — event menyala
@@ -836,6 +1330,24 @@ export function initPWA({ toast } = {}) {
   document.addEventListener('visibilitychange', onVisibilityChange);
   window.addEventListener('focus', () => checkForUpdate());
   window.addEventListener('hashchange', onHashChange);
+  /* F-05: selesai mengisi (blur) = pemicu cek ulang bar/sheet —
+     tanpa ini, bar yang ditunda karena draf tidak pernah muncul
+     lagi sampai pengguna pindah halaman. Debounce 500 ms. */
+  document.addEventListener('focusout', () => {
+    if (focusoutTimer !== null) return;
+    focusoutTimer = setTimeout(() => {
+      focusoutTimer = null;
+      void maybeShowUpdate();
+      void maybeShowInstall();
+    }, 500);
+  });
+  /* F-05: catat field yang disentuh pengguna (input/change,
+     capture) — bahan hasUnsavedDraft. */
+  document.addEventListener('input', markTouched, true);
+  document.addEventListener('change', markTouched, true);
+  /* F-02: lencana offline mengikuti event + keadaan awal. */
+  window.addEventListener('online', updateNetBadge);
+  window.addEventListener('offline', updateNetBadge);
 
   if (document.readyState === 'complete') {
     onLoad();
@@ -914,9 +1426,26 @@ function armReloadSafetyNet() {
 /* SATU-SATUNYA tempat location.reload() di seluruh kode PWA.
    Kirim SKIP_WAITING ke SW waiting; reload SEKALI saat
    controllerchange. Bila tidak ada waiting SW (update sudah
-   diterapkan tab lain / tap kedua), muat ulang biasa. */
-export function applyUpdate() {
+   diterapkan tab lain / tap kedua), muat ulang biasa.
+   F-05 (v6.22.0): bila ada draf aktif, tanya dulu lewat dialog
+   konfirmasi — "Muat ulang" tidak lagi membuang isian diam-diam.
+   Dialog gagal dibuka = jangan muat ulang buta. */
+export async function applyUpdate() {
   try {
+    if (hasUnsavedDraft()) {
+      let yes = false;
+      try {
+        const { confirmDialog } = await import('./components.js');
+        yes = await confirmDialog({
+          title: 'Muat ulang sekarang?',
+          body: 'Isian yang belum disimpan akan hilang kalau halaman dimuat ulang.',
+          confirmLabel: 'Ya, muat ulang',
+        });
+      } catch {
+        return; /* dialog gagal: jangan muat ulang buta */
+      }
+      if (!yes) return; /* bar tetap terbuka; pengguna bisa memilih Nanti */
+    }
     hideUpdateBarSafe();
     /* Sumber kebenaran LIVE: registration.waiting. Variabel
        waitingWorker bisa basi — bila SW sudah diaktifkan tab
@@ -941,9 +1470,17 @@ export function applyUpdate() {
   } catch { /* gagal tertutup */ }
 }
 
-/* Tulis cooldown 14 hari + sembunyikan lembar. */
+/* Tulis cooldown 14 hari + sembunyikan lembar. HANYA untuk
+   penolakan EKSPLISIT ("Nanti saja", F-06). */
 export function dismissInstall() {
   storageSet(PWA_INSTALL_DISMISSED_KEY, String(Date.now()));
+  hideInstallSheetSafe();
+}
+
+/* F-06: tutup lembar TANPA keputusan (Esc / × / backdrop /
+   geser) — snooze 24 jam saja, bukan penolakan 14 hari. */
+export function snoozeInstall() {
+  storageSet(PWA_INSTALL_SNOOZED_KEY, String(Date.now()));
   hideInstallSheetSafe();
 }
 

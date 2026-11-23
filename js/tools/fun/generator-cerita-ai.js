@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"generator-cerita-ai","name":"Generator Cerita AI","cat":"fun","icon":"📖","desc":"Cerita pendek dari tema dan tokoh yang kamu pilih.","keywords":"cerita,dongeng,fiksi,ai,puter","since":"6.18.0"};
+export const meta = {"id":"generator-cerita-ai","name":"Generator Cerita AI","cat":"fun","icon":"📖","desc":"Cerita pendek dari tema dan tokoh yang kamu pilih.","keywords":"cerita,dongeng,fiksi,ai,puter","since":"6.18.0", "online": true};
 
 const GENRE = [
   ['petualangan', 'Petualangan', 'petualangan yang seru'],
@@ -96,7 +96,7 @@ export function render(root) {
         const prompt = buatPrompt({ tema, tokoh, genre: genreSel.value, panjang: panjangSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const hasil = utils.chatText(res).trim();
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

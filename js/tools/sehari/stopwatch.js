@@ -1,6 +1,6 @@
 import { h as T, utils, p2 } from '../../core.js';
 
-export const meta = {"id": "stopwatch", "name": "Stopwatch", "cat": "sehari", "icon": "🏁", "desc": "Stopwatch + catat lap.", "keywords": "stopwatch,waktu,lap,timer"};
+export const meta = {"id": "stopwatch", "name": "Stopwatch", "cat": "sehari", "icon": "🏁", "desc": "Stopwatch dengan tombol lap untuk mencatat waktu tiap putaran.", "keywords": "stopwatch,waktu,lap,timer"};
 export function render(root) {
 
     const disp = T.el('<div class="big center" style="font-variant-numeric:tabular-nums">00:00.00</div>');

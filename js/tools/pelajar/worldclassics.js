@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, kv, onLeave } from '../../core.js';
 
-export const meta = {"id": "worldclassics", "name": "World Classics Reader", "cat": "pelajar", "icon": "📜", "desc": "Baca sastra klasik Tiongkok/Jepang/Korea (public domain) dari Wikisource + terjemahan Indonesia.", "keywords": "klasik,sastra,wenyan,baca,buku,tiongkok,jepang,korea,wikisource,terjemahan"};
+export const meta = {"id": "worldclassics", "name": "World Classics Reader", "cat": "pelajar", "icon": "📜", "desc": "Baca sastra klasik Tiongkok/Jepang/Korea (public domain) dari Wikisource + terjemahan Indonesia.", "keywords": "klasik,sastra,wenyan,baca,buku,tiongkok,jepang,korea,wikisource,terjemahan,teks,terjemah", "online": true};
 
 const SUMBER = [['zh', 'Tiongkok'], ['ja', 'Jepang'], ['ko', 'Korea']];
 const SL = { zh: 'zh-CN', ja: 'ja', ko: 'ko' };
@@ -75,7 +75,7 @@ async function terjemahBatch(lang, teksArr, onProg, signal) {
           if (!j[0]) throw new Error('respons tak dikenal');
         } catch (e) { errTerakhir = e; j = null; }
       }
-      if (!j) throw new Error('layanan terjemahan tidak merespons (' + (errTerakhir && errTerakhir.name) + ') — coba lagi nanti');
+      if (!j) throw new Error('layanan terjemahan tidak bisa dihubungi (' + (errTerakhir && errTerakhir.name) + ') — coba lagi nanti');
       hasil.push((j[0] || []).map((x) => x[0]).join(''));
     }
     out[i] = hasil.join('');
@@ -333,6 +333,7 @@ export function render(root) {
       (view === 'orig' ? '' : ' · Terjemahan ' + (mode === 'literal' ? 'mesin' : 'AI (teks dikirim ke layanan AI publik Pollinations)') + ' — bisa tidak akurat untuk bahasa klasik') + '</p>');
     if (catatan) T.show(statusBox, '<p class="dim">' + T.esc(catatan) + '</p>');
     bacaBox.querySelector('[data-bm]').onclick = (e) => {
+      if (bm && !confirm('Hapus bookmark bab ini? Kamu harus menandainya lagi kalau mau kembali ke sini.')) return;
       let l = getBm();
       l = bm ? l.filter((b) => !(b.lang === lang && b.judul === judul && b.ch === chIdx))
              : [{ lang, judul, ch: chIdx, label: namaBab, t: Date.now() }, ...l];

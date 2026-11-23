@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Prakiraan gelombang laut lewat Open-Meteo Marine, tanpa key.
 // Terverifikasi 17 Nov 2026: /v1/marine?latitude=-6.2&longitude=106.8&hourly=wave_height&forecast_days=1 -> 200, CORS *.
 // Batas: 10.000 permintaan per hari per IP.
-export const meta = {"id":"prakiraan-gelombang-laut","name":"Prakiraan Gelombang Laut","cat":"liveapi","icon":"🌊","desc":"Prakiraan tinggi gelombang laut per jam untuk lokasi pesisir yang kamu pilih.","keywords":"gelombang,omak,laut,marine,prakiraan laut,nelayan,selancar,cuaca laut","since":"6.17.0"};
+export const meta = {"id":"prakiraan-gelombang-laut","name":"Prakiraan Gelombang Laut","cat":"liveapi","icon":"🌊","desc":"Prakiraan tinggi gelombang laut per jam untuk lokasi pesisir yang kamu pilih.","keywords":"gelombang,omak,laut,marine,prakiraan laut,nelayan,selancar,cuaca laut","since":"6.17.0", "online": true};
 
 const PRESET = [
   ['jakarta', 'Jakarta (Teluk Jakarta)', -6.1, 106.85],
@@ -79,7 +79,7 @@ export function render(root) {
         '<p class="hint">Sumber: Open-Meteo Marine. Tinggi gelombang adalah tinggi rata-rata gelombang tertinggi di jam itu. Selalu cek info resmi pelayaran sebelum melaut.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Open-Meteo tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Open-Meteo tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil prakiraan gelombang. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

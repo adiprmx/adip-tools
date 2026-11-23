@@ -63,7 +63,7 @@ export function render(root) {
     bShow.textContent = passInp.type === 'password' ? 'Lihat' : 'Sembunyi';
   });
   bShow.classList.add('small');
-  const compactChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#e07856">');
+  const compactChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#ff6f61">');
   const box = T.out();
   const resWrap = T.el('<div hidden style="margin-top:12px"></div>');
   const outTa = T.ta(8, '', '');
@@ -121,12 +121,12 @@ export function render(root) {
       '<meta name="robots" content="noindex,nofollow"><title>' + safeTitle + '</title>' +
       '<style>html,body{min-height:100%;margin:0}body{display:grid;place-items:center;background:#141210;color:#f5f1ea;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding:20px;box-sizing:border-box}' +
       '.card{width:min(420px,100%);background:#1d1a16;border:1px solid #3a332b;border-radius:16px;padding:28px;box-sizing:border-box}' +
-      '.kicker{font-size:11px;letter-spacing:.18em;color:#e07856;font-weight:700;margin-bottom:10px}' +
+      '.kicker{font-size:11px;letter-spacing:.18em;color:#ff6f61;font-weight:700;margin-bottom:10px}' +
       'h1{font-size:22px;margin:0 0 8px}p{color:#b8ab97;font-size:14px;line-height:1.6;margin:0 0 18px}' +
       'input,button{width:100%;box-sizing:border-box;border-radius:10px;font:inherit}' +
       'input{padding:13px 14px;background:#141210;border:1px solid #3a332b;color:#fff;outline:none}' +
-      'input:focus{border-color:#e07856}' +
-      'button{margin-top:10px;padding:13px;border:0;background:#e07856;color:#141210;font-weight:700;cursor:pointer}' +
+      'input:focus{border-color:#ff6f61}' +
+      'button{margin-top:10px;padding:13px;border:0;background:#ff6f61;color:#141210;font-weight:700;cursor:pointer}' +
       'button:disabled{opacity:.6;cursor:wait}.msg{min-height:20px;margin-top:10px;color:#f08a8a;font-size:13px}' +
       '.foot{margin-top:14px;font-size:11px;color:#8a7d68;text-align:center}</style></head><body>' +
       '<main class="card"><div class="kicker">HALAMAN TERPROTEKSI</div><h1>Masukkan password</h1>' +

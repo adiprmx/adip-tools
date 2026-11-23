@@ -3,7 +3,7 @@ import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // Header & Footer PDF: tambah teks di bagian atas (header) atau bawah
 // (footer) semua halaman PDF. Tulis {halaman} di dalam teks untuk nomor
 // halaman dan {total} untuk jumlah halaman. Mesinnya pdf-lib.
-export const meta = {"id": "header-footer-pdf", "name": "Header & Footer PDF", "cat": "produktivitas", "icon": "📄", "desc": "Tambah teks header dan footer di semua halaman PDF.", "keywords": "header pdf,footer pdf,nomor halaman pdf,tambah teks pdf", "since": "6.19.0"};
+export const meta = {"id": "header-footer-pdf", "name": "Header & Footer PDF", "cat": "produktivitas", "icon": "📄", "desc": "Tambah teks header dan footer di semua halaman PDF.", "keywords": "header pdf,footer pdf,nomor halaman pdf,tambah teks pdf", "since": "6.19.0", "online": true};
 
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 

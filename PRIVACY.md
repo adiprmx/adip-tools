@@ -14,7 +14,7 @@ Dokumen ini ditulis dengan bahasa sehari-hari dan berdasarkan cara kerja situs y
 
 ## 1. Cara kerja situs ini
 
-Adip Tools adalah situs statis berisi 588 tools gratis. Semua perhitungan, konversi, edit foto, dan kompresi video dilakukan oleh browser di perangkatmu sendiri, memakai kode JavaScript yang dimuat dari situs ini dan dari CDN (jaringan pengiriman file) publik.
+Adip Tools adalah situs statis berisi 1.261 tools gratis. Semua perhitungan, konversi, edit foto, dan kompresi video dilakukan oleh browser di perangkatmu sendiri, memakai kode JavaScript yang dimuat dari situs ini dan dari CDN (jaringan pengiriman file) publik.
 
 Karena tidak ada akun, kami tidak punya cara untuk tahu siapa kamu. Kami juga tidak bisa mengaitkan aktivitas di situs ini dengan identitas siapa pun.
 
@@ -43,7 +43,7 @@ Beberapa tools tidak bisa jalan tanpa data dari luar. Untuk tools ini, **browser
 
 | Tool / kelompok | Layanan luar | Yang dikirim |
 |---|---|---|
-| Kurs, cuaca, gempa, jadwal salat, harga crypto, dan tools "Live API" lainnya | API publik masing-masing (mis. Open-Meteo, BMKG, CoinGecko, Aladhan) | Hanya parameter yang dibutuhkan, mis. nama kota, kode mata uang, atau kata kunci pencarian |
+| Kurs, cuaca, gempa, jadwal salat, harga crypto, dan tools "Data Langsung" lainnya | API publik masing-masing (mis. Open-Meteo, BMKG, CoinGecko, Aladhan) | Hanya parameter yang dibutuhkan, mis. nama kota, kode mata uang, atau kata kunci pencarian |
 | Terbit & Terbenam (mode lokasi) | api.sunrise-sunset.org | Koordinat lintang-bujur dari GPS perangkatmu |
 | Tes GPS | Tidak ada (lokal); tautan ke Google Maps / OpenStreetMap hanya dibuka bila kamu mengekliknya | Koordinat hanya terkirim ke layanan peta itu bila kamu mengeklik tautannya |
 | Arah Kiblat | Tidak ada — dihitung lokal dari GPS | Tidak ada |

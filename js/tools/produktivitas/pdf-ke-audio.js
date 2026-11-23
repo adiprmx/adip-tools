@@ -6,7 +6,7 @@ import { h as T, utils, fileInput, LOCAL_NOTE } from '../../core.js';
 // tidak semua perangkat punya suara Bahasa Indonesia, dan audio tidak
 // bisa disimpan jadi file MP3 dari sini. Teksnya tetap bisa diunduh.
 // PDF hasil scan (isinya gambar) tidak punya teks untuk dibacakan.
-export const meta = {"id": "pdf-ke-audio", "name": "PDF ke Audio", "cat": "produktivitas", "icon": "🔊", "desc": "Bacakan isi PDF dengan suara, langsung dari browser.", "keywords": "pdf ke audio,bacakan pdf,teks ke suara,pdf didengar", "since": "6.17.0"};
+export const meta = {"id": "pdf-ke-audio", "name": "PDF ke Audio", "cat": "produktivitas", "icon": "🔊", "desc": "Bacakan isi PDF dengan suara, langsung dari browser.", "keywords": "pdf ke audio,bacakan pdf,teks ke suara,pdf didengar", "since": "6.17.0", "online": true};
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';

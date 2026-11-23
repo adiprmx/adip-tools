@@ -5,60 +5,30 @@
    - aksen coral hemat, tanpa orbs/glow besar, tanpa gradient norak,
    - semua gerak cepat & jarang; yang infinite dibuat nyaris
      tak terasa.
-   Efek di file ini (3):
-   1. Underline coral di bawah kata "apa?" yang MENGGAMBAR
-      DIRINYA SENDIRI setelah headline selesai muncul, lalu
-      sesekali (tiap ~9 dtk) ada kilau redup yang melintas —
-      seperti pulpen yang menegaskan ulang.
-   2. Search box: saat fokus, ring coral tipis mekar + ikon
+   Efek di file ini (2; dulu 3, underline "apa?" dicabut
+   v6.22.0 S-F4: garisnya dimatikan polish-p1 dan aturan +
+   keyframes-nya dihapus dari file ini, bukan disembunyikan):
+   1. Search box: saat fokus, ring coral tipis mekar + ikon
       kaca pembesar menyentak kecil (spring), caret coral.
-   3. Latar hero: garis hairline horizontal yang melayang
+   2. Latar hero: garis hairline horizontal yang melayang
       sangat pelan (loop mulus 26 dtk), nyaris tak terlihat.
    ============================================================ */
 
-/* ---------- 1. underline yang menulis sendiri ---------- */
-.hero h1 .w { position: relative; }
-
-.hero h1 .w:last-child::after {
-  content: "";
-  position: absolute;
-  left: 2px; right: 2px; bottom: -7px;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(
-    90deg,
-    var(--acc) 0%,
-    var(--acc) 52%,
-    rgba(255, 255, 255, 0.9) 60%,
-    var(--acc) 68%,
-    var(--acc) 100%
-  );
-  background-size: 230% 100%;
-  background-position: 115% 0;
-  transform: scaleX(0);
-  transform-origin: left center;
-  animation:
-    ul-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.4s forwards,
-    ul-sheen 9s ease-in-out 2.6s infinite;
-}
-
-@keyframes ul-draw {
-  to { transform: scaleX(1); }
-}
-
-/* kilau melintas di garis: 72% siklus diam, lalu lewat pelan */
-@keyframes ul-sheen {
-  0%, 70% { background-position: 115% 0; }
-  92%, 100% { background-position: -115% 0; }
-}
-
-/* ---------- 2. search: ring mekar + glyph bereaksi ---------- */
+/* ---------- 1. search: ring mekar + glyph bereaksi ----------
+   PEMILIK TUNGGAL ring fokus .hsearch (S-A6 F-04, v6.22.0 S-F4):
+   .hsearch juga didefinisikan di style.css (dasar: geometri +
+   input + glyph) dan fx-micro.css (dulu: ring + transisi).
+   Ring box-shadow HANYA di sini: file ini dimuat sesudah
+   fx-micro.css sehingga menang cascade, dan duplikat di
+   fx-micro.css sudah dicabut. Jangan tambah ring .hsearch
+   di file lain. Nilai ring = color-mix coral 22% (dulu
+   rgba(255,122,89,.12) = oranye kedua #ff7a59, S-A6 F-02). */
 .hsearch {
   transition: border-color 0.2s, box-shadow 0.35s ease;
 }
 
 .hsearch:focus-within {
-  box-shadow: 0 0 0 4px rgba(255, 122, 89, 0.12);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 22%, transparent);
 }
 
 .hsearch input {
@@ -74,7 +44,7 @@
   60% { transform: translateY(-50%) translateX(-1px) scale(0.97); }
 }
 
-/* ---------- 3. hairline latar yang melayang pelan ---------- */
+/* ---------- 2. hairline latar yang melayang pelan ---------- */
 .hero {
   position: relative;
 }
@@ -110,15 +80,11 @@
 /* ---------- hormati yang tidak suka gerak ---------- */
 @media (prefers-reduced-motion: reduce) {
   .hero::before,
-  .hero h1 .w:last-child::after,
   .hsearch .glyph {
     animation: none !important;
   }
   .hsearch {
     transition: none !important;
-  }
-  .hero h1 .w:last-child::after {
-    transform: scaleX(1);
   }
   /* pastikan state akhir animasi style.css tetap tercapai */
   .hero h1 .mi,

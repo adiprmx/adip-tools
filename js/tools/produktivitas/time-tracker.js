@@ -86,6 +86,7 @@ export function render(root) {
     };
     const delTask = (id) => {
       const t = state.tasks.find((x) => x.id === id);
+      if (!confirm('Hapus tugas "' + (t ? t.name : '') + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
       if (t && t.running) finishSession(t);
       state.tasks = state.tasks.filter((x) => x.id !== id);
       save();
@@ -195,6 +196,7 @@ export function render(root) {
     root.appendChild(T.el('<div style="font-weight:600;margin:14px 0 6px">🕘 Riwayat sesi</div>'));
     root.appendChild(histBox);
     root.appendChild(T.row(T.btn('🗑 Hapus riwayat', () => {
+      if (!confirm('Hapus seluruh riwayat sesi? Data riwayat akan hilang dan tidak bisa dikembalikan.')) return;
       state.sessions = [];
       save();
       paintHistory();

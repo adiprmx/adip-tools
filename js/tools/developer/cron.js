@@ -51,7 +51,7 @@ function cronToId(cron) {
     return parts.join(', ');
   }
 
-export const meta = {"id": "cron", "name": "Cron Parser & Builder", "cat": "developer", "icon": "⏰", "desc": "Terjemahkan & susun cron expression.", "keywords": "cron,jadwal,server"};
+export const meta = {"id": "cron", "name": "Cron Parser & Builder", "cat": "developer", "icon": "⏰", "desc": "Terjemahkan & susun cron expression.", "keywords": "cron,jadwal,server,cron expression,crontab,penjadwalan"};
 export function render(root) {
 
     const pInput = T.input('text', 'misal: */5 * * * *', '*/5 * * * *');

@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Lelucon acak lewat JokeAPI, tanpa key, mode aman WAJIB.
 // Terverifikasi 17 Nov 2026: /joke/Any?safe-mode -> 200, CORS *.
 // Parameter safe-mode menyaring konten dewasa dan ofensif.
-export const meta = {"id":"lelucon-acak","name":"Lelucon Acak","cat":"liveapi","icon":"😄","desc":"Lelucon acak dari berbagai kategori, sudah disaring agar aman dibaca semua umur.","keywords":"lelucon,joke,lucu,hiburan,acak,komedi","since":"6.17.0"};
+export const meta = {"id":"lelucon-acak","name":"Lelucon Acak","cat":"liveapi","icon":"😄","desc":"Lelucon acak dari berbagai kategori, sudah disaring agar aman dibaca semua umur.","keywords":"lelucon,joke,lucu,hiburan,acak,komedi","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -40,7 +40,7 @@ export function render(root) {
       }
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil lelucon. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

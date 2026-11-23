@@ -41,7 +41,7 @@ export function render(root) {
 .fswa-prog i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.4);display:block;overflow:hidden}
 .fswa-prog i b{display:block;height:100%;background:#fff}
 .fswa-hd{position:absolute;top:64px;left:0;right:0;z-index:3;display:flex;align-items:center;padding:0 10px 0 4px}
-.fswa-bk{background:none;border:0;padding:8px;cursor:pointer;display:flex;align-items:center}
+.fswa-bk{background:none;border:0;padding:8px;display:flex;align-items:center}
 .fswa-av{width:38px;height:38px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;overflow:hidden;flex:none;border:2px solid #25D366}
 .fswa-av img{width:100%;height:100%;object-fit:cover;display:block}
 .fswa-nm{flex:1;min-width:0;margin-left:9px;color:#fff}

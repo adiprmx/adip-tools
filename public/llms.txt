@@ -1,6 +1,6 @@
 # ADIP Tools
 
-> Kumpulan 1261 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar. Bisa dipasang sebagai aplikasi (opsional) — sebagian tool jalan offline setelah pernah dibuka. Versi 6.21.0.
+> Kumpulan 1261 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar. Bisa dipasang sebagai aplikasi (opsional) — sebagian tool jalan offline setelah pernah dibuka. Versi 6.22.0.
 
 ## Keamanan
 
@@ -46,7 +46,7 @@
 - [Bakar Subtitle ke Video](https://tools.adipmusic.my.id/#/t/bakar-subtitle-ke-video): Tempel subtitle jadi teks permanen di dalam video.
 - [Video Reverse](https://tools.adipmusic.my.id/#/t/balik-video-reverse): Putar isi video mundur, dari akhir kembali ke awal.
 - [Base64 Encode/Decode](https://tools.adipmusic.my.id/#/t/base64): Ubah teks jadi kode Base64 dan sebaliknya, termasuk versi aman untuk link.
-- [Bisukan Video](https://tools.adipmusic.my.id/#/t/bisukan-video): Hapus suara dari video.
+- [Bisukan Video](https://tools.adipmusic.my.id/#/t/bisukan-video): Hapus suara dari videomu, lalu unduh videonya tanpa audio.
 - [Cari File Duplikat](https://tools.adipmusic.my.id/#/t/cari-file-duplikat): Temukan file kembar dari isi yang sama persis.
 - [Case Converter](https://tools.adipmusic.my.id/#/t/case-converter): Ubah gaya penulisan: camelCase, snake_case, kebab-case, Title Case.
 - [Konverter Warna](https://tools.adipmusic.my.id/#/t/color-converter): Konversi HEX, RGB, HSL, OKLCH, CMYK + nama warna + cek kontras.
@@ -76,7 +76,7 @@
 - [Konverter Video](https://tools.adipmusic.my.id/#/t/konverter-video): Ubah video ke MP4, WebM, MKV, MOV, atau AVI.
 - [Lihat Jejak GPX di Peta](https://tools.adipmusic.my.id/#/t/lihat-jejak-gpx): Tampilkan rute lari atau sepeda dari file GPX di peta.
 - [Markdown ↔ PDF](https://tools.adipmusic.my.id/#/t/markdown-ke-pdf): Ubah tulisan Markdown jadi PDF A4, atau ambil teks PDF jadi Markdown.
-- [Sandi Morse](https://tools.adipmusic.my.id/#/t/morse): Teks ↔ sandi Morse + bunyi.
+- [Sandi Morse](https://tools.adipmusic.my.id/#/t/morse): Ubah teks jadi sandi Morse dan sebaliknya, lengkap dengan bunyi tiap kodenya.
 - [Konverter Angka](https://tools.adipmusic.my.id/#/t/number-converter): Biner, oktal, desimal, hex, dan romawi.
 - [Pembelah CSV](https://tools.adipmusic.my.id/#/t/pembelah-csv): Pecah file CSV besar jadi beberapa file yang lebih kecil.
 - [Pembelah Excel](https://tools.adipmusic.my.id/#/t/pembelah-excel): Pecah file Excel per lembar atau per sejumlah baris.
@@ -122,7 +122,7 @@
 - [Cek Tanda Tangan PDF](https://tools.adipmusic.my.id/#/t/cek-tanda-tangan-pdf): Lihat ada tidaknya tanda tangan digital di PDF.
 - [Cheatsheet Git](https://tools.adipmusic.my.id/#/t/cheatsheet-git): Perintah git penting, dikelompokkan + bisa dicari.
 - [Cheatsheet Regex](https://tools.adipmusic.my.id/#/t/cheatsheet-regex): 8 pola regex umum + tester mini tiap kartu.
-- [Kalkulator Chmod](https://tools.adipmusic.my.id/#/t/chmod): Permission oktal ↔ simbolik.
+- [Kalkulator Chmod](https://tools.adipmusic.my.id/#/t/chmod): Hitung izin file Linux dari angka ke huruf rwx dan sebaliknya, pakai centangan.
 - [Cron Parser & Builder](https://tools.adipmusic.my.id/#/t/cron): Terjemahkan & susun cron expression.
 - [Pembuat Deep Link Telegram](https://tools.adipmusic.my.id/#/t/deeplink-telegram): Buat tautan t.me bot dengan parameter start, siap dibagikan.
 - [DNS Lookup](https://tools.adipmusic.my.id/#/t/dns-lookup): Lookup DNS via Google DNS-over-HTTPS.
@@ -159,7 +159,7 @@
 - [Lihat Model 3D GLB/GLTF](https://tools.adipmusic.my.id/#/t/lihat-model-3d-glb-gltf): Buka dan putar model 3D .glb atau .gltf di browser, lengkap dengan jumlah segitiga, material, dan animasinya.
 - [Lihat Pesan Masuk Bot](https://tools.adipmusic.my.id/#/t/lihat-update-telegram): Lihat pesan terbaru yang masuk ke bot Telegram lewat getUpdates.
 - [List Converter](https://tools.adipmusic.my.id/#/t/list-converter): Ubah daftar jadi CSV, JSON, SQL, atau markdown.
-- [Markdown Preview](https://tools.adipmusic.my.id/#/t/markdown-preview): Preview Markdown jadi HTML.
+- [Markdown Preview](https://tools.adipmusic.my.id/#/t/markdown-preview): Tulis Markdown dan lihat pratinjau tampilannya sebagai halaman web.
 - [Meta Tag Generator](https://tools.adipmusic.my.id/#/t/meta-generator): Generator meta tag SEO + pratinjau Google (desktop & HP, potong sesuai lebar layar) dan kartu X.
 - [Minify CSS](https://tools.adipmusic.my.id/#/t/minify-css): Perkecil kode CSS supaya file style lebih ringan.
 - [Minify HTML](https://tools.adipmusic.my.id/#/t/minify-html): Perkecil kode HTML dengan menghapus komentar dan spasi berlebih.
@@ -174,19 +174,19 @@
 - [Pratinjau HTML](https://tools.adipmusic.my.id/#/t/preview-html): Tulis HTML dan lihat hasilnya langsung di bawah.
 - [Generator Prompt AI](https://tools.adipmusic.my.id/#/t/prompt-ai): Susun prompt AI yang rapi dari template.
 - [Rapikan Kode](https://tools.adipmusic.my.id/#/t/rapikan-kode): Rapikan indentasi JSON, HTML & CSS.
-- [Regex Tester](https://tools.adipmusic.my.id/#/t/regex-tester): Tes regex + highlight hasil.
-- [Robots.txt Generator](https://tools.adipmusic.my.id/#/t/robots-generator): Susun file robots.txt.
+- [Regex Tester](https://tools.adipmusic.my.id/#/t/regex-tester): Coba pola regex pada teksmu dan lihat bagian yang cocok langsung ditandai.
+- [Robots.txt Generator](https://tools.adipmusic.my.id/#/t/robots-generator): Susun file robots.txt: atur halaman mana yang boleh atau tidak boleh dirayapi mesin cari.
 - [Samarkan Teks](https://tools.adipmusic.my.id/#/t/samarkan-teks): Sensor email, nomor HP, NIK & kartu di teks.
 - [Schema Markup Generator](https://tools.adipmusic.my.id/#/t/schema-markup): Buat data terstruktur JSON-LD untuk mesin pencari.
 - [Sitemap Generator](https://tools.adipmusic.my.id/#/t/sitemap-generator): Buat sitemap.xml dari daftar URL situsmu.
-- [SQL Formatter](https://tools.adipmusic.my.id/#/t/sql-formatter): Rapikan query SQL.
+- [SQL Formatter](https://tools.adipmusic.my.id/#/t/sql-formatter): Rapikan query SQL jadi mudah dibaca, dengan kata kunci dan baris yang tertata rapi.
 - [Kalkulator Subnet IPv4](https://tools.adipmusic.my.id/#/t/subnet): Network, broadcast, range host dari CIDR.
 - [Tes Token Bot Telegram](https://tools.adipmusic.my.id/#/t/tes-bot-telegram): Cek token bot Telegram: tampilkan nama dan username bot bila token benar.
 - [TTF ↔ WOFF2](https://tools.adipmusic.my.id/#/t/ttf-ke-woff2): Ubah font TTF/OTF jadi WOFF2 yang ringan, atau WOFF2 kembali jadi TTF/OTF.
 - [Ubah Format Data](https://tools.adipmusic.my.id/#/t/ubah-format-data): JSON, YAML, TOML & XML saling tukar format.
 - [UTM Builder](https://tools.adipmusic.my.id/#/t/utm-builder): Susun link UTM untuk melacak asal pengunjung.
 - [Validator Email & URL](https://tools.adipmusic.my.id/#/t/validator-email-url): Cek format email dan URL: valid atau tidak, plus alasan dan rincian bagiannya. Bisa cek banyak sekaligus.
-- [XML Formatter](https://tools.adipmusic.my.id/#/t/xml-formatter): Rapikan & validasi XML.
+- [XML Formatter](https://tools.adipmusic.my.id/#/t/xml-formatter): Rapikan struktur XML dengan indentasi yang rapi, sekaligus periksa apakah formatnya benar.
 - [Detektor Karakter Tak Terlihat](https://tools.adipmusic.my.id/#/t/zerowidth): Temukan zero-width & karakter aneh di teks.
 
 ## Desain
@@ -211,12 +211,12 @@
 - [Generator Segitiga CSS](https://tools.adipmusic.my.id/#/t/generator-segitiga-css): Buat kode CSS bentuk segitiga: atur arah, lebar, tinggi, dan warnanya.
 - [Generator String Art](https://tools.adipmusic.my.id/#/t/generator-string-art): Ubah foto jadi string art: urutan lilitan satu benang di cincin paku.
 - [Generator Switch CSS](https://tools.adipmusic.my.id/#/t/generator-switch-css): Buat tombol switch/toggle CSS: atur ukuran dan warnanya, lalu salin kodenya.
-- [Gradient Generator](https://tools.adipmusic.my.id/#/t/gradient): Bikin gradient CSS + preview.
+- [Gradient Generator](https://tools.adipmusic.my.id/#/t/gradient): Bikin gradasi warna linear atau radial, atur warnanya, salin kode CSS-nya.
 - [Harmonograph](https://tools.adipmusic.my.id/#/t/harmonograph): Gambar dengan 4 bandul virtual, simpan sebagai PNG atau SVG.
 - [HTML/WebGL ke MP4](https://tools.adipmusic.my.id/#/t/htmlvideo): Render animasi canvas / HTML jadi video MP4 8 detik.
 - [Kalkulator Rasio Emas (Golden Ratio)](https://tools.adipmusic.my.id/#/t/kalkulator-rasio-emas): Dari satu ukuran, ketahui pasangannya dalam proporsi rasio emas 1 : 1,618.
 - [Komponen Wireframe](https://tools.adipmusic.my.id/#/t/komponen-wireframe): 12 komponen wireframe grayscale siap pakai, atur tema dan sudutnya lalu salin kodenya.
-- [Cek Kontras Warna](https://tools.adipmusic.my.id/#/t/kontras): Rasio kontras WCAG AA/AAA.
+- [Cek Kontras Warna](https://tools.adipmusic.my.id/#/t/kontras): Cek rasio kontras dua warna dan apakah teksnya lolos standar baca AA atau AAA.
 - [Animasi Logo](https://tools.adipmusic.my.id/#/t/logoanimate): Template animasi logo 8,33 detik (logo + teks pendamping) → XML Alight Motion.
 - [Mockup HP](https://tools.adipmusic.my.id/#/t/mockup-hp): Tempel screenshot ke bingkai HP, unduh PNG.
 - [Motion Control](https://tools.adipmusic.my.id/#/t/motioncontrol): Direktori layanan AI motion & animasi karakter.
@@ -253,12 +253,12 @@
 
 - [Anggaran Lebaran](https://tools.adipmusic.my.id/#/t/anggaran-lebaran): Rencana biaya mudik: transport, THR, parcel, zakat, plus tips hemat.
 - [Anggaran Nikah](https://tools.adipmusic.my.id/#/t/anggaran-nikah): Bagi-bagi budget nikah per pos, biar nggak jebol di tengah jalan.
-- [Arisan Picker](https://tools.adipmusic.my.id/#/t/arisan): Kocok nama anggota arisan.
+- [Arisan Picker](https://tools.adipmusic.my.id/#/t/arisan): Kocok nama anggota arisan secara acak, pemenangnya bisa langsung dikeluarkan dari daftar.
 - [Biaya Balik Nama](https://tools.adipmusic.my.id/#/t/balik-nama-kendaraan): Estimasi biaya balik nama motor & mobil.
 - [Biaya Admin Transfer Antar Bank](https://tools.adipmusic.my.id/#/t/biaya-admin-transfer-antar-bank): Bandingkan biaya transfer antar bank (BI-FAST, online, SKN, RTGS) untuk nominalmu.
 - [Biaya Perpanjang SIM](https://tools.adipmusic.my.id/#/t/biaya-perpanjang-sim): Hitung total biaya perpanjangan SIM: PNBP + cek kesehatan + psikotes, bisa diedit.
 - [Biaya Bikin SIM Baru](https://tools.adipmusic.my.id/#/t/biaya-sim-baru): Hitung total biaya bikin SIM A atau C baru: PNBP + tes kesehatan + tes psikologi.
-- [Bunga Majemuk](https://tools.adipmusic.my.id/#/t/bunga-majemuk): Simulasi compound interest.
+- [Bunga Majemuk](https://tools.adipmusic.my.id/#/t/bunga-majemuk): Simulasikan pertumbuhan uangmu dengan bunga majemuk, lengkap dengan setoran rutin tiap periode.
 - [Kalkulator Cicilan](https://tools.adipmusic.my.id/#/t/cicilan): Simulasi cicilan flat & anuitas, DP + biaya awal, banding tenor, denda telat, jadwal per bulan & ekspor CSV.
 - [Countdown Acara](https://tools.adipmusic.my.id/#/t/countdown): Hitung mundur ke hari penting.
 - [Denda Pajak STNK](https://tools.adipmusic.my.id/#/t/denda-pajak-stnk): Hitung denda telat bayar pajak kendaraan (PKB + SWDKLLJ).
@@ -305,8 +305,8 @@
 - [Kalkulator THR](https://tools.adipmusic.my.id/#/t/thr): THR proporsional sesuai masa kerja.
 - [Kalkulator Token Listrik](https://tools.adipmusic.my.id/#/t/token-listrik): Konversi rupiah ke kWh token listrik & sebaliknya.
 - [UMP per Provinsi](https://tools.adipmusic.my.id/#/t/ump-provinsi): Daftar UMP 2026 38 provinsi + bandingkan gajimu dengan UMP daerahmu.
-- [Kalkulator Zakat](https://tools.adipmusic.my.id/#/t/zakat): Zakat maal & fitrah.
-- [Konverter Zona Waktu](https://tools.adipmusic.my.id/#/t/zona-waktu): WIB, WITA, WIT + kota dunia.
+- [Kalkulator Zakat](https://tools.adipmusic.my.id/#/t/zakat): Hitung zakat maal dari hartamu dan zakat fitrah, lengkap dengan nisabnya.
+- [Konverter Zona Waktu](https://tools.adipmusic.my.id/#/t/zona-waktu): Ubah jam WIB, WITA, atau WIT ke jam di kota-kota lain di dunia.
 
 ## Musik
 
@@ -314,7 +314,7 @@
 - [Audio ke Mono / Stereo](https://tools.adipmusic.my.id/#/t/audio-ke-mono-stereo): Ubah audio stereo jadi mono atau mono jadi stereo, lalu unduh hasilnya.
 - [Audio Trimmer](https://tools.adipmusic.my.id/#/t/audio-trimmer): Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.
 - [Balik Audio](https://tools.adipmusic.my.id/#/t/balik-audio): Putar balik isi file audio, dari akhir ke awal.
-- [Camelot Wheel](https://tools.adipmusic.my.id/#/t/camelot): Kunci lagu untuk DJ mixing.
+- [Camelot Wheel](https://tools.adipmusic.my.id/#/t/camelot): Ubah kunci lagu jadi nomor Camelot dan sebaliknya, biar transisi DJ terdengar mulus.
 - [Kalkulator Chop Sample](https://tools.adipmusic.my.id/#/t/chop-sample): Bagi sample jadi chop: durasi per chop + konversi ke beat.
 - [Chord Progression](https://tools.adipmusic.my.id/#/t/chord-progression): Progresi akor sesuai nada dasar & mood, bisa dibunyikan.
 - [Chord Transposer](https://tools.adipmusic.my.id/#/t/chord-transpose): Naik-turunkan kunci chord lagu.
@@ -336,14 +336,14 @@
 - [Konverter Audio](https://tools.adipmusic.my.id/#/t/konverter-audio): Ubah audio antar MP3, WAV, FLAC, OGG, M4A, OPUS, dan AAC, dengan pilihan kualitas suara, sample rate, dan kanal mono/stereo.
 - [Kurva Energi Set](https://tools.adipmusic.my.id/#/t/kurva-energi): Visualisasi alur energi set DJ: bar chart + statistik peak, valley, rata-rata.
 - [Latihan Interval](https://tools.adipmusic.my.id/#/t/latihan-interval): Asah kuping: tebak jarak 2 nada dalam 10 ronde.
-- [Metronom](https://tools.adipmusic.my.id/#/t/metronome): Metronom dengan birama.
+- [Metronom](https://tools.adipmusic.my.id/#/t/metronome): Metronom dengan tempo dan birama yang bisa diatur, plus ketuk tempo dengan jari.
 - [Panjang Sample](https://tools.adipmusic.my.id/#/t/panjang-sample): Bar × BPM jadi detik, atau sebaliknya.
 - [Pembuat Chart Album](https://tools.adipmusic.my.id/#/t/pembuat-chart-album): Susun sampul album favoritmu jadi chart 3x3, 4x4, atau 5x5.
 - [Pembuat Cover Album](https://tools.adipmusic.my.id/#/t/pembuat-cover-album): Desain sampul album persegi dari fotomu, lengkap dengan judul dan nama artis.
 - [Pembuat Nada Dering](https://tools.adipmusic.my.id/#/t/pembuat-nada-dering): Potong lagu jadi nada dering, dengan fade halus di awal dan akhir.
 - [Pencari Rima](https://tools.adipmusic.my.id/#/t/pencari-rima): Cari kata yang berima buat nulis lirik lagu.
 - [Perekam Suara](https://tools.adipmusic.my.id/#/t/perekam-suara): Rekam suara dari mikrofon, potong, lalu unduh WebM atau WAV.
-- [Piano Browser](https://tools.adipmusic.my.id/#/t/piano): Main piano di browser.
+- [Piano Browser](https://tools.adipmusic.my.id/#/t/piano): Main piano di browser pakai tuts layar atau tombol keyboard.
 - [Pisah Audio per Hening](https://tools.adipmusic.my.id/#/t/pisah-audio-per-hening): Bagi rekaman panjang jadi beberapa file di tiap jeda hening.
 - [Durasi Playlist](https://tools.adipmusic.my.id/#/t/playlist-duration): Total durasi dari daftar lagu.
 - [Potong Hening Audio](https://tools.adipmusic.my.id/#/t/potong-hening-audio): Buang bagian hening di awal, tengah, dan akhir audio.
@@ -360,7 +360,7 @@
 - [Ubah Nada Audio](https://tools.adipmusic.my.id/#/t/ubah-nada-audio): Naik atau turunkan nada lagu tanpa mengubah kecepatannya.
 - [Ukuran File Audio](https://tools.adipmusic.my.id/#/t/ukuran-file-audio): Bitrate × durasi jadi ukuran file, atau sebaliknya.
 - [Delay/Reverb Time dari BPM](https://tools.adipmusic.my.id/#/t/waktu-delay-bpm): Waktu delay & reverb yang nempel sama BPM.
-- [White Noise](https://tools.adipmusic.my.id/#/t/white-noise): Suara fokus & tidur.
+- [White Noise](https://tools.adipmusic.my.id/#/t/white-noise): Putar suara hujan, kafe, api unggun, atau white noise untuk fokus dan tidur.
 
 ## Gambar
 
@@ -403,7 +403,7 @@
 - [Filter Kamera Disposable](https://tools.adipmusic.my.id/#/t/filter-kamera-disposable): Beri foto tampilan kamera sekali pakai: warna film, grain, flash, stempel tanggal.
 - [Foto Grayscale](https://tools.adipmusic.my.id/#/t/foto-grayscale): Foto berwarna jadi hitam-putih. Atur seberapa kuat efeknya.
 - [Foto ke Sprite Sheet](https://tools.adipmusic.my.id/#/t/foto-ke-sprite-sheet): Gabung banyak gambar kecil jadi satu lembar sprite game, lengkap dengan peta koordinatnya.
-- [Foto ke Sketsa](https://tools.adipmusic.my.id/#/t/foto-sketca): Ubah foto jadi sketsa pensil.
+- [Foto ke Sketsa](https://tools.adipmusic.my.id/#/t/foto-sketca): Ubah fotomu jadi sketsa pensil hitam putih, lalu unduh hasilnya sebagai PNG.
 - [Foto to Link](https://tools.adipmusic.my.id/#/t/fotolink): Upload gambar → dapat URL publik langsung.
 - [Gabung Foto (Stitch)](https://tools.adipmusic.my.id/#/t/gabung-foto): Sambung 2-10 foto jadi satu strip panjang, mendatar atau menurun.
 - [Gambar ke GIF](https://tools.adipmusic.my.id/#/t/gambar-ke-gif): Foto JPG atau PNG jadi file GIF. Cocok buat tempat yang cuma terima GIF.
@@ -461,7 +461,7 @@
 
 ## Teks
 
-- [ASCII Art](https://tools.adipmusic.my.id/#/t/ascii-art): Teks jadi seni ASCII.
+- [ASCII Art](https://tools.adipmusic.my.id/#/t/ascii-art): Ubah tulisanmu jadi seni huruf ASCII berukuran besar.
 - [Teks Terbalik](https://tools.adipmusic.my.id/#/t/balik-teks): Teks jadi huruf terbalik atau urutannya dibalik.
 - [Teks ke Braille](https://tools.adipmusic.my.id/#/t/braille-teks): Konversi dua arah teks Latin ↔ huruf braille Unicode.
 - [Cari & Ganti Teks](https://tools.adipmusic.my.id/#/t/cari-ganti-teks): Ganti massal kata atau frasa di teks, mode biasa atau pola regex, dengan hitungan penggantian dan pratinjau hasil.
@@ -469,7 +469,7 @@
 - [Dikte Suara](https://tools.adipmusic.my.id/#/t/dikte-suara): Ubah ucapan jadi teks langsung di browser.
 - [Eja dengan Alfabet NATO](https://tools.adipmusic.my.id/#/t/eja-nato): Ubah huruf jadi ejaan Alfa-Bravo-Charlie supaya tidak salah dengar saat mengeja lewat telepon.
 - [Ambil Kontak](https://tools.adipmusic.my.id/#/t/extract-contact): Ambil email & nomor HP dari teks.
-- [Fancy Text](https://tools.adipmusic.my.id/#/t/fancy-text): Teks gaya unik untuk sosmed.
+- [Fancy Text](https://tools.adipmusic.my.id/#/t/fancy-text): Ubah tulisan biasa jadi gaya tebal, miring, coret, dan lainnya untuk sosmed.
 - [Generator Hashtag](https://tools.adipmusic.my.id/#/t/generator-hashtag): Bikin sampai 30 hashtag siap pakai dari satu topik, per tier luas/niche/lokal.
 - [Generator Ide Blog](https://tools.adipmusic.my.id/#/t/generator-ide-blog): Dapat ide judul dan topik blog dari niche yang kamu isi.
 - [Generator Ide Story Instagram](https://tools.adipmusic.my.id/#/t/generator-ide-story-instagram): Dapat ide story Instagram dari niche dan audiensmu.
@@ -489,7 +489,7 @@
 - [Perubah Nada Tulisan](https://tools.adipmusic.my.id/#/t/perubah-nada-tulisan): Ubah nada tulisan: formal, santai, atau persuasif.
 - [Quote Generator](https://tools.adipmusic.my.id/#/t/quotegenerator): Bikin gambar quote 736×917: teks justify + kata sorotan, render lokal.
 - [Sandi Teks](https://tools.adipmusic.my.id/#/t/sandikan-teks): Ubah teks jadi sandi Caesar & Vigenère.
-- [Sensor Teks](https://tools.adipmusic.my.id/#/t/sensor-teks): Sensor kata/nomor otomatis.
+- [Sensor Teks](https://tools.adipmusic.my.id/#/t/sensor-teks): Sensor kata sensitif, nomor HP, dan email di teksmu secara otomatis.
 - [Text Alay Generator](https://tools.adipmusic.my.id/#/t/teks-alay): Ubah teks normal jadi gaya alay Indonesia.
 - [Teks Mocking](https://tools.adipmusic.my.id/#/t/teks-mocking): Ubah teks jadi tEkS mOcKiNg ala SpongeBob.
 - [Teks Pelangi](https://tools.adipmusic.my.id/#/t/teks-pelangi): Ubah teks jadi pelangi huruf per huruf, salin sebagai HTML.
@@ -497,14 +497,14 @@
 - [Generator Ucapan](https://tools.adipmusic.my.id/#/t/ucapan-generator): Bikin ucapan Lebaran, nikah, ultah, dan lainnya.
 - [WA Text Formatter](https://tools.adipmusic.my.id/#/t/wa-formatter): Teks biasa jadi format WhatsApp.
 - [Penghitung Kata](https://tools.adipmusic.my.id/#/t/word-counter): Kata, karakter, estimasi baca, skor baca & batas tiap platform.
-- [Zalgo Text](https://tools.adipmusic.my.id/#/t/zalgo): Teks rusak ala zalgo.
+- [Zalgo Text](https://tools.adipmusic.my.id/#/t/zalgo): Ubah teks jadi tulisan rusak ala zalgo, dengan intensitas yang bisa diatur.
 
 ## Bisnis
 
 - [Analisis SWOT](https://tools.adipmusic.my.id/#/t/analisis-swot): Petakan kekuatan, kelemahan, peluang, dan ancaman usahamu dalam satu matriks.
 - [Anggaran 50/30/20](https://tools.adipmusic.my.id/#/t/anggaran-50-30-20): Bagi penghasilan jadi kebutuhan, keinginan, dan tabungan, lalu cek apakah pengeluaranmu sudah sesuai.
 - [Banding Gaji](https://tools.adipmusic.my.id/#/t/banding-gaji): Bandingkan dua tawaran gaji sampai total setahunnya.
-- [Perbandingan Harga](https://tools.adipmusic.my.id/#/t/banding-harga): Mana lebih hemat per unit?
+- [Perbandingan Harga](https://tools.adipmusic.my.id/#/t/banding-harga): Bandingkan harga dua barang per gram, ml, atau pcs, biar ketahuan mana yang lebih hemat.
 - [Beli vs Sewa](https://tools.adipmusic.my.id/#/t/beli-vs-sewa): Bandingkan total biaya beli vs sewa + titik impasnya, termasuk nilai jual kembali, perawatan, dan nilai waktu uang.
 - [Kalkulator BEP UMKM](https://tools.adipmusic.my.id/#/t/bep-umkm): Hitung titik impas: jual berapa unit biar modal balik.
 - [Berat Volumetrik Paket](https://tools.adipmusic.my.id/#/t/berat-volumetrik): Hitung berat volumetrik paket dan bandingkan dengan berat timbangan. Yang lebih besar itulah yang ditagih kurir.
@@ -656,7 +656,7 @@
 - [Jadwal Vaksin Anjing](https://tools.adipmusic.my.id/#/t/jadwal-vaksin-anjing): Jadwal vaksin DHPP dan rabies anak anjing dari tanggal lahir.
 - [Jadwal Vaksin Kucing](https://tools.adipmusic.my.id/#/t/jadwal-vaksin-kucing): Jadwal vaksin F3 dan rabies anak kucing dari tanggal lahir.
 - [Jam Alarm Online](https://tools.adipmusic.my.id/#/t/jam-alarm-online): Pasang alarm di jam tertentu. Saat waktunya tiba, alarm berbunyi dan layar berkedip, walau kamu sedang membuka tab lain.
-- [Jam Dunia](https://tools.adipmusic.my.id/#/t/jam-dunia): Jam realtime 8 kota dunia.
+- [Jam Dunia](https://tools.adipmusic.my.id/#/t/jam-dunia): Lihat jam berjalan di 8 kota dunia sekaligus, dan tambah kotamu sendiri.
 - [Jejak Karbon](https://tools.adipmusic.my.id/#/t/jejak-karbon): Estimasi jejak karbon tahunanmu + tips menguranginya.
 - [Kalkulator 1RM](https://tools.adipmusic.my.id/#/t/kalkulator-1rm): Perkiraan beban maksimal sekali angkat (1RM) dari beban dan repetisi.
 - [Kalkulator Ape Index](https://tools.adipmusic.my.id/#/t/kalkulator-ape-index): Ape index dari rentang lengan dan tinggi badan, untuk panjat tebing dan olahraga lain.
@@ -694,7 +694,7 @@
 - [Perbandingan Ukuran Pizza](https://tools.adipmusic.my.id/#/t/perbandingan-ukuran-pizza): Pizza mana yang paling hemat? Bandingkan dua ukuran pizza dari diameter dan harganya.
 - [Skor Risiko Diabetes](https://tools.adipmusic.my.id/#/t/risiko-diabetes): Perkirakan risiko diabetes tipe 2 dari umur, berat badan, dan gaya hidup.
 - [Siklus Haid & Masa Subur](https://tools.adipmusic.my.id/#/t/siklus-haid): Prediksi haid berikut & masa subur dari hari pertama haid terakhir.
-- [Stopwatch](https://tools.adipmusic.my.id/#/t/stopwatch): Stopwatch + catat lap.
+- [Stopwatch](https://tools.adipmusic.my.id/#/t/stopwatch): Stopwatch dengan tombol lap untuk mencatat waktu tiap putaran.
 - [Tahun Kabisat](https://tools.adipmusic.my.id/#/t/tahun-kabisat): Cek tahun kabisat atau bukan, plus tahun kabisat berikutnya dan sebelumnya.
 - [Tanggal Kedaluwarsa](https://tools.adipmusic.my.id/#/t/tanggal-kedaluwarsa): Hitung tanggal kedaluwarsa dari tanggal produksi dan masa simpan, atau cek sisa hari barangmu.
 - [Target Baca](https://tools.adipmusic.my.id/#/t/target-baca): Pantau pace baca buku & halaman
@@ -733,7 +733,7 @@
 - [Anime Discover](https://tools.adipmusic.my.id/#/t/animegallery): Jelajah ilustrasi & GIF reaksi anime SFW dari Waifu.im & NEKOSBEST.
 - [Apple Music Wrapped](https://tools.adipmusic.my.id/#/t/apple-music-wrapped): Rangkuman setahun Apple Music-mu: menit dengar, artis dan lagu teratas, dari data ekspor atau isi manual.
 - [Arti & Asal Nama](https://tools.adipmusic.my.id/#/t/arti-asal-nama): Cari arti dan asal bahasa sebuah nama, khususnya nama Indonesia.
-- [Nama Bayi](https://tools.adipmusic.my.id/#/t/baby-name): Nama bayi Indonesia + arti.
+- [Nama Bayi](https://tools.adipmusic.my.id/#/t/baby-name): Cari nama bayi Indonesia secara acak, lengkap dengan arti namanya.
 - [Bagan Turnamen](https://tools.adipmusic.my.id/#/t/bagan-turnamen): Buat bagan turnamen gugur dan catat skornya.
 - [Benar atau Salah?](https://tools.adipmusic.my.id/#/t/benar-atau-salah): Kuis 10 soal acak dari 35 pernyataan: benar atau salah? Tiap jawaban ada penjelasannya.
 - [Berat di Planet Lain](https://tools.adipmusic.my.id/#/t/berat-di-planet-lain): Berat badanmu di tiap planet, di Bulan, dan di Pluto.
@@ -742,9 +742,9 @@
 - [Cek Khodam](https://tools.adipmusic.my.id/#/t/cek-khodam): Cek khodam penjagamu (hiburan!).
 - [Cek Vibes](https://tools.adipmusic.my.id/#/t/cek-vibes): Kuis 10 pertanyaan buat nentuin vibes kamu hari ini. 100% nggak ilmiah.
 - [Cocoklogi Nama](https://tools.adipmusic.my.id/#/t/cocoklogi-nama): Cek kecocokan dua nama, hasilnya konsisten.
-- [Hari Jadian](https://tools.adipmusic.my.id/#/t/couple-days): Sudah berapa hari bareng?
+- [Hari Jadian](https://tools.adipmusic.my.id/#/t/couple-days): Hitung sudah berapa hari, bulan, dan tahun sejak tanggal jadianmu.
 - [Dadu D&D](https://tools.adipmusic.my.id/#/t/dadu-dnd): Lempar dadu D&D dengan notasi lengkap, advantage, dan skor ability. Ada mode lempar cepat tanpa ketik notasi.
-- [Pengacak Keputusan](https://tools.adipmusic.my.id/#/t/decision): Bantu ambil keputusan.
+- [Pengacak Keputusan](https://tools.adipmusic.my.id/#/t/decision): Tulis beberapa pilihan, biarkan tool ini mengacak dan memilih satu untukmu.
 - [Discord Wrapped](https://tools.adipmusic.my.id/#/t/discord-wrapped): Rangkuman setahun Discord-mu: pesan, server, emoji dan kata teratas, dari data ekspor atau isi manual.
 - [Durasi Nonton Serial](https://tools.adipmusic.my.id/#/t/durasi-nonton-serial): Hitung total waktu maraton serialmu: dari jumlah episode dan durasinya, sampai tanggal selesai kalau nonton sekian jam sehari.
 - [Fakta Menarik Harian](https://tools.adipmusic.my.id/#/t/fakta-menarik-harian): Satu fakta menarik baru setiap hari, lengkap dengan sumbernya.
@@ -790,14 +790,14 @@
 - [Netflix Wrapped](https://tools.adipmusic.my.id/#/t/netflix-wrapped): Rangkuman nonton Netflix setahunmu dari file ViewingActivity: jam nonton, serial teratas, dan binge terbesarmu. Datamu sendiri, diproses lokal.
 - [Nokia Message](https://tools.adipmusic.my.id/#/t/nokiamsg): Bikin gambar SMS ala HP Nokia jadul.
 - [Papan Skor](https://tools.adipmusic.my.id/#/t/papan-skor-online): Papan skor layar besar untuk game, kuis, atau olahraga. Tim, ronde, target skor, dan jam pertandingan.
-- [Tes Refleks](https://tools.adipmusic.my.id/#/t/reaction): Ukur kecepatan refleks.
+- [Tes Refleks](https://tools.adipmusic.my.id/#/t/reaction): Tes kecepatan refleksmu: ketuk secepat mungkin begitu layarnya berubah hijau.
 - [Sertifikat Tolol](https://tools.adipmusic.my.id/#/t/sertifikat): Sertifikat meme roast: namamu + TERBUKTI TOLOL DAN TAK BEROTAK. 100% digambar di perangkat, tanpa server.
 - [Simulator Balap Bebek](https://tools.adipmusic.my.id/#/t/simulator-balap-bebek): Delapan bebek balapan sampai garis finis. Pilih jagoanmu, tekan mulai, dan lihat siapa yang menang.
 - [Simulator Balap Kelereng](https://tools.adipmusic.my.id/#/t/simulator-balap-kelereng): Kelereng warna-warni balapan menuruni lintasan. Ada tanjakan dan turunan yang mengubah kecepatan tiap kelereng.
 - [Simulator Hunger Games](https://tools.adipmusic.my.id/#/t/simulator-hunger-games): Masukkan tributmu dan jalankan battle royale sampai satu tersisa. Tiap ronde punya cerita acaknya sendiri.
 - [Simulator Pasir Jatuh](https://tools.adipmusic.my.id/#/t/simulator-pasir-jatuh): Jatuhkan pasir, air, dan batu ke kotak lalu lihat mereka jatuh dan menumpuk seperti aslinya.
 - [Simulator Pita Suara](https://tools.adipmusic.my.id/#/t/simulator-pita-suara): Lihat dua pita suara membuka dan menutup saat bersuara. Atur nada dan kerasnya, lalu dengarkan bunyinya.
-- [Roda Putar](https://tools.adipmusic.my.id/#/t/spinwheel): Spin wheel visual.
+- [Roda Putar](https://tools.adipmusic.my.id/#/t/spinwheel): Roda putar untuk mengundi nama: tulis daftarnya, putar, dan lihat siapa yang keluar.
 - [Statistik Spotify Tahunan](https://tools.adipmusic.my.id/#/t/statistik-spotify-tahunan): Rangkuman setahun Spotify-mu: menit dengar, artis dan lagu teratas, dari file ekspor atau isi manual.
 - [Strava Wrapped](https://tools.adipmusic.my.id/#/t/strava-wrapped): Rangkuman setahun Strava-mu: jarak, waktu gerak, dan olahraga teratas, dari file ekspor atau isi manual.
 - [Suit Jawa](https://tools.adipmusic.my.id/#/t/suit-jawa): Gunting-batu-kertas lawan komputer. Suit...!
@@ -910,7 +910,7 @@
 - [Kalkulator Biaya Kuliah](https://tools.adipmusic.my.id/#/t/biaya-kuliah): Perkirakan total biaya kuliah sampai lulus: UKT, biaya hidup, buku, dan biaya awal, per semester dan per tahun.
 - [Kalkulator Bilangan Besar](https://tools.adipmusic.my.id/#/t/bilangan-besar): Hitung tambah kurang kali bagi dan pangkat untuk bilangan raksasa sampai ribuan digit, hasilnya persis tanpa pembulatan.
 - [CariFakta](https://tools.adipmusic.my.id/#/t/carifakta): Analisis klaim & forward-an dengan AI: verdict hoaks/valid, klaim, dan panduan verifikasi.
-- [Citation Generator](https://tools.adipmusic.my.id/#/t/citation): Daftar pustaka APA & MLA.
+- [Citation Generator](https://tools.adipmusic.my.id/#/t/citation): Susun daftar pustaka APA atau MLA dari buku, jurnal, atau website untuk tugasmu.
 - [Kalkulator Elastisitas Harga](https://tools.adipmusic.my.id/#/t/elastisitas-harga): Hitung seberapa peka jumlah yang dibeli terhadap perubahan harga, dengan cara titik tengah dan cara sederhana.
 - [Estimasi TOEFL](https://tools.adipmusic.my.id/#/t/estimasi-skor-toefl): Perkirakan skor TOEFL dari nilai latihan listening, structure, reading.
 - [Kalkulator Faktor Bilangan](https://tools.adipmusic.my.id/#/t/faktor-bilangan): Cari semua bilangan yang bisa membagi habis suatu bilangan, lengkap dengan pasangan faktor dan jumlahnya.
@@ -922,7 +922,7 @@
 - [Generator Word Search](https://tools.adipmusic.my.id/#/t/generator-word-search): Buat teka-teki cari kata dari daftar katamu sendiri, lalu cetak atau unduh.
 - [Glosarium Pribadi](https://tools.adipmusic.my.id/#/t/glosarium): Kamus istilah pribadimu: simpan, cari, dan hapus definisi.
 - [Hitung Mundur Ujian](https://tools.adipmusic.my.id/#/t/hitung-mundur-ujian): Countdown live tiap ujian: hari, jam, menit, detik + label mepet.
-- [Kalkulator IPK](https://tools.adipmusic.my.id/#/t/ipk): Hitung IPK semester.
+- [Kalkulator IPK](https://tools.adipmusic.my.id/#/t/ipk): Hitung IPK semestermu dari nilai dan SKS tiap mata kuliah.
 - [Jadwal Belajar](https://tools.adipmusic.my.id/#/t/jadwal-belajar): Susun jadwal belajar mingguan otomatis dari daftar mapelmu.
 - [Kalkulator Jarak Dua Titik](https://tools.adipmusic.my.id/#/t/jarak-dua-titik): Hitung jarak antara dua titik di bidang datar atau di ruang, lengkap dengan titik tengah dan langkahnya.
 - [Kalkulator Angka Penting](https://tools.adipmusic.my.id/#/t/kalkulator-angka-penting): Hitung angka penting, bulatkan ke jumlah angka penting yang benar, dan hitung tambah kurang kali bagi mengikuti aturannya.
@@ -977,12 +977,12 @@
 - [Tabel Periodik](https://tools.adipmusic.my.id/#/t/tabel-periodik): 118 unsur kimia: ketuk buat lihat detailnya.
 - [Tabel Perkalian](https://tools.adipmusic.my.id/#/t/tabel-perkalian): Tabel perkalian 1–20 plus mode kuis 10 soal.
 - [Tes Mengetik Kode](https://tools.adipmusic.my.id/#/t/tes-mengetik-kode): Ukur kecepatan mengetik kode program: JavaScript, Python, HTML, dan JSON, lengkap dengan hitungan salah per simbol.
-- [Tes Mengetik](https://tools.adipmusic.my.id/#/t/typing-test): Kecepatan mengetik Indonesia.
+- [Tes Mengetik](https://tools.adipmusic.my.id/#/t/typing-test): Ukur kecepatan mengetikmu dalam kata per menit dan akurasinya, pakai teks Indonesia.
 - [Visualisasi Algoritma Sorting](https://tools.adipmusic.my.id/#/t/visualisasi-algoritma-sorting): Lihat cara kerja bubble, insertion, selection, merge, dan quick sort lewat batang yang bergerak langkah demi langkah.
 - [World Classics Reader](https://tools.adipmusic.my.id/#/t/worldclassics): Baca sastra klasik Tiongkok/Jepang/Korea (public domain) dari Wikisource + terjemahan Indonesia.
 - [Zoom Mandelbrot](https://tools.adipmusic.my.id/#/t/zoom-mandelbrot): Jelajahi himpunan Mandelbrot: ketuk untuk memperbesar, lihat pola yang berulang tanpa habis.
 
-## Live API
+## Data Langsung
 
 - [Akhir Dukungan Software](https://tools.adipmusic.my.id/#/t/akhir-dukungan-software): Cek sampai kapan sebuah bahasa atau framework masih didukung, per versinya.
 - [Ambil Favicon Situs](https://tools.adipmusic.my.id/#/t/ambil-favicon-situs): Lihat dan unduh ikon kecil (favicon) dari situs web apa pun.
@@ -1124,7 +1124,7 @@
 - [Uji Klinis](https://tools.adipmusic.my.id/#/t/uji-klinis): Cari uji klinis medis di seluruh dunia berdasarkan penyakit atau obat.
 - [Wilayah Indonesia](https://tools.adipmusic.my.id/#/t/wilayah-indonesia): Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.
 
-## Fake Sosmed
+## Sosmed Palsu
 
 - [Fake Achievement Unlock](https://tools.adipmusic.my.id/#/t/fake-achievement): Notifikasi achievement palsu ala Xbox / Steam / PlayStation + unduh PNG.
 - [Fake Boarding Pass](https://tools.adipmusic.my.id/#/t/fake-boarding-pass): Bikin boarding pass pesawat palsu buat prank + unduh PNG.

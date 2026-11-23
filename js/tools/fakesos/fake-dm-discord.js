@@ -75,7 +75,7 @@ export function render(root) {
 .fdd-phone{max-width:400px;margin:14px auto;border-radius:22px;overflow:hidden;border:1px solid rgba(0,0,0,.14);background:#313338;font-family:"gg sans","Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .fdd-sb{position:relative;display:flex;justify-content:space-between;align-items:center;height:48px;padding:0 16px 0 22px}
 .fdd-hd{display:flex;align-items:center;height:56px;padding:0 10px 0 2px}
-.fdd-bk{background:none;border:0;padding:10px 6px 10px 10px;cursor:pointer;display:flex;align-items:center}
+.fdd-bk{background:none;border:0;padding:10px 6px 10px 10px;display:flex;align-items:center}
 .fdd-avwrap{position:relative;flex:none}
 .fdd-av{width:36px;height:36px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;overflow:hidden}
 .fdd-av img{width:100%;height:100%;object-fit:cover;display:block}

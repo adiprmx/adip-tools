@@ -9,7 +9,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Slug provider lain (disney, prime, hulu, max, peacock, paramount, apple)
 // mengikuti pola parameter yang sama; bila suatu layanan tidak dikenal API,
 // tool menampilkan pesan gagal jujur, bukan daftar karangan.
-export const meta = {"id":"film-baru-streaming","name":"Film Baru di Streaming","cat":"liveapi","icon":"🎬","desc":"Lihat film dan serial yang baru tayang dan segera tayang di Netflix dan layanan lain.","keywords":"film,serial,streaming,netflix,disney,baru tayang,bioskop","since":"6.19.0"};
+export const meta = {"id":"film-baru-streaming","name":"Film Baru di Streaming","cat":"liveapi","icon":"🎬","desc":"Lihat film dan serial yang baru tayang dan segera tayang di Netflix dan layanan lain.","keywords":"film,serial,streaming,netflix,disney,baru tayang,bioskop","since":"6.19.0", "online": true};
 
 const API = 'https://www.galaxymovies.app/api/streaming-changes?provider=';
 const LAYANAN = [
@@ -71,7 +71,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal mengambil daftar. Layanan ini mungkin belum dikenal, atau cek koneksi internet lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

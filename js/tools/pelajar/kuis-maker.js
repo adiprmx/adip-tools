@@ -97,6 +97,7 @@ export function render(root) {
       });
       const delRow = T.el('<div style="text-align:right;margin-top:6px"></div>');
       delRow.appendChild(T.btn('✕ Hapus soal', () => {
+        if (!confirm('Hapus soal nomor ' + (i + 1) + '? Soal yang sudah dihapus tidak bisa dikembalikan.')) return;
         current.soal.splice(i, 1); saveAll(quizzes); refreshSel(); drawEditor();
       }));
       card.appendChild(delRow);

@@ -1,6 +1,6 @@
 import { h as T, esc, utils } from '../../core.js';
 
-export const meta = {"id":"info-makanan","name":"Info Makanan Kemasan","cat":"liveapi","icon":"🍫","desc":"Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.","keywords":"makanan,barcode,nutrisi,gizi,kalori,kemasan,openfoodfacts,skor"};
+export const meta = {"id":"info-makanan","name":"Info Makanan Kemasan","cat":"liveapi","icon":"🍫","desc":"Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.","keywords":"makanan,barcode,nutrisi,gizi,kalori,kemasan,openfoodfacts,skor", "online": true};
 
 const NS_WARNA = { A: '#2e9e44', B: '#7fbf3f', C: '#f2c200', D: '#ef8b2c', E: '#e5484d' };
 const NS_LABEL = { A: 'Sangat baik', B: 'Baik', C: 'Sedang', D: 'Kurang', E: 'Buruk' };
@@ -12,7 +12,7 @@ export function render(root) {
   // getJson kanonis tinggal di utils (core.js).
 
   const errText = (e) => {
-    if (e && e.name === 'AbortError') return 'Waktu habis — server tidak merespons dalam 15 detik. Periksa koneksi internet lalu coba lagi.';
+    if (e && e.name === 'AbortError') return 'Waktu habis — server tidak bisa dihubungi dalam 15 detik. Periksa koneksi internet lalu coba lagi.';
     if (e && e.status === 429) return 'Rate limit tercapai (429). Tunggu sebentar lalu coba lagi.';
     if (e && e.status) return 'Server mengembalikan HTTP ' + e.status + '. Coba lagi nanti.';
     return 'Gagal memuat data. Periksa koneksi internet lalu coba lagi.';

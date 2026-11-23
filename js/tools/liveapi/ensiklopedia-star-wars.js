@@ -64,7 +64,7 @@ function ringkasan(item, kat) {
     (item.manufacturer ? ' · ' + item.manufacturer : '');
 }
 
-export const meta = {"id": "ensiklopedia-star-wars", "name": "Ensiklopedia Star Wars", "cat": "liveapi", "icon": "⭐", "desc": "Cari tokoh, film, planet, pesawat, dan spesies dari dunia Star Wars.", "keywords": "star wars,swapi,tokoh,film,planet,pesawat,jedi,sith,ensiklopedia", "since": "6.17.0"};
+export const meta = {"id": "ensiklopedia-star-wars", "name": "Ensiklopedia Star Wars", "cat": "liveapi", "icon": "⭐", "desc": "Cari tokoh, film, planet, pesawat, dan spesies dari dunia Star Wars.", "keywords": "star wars,swapi,tokoh,film,planet,pesawat,jedi,sith,ensiklopedia", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -124,7 +124,7 @@ export function render(root) {
       if (next) next.addEventListener('click', () => muat(urlBerikut));
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server SWAPI tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server SWAPI tidak bisa dihubungi dalam 15 detik.'
         : 'Data gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

@@ -1,6 +1,6 @@
 # ADIP Tools 🧰
 
-**1.299 tools gratis berbahasa Indonesia** — kalkulator, converter, generator, dan alat sehari-hari, sebagian besar khusus untuk kebutuhan di Indonesia.
+**1.261 tools gratis berbahasa Indonesia** — kalkulator, converter, generator, dan alat sehari-hari, sebagian besar khusus untuk kebutuhan di Indonesia.
 
 🌐 Live: <https://tools.adipmusic.my.id>
 
@@ -9,6 +9,7 @@ Tanpa daftar, tanpa iklan. Bisa dipasang sebagai aplikasi di HP/komputer (opsion
 ## Isi
 
 - [Kategori](#kategori)
+- [Alamat halaman](#alamat-halaman)
 - [Pasang sebagai aplikasi, pakai offline (PWA)](#pasang-sebagai-aplikasi-pakai-offline-pwa)
 - [Cara menjalankan lokal](#cara-menjalankan-lokal)
 - [Menambah tool baru](#menambah-tool-baru)
@@ -20,32 +21,50 @@ Tanpa daftar, tanpa iklan. Bisa dipasang sebagai aplikasi di HP/komputer (opsion
 
 ## Kategori
 
-22 kategori, 1.299 tool (v6.20.1). Daftar lengkap per tool ada di [TOOLS.md](TOOLS.md).
+22 kategori, 1.261 tool (v6.21.0). Daftar lengkap per tool ada di [TOOLS.md](TOOLS.md).
 
 | Kategori | Jumlah | Isi |
 |---|---:|---|
-| 🌐 Live API | 146 | Gempa BMKG, jadwal sholat, kurs, harga crypto |
-| 💼 Bisnis | 126 | Gaji, HPP, invoice, PPN, BEP, marketplace |
-| 🖼️ Gambar | 97 | Kompres, convert, crop pas foto, kolase, meme |
-| 🏠 Sehari-hari | 96 | BMI, umur, parkir, jadwal, tes perangkat |
-| 🎲 Fun | 95 | Kuis, tebak-tebakan, spin wheel, zodiak |
-| ⚡ Produktivitas | 87 | Pomodoro, kanban, surat, CV, habit tracker |
-| 📚 Pelajar | 80 | IPK, CPNS, TOEFL, matriks, tabel periodik |
-| 🧑‍💻 Developer | 77 | JSON, JWT, hash, regex, cron, Git |
-| 🔁 Converter | 73 | Satuan, suhu, mata uang, video, Base64 |
-| 🎨 Desain | 58 | Palet warna, gradient, QR, favicon, tipografi |
-| 🇮🇩 Indonesia | 57 | Pajak kendaraan, BPJS, THR, zakat, weton, SIM |
-| 🎧 Musik | 53 | Metronome, chord, BPM, tuner, DJ |
-| 🎭 Fake Sosmed | 46 | Fake chat, fake post, fake notif (untuk hiburan) |
-| ❤️ Kesehatan | 45 | Skor jantung, lemak tubuh, rokok, peak flow |
-| 🔤 Teks | 40 | Word counter, lorem ipsum, fancy text |
+| 🌐 Data Langsung | 139 | Gempa BMKG, jadwal sholat, kurs, harga crypto |
+| 💼 Bisnis | 124 | Gaji, HPP, invoice, PPN, BEP, marketplace |
+| 🏠 Sehari-hari | 98 | BMI, umur, parkir, jadwal, tes perangkat |
+| 🖼️ Gambar | 94 | Kompres, convert, crop pas foto, kolase, meme |
+| 🎲 Fun | 93 | Kuis, tebak-tebakan, spin wheel, zodiak |
+| 📚 Pelajar | 79 | IPK, CPNS, TOEFL, matriks, tabel periodik |
+| 🧑‍💻 Developer | 75 | JSON, JWT, hash, regex, cron, Git |
+| ⚡ Produktivitas | 74 | Pomodoro, kanban, surat, CV, habit tracker |
+| 🔁 Converter | 69 | Satuan, suhu, mata uang, video, Base64 |
+| 🎨 Desain | 57 | Palet warna, gradient, QR, favicon, tipografi |
+| 🇮🇩 Indonesia | 56 | Pajak kendaraan, BPJS, THR, zakat, weton, SIM |
+| 🎧 Musik | 51 | Metronome, chord, BPM, tuner, DJ |
+| 🎭 Sosmed Palsu | 46 | Fake chat, fake post, fake notif (untuk hiburan) |
+| ❤️ Kesehatan | 44 | Skor jantung, lemak tubuh, rokok, peak flow |
+| 🔤 Teks | 37 | Word counter, lorem ipsum, fancy text |
 | 🔐 Keamanan | 34 | Password, TOTP, cek penipuan, enkripsi |
-| 🔬 Sains | 23 | Berat molekul, hukum Ohm, energi gempa |
+| 🔬 Sains | 24 | Berat molekul, hukum Ohm, energi gempa |
 | 🎬 Kreator | 18 | Caption IG/TikTok, brief konten, hook video |
 | 🚗 Otomotif | 16 | Beli vs sewa mobil, biaya cas mobil listrik |
-| 🏡 Rumah | 14 | Atap, keramik, pasir, beban balok |
+| 🏡 Rumah | 15 | Atap, keramik, pasir, beban balok |
 | 🍳 Masak | 9 | Rasio beras-air, kopi, oven ke air fryer |
 | ✈️ Travel | 9 | Anggaran trip, jet lag, bebas visa |
+
+## Alamat halaman
+
+Situs memakai alamat hash (bagian setelah `#` di URL). Bedakan dua huruf ini:
+
+- `#/t/<id-tool>` — satu tool, mis. `#/t/qr-generator`.
+- `#/k/<kategori>` — satu kategori, mis. `#/k/bisnis`.
+- `#/c/<koleksi>` — satu koleksi lintas kategori, mis. `#/c/lamaran-kerja`.
+- `#/semua` — semua tool (tambah `?q=` untuk pencarian, mis. `#/semua?q=gaji`).
+- `#/favorit` — daftar favoritmu.
+- `#/metodologi` — rumus & asumsi kalkulator.
+
+Catatan: `#/k/` = kategori, `#/c/` = koleksi — jangan tertukar. Alamat
+`#/favorit` harus persis begitu: tambahan apa pun di belakangnya (mis.
+`#/favorit?x=1`) membuat situs kembali ke beranda — perilaku lama yang
+sengaja dipertahankan. Beberapa tool membaca tambahan di alamatnya:
+`#/t/pdflab?tab=9` membuka tab ke-10 PDFLab, `#/t/csv-ke-excel?dir=b`
+membuka arah Excel → CSV.
 
 ## Pasang sebagai aplikasi, pakai offline (PWA)
 
@@ -155,12 +174,12 @@ Detail lengkap: [docs/arsitektur.md](docs/arsitektur.md).
 
 - **Statis murni.** HTML + CSS + vanilla JS, tanpa framework, tanpa backend sendiri. Build memakai Vite (`npm run build` → `dist/`): bundling + minifikasi + nama file ber-hash. Hosting cukup server file statis apa pun.
 - **Shell + hash routing.** `index.html` hanya berisi skip link + `<main id="app">` dan dua `<script type="module">`. `js/app.js` adalah router hash: `#/t/<id-tool>`, `#/k/<kategori>`, `#/semua`, `#/favorit`, `#/c/<koleksi>`, `#/metodologi`.
-- **Lazy load per tool.** Beranda hanya memuat `js/manifest.js` (metadata ringan 1.299 tool). Kode tool diimpor dinamis lewat `import.meta.glob` saat halamannya dibuka — satu chunk ber-hash per tool sebagai cache-buster.
+- **Lazy load per tool.** Beranda hanya memuat `js/manifest.js` (metadata ringan 1.261 tool). Kode tool diimpor dinamis lewat `import.meta.glob` saat halamannya dibuka — satu chunk ber-hash per tool sebagai cache-buster.
 - **Satu file = satu tool.** Tiap tool adalah ES module mandiri di `js/tools/<kategori>/<id>.js`, mengimpor helper dari `js/core.js` (komponen UI, format angka/Rupiah, download, ZIP, toast, dan lain-lain).
 - **Client-side, dengan dua pengecualian jujur:**
-  - **Live API (146 tool):** mengambil data publik dari API pihak ketiga (BMKG, Aladhan, CoinGecko, dan sejenisnya) langsung dari browser.
+  - **Data Langsung (139 tool):** mengambil data publik dari API pihak ketiga (BMKG, Aladhan, CoinGecko, dan sejenisnya) langsung dari browser.
   - **Supabase (opsional, gagal diam-diam):** `js/app.js` hanya mencatat kata kunci pencarian (anonim, maks. 80 karakter) dan mengambil daftar tool populer. Kalau Supabase mati, situs tetap jalan normal.
-  - **ffmpeg.wasm (30 tool video/audio):** `@ffmpeg/ffmpeg` 0.12.15 + `@ffmpeg/core` 0.12.10 single-thread, dimuat dari CDN jsDelivr; worker-nya di-vendor same-origin di `js/ffmpeg-worker/` agar tidak kena blokir lintas-origin. Semua proses jalan di perangkat pengguna — file tidak di-upload.
+  - **ffmpeg.wasm (29 tool video/audio):** `@ffmpeg/ffmpeg` 0.12.15 + `@ffmpeg/core` 0.12.10 single-thread, dimuat dari CDN jsDelivr; worker-nya di-vendor same-origin di `js/ffmpeg-worker/` agar tidak kena blokir lintas-origin. Semua proses jalan di perangkat pengguna — file tidak di-upload.
 - **State lokal.** Favorit dan riwayat tersimpan di `localStorage` (`adip_fav`, `adip_recent`), maksimal 50 favorit.
 
 ## Aturan desain (design lock)
@@ -194,19 +213,19 @@ css/                  style.css (design lock) + fx-*.css (efek) + fonts/
 js/
   app.js              Router hash, beranda, pencarian, favorit, koleksi
   core.js             Helper bersama semua tool (namespace `h`, `utils`)
-  manifest.js         Metadata 1.299 tool (GENERATED)
+  manifest.js         Metadata 1.261 tool (GENERATED)
   beranda.js          Showcase "Baru ditambahkan" + pengantar kategori (v6.12.0)
   detail-riwayat.js   Rel riwayat + chip kembali di halaman tool (v6.12.0)
   seo-share.js        Meta/JSON-LD dinamis + tombol bagikan (v6.12.0)
   search-plus.js      Ranker pencarian intent-aware + saran (v6.12.0)
   fx.js               Efek visual
-  ffmpeg-loader.js    Pemuat bersama ffmpeg.wasm (30 tool video/audio)
+  ffmpeg-loader.js    Pemuat bersama ffmpeg.wasm (29 tool video/audio)
   ffmpeg-worker/      Worker ffmpeg yang di-vendor same-origin
-  tools/<kategori>/   Satu file per tool (1.299 terdaftar di manifest v6.20.1)
+  tools/<kategori>/   Satu file per tool (1.261 terdaftar di manifest v6.21.0)
 scripts/              Generator manifest/TOOLS.md/sitemap/llms.txt, bump, cek
 docs/                 Panduan kontribusi & arsitektur
 supabase/             SQL pendukung pencarian (catatan: tidak cocok dengan app.js — lihat docs/arsitektur.md)
-TOOLS.md              Daftar lengkap 1.299 tool (GENERATED)
+TOOLS.md              Daftar lengkap 1.261 tool (GENERATED)
 llms.txt              Ringkasan situs untuk LLM (GENERATED)
 sitemap.xml           Sitemap (GENERATED)
 robots.txt            Mengizinkan semua crawler, menunjuk sitemap

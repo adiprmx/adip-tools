@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "trivia-umum", "name": "Trivia Umum", "cat": "fun", "icon": "🧠", "desc": "Kuis 5 atau 10 soal pengetahuan umum: soal Indonesia atau soal dunia dari Open Trivia DB.", "keywords": "trivia,kuis,umum,pengetahuan,soal,dunia,indonesia,kuis trivia,ronde singkat,pilihan ganda", "since": "6.12.0"};
+export const meta = {"id": "trivia-umum", "name": "Trivia Umum", "cat": "fun", "icon": "🧠", "desc": "Kuis 5 atau 10 soal pengetahuan umum: soal Indonesia atau soal dunia dari Open Trivia DB.", "keywords": "trivia,kuis,umum,pengetahuan,soal,dunia,indonesia,kuis trivia,ronde singkat,pilihan ganda", "since": "6.12.0", "online": true};
 
 // Bank soal lokal (Bahasa Indonesia) — dipakai untuk mode "Soal Indonesia" dan
 // sebagai cadangan otomatis bila soal dunia dari internet gagal dimuat.
@@ -113,7 +113,7 @@ export function render(root) {
       if (katDuniaSel.value !== '0') url += '&category=' + katDuniaSel.value;
       if (sulitSel.value !== 'acak') url += '&difficulty=' + sulitSel.value;
       const res = await fetch(url, { signal: ctrl.signal });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (!res.ok) throw new Error('Soal dari internet gagal dimuat.');
       const data = await res.json();
       if (!data.results || !data.results.length) throw new Error('soal kosong');
       return data.results.map((r) => ({

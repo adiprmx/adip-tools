@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "piano", "name": "Piano Browser", "cat": "musik", "icon": "🎹", "desc": "Main piano di browser.", "keywords": "piano,main,musik"};
+export const meta = {"id": "piano", "name": "Piano Browser", "cat": "musik", "icon": "🎹", "desc": "Main piano di browser pakai tuts layar atau tombol keyboard.", "keywords": "piano,main,musik,keyboard piano,tuts piano,oktaf"};
 export function render(root) {
 
     const wrap = T.el('<div class="piano"></div>');

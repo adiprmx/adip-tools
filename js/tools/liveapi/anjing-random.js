@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id": "anjing-random", "name": "Anjing Random", "cat": "liveapi", "icon": "🐶", "desc": "Foto anjing acak dari seluruh dunia.", "keywords": "anjing,dog,puppy,hewan,random,foto"};
+export const meta = {"id": "anjing-random", "name": "Anjing Random", "cat": "liveapi", "icon": "🐶", "desc": "Foto anjing acak dari seluruh dunia.", "keywords": "anjing,dog,puppy,hewan,random,foto", "online": true};
 
 // Ambil nama breed dari URL: .../breeds/hound-afghan/n02088094_1003.jpg
 function breedDariUrl(url) {

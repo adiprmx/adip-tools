@@ -145,6 +145,8 @@ export function render(root) {
       }
       T.show(logBox, html);
       logBox.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+        const entri = log[+b.dataset.i];
+        if (!confirm('Hapus catatan gula darah' + (entri ? ' ' + entri.nilai + ' mg/dL tanggal ' + entri.tanggal : '') + '? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
         log.splice(+b.dataset.i, 1); save(); paint(); T.toast('Catatan dihapus');
       }));
       save();
@@ -174,7 +176,7 @@ export function render(root) {
     ));
     root.appendChild(T.row(
       T.btn('＋ Simpan Catatan', tambah, true),
-      T.btn('Hapus semua', () => { log = []; save(); paint(); T.toast('Semua catatan dihapus'); })
+      T.btn('Hapus semua', () => { if (!confirm('Hapus semua catatan gula darah? Data kesehatan ini akan hilang dan tidak bisa dikembalikan.')) return; log = []; save(); paint(); T.toast('Semua catatan dihapus'); })
     ));
     root.appendChild(ringkasBox);
     root.appendChild(trenBox);

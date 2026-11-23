@@ -1,7 +1,7 @@
 import { h as T, utils } from '../../core.js';
 import { TARIF_PLN, PPJ_DEFAULT, PPJ_KETERANGAN, TARIF_PLN_PERIODE, TARIF_PLN_BERLAKU, TARIF_PLN_CATATAN_Q1 } from '../../tarif-pln.js';
 
-export const meta = {"id": "token-listrik", "name": "Kalkulator Token Listrik", "cat": "indonesia", "icon": "⚡", "desc": "Konversi rupiah ke kWh token listrik & sebaliknya.", "keywords": "token,listrik,kwh,pln,prabayar,tarif"};
+export const meta = {"id": "token-listrik", "name": "Kalkulator Token Listrik", "cat": "indonesia", "icon": "⚡", "desc": "Konversi rupiah ke kWh token listrik & sebaliknya.", "keywords": "token,listrik,kwh,pln,prabayar,tarif", "dataValidUntil": "2026-12-31"};
 export function render(root) {
   // Tarif dari modul bersama js/tarif-pln.js (satu sumber kebenaran dengan
   // tagihan-listrik & kalkulator-biaya-cas-mobil-listrik).

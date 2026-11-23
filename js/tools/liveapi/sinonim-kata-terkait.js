@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Sinonim dan kata terkait bahasa Inggris lewat Datamuse, tanpa key.
 // Terverifikasi 17 Nov 2026: /words?rel_syn=happy&max=5 -> 200, CORS echo.
 // Batas: sekitar 100 ribu permintaan per hari.
-export const meta = {"id":"sinonim-kata-terkait","name":"Sinonim & Kata Terkait","cat":"liveapi","icon":"📖","desc":"Cari sinonim, lawan kata, kata yang berima, dan kata terkait dalam bahasa Inggris.","keywords":"sinonim,antonim,rima,datamuse,kata,bahasa inggris,thesaurus,kosakata","since":"6.17.0"};
+export const meta = {"id":"sinonim-kata-terkait","name":"Sinonim & Kata Terkait","cat":"liveapi","icon":"📖","desc":"Cari sinonim, lawan kata, kata yang berima, dan kata terkait dalam bahasa Inggris.","keywords":"sinonim,antonim,rima,datamuse,kata,bahasa inggris,thesaurus,kosakata","since":"6.17.0", "online": true};
 
 const RELASI = [
   ['rel_syn', 'Sinonim (arti mirip)'],
@@ -46,7 +46,7 @@ export function render(root) {
         '<p class="hint">Sumber: Datamuse. Data berbahasa Inggris, urutan dari yang paling mirip.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Datamuse tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Datamuse tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari kata. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

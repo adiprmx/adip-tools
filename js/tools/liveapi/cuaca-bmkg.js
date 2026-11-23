@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"cuaca-bmkg","name":"Cuaca BMKG","cat":"liveapi","icon":"🌤️","desc":"Prakiraan cuaca resmi BMKG per desa dan kelurahan, 3 hari ke depan.","keywords":"cuaca,bmkg,prakiraan,hujan,cerah,suhu,desa,kelurahan","since":"6.16.0"};
+export const meta = {"id":"cuaca-bmkg","name":"Cuaca BMKG","cat":"liveapi","icon":"🌤️","desc":"Prakiraan cuaca resmi BMKG per desa dan kelurahan, 3 hari ke depan.","keywords":"cuaca,bmkg,prakiraan,hujan,cerah,suhu,desa,kelurahan","since":"6.16.0", "online": true};
 
 const API = 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=';
 
@@ -91,7 +91,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server BMKG tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server BMKG tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal ambil prakiraan cuaca. Cek koneksi internet dan kode wilayah, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

@@ -7,7 +7,7 @@ import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // BATASAN JUJUR: slide-nya gambar, bukan teks yang bisa diedit; teks
 // hanya ada di catatan slide. PDF hasil scan tetap jadi gambar, tapi
 // tanpa teks di catatannya.
-export const meta = {"id": "pdf-ke-powerpoint", "name": "PDF ke PowerPoint", "cat": "produktivitas", "icon": "📊", "desc": "Ubah PDF jadi presentasi, tiap halaman jadi satu slide.", "keywords": "pdf ke pptx,pdf ke powerpoint,pdf jadi presentasi,konversi pdf", "since": "6.17.0"};
+export const meta = {"id": "pdf-ke-powerpoint", "name": "PDF ke PowerPoint", "cat": "produktivitas", "icon": "📊", "desc": "Ubah PDF jadi presentasi, tiap halaman jadi satu slide.", "keywords": "pdf ke pptx,pdf ke powerpoint,pdf jadi presentasi,konversi pdf", "since": "6.17.0", "online": true};
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';

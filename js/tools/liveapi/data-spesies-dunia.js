@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"data-spesies-dunia","name":"Data Spesies Dunia","cat":"liveapi","icon":"🌿","desc":"Cari nama latin hewan, tumbuhan, dan jamur di basis data GBIF.","keywords":"spesies,gbif,nama latin,hewan,tumbuhan,biodiversitas,taksonomi","since":"6.18.0"};
+export const meta = {"id":"data-spesies-dunia","name":"Data Spesies Dunia","cat":"liveapi","icon":"🌿","desc":"Cari nama latin hewan, tumbuhan, dan jamur di basis data GBIF.","keywords":"spesies,gbif,nama latin,hewan,tumbuhan,biodiversitas,taksonomi","since":"6.18.0", "online": true};
 
 // Cari data spesies lewat GBIF (Global Biodiversity Information Facility),
 // tanpa key. Terverifikasi 18 Nov 2026:
@@ -78,7 +78,7 @@ export function render(root) {
         '<p class="hint">Sumber: GBIF, basis data keanekaragaman hayati dunia. Nama spesies memakai nama latin.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server data tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server data tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mencari spesies. Cek koneksi internet, lalu coba lagi.');
     }
   };

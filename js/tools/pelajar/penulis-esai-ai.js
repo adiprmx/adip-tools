@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"penulis-esai-ai","name":"Penulis Esai AI","cat":"pelajar","icon":"🎓","desc":"Draf esai terstruktur dari topik dan argumenmu.","keywords":"esai,penulis,tugas,sekolah,kuliah,ai,puter","since":"6.18.0"};
+export const meta = {"id":"penulis-esai-ai","name":"Penulis Esai AI","cat":"pelajar","icon":"🎓","desc":"Draf esai terstruktur dari topik dan argumenmu.","keywords":"esai,penulis,tugas,sekolah,kuliah,ai,puter","since":"6.18.0", "online": true};
 
 const MAX_ARGUMEN = 2000;
 const PANJANG = [
@@ -91,7 +91,7 @@ export function render(root) {
         const prompt = buatPrompt({ topik, argumen, panjang: panjangSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const hasil = utils.chatText(res).trim();
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Dek kartu remi virtual lewat Deck of Cards API, tanpa key.
 // Terverifikasi 17 Nov 2026: /api/deck/new/shuffle/?deck_count=1 -> 200, CORS *.
-export const meta = {"id":"kartu-remi","name":"Kartu Remi","cat":"liveapi","icon":"🎴","desc":"Kocok dek kartu remi virtual lalu tarik kartunya satu per satu.","keywords":"kartu remi,deck of cards,kocok kartu,poker,blackjack,kartu","since":"6.17.0"};
+export const meta = {"id":"kartu-remi","name":"Kartu Remi","cat":"liveapi","icon":"🎴","desc":"Kocok dek kartu remi virtual lalu tarik kartunya satu per satu.","keywords":"kartu remi,deck of cards,kocok kartu,poker,blackjack,kartu","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -54,7 +54,7 @@ export function render(root) {
       T.show(box, '<p class="center dim">Dek baru sudah dikocok. Ketuk tombol tarik untuk mengambil kartu.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengocok dek. Cek koneksi internet, lalu coba lagi.', dekBaru);
     }
   };
@@ -79,7 +79,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal menarik kartu. Cek koneksi internet, lalu coba lagi.', () => tarik(n));
     }
   };

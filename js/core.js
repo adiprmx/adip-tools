@@ -9,6 +9,8 @@
  *     render(root){ root.appendChild(T.el('<p>Halo</p>')); } });
  * Aturan: render(root) membangun DOM di dalam root memakai helper T.
  * Jangan akses document.body langsung. Bersihkan timer/audio via T.onLeave(fn).
+ * Jangan T.show() ke wadah yang berisi form/tombol (isinya terhapus semua):
+ * pesan ke pengguna pakai T.notice(), ganti layar yang disengaja pakai T.screen().
  * Fungsi murni yang dipakai >1 tool didaftarkan di utils (bukan duplikat).
  */
 export const cats = [
@@ -25,8 +27,8 @@ export const cats = [
   ['fun', 'Fun'],
   ['produktivitas', 'Produktivitas'],
   ['pelajar', 'Pelajar'],
-  ['liveapi', 'Live API'],
-  ['fakesos', 'Fake Sosmed'],
+  ['liveapi', 'Data Langsung'],
+  ['fakesos', 'Sosmed Palsu'],
   ['kesehatan', 'Kesehatan'],
   ['kreator', 'Kreator'],
   ['masak', 'Masak'],
@@ -182,11 +184,64 @@ export function out() {
   d.setAttribute('aria-live', 'polite');
   return d;
 }
+// Guard T.show (S-U7 v6.22.0, dari sketsa S-A7 F-03): T.show mengganti
+// SELURUH isi wadah, jadi pemanggilan ke wadah yang salah bisa menghapus
+// form/tombol tool sampai tool mati (bug website-scanner v6.21.0).
+// (1) Target tidak valid (null, bukan elemen) jadi warn + no-op, bukan
+// throw dan bukan wipe. (2) Wadah berisi anak interaktif
+// (input/button/select/textarea) jadi warn sekali per wadah, tapi tetap
+// jalan (kompat mundur: game-mengetik dkk. sengaja ganti layar lewat
+// T.show). Tool yang memang mau ganti layar pakai T.screen(); pesan ke
+// pengguna pakai T.notice().
+const _showSudahDiperingatkan = new WeakSet();
 export function show(box, html) {
+  if (!box || typeof box !== 'object' || typeof box.innerHTML !== 'string') {
+    console.warn('[AdipTools] T.show() dipanggil tanpa wadah yang valid: pesan tidak ditampilkan.');
+    return;
+  }
+  const isi = html == null ? '' : String(html);
+  if (isi.length > 0 && box.dataset && !box.dataset.allowWipe
+      && typeof box.querySelector === 'function'
+      && box.querySelector('input,button,select,textarea')
+      && !_showSudahDiperingatkan.has(box)) {
+    _showSudahDiperingatkan.add(box);
+    console.warn('[AdipTools] T.show() menghapus anak interaktif di wadah ini. Pakai T.notice() untuk pesan, atau T.screen() bila memang mau ganti layar.');
+  }
   box.hidden = false;
-  box.innerHTML = html;
+  box.innerHTML = isi;
 }
-export function hide(box) { box.hidden = true; box.innerHTML = ''; }
+export function hide(box) {
+  if (!box || typeof box !== 'object' || typeof box.innerHTML !== 'string') {
+    console.warn('[AdipTools] T.hide() dipanggil tanpa wadah yang valid.');
+    return;
+  }
+  box.hidden = true; box.innerHTML = '';
+}
+// Pesan untuk pengguna di dalam wadah hasil (S-U7 v6.22.0, sketsa S-A7
+// F-03): pengganti T.show(box, pesanError) yang aman. kind: 'info' |
+// 'error' | 'ok'. Menandai box.dataset.notice supaya gampang dilacak.
+export function notice(box, html, kind) {
+  if (!box || typeof box !== 'object' || typeof box.innerHTML !== 'string') {
+    console.warn('[AdipTools] T.notice() dipanggil tanpa wadah yang valid: pesan tidak ditampilkan.');
+    return;
+  }
+  const k = kind === 'error' ? 'error' : kind === 'ok' ? 'ok' : 'info';
+  const gaya = k === 'error'
+    ? 'color:var(--err);border:1px solid rgba(248,113,113,.35);background:rgba(248,113,113,.08)'
+    : k === 'ok'
+      ? 'color:var(--ok);border:1px solid rgba(124,207,143,.35);background:rgba(124,207,143,.08)'
+      : 'color:#c9bda9;border:1px solid #2e2823;background:#12100d';
+  box.dataset.notice = '1';
+  show(box, '<div class="notice notice-' + k + '" role="status" style="' + gaya + ';border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5">' + html + '</div>');
+}
+// Ganti layar penuh yang DISEngaja (S-U7 v6.22.0, sketsa S-A7 F-03):
+// sama seperti T.show, tapi namanya jujur soal niatnya dan tidak memicu
+// warn guard (game-mengetik, kuis, wizard). Beda dari sketsa S-A7: warn
+// dihilangkan di sini karena pemanggil sudah menyatakan niat lewat nama.
+export function screen(box, html) {
+  if (box && box.dataset) box.dataset.allowWipe = '1';
+  show(box, html);
+}
 
 export function copyBtn(getText, label) {
   const b = btn(label || 'Salin', null);
@@ -314,7 +369,7 @@ export function wireImgErr(container) {
 // janji yang sama, dan kegagalan tidak di-cache — tombol "Coba Lagi" bisa
 // mencoba jaringan lagi (T02 B2, v6.12.0).
 /* ---- Subresource Integrity (SRI) untuk script CDN klasik (P5 v6.12.2) ----
-   Hash SHA-384 dari isi file yang diunduh langsung dari CDN pada 16 Nov 2026
+   Hash SHA-384 dari isi file yang diunduh langsung dari internet pada 16 Nov 2026
    (bukti: p5-sri-hashes.json di folder ronde). docx@8.5.0 ditambahkan
    18 Nov 2026 (RED-02, G1) — hash diverifikasi dari 3 sumber independen
    (jsDelivr + unpkg + tarball registry npm), ketiganya identik.
@@ -333,16 +388,31 @@ export function wireImgErr(container) {
    1.9.4). Entri CSS dipakai tool GPX untuk memverifikasi hasil fetch
    via SubtleCrypto sebelum disuntik (RED-12); loadScript hanya memakai
    entri JS.
-   loadScript() memasang
-   integrity + crossorigin="anonymous" bila URL-nya ada di peta ini; URL yang
-   tidak ada di peta tetap dimuat seperti biasa (tanpa integrity).
+   loadScript() memasang integrity + crossorigin="anonymous" bila URL-nya
+   ada di peta ini. S-Q3 v6.22.0 (RED-1 F1): loadScript FAIL-CLOSED secara
+   default — URL skrip klasik tanpa entri di peta ini DITOLAK (tidak dibuat
+   elemen <script>), kecuali tepat 2 pengecualian tercatat di
+   SRI_FAIL_OPEN_ALLOW di bawah. Klaim lama S-A7 B-11 ("fail-closed akan
+   mematikan soundtouchjs + Puter + ESM dinamis") TERBANTAH oleh enumerasi
+   S-Q3 22 Nov 2026: soundtouchjs + ESM dinamis dimuat lewat import()
+   (tidak pernah lewat loadScript), dan dari 56 pemanggil loadLibOnce
+   hanya face_detection.js yang tanpa hash — jadi fail-closed + 2
+   pengecualian eksplisit tidak merusak tool apa pun. URL CDN baru WAJIB
+   punya hash di peta ini sebelum dipakai; kalau tidak, tool-nya gagal
+   keras (bukan jalan tanpa integrity).
    TIDAK tercakup (keterbatasan browser, bukan kelalaian): import() ESM
    dinamis (ffmpeg, mp4-muxer, tasks-vision, smol-toml, fast-xml-parser,
-   background-removal, potrace) — tidak ada mekanisme integrity untuk
-   dynamic import; worker (pdf.worker.min.js, tesseract) — Worker tidak
-   mendukung integrity; SDK Puter (js.puter.com/v2/ — tanpa versi, isinya
-   bisa berubah sewaktu-waktu); file yang diambil via fetch (WASM, font,
-   core ffmpeg) — pemuatannya ada di dalam pustaka pihak ketiga. Bila versi
+   background-removal, potrace, soundtouchjs) — tidak ada mekanisme
+   integrity untuk dynamic import; worker (pdf.worker.min.js, tesseract) —
+   Worker tidak mendukung integrity; SDK Puter (js.puter.com/v2/ — tanpa
+   versi, isinya bisa berubah sewaktu-waktu); file yang diambil via fetch
+   (WASM, font, core ffmpeg) — pemuatannya ada di dalam pustaka pihak
+   ketiga. KOREKSI S-U7 v6.22.0: soundtouchjs dimuat lewat import() dinamis
+   di ubah-nada-audio.js (bukan script klasik seperti dugaan S-A7), jadi
+   SRI tidak berlaku untuknya. Satu-satunya script klasik tanpa hash yang
+   tersisa adalah face_detection.js MediaPipe (blur-foto.js, lewat
+   loadLibOnce): hash-nya butuh egress (byte tidak ada di repo/cache),
+   dicatat sebagai utang di upgrade/S-U7-core-api.md. Bila versi
    pustaka di-bump, hash WAJIB dihitung ulang (p5-sri-hash.py). */
 const SRI_HASH = {
   'https://cdn.jsdelivr.net/npm/7z-wasm@1.2.0/7zz.umd.js': 'sha384-gi7D8QKpBIrWP4tOkPvadxq2SK/IPHBqWNLFg+48XPfW7mKVb0pxrz4rT/UCLHEh',
@@ -391,6 +461,18 @@ const SRI_HASH = {
   'https://unpkg.com/pako@2.1.0/dist/pako.min.js': 'sha384-rNlaE5fs9dGIjmxWDALQh/RBAaGRYT5ChrzHo6tRfgrZ36iRFAiquP5g41Jsv+0j',
   'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js': 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw',
 };
+// S-Q3 v6.22.0 (RED-1 F1): SATU-SATUNYA pengecualian fail-open loadScript.
+// Kedua URL ini adalah seluruh skrip klasik tanpa hash yang mencapai
+// loadScript (dihitung S-Q3, 22 Nov 2026, dari 74 URL CDN + 56 pemanggil
+// loadLibOnce): SDK Puter tanpa versi (isinya bisa berubah; pin/vendor
+// butuh egress) + face_detection.js MediaPipe (hash butuh egress — byte
+// tidak ada di repo/cache). Keduanya tetap dimuat DENGAN console.warn
+// sekali per URL. Jangan tambah entri baru tanpa alasan tercatat —
+// URL baru tanpa hash DITOLAK keras oleh loadScript.
+const SRI_FAIL_OPEN_ALLOW = new Set([
+  'https://js.puter.com/v2/',
+  'https://cdn.jsdelivr.net/npm/@mediapipe/face_detection@0.4.1646425229/face_detection.js',
+]);
 // Cari hash untuk sebuah URL script (query string diabaikan — retry
 // heic-ke-jpg menambahkan ?coba=N ke URL yang isinya identik).
 export function scriptIntegrity(src) {
@@ -399,24 +481,66 @@ export function scriptIntegrity(src) {
 }
 
 const _loaded = {};
+// URL yang pernah diperingatkan karena tidak ada di peta SRI, supaya
+// console tidak dibanjiri peringatan yang sama di tiap pemanggilan.
+const _tanpaSriDiperingatkan = new Set();
+// URL yang pernah ditolak fail-closed (S-Q3) — peringatan sekali per URL.
+const _sriDitolakDiperingatkan = new Set();
+// Batas waktu tiap percobaan memuat script (S-F5 v6.22.0, selaras
+// loadLibOnce): koneksi yang macet (bukan gagal) tidak boleh menggantung
+// selamanya tanpa pesan.
+const LOADSCRIPT_TIMEOUT_MS = 30000;
 export function loadScript(src) {
   if (_loaded[src]) return _loaded[src];
-  const p = new Promise((resolve) => {
-    const s = document.createElement('script');
-    s.src = src; s.async = true;
+  const p = (async () => {
     const hash = scriptIntegrity(src);
-    if (hash) { s.integrity = hash; s.crossOrigin = 'anonymous'; }
-    s.onload = () => resolve(true);
-    s.onerror = () => { delete _loaded[src]; resolve(false); };
-    document.head.appendChild(s);
-  });
+    if (!hash) {
+      const dasar = String(src).split('?')[0];
+      if (!SRI_FAIL_OPEN_ALLOW.has(dasar)) {
+        // S-Q3 v6.22.0 (RED-1 F1): FAIL-CLOSED — tolak tanpa membuat
+        // elemen <script> sama sekali. URL baru tanpa hash tidak boleh
+        // dieksekusi diam-diam; tambah hash ke SRI_HASH dulu.
+        if (!_sriDitolakDiperingatkan.has(dasar)) {
+          _sriDitolakDiperingatkan.add(dasar);
+          console.warn('[AdipTools] loadScript: ' + src + ' DITOLAK — tidak ada di peta SRI (SRI_HASH) dan bukan pengecualian tercatat (S-Q3 v6.22.0, fail-closed). Tambahkan hash sha384 URL ini ke SRI_HASH supaya bisa dimuat.');
+        }
+        return false;
+      }
+      if (!_tanpaSriDiperingatkan.has(src)) {
+        _tanpaSriDiperingatkan.add(src);
+        console.warn('[AdipTools] loadScript: ' + src + ' TIDAK ADA di peta SRI (SRI_HASH): dimuat tanpa integrity sebagai pengecualian TERCATAT di SRI_FAIL_OPEN_ALLOW (S-Q3 v6.22.0).');
+      }
+    }
+    for (let percobaan = 1; percobaan <= 2; percobaan++) {
+      const ok = await new Promise((resolve) => {
+        const s = document.createElement('script');
+        s.src = src; s.async = true;
+        if (hash) { s.integrity = hash; s.crossOrigin = 'anonymous'; }
+        let selesai = false;
+        const timer = setTimeout(() => {
+          if (selesai) return; selesai = true;
+          try { s.remove(); } catch (e) {}
+          resolve(false);
+        }, LOADSCRIPT_TIMEOUT_MS);
+        s.onload = () => { if (selesai) return; selesai = true; clearTimeout(timer); resolve(true); };
+        s.onerror = () => { if (selesai) return; selesai = true; clearTimeout(timer); resolve(false); };
+        document.head.appendChild(s);
+      });
+      if (ok) return true;
+      if (percobaan === 1) console.warn('[AdipTools] loadScript: gagal memuat ' + src + ' (percobaan 1/2): mencoba sekali lagi.');
+    }
+    console.warn('[AdipTools] loadScript: gagal memuat ' + src + ' sesudah 2 percobaan (batas 30 detik tiap percobaan). Tool yang butuh pustaka ini tidak bisa jalan; cek koneksi lalu coba lagi.');
+    return false;
+  })();
   _loaded[src] = p;
+  p.then((v) => { if (!v) delete _loaded[src]; });
   return p;
 }
 
 /** Namespace kompatibel pola lama (const T = NS.h) — cukup import { h as T }. */
 export const h = {
   el, esc, btn, field, input, select, ta, out, show, hide,
+  notice, screen,
   copy, copyBtn, dl, dlBtn, toast, row, grid2, onLeave,
   fmt, rp, num, actx, beep, loadScript, sysbar, scrollToPreview,
   calcResult, nextSteps, zipFiles, dlZip, zipBtn, crc32, wireImgErr,
@@ -581,12 +705,23 @@ export const _normAcc = (a) => (a === '♯' ? '#' : a === '♭' ? 'b' : a || '')
 
 export const money = (inpEl, ph, val) => { const i = T.input('text', ph, val); i.inputMode = 'decimal'; return i; };
 
-export const kv = (k, v) => '<div class="kv"><span class="k">' + T.esc(k) + '</span><span class="v">' + v + '</span></div>';
-// PERINGATAN (RED-03, v6.16.0 — diputuskan TIDAK diubah): value `v` di atas
-// SENGAJA tidak di-escape — 78 pemanggilan di 33 file mengandalkan HTML di
-// value (<b>, <span class="ok">, ...). JANGAN pernah melewatkan data
-// tak terpercaya (API/user) ke `v` tanpa T.esc() dulu — itu langsung XSS.
-// Bila butuh value teks murni, escape di pemanggil: kv('Nama', T.esc(nama)).
+export const kv = (k, v, opts) => '<div class="kv"><span class="k">' + T.esc(k) + '</span><span class="v">' + (opts && opts.escape ? T.esc(v) : v) + '</span></div>';
+// PERINGATAN (RED-03, v6.16.0; diukur ulang S-U7 v6.22.0): value `v` di atas
+// SENGAJA tidak di-escape secara default: 115+ pemanggilan di 57 file
+// mengandalkan HTML di value (<b>, <span>, <a>), jadi escape default akan
+// merusak tampilan mereka. JANGAN pernah melewatkan data tak terpercaya
+// (API/user) ke `v` tanpa T.esc() dulu. Itu langsung XSS.
+// Jalur aman (S-U7 v6.22.0): kvSafe() untuk teks polos (value selalu
+// di-escape), kvHtml() untuk HTML yang memang disengaja, atau
+// kv(k, v, {escape:true}) untuk escape sekali pakai. Daftar pemanggil
+// yang butuh HTML mentah (opt-out): upgrade/S-U7-kv-optout.txt.
+// Migrasi per pemanggil adalah kerjaan ronde pemilik js/tools/*.
+export const kvSafe = (k, v) => '<div class="kv"><span class="k">' + T.esc(k) + '</span><span class="v">' + T.esc(v) + '</span></div>';
+export const kvHtml = (k, v) => '<div class="kv"><span class="k">' + T.esc(k) + '</span><span class="v">' + v + '</span></div>';
+// kv* masuk h (S-A7 F-05): tool baru boleh pakai T.kv/T.kvSafe/T.kvHtml.
+// Ditulis di sini (bukan di literal h di atas) karena const arrow tidak
+// bisa dipakai sebelum definisinya.
+h.kv = kv; h.kvSafe = kvSafe; h.kvHtml = kvHtml;
 
 export const LOCAL_NOTE = 'Semua diproses 100% lokal di HP kamu, file tidak diupload ke mana-mana.';
 
@@ -1203,7 +1338,7 @@ utils.errPesan = function (e) {
   const r = (e && typeof e === 'object') ? e : {};
   const n = (r.error && typeof r.error === 'object') ? r.error : r;
   const raw = String(n.code || r.code || n.message || r.message || e || '').toLowerCase();
-  if (/timeout|waktu habis/.test(raw)) return 'AI tidak merespons dalam 60 detik. Coba lagi.';
+  if (/timeout|waktu habis/.test(raw)) return 'AI tidak bisa dihubungi dalam 60 detik. Coba lagi.';
   if (/popup|blocked/.test(raw)) return 'Jendela login diblokir browser. Izinkan pop-up lalu coba lagi.';
   if (/email_must_be_confirmed|confirm.*email|email.*confirm/.test(raw)) return 'Email akun Puter belum dikonfirmasi. Konfirmasi email di Puter lalu coba lagi.';
   if (/401|403|unauthor|auth|sign.?in|login|cancel|closed|denied/.test(raw)) return 'Hubungkan akun Puter terlebih dahulu.';
@@ -1748,11 +1883,22 @@ utils.ageParts = function (birthISO, refISO) {
   };
 
 /* ================= Pola "bawa kredensial sendiri" (BYOK) =================
-   Untuk tool yang butuh API key / akun milik user. Key disimpan HANYA di
-   localStorage browser user — tidak pernah dikirim ke server Adip Tools.
-   Semua request dikirim langsung dari browser ke penyedia layanan resmi. */
+   Untuk tool yang butuh API key / akun milik user.
+   S-U7 v6.22.0 (opsi A S-F5 §4): API KEY disimpan di sessionStorage
+   (hilang saat tab ditutup), BUKAN lagi di localStorage permanen.
+   Key localStorage lama (adipTools_key_*) dibaca SEKALI lalu dipindah ke
+   sesi, dengan pemberitahuan jujur di kolom key (bukan dihapus diam-diam).
+   byok.get/set (localStorage) DIPERTAHANKAN untuk setelan BUKAN rahasia
+   (endpoint, nama model, preset documentai): itu bukan kredensial dan
+   pemanggilnya mengandalkan setelan itu tetap ada antar kunjungan.
+   Semua request dikirim langsung dari browser ke penyedia layanan resmi,
+   tidak pernah lewat server Adip Tools. */
+// Tool yang key-nya baru dipindah dari localStorage lama ke sesi pada
+// kunjungan ini (dipakai paint() untuk pemberitahuan jujur).
+const _byokDimigrasikan = new Set();
 utils.byok = {
   LS_PREFIX: 'adipTools_key_',
+  SS_PREFIX: 'adipTools_key_sesi_',
   get(toolId) {
     try { return localStorage.getItem(utils.byok.LS_PREFIX + toolId) || ''; }
     catch (e) { return ''; }
@@ -1763,6 +1909,37 @@ utils.byok = {
       else localStorage.removeItem(utils.byok.LS_PREFIX + toolId);
     } catch (e) {}
   },
+  // Baca key dari sesi; bila belum ada, pindahkan key localStorage lama
+  // (sekali saja). Key lama dihapus dari localStorage HANYA bila salinan
+  // sesinya berhasil ditulis (bila sessionStorage rusak, key lama tetap
+  // dipakai supaya tool tidak tiba-tiba kehilangan key).
+  getSesi(toolId) {
+    try {
+      const lama = sessionStorage.getItem(utils.byok.SS_PREFIX + toolId);
+      if (lama) return lama;
+    } catch (e) {}
+    let warisan = '';
+    try { warisan = localStorage.getItem(utils.byok.LS_PREFIX + toolId) || ''; }
+    catch (e) {}
+    if (!warisan) return '';
+    let pindah = false;
+    try { sessionStorage.setItem(utils.byok.SS_PREFIX + toolId, warisan); pindah = true; }
+    catch (e) {}
+    if (pindah) {
+      try { localStorage.removeItem(utils.byok.LS_PREFIX + toolId); } catch (e) {}
+      _byokDimigrasikan.add(toolId);
+    }
+    return warisan;
+  },
+  setSesi(toolId, v) {
+    try {
+      if (v) sessionStorage.setItem(utils.byok.SS_PREFIX + toolId, v);
+      else sessionStorage.removeItem(utils.byok.SS_PREFIX + toolId);
+    } catch (e) {}
+  },
+  // Benar bila key tool ini baru saja dipindah dari localStorage lama ke
+  // sesi pada kunjungan ini.
+  dimigrasikan(toolId) { return _byokDimigrasikan.has(toolId); },
   // Membangun kolom key milik user. Mengembalikan { box, input, get(), has(), paint }.
   // opts: { tool, label, placeholder, hint, docUrl, docLabel }
   field(opts) {
@@ -1771,21 +1948,26 @@ utils.byok = {
     const inp = document.createElement('input');
     inp.className = 'inp'; inp.type = 'password'; inp.autocomplete = 'off'; inp.spellcheck = false;
     inp.placeholder = opts.placeholder || 'Tempel API key milikmu di sini';
-    inp.value = utils.byok.get(t);
+    inp.value = utils.byok.getSesi(t);
     const status = el('<div class="dim" style="font-size:12px;margin-top:6px;line-height:1.6"></div>');
     const saveBtn = btn('💾 Simpan key', () => {
-      utils.byok.set(t, inp.value.trim());
-      paint(); toast('Key tersimpan di browser ini saja');
+      utils.byok.setSesi(t, inp.value.trim());
+      paint(); toast('Key tersimpan selama tab ini terbuka');
     }, true);
     const clearBtn = btn('Hapus', () => {
-      inp.value = ''; utils.byok.set(t, '');
-      paint(); toast('Key dihapus dari browser ini');
+      if (!confirm('Hapus ' + label + ' yang tersimpan di tab ini? Key ini akan hilang dan tidak bisa dikembalikan.')) return;
+      inp.value = ''; utils.byok.setSesi(t, '');
+      paint(); toast('Key dihapus dari tab ini');
     });
     function paint() {
       const v = inp.value.trim();
+      const pindah = utils.byok.dimigrasikan(t);
       status.innerHTML = v
-        ? '✅ <b>Key tersimpan</b> — hanya di browser ini (localStorage). Request dikirim langsung ke penyedia layanan, tidak lewat server kami.'
-        : '🔑 Masukkan ' + esc(label) + ' <b>milikmu sendiri</b> untuk memakai tool ini. Tanpa key, tool tidak bisa jalan.';
+        ? '✅ <b>Key tersimpan</b>. ' + (pindah
+            ? 'key lamamu dipindah ke penyimpanan sesi: hilang saat tab ditutup, tempel lagi lain kali.'
+            : 'hanya selama tab ini terbuka. Tutup tab, key hilang dan perlu ditempel lagi.')
+          + ' Request dikirim langsung ke penyedia layanan, tidak lewat server kami.'
+        : '🔑 Masukkan ' + esc(label) + ' <b>milikmu sendiri</b> untuk memakai tool ini. Tanpa key, tool tidak bisa jalan. Key hanya tersimpan selama tab ini terbuka.';
       saveBtn.disabled = !v;
     }
     inp.addEventListener('input', paint);
@@ -1802,8 +1984,8 @@ utils.byok = {
     paint();
     return {
       box, input: inp, paint,
-      get() { return inp.value.trim() || utils.byok.get(t); },
-      has() { return !!(inp.value.trim() || utils.byok.get(t)); },
+      get() { return inp.value.trim() || utils.byok.getSesi(t); },
+      has() { return !!(inp.value.trim() || utils.byok.getSesi(t)); },
     };
   },
 };
@@ -1945,9 +2127,17 @@ utils.dlUrl = async function (url, filename) {
    di panel bawah. SDK: https://js.puter.com/v2/
    CATATAN VERSI (F10 v6.21.0, I2 R-02): URL SDK berversi TIDAK ditemukan
    — semua docs resmi Puter hanya memakai /v2/ tanpa nomor versi (cek
-   20 Nov 2026). Pin versi belum dimungkinkan dari CDN Puter; yang ada
+   20 Nov 2026). Pin versi belum dimungkinkan dari Puter; yang ada
    hanya paket npm @heyputer/puter.js (jalur lain, perlu keputusan
-   koordinator bila mau dipakai). Sementara itu SDK dilindungi timeout. */
+   koordinator bila mau dipakai). Sementara itu SDK dilindungi timeout.
+   S-F5 v6.22.0 (cek ulang 21 Nov 2026, grep seluruh repo): tetap tidak
+   ada URL berversi di docs/komentar/kode mana pun — hanya /v2/ (dipakai
+   core.js + aiimage.js) dan sebutan paket npm di core.js + LICENSES.md.
+   S-U7 v6.22.0 (cek ulang 22 Nov 2026): package.json, package-lock.json,
+   node_modules, dan cache npm juga tidak berisi @heyputer/puter.js —
+   tetap tidak ada nomor versi yang bisa dipin. JANGAN tebak nomor versi:
+   pin + hash SRI butuh egress untuk cek docs Puter live. Utang ini
+   dicatat di fix/S-F5-core-safety.md dan upgrade/S-U7-core-api.md. */
 utils.puter = {
   SDK: 'https://js.puter.com/v2/',
   ok() { return typeof window !== 'undefined' && !!window.puter && !!window.puter.ai; },
@@ -2445,7 +2635,14 @@ AL.paletteUI = (state, onChange) => {
     }));
     wrap.querySelectorAll('[data-c]').forEach((b) => b.addEventListener('click', (e) => {
       const del = e.target.closest('[data-del]');
-      if (del) { e.stopPropagation(); AL.customPalettes.remove(del.dataset.del); if (state.customId === del.dataset.del) { state.customId = null; state.paletteIndex = 0; } draw(); onChange(state); return; }
+      if (del) {
+        e.stopPropagation();
+        const pal = AL.customPalettes.list().find((p) => p.id === del.dataset.del);
+        if (!confirm('Hapus palet custom "' + (pal ? pal.name : '') + '"? Palet ini akan hilang dan tidak bisa dikembalikan.')) return;
+        AL.customPalettes.remove(del.dataset.del);
+        if (state.customId === del.dataset.del) { state.customId = null; state.paletteIndex = 0; }
+        draw(); onChange(state); return;
+      }
       state.customId = b.dataset.c; draw(); onChange(state);
     }));
     wrap.querySelector('[data-ca]').addEventListener('click', () => {
@@ -2477,7 +2674,11 @@ AL.historyUI = (toolId, onPick) => {
         (it.xml ? '<button type="button" class="btn" data-pick="' + it.id + '" style="font-size:11px;padding:4px 10px">Buka</button>' : '') +
         '<button type="button" class="btn" data-dl="' + it.id + '" style="font-size:11px;padding:4px 10px">⬇</button>' +
         '<button type="button" class="btn" data-rm="' + it.id + '" style="font-size:11px;padding:4px 10px">×</button></div>').join('') + '</div>';
-    wrap.querySelector('[data-clear]').addEventListener('click', () => { AL.history.clear(toolId); draw(); });
+    wrap.querySelector('[data-clear]').addEventListener('click', () => {
+      const n = AL.history.list(toolId).length;
+      if (!confirm('Hapus seluruh riwayat (' + n + ' item)? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
+      AL.history.clear(toolId); draw();
+    });
     wrap.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => {
       const it = AL.history.list(toolId).find((x) => x.id === b.dataset.pick);
       if (it && it.xml) onPick(it.xml, it);
@@ -2487,7 +2688,11 @@ AL.historyUI = (toolId, onPick) => {
       if (it && it.xml) { const err = AL.downloadXml(it.filename || 'animasi.xml', it.xml); toast(err || 'Mengunduh…'); }
       else toast('XML item ini tidak tersimpan.');
     }));
-    wrap.querySelectorAll('[data-rm]').forEach((b) => b.addEventListener('click', () => { AL.history.remove(toolId, b.dataset.rm); draw(); }));
+    wrap.querySelectorAll('[data-rm]').forEach((b) => b.addEventListener('click', () => {
+      const it = AL.history.list(toolId).find((x) => x.id === b.dataset.rm);
+      if (!confirm('Hapus riwayat "' + (it ? (it.filename || '(tanpa nama)') : '') + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
+      AL.history.remove(toolId, b.dataset.rm); draw();
+    }));
   }
   draw();
   wrap.refresh = draw;
@@ -2502,26 +2707,41 @@ AL.historyUI = (toolId, onPick) => {
    Dynamic import (bukan import statis) agar check-tools & halaman lain
    tidak ikut memuat WASM. */
 const _imglyCache = { ok: null, mod: null };
+// Nomor percobaan imgly (S-F5 v6.22.0): browser menyimpan GAGAL dynamic
+// import di module map per URL persis, jadi import ulang URL yang sama
+// langsung reject tanpa kena jaringan (terbukti harness: 0 request di
+// panggilan ke-2). Jadi tiap panggilan gagal memakai ?coba=N baru supaya
+// benar-benar mencoba lagi; pola yang sama dipakai retry heic-ke-jpg.
+let _imglyCoba = 0;
 export async function imglyRemoval() {
-  if (_imglyCache.ok !== null) {
-    if (_imglyCache.ok) return _imglyCache.mod;
-    throw new Error('imgly-gagal');
-  }
+  if (_imglyCache.ok) return _imglyCache.mod;
+  const coba = _imglyCoba++;
   const srcs = [
     'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm',
     'https://esm.sh/@imgly/background-removal@1.7.0?bundle',
-  ];
+  ].map((s) => (coba === 0 ? s : s + (s.includes('?') ? '&' : '?') + 'coba=' + coba));
   for (const s of srcs) {
     try {
-      const mod = await import(/* @vite-ignore */ s);
+      const mod = await importDenganBatas(import(/* @vite-ignore */ s), 30000);
       if (mod && typeof mod.removeBackground === 'function') {
         _imglyCache.ok = true; _imglyCache.mod = mod;
         return mod;
       }
     } catch (e) { /* coba sumber berikutnya */ }
   }
-  _imglyCache.ok = false;
+  // S-F5 v6.22.0: kegagalan TIDAK di-cache (kontrak loadLibOnce). Dulu
+  // _imglyCache.ok = false membuat tool hapus-background mati sampai halaman
+  // di-reload. Sekarang panggilan berikut mencoba lagi dari jaringan.
   throw new Error('imgly-gagal');
+}
+
+// Janji dengan batas waktu: dynamic import tidak punya timeout bawaan.
+// CDN yang macet (bukan gagal) membuat import menggantung selamanya.
+// Batas 30 detik per URL, selaras loadLibOnce.
+function importDenganBatas(janji, ms) {
+  let timer = null;
+  const batas = new Promise((_, tolak) => { timer = setTimeout(() => tolak(new Error('imgly-timeout')), ms); });
+  return Promise.race([janji, batas]).finally(() => { if (timer) clearTimeout(timer); });
 }
 
 /* Layout teks -> unit [{ch, word, x, y}] di kanvas 1080. Dipakai text2d + textfxanimation.

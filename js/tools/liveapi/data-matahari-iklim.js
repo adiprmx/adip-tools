@@ -6,7 +6,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // ALLSKY_SFC_SW_DWN,PRECTOTCORR} berisi peta tanggal YYYYMMDD -> angka.
 // Nilai -999 berarti data kosong di hari itu. Data NASA biasanya tertinggal
 // beberapa hari, jadi tanggal akhir bawaan dipasang 8 hari ke belakang.
-export const meta = {"id":"data-matahari-iklim","name":"Data Matahari & Iklim","cat":"liveapi","icon":"☀️","desc":"Lihat suhu, sinar matahari, dan hujan harian di sebuah lokasi dari data NASA.","keywords":"matahari,iklim,suhu,nasa,radiasi,hujan,cuaca,iklim","since":"6.19.0"};
+export const meta = {"id":"data-matahari-iklim","name":"Data Matahari & Iklim","cat":"liveapi","icon":"☀️","desc":"Lihat suhu, sinar matahari, dan hujan harian di sebuah lokasi dari data NASA.","keywords":"matahari,iklim,suhu,nasa,radiasi,hujan,cuaca,iklim","since":"6.19.0", "online": true};
 
 const API = 'https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,T2M_MAX,T2M_MIN,ALLSKY_SFC_SW_DWN,PRECTOTCORR&community=RE&format=JSON';
 
@@ -90,7 +90,7 @@ export function render(root) {
         '<p class="hint">Sumber: NASA POWER. Suhu dalam Celsius, sinar matahari dalam MJ/m² per hari, hujan dalam mm. Tanda - berarti data hari itu kosong di NASA.</p>');
     } catch (e2) {
       const msg = e2.name === 'AbortError'
-        ? 'Waktu habis, server NASA tidak merespons dalam 25 detik.'
+        ? 'Waktu habis, server NASA tidak bisa dihubungi dalam 25 detik.'
         : 'Gagal mengambil data. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

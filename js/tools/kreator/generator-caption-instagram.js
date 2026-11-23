@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"generator-caption-instagram","name":"Generator Caption Instagram","cat":"kreator","icon":"📸","desc":"Caption Instagram menarik dari tema fotomu.","keywords":"caption,instagram,ig,kreator,ai,puter","since":"6.18.0"};
+export const meta = {"id":"generator-caption-instagram","name":"Generator Caption Instagram","cat":"kreator","icon":"📸","desc":"Caption Instagram menarik dari tema fotomu.","keywords":"caption,instagram,ig,kreator,ai,puter","since":"6.18.0", "online": true};
 
 const MAX_TEMA = 2000;
 const GAYA = [
@@ -92,7 +92,7 @@ export function render(root) {
         const prompt = buatPrompt({ tema, gaya: gayaSel.value, jumlah: jumlahSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const hasil = utils.chatText(res).trim();
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

@@ -39,6 +39,8 @@ export function render(root) {
     };
 
     const del = (col, id) => {
+      const kartu = state[col].find((c) => c.id === id);
+      if (!confirm('Hapus kartu "' + (kartu ? kartu.text : '') + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
       state[col] = state[col].filter((c) => c.id !== id);
       save();
       paint();

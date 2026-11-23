@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "gabung-audio", "name": "Gabung Audio", "cat": "musik", "icon": "🔗", "desc": "Sambung beberapa file audio jadi satu.", "keywords": "audio,gabung,sambung,mp3,satu", "since": "6.16.0"};
+export const meta = {"id": "gabung-audio", "name": "Gabung Audio", "cat": "musik", "icon": "🔗", "desc": "Sambung beberapa file audio jadi satu.", "keywords": "audio,gabung,sambung,mp3,satu", "since": "6.16.0", "online": true};
 
 export function render(root) {
   const file = T.input('file');

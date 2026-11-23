@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 19 Nov 2026: /v4/?expr=2*(7-3) -> 200, CORS echo, hasil "8".
 // GET mengembalikan hasil sebagai teks polos. Ekspresi salah -> API balas
 // 400 dengan pesan galat; tool menampilkan pesan ramah, bukan pesan mentah.
-export const meta = {"id":"kalkulator-ekspresi","name":"Kalkulator Ekspresi","cat":"liveapi","icon":"∑","desc":"Hitung ekspresi matematika apa pun, dari yang sederhana sampai pakai akar dan pangkat.","keywords":"kalkulator,ekspresi,matematika,hitung,mathjs,akar,pangkat","since":"6.19.0"};
+export const meta = {"id":"kalkulator-ekspresi","name":"Kalkulator Ekspresi","cat":"liveapi","icon":"∑","desc":"Hitung ekspresi matematika apa pun, dari yang sederhana sampai pakai akar dan pangkat.","keywords":"kalkulator,ekspresi,matematika,hitung,mathjs,akar,pangkat","since":"6.19.0", "online": true};
 
 const API = 'https://api.mathjs.org/v4/?expr=';
 
@@ -58,7 +58,7 @@ export function render(root) {
       });
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server math.js tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server math.js tidak bisa dihubungi dalam 15 detik.'
         : (e.message && e.message.indexOf('http 400') === 0)
           ? 'Ekspresi tidak bisa dihitung. Periksa tanda kurung dan penulisannya, lalu coba lagi.'
           : 'Gagal menghubungi server hitung. Cek koneksi internet, lalu coba lagi.';

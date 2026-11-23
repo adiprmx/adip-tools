@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Info karakter Rick and Morty, tanpa key.
 // Terverifikasi 17 Nov 2026: /api/character/1 -> 200, CORS *.
-export const meta = {"id":"karakter-rick-morty","name":"Karakter Rick & Morty","cat":"liveapi","icon":"🛸","desc":"Cari karakter serial Rick and Morty: status, spesies, dan asal mereka.","keywords":"rick and morty,rick,morty,karakter,kartun,serial animasi","since":"6.17.0"};
+export const meta = {"id":"karakter-rick-morty","name":"Karakter Rick & Morty","cat":"liveapi","icon":"🛸","desc":"Cari karakter serial Rick and Morty: status, spesies, dan asal mereka.","keywords":"rick and morty,rick,morty,karakter,kartun,serial animasi","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -59,7 +59,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari karakter. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

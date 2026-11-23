@@ -50,6 +50,8 @@ export function render(root) {
           '<div class="kv"><span class="k">' + jamID(x.ts) + '</span><span class="v">+' + x.ml + ' ml <button type="button" class="btn" data-i="' + i + '" style="padding:2px 10px;font-size:12px">hapus</button></span></div>'
         ).join(''));
         logBox.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+          const entri = st.log[+b.dataset.i];
+          if (!confirm('Hapus catatan minum' + (entri ? ' ' + entri.ml + ' ml' : '') + ' ini? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
           st.log.splice(+b.dataset.i, 1); save(st); paint();
         }));
       } else {
@@ -90,7 +92,7 @@ export function render(root) {
     root.appendChild(barWrap);
     root.appendChild(bigBox);
     root.appendChild(T.row(add250, add500));
-    root.appendChild(T.row(T.btn('Reset hari ini', () => { st.log = []; paint(); T.toast('Catatan hari ini dihapus'); })));
+    root.appendChild(T.row(T.btn('Reset hari ini', () => { if (!confirm('Hapus semua catatan minum hari ini? Data hari ini akan hilang dan tidak bisa dikembalikan.')) return; st.log = []; paint(); T.toast('Catatan hari ini dihapus'); })));
     root.appendChild(logBox);
     paint();
 }

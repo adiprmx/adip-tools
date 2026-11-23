@@ -5,7 +5,7 @@ import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // sudah tidak bisa diperbaiki, tool ini mencoba mengambil teksnya saja
 // supaya isinya tidak hilang total. Bila keduanya gagal, alasannya
 // disampaikan apa adanya, bukan janji kosong.
-export const meta = {"id": "perbaiki-pdf-rusak", "name": "Perbaiki PDF Rusak", "cat": "produktivitas", "icon": "🩹", "desc": "Selamatkan PDF yang susah dibuka dengan membaca ulang dan menyimpannya kembali.", "keywords": "perbaiki pdf,pdf rusak,repair pdf,selamatkan pdf,pdf tidak bisa dibuka", "since": "6.19.0"};
+export const meta = {"id": "perbaiki-pdf-rusak", "name": "Perbaiki PDF Rusak", "cat": "produktivitas", "icon": "🩹", "desc": "Selamatkan PDF yang susah dibuka dengan membaca ulang dan menyimpannya kembali.", "keywords": "perbaiki pdf,pdf rusak,repair pdf,selamatkan pdf,pdf tidak bisa dibuka", "since": "6.19.0", "online": true};
 
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';

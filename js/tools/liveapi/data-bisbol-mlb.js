@@ -5,7 +5,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Daftar 30 tim diambil sekali dari /api/v1/teams?sportId=1 (host dan pola
 // sama, terverifikasi saat dibangun); detail tim sudah ada di daftar itu,
 // jadi tidak ada panggilan kedua.
-export const meta = {"id":"data-bisbol-mlb","name":"Data Bisbol MLB","cat":"liveapi","icon":"⚾","desc":"Lihat daftar 30 tim bisbol MLB beserta stadion, kota, dan liganya.","keywords":"bisbol,mlb,baseball,tim,olahraga,amerika,stadion","since":"6.19.0"};
+export const meta = {"id":"data-bisbol-mlb","name":"Data Bisbol MLB","cat":"liveapi","icon":"⚾","desc":"Lihat daftar 30 tim bisbol MLB beserta stadion, kota, dan liganya.","keywords":"bisbol,mlb,baseball,tim,olahraga,amerika,stadion","since":"6.19.0", "online": true};
 
 const API = 'https://statsapi.mlb.com/api/v1/teams?sportId=1';
 
@@ -73,7 +73,7 @@ export function render(root) {
       T.show(box, '<p class="center dim">Pilih tim di bawah untuk melihat detailnya.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server MLB tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server MLB tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal mengambil daftar tim. Cek koneksi internet, lalu coba lagi.';
       T.show(daftarBox, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

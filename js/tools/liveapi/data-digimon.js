@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"data-digimon","name":"Data Digimon","cat":"liveapi","icon":"🐾","desc":"Telusuri daftar Digimon lengkap dengan gambar dan levelnya.","keywords":"digimon,agumon,anime,monster,level","since":"6.18.0"};
+export const meta = {"id":"data-digimon","name":"Data Digimon","cat":"liveapi","icon":"🐾","desc":"Telusuri daftar Digimon lengkap dengan gambar dan levelnya.","keywords":"digimon,agumon,anime,monster,level","since":"6.18.0", "online": true};
 
 // Daftar Digimon lengkap lewat digimon-api.vercel.app, tanpa key.
 // Terverifikasi 18 Nov 2026: digimon-api.vercel.app/api/digimon -> 200, CORS *.
@@ -83,7 +83,7 @@ export function render(root) {
       tampilkan();
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server data tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server data tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal memuat daftar Digimon. Cek koneksi internet, lalu coba lagi.');
     }
   };

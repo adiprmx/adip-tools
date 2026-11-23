@@ -3,11 +3,30 @@
    Dimuat SETELAH style.css. Aturan: hanya transform & opacity
    (+ box-shadow hemat). Tanpa ubah warna/layout.
    Estetika "Tenang": spring halus, tanpa glow norak.
+
+   FILE INI PEMILIK TUNGGAL gerak shell (S-U6 v6.22.0, S-A6 F-05):
+   transisi/hover/active kartu, tombol, chip, tab, fav, dan baris
+   tinggal di sini; deklarasi tandingan di style.css sudah dicabut
+   (tiap tempat lama menunjuk ke sini). Pengecualian: entrance
+   (fx-entrance.css), toast + empty + tab-pop (fx-joy.css),
+   skeleton + nav komponen (fx-p3.css), ring search (fx-hero.css).
+
+   TANGGA GERAK (satu bahasa, S-U6 v6.22.0):
+   - Angkat hover: kartu -4px + bayangan var(--sh-lift);
+     baris lebar (.allbtn/.contd) -2px tanpa bayangan;
+     chip (.schip/.fchip/.onb-chip) -1px; tombol (.btn) -1px.
+   - Tekan: hati favorit 0,80 (karakter "squish" + pop);
+     tombol ikon (.icobtn/.tab/.btt/tombol tutup) 0,90;
+     chip 0,94; tombol (.btn) 0,93; kartu -1px + 0,96;
+     tautan nav (.navlink/.drop-item/.back) 0,96;
+     tombol dialog/lembar 0,97 (chrome ringkas).
+   - Fokus keyboard: cincin coral 2px + offset 2px di mana-mana
+     (style.css/components.css — bukan di sini).
    ============================================================ */
 
 /* ---------- 1. TOMBOL: press dengan spring overshoot ---------- */
 .btn {
-  transition: transform 0.28s var(--spring), filter 0.15s var(--ease), border-color 0.15s, color 0.15s;
+  transition: transform 0.28s var(--spring), filter 0.15s var(--ease), border-color 0.15s, color 0.15s, background 0.15s;
 }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: scale(0.93); transition-duration: 0.1s; }
@@ -15,17 +34,26 @@
   transition: transform 0.28s var(--spring), color 0.15s, border-color 0.15s, background 0.15s;
 }
 .icobtn:hover { transform: scale(1.07) rotate(-4deg); }
-.icobtn:active { transform: scale(0.88); transition-duration: 0.1s; }
+.icobtn:active { transform: scale(0.9); transition-duration: 0.1s; }
 
-/* ---------- 2. KARTU: hover terangkat, ikon ikut gerak ---------- */
-.tcard, .hcard, .cattile {
+/* ---------- 2. KARTU: hover terangkat, ikon ikut gerak ----------
+   S-F10 (v6.22.0, A-07): angkat hover/tekan di .tcard-wrap (item
+   grid) supaya tombol ♥ ikut bergerak bersama kartu; bayangan
+   tetap di .tcard (yang punya radius — bayangan di pembungkus
+   tanpa radius akan berbentuk kotak). Nilai MENYALIN persis.
+   S-U6 (v6.22.0): .colcard + .baru-card masuk keluarga ini —
+   dulu .colcard -3px + bayangan sendiri, .baru-card tanpa
+   angkat sama sekali. Kini SEMUA kartu: -4px + var(--sh-lift). */
+.tcard-wrap, .tcard, .hcard, .cattile, .colcard, .baru-card {
   transition: transform 0.3s var(--spring), border-color 0.18s, box-shadow 0.3s var(--spring);
 }
-.tcard:hover, .hcard:hover, .cattile:hover {
+.tcard-wrap:hover, .hcard:hover, .cattile:hover, .colcard:hover, .baru-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
 }
-.tcard:active, .hcard:active, .cattile:active {
+.tcard-wrap:hover .tcard, .hcard:hover, .cattile:hover, .colcard:hover, .baru-card:hover {
+  box-shadow: var(--sh-lift);
+}
+.tcard-wrap:active, .hcard:active, .cattile:active, .colcard:active, .baru-card:active {
   transform: translateY(-1px) scale(0.96);
   transition-duration: 0.12s;
 }
@@ -34,14 +62,15 @@
    supaya transform jalan, penengahannya dari align-items parent).
    .tic/.hic adalah chip flex (display:flex + justify-content:center di
    style.css) — inline-block di sini MEMATIKAN penengahan dan membuat
-   emoji menempel ke kiri chip (~7px). Jangan kembalikan. */
-.tcard .tic, .hcard .hic, .cattile .ci {
+   emoji menempel ke kiri chip (~7px). Jangan kembalikan.
+   S-U6: .cic/.bic (ikon .colcard/.baru-card, chip flex juga) ikut. */
+.tcard .tic, .hcard .hic, .cattile .ci, .colcard .cic, .baru-card .bic {
   transition: transform 0.32s var(--spring);
 }
 .cattile .ci {
   display: inline-block;
 }
-.tcard:hover .tic, .hcard:hover .hic { transform: scale(1.14) rotate(-6deg); }
+.tcard-wrap:hover .tic, .hcard:hover .hic, .colcard:hover .cic, .baru-card:hover .bic { transform: scale(1.14) rotate(-6deg); }
 .cattile:hover .ci { animation: ci-wiggle 0.5s var(--spring); }
 @keyframes ci-wiggle {
   25% { transform: scale(1.18) rotate(-10deg); }
@@ -49,13 +78,11 @@
   80% { transform: scale(1.1) rotate(-2deg); }
 }
 
-/* ---------- 3. INPUT: ring coral "bernapas" masuk ---------- */
-.hsearch {
-  transition: border-color 0.25s var(--ease), box-shadow 0.35s var(--spring);
-}
-.hsearch:focus-within {
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 22%, transparent);
-}
+/* ---------- 3. INPUT: ring coral "bernapas" masuk ----------
+   Ring fokus .hsearch TIDAK di sini lagi (v6.22.0 S-F4, S-A6 F-04):
+   pemilik tunggalnya fx-hero.css (dimuat sesudah file ini,
+   menang cascade). Yang tinggal di sini hanya gerak glyph
+   (transisi + scale saat fokus) dan ring .inp. */
 .hsearch .glyph { transition: transform 0.3s var(--spring), color 0.2s; }
 .hsearch:focus-within .glyph { transform: translateY(-50%) scale(1.15); }
 .inp {
@@ -66,17 +93,21 @@
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 18%, transparent);
 }
 
-/* ---------- 4. FAVORIT: pop pegas + semburan partikel CSS ---------- */
+/* ---------- 4. FAVORIT: pop pegas + semburan partikel CSS ----------
+   S-U6 (v6.22.0): SATU nilai tekan + pop untuk SEMUA hati —
+   dulu hati kartu 0,80/0,45 dtk (style.css, menang spesifisitas)
+   vs hati halaman tool 0,75/0,5 dtk (di sini). Duplikat style.css
+   dicabut; nilai kartu yang menang dipertahankan di sini. */
 .fav {
   transition: transform 0.3s var(--spring), opacity 0.15s, color 0.2s, background 0.15s;
   position: relative;
 }
-.fav:active { transform: scale(0.75); transition-duration: 0.08s; }
-.fav.pop { animation: fav-pop 0.5s var(--spring); }
+.fav:active { transform: scale(0.8); transition-duration: 0.08s; }
+.fav.pop { animation: fav-pop 0.45s var(--spring); }
 /* partikel: 2 pseudo-element × 4 titik via box-shadow, menyembur keluar */
 .fav.on::before, .fav.on::after {
   content: ""; position: absolute; left: 50%; top: 50%;
-  width: 4px; height: 4px; margin: -2px; border-radius: 50%;
+  width: 4px; height: 4px; margin: -2px; border-radius: var(--r-circle);
   background: var(--acc); opacity: 0; pointer-events: none;
 }
 .fav.on::before {
@@ -103,20 +134,29 @@
 /* .tab.on .ti + @keyframes tab-pop tinggal di fx-joy.css §5 (satu pemilik;
    duplikat di file ini dicabut P3 — fx-joy yang menang cascade). */
 
-/* ---------- 6. CHIP SARAN: hover lift kecil ---------- */
+/* ---------- 6. CHIP SARAN: hover lift kecil ----------
+   S-U6 (v6.22.0): chip -1px di mana-mana (tangga gerak) — dulu
+   chip empty -2px vs .schip global -1px (fx-p3.css) untuk
+   komponen yang sama; tekan 0,94 selaras .schip/.fchip. */
 .empty .sugx .schip {
   transition: transform 0.25s var(--spring), color 0.15s, border-color 0.15s, background 0.15s;
 }
-.empty .sugx .schip:hover { transform: translateY(-2px); }
-.empty .sugx .schip:active { transform: scale(0.92); transition-duration: 0.1s; }
+.empty .sugx .schip:hover { transform: translateY(-1px); }
+.empty .sugx .schip:active { transform: scale(0.94); transition-duration: 0.1s; }
 
-/* ---------- 7. LINK KEMBALI & tombol semua-tools: sentuhan akhir ---------- */
+/* ---------- 7. LINK KEMBALI & tombol semua-tools: sentuhan akhir ----------
+   S-U6 (v6.22.0): .contd masuk keluarga baris — dulu tanpa angkat
+   dan tanpa sentakan panah, tidak selaras .allbtn. */
 .back { transition: transform 0.25s var(--spring), color 0.15s; }
 .back:hover { transform: translateX(-3px); }
 .allbtn { transition: transform 0.28s var(--spring), border-color 0.15s; }
 .allbtn:hover { transform: translateY(-2px); }
 .allbtn:active { transform: scale(0.97); transition-duration: 0.1s; }
 .allbtn:hover .ago { animation: ago-nudge 0.4s var(--spring); display: inline-block; }
+.contd { transition: transform 0.28s var(--spring), border-color 0.15s; }
+.contd:hover { transform: translateY(-2px); }
+.contd:active { transform: scale(0.97); transition-duration: 0.1s; }
+.contd:hover .cgo { animation: ago-nudge 0.4s var(--spring); display: inline-block; }
 @keyframes ago-nudge { 40% { transform: translateX(5px); } }
 
 /* ---------- hormati preferensi gerak ---------- */

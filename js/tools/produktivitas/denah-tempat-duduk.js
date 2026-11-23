@@ -214,6 +214,7 @@ export function render(root) {
       }, 'image/png');
     }));
     baris.appendChild(T.btn('Hapus denah', () => {
+      if (!confirm('Hapus seluruh denah tempat duduk? Data denah akan hilang dan tidak bisa dikembalikan.')) return;
       denah = null;
       terpilih = null;
       try { localStorage.removeItem(LS_KUNCI); } catch (e) {}

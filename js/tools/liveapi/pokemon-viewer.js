@@ -1,6 +1,6 @@
 import { h as T, esc, utils } from '../../core.js';
 
-export const meta = {"id":"pokemon-viewer","name":"Pokemon Viewer","cat":"liveapi","icon":"⚡","desc":"Lihat sprite, tipe, dan kemampuan Pokemon dari PokeAPI.","keywords":"pokemon,pokeapi,sprite,pikachu,tipe,kemampuan,game"};
+export const meta = {"id":"pokemon-viewer","name":"Pokemon Viewer","cat":"liveapi","icon":"⚡","desc":"Lihat sprite, tipe, dan kemampuan Pokemon dari PokeAPI.","keywords":"pokemon,pokeapi,sprite,pikachu,tipe,kemampuan,game", "online": true};
 
 const cap = (s) => String(s || '').split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
@@ -49,7 +49,7 @@ export function render(root) {
       }
     } catch (e) {
       let msg;
-      if (e && e.name === 'AbortError') msg = 'Waktu habis — PokeAPI tidak merespons dalam 15 detik. Periksa koneksi internet lalu coba lagi.';
+      if (e && e.name === 'AbortError') msg = 'Waktu habis — PokeAPI tidak bisa dihubungi dalam 15 detik. Periksa koneksi internet lalu coba lagi.';
       else if (e && e.status === 404) msg = 'Pokemon "' + q + '" tidak ditemukan. Cek ejaan atau coba ID angka (1–1025).';
       else msg = 'Gagal memuat data Pokemon. Periksa koneksi internet lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span>');

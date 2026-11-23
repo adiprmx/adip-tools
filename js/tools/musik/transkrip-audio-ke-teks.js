@@ -1,6 +1,6 @@
 import { h as T, errBox } from '../../core.js';
 
-export const meta = {"id": "transkrip-audio-ke-teks", "name": "Transkrip Audio ke Teks", "cat": "musik", "icon": "📝", "desc": "Ubah suara jadi tulisan dengan pengenal suara bawaan browser.", "keywords": "transkrip,audio,teks,suara,tulisan,podcast", "since": "6.16.0"};
+export const meta = {"id": "transkrip-audio-ke-teks", "name": "Transkrip Audio ke Teks", "cat": "musik", "icon": "📝", "desc": "Ubah suara jadi tulisan dengan pengenal suara bawaan browser.", "keywords": "transkrip,audio,teks,suara,tulisan,podcast", "since": "6.16.0", "online": true};
 
 export function render(root) {
   // Pengenal suara bawaan browser (Web Speech API). Jujur soal batasnya:

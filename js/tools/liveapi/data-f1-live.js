@@ -21,7 +21,7 @@ async function getJSON(url) {
 
 // tglCantik kanonis tinggal di utils (core.js).
 
-export const meta = {"id": "data-f1-live", "name": "Data F1", "cat": "liveapi", "icon": "🏎️", "desc": "Jadwal balapan Formula 1 per musim, sesi tiap seri, daftar pembalap, dan hasil balapan terakhir.", "keywords": "f1,formula 1,balapan,pembalap,grand prix,jadwal f1,hasil f1,openf1,ergast,motorsport", "since": "6.17.0"};
+export const meta = {"id": "data-f1-live", "name": "Data F1", "cat": "liveapi", "icon": "🏎️", "desc": "Jadwal balapan Formula 1 per musim, sesi tiap seri, daftar pembalap, dan hasil balapan terakhir.", "keywords": "f1,formula 1,balapan,pembalap,grand prix,jadwal f1,hasil f1,openf1,ergast,motorsport", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -105,7 +105,7 @@ export function render(root) {
       });
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server OpenF1 tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server OpenF1 tidak bisa dihubungi dalam 15 detik.'
         : 'Jadwal F1 gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };
@@ -133,7 +133,7 @@ export function render(root) {
         '<p class="hint">Sumber: Ergast (Jolpica), data resmi Formula 1. 10 besar ditampilkan.</p>');
     } catch (e) {
       T.show(hasilBox, errBox(e.name === 'AbortError'
-        ? 'Waktu habis, server Ergast tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Ergast tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil hasil balapan. Cek koneksi internet, lalu coba lagi.'));
       const w = T.el('<div style="margin-top:8px"></div>');
       w.appendChild(T.btn('Coba lagi', muatHasil));

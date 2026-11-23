@@ -102,9 +102,9 @@ export function render(root) {
 
   function card(p) {
     const [aLbl, aCol] = AVAIL[p.availability] || AVAIL.unknown;
-    const art = T.el('<article style="border:1px solid #ffffff20;border-radius:12px;padding:14px;background:#141210' + (p.featured ? ';border-color:#e0785680' : '') + '"></article>');
+    const art = T.el('<article style="border:1px solid #ffffff20;border-radius:12px;padding:14px;background:#141210' + (p.featured ? ';border-color:#ff6f6180' : '') + '"></article>');
     let h = '';
-    if (p.featured) h += '<div style="font-size:12px;font-weight:700;color:#e07856;margin-bottom:6px">DIREKOMENDASIKAN</div>';
+    if (p.featured) h += '<div style="font-size:12px;font-weight:700;color:#ff6f61;margin-bottom:6px">DIREKOMENDASIKAN</div>';
     h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">' +
       '<div><div class="dim" style="font-size:11px;letter-spacing:.08em">' + T.esc(CAT_ID[p.category] || p.category.toUpperCase()) + '</div>' +
       '<h3 style="margin:4px 0 0;font-size:17px">' + T.esc(p.name) + '</h3></div>' +
@@ -116,7 +116,7 @@ export function render(root) {
       ).join('') + '</div>';
     if (p.note) h += '<p class="dim" style="font-size:12px;margin:0 0 10px">' + T.esc(p.note) + '</p>';
     const safe = validHttps(p.url);
-    if (safe) h += '<a href="' + T.esc(safe) + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:14px;font-weight:600;color:#e07856;text-decoration:none">Kunjungi Situs ↗</a>';
+    if (safe) h += '<a href="' + T.esc(safe) + '" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:14px;font-weight:600;color:#ff6f61;text-decoration:none">Kunjungi Situs ↗</a>';
     art.innerHTML = h;
     return art;
   }

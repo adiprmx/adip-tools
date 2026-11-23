@@ -18,7 +18,7 @@ async function getJSON(url) {
 // mediaAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "cari-foto-gratis-cc", "name": "Cari Foto Gratis CC", "cat": "liveapi", "icon": "📸", "desc": "Cari foto gratis berlisensi Creative Commons, lengkap dengan nama pembuat dan lisensinya.", "keywords": "foto,gratis,creative commons,cc,openverse,stock photo,gambar bebas", "since": "6.17.0"};
+export const meta = {"id": "cari-foto-gratis-cc", "name": "Cari Foto Gratis CC", "cat": "liveapi", "icon": "📸", "desc": "Cari foto gratis berlisensi Creative Commons, lengkap dengan nama pembuat dan lisensinya.", "keywords": "foto,gratis,creative commons,cc,openverse,stock photo,gambar bebas", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -61,7 +61,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server foto tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server foto tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

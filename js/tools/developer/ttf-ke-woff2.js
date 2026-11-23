@@ -5,7 +5,7 @@
 
 import { h as T, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id": "ttf-ke-woff2", "name": "TTF ↔ WOFF2", "cat": "developer", "icon": "🔤", "desc": "Ubah font TTF/OTF jadi WOFF2 yang ringan, atau WOFF2 kembali jadi TTF/OTF.", "keywords": "ttf,woff2,font,konversi font,webfont,kompres font,dekompres font,otf,ttf ke woff2,woff2 ke ttf", "since": "6.17.0"};
+export const meta = {"id": "ttf-ke-woff2", "name": "TTF ↔ WOFF2", "cat": "developer", "icon": "🔤", "desc": "Ubah font TTF/OTF jadi WOFF2 yang ringan, atau WOFF2 kembali jadi TTF/OTF.", "keywords": "ttf,woff2,font,konversi font,webfont,kompres font,dekompres font,otf,ttf ke woff2,woff2 ke ttf", "since": "6.17.0", "online": true};
 
 
 // Encoder WOFF2 asli di browser: wawoff2 2.0.1 (port WebAssembly dari

@@ -40,7 +40,7 @@ function watchFadeX(rail) {
 
 /* Footer terstruktur (v6.15.0, P3 — temuan audit 6):
    (1) identitas + kalimat nilai (hitungan dari manifest, bukan
-   angka hafalan), (2) 15 tautan kategori sebagai daftar grid,
+   angka hafalan), (2) 22 tautan kategori sebagai daftar grid,
    (3) tautan layanan, (4) baris penutup © sebagai penanda akhir
    halaman. Kategori dulu baris teks mengalir dengan pemisah
    titik — gumpalan itu yang bikin footer lama terasa belum
@@ -65,13 +65,16 @@ function footerHTML(n, { methodLink = true, rise = null } = {}) {
   const links = [
     ...(methodLink ? ['<a href="#/metodologi">Metodologi</a>'] : []),
     '<a href="#/t/bantuan">Bantuan</a>',
+    /* S-FIXUP F6 (v6.22.0): panduan bisa dibuka lagi kapan saja —
+       tombol (bukan tautan) karena tidak berpindah halaman. */
+    '<button type="button" data-act="reopen-onboarding">Lihat panduan lagi</button>',
     '<a href="#/t/beri-masukan">Beri Masukan</a>',
     '<a href="https://github.com/adiprmx/adip-tools/blob/main/PRIVACY.md" target="_blank" rel="noopener">Privasi</a>',
     '<a href="#/semua">Semua tools</a>',
   ].join('');
   return `<footer class="${cls}"${style}>
     <div class="foot-main">
-      <div class="foot-id"><b>ADIP Tools</b><br>${n} alat gratis berbahasa Indonesia. Hitungan jalan di browser kamu; tanpa daftar, tanpa iklan.</div>
+      <div class="foot-id"><b>ADIP Tools</b><br>${n} tools gratis berbahasa Indonesia. Hitungan jalan di perangkat kamu; tanpa daftar, tanpa iklan.</div>
       <nav class="foot-cats" aria-label="Kategori tools">
         <p class="foot-h">Kategori</p>
         <ul>${cats}</ul>

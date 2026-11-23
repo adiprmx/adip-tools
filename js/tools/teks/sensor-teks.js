@@ -20,7 +20,7 @@ utils.sensorText = function (text, words, mask, autoPhone, autoEmail) {
     return s;
   };
 
-export const meta = {"id": "sensor-teks", "name": "Sensor Teks", "cat": "teks", "icon": "🙈", "desc": "Sensor kata/nomor otomatis.", "keywords": "sensor,kata,kasar,privasi"};
+export const meta = {"id": "sensor-teks", "name": "Sensor Teks", "cat": "teks", "icon": "🙈", "desc": "Sensor kata sensitif, nomor HP, dan email di teksmu secara otomatis.", "keywords": "sensor,kata,kasar,privasi"};
 export function render(root) {
 
       const taIn = T.ta(6, 'Teks yang mau disensor…');

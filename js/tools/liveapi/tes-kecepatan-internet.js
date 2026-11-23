@@ -9,7 +9,7 @@ utils.hitungMbps = function (bytes, ms) {
 const FILE_PING = 'https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js';
 const FILE_UNDUH = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
 
-export const meta = {"id": "tes-kecepatan-internet", "name": "Tes Kecepatan Internet", "cat": "liveapi", "icon": "🚀", "desc": "Tes kecepatan unduh dan latensi koneksimu saat ini.", "keywords": "speed test,kecepatan internet,mbps,latensi,ping,download,unduh", "since": "6.11.0"};
+export const meta = {"id": "tes-kecepatan-internet", "name": "Tes Kecepatan Internet", "cat": "liveapi", "icon": "🚀", "desc": "Tes kecepatan unduh dan latensi koneksimu saat ini.", "keywords": "speed test,kecepatan internet,mbps,latensi,ping,download,unduh", "since": "6.11.0", "online": true};
 
 export function render(root) {
   const box = T.out();

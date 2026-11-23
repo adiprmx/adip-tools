@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "tambah-musik-ke-video", "name": "Tambah Musik ke Video", "cat": "converter", "icon": "🎵", "desc": "Tempel lagu sebagai musik latar video.", "keywords": "video,musik,audio,lagu,latar,backsound", "since": "6.17.0"};
+export const meta = {"id": "tambah-musik-ke-video", "name": "Tambah Musik ke Video", "cat": "converter", "icon": "🎵", "desc": "Tempel lagu sebagai musik latar video.", "keywords": "video,musik,audio,lagu,latar,backsound", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const fileVideo = T.input('file');

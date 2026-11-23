@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "smartcutout", "name": "Smart Cutout", "cat": "gambar", "icon": "✂️", "desc": "Ketuk objek di foto → AI pisahkan otomatis, 100% lokal.", "keywords": "cutout,segmentasi,potong,objek,transparan,mask"};
+export const meta = {"id": "smartcutout", "name": "Smart Cutout", "cat": "gambar", "icon": "✂️", "desc": "Ketuk objek di foto → AI pisahkan otomatis, 100% lokal.", "keywords": "cutout,segmentasi,potong,objek,transparan,mask", "online": true};
 
 // Pustaka & model publik independen (Google MediaPipe, Apache 2.0).
 const VISION_ESM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs';

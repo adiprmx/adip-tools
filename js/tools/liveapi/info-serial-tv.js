@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Info serial TV lewat TVMaze, tanpa key.
 // Terverifikasi 17 Nov 2026: /search/shows?q=breaking%20bad -> 200, CORS *.
 // Ringkasan dari API mengandung tag HTML, jadi dibersihkan dulu sebelum tampil.
-export const meta = {"id":"info-serial-tv","name":"Info Serial TV","cat":"liveapi","icon":"📺","desc":"Cari serial TV: sinopsis, status tayang, genre, dan ratingnya.","keywords":"serial tv,acara tv,sinopsis,episode,tvmaze,drama,series","since":"6.17.0"};
+export const meta = {"id":"info-serial-tv","name":"Info Serial TV","cat":"liveapi","icon":"📺","desc":"Cari serial TV: sinopsis, status tayang, genre, dan ratingnya.","keywords":"serial tv,acara tv,sinopsis,episode,tvmaze,drama,series","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -65,7 +65,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server TVMaze tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server TVMaze tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari serial. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

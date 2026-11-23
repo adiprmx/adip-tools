@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "konverter-audio", "name": "Konverter Audio", "cat": "musik", "icon": "🔄", "desc": "Ubah audio antar MP3, WAV, FLAC, OGG, M4A, OPUS, dan AAC, dengan pilihan kualitas suara, sample rate, dan kanal mono/stereo.", "keywords": "audio,konversi,mp3,wav,flac,ogg,m4a,aac,opus,format,bitrate,mono,stereo,lanjutan", "since": "6.11.0"};
+export const meta = {"id": "konverter-audio", "name": "Konverter Audio", "cat": "musik", "icon": "🔄", "desc": "Ubah audio antar MP3, WAV, FLAC, OGG, M4A, OPUS, dan AAC, dengan pilihan kualitas suara, sample rate, dan kanal mono/stereo.", "keywords": "audio,konversi,mp3,wav,flac,ogg,m4a,aac,opus,format,bitrate,mono,stereo,lanjutan,converter,ubah format audio", "since": "6.11.0", "online": true};
 
 /* Daftar format tujuan (diserap dari konverter-audio-lanjutan, v6.21.0:
    OPUS + AAC + catatan per format). Encoder tersedia di core ffmpeg.wasm

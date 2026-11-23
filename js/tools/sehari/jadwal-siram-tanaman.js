@@ -66,7 +66,7 @@ export function render(root) {
         T.toast('Siap, ' + t.nama + ' udah disiram. Ketemu lagi ' + t.interval + ' hari lagi.');
       }, true);
       siram.style.cssText = 'flex:1';
-      const hapus = T.btn('Hapus', () => { daftar.splice(i, 1); save(); gambar(); });
+      const hapus = T.btn('Hapus', () => { if (!confirm('Hapus tanaman "' + t.nama + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return; daftar.splice(i, 1); save(); gambar(); });
       card.appendChild(T.row(siram, hapus));
       listBox.appendChild(card);
     });

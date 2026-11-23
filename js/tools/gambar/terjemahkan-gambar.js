@@ -2,11 +2,11 @@ import { h as T, utils, LOCAL_NOTE, fileInput, loadImage } from '../../core.js';
 
 // Terjemahkan Gambar: baca teks dari foto (OCR) lalu terjemahkan.
 // OCR memakai Tesseract.js, sama seperti tool OCR di repo ini: engine dan
-// model bahasa diunduh sekali dari CDN, lalu teks dibaca di perangkat.
+// model bahasa diunduh sekali dari internet, lalu teks dibaca di perangkat.
 // Terjemahan memakai MyMemory (kuota gratis IP bersama, terbatas harian).
 // Bila OCR atau terjemahan tidak bisa jalan (tanpa internet / jatah habis),
 // tool menampilkan pesan jujur, bukan hasil karangan.
-export const meta = {"id": "terjemahkan-gambar", "name": "Terjemahkan Gambar", "cat": "gambar", "icon": "🌏", "desc": "Baca teks dari foto lalu terjemahkan ke bahasa lain.", "keywords": "terjemah,translate,ocr,teks gambar,bahasa,foto", "since": "6.19.0"};
+export const meta = {"id": "terjemahkan-gambar", "name": "Terjemahkan Gambar", "cat": "gambar", "icon": "🌏", "desc": "Baca teks dari foto lalu terjemahkan ke bahasa lain.", "keywords": "terjemah,translate,ocr,teks gambar,bahasa,foto", "since": "6.19.0", "online": true};
 
 const TS_CDN = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
 

@@ -5,7 +5,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Dicek ulang 19 Nov 2026: 200.
 // Beda dari Avatar Studio (editor avatar SVG DiceBear bergaya banyak):
 // tool ini khusus avatar inisial PNG sederhana dari nama.
-export const meta = {"id":"avatar-inisial","name":"Avatar Inisial","cat":"liveapi","icon":"🔤","desc":"Buat avatar huruf inisial dari nama, dengan warna latar dan ukuran pilihanmu.","keywords":"avatar,inisial,huruf nama,foto profil,ui-avatars","since":"6.18.0"};
+export const meta = {"id":"avatar-inisial","name":"Avatar Inisial","cat":"liveapi","icon":"🔤","desc":"Buat avatar huruf inisial dari nama, dengan warna latar dan ukuran pilihanmu.","keywords":"avatar,inisial,huruf nama,foto profil,ui-avatars","since":"6.18.0", "online": true};
 
 export const WARNA_LATAR = [
   ['acak', 'Acak'],

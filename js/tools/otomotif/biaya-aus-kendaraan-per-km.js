@@ -22,7 +22,7 @@ export function hitungAusPerKm(o) {
 }
 utils.ausPerKm = hitungAusPerKm;
 
-export const meta = {"id": "biaya-aus-kendaraan-per-km", "name": "Biaya Aus Kendaraan per KM", "cat": "otomotif", "icon": "🛣️", "desc": "Berapa rupiah yang habis tiap kilometer: harga mobil yang menyusut + servis + BBM, dijumlah jadi satu angka.", "keywords": "aus,per km,kilometer,depresiasi,servis,bbm,ongkos jalan,biaya kendaraan", "since": "6.19.0"};
+export const meta = {"id": "biaya-aus-kendaraan-per-km", "name": "Biaya Aus Kendaraan per KM", "cat": "otomotif", "icon": "🛣️", "desc": "Berapa rupiah yang habis tiap kilometer: harga mobil yang menyusut + servis + BBM, dijumlah jadi satu angka.", "keywords": "aus,per km,kilometer,depresiasi,servis,bbm,ongkos jalan,biaya kendaraan", "since": "6.19.0", "dataValidUntil": "2026-12-31"};
 export function render(root) {
   const beliI = money(null, 'cth: 250000000', '250000000');
   const nilaiI = money(null, 'cth: 180000000', '180000000');

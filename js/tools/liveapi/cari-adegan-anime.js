@@ -26,7 +26,7 @@ function detikKeMenit(d) {
   return m + ':' + String(s).padStart(2, '0');
 }
 
-export const meta = {"id": "cari-adegan-anime", "name": "Cari Adegan Anime", "cat": "liveapi", "icon": "🎬", "desc": "Tempel alamat gambar cuplikan anime, ketahui judul anime dan episodenya.", "keywords": "anime,adegan,screenshot,trace.moe,episode,cari anime,cuplikan", "since": "6.17.0"};
+export const meta = {"id": "cari-adegan-anime", "name": "Cari Adegan Anime", "cat": "liveapi", "icon": "🎬", "desc": "Tempel alamat gambar cuplikan anime, ketahui judul anime dan episodenya.", "keywords": "anime,adegan,screenshot,trace.moe,episode,cari anime,cuplikan", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -101,7 +101,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server pencari tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server pencari tidak bisa dihubungi dalam 20 detik.'
         : 'Pencarian gagal. Pastikan alamat gambarnya benar dan bisa dibuka publik, lalu coba lagi.');
     } finally { sedangCari = false; }
   };

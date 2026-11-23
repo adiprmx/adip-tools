@@ -28,7 +28,7 @@ async function getJSON(url) {
 
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "bencana-alam-global", "name": "Bencana Alam Global", "cat": "liveapi", "icon": "🌋", "desc": "Peristiwa bencana alam yang sedang terjadi di dunia, dari data NASA EONET.", "keywords": "bencana,gempa,banjir,gunung berapi,kebakaran,badai,nasa,eonet,alam", "since": "6.17.0"};
+export const meta = {"id": "bencana-alam-global", "name": "Bencana Alam Global", "cat": "liveapi", "icon": "🌋", "desc": "Peristiwa bencana alam yang sedang terjadi di dunia, dari data NASA EONET.", "keywords": "bencana,gempa,banjir,gunung berapi,kebakaran,badai,nasa,eonet,alam", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -69,7 +69,7 @@ export function render(root) {
         '<p class="hint">Sumber: NASA EONET. Data ini untuk pantauan umum, bukan peringatan resmi. Untuk kondisi darurat, ikuti arahan otoritas setempat.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server NASA tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server NASA tidak bisa dihubungi dalam 15 detik.'
         : 'Daftar bencana gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

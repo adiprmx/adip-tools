@@ -16,7 +16,7 @@ async function getJSON(url) {
 
 // imgAman kanonis tinggal di utils.urlAman (core.js).
 
-export const meta = {"id": "film-studio-ghibli", "name": "Film Studio Ghibli", "cat": "liveapi", "icon": "🎞️", "desc": "Daftar film Studio Ghibli lengkap: judul, sutradara, tahun, dan sinopsisnya.", "keywords": "ghibli,film,anime,studio ghibli,miyazaki,totoro,spirited away", "since": "6.17.0"};
+export const meta = {"id": "film-studio-ghibli", "name": "Film Studio Ghibli", "cat": "liveapi", "icon": "🎞️", "desc": "Daftar film Studio Ghibli lengkap: judul, sutradara, tahun, dan sinopsisnya.", "keywords": "ghibli,film,anime,studio ghibli,miyazaki,totoro,spirited away", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -56,7 +56,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server Ghibli API tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Ghibli API tidak bisa dihubungi dalam 15 detik.'
         : 'Daftar film gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

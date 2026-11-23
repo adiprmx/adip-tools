@@ -126,7 +126,7 @@ export function hitungWaris(o) {
   return { harta, wasiat, wasiatLebih, bersih, rows, catatan, blok: null };
 }
 
-export const meta = {"id": "hitung-waris", "name": "Kalkulator Waris Islam", "cat": "indonesia", "icon": "🕌", "desc": "Simulasi pembagian waris (faraidh) sederhana.", "keywords": "waris,islam,faraidh,harta,ahli waris", "file": "tools/indonesia/hitung-waris.js"};
+export const meta = {"id": "hitung-waris", "name": "Kalkulator Waris Islam", "cat": "indonesia", "icon": "🕌", "desc": "Simulasi pembagian waris (faraidh) sederhana.", "keywords": "waris,islam,faraidh,harta,ahli waris"};
 export function render(root) {
   const harta = T.input('number', 'cth: 1000000000', '');
   const wasiatI = money(null, 'cth: 0', '0');

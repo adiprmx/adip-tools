@@ -30,7 +30,7 @@
    .ct), .empty.
 
    Design Read (taste §0.B + antislop Part 3): chrome utilitas
-   untuk direktori 1.299 tools, pengunjung Indonesia yang
+   untuk direktori 1.261 tools, pengunjung Indonesia yang
    kebanyakan memakai HP, dalam bahasa visual terkunci "Arang &
    Coral" (bg #161311, aksen coral #ff6f61, Bricolage Grotesque).
    Dial ENERGY 1 / RHYTHM 1 / MOTION 1: tenang, seragam, gerak
@@ -47,8 +47,17 @@ import { manifest } from './manifest.js';
 import { esc } from './core.js';
 import { CATS, CAT_ICON, catLabel, byId, COLLECTIONS, collectionById } from './catalog.js';
 import { getFav, getRecent, FKEY, RKEY } from './store.js';
+/* S-Q8 (v6.22.0, wiring S-U9 §5.3): salinan + pemulihan dari baris
+   kelola Favorit. Aman dari impor melingkar: backup.js hanya
+   mengimpor store.js + manifest.js. */
+import { downloadBackup, readBackupFile, restoreBackup } from './backup.js';
 import { fetchPopularTerms } from './supabase.js';
 import { getRecentSearches, addRecentSearch, clearRecentSearches, rankedSearchPlus } from './search-plus.js';
+/* S-U5 (v6.22.0, manifest split): loader + pendeteksi ramping dari
+   manifest-boot.js (impor langsung, BUKAN lewat alias
+   './manifest.js' — supaya js/manifest.js tetap tak tersentuh).
+   Dipakai ensureDetailsForCards/fillCardDescs di bawah. */
+import { loadManifestDetails, needsDetails } from './manifest-boot.js';
 
 /* ---------------- ikon chrome: SVG inline stroke 1,5 --------------
    Satu keluarga dengan feather "share-2" yang sudah dipakai
@@ -97,7 +106,7 @@ function cmpSemver(a, b) {
    app.js; komponen ini tidak menduplikasi keduanya).
    Semua listener global dipasang SEKALI di initComponents
    (tidak per route) supaya tidak bocor tiap navigasi. */
-const shell = { openPalette: null, toast: null };
+const shell = { openPalette: null, toast: null, onBackupRestored: null };
 let booted = false;
 let currentDialog = null; /* { wrap, returnFocus } */
 let openDrop = null; /* { btn, panel } */
@@ -274,7 +283,7 @@ function breadcrumbFor(routeName, params) {
   }
   if (routeName === 'tool') {
     const m = byId(params && params.id);
-    if (!m) return null;
+    if (!m) return [home, { label: 'Tidak ditemukan' }]; /* S-Q8 (v6.22.0, S-U3 §7.4): halaman "tidak ditemukan" tetap punya breadcrumb. */
     return [home, { label: catLabel(m.cat), href: '#/k/' + m.cat }, { label: m.name }];
   }
   return null;
@@ -400,7 +409,8 @@ function confirmDialog({ title, body, confirmLabel = 'Ya, hapus' }) {
 /* ============================================================
    PENCARIAN TERAKHIR (S-05)
    Data sudah dicatat addRecentSearch sejak lama (localStorage
-   adip_search_hist, maks 8), tapi getRecentSearches tidak
+   adip_search_hist, maks 10 — S-U2 v6.22.0 menaikkan HIST_MAX
+   dari 8 ke 10), tapi getRecentSearches tidak
    pernah dipakai. Chip di #/semua + bagian di palet.
    ============================================================ */
 function recentSearchesHTML(terms) {
@@ -409,7 +419,7 @@ function recentSearchesHTML(terms) {
       <span class="rs-label">Terakhir dicari</span>
       <div class="rs-chips">${terms.map((t) =>
         `<button type="button" class="schip rs-chip" data-term="${esc(t)}">${esc(t)}</button>`).join('')}
-      <button type="button" class="rs-clear" data-rs-clear>Hapus</button></div>
+      <button type="button" class="rs-clear" data-rs-clear>Hapus semua</button></div>
     </div>`;
 }
 /* Jalankan pencarian dari chip: isi input, lalu tembak event
@@ -434,10 +444,21 @@ function enhanceRecentSearchesSemua() {
     if (!wrap) {
       hsearch.insertAdjacentHTML('afterend', recentSearchesHTML(terms));
       wrap = document.querySelector('#app .rs-wrap');
-      wrap.addEventListener('click', (e) => {
+      wrap.addEventListener('click', async (e) => {
         const chip = e.target.closest('.rs-chip');
         if (chip) { runRecentSearch(input, chip.dataset.term); return; }
-        if (e.target.closest('[data-rs-clear]')) { clearRecentSearches(); render(); }
+        if (e.target.closest('[data-rs-clear]')) {
+          /* S-FIXUP F9 (v6.22.0): konfirmasi lewat dialog bergaya,
+             bukan confirm() bawaan — satu bahasa dialog di seluruh
+             aplikasi. Batal = tidak terjadi apa-apa. */
+          const yes = await confirmDialog({
+            title: 'Hapus semua kata yang dicari?',
+            body: 'Kata-kata yang terakhir kamu cari akan hilang. Ini tidak bisa dikembalikan.',
+            confirmLabel: 'Ya, hapus',
+          });
+          if (!yes) return;
+          clearRecentSearches(); render();
+        }
       });
     }
   };
@@ -462,11 +483,23 @@ function injectPaletteRecent() {
   sec.innerHTML = `<div class="pal-sec">Terakhir dicari</div>
     <div class="rs-chips">${terms.map((t) =>
       `<button type="button" class="schip rs-chip" data-term="${esc(t)}">${esc(t)}</button>`).join('')}
-    <button type="button" class="rs-clear" data-rs-clear>Hapus</button></div>`;
-  sec.addEventListener('click', (e) => {
+    <button type="button" class="rs-clear" data-rs-clear>Hapus semua</button></div>`;
+  sec.addEventListener('click', async (e) => {
     const chip = e.target.closest('.rs-chip');
     if (chip) { runRecentSearch(input, chip.dataset.term); return; }
-    if (e.target.closest('[data-rs-clear]')) { clearRecentSearches(); sec.remove(); }
+    if (e.target.closest('[data-rs-clear]')) {
+      /* S-FIXUP F9 (v6.22.0): sama seperti di #/semua — dialog
+         bergaya, bukan confirm() bawaan. Dialog di atas palet
+         sudah ada presedennya (dialog kuota) dan penjaga Esc di
+         app.js mencegah palet tertutup di bawah dialog. */
+      const yes = await confirmDialog({
+        title: 'Hapus semua kata yang dicari?',
+        body: 'Kata-kata yang terakhir kamu cari akan hilang. Ini tidak bisa dikembalikan.',
+        confirmLabel: 'Ya, hapus',
+      });
+      if (!yes) return;
+      clearRecentSearches(); sec.remove();
+    }
   });
   list.appendChild(sec);
 }
@@ -516,7 +549,9 @@ function cardCatId(card) {
   return hit ? hit[0] : null;
 }
 function cardMeta(card) {
-  const href = card.getAttribute('href') || '';
+  /* S-F10 (v6.22.0, A-07): card kini .tcard-wrap — href dibaca
+     dari .tcard di dalamnya; .nm tetap ketemu sebagai turunan. */
+  const href = card.querySelector('.tcard')?.getAttribute('href') || card.getAttribute('href') || '';
   const id = href.replace('#/t/', '');
   const m = byId(id);
   return {
@@ -529,6 +564,11 @@ function cardMeta(card) {
 function sortTools(list, mode, popularOrder) {
   /* list: [{id, name, since}]. Murni, dites di Node. */
   const arr = list.slice();
+  if (mode === 'rel') {
+    /* S-FIXUP F2 (v6.22.0): relevansi = urutan paint assessQuery apa
+       adanya (s.all sudah tersusun menurut skor). Tanpa sort ulang. */
+    return arr;
+  }
   if (mode === 'new') {
     arr.sort((a, b) => cmpSemver(b.since, a.since) || a.name.localeCompare(b.name, 'id'));
   } else if (mode === 'pop' && popularOrder && popularOrder.length) {
@@ -563,17 +603,38 @@ function semuaState() {
     countEl: document.getElementById('allCount'),
     cat: 'semua',
     sort: 'az',
+    /* S-FIXUP F2 (v6.22.0): pilihan eksplisit pengguna (lewat
+       dropdown) menang atas default otomatis. Tanpa ini, tiap
+       paint (tiap ketikan) akan menimpa pilihan pengguna kembali
+       ke default. Di-reset tiap kunjungan route (semuaState baru). */
+    sortUser: false,
     all: [], /* meta kartu hasil paint terakhir */
     shown: PAGE_SIZE,
     popular: null, /* null = belum dimuat; [] = gagal/jatuh ke A-Z */
     popularLoading: false,
+    /* S-U5 (v6.22.0, 6b): label hitungan hasil paint view terakhir
+       ("N hasil" / "N hasil mirip" / "N tools") — dipulihkan saat
+       kembali ke "Semua kategori" (semuaRender tidak bisa
+       memanggil computeList() yang merupakan closure app.js). */
+    paintCountLabel: '',
   };
+}
+
+/* S-FIXUP F2 (v6.22.0): mode sortir yang berlaku. Pilihan eksplisit
+   pengguna menang; bila belum ada, kueri aktif -> 'rel' (relevansi
+   assessQuery dipertahankan, bukan diurut A–Z), tanpa kueri -> 'az'
+   (perilaku lama, urutan tanpa-query tidak berubah). */
+function semuaEffectiveSort() {
+  const s = semua;
+  if (s.sortUser) return s.sort;
+  const q = s.input && s.input.value.trim();
+  return q ? 'rel' : 'az';
 }
 
 function semuaVisible() {
   const s = semua;
   const filtered = s.all.filter((c) => s.cat === 'semua' || c.cat === s.cat);
-  const ordered = sortTools(filtered, s.sort, s.popular);
+  const ordered = sortTools(filtered, semuaEffectiveSort(), s.popular);
   return { filtered, ordered };
 }
 
@@ -583,13 +644,45 @@ function semuaRender(appendOnly) {
   const { filtered, ordered } = semuaVisible();
   const total = filtered.length;
   const visible = ordered.slice(0, s.shown);
+  /* S-FIXUP F2: dropdown menampilkan mode yang berlaku (otomatis
+     "Yang paling cocok dulu" saat mencari, "Nama A sampai Z" saat
+     tanpa kueri). Set nilai tidak memicu 'change', jadi tidak
+     ada putaran balik ke sortUser. */
+  const sel = document.getElementById('semuaSort');
+  if (sel) sel.value = semuaEffectiveSort();
   /* tulis DOM sendiri dengan observer dimatikan sementara: flag
      tidak cukup karena callback observer adalah microtask. */
   if (gridObserver) gridObserver.disconnect();
   if (appendOnly) {
-    const have = s.grid.querySelectorAll('.tcard').length;
+    const have = s.grid.querySelectorAll('.tcard-wrap').length;
     const batch = ordered.slice(have, s.shown);
     s.grid.append(...batch.map((c) => c.el));
+  } else if (total === 0) {
+    /* S-U5 (v6.22.0, 6a): filter kategori yang menghasilkan 0
+       (mis. chip liveapi di atas hasil cari yang tidak punya tool
+       liveapi) dulu menampilkan grid kosong TANPA kotak empty —
+       semuaRender menimpa grid dengan 0 kartu. Kini kotak empty
+       dirender di sini, memakai anatomi .empty yang sama seperti
+       paint view (app.js) — tanpa CSS baru. Judul TIDAK diawali
+       "Tidak ada tool yang pas" supaya tidak memicu cabang B-01
+       semuaCollect (kotak ini BUKAN hasil paint view). Kotak
+       tanpa .tcard-wrap tidak pernah dikumpulkan sebagai kartu.
+       Tombol "Lihat semua kategori" mengembalikan filter ke
+       'semua' (dengan aria-pressed yang benar). */
+    const title = s.cat !== 'semua'
+      ? `Tidak ada tool ${catLabel(s.cat)} yang cocok.`
+      : 'Tidak ada tool yang cocok.';
+    const body = s.cat !== 'semua'
+      ? 'Coba kategori lain, atau ubah pencarianmu.'
+      : 'Coba ubah pencarianmu, atau matikan filter yang aktif.';
+    s.grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><b>${esc(title)}</b><p>${esc(body)}</p>${s.cat !== 'semua' ? '<div class="sugx"><button type="button" class="schip" data-back-all>Lihat semua kategori</button></div>' : ''}</div>`;
+    s.grid.querySelector('[data-back-all]')?.addEventListener('click', () => {
+      s.cat = 'semua';
+      $$('.cat-chip', document.getElementById('semuaCatChips'))
+        .forEach((c) => c.setAttribute('aria-pressed', c.dataset.cat === 'semua' ? 'true' : 'false'));
+      s.shown = PAGE_SIZE;
+      semuaRender(false);
+    });
   } else {
     s.grid.replaceChildren(...visible.map((c) => c.el));
   }
@@ -598,17 +691,33 @@ function semuaRender(appendOnly) {
   const line = document.getElementById('semuaMoreLine');
   const btn = document.getElementById('semuaMoreBtn');
   const shownNow = Math.min(s.shown, total);
-  if (line) line.textContent = `Menampilkan ${shownNow} dari ${total} tools`;
+  /* total 0: baris "Menampilkan 0 dari 0" dikosongkan (kotak empty
+     sudah menjelaskan) — konsisten dengan cabang B-01 semuaCollect. */
+  if (line) line.textContent = total === 0 ? '' : `Menampilkan ${shownNow} dari ${total} tools`;
   if (btn) {
     const rest = total - shownNow;
     btn.hidden = rest <= 0;
+    /* S-U5 (v6.22.0, 6c): style display eksplisit sebagai lapis
+       kedua di samping aturan CSS .morebtn[hidden] (tugas 7) —
+       keduanya menulis nilai yang sama, jadi jembatan app.js
+       syncMoreButton kini redundan, bukan berkonflik. */
+    btn.style.display = rest <= 0 ? 'none' : '';
     btn.textContent = `Muat ${Math.min(PAGE_SIZE, rest)} lagi`;
   }
   /* label hitungan ikut filter aktif (format yang sama seperti
      paint view: "N hasil" saat mencari, "N tools" bila tidak). */
-  if (s.countEl && s.cat !== 'semua') {
-    const q = s.input && s.input.value.trim();
-    s.countEl.textContent = q ? `${total} hasil` : `${total} tools`;
+  if (s.countEl) {
+    if (s.cat !== 'semua') {
+      const q = s.input && s.input.value.trim();
+      s.countEl.textContent = q ? `${total} hasil` : `${total} tools`;
+    } else if (s.paintCountLabel) {
+      /* S-U5 (v6.22.0, 6b): kembali ke "Semua kategori" —
+         pulihkan label hasil paint view (termasuk "N hasil mirip"
+         S-F9), bukan menulis "N hasil" yang menimpa maknanya.
+         Jembatan app.js menulis nilai yang sama sesudahnya
+         (redundan, bukan berkonflik). */
+      s.countEl.textContent = s.paintCountLabel;
+    }
   }
 }
 
@@ -617,11 +726,21 @@ function semuaEnsurePopular() {
   if (!s || s.popular !== null || s.popularLoading) return;
   s.popularLoading = true;
   /* D-03: Supabase tidak terjangkau → jatuh diam-diam ke A-Z
-     (popular = []), tanpa UI error — sortir tetap jalan. */
-  fetchPopularTerms()
+     (popular = []), tanpa UI error — sortir tetap jalan.
+     S-U5 (v6.22.0, ketahanan CDN): fetchPopularTerms sendiri tanpa
+     timeout (supabase.js bukan milik S-U5) — balapan di sini 10 dtk
+     (pola safety S-F5: timeout eksplisit, gagal = fallback) supaya
+     Supabase yang menggantung tidak menahan sortir Populer
+     selamanya. Timer dibersihkan di finally. */
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('fetchPopularTerms timeout')), 10000);
+  });
+  Promise.race([fetchPopularTerms(), timeout])
     .then((terms) => { s.popular = popularOrderFromTerms(terms || [], manifest); })
     .catch(() => { s.popular = []; })
     .finally(() => {
+      clearTimeout(timer);
       s.popularLoading = false;
       /* bila pengguna sedang menunggu mode Populer, terapkan
          urutannya begitu data tiba. */
@@ -644,14 +763,27 @@ function semuaCollect() {
     if (b && b.textContent.startsWith('Tidak ada tool yang pas') && s.countEl) {
       s.countEl.textContent = q ? `0 hasil untuk "${q}"` : '0 hasil';
     }
+    /* S-U5 (6b): simpan juga di cabang ini — tanpa ini, label
+       paint lama ("24 hasil") tertinggal dan dipulihkan secara
+       salah bila pengguna lalu mengeklik "Semua kategori". */
+    if (s.countEl) s.paintCountLabel = s.countEl.textContent;
     s.all = [];
     const line = document.getElementById('semuaMoreLine');
     const btn = document.getElementById('semuaMoreBtn');
     if (line) line.textContent = '';
-    if (btn) btn.hidden = true;
+    /* S-U5 (v6.22.0, 6c): display eksplisit di samping hidden
+       (lapis yang sama seperti semuaRender + aturan CSS tugas 7). */
+    if (btn) { btn.hidden = true; btn.style.display = 'none'; }
     return;
   }
-  s.all = $$('.tcard', s.grid).map((el) => ({ ...cardMeta(el), cat: cardCatId(el) }));
+  /* S-F10 (v6.22.0, A-07): kumpulkan .tcard-wrap (tautan +
+     tombol favorit) supaya sortir/muat-lagi memindahkan kartu
+     utuh, bukan tautannya saja. */
+  s.all = $$('.tcard-wrap', s.grid).map((el) => ({ ...cardMeta(el), cat: cardCatId(el) }));
+  /* S-U5 (v6.22.0, 6b): simpan label hitungan hasil paint view
+     ini SEBELUM semuaRender menulis — dipulihkan saat kembali ke
+     "Semua kategori". */
+  if (s.countEl) s.paintCountLabel = s.countEl.textContent;
   /* kartu hasil paint baru mulai dari 48 pertama lagi — kecuali
      panggilan ini datang dari pengetikan yang sama persis
      (diabaikan: paint selalu berarti daftar baru). */
@@ -690,12 +822,14 @@ function semuaBuildToolbar() {
   if (sechead && !document.getElementById('semuaSort')) {
     sechead.insertAdjacentHTML('beforeend',
       `<label class="sortwrap"><span>Urutkan</span><select id="semuaSort" class="inp sortsel" aria-label="Urutkan tools">
+        <option value="rel">Yang paling cocok dulu</option>
         <option value="az">Nama A sampai Z</option>
         <option value="new">Yang terbaru dulu</option>
         <option value="pop">Yang paling sering dipakai</option>
       </select></label>`);
     document.getElementById('semuaSort').addEventListener('change', (e) => {
       s.sort = e.target.value;
+      s.sortUser = true; /* S-FIXUP F2: pilihan eksplisit, jangan ditimpa default otomatis */
       s.shown = PAGE_SIZE;
       if (s.sort === 'pop') semuaEnsurePopular();
       semuaRender(false);
@@ -741,7 +875,7 @@ function enhanceKategori() {
   if (!grid || document.getElementById('catSearch')) return;
   const anchor = document.getElementById('catIntro') || document.querySelector('#app .cat-head');
   if (!anchor) return;
-  const total = $$('.tcard', grid).length;
+  const total = $$('.tcard-wrap', grid).length;
   anchor.insertAdjacentHTML('afterend',
     `<div class="catsearch">
       <input id="catSearch" class="inp" type="search" placeholder="Cari di kategori ini" aria-label="Cari di kategori ini" autocomplete="off">
@@ -758,13 +892,54 @@ function enhanceKategori() {
     grid.classList.add('fx-steady');
     const q = input.value.trim().toLowerCase();
     let shown = 0;
-    $$('.tcard', grid).forEach((card) => {
+    /* S-F10 (v6.22.0, A-07): sembunyikan .tcard-wrap utuh —
+       menyembunyikan .tcard saja meninggalkan tombol ♥-nya. */
+    $$('.tcard-wrap', grid).forEach((card) => {
       const hay = ((card.querySelector('.nm')?.textContent || '') + ' ' +
         (card.querySelector('.ds')?.textContent || '')).toLowerCase();
       const ok = !q || hay.includes(q);
       card.style.display = ok ? '' : 'none';
       if (ok) shown++;
     });
+    /* S-Q8 (v6.22.0, S-U3 §7.2): di halaman bersubgrup, sembunyikan
+       seksi yang semua kartunya tersaring — judul tanpa kartu di
+       bawahnya adalah bingkai kosong. Kategori datar tidak punya
+       <section> anak, jadi cabang ini no-op di sana. */
+    [...grid.children].filter((el) => el.tagName === 'SECTION').forEach((sec) => {
+      const anyVisible = [...sec.querySelectorAll('.tcard-wrap')].some((c) => c.style.display !== 'none');
+      sec.style.display = anyVisible ? '' : 'none';
+    });
+    /* S-FIXUP F4 (v6.22.0): jangkar lompat yang section-nya
+       tersembunyi ikut disembunyikan — tanpanya jangkar basi bisa
+       diklik dan menggeser ke section yang tidak terlihat. */
+    $$('.jumpchip', grid).forEach((chip) => {
+      const sec = chip.dataset.sg ? document.getElementById('sg-' + chip.dataset.sg) : null;
+      chip.style.display = sec && sec.style.display === 'none' ? 'none' : '';
+    });
+    /* S-FIXUP F4 (v6.22.0): filter-ke-nol butuh empty state —
+       tanpanya area hasil diam tanpa penjelasan. Kotak ini
+       idempotent (satu elemen .cat-empty, dibuat sekali) dan
+       dihapus begitu ada kartu yang cocok lagi / filter dibersihkan.
+       Tombol "Tampilkan semua" mengosongkan input lewat event yang
+       sama seperti ketikan pengguna, jadi semua state pulih lewat
+       jalur handler ini sendiri. */
+    let empty = grid.querySelector(':scope > .empty.cat-empty');
+    if (q && shown === 0) {
+      if (!empty) {
+        empty = document.createElement('div');
+        empty.className = 'empty cat-empty';
+        empty.style.gridColumn = '1/-1';
+        empty.innerHTML = `<b>Tidak ada tool yang cocok.</b><p>Coba kata lain, atau tampilkan semua tool di kategori ini.</p><div class="sugx"><button type="button" class="schip" data-cat-clear>Tampilkan semua</button></div>`;
+        empty.querySelector('[data-cat-clear]').addEventListener('click', () => {
+          input.value = '';
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.focus();
+        });
+        grid.appendChild(empty);
+      }
+    } else if (empty) {
+      empty.remove();
+    }
     countEl.textContent = q ? `${shown} dari ${total} tools` : '';
   });
 }
@@ -797,11 +972,32 @@ function enhanceMetodologi() {
    "Belum ada yang tersimpan" SUDAH ADA di favPage (P2-B1) —
    yang ditambahkan di sini hanya baris kelola: "Hapus semua
    favorit" dan "Hapus riwayat", masing-masing dengan dialog
-   konfirmasi (D-04). Tombol hanya tampil bila datanya ada —
-   tombol yang tidak melakukan apa-apa adalah UI mati (R-26).
+   konfirmasi (D-04). Tombol hapus hanya tampil bila datanya
+   ada — tombol yang tidak melakukan apa-apa adalah UI mati
+   (R-26).
+   S-Q8 (v6.22.0, wiring S-U9 §5.3): baris ini juga memuat
+   "Simpan salinan dataku" dan "Pulihkan dari salinan".
+   Kedua tombol salinan SELALU tampil, termasuk saat tanpa
+   favorit dan tanpa riwayat — pengunjung bisa punya data
+   tracker tanpa keduanya, dan tombolnya selalu melakukan
+   sesuatu (unduh, atau pesan jujur bila tidak ada data).
    ============================================================ */
 function favEmptyHTML() {
   return `<div class="empty"><b>Belum ada favorit.</b><p>Ketuk ♥ di kartu tools buat nyimpen.</p><div class="sugx"><a class="schip" href="#/semua">Cari tools</a></div></div>`;
+}
+/* S-F10 (v6.22.0, A-05): sesudah konfirmasi "Ya, hapus", tombol
+   pemicu SUDAH dihancurkan renderFavManage (baris dibangun ulang)
+   — kembalian fokus closeDialog() tidak punya sasaran dan fokus
+   jatuh ke body (terukur baseline). Pindahkan fokus ke tombol
+   pertama baris yang baru; bila barisnya habis (kedua data
+   kosong), ke judul halaman — pola yang sama dengan route()
+   di app.js. Jalur Batal/Esc tidak butuh ini: pemicu masih ada,
+   closeDialog sudah mengembalikan fokus dengan benar. */
+function focusAfterManageRebuild() {
+  const first = document.querySelector('#app .favmanage .favmanage-btn');
+  if (first) { first.focus(); return; }
+  const h = document.querySelector('#app h1, #app h2');
+  if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
 }
 function renderFavManage() {
   const grid = document.getElementById('favGrid');
@@ -809,16 +1005,48 @@ function renderFavManage() {
   document.querySelector('#app .favmanage')?.remove();
   const hasFav = getFav().length > 0;
   const hasHist = getRecent().length > 0;
-  if (!hasFav && !hasHist) return;
+  /* S-Q8 (v6.22.0, wiring S-U9 §5.3): TIDAK ADA lagi early return
+     saat tanpa favorit dan tanpa riwayat — baris tetap dirender
+     demi tombol salinan; hanya tombol hapus yang kondisional. */
   const btns = [];
   if (hasFav) btns.push('<button type="button" class="favmanage-btn" data-act="clear-fav">Hapus semua favorit</button>');
   if (hasHist) btns.push('<button type="button" class="favmanage-btn" data-act="clear-hist">Hapus riwayat</button>');
+  btns.push('<button type="button" class="favmanage-btn" data-act="backup-save">Simpan salinan dataku</button>');
+  btns.push('<button type="button" class="favmanage-btn" data-act="backup-restore">Pulihkan dari salinan</button>');
   grid.insertAdjacentHTML('afterend',
     `<div class="favmanage">${btns.join('<span class="favmanage-sep" aria-hidden="true">·</span>')}</div>`);
   const row = document.querySelector('#app .favmanage');
   row.addEventListener('click', async (e) => {
     const btn = e.target.closest('.favmanage-btn');
     if (!btn) return;
+    if (btn.dataset.act === 'backup-save') {
+      const r = downloadBackup();
+      sayToast(r.ok ? `Salinan tersimpan: ${r.summary.totalKeys} data.` : r.message);
+      return;
+    }
+    if (btn.dataset.act === 'backup-restore') {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'application/json,.json';
+      input.onchange = async () => {
+        const file = input.files[0]; if (!file) return;
+        const read = await readBackupFile(file);
+        if (!read.ok) { sayToast(read.message); return; }
+        /* S-FIXUP F9 (v6.22.0): konfirmasi pulih lewat dialog
+           bergaya (bukan confirm() bawaan) — pesan ringkasan isi
+           salinan dari backup.js dipakai sebagai isi dialog. */
+        const r = await restoreBackup(read.backup, {
+          confirmFn: (msg) => confirmDialog({
+            title: 'Pulihkan dari salinan?',
+            body: msg,
+            confirmLabel: 'Ya, pulihkan',
+          }),
+        });
+        sayToast(r.message);
+        if (r.ok && typeof shell.onBackupRestored === 'function') shell.onBackupRestored();
+      };
+      input.click();
+      return;
+    }
     if (btn.dataset.act === 'clear-fav') {
       const yes = await confirmDialog({
         title: 'Hapus semua favorit?',
@@ -834,8 +1062,11 @@ function renderFavManage() {
       if (sub) sub.textContent = 'Belum ada yang tersimpan';
       grid.insertAdjacentHTML('afterend', favEmptyHTML());
       renderFavManage();
+      focusAfterManageRebuild();
       sayToast('Semua favorit dihapus.');
-    } else {
+    } else if (btn.dataset.act === 'clear-hist') {
+      /* S-Q8: cabang eksplisit (dulu `else` — benar saat hanya
+         ada 2 tombol, salah sesudah tombol salinan ditambah). */
       const yes = await confirmDialog({
         title: 'Hapus semua riwayat?',
         body: 'Riwayat tools yang kamu buka akan hilang. Favorit kamu tidak ikut terhapus.',
@@ -844,6 +1075,7 @@ function renderFavManage() {
       if (!yes) return;
       localStorage.removeItem(RKEY);
       renderFavManage();
+      focusAfterManageRebuild();
       sayToast('Riwayat dihapus.');
     }
   });
@@ -858,8 +1090,10 @@ function enhanceFavorit() {
   if (app && !routeObserver) {
     routeObserver = new MutationObserver(() => {
       if (!document.getElementById('favGrid')) return;
-      /* baris hilang karena favPage render ulang → pasang lagi */
-      if (!document.querySelector('#app .favmanage') && (getFav().length || getRecent().length)) {
+      /* baris hilang karena favPage render ulang → pasang lagi.
+         S-Q8 (v6.22.0): tanpa penjaga isi lagi — baris memuat
+         tombol salinan yang tampil walau tanpa favorit/riwayat. */
+      if (!document.querySelector('#app .favmanage')) {
         renderFavManage();
       }
     });
@@ -886,7 +1120,10 @@ function enhanceFavorit() {
    mengambil alih fungsi "kembali" di atas.
    ============================================================ */
 function renderToolError(box, retry) {
-  box.innerHTML = `<div class="empty"><b>Gagal memuat.</b><p>Tool ini belum berhasil dimuat.</p><p><button type="button" class="allbtn" data-retry>Coba lagi</button></p></div>`;
+  /* S-F10 (v6.22.0, C-04): sebut kemungkinan penyebab + langkah
+     berikut, bukan cuma "belum berhasil". Tombol tetap memuat
+     ulang halaman (komentar di atas menjelaskan alasannya). */
+  box.innerHTML = `<div class="empty"><b>Gagal memuat.</b><p>Periksa koneksi internet kamu, lalu ketuk Coba lagi.</p><p><button type="button" class="allbtn" data-retry>Coba lagi</button></p></div>`;
   const btn = box.querySelector('[data-retry]');
   if (btn) btn.addEventListener('click', () => { btn.disabled = true; retry(); });
 }
@@ -899,7 +1136,12 @@ function enhanceTool() {
     const name = a.textContent.replace(/^\s*←\s*Balik ke\s*/, '').trim();
     const href = a.getAttribute('href') || '#/';
     const box = document.getElementById('toolbox');
-    if (box && !document.querySelector('#app .prevline')) {
+    /* S-F10 (v6.22.0): penjaga lama '#app .prevline' ikut mengenai
+       entri footer P17/P8 (.prevline.pwa-cache/.pwa-version) yang
+       tinggal di #app juga — baris "Balik ke" tidak pernah
+       ter-render. Kecualikan keduanya; yang dicegah duplikatnya
+       hanyalah baris balik ini. */
+    if (box && !document.querySelector('#app .prevline:not(.pwa-cache):not(.pwa-version)')) {
       box.insertAdjacentHTML('afterend',
         `<p class="prevline">← Balik ke <a href="${esc(href)}">${esc(name)}</a></p>`); /* redaksi
       "Terakhir dibuka:" dicabut 17 Nov (koordinator): V-08 P2-B1
@@ -940,11 +1182,63 @@ function enhanceRoute(routeName, params) {
   else if (routeName === 'favorit') enhanceFavorit();
   else if (routeName === 'tool') enhanceTool();
   else if (routeName === 'metodologi') enhanceMetodologi();
+  /* S-U5 (v6.22.0, manifest split): rute yang me-paint kartu .tcard
+     SECARA SINKRON (semua/kategori/favorit/tool/koleksi) memastikan
+     detail dimuat + deskripsi kartu yang terlanjur di-paint ramping
+     diisi begitu detail tiba. Beranda SENGAJA tidak ikut: rail-nya
+     (renderPopuler/renderSpotlight) memicu pemuatan SESUDAH render
+     pertama — pemicu di sini akan memulai fetch 198 KB di tengah
+     boot dan parse-nya (~800 ms di VM ukur) menunda rail (bukti:
+     diagnostik Playwright S-U5). Metodologi tidak punya kartu tool. */
+  if (['semua', 'kategori', 'favorit', 'tool', 'koleksi'].includes(routeName)) {
+    ensureDetailsForCards();
+  }
 }
 
-function initComponents({ openPalette, toast } = {}) {
+/* S-U5 (v6.22.0, manifest split): isi deskripsi kartu yang terlanjur
+   di-paint saat manifest masih ramping.
+   Kartu #/semua, kategori, favorit, "Yang mirip", dan header halaman
+   tool di-paint SINKRON saat boot — SEBELUM chunk detail tiba —
+   jadi <span class="ds">-nya kosong. Begitu detail menempel, isi
+   elemen .ds yang masih kosong dari manifest (teks saja,
+   textContent — tanpa HTML, tanpa re-paint: posisi geser, status
+   favorit, dan state lain tidak terganggu). Idempotent: elemen
+   yang sudah berisi tidak disentuh; halaman yang di-paint SESUDAH
+   merge sudah berisi desc, jadi pemindaian ini no-op. */
+function fillCardDescs() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  for (const ds of app.querySelectorAll('.tcard .ds')) {
+    if (ds.textContent !== '') continue;
+    const a = ds.closest('.tcard');
+    const id = a?.getAttribute('href')?.replace('#/t/', '');
+    const m = id && byId(id);
+    if (m && m.desc) ds.textContent = m.desc;
+  }
+  /* header halaman tool: .meta .ds (bukan di dalam .tcard). */
+  const head = app.querySelector('.meta .ds');
+  if (head && head.textContent === '') {
+    const id = (location.hash.match(/^#\/t\/([^/?#]+)/) || [])[1];
+    const m = id && byId(id);
+    if (m && m.desc) head.textContent = m.desc;
+  }
+}
+
+/* Mulai pemuatan detail (bila masih ramping) lalu isi deskripsi
+   kartu begitu detail tiba. Dipanggil tiap ganti rute — panggilan
+   bersamaan berbagi satu promise loader, jadi tidak ada fetch
+   ganda. Bila detail gagal dimuat (offline/chunk diblokir), kartu
+   tetap berfungsi tanpa deskripsi; rute berikutnya mencoba lagi
+   (loader punya jeda 30 dtk sesudah gagal). */
+function ensureDetailsForCards() {
+  if (!needsDetails(manifest)) return; /* sudah penuh: paint sudah berisi desc */
+  loadManifestDetails().then((ok) => { if (ok) fillCardDescs(); });
+}
+
+function initComponents({ openPalette, toast, onBackupRestored } = {}) {
   if (typeof openPalette === 'function') shell.openPalette = openPalette;
   if (typeof toast === 'function') shell.toast = toast;
+  if (typeof onBackupRestored === 'function') shell.onBackupRestored = onBackupRestored;
   if (booted) return;
   booted = true;
   initBackToTop();
@@ -968,6 +1262,7 @@ export {
   confirmDialog,
   closeDialog,
   renderToolError,
+  fillCardDescs, /* S-FIXUP F3: beranda mengisi .ds kartu favorit sesudah merge */
   /* fungsi murni — dites langsung di Node: */
   breadcrumbHTML,
   navbarHTML,

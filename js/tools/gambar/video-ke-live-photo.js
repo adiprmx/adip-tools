@@ -11,7 +11,7 @@ import { loadFFmpeg, runFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, suppo
 // di peramban (perlu internet sekali untuk memuat mesinnya, ~31 MB).
 // Pasangan yang dihasilkan perlu dicek di iPhone asli (aplikasi Foto)
 // karena Apple tidak mempublikasikan format ini secara resmi.
-export const meta = {"id": "video-ke-live-photo", "name": "Video ke Live Photo", "cat": "gambar", "icon": "📱", "desc": "Buat pasangan Live Photo Apple (foto + video) dari satu video.", "keywords": "live photo,apple,iphone,mov,jpg,pasangan,foto bergerak", "since": "6.19.0"};
+export const meta = {"id": "video-ke-live-photo", "name": "Video ke Live Photo", "cat": "gambar", "icon": "📱", "desc": "Buat pasangan Live Photo Apple (foto + video) dari satu video.", "keywords": "live photo,apple,iphone,mov,jpg,pasangan,foto bergerak", "since": "6.19.0", "online": true};
 
 const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';
 

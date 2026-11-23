@@ -44,7 +44,7 @@ function diffBaris(a, b) {
   return { baris, terpotong };
 }
 
-export const meta = {"id": "pdflab", "name": "PDF Lab", "cat": "produktivitas", "icon": "🧪", "desc": "Toolkit PDF lokal: gabung, pisah, watermark, gambar ke PDF, PDF ke gambar, buklet & lainnya.", "keywords": "pdf,merge,split,watermark,metadata,form,gabung,kompres,compress,pdf ke jpg,pdf ke png,pdf ke gambar,gambar ke pdf,foto ke pdf,jpg ke pdf,png ke pdf,buklet pdf,booklet pdf,zine pdf,cetak buklet,lipat pdf"};
+export const meta = {"id": "pdflab", "name": "PDF Lab", "cat": "produktivitas", "icon": "🧪", "desc": "Toolkit PDF lokal: gabung, pisah, watermark, gambar ke PDF, PDF ke gambar, buklet & lainnya.", "keywords": "pdf,merge,split,watermark,metadata,form,gabung,kompres,compress,pdf ke jpg,pdf ke png,pdf ke gambar,gambar ke pdf,foto ke pdf,jpg ke pdf,png ke pdf,buklet pdf,booklet pdf,zine pdf,cetak buklet,lipat pdf,converter", "online": true};
 export { diffBaris, normalisasiBaris };
 
 // ---------- Urutan cetak buklet (diserap dari Pembuat Buklet PDF, v6.21.0) ----------
@@ -681,7 +681,7 @@ export function render(root) {
   const status = T.out();
   const needLib = async () => {
     const ok = await ensurePdfLib();
-    if (!ok) T.show(status, errBox('Gagal memuat pustaka PDF dari CDN. Cek koneksi internet lalu coba lagi.'));
+    if (!ok) T.show(status, errBox('Gagal memuat pustaka PDF dari internet. Cek koneksi internet lalu coba lagi.'));
     return ok;
   };
 
@@ -905,7 +905,7 @@ export function render(root) {
             return;
           }
           const okZip = await ensureJsZip();
-          if (!okZip) { T.show(box, errBox('Gagal memuat pustaka ZIP dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+          if (!okZip) { T.show(box, errBox('Gagal memuat pustaka ZIP dari internet. Cek koneksi internet lalu coba lagi.')); return; }
           const zip = new window.JSZip();
           const info = [];
           for (let gi = 0; gi < groups.length; gi++) {
@@ -1288,7 +1288,7 @@ export function render(root) {
     const fA = T.input('text', 'Penulis', '');
     const fS = T.input('text', 'Subjek', '');
     const fK = T.input('text', 'Kata kunci (pisahkan koma)', '');
-    const clearChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#e07856;flex-shrink:0">');
+    const clearChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#ff6f61;flex-shrink:0">');
     const clearRow = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;margin:8px 0;cursor:pointer"></label>');
     clearRow.appendChild(clearChk);
     clearRow.appendChild(T.el('<span>Hapus semua metadata (judul, penulis, subjek, kata kunci)</span>'));
@@ -1344,7 +1344,7 @@ export function render(root) {
     const fi = fileInput('application/pdf'); fi.style.margin = '6px 0';
     const box = T.out();
     const formWrap = T.el('<div style="display:grid;gap:10px;margin:12px 0"></div>');
-    const flatChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#e07856">');
+    const flatChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#ff6f61">');
     let doc = null, fields = [];
     const bLoad = T.btn('Muat Form', async () => {
       const f = fi.files && fi.files[0];
@@ -1370,7 +1370,7 @@ export function render(root) {
           const label = fd.getName() || '(tanpa nama)';
           if (kind === 'checkbox') {
             nC++;
-            const inp = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#e07856;flex-shrink:0">');
+            const inp = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#ff6f61;flex-shrink:0">');
             try { inp.checked = !!(fd.isChecked && fd.isChecked()); } catch (e) {}
             const row = T.el('<label style="display:flex;gap:10px;align-items:center;font-size:14px;cursor:pointer"></label>');
             row.appendChild(inp);
@@ -1503,7 +1503,7 @@ export function render(root) {
         return;
       }
       const okJs = await ensurePdfJs();
-      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Membaca PDF…</span>');
       try {
         const srcBytes = new Uint8Array(await f.arrayBuffer());
@@ -1575,7 +1575,7 @@ export function render(root) {
     const bZip = T.btn('Unduh Semua (ZIP)', async () => {
       if (!shots.length) return;
       const ok = await ensureJsZip();
-      if (!ok) { T.show(box, errBox('Gagal memuat pustaka ZIP dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!ok) { T.show(box, errBox('Gagal memuat pustaka ZIP dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Menyiapkan ZIP…</span>');
       try {
         const zip = new window.JSZip();
@@ -1590,7 +1590,7 @@ export function render(root) {
       const f = fi.files && fi.files[0];
       if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
       const okJs = await ensurePdfJs();
-      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Membaca PDF…</span>');
       grid.innerHTML = '';
       shots = [];
@@ -1808,7 +1808,7 @@ export function render(root) {
       if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
       if (!sigImg) { T.show(box, errBox('Pilih dulu gambar tanda tangan, atau pakai yang terakhir dibuat.')); return; }
       const okJs = await ensurePdfJs();
-      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Memuat pratinjau…</span>');
       try {
         const bytes = new Uint8Array(await f.arrayBuffer());
@@ -2026,7 +2026,7 @@ export function render(root) {
           terms = wordsTa.value.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean);
           if (!terms.length) { T.show(box, errBox('Isi dulu kata yang mau dihapus.')); return; }
           const okJs = await ensurePdfJs();
-          if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+          if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
           const bytes = new Uint8Array(await f.arrayBuffer());
           const jsDoc = await window.pdfjsLib.getDocument({ data: bytes.slice(0) }).promise;
           for (const p1 of targets) {
@@ -2173,7 +2173,7 @@ export function render(root) {
       const f = fi.files && fi.files[0];
       if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
       const okJs = await ensurePdfJs();
-      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Membaca PDF…</span>');
       pre.hidden = true; bDl.hidden = true; bCopy.hidden = true;
       try {
@@ -2218,7 +2218,7 @@ export function render(root) {
     const bZip = T.btn('Unduh Semua (ZIP)', async () => {
       if (!pics.length) return;
       const ok = await ensureJsZip();
-      if (!ok) { T.show(box, errBox('Gagal memuat pustaka ZIP dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!ok) { T.show(box, errBox('Gagal memuat pustaka ZIP dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Menyiapkan ZIP…</span>');
       try {
         const zip = new window.JSZip();
@@ -2233,7 +2233,7 @@ export function render(root) {
       const f = fi.files && fi.files[0];
       if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
       const okJs = await ensurePdfJs();
-      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Membaca PDF…</span>');
       grid.innerHTML = '';
       pics = [];
@@ -2657,7 +2657,7 @@ export function render(root) {
       const fB = fiB.files && fiB.files[0];
       if (!fA || !fB) { T.show(box, errBox('Pilih dulu dua file PDF.')); return; }
       const okJs = await ensurePdfJs();
-      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Membaca kedua PDF…</span>');
       pre.hidden = true; bDl.hidden = true; bCopy.hidden = true;
       hasilTerakhir = null; teksDiff = '';
@@ -2750,7 +2750,7 @@ export function render(root) {
       const f = fi.files && fi.files[0];
       if (!f) { T.show(box, errBox('Pilih dulu file PDF.')); return; }
       const okJs = await ensurePdfJs();
-      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari CDN. Cek koneksi internet lalu coba lagi.')); return; }
+      if (!okJs) { T.show(box, errBox('Gagal memuat pustaka baca PDF dari internet. Cek koneksi internet lalu coba lagi.')); return; }
       T.show(box, '<span class="dim">Merender halaman…</span>');
       try {
         srcBytes = new Uint8Array(await f.arrayBuffer());

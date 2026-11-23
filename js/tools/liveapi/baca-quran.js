@@ -19,7 +19,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-export const meta = {"id": "baca-quran", "name": "Baca Al-Quran", "cat": "liveapi", "icon": "📖", "desc": "Baca Al-Quran per surah: teks Arab beserta terjemahan Indonesianya, dan tandai terakhir dibaca.", "keywords": "quran,alquran,surah,ayat,baca,terjemahan,arab,tilawah,mushaf", "since": "6.11.0"};
+export const meta = {"id": "baca-quran", "name": "Baca Al-Quran", "cat": "liveapi", "icon": "📖", "desc": "Baca Al-Quran per surah: teks Arab beserta terjemahan Indonesianya, dan tandai terakhir dibaca.", "keywords": "quran,alquran,surah,ayat,baca,terjemahan,arab,tilawah,mushaf", "since": "6.11.0", "online": true};
 export function render(root) {
   const cariI = T.input('text', 'Cari surah, cth: Yasin atau 36…', '');
   const box = T.out();

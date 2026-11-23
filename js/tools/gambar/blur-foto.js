@@ -1,6 +1,6 @@
 import { h as T, utils, LOCAL_NOTE, canvasToBlob, fileInput, loadImage } from '../../core.js';
 
-export const meta = {"id": "blur-foto", "name": "Blur Foto (Sensor)", "cat": "gambar", "icon": "🫣", "desc": "Sensor area foto (NIK, wajah, plat nomor), atau blur latar potret otomatis.", "keywords": "blur,sensor,foto,pixel,privasi,latar,potret,nik,ktp,dokumen,kotak hitam"};
+export const meta = {"id": "blur-foto", "name": "Blur Foto (Sensor)", "cat": "gambar", "icon": "🫣", "desc": "Sensor area foto (NIK, wajah, plat nomor), atau blur latar potret otomatis.", "keywords": "blur,sensor,foto,pixel,privasi,latar,potret,nik,ktp,dokumen,kotak hitam", "online": true};
 export function render(root) {
 
     const fileI = fileInput('image/*');

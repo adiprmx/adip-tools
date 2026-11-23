@@ -5,7 +5,7 @@
 
 import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id": "pdf-ke-word", "name": "PDF ↔ Word", "cat": "produktivitas", "icon": "📝", "desc": "Ambil teks PDF jadi dokumen Word, atau ubah dokumen Word jadi PDF.", "keywords": "pdf ke word,pdf ke docx,ambil teks pdf,konversi pdf,word ke pdf,docx ke pdf,konversi word,dokumen ke pdf,pdf,word", "since": "6.16.0"};
+export const meta = {"id": "pdf-ke-word", "name": "PDF ↔ Word", "cat": "produktivitas", "icon": "📝", "desc": "Ambil teks PDF jadi dokumen Word, atau ubah dokumen Word jadi PDF.", "keywords": "pdf ke word,pdf ke docx,ambil teks pdf,konversi pdf,word ke pdf,docx ke pdf,konversi word,dokumen ke pdf,pdf,word", "since": "6.16.0", "online": true};
 
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';

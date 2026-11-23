@@ -98,7 +98,7 @@ export function render(root) {
     T.el('<p class="dim" style="font-size:13px">Centang yang sudah kamu lakukan. Skor dihitung otomatis (total 100) + saran perbaikan untuk yang belum. Pilihanmu tersimpan di HP ini.</p>'),
     hasilBox, box
   );
-  const reset = T.btn('🔄 Reset checklist', () => { centang = {}; simpan(); tampilkan(); });
+  const reset = T.btn('🔄 Reset checklist', () => { if (!confirm('Reset checklist audit HP? Semua centang akan hilang dan tidak bisa dikembalikan.')) return; centang = {}; simpan(); tampilkan(); });
   const wr = T.el('<div style="margin-top:4px;margin-bottom:16px"></div>');
   wr.appendChild(reset);
   root.append(wr);

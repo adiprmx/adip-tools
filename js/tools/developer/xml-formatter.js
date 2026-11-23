@@ -75,7 +75,7 @@ function xmlPretty(src) {
 
 export { xmlPretty };
 
-export const meta = {"id": "xml-formatter", "name": "XML Formatter", "cat": "developer", "icon": "📰", "desc": "Rapikan & validasi XML.", "keywords": "xml,format"};
+export const meta = {"id": "xml-formatter", "name": "XML Formatter", "cat": "developer", "icon": "📰", "desc": "Rapikan struktur XML dengan indentasi yang rapi, sekaligus periksa apakah formatnya benar.", "keywords": "xml,format,rapikan xml,validasi xml,indentasi"};
 export function render(root) {
 
     const ta = T.ta(8, 'Paste XML di sini…');

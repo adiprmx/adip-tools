@@ -1,7 +1,7 @@
 import { h as T, errBox } from '../../core.js';
 
 // Minify JavaScript client-side dengan tokenizer tulis-sendiri (bukan
-// Terser/Prettier: tidak ada pustaka itu di repo, dan memuatnya dari CDN
+// Terser/Prettier: tidak ada pustaka itu di repo, dan memuatnya dari internet
 // hanya untuk tool ini tidak sepadan). Tokenizer ini menangani string,
 // template literal (termasuk ${} bersarang), regex vs pembagian (lewat
 // konteks token sebelumnya + klasifikasi kurung kurawal objek vs blok),

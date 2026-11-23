@@ -19,7 +19,7 @@ utils.ytId = function (url) {
     return '';
   };
 
-export const meta = {"id": "yt-thumbnail", "name": "Thumbnail YouTube", "cat": "gambar", "icon": "📺", "desc": "Ambil thumbnail YouTube dari URL, kualitas terbaiknya ditandai otomatis.", "keywords": "youtube,thumbnail,gambar,unduh,gambar depan,cover video"};
+export const meta = {"id": "yt-thumbnail", "name": "Thumbnail YouTube", "cat": "gambar", "icon": "📺", "desc": "Ambil thumbnail YouTube dari URL, kualitas terbaiknya ditandai otomatis.", "keywords": "youtube,thumbnail,gambar,unduh,gambar depan,cover video", "online": true};
 
 const KUALITAS = [
   ['maxresdefault', 'Maksimal (1280×720)'],

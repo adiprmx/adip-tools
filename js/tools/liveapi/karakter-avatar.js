@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 19 Nov 2026: /api/v1/characters?perPage=1 -> 200, CORS *.
 // Daftar dimuat 20 karakter per halaman; pencarian menyaring yang sudah
 // dimuat. Foto karakter berasal dari wiki Avatar (tautan API).
-export const meta = {"id":"karakter-avatar","name":"Karakter Avatar","cat":"liveapi","icon":"🌊","desc":"Cari karakter Avatar: The Last Airbender dan lihat sekutu, musuh, dan kelompoknya.","keywords":"avatar,last airbender,aang,korra,karakter,animasi","since":"6.19.0"};
+export const meta = {"id":"karakter-avatar","name":"Karakter Avatar","cat":"liveapi","icon":"🌊","desc":"Cari karakter Avatar: The Last Airbender dan lihat sekutu, musuh, dan kelompoknya.","keywords":"avatar,last airbender,aang,korra,karakter,animasi","since":"6.19.0", "online": true};
 
 const API = 'https://last-airbender-api.fly.dev/api/v1/characters?perPage=20&page=';
 const gambarAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
@@ -90,7 +90,7 @@ export function render(root) {
       if (halaman === 1) T.show(box, '<p class="center dim">Pilih karakter di bawah untuk melihat detailnya.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 20 detik.'
         : 'Gagal mengambil daftar karakter. Cek koneksi internet, lalu coba lagi.';
       const target = semua.length ? lagiBox : daftarBox;
       if (!semua.length) T.show(lagiBox, '');

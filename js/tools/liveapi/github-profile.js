@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id": "github-profile", "name": "Profil GitHub", "cat": "liveapi", "icon": "🐙", "desc": "Lihat profil GitHub siapapun: avatar, bio, followers, repo.", "keywords": "github,profil,username,avatar,followers,repo,developer"};
+export const meta = {"id": "github-profile", "name": "Profil GitHub", "cat": "liveapi", "icon": "🐙", "desc": "Lihat profil GitHub siapapun: avatar, bio, followers, repo.", "keywords": "github,profil,username,avatar,followers,repo,developer", "online": true};
 
 export function render(root) {
   const inp = T.input('text', 'Username GitHub', '');
@@ -60,7 +60,7 @@ export function render(root) {
     } catch (e) {
       const st = e && e.status;
       let msg;
-      if (e && e.name === 'AbortError') msg = 'Waktu habis — GitHub tidak merespons dalam 15 detik. Periksa koneksi internet lalu coba lagi.';
+      if (e && e.name === 'AbortError') msg = 'Waktu habis — GitHub tidak bisa dihubungi dalam 15 detik. Periksa koneksi internet lalu coba lagi.';
       else if (st === 404) msg = 'Username "' + u + '" tidak ditemukan di GitHub.';
       else if (st === 403) msg = 'Limit akses GitHub tercapai (60 request/jam tanpa login). Coba lagi nanti.';
       else msg = 'Gagal memuat profil GitHub. Periksa koneksi internet lalu coba lagi.';

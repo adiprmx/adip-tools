@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Pemenang Hadiah Nobel lewat API resmi Nobel Prize, tanpa key.
 // Terverifikasi 17 Nov 2026: /2.1/nobelPrizes?nobelPrizeYear=2024&limit=1 -> 200, CORS *.
-export const meta = {"id":"pemenang-nobel","name":"Pemenang Nobel","cat":"liveapi","icon":"🏅","desc":"Lihat siapa saja pemenang Hadiah Nobel di tahun yang kamu pilih.","keywords":"nobel,hadiah nobel,pemenang nobel,fisika,kimia,sastra,perdamaian","since":"6.17.0"};
+export const meta = {"id":"pemenang-nobel","name":"Pemenang Nobel","cat":"liveapi","icon":"🏅","desc":"Lihat siapa saja pemenang Hadiah Nobel di tahun yang kamu pilih.","keywords":"nobel,hadiah nobel,pemenang nobel,fisika,kimia,sastra,perdamaian","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -55,7 +55,7 @@ export function render(root) {
       }).join('') + '<p class="hint">Sumber: nobelprize.org, situs resmi Hadiah Nobel. Alasan pemberian hadiah tampil dalam bahasa Inggris apa adanya.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server Nobel tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Nobel tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil daftar pemenang. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

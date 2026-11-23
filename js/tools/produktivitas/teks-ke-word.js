@@ -5,7 +5,7 @@ import { h as T, utils, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // jadi satu paragraf. Mesinnya docx.js.
 // BATASAN JUJUR: yang dibuat hanya teks dan paragraf; tanpa gambar,
 // tabel, atau tata letak rumit.
-export const meta = {"id": "teks-ke-word", "name": "Teks ke Word", "cat": "produktivitas", "icon": "📝", "desc": "Ubah teks biasa jadi dokumen Word yang rapi.", "keywords": "teks ke word,teks ke docx,buat docx,teks jadi word", "since": "6.17.0"};
+export const meta = {"id": "teks-ke-word", "name": "Teks ke Word", "cat": "produktivitas", "icon": "📝", "desc": "Ubah teks biasa jadi dokumen Word yang rapi.", "keywords": "teks ke word,teks ke docx,buat docx,teks jadi word", "since": "6.17.0", "online": true};
 
 const DOCX_CDN = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';
 

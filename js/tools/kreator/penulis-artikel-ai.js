@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"penulis-artikel-ai","name":"Penulis Artikel AI","cat":"kreator","icon":"📰","desc":"Draf artikel dari topik, gaya, dan panjang yang kamu mau.","keywords":"artikel,penulis,draf,ai,puter","since":"6.18.0"};
+export const meta = {"id":"penulis-artikel-ai","name":"Penulis Artikel AI","cat":"kreator","icon":"📰","desc":"Draf artikel dari topik, gaya, dan panjang yang kamu mau.","keywords":"artikel,penulis,draf,ai,puter","since":"6.18.0", "online": true};
 
 const GAYA = [
   ['informatif', 'Informatif', 'informatif, langsung ke isi yang penting'],
@@ -89,7 +89,7 @@ export function render(root) {
         const prompt = buatPrompt({ topik, gaya: gayaSel.value, panjang: panjangSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const hasil = utils.chatText(res).trim();
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

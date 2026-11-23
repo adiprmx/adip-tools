@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"info-emoji","name":"Info Emoji","cat":"liveapi","icon":"🔎","desc":"Emoji acak beserta nama dan kategorinya, atau telusuri per kategori.","keywords":"emoji,acak,kategori,unicode,karakter","since":"6.18.0"};
+export const meta = {"id":"info-emoji","name":"Info Emoji","cat":"liveapi","icon":"🔎","desc":"Emoji acak beserta nama dan kategorinya, atau telusuri per kategori.","keywords":"emoji,acak,kategori,unicode,karakter","since":"6.18.0", "online": true};
 
 // Info emoji lewat EmojiHub, tanpa key.
 // Terverifikasi 18 Nov 2026: emojihub.yurace.pro/api/random -> 200, CORS *.
@@ -89,7 +89,7 @@ export function render(root) {
       tampilSatu(hasil);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server emoji tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server emoji tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mengambil emoji. Cek koneksi internet, lalu coba lagi.', acak);
     }
   };
@@ -114,7 +114,7 @@ export function render(root) {
         '<p class="hint">Sumber: EmojiHub.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server emoji tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server emoji tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal memuat kategori itu. Cek koneksi internet, lalu coba lagi.', perKategori);
     }
   };

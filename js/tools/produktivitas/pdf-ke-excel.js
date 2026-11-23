@@ -5,7 +5,7 @@
 
 import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id": "pdf-ke-excel", "name": "PDF ↔ Excel", "cat": "produktivitas", "icon": "📊", "desc": "Ambil tabel dari PDF jadi Excel, atau ubah spreadsheet jadi PDF tabel.", "keywords": "pdf ke excel,pdf ke xlsx,tabel pdf,ekstrak tabel pdf,excel ke pdf,xlsx ke pdf,spreadsheet ke pdf,tabel excel pdf,excel,pdf", "since": "6.17.0"};
+export const meta = {"id": "pdf-ke-excel", "name": "PDF ↔ Excel", "cat": "produktivitas", "icon": "📊", "desc": "Ambil tabel dari PDF jadi Excel, atau ubah spreadsheet jadi PDF tabel.", "keywords": "pdf ke excel,pdf ke xlsx,tabel pdf,ekstrak tabel pdf,excel ke pdf,xlsx ke pdf,spreadsheet ke pdf,tabel excel pdf,excel,pdf", "since": "6.17.0", "online": true};
 
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';

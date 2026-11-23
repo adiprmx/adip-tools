@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"data-dnd-5e","name":"Data D&D 5e","cat":"liveapi","icon":"🐉","desc":"Cari mantra, monster, dan ras Dungeons & Dragons edisi ke-5.","keywords":"dnd,dungeons dragons,mantra,monster,ras,rpg,5e","since":"6.18.0"};
+export const meta = {"id":"data-dnd-5e","name":"Data D&D 5e","cat":"liveapi","icon":"🐉","desc":"Cari mantra, monster, dan ras Dungeons & Dragons edisi ke-5.","keywords":"dnd,dungeons dragons,mantra,monster,ras,rpg,5e","since":"6.18.0", "online": true};
 
 // Data Dungeons & Dragons 5e (mantra, monster, ras) lewat dnd5eapi.co, tanpa key.
 // Terverifikasi 18 Nov 2026: www.dnd5eapi.co/api/2014/spells/fireball -> 200, CORS *.
@@ -108,7 +108,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server data tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server data tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mencari. Cek koneksi internet, lalu coba lagi.');
     }
   };

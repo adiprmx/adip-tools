@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, esc, preHtml } from '../../core.js';
 
-export const meta = {"id": "robots-generator", "name": "Robots.txt Generator", "cat": "developer", "icon": "🤖", "desc": "Susun file robots.txt.", "keywords": "robots,seo,txt"};
+export const meta = {"id": "robots-generator", "name": "Robots.txt Generator", "cat": "developer", "icon": "🤖", "desc": "Susun file robots.txt: atur halaman mana yang boleh atau tidak boleh dirayapi mesin cari.", "keywords": "robots,seo,txt,robots.txt,mesin cari,crawl"};
 export function render(root) {
 
     const rules = [];

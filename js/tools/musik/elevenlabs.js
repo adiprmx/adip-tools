@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"elevenlabs","name":"ElevenLabs Studio","cat":"musik","icon":"🎙️","desc":"Text-to-speech suara AI via API key ElevenLabs milikmu.","keywords":"elevenlabs,tts,suara,ai,voice,text to speech"};
+export const meta = {"id":"elevenlabs","name":"ElevenLabs Studio","cat":"musik","icon":"🎙️","desc":"Text-to-speech suara AI via API key ElevenLabs milikmu.","keywords":"elevenlabs,tts,suara,ai,voice,text to speech", "online": true};
 
 const API = 'https://api.elevenlabs.io/v1';
 const TTS_MODELS = [

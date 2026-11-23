@@ -5,7 +5,7 @@
 
 import { h as T, utils, kv, fmtBytes, errBox, fileInput, LOCAL_NOTE } from '../../core.js';
 
-export const meta = {"id": "epub-ke-pdf", "name": "EPUB ↔ PDF", "cat": "converter", "icon": "📕", "desc": "Ubah ebook EPUB jadi PDF A4, atau PDF teks jadi ebook EPUB.", "keywords": "epub,pdf,ebook,buku,konversi,dokumen,epub ke pdf,pdf ke epub,pdf jadi ebook,ebook dari pdf", "since": "6.19.0"};
+export const meta = {"id": "epub-ke-pdf", "name": "EPUB ↔ PDF", "cat": "converter", "icon": "📕", "desc": "Ubah ebook EPUB jadi PDF A4, atau PDF teks jadi ebook EPUB.", "keywords": "epub,pdf,ebook,buku,konversi,dokumen,epub ke pdf,pdf ke epub,pdf jadi ebook,ebook dari pdf", "since": "6.19.0", "online": true};
 
 
 // JSZip 3.10.1 + pdf-lib 1.17.1. Hash SRI keduanya ada di peta SRI_HASH core.js.

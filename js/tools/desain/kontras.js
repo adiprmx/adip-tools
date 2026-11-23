@@ -17,7 +17,7 @@ const badge = (ok) => ok
   ? '<b class="ok">✓ Lolos</b>'
   : '<b class="warn">✗ Gagal</b>';
 
-export const meta = {"id": "kontras", "name": "Cek Kontras Warna", "cat": "desain", "icon": "◐", "desc": "Rasio kontras WCAG AA/AAA.", "keywords": "kontras,wcag,warna,aksesibilitas"};
+export const meta = {"id": "kontras", "name": "Cek Kontras Warna", "cat": "desain", "icon": "◐", "desc": "Cek rasio kontras dua warna dan apakah teksnya lolos standar baca AA atau AAA.", "keywords": "kontras,wcag,warna,aksesibilitas,converter,cek warna"};
 export function render(root) {
 
     const c1 = T.input('color', '', '#ffffff');

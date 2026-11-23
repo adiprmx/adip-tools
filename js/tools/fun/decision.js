@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id": "decision", "name": "Pengacak Keputusan", "cat": "fun", "icon": "🔮", "desc": "Bantu ambil keputusan.", "keywords": "keputusan,acak,pilih,random,pilih satu,opsi"};
+export const meta = {"id": "decision", "name": "Pengacak Keputusan", "cat": "fun", "icon": "🔮", "desc": "Tulis beberapa pilihan, biarkan tool ini mengacak dan memilih satu untukmu.", "keywords": "keputusan,acak,pilih,random,pilih satu,opsi"};
 
 /** Parse textarea jadi daftar opsi bersih. */
 export function parseOpsi(teks) {

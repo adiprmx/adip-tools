@@ -20,7 +20,7 @@ async function getJSON(url) {
 // imgAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "berita-antariksa", "name": "Berita Antariksa", "cat": "liveapi", "icon": "🛰️", "desc": "Berita terbaru dunia antariksa: peluncuran roket, misi, dan penemuan.", "keywords": "berita,antariksa,luar angkasa,roket,nasa,spacex,peluncuran,spaceflight", "since": "6.17.0"};
+export const meta = {"id": "berita-antariksa", "name": "Berita Antariksa", "cat": "liveapi", "icon": "🛰️", "desc": "Berita terbaru dunia antariksa: peluncuran roket, misi, dan penemuan.", "keywords": "berita,antariksa,luar angkasa,roket,nasa,spacex,peluncuran,spaceflight", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -56,7 +56,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server berita tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server berita tidak bisa dihubungi dalam 15 detik.'
         : 'Berita gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

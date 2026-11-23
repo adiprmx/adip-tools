@@ -174,6 +174,7 @@ export function render(root) {
     root.appendChild(statusEl);
     root.appendChild(T.row(tombolMulai, tombolSelesai));
     root.appendChild(T.row(T.btn('Hapus semua catatan', () => {
+      if (!confirm('Hapus semua catatan kontraksi? Data kehamilan ini akan hilang dan tidak bisa dikembalikan.')) return;
       log = []; aktif = null; save();
       tombolMulai.disabled = false; tombolSelesai.disabled = true;
       timerEl.textContent = '00:00';

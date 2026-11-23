@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "info-metadata-video", "name": "Info Metadata Video", "cat": "converter", "icon": "📹", "desc": "Detail teknis video: format gambar, durasi, ukuran layar, dan lainnya.", "keywords": "video,metadata,info,detail,codec,durasi,bitrate,resolusi", "since": "6.17.0"};
+export const meta = {"id": "info-metadata-video", "name": "Info Metadata Video", "cat": "converter", "icon": "📹", "desc": "Detail teknis video: format gambar, durasi, ukuran layar, dan lainnya.", "keywords": "video,metadata,info,detail,codec,durasi,bitrate,resolusi", "since": "6.17.0", "online": true};
 
 // Urai keluaran "ffmpeg -i" jadi info terstruktur. Murni, bisa diuji di Node
 // dengan keluaran ffprobe/ffmpeg asli.

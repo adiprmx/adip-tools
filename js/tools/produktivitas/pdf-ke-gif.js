@@ -7,7 +7,7 @@ import { h as T, utils, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '..
 // BATASAN JUJUR (ditulis juga di UI): GIF hanya punya 256 warna, jadi
 // halaman berwarna penuh akan sedikit berubah warnanya. Halaman yang
 // diproses dibatasi 30 supaya file tidak terlalu besar.
-export const meta = {"id": "pdf-ke-gif", "name": "PDF ke GIF", "cat": "produktivitas", "icon": "🎞️", "desc": "Ubah halaman-halaman PDF jadi satu animasi GIF.", "keywords": "pdf ke gif,pdf jadi animasi,gif dari pdf,animasi pdf", "since": "6.19.0"};
+export const meta = {"id": "pdf-ke-gif", "name": "PDF ke GIF", "cat": "produktivitas", "icon": "🎞️", "desc": "Ubah halaman-halaman PDF jadi satu animasi GIF.", "keywords": "pdf ke gif,pdf jadi animasi,gif dari pdf,animasi pdf", "since": "6.19.0", "online": true};
 
 const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
 const PDFJS_WORKER = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';

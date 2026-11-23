@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Cari kartu Magic: The Gathering lewat Scryfall, tanpa key.
 // Terverifikasi 17 Nov 2026: /cards/named?fuzzy=black+lotus -> 200, CORS *.
 // Batas Scryfall: sekitar 10 permintaan per detik.
-export const meta = {"id":"kartu-magic-mtg","name":"Kartu Magic MTG","cat":"liveapi","icon":"🃏","desc":"Cari kartu Magic: The Gathering lengkap dengan gambar, teks, dan harganya.","keywords":"magic,mtg,kartu magic,scryfall,card game,tcg,kartu","since":"6.17.0"};
+export const meta = {"id":"kartu-magic-mtg","name":"Kartu Magic MTG","cat":"liveapi","icon":"🃏","desc":"Cari kartu Magic: The Gathering lengkap dengan gambar, teks, dan harganya.","keywords":"magic,mtg,kartu magic,scryfall,card game,tcg,kartu","since":"6.17.0", "online": true};
 
 export async function getJSON(url) {
   const c = new AbortController();
@@ -86,7 +86,7 @@ export function render(root) {
       const msg = e.message === 'server-error'
         ? 'Server Scryfall sedang bermasalah — bukan salah kartunya. Coba lagi sebentar.'
         : e.name === 'AbortError'
-          ? 'Waktu habis, server Scryfall tidak merespons dalam 15 detik.'
+          ? 'Waktu habis, server Scryfall tidak bisa dihubungi dalam 15 detik.'
           : 'Gagal mencari kartu. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

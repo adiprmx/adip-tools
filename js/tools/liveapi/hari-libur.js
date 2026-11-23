@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id":"hari-libur","name":"Hari Libur Indonesia","cat":"liveapi","icon":"📅","desc":"Daftar hari libur nasional Indonesia per tahun.","keywords":"hari,libur,nasional,tanggal,merah,indonesia"};
+export const meta = {"id":"hari-libur","name":"Hari Libur Indonesia","cat":"liveapi","icon":"📅","desc":"Daftar hari libur nasional Indonesia per tahun.","keywords":"hari,libur,nasional,tanggal,merah,indonesia", "online": true};
 export function render(root) {
   // Data lokal 2026 — sumber utama: SKB 3 Menteri No. 1497/2025, No. 2/2025,
   // No. 5/2025 (17 hari libur nasional + 8 cuti bersama).
@@ -140,7 +140,7 @@ export function render(root) {
     } catch (e) {
       clearTimeout(timer);
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
       else if (status === 429) msg = 'Rate limit tercapai (429). Terlalu banyak permintaan — tunggu sebentar lalu coba lagi.';
       else if (status === 404 || /di luar jangkauan/.test(e.message)) msg = 'Tahun ' + th + ' di luar jangkauan data libur nasional. Pilih tahun 2025–2027.';
       else msg = 'Gagal memuat hari libur. Periksa koneksi internet lalu coba lagi.';

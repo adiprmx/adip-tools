@@ -146,6 +146,7 @@ export function render(root) {
         T.toast('Tantangan diacak ulang. Progres direset ya.');
       }),
       T.btn('Hapus progres tema ini', () => {
+        if (!confirm('Hapus progres tema "' + TEMA[tema].label + '" (30 hari)? Progres akan hilang dan tidak bisa dikembalikan.')) return;
         const d = loadAll();
         delete d[tema];
         saveAll(d);

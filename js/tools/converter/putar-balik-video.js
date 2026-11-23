@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "putar-balik-video", "name": "Putar & Balik Video", "cat": "converter", "icon": "🔃", "desc": "Putar video 90 atau 180 derajat, atau cerminkan.", "keywords": "video,putar,balik,cermin,rotasi,90,180", "since": "6.16.0"};
+export const meta = {"id": "putar-balik-video", "name": "Putar & Balik Video", "cat": "converter", "icon": "🔃", "desc": "Putar video 90 atau 180 derajat, atau cerminkan.", "keywords": "video,putar,balik,cermin,rotasi,90,180", "since": "6.16.0", "online": true};
 
 export function render(root) {
   // transpose=1: 90 derajat searah jarum jam. transpose=2: 90 derajat

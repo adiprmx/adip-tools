@@ -29,7 +29,7 @@ async function getJSON(url) {
 // mediaAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "cari-lagu-film-app", "name": "Cari Lagu/Film/App", "cat": "liveapi", "icon": "🎵", "desc": "Cari lagu, film, podcast, dan aplikasi di iTunes Store, lengkap dengan cuplikan lagunya.", "keywords": "itunes,lagu,film,aplikasi,podcast,musik,cari lagu,apple", "since": "6.17.0"};
+export const meta = {"id": "cari-lagu-film-app", "name": "Cari Lagu/Film/App", "cat": "liveapi", "icon": "🎵", "desc": "Cari lagu, film, podcast, dan aplikasi di iTunes Store, lengkap dengan cuplikan lagunya.", "keywords": "itunes,lagu,film,aplikasi,podcast,musik,cari lagu,apple", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -90,7 +90,7 @@ export function render(root) {
       });
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server iTunes tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server iTunes tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

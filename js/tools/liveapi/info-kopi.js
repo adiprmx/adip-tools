@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"info-kopi","name":"Info Kopi","cat":"liveapi","icon":"☕","desc":"Daftar minuman kopi panas dan dingin beserta bahan dan deskripsinya.","keywords":"kopi,latte,espresso,minuman,kafe","since":"6.18.0"};
+export const meta = {"id":"info-kopi","name":"Info Kopi","cat":"liveapi","icon":"☕","desc":"Daftar minuman kopi panas dan dingin beserta bahan dan deskripsinya.","keywords":"kopi,latte,espresso,minuman,kafe","since":"6.18.0", "online": true};
 
 // Info minuman kopi lewat SampleAPIs, tanpa key.
 // Terverifikasi 18 Nov 2026: api.sampleapis.com/coffee/hot -> 200, CORS *.
@@ -76,7 +76,7 @@ export function render(root) {
       tampilkan();
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server data tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server data tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal memuat daftar kopi. Cek koneksi internet, lalu coba lagi.');
     }
   };

@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "latihan-mengetik", "name": "Latihan Mengetik", "cat": "pelajar", "icon": "⌨️", "desc": "Latihan mengetik bertahap: baris dasar, kata umum, kalimat, sampai angka dan tanda baca.", "keywords": "latihan mengetik,typing,pelajaran,keyboard,kecepatan mengetik,akurasi", "since": "6.19.0"};
+export const meta = {"id": "latihan-mengetik", "name": "Latihan Mengetik", "cat": "pelajar", "icon": "⌨️", "desc": "Latihan mengetik bertahap: baris dasar, kata umum, kalimat, sampai angka dan tanda baca.", "keywords": "latihan mengetik,typing,pelajaran,keyboard,kecepatan mengetik,akurasi,teks,produktivitas", "since": "6.19.0"};
 
 const KEY = 'adip-tools:latihan-mengetik';
 

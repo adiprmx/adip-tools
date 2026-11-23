@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "video-ke-apng", "name": "Video ke APNG", "cat": "converter", "icon": "🎞️", "desc": "Ubah klip video jadi animasi APNG yang jernih.", "keywords": "video,apng,animasi,bergerak,png,stiker", "since": "6.19.0"};
+export const meta = {"id": "video-ke-apng", "name": "Video ke APNG", "cat": "converter", "icon": "🎞️", "desc": "Ubah klip video jadi animasi APNG yang jernih.", "keywords": "video,apng,animasi,bergerak,png,stiker", "since": "6.19.0", "online": true};
 
 // Susun argumen ffmpeg untuk APNG. Fungsi murni, diuji di Node.
 export function bangunArgumenApng(inName, outName, start, dur, fps, width) {

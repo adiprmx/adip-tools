@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"documentai","name":"Document AI","cat":"produktivitas","icon":"📄","desc":"Analisis dokumen dengan LLM milikmu (OpenAI-compatible).","keywords":"ai,dokumen,llm,ringkasan,analisis,openai,pdf,gambar,vision,tabel"};
+export const meta = {"id":"documentai","name":"Document AI","cat":"produktivitas","icon":"📄","desc":"Analisis dokumen dengan LLM milikmu (OpenAI-compatible).","keywords":"ai,dokumen,llm,ringkasan,analisis,openai,pdf,gambar,vision,tabel", "online": true};
 
 const MODES = [
   ['ringkas', '📝 Ringkasan Cerdas'],
@@ -109,7 +109,7 @@ export function render(root) {
 
   // PDF → teks (maks MAKS_HALAMAN_PDF halaman pertama)
   const pdfKeTeks = async (buffer) => {
-    if (!(await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }))) throw new Error('Pustaka PDF gagal dimuat dari CDN.');
+    if (!(await utils.loadLibOnce(PDFJS_CDN, () => !!window.pdfjsLib, () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; }))) throw new Error('Pustaka PDF gagal dimuat dari internet.');
     const doc = await window.pdfjsLib.getDocument({ data: buffer }).promise;
     const n = Math.min(doc.numPages, MAKS_HALAMAN_PDF);
     let teks = '';

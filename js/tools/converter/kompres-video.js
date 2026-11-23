@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "kompres-video", "name": "Kompres Video", "cat": "converter", "icon": "🗜️", "desc": "Perkecil ukuran video, termasuk pilihan pas untuk WhatsApp.", "keywords": "video,kompres,perkecil,whatsapp,ukuran,mp4,kecil", "since": "6.11.0"};
+export const meta = {"id": "kompres-video", "name": "Kompres Video", "cat": "converter", "icon": "🗜️", "desc": "Perkecil ukuran video, termasuk pilihan pas untuk WhatsApp.", "keywords": "video,kompres,perkecil,whatsapp,ukuran,mp4,kecil", "since": "6.11.0", "online": true};
 
 export function render(root) {
   const WA_TARGET_MB = 15.5; // di bawah batas 16 MB, sisakan ruang untuk audio

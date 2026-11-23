@@ -37,13 +37,17 @@
    F. renderPopuler() kini menerima daftar istilah populer sebagai
       parameter (bukan membaca state Supabase di app.js) — app.js
       yang mengambil istilahnya lewat supabase.js lalu mengopernya.
+      (v6.22.0 S-U1, F-06: + parameter status 'pending'/'live'/
+      'stale' untuk pesan jujur + penundaan render saat rail
+      sedang digeser.)
 
    TAMBAHAN v6.19.1 (P8, Spotlight):
    G. Spotlight "Tool pilihan" — satu tool unggulan per hari, rotasi
-      deterministik tanpa backend (pool 59 unggulan CAT_META diacak
+      deterministik tanpa backend (pool 84 unggulan CAT_META diacak
       sekali FNV-1a -> mulberry32 -> Fisher-Yates, indeks =
-      nomorHari(WIB) mod 59). Fungsi murni pilihSpotlight/
+      nomorHari(WIB) mod 84). Fungsi murni pilihSpotlight/
       spotlightOrder + renderSpotlight (pola renderBaru).
+      (v6.22.0 S-U1: pool 59 -> 84, spesifikasi kurasi S-U10 §5.)
 
    KONTRAK (diperbarui v6.14.0):
    - Murni + tanpa side effect di top-level: semua fungsi menerima
@@ -67,6 +71,10 @@ import { SEARCH_DENY, byId, catLabel } from './catalog.js';
 import { getRecent } from './store.js';
 import { hcardHTML, watchFadeX } from './shell-ui.js';
 import { rankedSearchPlus } from './search-plus.js';
+/* S-U5 (v6.22.0, manifest split): loader + versi detail dari
+   manifest-boot.js (impor langsung, BUKAN lewat alias
+   './manifest.js' — supaya js/manifest.js tetap tak tersentuh). */
+import { manifestDetailsVersion, loadManifestDetails, needsDetails } from './manifest-boot.js';
 
 /* Alias kompatibilitas: fade tepi carousel kini satu sumber di
    shell-ui.js (watchFadeX); nama lama tetap diekspor supaya
@@ -76,15 +84,25 @@ export { watchFadeX as attachRailFade } from './shell-ui.js';
 const visible = (m) => Boolean(m) && !SEARCH_DENY.includes(m.id);
 
 /* ================= A. SHOWCASE "BARU DITAMBAHKAN" =================
-   Fakta audit: field `since` di manifest HANYA diisi untuk rilis
-   6.11.0 (147 tool). Tidak ada satu pun tool dengan since 6.11.1–
-   6.11.5, sehingga isNew() di app.js saat ini false untuk SEMUA
-   tool (chip "Terbaru" di #/semua pun tidak muncul). Supaya section
-   ini tidak mati bila sync-manifest lupa memberi cap since untuk
-   tool baru 6.12.0, renderBaru() memakai fallback JUJUR: bila tidak
-   ada tool dengan since === VERSION, tampilkan batch `since`
-   terbaru yang ada, dengan label versi aslinya ("dari versi
-   6.11.0") — bukan diklaim sebagai baru di versi ini. */
+   Fakta audit (S-A8, 21 Nov 2026, terhitung ulang S-F9): 0 tool
+   ber-since 6.20.0/6.21.0; batch terbaru 6.19.0 (290 tool); batch
+   6.11.0 kini 135 tool (bukan 147); 415 tool tanpa `since` sama
+   sekali. Akibatnya isNew() di catalog.js false untuk SEMUA tool
+   (chip "Terbaru" di #/semua pun tidak muncul).
+   KEPUTUSAN S-U1 (v6.22.0, F-02): fallback "batch terbaru" DICABUT.
+   Dulu bila tidak ada tool dengan since === VERSION, renderBaru
+   menampilkan batch `since` terbaru dengan label "dari versi
+   6.19.0" — labelnya jujur, tapi heading "Baru ditambahkan" di
+   rilis 6.22.0 menampilkan barang dua versi lalu, dan klaim
+   "baru" itu yang menyesatkan, bukan labelnya. Kini seksi
+   disembunyikan bila tidak ada batch versi berjalan — perilaku
+   yang sama dengan seksi kosong lain di beranda (Favorit,
+   Riwayat) dan chip "Terbaru" yang juga bersembunyi saat tidak
+   ada tool baru. v6.22.0 adalah ronde shell (0 tool baru), jadi
+   seksi ini memang kosong di ronde ini, bukan rusak. Perbaikan
+   datanya (backfill `since`) milik S-F6, bukan modul ini.
+   latestSince()/latestSinceTools() dipertahankan sebagai API
+   modul (dipakai harness/tes), bukan lagi oleh renderBaru. */
 
 export function cmpSemver(a, b) {
   const pa = String(a).split('.').map((x) => parseInt(x, 10) || 0);
@@ -179,8 +197,9 @@ export function baruCardHTML(m) {
 
 /* HTML isi section "Baru ditambahkan" (tanpa tag <section> — wadah
    section-nya milik template home() di app.js). Mode 'strict' =
-   tool baru di versi ini; mode 'latest' = fallback batch terbaru
-   dengan label versi aslinya. v6.15.0 P1: kartu lebar
+   tool baru di versi ini; mode 'latest' = label batch lama, kini
+   tidak dipakai renderBaru lagi (S-U1 v6.22.0, F-02) tapi
+   dipertahankan untuk harness/tes. v6.15.0 P1: kartu lebar
    berdeskripsi (.baru-grid/.baru-card), bukan lagi .hgrid. */
 export function baruSectionHTML(tools, { version = '', mode = 'strict' } = {}) {
   if (!tools || !tools.length) return '';
@@ -194,60 +213,71 @@ export function baruSectionHTML(tools, { version = '', mode = 'strict' } = {}) {
 
 /* Render showcase ke wadah <section id="baruSec"> di beranda.
    Mengembalikan true bila section terisi, false bila disembunyikan
-   (tidak ada tool baru sama sekali — wadah display:none).
+   (tidak ada tool baru di versi berjalan — wadah display:none).
+   S-U1 (v6.22.0, F-02): TIDAK ADA lagi fallback ke batch terbaru;
+   seksi kosong disembunyikan, bukan diisi batch lama.
    v6.15.0 P1: pemilihan tool lewat curateNewTools (satu per
    kategori dari batch yang sama) — lihat catatan di sana. */
 export function renderBaru(host, manifest, version, { limit = 8 } = {}) {
   if (!host) return false;
-  let tools = curateNewTools(manifest, version, limit);
-  let mode = 'strict';
-  let v = version;
-  if (!tools.length) {
-    v = latestSince(manifest);
-    tools = v ? curateNewTools(manifest, v, limit) : [];
-    mode = 'latest';
-  }
+  const tools = curateNewTools(manifest, version, limit);
   if (!tools.length) {
     host.style.display = 'none';
     host.innerHTML = '';
     return false;
   }
   host.style.display = '';
-  host.innerHTML = baruSectionHTML(tools, { version: v, mode });
+  host.innerHTML = baruSectionHTML(tools, { version, mode: 'strict' });
+  /* S-U5 (v6.22.0, manifest split): kartu memakai desc — bila
+     manifest masih ramping, render ulang sekali begitu detail
+     tiba supaya deskripsi asli tampil (bukan baris kosong).
+     Render ini tetap SINKRON (kontrak harness S-U1); re-render
+     hanya efek samping terjadwal. */
+  if (needsDetails(manifest)) {
+    rerenderAfterDetails(host, () => renderBaru(host, manifest, version, { limit }));
+  }
   return true;
 }
 
 /* ================= B. META KATEGORI =================
-   Deskripsi satu baris + 3 tool unggulan per kategori, untuk halaman
+   Deskripsi satu baris + 3-4 tool unggulan per kategori, untuk halaman
    #/k/<id>. "Unggulan" = pilihan kurasi TIM 08 (tool yang paling
    berguna/umum dipakai di kategorinya), BUKAN klaim peringkat
    pemakaian — label di layar memakai "Coba dulu / mulai dari sini",
    bukan "paling populer". Semua ID di bawah diverifikasi ada di
    manifest v6.17.0 (857 tool); catUnggulan() tetap memfilter ID yang
-   hilang, jadi aman bila ada tool yang dihapus di rilis berikut. */
+   hilang, jadi aman bila ada tool yang dihapus di rilis berikut.
+   v6.22.0 S-U1 (spesifikasi S-U10 §5): 25 ID batch 6.18.0/6.19.0
+   ditambahkan ke akhir tiap array — 18 kategori kini 4 unggulan,
+   4 kategori tipis (kesehatan, kreator, masak, travel) kini genap 3.
+   Ke-25 ID diverifikasi ada di manifest, ber-since 6.18.0/6.19.0,
+   desc 40-160 karakter, dan belum ada di pool (skrip Node, 0 gagal).
+   Efek samping: strip "Coba dulu" ikut membesar jadi 4 kartu di
+   18 kategori — grid .coba-grid disesuaikan (style.css: 2 kolom HP,
+   4 kolom mulai 640px, pola .mulai-grid). */
 export const CAT_META = {
-  keamanan: { desc: 'Jaga akun dan datamu: sandi kuat, cek kebocoran, dan kenali modus penipuan sebelum kena.', unggulan: ['password-generator', 'password-strength', 'cek-privasi-tempel'] },
-  converter: { desc: 'Ubah format apa pun: satuan, video, file, sampai angka dan takaran masak.', unggulan: ['unit-converter', 'video-ke-mp3', 'terbilang'] },
-  developer: { desc: 'Alat bantu ngoding: rapikan JSON, tes regex, sampai bongkar token JWT.', unggulan: ['json-formatter', 'regex-tester', 'jwt-parser'] },
-  desain: { desc: 'Bikin tampilan lebih bagus: warna, QR, gradasi, sampai mockup HP.', unggulan: ['qr-generator', 'palette', 'gradient'] },
-  indonesia: { desc: 'Hitungan khas Indonesia: THR, pajak, weton, sampai biaya SIM dan STNK.', unggulan: ['kalender-jawa', 'thr', 'pph21'] },
-  musik: { desc: 'Buat yang main musik atau DJ: tempo, chord, sampai rencana setlist.', unggulan: ['camelot', 'metronome', 'tap-bpm'] },
-  gambar: { desc: 'Olah foto langsung di browser: kompres, potong, hapus latar. Tanpa upload.', unggulan: ['image-compress', 'removebg', 'crop-pas-foto'] },
-  teks: { desc: 'Ubah dan hitung teks: jumlah kata, format WA, sampai bikin hashtag.', unggulan: ['word-counter', 'wa-formatter', 'generator-hashtag'] },
-  bisnis: { desc: 'Hitung usaha dan gaji: harga jual, invoice, sampai gaji bersih setelah potongan.', unggulan: ['kalkulator-gaji-bersih', 'buat-invoice', 'margin-markup'] },
-  sehari: { desc: 'Keperluan sehari-hari: kesehatan, rumah, hewan peliharaan, sampai tes HP.', unggulan: ['bmi', 'kalori-makanan', 'stopwatch'] },
-  fun: { desc: 'Buat seru-seruan: kuis, tebak-tebakan, sampai roda putar buat undian.', unggulan: ['spinwheel', 'tebak-tebakan', 'zodiak-hari-ini'] },
-  produktivitas: { desc: 'Biar kerja lebih rapi: CV, timer fokus, PDF, sampai catatan harian.', unggulan: ['pembuat-cv', 'pomodoro', 'pdflab'] },
-  pelajar: { desc: 'Bantu belajar: kalkulator, flashcard, sampai latihan SKD CPNS.', unggulan: ['kalkulator-umum', 'flashcard', 'ipk'] },
-  liveapi: { desc: 'Data langsung dari internet: jadwal sholat, gempa, kurs, cuaca, dan lainnya.', unggulan: ['jadwal-sholat', 'gempa-bmkg', 'kurs-cuaca'] },
-  fakesos: { desc: 'Bikin tangkapan layar bohongan buat lucu-lucuan. Jangan dipakai untuk menipu.', unggulan: ['fake-chat-wa', 'fake-post-ig', 'fake-tweet'] },
-  kesehatan: { desc: 'Jaga badan: kenali otot dan latihan yang tepat buat tiap bagian tubuh.', unggulan: ['atlas-otot-latihan'] },
-  kreator: { desc: 'Bikin konten lebih cepat: ide hook video sampai carousel siap posting.', unggulan: ['generator-hook-tiktok', 'pembuat-carousel-tiktok-ig'] },
-  masak: { desc: 'Masak dari bahan yang ada di dapur: resep rumahan Indonesia, langkah demi langkah.', unggulan: ['masak-dari-bahan'] },
-  travel: { desc: 'Siapin perjalanan: cek negara bebas visa buat paspor Indonesia.', unggulan: ['paspor-indonesia-bebas-visa'] },
-  sains: { desc: 'Hitung dan simulasi sains: listrik, gerak, sampai tata surya.', unggulan: ['kalkulator-hukum-ohm', 'simulator-tata-surya', 'simulator-gravitasi'] },
-  otomotif: { desc: 'Hitung kendaraanmu: bensin, cas mobil listrik, sampai harga jual mobil bekas.', unggulan: ['kalkulator-konsumsi-bbm', 'kalkulator-biaya-cas-mobil-listrik', 'kalkulator-depresiasi-mobil'] },
-  rumah: { desc: 'Hitung kebutuhan rumah: atap, keramik, tangga, sampai tangki air.', unggulan: ['kalkulator-keramik-ubin', 'kalkulator-atap', 'kalkulator-volume-tangki-air'] },
+  keamanan: { desc: 'Jaga akun dan datamu: sandi kuat, cek kebocoran, dan kenali modus penipuan sebelum kena.', unggulan: ['password-generator', 'password-strength', 'cek-privasi-tempel', 'checklist-privasi-30-hari'] },
+  converter: { desc: 'Ubah format apa pun: satuan, video, file, sampai angka dan takaran masak.', unggulan: ['unit-converter', 'video-ke-mp3', 'terbilang', 'ganti-nama-file-massal'] },
+  developer: { desc: 'Tool buat ngoding: rapikan JSON (data), tes regex (pola teks), sampai bongkar token JWT (tanda masuk).', unggulan: ['json-formatter', 'regex-tester', 'jwt-parser', 'apakah-situs-down'] },
+  desain: { desc: 'Bikin tampilan lebih bagus: warna, QR, gradasi, sampai mockup HP.', unggulan: ['qr-generator', 'palette', 'gradient', 'galeri-font-google'] },
+  indonesia: { desc: 'Hitungan khas Indonesia: THR, pajak, weton, sampai biaya SIM dan STNK.', unggulan: ['kalender-jawa', 'thr', 'pph21', 'biaya-admin-transfer-antar-bank'] },
+  musik: { desc: 'Buat yang main musik atau DJ: tempo, chord, sampai rencana setlist.', unggulan: ['camelot', 'metronome', 'tap-bpm', 'audio-8d'] },
+  gambar: { desc: 'Olah foto langsung di browser: kompres, potong, hapus latar. Tanpa upload.', unggulan: ['image-compress', 'removebg', 'crop-pas-foto', 'banding-foto'] },
+  teks: { desc: 'Ubah dan hitung teks: jumlah kata, format WA, sampai bikin hashtag.', unggulan: ['word-counter', 'wa-formatter', 'generator-hashtag', 'karakter-khusus'] },
+  bisnis: { desc: 'Hitung usaha dan gaji: harga jual, invoice, sampai gaji bersih setelah potongan.', unggulan: ['kalkulator-gaji-bersih', 'buat-invoice', 'margin-markup', 'analisis-swot'] },
+  sehari: { desc: 'Keperluan sehari-hari: kesehatan, rumah, hewan peliharaan, sampai tes HP.', unggulan: ['bmi', 'kalori-makanan', 'stopwatch', 'diagnosis-hp-rusak'] },
+  fun: { desc: 'Buat seru-seruan: kuis, tebak-tebakan, sampai roda putar buat undian.', unggulan: ['spinwheel', 'tebak-tebakan', 'zodiak-hari-ini', 'berat-di-planet-lain'] },
+  produktivitas: { desc: 'Biar kerja lebih rapi: CV, timer fokus, PDF, sampai catatan harian.', unggulan: ['pembuat-cv', 'pomodoro', 'pdflab', 'diagram-alir'] },
+  pelajar: { desc: 'Bantu belajar: kalkulator, flashcard, sampai latihan SKD CPNS.', unggulan: ['kalkulator-umum', 'flashcard', 'ipk', 'biaya-kuliah'] },
+  liveapi: { desc: 'Data langsung dari internet: jadwal sholat, gempa, kurs, cuaca, dan lainnya.', unggulan: ['jadwal-sholat', 'gempa-bmkg', 'kurs-cuaca', 'cuaca-arsip'] },
+  fakesos: { desc: 'Bikin tangkapan layar bohongan buat lucu-lucuan. Jangan dipakai untuk menipu.', unggulan: ['fake-chat-wa', 'fake-post-ig', 'fake-tweet', 'fake-chat-snapchat'] },
+  kesehatan: { desc: 'Hitung soal badan: berat ideal, kalori, gula darah, sampai risiko jantung dan tumbuh kembang anak.', unggulan: ['atlas-otot-latihan', 'bmi-anak', 'jadwal-donor-darah'] },
+  kreator: { desc: 'Bikin konten lebih cepat: ide hook video sampai carousel siap posting.', unggulan: ['generator-hook-tiktok', 'pembuat-carousel-tiktok-ig', 'cek-zona-aman-tiktok'] },
+  masak: { desc: 'Hitung takaran dan waktu masak: rasio beras dan kopi, porsi pesta, sampai timer seduh dan bahan pengganti.', unggulan: ['masak-dari-bahan', 'pengganti-bahan-masakan', 'timer-seduh-kopi-teh'] },
+  travel: { desc: 'Siapin perjalanan: anggaran trip, dokumen, jet lag, sampai frasa penting dan negara bebas visa.', unggulan: ['paspor-indonesia-bebas-visa', 'anggaran-trip', 'perencana-road-trip'] },
+  sains: { desc: 'Hitung dan simulasi sains: listrik, gerak, sampai tata surya.', unggulan: ['kalkulator-hukum-ohm', 'simulator-tata-surya', 'simulator-gravitasi', 'kalkulator-energi-gempa'] },
+  otomotif: { desc: 'Hitung kendaraanmu: bensin, cas mobil listrik, sampai harga jual mobil bekas.', unggulan: ['kalkulator-konsumsi-bbm', 'kalkulator-biaya-cas-mobil-listrik', 'kalkulator-depresiasi-mobil', 'beli-vs-sewa-mobil'] },
+  rumah: { desc: 'Hitung kebutuhan rumah: atap, keramik, tangga, sampai tangki air.', unggulan: ['kalkulator-keramik-ubin', 'kalkulator-atap', 'kalkulator-volume-tangki-air', 'kalkulator-pagar'] },
 };
 
 export function catMeta(catId) {
@@ -288,13 +318,16 @@ export function renderCatIntro(host, catId, manifest) {
 
 /* ================= SPOTLIGHT "TOOL PILIHAN" (v6.19.1 P8) =================
    Satu tool unggulan per hari, rotasi deterministik TANPA backend:
-   pool 59 unggulan CAT_META diacak SEKALI (FNV-1a -> mulberry32 ->
-   Fisher-Yates), lalu hari ke-d mengambil indeks nomorHari mod 59.
+   pool 84 unggulan CAT_META diacak SEKALI (FNV-1a -> mulberry32 ->
+   Fisher-Yates), lalu hari ke-d mengambil indeks nomorHari mod 84.
    Hari berurutan -> indeks berurutan -> tool SELALU berbeda
-   (jaminan STRUKTURAL, bukan probabilistik). Siklus 59 hari; tiap
+   (jaminan STRUKTURAL, bukan probabilistik). Siklus 84 hari; tiap
    tool tampil sekali per siklus. Tanggal dari perangkat + zona
    Asia/Jakarta (Intl) — pengunjung di luar WIB tetap dapat hari
-   yang benar. Spesifikasi lengkap: r7-spotlight-spec.md. */
+   yang benar. Spesifikasi lengkap: r7-spotlight-spec.md.
+   (v6.22.0 S-U1: pool 59 -> 84, kurasi 25 ID batch 6.18.0/6.19.0
+   spesifikasi S-U10 §5. Urutan acak ikut berubah karena pool-nya
+   berubah — wajar, tidak dimitigasi.) */
 
 export const SPOTLIGHT_SEED = 'adip-tools-spotlight-v1';
 
@@ -318,7 +351,7 @@ export function mulberry32(a) {
   };
 }
 
-/* Pool: gabungan semua `unggulan` CAT_META (59 ID unik, urutan
+/* Pool: gabungan semua `unggulan` CAT_META (84 ID unik, urutan
    kategori CAT_META). Diturunkan dari CAT_META — bukan daftar
    kurasi kedua — supaya spotlight dan "Coba dulu" tidak menyimpang. */
 export function spotlightPoolIds() {
@@ -331,11 +364,14 @@ export function spotlightPoolIds() {
 
 /* Urutan acak TETAP: sama di semua perangkat & kunjungan (hanya
    bergantung pada pool + seed). ID yang hilang dari manifest
-   dibuang (pola catUnggulan). */
+   dibuang (pola catUnggulan). Pencarian ID memakai Map sekali
+   jalan (S-F9, S-A5 F11): `byId` di catalog.js masih `manifest.find`
+   linear, jadi Map di sini yang benar-benar memotong 84x pindai. */
 export function spotlightOrder(manifest) {
   if (!Array.isArray(manifest)) return [];
+  const byIdMap = new Map(manifest.map((m) => [m.id, m]));
   const pool = spotlightPoolIds()
-    .map((id) => manifest.find((m) => m.id === id))
+    .map((id) => byIdMap.get(id))
     .filter(visible);
   const acak = pool.slice();
   const rnd = mulberry32(fnv1a(SPOTLIGHT_SEED));
@@ -382,12 +418,15 @@ export function pilihSpotlight(manifest, tanggalWIB = tanggalHariIniWIB()) {
 
 /* HTML isi section spotlight (tanpa tag <section> — wadahnya milik
    template home() di app.js). Satu kartu lebar penuh, pakai ulang
-   anatomi .baru-card — NOL CSS baru. */
+   anatomi .baru-card — NOL CSS baru. Mikro-copy di bawah kartu
+   (S-U1 v6.22.0, F-05): menjelaskan rotasi harian tanpa klaim
+   "terbaik" dan tanpa em-dash. */
 export function spotlightSectionHTML(tool, tanggalWIB) {
   if (!tool) return '';
   return `
     <div class="sechead"><h2>⭐ Tool pilihan</h2><span class="n">${esc(labelTanggalWIB(tanggalWIB))}</span></div>
-    ${baruCardHTML(tool)}`;
+    ${baruCardHTML(tool)}
+    <p class="secnote">Pilihan hari ini, ganti tiap hari</p>`;
 }
 
 /* Render spotlight ke wadah <section id="spotSec"> di beranda.
@@ -403,7 +442,30 @@ export function renderSpotlight(host, manifest, tanggalWIB = tanggalHariIniWIB()
   }
   host.style.display = '';
   host.innerHTML = spotlightSectionHTML(tool, tanggalWIB);
+  /* S-U5 (v6.22.0, manifest split): kartu memakai desc — bila
+     manifest masih ramping, render ulang sekali begitu detail
+     tiba (pola yang sama seperti renderBaru). */
+  if (needsDetails(manifest)) {
+    rerenderAfterDetails(host, () => renderSpotlight(host, manifest, tanggalWIB));
+  }
   return true;
+}
+
+/* S-U5 (v6.22.0, manifest split): render-now + re-render sekali.
+   Render pertama jalan langsung dengan data yang ada (ramping);
+   bila manifest masih ramping, satu re-render dijadwalkan begitu
+   detail tiba. Dijaga: satu host hanya dijadwalkan sekali
+   (WeakSet); re-render hanya jalan bila host masih di DOM; pass
+   kedua menemukan detail sudah menempel, jadi tidak ada loop.
+   Di Node (tanpa document) tidak menjadwalkan apa-apa. */
+const detailsRerenderHosts = new WeakSet();
+function rerenderAfterDetails(host, rerender) {
+  if (!host || typeof document === 'undefined') return;
+  if (detailsRerenderHosts.has(host)) return;
+  detailsRerenderHosts.add(host);
+  loadManifestDetails().then((ok) => {
+    if (ok && document.body.contains(host)) rerender();
+  });
 }
 
 /* ================= C. (OPSIONAL) COBA TOOL ACAK =================
@@ -487,19 +549,147 @@ export function renderContinue() {
 
 /* Populer: istilah populer -> tool teratas tiap istilah.
    `terms` = istilah dari Supabase (supabase.js); kosong/undefined =
-   daftar fallback yang sama seperti dulu. */
-export function renderPopuler(terms, manifest) {
-  const rail = document.getElementById('popRail');
-  if (!rail) return;
-  const list = (terms && terms.length) ? terms : ['kalkulator thr', 'weton jawa', 'kompres gambar', 'password aman', 'camelot wheel', 'qr code'];
+   daftar fallback yang sama seperti dulu.
+   (S-F9, S-A5 F1) Dua perubahan:
+   1. Hasil pencarian di-cache per istilah di Map modul ini, jadi
+      render kedua (istilah live Supabase) tidak menghitung ulang
+      istilah yang sudah dicari, dan kunjungan beranda berikutnya
+      dalam sesi yang sama tidak membayar 6 pencarian lagi.
+   2. renderPopuler() sendiri tetap sinkron, tapi home() TIDAK
+      memanggilnya langsung lagi: pakai afterFirstPaint() supaya
+      pencarian (sampai ~1-2 dtk di VM ukur) jalan SESUDAH konten
+      pertama tampil, bukan sebelumnya. */
+export const POPULER_FALLBACK = ['kalkulator thr', 'weton jawa', 'kompres gambar', 'password aman', 'camelot wheel', 'qr code'];
+
+/* Istilah -> tool teratas (atau null bila tidak ada hasil). Cache
+   per sesi: istilah yang sama tidak dicari ulang. Murni (tanpa DOM)
+   supaya bisa dites di Node.
+   S-U5 (v6.22.0, manifest split): cache dibuang begitu versi detail
+   berubah — peringkat dari indeks ramping bisa salah (terukur:
+   'weton jawa' dan 'password aman' beda peringkat 1 antara indeks
+   ramping dan penuh), jadi hasil lama tidak boleh dipertahankan. */
+const populerCache = new Map();
+let populerCacheVersion = manifestDetailsVersion;
+export function cariPopuler(terms, manifest) {
+  if (populerCacheVersion !== manifestDetailsVersion) {
+    populerCache.clear();
+    populerCacheVersion = manifestDetailsVersion;
+  }
+  const list = (terms && terms.length) ? terms : POPULER_FALLBACK;
   const seen = new Set(), tools = [];
   for (const t of list) {
-    const hit = rankedSearchPlus(t, manifest)[0];
+    let hit = populerCache.get(t);
+    if (hit === undefined) {
+      hit = rankedSearchPlus(t, manifest)[0] || null;
+      populerCache.set(t, hit);
+    }
     if (hit && !seen.has(hit.id) && !SEARCH_DENY.includes(hit.id)) { seen.add(hit.id); tools.push(hit); }
     if (tools.length >= 8) break;
   }
+  return tools;
+}
+
+/* Jalankan `fn` sesudah paint pertama. Dua rAF memastikan satu frame
+   sudah tampil (rAF pertama jalan sebelum paint, kedua sesudahnya),
+   lalu requestIdleCallback (bila ada, batas 800 ms) menunggu main
+   thread menganggur; tanpa itu, setTimeout 0. Di Node (tanpa window)
+   langsung jalan supaya harness bisa memakainya. */
+export function afterFirstPaint(fn) {
+  if (typeof window === 'undefined') { fn(); return; }
+  const run = () => {
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(() => fn(), { timeout: 800 });
+    else setTimeout(fn, 0);
+  };
+  requestAnimationFrame(() => requestAnimationFrame(run));
+}
+
+export function renderPopuler(terms, manifest, status = 'pending') {
+  const rail = document.getElementById('popRail');
+  if (!rail) return;
+  /* S-U1 (v6.22.0, F-06): jangan render ulang rail saat pengguna
+     sedang menggesernya — isi yang bertukar di tengah geseran
+     adalah kedip yang membingungkan (dulu: render ulang diam-diam
+     begitu fetch Supabase berhasil). Render ditunda dan dicoba
+     lagi tiap 1,2 dtk sampai rail senggang (maks 10x, lalu
+     dipaksakan supaya konten tidak basi selamanya). */
+  if (populerBusy(rail)) {
+    populerPending = { terms, manifest, status };
+    schedulePopulerRetry();
+    return;
+  }
+  populerPending = null;
+  const tools = cariPopuler(terms, manifest);
   rail.innerHTML = tools.map(hcardHTML).join('');
   watchFadeX(rail);
+  /* S-U5 (v6.22.0, manifest split): peringkat Populer memakai
+     pencarian — bila manifest masih ramping, render ulang sekali
+     begitu detail tiba supaya peringkatnya memakai indeks penuh.
+     Dijaga satu penjadwalan aktif; bila detail gagal dimuat, flag
+     dilepas supaya render berikutnya boleh mencoba lagi (loader
+     sendiri punya jeda 30 dtk sesudah gagal). */
+  if (needsDetails(manifest) && !populerRerenderScheduled) {
+    populerRerenderScheduled = true;
+    loadManifestDetails().then((ok) => {
+      populerRerenderScheduled = false;
+      if (ok) renderPopuler(terms, manifest, status);
+    });
+  }
+  /* S-U1 (v6.22.0, F-06 + handoff S-U4): pesan jujur soal sumber.
+     status 'stale' (fetch Supabase gagal) -> rail menampilkan
+     fallback lokal + pesan "Populer tidak diperbarui." di bawah
+     rail, bukan berpura-pura live. 'live'/'pending' -> tanpa
+     pesan (pending: fetch belum selesai, pesan "tidak diperbarui"
+     saat itu adalah klaim yang salah). */
+  const sec = rail.closest('section');
+  const note = sec ? sec.querySelector('.pop-note') : null;
+  if (status === 'stale') {
+    if (note) note.textContent = 'Populer tidak diperbarui.';
+    else {
+      const p = document.createElement('p');
+      p.className = 'secnote pop-note';
+      p.textContent = 'Populer tidak diperbarui.';
+      rail.insertAdjacentElement('afterend', p);
+    }
+  } else if (note) note.remove();
+}
+
+/* Rail sedang dipakai? Hover, fokus di dalam rail, atau baru saja
+   digeser (<1,5 dtk lalu — scroll sesudah innerHTML diganti akan
+   melompat ke awal, itu yang dihindari). */
+let populerPending = null;
+let populerRetryTimer = null;
+let populerLastScroll = 0;
+let populerScrollWatched = false;
+let populerRerenderScheduled = false; /* S-U5: re-render detail sekali */
+function populerBusy(rail) {
+  if (rail.matches(':hover')) return true;
+  if (rail.contains(document.activeElement)) return true;
+  if (Date.now() - populerLastScroll < 1500) return true;
+  return false;
+}
+function schedulePopulerRetry() {
+  const rail = document.getElementById('popRail');
+  if (rail && !populerScrollWatched) {
+    populerScrollWatched = true;
+    rail.addEventListener('scroll', () => { populerLastScroll = Date.now(); }, { passive: true });
+  }
+  if (populerRetryTimer) return;
+  let tries = 0;
+  const tick = () => {
+    populerRetryTimer = null;
+    if (!populerPending) return;
+    const r = document.getElementById('popRail');
+    if (!r) { populerPending = null; return; }
+    if (populerBusy(r) && tries < 10) {
+      tries += 1;
+      populerRetryTimer = setTimeout(tick, 1200);
+      return;
+    }
+    const p = populerPending;
+    populerPending = null;
+    renderPopuler(p.terms, p.manifest, p.status);
+  };
+  populerRetryTimer = setTimeout(tick, 1200);
 }
 
 /* Riwayat: carousel tool terakhir dibuka */

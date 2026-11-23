@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "ubah-resolusi-video", "name": "Ubah Resolusi Video", "cat": "converter", "icon": "📐", "desc": "Ubah ukuran layar video, bentuknya tetap tidak ketarik.", "keywords": "video,resolusi,ukuran,layar,720p,1080p,kecil", "since": "6.16.0"};
+export const meta = {"id": "ubah-resolusi-video", "name": "Ubah Resolusi Video", "cat": "converter", "icon": "📐", "desc": "Ubah ukuran layar video, bentuknya tetap tidak ketarik.", "keywords": "video,resolusi,ukuran,layar,720p,1080p,kecil", "since": "6.16.0", "online": true};
 
 export function render(root) {
   const SIZES = [

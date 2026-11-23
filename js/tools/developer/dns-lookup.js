@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, esc, kvRows } from '../../core.js';
 
-export const meta = {"id": "dns-lookup", "name": "DNS Lookup", "cat": "developer", "icon": "📡", "desc": "Lookup DNS via Google DNS-over-HTTPS.", "keywords": "dns,domain,lookup,website"};
+export const meta = {"id": "dns-lookup", "name": "DNS Lookup", "cat": "developer", "icon": "📡", "desc": "Lookup DNS via Google DNS-over-HTTPS.", "keywords": "dns,domain,lookup,website", "online": true};
 export function render(root) {
 
     const name = T.input('text', 'misal: adipmusic.my.id', '');
@@ -30,7 +30,7 @@ export function render(root) {
         tampil(j, n, tipe);
       } catch (e) {
         const msg = e.name === 'AbortError'
-          ? 'Waktu habis — dns.google tidak merespons dalam 15 detik.'
+          ? 'Waktu habis — dns.google tidak bisa dihubungi dalam 15 detik.'
           : 'Pencarian gagal. Kemungkinan kamu offline atau dns.google tidak bisa dijangkau.';
         T.show(box, errBox(msg));
         const wr = T.el('<div style="margin-top:8px"></div>');

@@ -42,6 +42,7 @@ export function render(root) {
         '<div style="white-space:pre-wrap;font-size:13.5px;line-height:1.55">' + T.esc(n.text) + '</div>' +
         '</div>');
       const del = T.btn('Hapus', () => {
+        if (!confirm('Hapus catatan ini? Catatan yang sudah dihapus tidak bisa dikembalikan.')) return;
         notes = notes.filter((x) => x.id !== n.id);
         save(); draw();
       });

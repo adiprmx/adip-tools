@@ -116,6 +116,7 @@ export function render(root) {
   }
 
   const resetBtn = T.btn('Hapus simpanan', () => {
+    if (!confirm('Hapus simpanan target baca? Target dan progres yang tersimpan akan hilang dan tidak bisa dikembalikan.')) return;
     try { localStorage.removeItem(KEY); } catch (e) {}
     mode.value = 'buku'; target.value = '12'; current.value = '3'; paceNow.value = '';
     const d = new Date(Date.now() + 90 * 86400000);

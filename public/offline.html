@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#161311">
-<title>Kamu sedang offline — ADIP Tools</title>
+<title>Kamu sedang offline - ADIP Tools</title>
 <style>
   :root {
     --bg: #161311;
@@ -101,6 +101,55 @@
     font-size: 13px;
     color: var(--faint);
   }
+  /* S-U4 (v6.22.0): daftar tool dari perangkat sendiri (riwayat +
+     favorit + Cache Storage). Diisi offline.js; tersembunyi bila
+     tidak ada data. Tautan setinggi 44px, ikut token lock. */
+  .tools {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    text-align: left;
+  }
+  .tools h2 {
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .tools-note {
+    font-size: 13px;
+    color: var(--faint);
+    margin-bottom: 12px;
+  }
+  .tools ul { list-style: none; }
+  .tools li + li { margin-top: 8px; }
+  .tools a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--txt);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .tools a:active { transform: scale(0.98); }
+  .tools .plain {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--faint);
+    font-size: 15px;
+  }
+  .tools .sub {
+    font-size: 13px;
+    color: var(--faint);
+    margin: 14px 0 8px;
+  }
   @media (min-width: 480px) {
     .actions { flex-direction: row; }
     .btn { width: auto; flex: 1; }
@@ -113,7 +162,14 @@
     <div class="brand">Adip Tools</div>
     <h1>Kamu sedang offline</h1>
     <p>Saat ini tidak ada internet, jadi halaman ini tidak bisa dimuat.</p>
-    <p>Tenang — tool yang sudah pernah kamu buka masih bisa dipakai. Tool yang butuh internet, seperti yang menampilkan data terbaru atau memakai AI, baru bisa dipakai lagi setelah kamu online.</p>
+    <p>Tool yang baru saja kamu buka biasanya masih bisa dipakai. Tool yang butuh internet, seperti yang menampilkan data terbaru atau memakai AI, baru bisa dipakai lagi setelah kamu online.</p>
+    <section class="tools" id="offlineTools" hidden>
+      <h2 id="offlineToolsTitle"></h2>
+      <p class="tools-note" id="offlineToolsNote"></p>
+      <ul id="offlineToolsList"></ul>
+      <p class="sub" id="offlineToolsSub" hidden></p>
+      <ul id="offlineToolsPlain"></ul>
+    </section>
     <div class="actions">
       <button class="btn primary" type="button" id="retry">Coba lagi</button>
       <a class="btn" href="./">Ke beranda</a>

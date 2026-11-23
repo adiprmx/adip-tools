@@ -3,7 +3,7 @@ import { h as T, esc, errBox, utils } from '../../core.js';
 // Lowongan kerja Eropa dan remote lewat Arbeitnow, tanpa key.
 // Terverifikasi 17 Nov 2026: /api/job-board-api -> 200, CORS *.
 // Tautan melamar mengarah ke situs asli lowongannya.
-export const meta = {"id":"lowongan-kerja-eropa-remote","name":"Lowongan Kerja Eropa Remote","cat":"liveapi","icon":"💼","desc":"Lowongan kerja terbaru di Eropa dan yang bisa dikerjakan dari rumah.","keywords":"lowongan kerja,loker,eropa,remote,kerja dari rumah,arbeitnow,pekerjaan","since":"6.17.0"};
+export const meta = {"id":"lowongan-kerja-eropa-remote","name":"Lowongan Kerja Eropa Remote","cat":"liveapi","icon":"💼","desc":"Lowongan kerja terbaru di Eropa dan yang bisa dikerjakan dari rumah.","keywords":"lowongan kerja,loker,eropa,remote,kerja dari rumah,arbeitnow,pekerjaan","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -62,7 +62,7 @@ export function render(root) {
       tampil();
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil daftar lowongan. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

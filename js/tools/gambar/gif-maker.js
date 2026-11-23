@@ -4,7 +4,7 @@ import { h as T, loadImage, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from
 // kecepatan bisa diatur. Encoder-nya gifenc (murni JavaScript, tanpa
 // worker): tiap foto di-quantize jadi palet 256 warna lalu ditulis
 // sebagai frame GIF89a dengan loop selamanya (NETSCAPE2.0).
-export const meta = {"id": "gif-maker", "name": "GIF Maker", "cat": "gambar", "icon": "🎞️", "desc": "Gabung beberapa foto jadi GIF bergerak, atur urutan dan kecepatannya.", "keywords": "gif,animasi,foto bergerak,meme,frames", "since": "6.16.0"};
+export const meta = {"id": "gif-maker", "name": "GIF Maker", "cat": "gambar", "icon": "🎞️", "desc": "Gabung beberapa foto jadi GIF bergerak, atur urutan dan kecepatannya.", "keywords": "gif,animasi,foto bergerak,meme,frames", "since": "6.16.0", "online": true};
 
 const GIFENC_CDN = 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js';
 const MAKS_FOTO = 20;

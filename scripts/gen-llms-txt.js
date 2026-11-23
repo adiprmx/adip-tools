@@ -24,8 +24,8 @@ const CATS = [
   ['keamanan', 'Keamanan'], ['converter', 'Converter'], ['developer', 'Dev & Web'],
   ['desain', 'Desain'], ['indonesia', 'Indonesia'], ['musik', 'Musik'], ['gambar', 'Gambar'],
   ['teks', 'Teks'], ['bisnis', 'Bisnis'], ['sehari', 'Sehari-hari'], ['fun', 'Fun'],
-  ['produktivitas', 'Produktivitas'], ['pelajar', 'Pelajar'], ['liveapi', 'Live API'],
-  ['fakesos', 'Fake Sosmed'],
+  ['produktivitas', 'Produktivitas'], ['pelajar', 'Pelajar'], ['liveapi', 'Data Langsung'],
+  ['fakesos', 'Sosmed Palsu'],
 ];
 
 async function main() {

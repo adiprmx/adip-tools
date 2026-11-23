@@ -39,7 +39,7 @@ export function render(root) {
       '<span style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:13px;color:#8e8e96">S</span>' +
       '<span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#8e8e96">T</span>' +
       '<span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:#8e8e96">B</span>' +
-      '<div class="needle" style="position:absolute;left:50%;top:50%;width:5px;height:96px;border-radius:3px;background:linear-gradient(to top,#3f3f46 0 46%,#fb7185 54% 100%);transform:translate(-50%,-100%) rotate(' + deg + 'deg);transform-origin:50% 100%"></div>' +
+      '<div class="needle" style="position:absolute;left:50%;top:50%;width:5px;height:96px;border-radius:3px;background:linear-gradient(to top,#3f3f46 0 46%,#ff6f61 54% 100%);transform:translate(-50%,-100%) rotate(' + deg + 'deg);transform-origin:50% 100%"></div>' +
       '<div style="position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;background:#fafafa;border:3px solid #27272a;transform:translate(-50%,-50%)"></div>' +
       '</div>'
     );

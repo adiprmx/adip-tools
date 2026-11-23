@@ -28,7 +28,7 @@ utils.verdictNawala = function (o) {
   };
 };
 
-export const meta = {"id": "cek-nawala", "name": "Cek Nawala", "cat": "keamanan", "icon": "🚫", "desc": "Apakah situs ini diblokir di jaringanmu?", "keywords": "nawala,internet positif,blokir,trust positif,kominfo,diblokir", "since": "6.11.0"};
+export const meta = {"id": "cek-nawala", "name": "Cek Nawala", "cat": "keamanan", "icon": "🚫", "desc": "Apakah situs ini diblokir di jaringanmu?", "keywords": "nawala,internet positif,blokir,trust positif,kominfo,diblokir", "since": "6.11.0", "online": true};
 
 export function render(root) {
   const input = T.input('text', 'misal: example.com', '');
@@ -51,7 +51,7 @@ export function render(root) {
       }
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Layanan DNS tidak merespons dalam 15 detik. Periksa koneksimu lalu coba lagi.'
+        ? 'Layanan DNS tidak bisa dihubungi dalam 15 detik. Periksa koneksimu lalu coba lagi.'
         : 'Tidak bisa menghubungi layanan DNS. Periksa koneksimu lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

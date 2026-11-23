@@ -156,7 +156,7 @@ async function ensureSha3() {
     return utils.loadLibOnce(SHA3_CDN, () => typeof window.sha3_256 === 'function' && typeof window.sha3_512 === 'function');
   }
 
-export const meta = {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks & file: MD5, SHA, SHA-3, RIPEMD-160, CRC-32 + periksa checksum.", "keywords": "hash,md5,sha,sha3,ripemd,crc32,file,checksum,verifikasi"};
+export const meta = {"id": "hash-generator", "name": "Hash Generator", "cat": "keamanan", "icon": "#️⃣", "desc": "Hash teks & file: MD5, SHA, SHA-3, RIPEMD-160, CRC-32 + periksa checksum.", "keywords": "hash,md5,sha,sha3,ripemd,crc32,file,checksum,verifikasi", "online": true};
 export function render(root) {
 
     const inp = T.ta(4, 'Tulis teks yang mau di-hash…');

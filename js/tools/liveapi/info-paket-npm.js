@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Info paket JavaScript lewat registry npm, tanpa key.
 // Terverifikasi 17 Nov 2026: https://registry.npmjs.org/react/latest -> 200, CORS *.
-export const meta = {"id":"info-paket-npm","name":"Info Paket NPM","cat":"liveapi","icon":"📦","desc":"Lihat versi terbaru, deskripsi, dan lisensi paket JavaScript di npm.","keywords":"npm,paket,javascript,node,registry,versi paket,dependensi","since":"6.17.0"};
+export const meta = {"id":"info-paket-npm","name":"Info Paket NPM","cat":"liveapi","icon":"📦","desc":"Lihat versi terbaru, deskripsi, dan lisensi paket JavaScript di npm.","keywords":"npm,paket,javascript,node,registry,versi paket,dependensi","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -53,7 +53,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server npm tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server npm tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari paket. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

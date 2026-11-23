@@ -1,6 +1,6 @@
 import { h as T } from '../../core.js';
 
-export const meta = {"id": "prompt-ai", "name": "Generator Prompt AI", "cat": "developer", "icon": "🤖", "desc": "Susun prompt AI yang rapi dari template.", "keywords": "prompt,ai,chatgpt,template,generator", "file": "tools/developer/prompt-ai.js"};
+export const meta = {"id": "prompt-ai", "name": "Generator Prompt AI", "cat": "developer", "icon": "🤖", "desc": "Susun prompt AI yang rapi dari template.", "keywords": "prompt,ai,chatgpt,template,generator"};
 export function render(root) {
   const peran = T.input('text', 'cth: ahli marketing digital', '');
   const tugas = T.ta(3, 'cth: buatkan 10 ide konten TikTok untuk jualan kopi susu…');

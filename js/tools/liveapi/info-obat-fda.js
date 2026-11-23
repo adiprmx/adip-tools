@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Info label obat lewat openFDA (badan obat AS), tanpa key.
 // Terverifikasi 17 Nov 2026: /drug/label.json?search=aspirin&limit=1 -> 200, CORS *.
 // Batas tanpa key: 240 permintaan per menit.
-export const meta = {"id":"info-obat-fda","name":"Info Obat FDA","cat":"liveapi","icon":"💊","desc":"Lihat kegunaan dan peringatan sebuah obat dari data resmi FDA Amerika.","keywords":"obat,fda,label obat,kegunaan obat,peringatan obat,efek samping","since":"6.17.0"};
+export const meta = {"id":"info-obat-fda","name":"Info Obat FDA","cat":"liveapi","icon":"💊","desc":"Lihat kegunaan dan peringatan sebuah obat dari data resmi FDA Amerika.","keywords":"obat,fda,label obat,kegunaan obat,peringatan obat,efek samping","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -57,7 +57,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server FDA tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server FDA tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari info obat. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

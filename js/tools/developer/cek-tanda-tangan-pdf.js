@@ -63,7 +63,7 @@ function scanSigDicts(text) {
   return found;
 }
 
-export const meta = {"id": "cek-tanda-tangan-pdf", "name": "Cek Tanda Tangan PDF", "cat": "developer", "icon": "✍️", "desc": "Lihat ada tidaknya tanda tangan digital di PDF.", "keywords": "pdf,tanda tangan,signature,digital,cek", "since": "6.11.0"};
+export const meta = {"id": "cek-tanda-tangan-pdf", "name": "Cek Tanda Tangan PDF", "cat": "developer", "icon": "✍️", "desc": "Lihat ada tidaknya tanda tangan digital di PDF.", "keywords": "pdf,tanda tangan,signature,digital,cek", "since": "6.11.0", "online": true};
 export function render(root) {
 
     const fInp = fileInput('.pdf');

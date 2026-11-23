@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, kv } from '../../core.js';
 
-export const meta = {"id": "jadwal-sholat", "name": "Jadwal Sholat", "cat": "liveapi", "icon": "🕌", "desc": "Jadwal sholat harian per kota + countdown ke waktu berikutnya.", "keywords": "jadwal,sholat,shalat,waktu,subuh,dzuhur,ashar,maghrib,isya,kota,adzan"};
+export const meta = {"id": "jadwal-sholat", "name": "Jadwal Sholat", "cat": "liveapi", "icon": "🕌", "desc": "Jadwal sholat harian per kota + countdown ke waktu berikutnya.", "keywords": "jadwal,sholat,shalat,waktu,subuh,dzuhur,ashar,maghrib,isya,kota,adzan", "online": true};
 export function render(root) {
 
     const KOTA = ['Jakarta', 'Surabaya', 'Bandung', 'Medan', 'Semarang', 'Makassar', 'Palembang', 'Tangerang', 'Depok', 'Bekasi', 'Bogor', 'Yogyakarta', 'Malang', 'Denpasar', 'Balikpapan', 'Banjarmasin', 'Manado', 'Padang', 'Pekanbaru', 'Bandar Lampung', 'Pontianak', 'Samarinda', 'Batam', 'Solo', 'Cirebon'];
@@ -89,7 +89,7 @@ export function render(root) {
         tampil(d, kota);
       } catch (e) {
         const msg = e.name === 'AbortError'
-          ? 'Waktu habis — server jadwal sholat tidak merespons dalam 15 detik.'
+          ? 'Waktu habis — server jadwal sholat tidak bisa dihubungi dalam 15 detik.'
           : 'Gagal ambil jadwal, cek koneksi internet atau coba kota lain.';
         T.show(box, errBox(msg));
         const wr = T.el('<div style="margin-top:8px"></div>');

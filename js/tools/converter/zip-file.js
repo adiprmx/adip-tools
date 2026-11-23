@@ -1,6 +1,6 @@
 import { h as T, utils, kv, fileInput, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id":"zip-file","name":"Buat & Buka ZIP","cat":"converter","icon":"🗜️","desc":"Gabung banyak file jadi satu ZIP, atau buka isi file ZIP.","keywords":"zip,arsip,kompres,ekstrak,file,buka","since":"6.11.0"};
+export const meta = {"id":"zip-file","name":"Buat & Buka ZIP","cat":"converter","icon":"🗜️","desc":"Gabung banyak file jadi satu ZIP, atau buka isi file ZIP.","keywords":"zip,arsip,kompres,ekstrak,file,buka","since":"6.11.0", "online": true};
 
 /* ZIP via JSZip 3.10.1 (CDN, pin versi). Buat: banyak file jadi satu ZIP.
    Buka: daftar isi + unduh per file + lihat isi file teks kecil. */

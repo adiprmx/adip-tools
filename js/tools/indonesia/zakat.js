@@ -7,7 +7,7 @@ U.zakatMaal = (harta, hargaEmas) => {
     return { nisab, wajib, zakat: wajib ? harta * 0.025 : 0 };
   };
 
-export const meta = {"id": "zakat", "name": "Kalkulator Zakat", "cat": "indonesia", "icon": "🤲", "desc": "Zakat maal & fitrah.", "keywords": "zakat,maal,fitrah,islam"};
+export const meta = {"id": "zakat", "name": "Kalkulator Zakat", "cat": "indonesia", "icon": "🤲", "desc": "Hitung zakat maal dari hartamu dan zakat fitrah, lengkap dengan nisabnya.", "keywords": "zakat,maal,fitrah,islam"};
 export function render(root) {
 
     const harta = money(null, 'cth: 200000000'), emas = money(null, 'cth: 2500000', '2500000');

@@ -24,23 +24,28 @@
    inline style masih ada (inline selalu menang), tapi memberi
    T07 jalan untuk menghapus konstanta inline nanti. Tambahan
    satu-satunya: state :hover/:active (inline style tidak bisa),
-   mengikuti pola .schip yang sudah ada di style.css. */
+   mengikuti pola .schip yang sudah ada di style.css.
+   State terpilih (v6.22.0 S-F4, S-A6 F-01): coral, bukan putih,
+   border var(--acc-line) + latar var(--acc-soft), selaras
+   .pal-item.act dan .tool-head .tag. Inline CHIP_ON di app.js
+   sudah ikut coral (S-F1); CSS di sini dan inline kini sepakat,
+   jadi state terpilih tetap coral bila inline dicabut nanti. */
 .fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .fchip {
   font: inherit; font-size: 13px; font-weight: 600; color: var(--mut);
-  cursor: pointer; border: 1px solid var(--line); border-radius: var(--r-pill);
+  cursor: pointer; border: 1px solid var(--line-ui); border-radius: var(--r-pill);
   padding: 8px 14px; background: var(--surface);
   /* B-05 (v6.14.0, P2-B1): chip 38px -> min 44px (R-03). Konstanta
      inline CHIP/CHIP_ON di app.js ikut diupdate — inline menang. */
   min-height: var(--tap); display: inline-flex; align-items: center; justify-content: center;
   transition: transform 0.1s var(--ease), color 0.15s, border-color 0.15s;
 }
-.fchip:hover { color: var(--txt); border-color: var(--acc-line); }
+.fchip:hover { color: var(--txt); border-color: var(--acc-line); transform: translateY(-1px); } /* S-U6: angkat -1px, selaras .schip/.onb-chip (tangga gerak) */
 .fchip:active { transform: scale(0.94); }
 .fchip[aria-pressed="true"] {
   color: var(--txt);
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--acc-line);
+  background: var(--acc-soft);
 }
 
 /* ---------- 2. Select: chevron yang hilang ----------
@@ -48,7 +53,11 @@
    memberi indikator dropdown — select tampil persis seperti
    input teks (tidak ada affordance "bisa dibuka"). Chevron SVG
    ini memakai warna --mut agar selaras, dan padding kanan
-   disesuaikan supaya teks tidak menabrak chevron. */
+   disesuaikan supaya teks tidak menabrak chevron.
+   S-U6 (v6.22.0, S-A6 F-16): %23c9bda9 di bawah adalah literal
+   TERKUNCI = var(--mut) — var() tidak bisa dipakai di dalam
+   data-URI url(), jadi bila --mut berubah, ubah literal ini
+   bersamaan. */
 select.inp {
   padding-right: 40px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23c9bda9' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -80,7 +89,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 22px;
   height: 22px;
   margin-top: -9px;
-  border-radius: 50%;
+  border-radius: var(--r-circle);
   background: var(--txt);
   border: 1px solid var(--line);
 }
@@ -93,14 +102,14 @@ input[type="range"]::-moz-range-track {
 input[type="range"]::-moz-range-thumb {
   width: 22px;
   height: 22px;
-  border-radius: 50%;
+  border-radius: var(--r-circle);
   background: var(--txt);
   border: 1px solid var(--line);
 }
 input[type="range"]:focus-visible {
   outline: 2px solid var(--acc);
   outline-offset: 2px;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
 }
 
 /* ---------- 4. Tabel .tbl bisa di-scroll horizontal ----------
@@ -183,30 +192,13 @@ table.tbl {
   }
 }
 
-/* ---------- 9. Skip link aksesibilitas (T24 P1-6, v6.12.0) ----------
-   Tautan "Lewati ke konten" di index.html: tersembunyi sampai
-   difokus keyboard, lalu muncul di pojok kiri atas. Memakai
-   token yang sudah ada; tanpa perubahan visual bagi pengguna
-   mouse/sentuh. */
-.skip-link {
-  position: absolute;
-  left: 12px;
-  top: -100px;
-  z-index: var(--z-skip);
-  padding: 10px 16px;
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--txt);
-  border: 1px solid var(--line);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-}
-.skip-link:focus-visible {
-  top: 12px;
-  outline: 2px solid var(--acc);
-  outline-offset: 2px;
-}
+/* ---------- 9. Skip link DICABUT (S-F10 v6.22.0, A-02) ----------
+   Tautan "Lewati ke konten" dihapus dari index.html beserta
+   aturannya di sini: route() sudah memfokuskan H1/H2 tiap
+   navigasi (jalan pintas yang sama, tanpa elemen tambahan),
+   dan tautan itu tidak pernah terjangkau Tab maju dari H1 —
+   hanya lewat Shift+Tab mundur. Token --z-skip ikut dicabut
+   dari style.css. */
 #app:focus {
   outline: none;
 }

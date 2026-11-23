@@ -106,6 +106,7 @@ export function render(root) {
   };
 
   const reset = T.btn('Reset Skor', () => {
+    if (!confirm('Reset skor suit Jawa? Skor menang, kalah, dan seri akan kembali ke nol dan tidak bisa dikembalikan.')) return;
     skor = { m: 0, k: 0, s: 0 }; saveSkor(skor); gambarPapan();
     T.toast('Papan skor direset. Mulai dari nol lagi!');
   });

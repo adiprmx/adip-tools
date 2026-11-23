@@ -58,13 +58,13 @@ export function render(root) {
       row.appendChild(T.el('<div style="font-size:12px;font-family:monospace;word-break:break-all;color:#a1a1aa">' + esc(h.url) + '</div>'));
       const ctl = T.row(
         T.btn('Salin', () => T.copy(h.url)),
-        T.btn('Hapus', () => { history.splice(i, 1); saveHistory(history); paintHistory(); })
+        T.btn('Hapus', () => { if (!confirm('Hapus riwayat UTM ini? Data ini akan hilang dan tidak bisa dikembalikan.')) return; history.splice(i, 1); saveHistory(history); paintHistory(); })
       );
       ctl.style.marginTop = '8px';
       row.appendChild(ctl);
       histBox.appendChild(row);
     });
-    const clear = T.btn('Hapus Semua Riwayat', () => { history = []; saveHistory(history); paintHistory(); });
+    const clear = T.btn('Hapus Semua Riwayat', () => { if (!confirm('Hapus seluruh riwayat UTM? Data ini akan hilang dan tidak bisa dikembalikan.')) return; history = []; saveHistory(history); paintHistory(); });
     clear.style.marginTop = '4px';
     histBox.appendChild(clear);
   };

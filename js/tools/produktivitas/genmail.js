@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, kv, tabs, onLeave } from '../../core.js';
 
-export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas", "icon": "📧", "desc": "Email sementara: buat alamat, terima & baca pesan tanpa daftar.", "keywords": "temp mail,email sementara,inbox,otp,spam,guerrillamail"};
+export const meta = {"id": "genmail", "name": "Temp Mail", "cat": "produktivitas", "icon": "📧", "desc": "Email sementara: buat alamat, terima & baca pesan tanpa daftar.", "keywords": "temp mail,email sementara,inbox,otp,spam,guerrillamail", "online": true};
 
 const API = 'https://api.guerrillamail.com/ajax.php';
 // F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak
@@ -48,7 +48,7 @@ export async function api(params) {
     return await r.json();
   } catch (e) {
     if (e.name === 'AbortError') {
-      if (timedOut) throw new Error('timeout 14 detik — server tidak merespons, coba lagi');
+      if (timedOut) throw new Error('timeout 14 detik — server tidak bisa dihubungi, coba lagi');
       throw e;
     }
     throw new Error('tidak bisa terhubung ke Guerrilla Mail — kemungkinan diblokir browser (CORS) dan proxy cadangan juga gagal. Coba buka guerrillamail.com langsung di tab baru');

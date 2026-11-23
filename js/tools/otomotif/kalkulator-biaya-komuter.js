@@ -32,7 +32,7 @@ export function hitungBiayaKomuterUmum(tarifPP, hari) {
 }
 utils.biayaKomuter = hitungBiayaKomuter;
 
-export const meta = {"id": "kalkulator-biaya-komuter", "name": "Kalkulator Biaya Komuter", "cat": "otomotif", "icon": "🚗", "desc": "Berapa habisnya pulang-pergi kerja tiap bulan: BBM, tol, parkir, atau ongkos umum.", "keywords": "komuter,biaya,kerja,pulang pergi,bbm,tol,parkir,transportasi,ongkos,bulanan", "since": "6.18.0"};
+export const meta = {"id": "kalkulator-biaya-komuter", "name": "Kalkulator Biaya Komuter", "cat": "otomotif", "icon": "🚗", "desc": "Berapa habisnya pulang-pergi kerja tiap bulan: BBM, tol, parkir, atau ongkos umum.", "keywords": "komuter,biaya,kerja,pulang pergi,bbm,tol,parkir,transportasi,ongkos,bulanan", "since": "6.18.0", "dataValidUntil": "2026-12-31"};
 export function render(root) {
   const modeSel = T.select([
     ['pribadi', 'Kendaraan pribadi (motor/mobil)'],

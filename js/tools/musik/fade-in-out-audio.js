@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "fade-in-out-audio", "name": "Fade In/Out Audio", "cat": "musik", "icon": "🌅", "desc": "Buat awal audio muncul perlahan dan akhirnya menghilang perlahan.", "keywords": "audio,fade,masuk,keluar,halus,awal,akhir", "since": "6.17.0"};
+export const meta = {"id": "fade-in-out-audio", "name": "Fade In/Out Audio", "cat": "musik", "icon": "🌅", "desc": "Buat awal audio muncul perlahan dan akhirnya menghilang perlahan.", "keywords": "audio,fade,masuk,keluar,halus,awal,akhir", "since": "6.17.0", "online": true};
 
 /* Susun filter afade ffmpeg. Fade dijaga supaya totalnya tidak melebihi
    durasi (tiap fade maksimal setengah durasi). Fungsi murni, diuji di Node. */

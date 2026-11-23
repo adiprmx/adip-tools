@@ -20,7 +20,7 @@ utils.zalgo = function (text, intensity, rand) {
     }).join('');
   };
 
-export const meta = {"id": "zalgo", "name": "Zalgo Text", "cat": "teks", "icon": "🌀", "desc": "Teks rusak ala zalgo.", "keywords": "zalgo,rusak,teks,lucu"};
+export const meta = {"id": "zalgo", "name": "Zalgo Text", "cat": "teks", "icon": "🌀", "desc": "Ubah teks jadi tulisan rusak ala zalgo, dengan intensitas yang bisa diatur.", "keywords": "zalgo,rusak,teks,lucu"};
 export function render(root) {
 
       const inI = T.input('text', 'Ketik teks…', 'zalgo');

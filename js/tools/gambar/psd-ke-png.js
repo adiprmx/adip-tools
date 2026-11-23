@@ -4,7 +4,7 @@ import { h as T, fileInput, fmtBytes, canvasToBlob, LOCAL_NOTE } from '../../cor
 // ag-psd (pustaka PSD murni JavaScript, dipakai banyak proyek web).
 // Hasil gabungan semua layer bisa diunduh, begitu juga tiap layer
 // satu per satu. Semua dibaca di browser, file tidak diunggah.
-export const meta = {"id": "psd-ke-png", "name": "PSD ke PNG", "cat": "gambar", "icon": "🎨", "desc": "File Photoshop jadi gambar PNG. Unduh hasil gabungan atau tiap layernya.", "keywords": "psd,photoshop,png,layer,ubah psd", "since": "6.17.0"};
+export const meta = {"id": "psd-ke-png", "name": "PSD ke PNG", "cat": "gambar", "icon": "🎨", "desc": "File Photoshop jadi gambar PNG. Unduh hasil gabungan atau tiap layernya.", "keywords": "psd,photoshop,png,layer,ubah psd", "since": "6.17.0", "online": true};
 
 const AGPSD_ESM = 'https://esm.sh/ag-psd@34.2.1';
 const AGPSD_JSD = 'https://cdn.jsdelivr.net/npm/ag-psd@34.2.1/dist-es/index.js';

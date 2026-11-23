@@ -1,6 +1,6 @@
 import { h as T, utils, kv, fmtBytes, errBox } from '../../core.js';
 
-export const meta = {"id": "pembelah-excel", "name": "Pembelah Excel", "cat": "converter", "icon": "✂️", "desc": "Pecah file Excel per lembar atau per sejumlah baris.", "keywords": "excel,xlsx,pecah,split,lembar,baris,spreadsheet", "since": "6.19.0"};
+export const meta = {"id": "pembelah-excel", "name": "Pembelah Excel", "cat": "converter", "icon": "✂️", "desc": "Pecah file Excel per lembar atau per sejumlah baris.", "keywords": "excel,xlsx,pecah,split,lembar,baris,spreadsheet", "since": "6.19.0", "online": true};
 
 // SheetJS 0.18.5. Hash SRI ada di peta SRI_HASH core.js.
 const XLSX_CDNS = [

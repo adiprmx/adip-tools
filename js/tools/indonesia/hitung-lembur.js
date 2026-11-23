@@ -1,6 +1,6 @@
 import { h as T, kv } from '../../core.js';
 
-export const meta = {"id": "hitung-lembur", "name": "Upah Lembur Kerja & Libur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur hari kerja & hari libur (1,5×–4×).", "keywords": "lembur,upah,gaji,kerja,kemenaker,overtime,jam,lemburan", "file": "tools/indonesia/hitung-lembur.js"};
+export const meta = {"id": "hitung-lembur", "name": "Upah Lembur Kerja & Libur", "cat": "indonesia", "icon": "⏰", "desc": "Hitung upah lembur hari kerja & hari libur (1,5×–4×).", "keywords": "lembur,upah,gaji,kerja,kemenaker,overtime,jam,lemburan"};
 export function render(root) {
   const gaji = T.input('number', 'cth: 5000000', '');
   const jamKerja = T.input('number', 'cth: 2', '0');

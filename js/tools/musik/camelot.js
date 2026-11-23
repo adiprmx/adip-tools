@@ -34,7 +34,7 @@ U.keyToCamelot = (key) => {
     return n + (minor ? 'A' : 'B');
   };
 
-export const meta = {"id": "camelot", "name": "Camelot Wheel", "cat": "musik", "icon": "🎧", "desc": "Kunci lagu untuk DJ mixing.", "keywords": "camelot,dj,kunci,mix"};
+export const meta = {"id": "camelot", "name": "Camelot Wheel", "cat": "musik", "icon": "🎧", "desc": "Ubah kunci lagu jadi nomor Camelot dan sebaliknya, biar transisi DJ terdengar mulus.", "keywords": "camelot,dj,kunci,mix"};
 export function render(root) {
 
     const MIN = ['Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db'];

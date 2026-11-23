@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"info-crate-rust","name":"Info Crate Rust","cat":"liveapi","icon":"🦀","desc":"Lihat versi terbaru, deskripsi, dan unduhan paket Rust di crates.io.","keywords":"rust,crate,crates.io,paket,cargo","since":"6.18.0"};
+export const meta = {"id":"info-crate-rust","name":"Info Crate Rust","cat":"liveapi","icon":"🦀","desc":"Lihat versi terbaru, deskripsi, dan unduhan paket Rust di crates.io.","keywords":"rust,crate,crates.io,paket,cargo","since":"6.18.0", "online": true};
 
 // Info paket Rust (crate) lewat crates.io, tanpa key.
 // Terverifikasi 18 Nov 2026: crates.io/api/v1/crates/serde -> 200, CORS *.
@@ -86,7 +86,7 @@ export function render(root) {
         return;
       }
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server crates.io tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server crates.io tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mencari crate. Cek koneksi internet, lalu coba lagi.');
     }
   };

@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, kv, onLeave } from '../../core.js';
 
-export const meta = {"id": "carifakta", "name": "CariFakta", "cat": "pelajar", "icon": "🕵️", "desc": "Analisis klaim & forward-an dengan AI: verdict hoaks/valid, klaim, dan panduan verifikasi.", "keywords": "hoaks,fakta,cek fakta,forward,whatsapp,berita,verifikasi,ai"};
+export const meta = {"id": "carifakta", "name": "CariFakta", "cat": "pelajar", "icon": "🕵️", "desc": "Analisis klaim & forward-an dengan AI: verdict hoaks/valid, klaim, dan panduan verifikasi.", "keywords": "hoaks,fakta,cek fakta,forward,whatsapp,berita,verifikasi,ai", "online": true};
 
 const STAT_KEY = 'at-carifakta-stats-v1';
 const HIST_KEY = 'at-carifakta-history-v1';
@@ -66,7 +66,7 @@ async function analisisAI(teks, signal) {
     if (!r.ok) throw errStatus(r.status);
     return ekstrakJSON(await r.text());
   } catch (e) { terakhir = e; }
-  throw terakhir || new Error('AI tidak merespons');
+  throw terakhir || new Error('AI tidak bisa dihubungi');
 }
 
 // ---- Konteks latar dari Wikipedia (gratis, tanpa key) ----
@@ -247,7 +247,7 @@ export function render(root) {
     const warna = h.verdict === 'hoax' ? '#f87171' : h.verdict === 'valid' ? '#7ccf8f' : '#fbbf24';
     const judul = h.verdict === 'hoax' ? 'Indikasi Hoaks Tinggi' : h.verdict === 'valid' ? 'Terlihat Seperti Info Valid' : 'Meragukan — Wajib Verifikasi';
     T.show(resBox,
-      '<p class="dim" style="font-size:12.5px;border:1px dashed #ffffff30;border-radius:10px;padding:10px 12px">Mode cadangan: <b>bedah pola teks (heuristik)</b> — AI tidak merespons. Hasil ini hanya membaca pola umum hoaks, bukan analisis AI.</p>' +
+      '<p class="dim" style="font-size:12.5px;border:1px dashed #ffffff30;border-radius:10px;padding:10px 12px">Mode cadangan: <b>bedah pola teks (heuristik)</b> — AI tidak bisa dihubungi. Hasil ini hanya membaca pola umum hoaks, bukan analisis AI.</p>' +
       '<div style="border:1px solid #ffffff20;border-radius:14px;padding:18px;margin-bottom:12px;background:#161311">' +
       '<div class="dim" style="font-size:12px">Skor kewajaran: <b style="color:' + warna + ';font-size:16px">' + h.skor + '/100</b></div>' +
       '<div style="font-size:17px;margin:6px 0;color:' + warna + '"><b>' + judul + '</b></div>' +
@@ -291,7 +291,7 @@ export function render(root) {
           '<span style="flex:1;min-width:0"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + T.esc(h.query) + '</span>' +
           '<span class="dim" style="font-size:10.5px">' + tglIndo(h.ts) + ' · <b style="color:' + w + '">' + labelVerdict(h.verdict) + '</b></span></span></button>';
       }).join('') + '</div></div>');
-    histBox.querySelector('[data-h=clear]').onclick = () => { setHist([]); tampilHist(); };
+    histBox.querySelector('[data-h=clear]').onclick = () => { if (!confirm('Hapus seluruh riwayat cek fakta? Data ini akan hilang dan tidak bisa dikembalikan.')) return; setHist([]); tampilHist(); };
     histBox.querySelectorAll('[data-h]').forEach((b) => {
       if (b.getAttribute('data-h') === 'clear') return;
       b.onclick = () => { const h = utils.getHist(HIST_KEY)[+b.getAttribute('data-h')]; if (h) { ta.value = h.query; hitung(); cek(); } };
@@ -325,7 +325,7 @@ export function render(root) {
       const h = analisisHeuristik(s);
       const v = tampilHasilHeuristik(s, h);
       catat(s, v, '');
-      if (!kenaLimit) T.toast('AI tidak merespons — memakai mode cadangan');
+      if (!kenaLimit) T.toast('AI tidak bisa dihubungi — memakai mode cadangan');
     }
   };
 

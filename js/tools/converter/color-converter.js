@@ -28,7 +28,7 @@ export function cmykToRgb(c, m, y, k) {
   };
 }
 
-export const meta = {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL, OKLCH, CMYK + nama warna + cek kontras.", "keywords": "warna,color,hex,rgb,hsl,oklch,cmyk,kontras,wcag"};
+export const meta = {"id": "color-converter", "name": "Konverter Warna", "cat": "converter", "icon": "🎨", "desc": "Konversi HEX, RGB, HSL, OKLCH, CMYK + nama warna + cek kontras.", "keywords": "warna,color,hex,rgb,hsl,oklch,cmyk,kontras,wcag,desain,cek kontras"};
 export function render(root) {
 
     const inp = T.input('text', '#ff6b6b  atau  255,107,107  atau  hsl(0,100%,65%)  atau  oklch(65% 0.2 20)', '#ff6b6b');

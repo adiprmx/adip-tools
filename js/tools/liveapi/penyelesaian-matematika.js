@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 17 Nov 2026: /api/v2/derive/x%5E2 -> 200, CORS *.
 // Operasi: derive, integrate, factor, zeroes, tangent, area, cos, sin, tan, log.
 // Untuk garis singgung dan luas, formatnya: fungsi|x=angka, contoh x^2|x=2.
-export const meta = {"id":"penyelesaian-matematika","name":"Penyelesaian Matematika","cat":"liveapi","icon":"➗","desc":"Hitung turunan, integral, faktor, akar persamaan, dan fungsi trigonometri.","keywords":"matematika,turunan,integral,faktor,akar,persamaan,trigonometri,newton,hitung","since":"6.17.0"};
+export const meta = {"id":"penyelesaian-matematika","name":"Penyelesaian Matematika","cat":"liveapi","icon":"➗","desc":"Hitung turunan, integral, faktor, akar persamaan, dan fungsi trigonometri.","keywords":"matematika,turunan,integral,faktor,akar,persamaan,trigonometri,newton,hitung","since":"6.17.0", "online": true};
 
 const OPERASI = [
   ['derive', 'Turunan (derive)'],
@@ -71,7 +71,7 @@ export function render(root) {
         '<p class="hint">Dihitung oleh Newton API. Tulis pangkat dengan tanda ^, contoh: x^2 dibaca x kuadrat.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : e.message === 'bad-data'
           ? 'Soal itu tidak bisa dihitung. Periksa penulisannya, contoh yang benar: x^2'
           : 'Gagal menghitung. Cek koneksi internet, lalu coba lagi.';

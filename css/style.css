@@ -13,10 +13,12 @@
      Populer (carousel) + Kategori (grid 4 kolom) + Riwayat
    - Direktori vertikal di view #/semua dan #/k/<id>
    - Bottom tab bar solid + indikator halus
-   Z-index: grain 200 · skip 100 · toast 99 · tip/onb 90 · dlg 85 ·
+   Z-index: grain 200 · toast 99 · tip/onb 90 · dlg 85 ·
    palette 80 · tabs 60 · btt 55 · header 40.
    Shape: kartu 18px, ubin 16px, kontrol 12px, pill 999px HANYA
-   chip/tab/tag. Target sentuh minimum 44px (--tap, R-03).
+   chip/tab/tag; skala kecil xs 4 / sm 8 / md 10 untuk elemen
+   kecil (lihat token --r-* di :root). Target sentuh minimum
+   44px (--tap, R-03).
    Kontrak: kelas di bawah "PRIMITIF" dipakai core.js + 110 tools.
    Jangan hapus, boleh restyle mengikuti tema.
    ============================================================ */
@@ -53,14 +55,54 @@
      visual). Pemakai lama dicatat di p4-token.md §token. */
   --panel: #211b16;
   --line-strong: #4a3d2f;
+  /* S-F10 (v6.22.0, K-01): border KHUSUS kontrol interaktif
+     (.btn/.inp/.icobtn/.fchip/.schip/.morebtn/.dlg-btn) — cokelat
+     hangat sekeluarga --line-strong, cukup terang untuk 3:1
+     (3,79:1 di --bg, 3,54:1 di --surface, terukur
+     contrast-check.py). S-U6 (v6.22.0) memperluas ke kontrol yang
+     terlewat: .pwa-btn, .btt, .onb-chip/.onb-back/.onb-favbtn,
+     tombol pilih file, .tapzone. Border dekoratif kartu
+     (.glass/--hair) SENGAJA tidak berubah — KEPUTUSAN DESAIN
+     S-U6 (laporan upgrade/S-U6-design-system.md §K-01): border
+     dekoratif 1,25:1 DITERIMA karena tidak membawa informasi
+     (WCAG 1.4.11 membebaskan border murni dekoratif; identitas
+     kartu dipikul langkah permukaan + jarak + isi + cincin fokus
+     coral 6,34:1), menaikkannya ke 0,33 (nilai lolos 3:1)
+     terbukti mengubah seluruh tekstur situs jadi "wireframe"
+     (screenshot S-U6-k01/hair033-*), dan pengguna yang butuh
+     kontras sudah mendapat --hair 0,36 (3,33:1) lewat
+     prefers-contrast: more di akhir file ini (S-F10 A-06). */
+  --line-ui: #7d6f5c;
   --hair-hover: rgba(255, 255, 255, 0.16);
   --wash: rgba(255, 255, 255, 0.05);
   --scrim: rgba(10, 8, 6, 0.62);
   --scrim-soft: rgba(10, 8, 6, 0.55);
   --sh-pop: 0 24px 60px rgba(0, 0, 0, 0.55);
-  --sh-lift: 0 10px 26px rgba(0, 0, 0, 0.38);
+  /* S-U6 (v6.22.0): SATU bayangan angkat kartu (dulu 2 nilai:
+     token ini 0 10px 26px/.38 vs literal fx-micro 0 12px 28px/.4
+     yang menang cascade — token kini = nilai yang hidup, dan
+     fx-micro memakai token ini). */
+  --sh-lift: 0 12px 28px rgba(0, 0, 0, 0.4);
+  /* Skala radius (S-U6 v6.22.0, S-A6 F-06 tuntas): kecil ke besar
+     xs 4 (sorot teks inline) · sm 8 (kotak kecil: .note, kbd,
+     skeleton, tooltip) · md 10 (logo .mark, ikon skeleton kecil)
+     · ctl 12 (kontrol) · tile 16 (ubin) · card 18 (kartu) ·
+     pill 999 (chip/tab/tag) · circle 50% (lingkaran).
+     Pengecualian yang disengaja: border-radius: 0 pada .invoice
+     saat print (kotak penuh kertas, bukan radius skala). */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-circle: 50%;
   --r-tile: 16px;
   --r-pill: 999px;
+  /* Skala breakpoint (S-U6 v6.22.0, S-A6 F-15 — didokumentasi,
+     jangan tambah baru tanpa alasan isi): 340 (label kategori
+     sangat sempit) · 400 (padding tool) · 480 (tombol .row,
+     bar update PWA) · 560 (hero-proof, palet) · 640 (grid
+     Mulai, lembar mengambang) · 700 (grid kartu/kategori) ·
+     768 (footer 2 kolom) · 1024 (nav desktop, tanpa tab bar).
+     699 = pasangan max-width dari 700. */
   --tap: 44px;
   --r-card: 18px;
   --r-ctl: 12px;
@@ -88,7 +130,6 @@
      onboarding). Sengaja dua token, bukan satu. */
   --z-onb: 90;
   --z-toast: 99;
-  --z-skip: 100;
   --z-grain: 200;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -163,15 +204,15 @@ a { color: inherit; }
 
 /* ---------- header ramping (sticky), solid ---------- */
 .top {
-  position: sticky; top: 0; z-index: var(--z-header);
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: var(--z-header); /* S-FIXUP F7: header tidak tertutup notch/ponsel berponi */
   display: flex; align-items: center; justify-content: space-between;
   min-height: 60px; margin: 0 -16px; padding: 8px 16px;
   background: var(--bg);
   border-bottom: 1px solid var(--hair);
 }
-.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; min-height: var(--tap); /* S-F10 T-01: 32px -> 44px */ }
 .mark {
-  width: 32px; height: 32px; border-radius: 10px; flex: none;
+  width: 32px; height: 32px; border-radius: var(--r-md); flex: none;
   background: var(--acc); color: var(--acc-ink);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-d); font-weight: 800; font-size: 17px;
@@ -188,12 +229,13 @@ a { color: inherit; }
 .icobtn {
   width: var(--tap); height: var(--tap); border-radius: var(--r-ctl); flex: none;
   display: inline-flex; align-items: center; justify-content: center;
-  background: var(--surface); border: 1px solid var(--hair);
+  background: var(--surface); border: 1px solid var(--line-ui);
   color: var(--mut); font-size: 18px; cursor: pointer;
-  transition: transform 0.1s var(--ease), color 0.15s, border-color 0.15s;
+  /* Transisi + :active di fx-micro.css §1 (satu pemilik gerak;
+     deklarasi lama di sini kalah cascade sejak lama — S-A6 F-05,
+     dicabut S-U6 v6.22.0, nilai hidup tidak berubah). */
 }
 .icobtn:hover { color: var(--txt); border-color: var(--acc-line); }
-.icobtn:active { transform: scale(0.92); }
 
 /* ---------- hero: sapaan + headline + search ----------
    P2-B1 (v6.14.0, §5.2 P1-D): di desktop yang lega, hero dibatasi
@@ -211,7 +253,8 @@ a { color: inherit; }
 /* ---------- search ---------- */
 .hsearch {
   position: relative; border-radius: var(--r-card);
-  transition: border-color 0.2s;
+  /* Transisi di fx-hero.css (pemilik ring fokus, S-F4) — deklarasi
+     border-color di sini kalah cascade, dicabut S-U6 v6.22.0. */
 }
 .hsearch .glyph {
   position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
@@ -223,6 +266,14 @@ a { color: inherit; }
   padding: 17px 18px 17px 50px; font-size: 17px; font-family: inherit;
 }
 .hsearch input::placeholder { color: var(--faint); }
+/* Teks tiruan di kotak search skeleton statis index.html
+   (S-U1 v6.22.0, F-03): meniru placeholder input persis (padding
+   dan ukuran yang sama) supaya skeleton dan hero asli bertukar
+   tanpa lompatan tata letak. */
+.hsearch .sk-q {
+  display: block; padding: 17px 18px 17px 50px;
+  font-size: 17px; color: var(--faint);
+}
 .hsearch:focus-within { border-color: var(--acc-line); }
 .hsearch:focus-within .glyph { color: var(--acc); }
 
@@ -231,12 +282,13 @@ a { color: inherit; }
   display: flex; align-items: center; gap: 14px;
   margin-top: 20px; padding: 14px 16px; border-radius: var(--r-card);
   text-decoration: none;
-  transition: transform 0.12s var(--ease), border-color 0.15s;
+  /* Angkat hover (-2px, keluarga baris .allbtn) + tekan di
+     fx-micro.css §7 (satu pemilik gerak baris, S-U6 v6.22.0).
+     Dulu tanpa angkat sama sekali, tidak selaras .allbtn. */
 }
 .contd:hover { border-color: var(--hair-hover); }
-.contd:active { transform: scale(0.97); }
 .contd .cic {
-  width: 50px; height: 50px; border-radius: 14px; flex: none;
+  width: 50px; height: 50px; border-radius: var(--r-tile); flex: none;
   background: var(--acc); color: var(--acc-ink);
   display: flex; align-items: center; justify-content: center; font-size: 25px;
 }
@@ -264,6 +316,12 @@ a { color: inherit; }
   letter-spacing: -0.01em; color: var(--txt);
 }
 .sechead .n { font-family: var(--font-m); font-size: 12px; color: var(--faint); margin-left: auto; }
+/* Catatan kecil di bawah seksi beranda (S-U1 v6.22.0): mikro-copy
+   spotlight "Pilihan hari ini, ganti tiap hari" (F-05) + pesan
+   "Populer tidak diperbarui." (F-06, handoff S-U4). Perlakuan sama
+   dengan catatan pelacak hero (app.js) dan .rs-empty: teks redup
+   kecil, bukan peringatan. */
+.secnote { font-size: 12.5px; color: var(--dim); margin: 10px 2px 0; line-height: 1.6; }
 
 /* ---------- carousel horizontal: snap, swipe ---------- */
 .hscroll {
@@ -278,10 +336,11 @@ a { color: inherit; }
   display: flex; flex-direction: column; gap: 9px;
   border-radius: var(--r-tile); padding: 14px 13px;
   text-decoration: none;
-  transition: transform 0.14s var(--ease), border-color 0.15s;
+  /* Transisi + angkat hover (-4px) + tekan di fx-micro.css §2
+     (satu pemilik gerak kartu; deklarasi lama di sini kalah
+     cascade — S-A6 F-05, dicabut S-U6 v6.22.0). */
 }
 .hcard:hover { border-color: var(--hair-hover); }
-.hcard:active { transform: scale(0.97); }
 .hcard .hic {
   width: 42px; height: 42px; border-radius: var(--r-ctl); flex: none;
   background: var(--wash); border: 1px solid var(--hair);
@@ -296,6 +355,12 @@ a { color: inherit; }
   margin-top: auto;
   font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--dim);
+  /* Badge kategori (v6.22.0 S-F4, S-A6 F-10): SATU perlakuan di
+     semua kartu, pill outline netral, sama persis dengan
+     .pal-item .pct. Coral hanya untuk .tool-head .tag di halaman
+     tool. Dulu teks polos tanpa pill di sini. */
+  border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 10px;
+  align-self: flex-start;
 }
 /* fade tepi saat konten terpotong */
 .hscroll.fx-r {
@@ -313,17 +378,18 @@ a { color: inherit; }
 
 /* ---------- grid kategori: 4 kolom ubin solid ---------- */
 .catgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-/* 15 tile kategori: 5 kolom = 3 baris penuh (7 kolom menyisakan 1 tile
+/* 22 tile kategori: 5 kolom = 4 baris penuh + 2 (7 kolom menyisakan 1 tile
    sendirian di baris terakhir — P3-5). */
 @media (min-width: 700px) { .catgrid { grid-template-columns: repeat(5, 1fr); } }
 .cattile {
   display: flex; flex-direction: column; align-items: center; gap: 7px;
   border-radius: var(--r-tile); padding: 15px 6px 13px;
   font-family: inherit; color: var(--txt); cursor: pointer; text-decoration: none;
-  transition: transform 0.22s var(--spring), border-color 0.15s, box-shadow 0.22s var(--spring);
+  /* Transisi + angkat hover (-4px) + tekan di fx-micro.css §2
+     (satu pemilik gerak kartu; deklarasi lama di sini kalah
+     cascade — S-A6 F-05, dicabut S-U6 v6.22.0). */
 }
-.cattile:active { transform: scale(0.94); }
-.cattile:hover { border-color: var(--hair-hover); transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35); }
+.cattile:hover { border-color: var(--hair-hover); }
 /* ikon ubin saat hover: ci-wiggle di fx-micro.css (satu pemilik;
    ci-bounce di sini dicabut P3 — kalah cascade). */
 .cattile .ci { font-size: 26px; line-height: 1; }
@@ -336,25 +402,40 @@ a { color: inherit; }
   margin-top: 26px; padding: 16px 18px; border-radius: var(--r-card);
   text-decoration: none; font-family: var(--font-d); font-weight: 750; font-size: 16px;
   letter-spacing: -0.015em; color: var(--txt);
-  transition: transform 0.12s var(--ease), border-color 0.15s;
+  /* Transisi + angkat hover (-2px) + tekan di fx-micro.css §7
+     (satu pemilik gerak baris; deklarasi lama di sini kalah
+     cascade — S-A6 F-05, dicabut S-U6 v6.22.0). */
 }
 .allbtn:hover { border-color: var(--hair-hover); }
-.allbtn:active { transform: scale(0.97); }
 .allbtn .ago { color: var(--dim); font-size: 22px; }
 .allbtn .an { font-family: var(--font-m); font-size: 12px; color: var(--dim); font-weight: 400; }
+/* S-U5 (v6.22.0, tugas 7 — perbaikan permanen S-U2): .allbtn memakai
+   display:flex, dan aturan author itu mengalahkan aturan UA
+   [hidden]{display:none} — tombol "Muat lagi" (.morebtn.allbtn)
+   tetap terlihat walau hidden=true ("Muat 0 lagi"). Satu aturan
+   ini memulihkan perilaku hidden untuk tombol itu. */
+.morebtn[hidden] { display: none; }
 
 /* ---------- grid kartu tools (view kategori / semua / favorit) ---------- */
 .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 @media (min-width: 700px) { .tgrid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1024px) { .tgrid { grid-template-columns: repeat(4, 1fr); } }
+/* S-F10 (v6.22.0, A-07): .tcard-wrap adalah item grid — tautan +
+   tombol favorit bersaudara di dalamnya. Angkat hover/tekan
+   dipindah ke pembungkus supaya tombol ikut bergerak bersama
+   kartu; border + bayangan tetap di .tcard (yang punya radius).
+   Gerak kartu (transisi, angkat -4px, tekan) tinggal di
+   fx-micro.css §2 — satu pemilik (S-U6 v6.22.0, S-A6 F-05:
+   deklarasi -3px/0.97 di sini kalah cascade, dicabut). */
+.tcard-wrap { position: relative; }
+.tcard-wrap:has(.fav:active) { transform: none; }
 .tcard {
   position: relative; display: flex; flex-direction: column; gap: 10px;
   border-radius: var(--r-card); padding: 14px 13px 13px;
-  text-decoration: none; min-height: 128px; min-width: 0;
-  transition: transform 0.22s var(--spring), border-color 0.15s, box-shadow 0.22s var(--spring);
+  text-decoration: none; min-height: 128px; min-width: 0; height: 100%;
+  /* Transisi di fx-micro.css §2 (satu pemilik gerak kartu). */
 }
-.tcard:hover { border-color: var(--hair-hover); transform: translateY(-3px); box-shadow: var(--sh-lift); }
-.tcard:active { transform: translateY(-1px) scale(0.97); }
+.tcard-wrap:hover .tcard { border-color: var(--hair-hover); /* bayangan di fx-micro.css §2 */ }
 .tcard .tic {
   width: 44px; height: 44px; border-radius: var(--r-ctl); flex: none;
   background: var(--wash); border: 1px solid var(--hair);
@@ -370,24 +451,33 @@ a { color: inherit; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .tcard .ct {
-  margin-top: auto; padding-top: 2px;
+  margin-top: auto;
   font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--dim);
+  /* Badge kategori (v6.22.0 S-F4, S-A6 F-10): pill outline netral,
+     sama persis dengan .pal-item .pct / .hcard .hct. Coral hanya
+     untuk .tool-head .tag di halaman tool. Dulu teks polos. */
+  border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 10px;
+  align-self: flex-start;
 }
-.tcard .fav {
+.tcard-wrap .fav {
   position: absolute; top: 6px; right: 6px;
   width: var(--tap); height: var(--tap); border-radius: var(--r-ctl);
   display: flex; align-items: center; justify-content: center;
   background: none; border: 0; cursor: pointer;
-  color: var(--dim); font-size: 17px; opacity: 0.5;
-  transition: opacity 0.15s, color 0.15s, transform 0.12s var(--ease), background 0.15s;
+  /* S-U6 (v6.22.0, K-01): opasitas 0,5 -> 0,8. Hati --dim di atas
+     permukaan kartu: 2,20:1 (gagal 3:1) -> 3,62:1 (lolos, terukur
+     Python WCAG). Tetap tenang di samping hati .on coral penuh;
+     hover tetap 1,0 + latar coral. Bukti visual: S-U6-k01/fav08-*. */
+  color: var(--dim); font-size: 17px; opacity: 0.8;
+  /* Transisi + tekan (0,8) + pop (0,45 dtk) di fx-micro.css §4 —
+     satu pemilik gerak favorit (duplikat di sini dicabut S-U6;
+     nilai hidup tidak berubah kecuali transisi kini pegas,
+     selaras hati di halaman tool). */
 }
-.tcard .fav.on { opacity: 1; color: var(--acc); }
-.tcard .fav:hover { opacity: 1; background: var(--acc-soft); }
-.tcard .fav:active { transform: scale(0.8); }
-.tcard .fav.pop { animation: fav-pop 0.45s var(--spring); }
+.tcard-wrap .fav.on { opacity: 1; color: var(--acc); }
+.tcard-wrap .fav:hover { opacity: 1; background: var(--acc-soft); }
 @keyframes fav-pop { 30% { transform: scale(1.45) rotate(-12deg); } 55% { transform: scale(0.88) rotate(4deg); } 75% { transform: scale(1.06); } }
-.tcard:has(.fav:active) { transform: none; }
 
 /* ---------- kepala halaman kategori ---------- */
 .cat-head { display: flex; align-items: center; gap: 14px; padding: 8px 0 18px; }
@@ -396,7 +486,7 @@ a { color: inherit; }
   background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 27px;
 }
-.cat-head h2 { font-family: var(--font-d); font-size: 26px; font-weight: 800; letter-spacing: -0.025em; }
+.cat-head h1, .cat-head h2 { font-family: var(--font-d); font-size: 26px; font-weight: 800; letter-spacing: -0.025em; }
 .cat-head .csub { color: var(--faint); font-size: 13px; margin-top: 2px; }
 .pagetitle { font-family: var(--font-d); font-size: 26px; font-weight: 800; letter-spacing: -0.025em; padding: 8px 0 14px; }
 
@@ -405,7 +495,7 @@ a { color: inherit; }
   text-align: center; padding: 52px 20px;
   border: 1px dashed var(--line); border-radius: var(--r-card); margin-top: 12px;
 }
-.empty b { display: block; font-family: var(--font-d); font-size: 18px; margin-bottom: 8px; letter-spacing: -0.01em; }
+.empty b, .empty h1 { display: block; font-family: var(--font-d); font-size: 18px; margin-bottom: 8px; letter-spacing: -0.01em; }
 .empty p { color: var(--dim); font-size: 14px; }
 .empty .sugx { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
 .empty .sugx .schip {
@@ -413,10 +503,11 @@ a { color: inherit; }
   border: 1px solid var(--line); border-radius: var(--r-pill); padding: 8px 14px;
   background: var(--surface); min-height: var(--tap);
   display: inline-flex; align-items: center; justify-content: center;
-  transition: transform 0.1s var(--ease), color 0.15s, border-color 0.15s;
+  /* Transisi + angkat hover + tekan di fx-micro.css §6 (satu
+     pemilik; deklarasi lama di sini kalah cascade — S-A6 F-05,
+     dicabut S-U6 v6.22.0). */
 }
 .empty .sugx .schip:hover { color: var(--txt); border-color: var(--acc-line); }
-.empty .sugx .schip:active { transform: scale(0.94); }
 /* .schip juga dipakai sebagai <a> di halaman "tidak ditemukan" (P3-2). */
 .empty .sugx a.schip { text-decoration: none; }
 
@@ -425,7 +516,9 @@ a { color: inherit; }
   display: inline-flex; align-items: center; gap: 6px; margin: 20px 0 2px;
   color: var(--mut); text-decoration: none; font-size: 14px; font-weight: 600;
   padding: 8px 4px; min-height: var(--tap);
-  transition: color 0.15s, transform 0.1s var(--ease);
+  /* Transisi + hover di fx-micro.css §7 (satu pemilik; deklarasi
+     transisi lama di sini kalah cascade, dicabut S-U6 v6.22.0).
+     :active tetap di sini — fx-micro tidak punya .back:active. */
 }
 .back:hover { color: var(--acc); }
 .back:active { transform: scale(0.96); }
@@ -436,11 +529,17 @@ a { color: inherit; }
   display: flex; align-items: center; justify-content: center; font-size: 28px;
 }
 .tool-head .th { flex: 1; min-width: 0; }
-.tool-head h2 {
+.tool-head h1, .tool-head h2 {
   /* C1 (P4-TOKEN): 25px -> 26px, selaras .pagetitle/.cat-head h2.
      Satu-satunya perubahan ukuran di ronde ini, disengaja. */
   font-family: var(--font-d); font-size: 26px; letter-spacing: -0.025em;
   font-weight: 800; line-height: 1.15;
+  /* S-F10 (v6.22.0, R-01): kata panjang ("Kalkulator", ~125px)
+     boleh patah di dalam kata — tanpa ini min-content judul
+     memaksa baris .th-top meluber 3px di 320px. Hanya terpicu
+     bila satu kata melebihi kotak judul; judul biasa tidak
+     berubah (tetap patah di spasi). */
+  overflow-wrap: anywhere;
 }
 .tool-head .meta { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 10px; }
 .tool-head .meta .tag {
@@ -477,13 +576,14 @@ a { color: inherit; }
 .fld > label { font-size: 13px; font-weight: 650; color: var(--mut); }
 .hint { font-size: 12.5px; color: var(--faint); }
 .inp {
-  width: 100%; background: var(--deep); border: 1px solid var(--line);
+  width: 100%; background: var(--deep); border: 1px solid var(--line-ui);
   color: var(--txt); border-radius: var(--r-ctl); padding: 13px 14px;
   font-size: 16px; outline: none; font-family: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  /* Transisi + ring fokus (color-mix coral 18%, 4px) di
+     fx-micro.css §3 (satu pemilik; ring 3px/45% di sini kalah
+     cascade — S-A6 F-05, dicabut S-U6 v6.22.0, nilai hidup sama). */
 }
 .inp::placeholder { color: var(--faint); }
-.inp:focus { border-color: var(--acc-line); box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.45); }
 textarea.inp { resize: vertical; min-height: 96px; line-height: 1.55; }
 select.inp { appearance: none; -webkit-appearance: none; }
 /* Input file: tombol pilih file senada .btn (P2-1) — tanpa ini tampil
@@ -491,13 +591,13 @@ select.inp { appearance: none; -webkit-appearance: none; }
 input[type=file] { font-family: inherit; font-size: 13.5px; color: var(--mut); }
 input[type=file]::file-selector-button {
   font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--txt);
-  background: var(--surface-2); border: 1px solid var(--line);
+  background: var(--surface-2); border: 1px solid var(--line-ui);
   border-radius: var(--r-ctl); padding: 10px 16px; margin-right: 10px; cursor: pointer;
 }
 input[type=file]::file-selector-button:hover { border-color: var(--line-strong); }
 input[type=file]::-webkit-file-upload-button {
   font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--txt);
-  background: var(--surface-2); border: 1px solid var(--line);
+  background: var(--surface-2); border: 1px solid var(--line-ui);
   border-radius: var(--r-ctl); padding: 10px 16px; margin-right: 10px; cursor: pointer;
 }
 input[type=file]::-webkit-file-upload-button:hover { border-color: var(--line-strong); }
@@ -518,18 +618,23 @@ input[type=file]::-webkit-file-upload-button:hover { border-color: var(--line-st
 @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
 
 .btn {
-  border: 1px solid var(--line); background: var(--surface-2); color: var(--txt);
+  border: 1px solid var(--line-ui); background: var(--surface-2); color: var(--txt);
   border-radius: var(--r-ctl); padding: 13px 18px; font-size: 14.5px; font-weight: 700;
   cursor: pointer; font-family: inherit; text-align: center;
-  transition: transform 0.1s var(--ease), background 0.15s, border-color 0.15s;
   min-height: 48px;
+  /* Transisi + angkat hover (-1px) + tekan (0,93) di fx-micro.css
+     §1 (satu pemilik gerak tombol; deklarasi lama di sini kalah
+     cascade — S-A6 F-05, dicabut S-U6 v6.22.0). */
 }
 .btn:hover { border-color: var(--line-strong); }
-.btn:active { transform: scale(0.97); }
 .btn.primary { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
 .btn.primary:hover { filter: brightness(1.05); }
 .btn.danger { border-color: #7f2d22; color: var(--err-light); }
-.btn.small { padding: 9px 14px; min-height: 0; font-size: 13px; }
+/* Tombol kecil (v6.22.0 S-F4, S-A6 F-03): min-height 44px =
+   target sentuh --tap (R-03). Dulu min-height:0 → terukur live
+   36px di hash-generator + cheatsheet-git. Padding dipertahankan
+   supaya tinggi pas 44px, bukan 48px seperti .btn biasa. */
+.btn.small { padding: 9px 14px; min-height: var(--tap); font-size: 13px; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 .btn.done { border-color: var(--ok); color: var(--ok); }
 
@@ -539,6 +644,16 @@ input[type=file]::-webkit-file-upload-button:hover { border-color: var(--line-st
 .pkey:focus-visible, .drumgrid .cell:focus-visible, .tapzone:focus-visible,
 .fav:focus-visible, .tab:focus-visible, .icobtn:focus-visible,
 .hsearch input:focus-visible, .inp:focus-visible, .pal-bar input:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+/* S-F10 (v6.22.0, A-03): cincin fokus yang sama untuk 8 kelas yang
+   terlewat audit S-A9 — chip filter, tombol favorit palet, kartu
+   Lanjutkan, kartu Koleksi, tautan "lihat semua", baris riwayat,
+   baris balik, dan logo navbar. */
+.fchip:focus-visible, .pal-fav:focus-visible, .contd:focus-visible,
+.colcard:focus-visible, .secmore:focus-visible, .recentline a:focus-visible,
+.prevline a:focus-visible, .brand:focus-visible {
   outline: 2px solid var(--acc);
   outline-offset: 2px;
 }
@@ -597,8 +712,10 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   background: #221c17; color: var(--txt); font-weight: 650; font-size: 14px;
   border: 1px solid var(--line);
   padding: 12px 20px; border-radius: var(--r-ctl); opacity: 0; pointer-events: none;
-  transition: opacity 0.2s, transform 0.2s var(--ease); z-index: var(--z-toast);
+  z-index: var(--z-toast);
   max-width: 92vw; text-align: center;
+  /* Transisi + pegas muncul di fx-joy.css §1 (satu pemilik;
+     transisi 0,2 dtk di sini kalah cascade, dicabut S-U6). */
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -625,7 +742,7 @@ table.tbl th { background: var(--surface-2); font-weight: 650; white-space: nowr
 table.tbl td { white-space: nowrap; }
 .piano { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0; }
 .pkey {
-  flex: 1 0 46px; height: 124px; border-radius: 7px; border: 1px solid var(--line);
+  flex: 1 0 46px; height: 124px; border-radius: var(--r-sm); border: 1px solid var(--line);
   background: #f6f1e8; color: #161311; font-weight: 700; font-size: 12px;
   display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; cursor: pointer;
 }
@@ -636,7 +753,7 @@ table.tbl td { white-space: nowrap; }
    agar tiap sel tetap >=28px — WCAG 2.2 target minimum 24px. Di desktop
    lebar kolom 1fr tidak berubah dari sebelumnya. */
 .drumgrid { display: grid; gap: 5px; overflow-x: auto; }
-.drumgrid .cell { aspect-ratio: 1; min-width: 28px; min-height: 28px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; }
+.drumgrid .cell { aspect-ratio: 1; min-width: 28px; min-height: 28px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; }
 .drumgrid .cell.on { background: var(--acc); border-color: var(--acc); }
 .drumgrid .cell.play { outline: 2px solid var(--info); }
 /* Fokus keyboard harus menang atas outline penanda ketukan (.play):
@@ -650,7 +767,7 @@ table.tbl td { white-space: nowrap; }
 }
 .wheel { width: 230px; height: 230px; margin: 8px auto; display: block; max-width: 100%; }
 .tapzone {
-  background: var(--surface-2); border: 2px dashed var(--line-strong); border-radius: var(--r-card);
+  background: var(--surface-2); border: 2px dashed var(--line-ui); border-radius: var(--r-card);
   min-height: 150px; display: flex; align-items: center; justify-content: center;
   font-size: 18px; font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none;
   text-align: center; padding: 20px; transition: transform 0.1s var(--ease), border-color 0.15s;
@@ -659,7 +776,7 @@ table.tbl td { white-space: nowrap; }
 .spin { width: 240px; height: 240px; margin: 10px auto; display: block; max-width: 100%; }
 .note {
   background: var(--surface-2); border: 1px solid var(--line-soft); border-left: 3px solid var(--acc);
-  border-radius: 8px; padding: 11px 13px; font-size: 13.5px; color: var(--mut);
+  border-radius: var(--r-sm); padding: 11px 13px; font-size: 13.5px; color: var(--mut);
 }
 .note b, .note strong { color: var(--txt); }
 pre.pre, .pre {
@@ -685,8 +802,8 @@ pre.ascii { font-size: 11px; line-height: 1.35; }
 .chk input { width: 20px; height: 20px; accent-color: var(--acc); }
 ul.list, ol.list { padding-left: 20px; display: flex; flex-direction: column; gap: 7px; font-size: 14px; }
 .warna { display: inline-flex; align-items: center; gap: 9px; }
-.warna i { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); display: inline-block; flex: none; }
-mark { background: var(--acc); color: var(--acc-ink); border-radius: 3px; padding: 0 3px; }
+.warna i { width: 30px; height: 30px; border-radius: var(--r-sm); border: 1px solid var(--line); display: inline-block; flex: none; }
+mark { background: var(--acc); color: var(--acc-ink); border-radius: var(--r-xs); padding: 0 3px; }
 
 /* ---------- pola bersama ---------- */
 .monoall { font-family: var(--font-m); user-select: all; -webkit-user-select: all; }
@@ -697,7 +814,7 @@ hr.divi { border: none; border-top: 1px solid var(--line); margin: 18px 0; }
 .mt8 { margin-top: 8px; }
 
 /* invoice (terang saat print) */
-.invoice { background: #fff; color: #111; border-radius: 12px; padding: 22px 18px; font-size: 14px; }
+.invoice { background: #fff; color: #111; border-radius: var(--r-ctl); padding: 22px 18px; font-size: 14px; }
 .invoice h3 { color: #000; }
 .inv-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .inv-head .dim, .invoice .dim { color: #666; }
@@ -745,7 +862,7 @@ table.inv-item th { font-weight: 700; }
 .pal-bar kbd {
   flex: none; font-family: var(--font-m); font-size: 11px; color: var(--dim);
   border: 1px solid var(--line); background: var(--deep);
-  border-radius: 6px; padding: 4px 9px;
+  border-radius: var(--r-sm); padding: 4px 9px;
 }
 .pal-list { max-height: 48vh; overflow-y: auto; padding: 8px; -webkit-overflow-scrolling: touch; }
 .pal-sec {
@@ -753,21 +870,27 @@ table.inv-item th { font-weight: 700; }
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--dim);
 }
+/* S-F10 (v6.22.0, A-07): .pal-item jadi pembungkus baris; .pal-opt
+   adalah option yang bisa diklik (id unik, role="option"),
+   tombol .pal-fav saudara di sebelahnya. Sorot .act tetap di
+   pembungkus supaya seluruh baris menyala seperti sebelumnya. */
 .pal-item {
   display: flex; width: 100%; align-items: center; gap: 13px;
   padding: 10px 12px; border-radius: var(--r-ctl);
-  background: none; border: 0; color: var(--txt);
-  font: inherit; text-align: left; cursor: pointer;
   transition: background 0.1s var(--ease);
 }
+.pal-opt {
+  display: flex; align-items: center; gap: 13px;
+  flex: 1; min-width: 0; cursor: pointer;
+}
 .pal-item .pic {
-  width: 40px; height: 40px; border-radius: 11px; flex: none;
+  width: 40px; height: 40px; border-radius: var(--r-ctl); flex: none;
   background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 19px;
 }
 .pal-item .ptx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .pal-item .pnm { font-family: var(--font-d); font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
-.pal-item .pnm mark { background: var(--acc-soft); color: var(--acc); border-radius: 4px; padding: 0 2px; }
+.pal-item .pnm mark { background: var(--acc-soft); color: var(--acc); border-radius: var(--r-xs); padding: 0 2px; }
 .pal-item .pds {
   color: var(--faint); font-size: 12.5px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -787,7 +910,7 @@ table.inv-item th { font-weight: 700; }
 .pal-hint kbd {
   font-family: var(--font-m); font-size: 11px; color: var(--mut);
   border: 1px solid var(--line); background: var(--deep);
-  border-radius: 6px; padding: 2px 8px; margin-right: 5px;
+  border-radius: var(--r-sm); padding: 2px 8px; margin-right: 5px;
 }
 @media (max-width: 560px) {
   .pal-wrap { padding-top: 6vh; }
@@ -807,31 +930,34 @@ table.inv-item th { font-weight: 700; }
 @keyframes tabs-in { from { opacity: 0; transform: translateY(14px); } }
 .tab-ind {
   position: absolute; top: 6px; bottom: 6px; left: 6px;
-  width: calc((100% - 12px) / 3);
-  border-radius: 13px; background: var(--acc-soft); border: 1px solid var(--acc-line);
-  transition: transform 0.28s var(--ease), opacity 0.2s;
+  width: calc((100% - 12px) / 4); /* S-Q8 (v6.22.0, S-U3 §7.3): 4 tab — indikator seperempat. translateX(i*100%) di setTabActive tetap benar (100% = lebar indikator sendiri). */
+  border-radius: var(--r-ctl); background: var(--acc-soft); border: 1px solid var(--acc-line);
   pointer-events: none;
+  /* Transisi di fx-micro.css §5 (0,42 dtk pegas; 0,28 dtk di sini
+     kalah cascade — S-A6 F-05, dicabut S-U6 v6.22.0). */
 }
 .tab {
   position: relative; z-index: 1;
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
   min-height: 54px; padding: 9px 6px 8px;
-  border: 0; border-radius: 13px; background: none; cursor: pointer;
+  border: 0; border-radius: var(--r-ctl); background: none; cursor: pointer;
   color: var(--dim); font-family: var(--font-b); font-size: 11px; font-weight: 650;
   text-decoration: none;
-  transition: transform 0.12s var(--ease), color 0.15s;
+  /* Transisi + angkat hover + tekan di fx-micro.css §5 (satu
+     pemilik; deklarasi lama di sini kalah cascade — S-A6 F-05,
+     dicabut S-U6 v6.22.0). */
 }
 .tab .ti { font-size: 26px; line-height: 1; }
 .tab:hover { color: var(--mut); }
-.tab:active { transform: scale(0.93); }
 .tab.on { color: var(--acc); }
 
-/* ---------- reduced motion ---------- */
+/* ---------- reduced motion (S-A6 F-13: dua blok digabung S-U6
+   v6.22.0 — blok kedua dulu hanya mengulang blok ini + iterasi) ---------- */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .view { animation: none; }
   .rise { opacity: 1; animation: none; }
   .pal, .pal-backdrop, .tabs { animation: none; }
@@ -862,11 +988,6 @@ table.inv-item th { font-weight: 700; }
 /* ikon halaman tool: pop pegas — fx-iconpop di fx-entrance.css
    (satu pemilik; tic-pop di sini dicabut P3 — kalah cascade). */
 
-/* hormati yang tidak suka gerak */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-}
-
 /* ========== DASHBOARD v6.14.0 (P2-B1) ==========
    Kelas baru untuk redesign beranda. Keluarga layout beranda kini
    lima macam (V-07): kartu lanjutkan, grid tcard (Favorit), rail
@@ -874,14 +995,23 @@ table.inv-item th { font-weight: 700; }
    kategori, dan kartu lebar (Koleksi) — tidak ada lagi tiga rail
    identik berurutan. */
 
-/* Grid kartu ringkas (hcard) untuk "Baru ditambahkan": semua 8 tool
-   terlihat tanpa geser, 2 kolom di HP, 4 kolom di tablet ke atas. */
-.hgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-@media (min-width: 700px) { .hgrid { grid-template-columns: repeat(4, 1fr); } }
+/* Grid kartu ringkas (hcard) untuk "Baru ditambahkan" dulu di sini
+   (.hgrid, 2 kolom HP / 4 kolom tablet), DICABUT v6.22.0 S-F4
+   (S-A6 F-09): 0 pemakaian di js/ (beranda.js hanya menyebutnya
+   di komentar), diganti .baru-grid di polish-p1.css. Aturan
+   animasi .hgrid > .hcard di fx-entrance.css ikut dicabut. */
 
-/* Grid statis 3 kolom untuk "Coba dulu" di halaman kategori
-   (§5.3.6.3): isinya selalu tepat 3, jadi bukan carousel. */
-.coba-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+/* Grid statis untuk "Coba dulu" di halaman kategori (§5.3.6.3):
+   2 kolom di HP, 4 kolom mulai 640px — pola yang sama persis
+   dengan .mulai-grid (onboarding.css), karena isinya kini 3-4
+   kartu (S-U1 v6.22.0: unggulan 18 kategori jadi 4, 4 kategori
+   jadi 3; grid 3 kolom lama meninggalkan kartu yatim di baris
+   kedua). Kategori 3 kartu: kartu terakhir melebar penuh di HP
+   supaya tidak ada sel kosong yang terasa seperti kartu hilang. */
+.coba-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.coba-grid .hcard { flex: none; width: 100%; min-width: 0; }
+@media (min-width: 640px) { .coba-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .coba-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; } }
 
 /* Kartu lebar Koleksi: ikon + nama + deskripsi nyata + jumlah tool.
    1 kolom di HP, 2 kolom di tablet ke atas (4 koleksi = 2x2). */
@@ -890,12 +1020,14 @@ table.inv-item th { font-weight: 700; }
 .colcard {
   display: flex; gap: 13px; align-items: flex-start; text-decoration: none;
   border-radius: var(--r-card); padding: 15px 16px;
-  transition: transform 0.22s var(--spring), border-color 0.15s, box-shadow 0.22s var(--spring);
+  /* Transisi + angkat hover (-4px, keluarga kartu) + tekan di
+     fx-micro.css §2 (satu pemilik gerak kartu, S-U6 v6.22.0).
+     Dulu -3px + bayangan sendiri di sini — satu-satunya kartu
+     yang tidak selaras dengan .tcard/.hcard/.cattile (-4px). */
 }
-.colcard:hover { border-color: var(--hair-hover); transform: translateY(-3px); box-shadow: var(--sh-lift); }
-.colcard:active { transform: translateY(-1px) scale(0.98); }
+.colcard:hover { border-color: var(--hair-hover); }
 .colcard .cic {
-  width: 46px; height: 46px; border-radius: 13px; flex: none;
+  width: 46px; height: 46px; border-radius: var(--r-ctl); flex: none;
   background: var(--wash); border: 1px solid var(--hair);
   display: flex; align-items: center; justify-content: center; font-size: 23px;
 }
@@ -931,3 +1063,30 @@ table.inv-item th { font-weight: 700; }
 .recentline a { color: var(--mut); text-decoration: none; font-weight: 600; }
 .recentline a:hover { color: var(--acc); }
 .recentline .sep { color: var(--faint); margin: 0 5px; }
+
+/* ============================================================
+   S-F10 (v6.22.0, A-06): kontras yang diminta pengguna
+   Hanya aktif bila sistem operasi pengguna memintanya — tanpa
+   perubahan visual bagi yang tidak mengaktifkan.
+   - prefers-contrast: more: naikkan token border ke nilai yang
+     lolos 3:1 di bg (terukur contrast-check.py: --line-ui
+     3,79:1; --hair 0.36 = #6a6867 = 3,34:1). Teks redup
+     (--faint/--dim) ikut dinaikkan satu tingkat (7,71:1 /
+     6,71:1 — lolos 4,5:1 untuk teks normal).
+   - forced-colors: cincin fokus memakai warna sistem Highlight
+     supaya tetap terlihat di tema kontras paksa Windows. */
+@media (prefers-contrast: more) {
+  :root {
+    --line: #7d6f5c;
+    --line-strong: #8a7a66;
+    --hair: rgba(255, 255, 255, 0.36);
+    --hair-hover: rgba(255, 255, 255, 0.5);
+    --faint: #b3a68c;
+    --dim: #a99a7f;
+  }
+}
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+}

@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id":"fakta-kucing","name":"Fakta Kucing","cat":"liveapi","icon":"🐱","desc":"Fakta acak tentang kucing dalam bahasa Inggris asli.","keywords":"kucing,fakta,cat,fun,random"};
+export const meta = {"id":"fakta-kucing","name":"Fakta Kucing","cat":"liveapi","icon":"🐱","desc":"Fakta acak tentang kucing dalam bahasa Inggris asli.","keywords":"kucing,fakta,cat,fun,random", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -29,7 +29,7 @@ export function render(root) {
     } catch (e) {
       clearTimeout(timer);
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
       else if (status === 429) msg = 'Rate limit tercapai (429). Tunggu sebentar lalu coba lagi.';
       else msg = 'Gagal memuat fakta. Periksa koneksi internet lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span>');

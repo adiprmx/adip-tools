@@ -6,7 +6,7 @@
 import { h as T, utils, kv, fmtBytes, errBox, fileInput, LOCAL_NOTE } from '../../core.js';
 import { createPreviewFrame } from '../../preview-frame.js';
 
-export const meta = {"id": "html-ke-pdf", "name": "HTML ↔ PDF", "cat": "converter", "icon": "📄", "desc": "Ubah kode HTML jadi PDF A4, atau PDF jadi halaman HTML.", "keywords": "html,pdf,konversi,dokumen,cetak,a4,html ke pdf,pdf ke html,pdf jadi web,pdf ke halaman", "since": "6.11.0"};
+export const meta = {"id": "html-ke-pdf", "name": "HTML ↔ PDF", "cat": "converter", "icon": "📄", "desc": "Ubah kode HTML jadi PDF A4, atau PDF jadi halaman HTML.", "keywords": "html,pdf,konversi,dokumen,cetak,a4,html ke pdf,pdf ke html,pdf jadi web,pdf ke halaman", "since": "6.11.0", "online": true};
 
 
 /* HTML ke PDF: pratinjau di iframe /preview.html (G-2, v6.19.1 — pengganti

@@ -11,7 +11,7 @@ import { h as T, fileInput, canvasToBlob, fmtBytes, LOCAL_NOTE } from '../../cor
 // benar-benar termuat dari kedua CDN sebelum fitur ini diklaim live.
 // SRI tidak berlaku untuk dynamic import (keterbatasan browser, sudah
 // didokumentasi di core.js); pengaman di sini adalah pin versi 1.3.0.
-export const meta = {"id": "jxl-ke-jpg-png", "name": "JXL ke JPG/PNG", "cat": "gambar", "icon": "🖼️", "desc": "Ubah file JXL jadi JPG atau PNG.", "keywords": "jxl,jpeg xl,konversi,jpg,png,gambar", "since": "6.19.0"};
+export const meta = {"id": "jxl-ke-jpg-png", "name": "JXL ke JPG/PNG", "cat": "gambar", "icon": "🖼️", "desc": "Ubah file JXL jadi JPG atau PNG.", "keywords": "jxl,jpeg xl,konversi,jpg,png,gambar", "since": "6.19.0", "online": true};
 
 // Sampel JXL asli 8x6 piksel (94 byte, dibuat ffmpeg + libjxl) untuk
 // mengecek apakah browser ini bisa membuka JXL.

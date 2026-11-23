@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "fotolink", "name": "Foto to Link", "cat": "gambar", "icon": "🔗", "desc": "Upload gambar → dapat URL publik langsung.", "keywords": "upload,link,url,gambar,hosting,catbox"};
+export const meta = {"id": "fotolink", "name": "Foto to Link", "cat": "gambar", "icon": "🔗", "desc": "Upload gambar → dapat URL publik langsung.", "keywords": "upload,link,url,gambar,hosting,catbox", "online": true};
 
 // API upload publik independen (tanpa key, tanpa daftar): catbox.moe
 export const CATBOX_API = 'https://catbox.moe/user/api.php';

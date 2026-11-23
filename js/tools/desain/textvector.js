@@ -21,6 +21,7 @@ export const meta = {
   id: 'textvector', name: 'Teks ke Vektor', cat: 'desain', icon: '🔷',
   desc: 'Ubah teks menjadi path vektor → XML Alight Motion (kurva Bézier presisi dari data font, atau trace lokal).',
   keywords: 'teks,vektor,path,alight motion,xml,trace,outline,contour',
+  online: true
 };
 
 const FONTS = ['Poppins', 'Inter', 'Exo', 'Lexend', 'Montserrat', 'Plus Jakarta Sans'];

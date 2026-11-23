@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 19 Nov 2026: http.cat/200 -> gambar 750x600 hidup
 // (curl 000 karena egress VM flaky; dibuktikan lewat fetch jalur lain).
 // http.cat tanpa CORS, tapi gambar dipakai via <img>, jadi CORS tidak relevan.
-export const meta = {"id":"kucing-status-http","name":"Kucing Status HTTP","cat":"liveapi","icon":"🐈","desc":"Gambar kucing lucu untuk tiap kode status HTTP, mis. 404.","keywords":"http,status,kucing,cat,404,500,kode status,developer","since":"6.19.0"};
+export const meta = {"id":"kucing-status-http","name":"Kucing Status HTTP","cat":"liveapi","icon":"🐈","desc":"Gambar kucing lucu untuk tiap kode status HTTP, mis. 404.","keywords":"http,status,kucing,cat,404,500,kode status,developer","since":"6.19.0", "online": true};
 
 const KODE = [
   ['200', '200 · OK'],

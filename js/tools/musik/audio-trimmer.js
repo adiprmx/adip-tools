@@ -1,7 +1,7 @@
 import { h as T, utils, fmtBytes, errBox } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "audio-trimmer", "name": "Audio Trimmer", "cat": "musik", "icon": "✂️", "desc": "Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.", "keywords": "audio,potong,mp3,m4a,ogg,wav,trim,fade,video,ekstrak"};
+export const meta = {"id": "audio-trimmer", "name": "Audio Trimmer", "cat": "musik", "icon": "✂️", "desc": "Potong audio di browser, export WAV, MP3, M4A, atau OGG, dengan fade. Bisa ekstrak audio dari video.", "keywords": "audio,potong,mp3,m4a,ogg,wav,trim,fade,video,ekstrak", "online": true};
 export function render(root) {
 
     const file = T.input('file');

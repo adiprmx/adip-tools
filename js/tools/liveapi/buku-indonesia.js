@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"buku-indonesia","name":"Buku Indonesia","cat":"liveapi","icon":"📚","desc":"Cari buku Indonesia berdasarkan penulis, judul, atau ISBN.","keywords":"buku,indonesia,penulis,isbn,novel,sastra,baca","since":"6.16.0"};
+export const meta = {"id":"buku-indonesia","name":"Buku Indonesia","cat":"liveapi","icon":"📚","desc":"Cari buku Indonesia berdasarkan penulis, judul, atau ISBN.","keywords":"buku,indonesia,penulis,isbn,novel,sastra,baca","since":"6.16.0", "online": true};
 
 const API = 'https://khrlanamm.github.io/buku-indonesia/api/v1/';
 
@@ -44,7 +44,7 @@ export function render(root) {
   const gagal = (e, ulang, pesan404) => {
     if (e && e.notFound) { T.show(box, '<p class="center dim">' + esc(pesan404 || 'Tidak ditemukan.') + '</p>'); return; }
     const msg = e && e.name === 'AbortError'
-      ? 'Waktu habis, server katalog buku tidak merespons.'
+      ? 'Waktu habis, server katalog buku tidak bisa dihubungi.'
       : 'Gagal mengambil data buku. Cek koneksi internet, lalu coba lagi.';
     T.show(box, errBox(msg));
     const wr = T.el('<div style="margin-top:8px"></div>');

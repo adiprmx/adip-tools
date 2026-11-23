@@ -18,7 +18,7 @@ async function getJSON(url) {
 // tglCantik kanonis tinggal di utils (core.js) — dipakai dengan
 // { tglSaja: true, hari: true }.
 
-export const meta = {"id": "banjir-sungai", "name": "Banjir Sungai", "cat": "liveapi", "icon": "🌊", "desc": "Prakiraan debit air sungai untuk beberapa hari ke depan di titik yang kamu pilih.", "keywords": "banjir,sungai,debit,air,open-meteo,prakiraan,banjir sungai,hidrologi", "since": "6.17.0"};
+export const meta = {"id": "banjir-sungai", "name": "Banjir Sungai", "cat": "liveapi", "icon": "🌊", "desc": "Prakiraan debit air sungai untuk beberapa hari ke depan di titik yang kamu pilih.", "keywords": "banjir,sungai,debit,air,open-meteo,prakiraan,banjir sungai,hidrologi", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -57,7 +57,7 @@ export function render(root) {
         '<p class="hint">Ini prakiraan model komputer dari Open-Meteo, bukan peringatan resmi. Untuk info banjir resmi, ikuti pengumuman BPBD dan BMKG setempat.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server prakiraan tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server prakiraan tidak bisa dihubungi dalam 15 detik.'
         : 'Prakiraan gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

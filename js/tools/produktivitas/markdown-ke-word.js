@@ -5,7 +5,7 @@
 
 import { h as T, utils, fmtBytes, LOCAL_NOTE, fileInput } from '../../core.js';
 
-export const meta = {"id": "markdown-ke-word", "name": "Markdown ↔ Word", "cat": "produktivitas", "icon": "📝", "desc": "Ubah tulisan Markdown jadi dokumen Word, atau dokumen Word jadi Markdown.", "keywords": "markdown ke word,markdown ke docx,md ke word,konversi markdown,word ke markdown,docx ke markdown,konversi word,markdown,word", "since": "6.17.0"};
+export const meta = {"id": "markdown-ke-word", "name": "Markdown ↔ Word", "cat": "produktivitas", "icon": "📝", "desc": "Ubah tulisan Markdown jadi dokumen Word, atau dokumen Word jadi Markdown.", "keywords": "markdown ke word,markdown ke docx,md ke word,konversi markdown,word ke markdown,docx ke markdown,konversi word,markdown,word", "since": "6.17.0", "online": true};
 
 
 const DOCX_CDN = 'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';

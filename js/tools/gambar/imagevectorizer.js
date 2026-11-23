@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "imagevectorizer", "name": "Auto Trace", "cat": "gambar", "icon": "✒️", "desc": "Ubah foto/logo jadi vektor SVG, 100% di perangkat (potrace).", "keywords": "vektor,trace,svg,potrace,logo,outline"};
+export const meta = {"id": "imagevectorizer", "name": "Auto Trace", "cat": "gambar", "icon": "✒️", "desc": "Ubah foto/logo jadi vektor SVG, 100% di perangkat (potrace).", "keywords": "vektor,trace,svg,potrace,logo,outline", "online": true};
 
 // Pustaka tracing publik independen (algoritma potrace): esm.sh bundle.
 const POTRACE_ESM = 'https://esm.sh/@cadit-app/potrace-ts@1.3.0';

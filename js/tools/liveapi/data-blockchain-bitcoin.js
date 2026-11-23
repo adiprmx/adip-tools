@@ -24,7 +24,7 @@ async function getJSON(url) {
   } finally { clearTimeout(t); }
 }
 
-export const meta = {"id": "data-blockchain-bitcoin", "name": "Data Blockchain Bitcoin", "cat": "liveapi", "icon": "₿", "desc": "Blok Bitcoin terbaru, antrean transaksi yang menunggu, dan perkiraan biayanya.", "keywords": "bitcoin,blockchain,blok,btc,mempool,transaksi,blockstream,kripto", "since": "6.17.0"};
+export const meta = {"id": "data-blockchain-bitcoin", "name": "Data Blockchain Bitcoin", "cat": "liveapi", "icon": "₿", "desc": "Blok Bitcoin terbaru, antrean transaksi yang menunggu, dan perkiraan biayanya.", "keywords": "bitcoin,blockchain,blok,btc,mempool,transaksi,blockstream,kripto", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -59,7 +59,7 @@ export function render(root) {
         '<p class="hint">Makin banyak transaksi menunggu, makin lama transaksi baru dikonfirmasi dan makin mahal biayanya. Sumber: Blockstream.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server Blockstream tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Blockstream tidak bisa dihubungi dalam 15 detik.'
         : 'Data Bitcoin gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

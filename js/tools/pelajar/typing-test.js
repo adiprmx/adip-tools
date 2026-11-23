@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id": "typing-test", "name": "Tes Mengetik", "cat": "pelajar", "icon": "🚀", "desc": "Kecepatan mengetik Indonesia.", "keywords": "mengetik,kecepatan,keyboard,tes"};
+export const meta = {"id": "typing-test", "name": "Tes Mengetik", "cat": "pelajar", "icon": "🚀", "desc": "Ukur kecepatan mengetikmu dalam kata per menit dan akurasinya, pakai teks Indonesia.", "keywords": "mengetik,kecepatan,keyboard,tes,teks,produktivitas"};
 export function render(root) {
 
     const TEKS = [

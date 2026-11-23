@@ -74,7 +74,7 @@ const LIB_FAIL_MSG = {
   xml: 'Pustaka XML gagal dimuat dari internet. Cek koneksi lalu coba lagi.',
 };
 
-export const meta = {"id": "ubah-format-data", "name": "Ubah Format Data", "cat": "developer", "icon": "🔄", "desc": "JSON, YAML, TOML & XML saling tukar format.", "keywords": "json,yaml,toml,xml,konversi,format,data", "since": "6.11.0"};
+export const meta = {"id": "ubah-format-data", "name": "Ubah Format Data", "cat": "developer", "icon": "🔄", "desc": "JSON, YAML, TOML & XML saling tukar format.", "keywords": "json,yaml,toml,xml,konversi,format,data", "since": "6.11.0", "online": true};
 export function render(root) {
 
     const fromSel = T.select([['json', 'JSON'], ['yaml', 'YAML'], ['toml', 'TOML'], ['xml', 'XML']], 'json');

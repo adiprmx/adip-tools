@@ -7,7 +7,23 @@
  *      DILARANG baca package.json (bump-version.py tidak mengelolanya).
  *   2. baca dist/.vite/manifest.json → entry chunk + CSS bundle + font.
  *   3. susun daftar precache SHELL-ONLY (guardrail keras: TIDAK PERNAH
- *      chunk tool — manifest berisi 1.299 chunk, semuanya difilter habis).
+ *      chunk tool — manifest berisi 1.261 chunk tool, semuanya difilter habis).
+ *      S-U5 (v6.22.0, strategi precache): daftar TETAP 12 entri shell-only.
+ *      Chunk detail manifest (manifest-details-*.js, ~75 KB gzip) SENGAJA
+ *      TIDAK di-precache: (1) install SW all-or-nothing (cache.addAll) —
+ *        menambah ~100 KB mentah ke instalasi demi aset non-kritis
+ *        memperbesar risiko install gagal total; (2) SW runtime Cache
+ *        First SUDAH meng-cache-nya di kunjungan online pertama, dan
+ *        /assets/* ber-Cache-Control immutable 1 tahun (S-F9) — kunjungan
+ *        ulang (termasuk offline) terlayani dua lapis tanpa precache;
+ *        (3) versi aman: kedua chunk ber-hash konten Vite, nama cache
+ *        runtime berversi (adip-tools-runtime-<VERSION>), cache lama
+ *        dihapus saat activate, dan entry chunk merujuk chunk detail
+ *        lewat hash build-time — campuran basi tidak mungkin terjadi.
+ *        Guardrail di bawah MENGGAGALKAN build bila chunk detail
+ *        masuk precache. Pengecualian tercatat: bila pengguna
+ *        menghapus SEMUA cache (P17), pencarian offline kembali
+ *        nama-saja sampai kunjungan online berikutnya.
  *   4. ganti placeholder __PWA_VERSION__ + __PRECACHE_MANIFEST__ di
  *      dist/sw.js; assert tidak ada `__PWA` tersisa.
  *
@@ -50,6 +66,19 @@ if (mSplit[1] !== VERSION) {
   fail(
     `versi bentrok: js/manifest.js '${VERSION}' ≠ scripts/split-tools.py '${mSplit[1]}' ` +
       '— bump setengah jalan, jalankan ulang scripts/bump-version.py',
+  );
+}
+
+// S-U5 (v6.22.0, manifest split): manifest-boot.js dibangkitkan sync
+// dari VERSION yang sama — bila versinya beda, boot basi (sync belum
+// jalan sesudah bump) dan entry chunk akan memuat data rilis lama.
+const bootJs = readText('js/manifest-boot.js', 'manifest-boot.js');
+const mBoot = bootJs.match(/export const VERSION = '([^']+)'/);
+if (!mBoot) fail("regex VERSION tidak cocok di js/manifest-boot.js (pola: export const VERSION = 'X.Y.Z')");
+if (mBoot[1] !== VERSION) {
+  fail(
+    `versi bentrok: js/manifest.js '${VERSION}' ≠ js/manifest-boot.js '${mBoot[1]}' ` +
+      '— jalankan ulang node scripts/sync-manifest.js',
   );
 }
 
@@ -101,13 +130,14 @@ const STATIC_SHELL = [
 ];
 const PRECACHE = [
   ...STATIC_SHELL,
-  entry.file, // entry chunk shell (satu file, 15 modul + manifest.js)
+  entry.file, // entry chunk shell (satu file, shell + manifest-boot.js ramping — S-U5)
   ...entry.css, // bundle CSS (satu file)
   ...fonts, // font woff2
 ];
 
 // Guardrail keras (R12): daftar ini WAJIB shell-only. Assert eksplisit:
-// - tidak ada chunk tool (manifest berisi 1.299 chunk — semuanya terlarang)
+// - tidak ada chunk tool (manifest berisi 1.261 chunk tool — semuanya terlarang)
+// - tidak ada chunk detail manifest (S-U5: dimuat malas + runtime cache, bukan precache)
 // - tidak ada sw.js / sw-*.js (self-reference)
 // - tidak ada URL absolut / cross-origin
 // - tidak ada duplikat, jumlah entri wajar (shell = belasan, bukan ratusan)
@@ -123,6 +153,9 @@ for (const url of PRECACHE) {
   }
   if (url.includes('/tools/') || url.startsWith('tools/')) {
     fail(`GUARDRAIL: chunk tool masuk precache: ${url}`);
+  }
+  if (url.includes('manifest-details')) {
+    fail(`GUARDRAIL: chunk detail manifest masuk precache: ${url} (S-U5: malas + runtime cache saja)`);
   }
 }
 if (PRECACHE.length > 20) {

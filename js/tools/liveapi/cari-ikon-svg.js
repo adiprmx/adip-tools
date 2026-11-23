@@ -18,7 +18,7 @@ async function getJSON(url) {
 // Nama lain tidak pernah dipakai membangun URL.
 const namaIkonAman = (n) => typeof n === 'string' && /^[a-z0-9][a-z0-9:.-]*$/i.test(n) ? n : null;
 
-export const meta = {"id": "cari-ikon-svg", "name": "Cari Ikon SVG", "cat": "liveapi", "icon": "🔍", "desc": "Cari ikon SVG dari ratusan set ikon open-source, lalu unduh sebagai file SVG.", "keywords": "ikon,svg,iconify,icon,desain,simbol,gambar vektor", "since": "6.17.0"};
+export const meta = {"id": "cari-ikon-svg", "name": "Cari Ikon SVG", "cat": "liveapi", "icon": "🔍", "desc": "Cari ikon SVG dari ratusan set ikon open-source, lalu unduh sebagai file SVG.", "keywords": "ikon,svg,iconify,icon,desain,simbol,gambar vektor", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -57,7 +57,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server ikon tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server ikon tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

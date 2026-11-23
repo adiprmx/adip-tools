@@ -3,7 +3,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Pemendek tautan lewat is.gd, tanpa key.
 // Terverifikasi 17 Nov 2026: /create.php?format=json&url=https://example.com -> 200, CORS *.
 // Tautan pendek dibuat oleh layanan is.gd dan mengarah ke alamat aslinya.
-export const meta = {"id":"pemendek-url","name":"Pemendek URL","cat":"liveapi","icon":"🔗","desc":"Perpendek tautan panjang menjadi tautan pendek is.gd yang mudah dibagikan.","keywords":"pemendek url,short link,shorten,is.gd,tautan pendek,perpendek link","since":"6.17.0"};
+export const meta = {"id":"pemendek-url","name":"Pemendek URL","cat":"liveapi","icon":"🔗","desc":"Perpendek tautan panjang menjadi tautan pendek is.gd yang mudah dibagikan.","keywords":"pemendek url,short link,shorten,is.gd,tautan pendek,perpendek link","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -54,7 +54,7 @@ export function render(root) {
       const msg = e.message.indexOf('api:') === 0
         ? 'is.gd menolak tautan ini: ' + e.message.slice(4)
         : e.name === 'AbortError'
-          ? 'Waktu habis, server is.gd tidak merespons dalam 15 detik.'
+          ? 'Waktu habis, server is.gd tidak bisa dihubungi dalam 15 detik.'
           : 'Gagal memendekkan tautan. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

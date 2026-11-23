@@ -8,7 +8,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // keluarga font dibaca dari METADATA.pb tiap font saat dipilih, lalu
 // pratinjau dimuat dari Google Fonts CSS. Tanpa key; batas GitHub tanpa
 // login 60 permintaan per jam per alamat IP.
-export const meta = {"id":"galeri-font-google","name":"Galeri Font Google","cat":"desain","icon":"Aa","desc":"Jelajahi font Google Fonts, lihat pratinjau dengan teksmu sendiri, dan salin untuk dipakai.","keywords":"font,google fonts,tipografi,huruf,desain,pratinjau","since":"6.19.0"};
+export const meta = {"id":"galeri-font-google","name":"Galeri Font Google","cat":"desain","icon":"Aa","desc":"Jelajahi font Google Fonts, lihat pratinjau dengan teksmu sendiri, dan salin untuk dipakai.","keywords":"font,google fonts,tipografi,huruf,desain,pratinjau","since":"6.19.0", "online": true};
 
 const API = 'https://api.github.com/repos/google/fonts/contents/ofl?per_page=100&page=';
 const META = 'https://api.github.com/repos/google/fonts/contents/ofl/';
@@ -81,7 +81,7 @@ export function render(root) {
       tampilPratinjau();
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 20 detik.'
         : e.message === 'rate'
           ? 'Batas permintaan GitHub tercapai (60 per jam). Coba lagi nanti.'
           : 'Gagal mengambil detail font ini. Cek koneksi internet, lalu coba lagi.';
@@ -138,7 +138,7 @@ export function render(root) {
       if (halaman === 1) T.show(box, '<p class="center dim">Pilih font di bawah untuk melihat pratinjau dengan teksmu.</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 20 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 20 detik.'
         : e.message === 'rate'
           ? 'Batas permintaan GitHub tercapai (60 per jam). Coba lagi nanti.'
           : 'Gagal mengambil daftar font. Cek koneksi internet, lalu coba lagi.';

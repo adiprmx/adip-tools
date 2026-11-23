@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "keraskan-audio", "name": "Keraskan Audio", "cat": "musik", "icon": "🔊", "desc": "Buat suara audio lebih keras atau samakan kerasnya.", "keywords": "audio,keras,volume,normalisasi,suara", "since": "6.16.0"};
+export const meta = {"id": "keraskan-audio", "name": "Keraskan Audio", "cat": "musik", "icon": "🔊", "desc": "Buat suara audio lebih keras atau samakan kerasnya.", "keywords": "audio,keras,volume,normalisasi,suara", "since": "6.16.0", "online": true};
 
 export function render(root) {
   // Naikkan volume: filter volume dengan satuan dB. Samakan: loudnorm

@@ -1,10 +1,10 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL, fetchFileLokal } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "tambah-teks-ke-video", "name": "Tambah Teks ke Video", "cat": "converter", "icon": "✍️", "desc": "Tulis teks atau judul di atas video.", "keywords": "video,teks,judul,tulisan,overlay,caption", "since": "6.17.0"};
+export const meta = {"id": "tambah-teks-ke-video", "name": "Tambah Teks ke Video", "cat": "converter", "icon": "✍️", "desc": "Tulis teks atau judul di atas video.", "keywords": "video,teks,judul,tulisan,overlay,caption", "since": "6.17.0", "online": true};
 
 // Font DejaVu Sans (TTF, lisensi bebas) untuk huruf teks. Diunduh sekali
-// dari CDN saat proses berjalan.
+// dari internet saat proses berjalan.
 const FONT_URL = 'https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/DejaVuSans.ttf';
 
 // Escape teks untuk filter drawtext ffmpeg. Nilai text DIBUNGKUS petik

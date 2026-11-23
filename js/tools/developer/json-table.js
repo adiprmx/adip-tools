@@ -1,6 +1,6 @@
 import { h as T, utils, errBox, esc } from '../../core.js';
 
-export const meta = {"id": "json-table", "name": "JSON ke Tabel", "cat": "developer", "icon": "📊", "desc": "Paste JSON jadi tabel yang enak dibaca.", "keywords": "json,tabel"};
+export const meta = {"id": "json-table", "name": "JSON ke Tabel", "cat": "developer", "icon": "📊", "desc": "Paste JSON jadi tabel yang enak dibaca.", "keywords": "json,tabel,konversi,lihat json,format json"};
 export function render(root) {
 
     const ta = T.ta(8, 'Paste JSON: array of objects atau satu object…');

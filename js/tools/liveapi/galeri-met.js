@@ -24,7 +24,7 @@ const imgAman = (u) => {
 };
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "galeri-met", "name": "Galeri Met", "cat": "liveapi", "icon": "🎨", "desc": "Jelajahi koleksi seni Metropolitan Museum of Art: lukisan, patung, sampai artefak kuno.", "keywords": "met museum,seni,galeri,lukisan,museum,artefak,koleksi,metropolitan", "since": "6.17.0"};
+export const meta = {"id": "galeri-met", "name": "Galeri Met", "cat": "liveapi", "icon": "🎨", "desc": "Jelajahi koleksi seni Metropolitan Museum of Art: lukisan, patung, sampai artefak kuno.", "keywords": "met museum,seni,galeri,lukisan,museum,artefak,koleksi,metropolitan", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -71,7 +71,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server Met Museum tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server Met Museum tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

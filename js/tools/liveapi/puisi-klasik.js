@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Puisi klasik Inggris lewat PoetryDB, tanpa key.
 // Terverifikasi 17 Nov 2026: https://poetrydb.org/random -> 200, CORS *.
-export const meta = {"id":"puisi-klasik","name":"Puisi Klasik","cat":"liveapi","icon":"📜","desc":"Baca puisi klasik Inggris: acak, berdasarkan penulis, atau berdasarkan judul.","keywords":"puisi,puisi klasik,poetry,penyair,sastra,shakespeare,puisi inggris","since":"6.17.0"};
+export const meta = {"id":"puisi-klasik","name":"Puisi Klasik","cat":"liveapi","icon":"📜","desc":"Baca puisi klasik Inggris: acak, berdasarkan penulis, atau berdasarkan judul.","keywords":"puisi,puisi klasik,poetry,penyair,sastra,shakespeare,puisi inggris","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -73,7 +73,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server PoetryDB tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server PoetryDB tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mengambil puisi. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

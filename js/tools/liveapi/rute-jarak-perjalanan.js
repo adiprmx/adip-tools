@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 17 Nov 2026: /route/v1/driving/106.8,-6.2;107.6,-6.9?overview=false -> 200, CORS *.
 // Server demo OSRM, pakai wajar. Parameter steps=true ditambahkan di
 // endpoint yang sama agar langkah perjalanan ikut tampil bila ada.
-export const meta = {"id":"rute-jarak-perjalanan","name":"Rute & Jarak Perjalanan","cat":"liveapi","icon":"🗺️","desc":"Hitung jarak dan waktu tempuh berkendara antara dua titik koordinat.","keywords":"rute,jarak,perjalanan,osrm,berkendara,waktu tempuh,peta,navigasi","since":"6.17.0"};
+export const meta = {"id":"rute-jarak-perjalanan","name":"Rute & Jarak Perjalanan","cat":"liveapi","icon":"🗺️","desc":"Hitung jarak dan waktu tempuh berkendara antara dua titik koordinat.","keywords":"rute,jarak,perjalanan,osrm,berkendara,waktu tempuh,peta,navigasi","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -62,7 +62,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server OSRM tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server OSRM tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal menghitung rute. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

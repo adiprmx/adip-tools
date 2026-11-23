@@ -105,7 +105,7 @@ export function validasiBarcode(format, teks) {
 
 // ---------- Akhir fungsi murni ----------
 
-export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, WiFi (termasuk jaringan tersembunyi), lokasi, vCard, SMS & email. Mode massal, logo, bingkai, ekspor SVG. Serta barcode 1D produk (CODE128, EAN-13, UPC-A, CODE39, ITF-14).", "keywords": "qr,barcode,scan,link,wifi,svg,logo,whatsapp,telegram,lokasi,maps,vcard,sms,email,massal,ssid,tersembunyi,hotspot,ean13,upc,code128,code39,itf14,barcode produk"};
+export const meta = {"id": "qr-generator", "name": "QR Code Generator", "cat": "desain", "icon": "🔲", "desc": "QR Code teks, URL, WiFi (termasuk jaringan tersembunyi), lokasi, vCard, SMS & email. Mode massal, logo, bingkai, ekspor SVG. Serta barcode 1D produk (CODE128, EAN-13, UPC-A, CODE39, ITF-14).", "keywords": "qr,barcode,scan,link,wifi,svg,logo,whatsapp,telegram,lokasi,maps,vcard,sms,email,massal,ssid,tersembunyi,hotspot,ean13,upc,code128,code39,itf14,barcode produk,converter,ubah ke qr", "online": true};
 export function render(root) {
 
     const QR_CDN = 'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js';
@@ -260,7 +260,7 @@ export function render(root) {
       // Loader kanonis: utils.loadLibOnce (core.js) — timeout 30 dtk.
       return utils.loadLibOnce(QR_CDN, () => typeof QRCode !== 'undefined').then((ok) => {
         libOk = ok && typeof QRCode !== 'undefined';
-        if (!libOk) T.show(statusBox, errBox('Gagal memuat library QR dari CDN. Cek koneksi internet lalu coba lagi.'));
+        if (!libOk) T.show(statusBox, errBox('Gagal memuat library QR dari internet. Cek koneksi internet lalu coba lagi.'));
         return libOk;
       });
     };

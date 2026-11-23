@@ -30,8 +30,9 @@
 @media (min-width: 1024px) {
   .topnav { display: flex; align-items: center; gap: 2px; }
   /* D-08 (koordinator, 17 Nov): tab bar bawah disembunyikan di
-     desktop — ketiga tujuannya sudah terjangkau via header:
-     Beranda (logo), Cari (tombol cari), Favorit (navlink di atas).
+     desktop — keempat tujuannya sudah terjangkau via header:
+     Beranda (logo), Cari (tombol cari), Kategori (dropdown),
+     Favorit (navlink di atas).
      Di bawah 1024px tab bar tetap jadi navigasi utama HP. */
   .tabs { display: none; }
 }
@@ -119,8 +120,13 @@
 }
 .crumbs li { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .crumbs li + li::before { content: "/"; color: var(--faint); }
-.crumbs a { color: var(--dim); text-decoration: none; }
+.crumbs a { color: var(--dim); text-decoration: none; display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 6px; /* S-FIXUP F10: "Desain" 41px / "Bisnis" 37px -> >=44px lebar */ }
 .crumbs a:hover { color: var(--txt); text-decoration: underline; }
+/* S-F10 (v6.22.0, T-01): tautan "Lihat semua tool X" di halaman
+   tool (detail-riwayat.js, bukan file S-F10) memakai inline
+   style display:block — !important diperlukan karena inline
+   selalu menang atas stylesheet. 20,1px -> 44px. */
+#catMore a { display: flex !important; align-items: center; min-height: var(--tap); }
 .crumbs [aria-current="page"] span {
   color: var(--txt);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -133,17 +139,17 @@
    ============================================================ */
 .btt {
   position: fixed; right: 16px; bottom: 96px; z-index: var(--z-btt);
-  width: var(--tap); height: var(--tap); border-radius: 50%;
+  width: var(--tap); height: var(--tap); border-radius: var(--r-circle);
   display: flex; align-items: center; justify-content: center;
   background: var(--surface-2); color: var(--txt);
-  border: 1px solid var(--line); cursor: pointer;
+  border: 1px solid var(--line-ui); cursor: pointer;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   opacity: 0; pointer-events: none; transform: translateY(8px);
   transition: opacity 0.2s, transform 0.2s var(--ease);
 }
 .btt.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
 .btt:hover { border-color: var(--acc-line); }
-.btt:active { transform: scale(0.94); }
+.btt:active { transform: scale(0.9); } /* S-U6: 0,94 -> 0,90, selaras tombol ikon (tangga gerak); border --line -> --line-ui (K-01: kontrol) */
 @media (min-width: 1024px) { .btt { bottom: 24px; right: 24px; } }
 
 /* ============================================================
@@ -171,13 +177,13 @@ body.dlg-open { overflow: hidden; }
   flex: 1; min-height: var(--tap); padding: 10px 14px;
   font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
   color: var(--txt); background: var(--surface-2);
-  border: 1px solid var(--line); border-radius: var(--r-ctl);
+  border: 1px solid var(--line-ui); border-radius: var(--r-ctl);
   transition: transform 0.1s var(--ease), border-color 0.15s;
 }
-.dlg-btn:hover { border-color: rgba(255, 255, 255, 0.2); }
+.dlg-btn:hover { border-color: var(--line-strong); transform: translateY(-1px); } /* S-U6: hover selaras .btn (border --line-strong + angkat -1px; dulu putih 0,2 tanpa angkat) */
 .dlg-btn:active { transform: scale(0.97); }
 .dlg-btn.danger { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
-.dlg-btn.danger:hover { border-color: var(--acc); filter: brightness(1.06); }
+.dlg-btn.danger:hover { border-color: var(--acc); filter: brightness(1.05); } /* S-U6: 1,06 -> 1,05, selaras .btn.primary (S-A6 F-12) */
 
 /* ============================================================
    CHIP (base .schip — di style.css hanya ada di dalam .empty)
@@ -186,7 +192,7 @@ body.dlg-open { overflow: hidden; }
    ============================================================ */
 .schip {
   font: inherit; font-size: 13px; font-weight: 600; color: var(--mut);
-  cursor: pointer; border: 1px solid var(--line); border-radius: var(--r-pill);
+  cursor: pointer; border: 1px solid var(--line-ui); border-radius: var(--r-pill);
   padding: 8px 14px; background: var(--surface); min-height: var(--tap);
   display: inline-flex; align-items: center; justify-content: center;
   text-decoration: none;
@@ -232,7 +238,7 @@ body.dlg-open { overflow: hidden; }
   font-size: 13px; font-weight: 650; color: var(--mut); white-space: nowrap;
 }
 .sortsel {
-  width: auto; min-height: var(--tap); font-size: 14px;
+  width: auto; min-height: var(--tap); font-size: 16px; /* S-FIXUP F8: <16px memicu zoom paksa iOS Safari */
   padding-top: 10px; padding-bottom: 10px;
 }
 .moreline {
@@ -244,7 +250,7 @@ body.dlg-open { overflow: hidden; }
    <button> mandiri butuh latar, border, dan reset font. */
 .morebtn {
   font: inherit; cursor: pointer; width: 100%;
-  background: var(--surface); border: 1px solid var(--line);
+  background: var(--surface); border: 1px solid var(--line-ui);
   justify-content: center; margin-top: 12px;
 }
 .morebtn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; } /* C2 (P4-TOKEN): selaras .btn:disabled */
@@ -284,7 +290,7 @@ body.dlg-open { overflow: hidden; }
 
 /* ============================================================
    FOOTER 3 KELOMPOK (riset §5.3.8)
-   (1) identitas + kalimat nilai, (2) 15 tautan kategori,
+   (1) identitas + kalimat nilai, (2) 22 tautan kategori,
    (3) tautan layanan. Menang atas footer.foot 1 baris di
    style.css karena file ini dimuat terakhir.
    ============================================================ */
@@ -303,8 +309,12 @@ footer.foot { text-align: left; padding: 48px 2px 8px; }
   display: flex; flex-wrap: wrap; gap: 8px 20px;
   font-size: 13px;
 }
-.foot-links a { color: var(--mut); text-decoration: none; min-height: var(--tap); display: inline-flex; align-items: center; }
-.foot-links a:hover { color: var(--txt); text-decoration: underline; text-underline-offset: 3px; }
+.foot-links a { color: var(--mut); text-decoration: none; min-height: var(--tap); min-width: var(--tap); display: inline-flex; align-items: center; justify-content: center; /* S-F10 T-01: "Privasi" lebar 40px -> 44px */ }
+/* S-FIXUP F6 (v6.22.0): tombol footer ("Lihat panduan lagi") memakai
+   gaya tautan yang sama — tombol telanjang yang mewarisi tampilan
+   tautan, termasuk area sentuh 44px. */
+.foot-links button { background: none; border: 0; padding: 0; font: inherit; color: var(--mut); cursor: pointer; min-height: var(--tap); min-width: var(--tap); display: inline-flex; align-items: center; justify-content: center; }
+.foot-links a:hover, .foot-links button:hover { color: var(--txt); text-decoration: underline; text-underline-offset: 3px; }
 
 /* ============================================================
    TOOLTIP SELEKTIF (D-03) — CSS-only, hanya 2 tempat:
@@ -317,7 +327,7 @@ footer.foot { text-align: left; padding: 48px 2px 8px; }
   position: absolute; left: 50%; top: calc(100% + 8px);
   transform: translateX(-50%) translateY(-4px);
   background: var(--surface-2); color: var(--txt);
-  border: 1px solid var(--line); border-radius: 8px;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
   padding: 6px 10px; font-size: 12px; font-weight: 600;
   white-space: nowrap; pointer-events: none; z-index: var(--z-tip);
   opacity: 0; transition: opacity 0.15s, transform 0.15s var(--ease);

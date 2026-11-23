@@ -8,7 +8,7 @@ import { h as T, utils, LOCAL_NOTE } from '../../core.js';
 // bisa MEMBUAT font (new opentype.Font + toArrayBuffer), bukan cuma baca.
 // Huruf yang tidak digambar tidak masuk ke font — itu dijelaskan jujur
 // di layar, bukan diisi huruf palsu.
-export const meta = {"id": "font-dari-tulisan-tangan", "name": "Font dari Tulisan Tangan", "cat": "desain", "icon": "✍️", "desc": "Gambar huruf-hurufmu sendiri, jadikan file font yang bisa dipakai di mana saja.", "keywords": "font,tulisan tangan,huruf,otf,buat font,handwriting", "since": "6.17.0"};
+export const meta = {"id": "font-dari-tulisan-tangan", "name": "Font dari Tulisan Tangan", "cat": "desain", "icon": "✍️", "desc": "Gambar huruf-hurufmu sendiri, jadikan file font yang bisa dipakai di mana saja.", "keywords": "font,tulisan tangan,huruf,otf,buat font,handwriting", "since": "6.17.0", "online": true};
 
 const OT_CDN = 'https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js';
 const POTRACE_ESM = 'https://esm.sh/@cadit-app/potrace-ts@1.3.0';

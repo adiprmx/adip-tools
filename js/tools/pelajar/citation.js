@@ -1,6 +1,6 @@
 import { h as T, utils, esc } from '../../core.js';
 
-export const meta = {"id": "citation", "name": "Citation Generator", "cat": "pelajar", "icon": "📚", "desc": "Daftar pustaka APA & MLA.", "keywords": "citation,sitasi,skripsi,daftar,pustaka"};
+export const meta = {"id": "citation", "name": "Citation Generator", "cat": "pelajar", "icon": "📚", "desc": "Susun daftar pustaka APA atau MLA dari buku, jurnal, atau website untuk tugasmu.", "keywords": "citation,sitasi,skripsi,daftar,pustaka"};
 
 export const splitAuthors = (raw) => String(raw || '').split(/[;]+/).map((s) => s.trim()).filter(Boolean);
 // Pecah "Budi Santoso" -> fam "Santoso", ini "B.". Penulis satu kata

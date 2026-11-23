@@ -1,6 +1,6 @@
 import { h as T, kv } from '../../core.js';
 
-export const meta = {"id": "mdr-qris", "name": "Kalkulator Biaya QRIS", "cat": "indonesia", "icon": "💳", "desc": "Hitung potongan MDR QRIS per jenis merchant.", "keywords": "qris,mdr,biaya,potongan,merchant", "file": "tools/indonesia/mdr-qris.js"};
+export const meta = {"id": "mdr-qris", "name": "Kalkulator Biaya QRIS", "cat": "indonesia", "icon": "💳", "desc": "Hitung potongan MDR QRIS per jenis merchant.", "keywords": "qris,mdr,biaya,potongan,merchant"};
 export function render(root) {
   const nominal = T.input('number', 'cth: 100000', '');
   const katSel = T.select([

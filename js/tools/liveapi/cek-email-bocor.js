@@ -18,7 +18,7 @@ async function cekEmail(email) {
   } finally { clearTimeout(t); }
 }
 
-export const meta = {"id": "cek-email-bocor", "name": "Cek Email Bocor", "cat": "liveapi", "icon": "🔓", "desc": "Cek apakah emailmu pernah muncul di kebocoran data yang diketahui publik.", "keywords": "email,bocor,kebocoran data,breach,keamanan,cek email,xposedornot,password", "since": "6.17.0"};
+export const meta = {"id": "cek-email-bocor", "name": "Cek Email Bocor", "cat": "liveapi", "icon": "🔓", "desc": "Cek apakah emailmu pernah muncul di kebocoran data yang diketahui publik.", "keywords": "email,bocor,kebocoran data,breach,keamanan,cek email,xposedornot,password", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -61,7 +61,7 @@ export function render(root) {
         '</div><p class="hint">Sumber: XposedOrNot, basis data kebocoran publik. Daftar ini hanya nama layanannya, bukan isi data yang bocor.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server pemeriksa tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server pemeriksa tidak bisa dihubungi dalam 15 detik.'
         : 'Pemeriksaan gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"info-paket-dotnet","name":"Info Paket .NET","cat":"liveapi","icon":"📦","desc":"Cari paket .NET di NuGet: versi terbaru, deskripsi, dan unduhan.","keywords":"dotnet,nuget,paket,.net,csharp,aspnet","since":"6.18.0"};
+export const meta = {"id":"info-paket-dotnet","name":"Info Paket .NET","cat":"liveapi","icon":"📦","desc":"Cari paket .NET di NuGet: versi terbaru, deskripsi, dan unduhan.","keywords":"dotnet,nuget,paket,.net,csharp,aspnet","since":"6.18.0", "online": true};
 
 // Info paket .NET lewat NuGet, tanpa key. Alurnya mengikuti protokol NuGet v3:
 // baca dulu daftar layanan di index.json terverifikasi, lalu pakai alamat
@@ -108,7 +108,7 @@ export function render(root) {
         '<p class="hint">Sumber: NuGet, registry resmi paket .NET.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server NuGet tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server NuGet tidak bisa dihubungi dalam 10 detik.'
         : e.message === 'layanan-tidak-valid'
         ? 'Alamat layanan pencarian dari NuGet tidak sesuai yang diharapkan, jadi pencarian dibatalkan demi keamanan. Coba lagi nanti.'
         : 'Gagal mencari paket. Cek koneksi internet, lalu coba lagi.');

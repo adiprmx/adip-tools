@@ -5,7 +5,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Respons: { country, "post code", places: [{ "place name", state, latitude,
 // longitude }] }. TIDAK ada data Indonesia (kode pos Indonesia balas 404),
 // jadi Indonesia tidak ada di daftar negara; pakai tool Kode Pos Indonesia.
-export const meta = {"id":"kode-pos-dunia","name":"Kode Pos Dunia","cat":"liveapi","icon":"🌍","desc":"Cari kota dan wilayah dari kode pos berbagai negara di luar Indonesia.","keywords":"kode pos,zip,postal,negara,kota,dunia,alamat","since":"6.19.0"};
+export const meta = {"id":"kode-pos-dunia","name":"Kode Pos Dunia","cat":"liveapi","icon":"🌍","desc":"Cari kota dan wilayah dari kode pos berbagai negara di luar Indonesia.","keywords":"kode pos,zip,postal,negara,kota,dunia,alamat","since":"6.19.0", "online": true};
 
 const NEGARA = [
   ['us', 'Amerika Serikat'], ['gb', 'Inggris'], ['ca', 'Kanada'],
@@ -49,7 +49,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : e.message === 'notfound'
           ? 'Kode pos tidak ditemukan di negara yang dipilih. Periksa lagi kode dan negaranya.'
           : 'Gagal mencari kode pos. Cek koneksi internet, lalu coba lagi.';

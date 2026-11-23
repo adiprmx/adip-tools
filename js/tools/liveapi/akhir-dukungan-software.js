@@ -42,7 +42,7 @@ function statusDukungan(eol) {
     : { teks: 'Masih didukung', sudah: false };
 }
 
-export const meta = {"id": "akhir-dukungan-software", "name": "Akhir Dukungan Software", "cat": "liveapi", "icon": "📅", "desc": "Cek sampai kapan sebuah bahasa atau framework masih didukung, per versinya.", "keywords": "endoflife,eol,dukungan,versi,python,nodejs,php,update,akhir dukungan,support", "since": "6.17.0"};
+export const meta = {"id": "akhir-dukungan-software", "name": "Akhir Dukungan Software", "cat": "liveapi", "icon": "📅", "desc": "Cek sampai kapan sebuah bahasa atau framework masih didukung, per versinya.", "keywords": "endoflife,eol,dukungan,versi,python,nodejs,php,update,akhir dukungan,support", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -76,7 +76,7 @@ export function render(root) {
         '<p class="hint">Sumber: endoflife.date. Tanggal bisa berubah kalau pembuat software mengumumkan jadwal baru.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server jadwal tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server jadwal tidak bisa dihubungi dalam 15 detik.'
         : 'Jadwal gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

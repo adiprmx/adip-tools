@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id":"generator-headline-iklan-fb","name":"Generator Headline Iklan FB","cat":"bisnis","icon":"📣","desc":"Judul iklan Facebook yang menarik klik.","keywords":"headline,iklan,facebook,fb,judul,ai,puter","since":"6.18.0"};
+export const meta = {"id":"generator-headline-iklan-fb","name":"Generator Headline Iklan FB","cat":"bisnis","icon":"📣","desc":"Judul iklan Facebook yang menarik klik.","keywords":"headline,iklan,facebook,fb,judul,ai,puter","since":"6.18.0", "online": true};
 
 const MAX_KEUNGGULAN = 2000;
 const JUMLAH = [
@@ -91,7 +91,7 @@ export function render(root) {
         const prompt = buatPrompt({ produk, keunggulan, jumlah: jumlahSel.value });
         const res = await Promise.race([
           Promise.resolve(window.puter.ai.chat(prompt, {})),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak merespons dalam 60 detik.')), 60000)),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT: AI tidak bisa dihubungi dalam 60 detik.')), 60000)),
         ]);
         const hasil = utils.chatText(res).trim();
         if (!hasil) throw new Error('Puter mengembalikan respons kosong.');

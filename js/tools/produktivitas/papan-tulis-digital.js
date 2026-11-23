@@ -102,6 +102,7 @@ export function render(root) {
     if (s) { muat(s); simpan(); } else { T.toast('Tidak ada lagi yang bisa diurungkan'); }
   });
   const hapusBtn = T.btn('🗑 Hapus semua', () => {
+    if (!confirm('Hapus semua gambar di papan tulis? Gambar yang sudah dihapus tidak bisa dikembalikan.')) return;
     catat();
     ctx.clearRect(0, 0, W, H);
     simpan();

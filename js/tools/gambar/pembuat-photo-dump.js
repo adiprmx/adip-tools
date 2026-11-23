@@ -6,7 +6,7 @@ import { h as T, utils, loadImage, fileInput, LOCAL_NOTE } from '../../core.js';
 // Instagram), bisa diunduh satu per satu atau sekaligus dalam ZIP.
 // BEDA dari Kolase Foto (kolase-foto.js) yang menggabung foto jadi satu
 // grid; di sini tiap foto jadi slide sendiri dengan hiasan gaya.
-export const meta = {"id": "pembuat-photo-dump", "name": "Pembuat Photo Dump", "cat": "gambar", "icon": "📸", "desc": "Setumpuk foto jadi slide photo dump bergaya: scrapbook, polaroid, film, atau majalah.", "keywords": "photo dump,instagram,carousel,slide,scrapbook,polaroid,film,majalah", "since": "6.17.0"};
+export const meta = {"id": "pembuat-photo-dump", "name": "Pembuat Photo Dump", "cat": "gambar", "icon": "📸", "desc": "Setumpuk foto jadi slide photo dump bergaya: scrapbook, polaroid, film, atau majalah.", "keywords": "photo dump,instagram,carousel,slide,scrapbook,polaroid,film,majalah", "since": "6.17.0", "online": true};
 
 const ZIP_CDN = 'https://cdn.jsdelivr.net/npm/jszip@3.10.2/dist/jszip.min.js';
 const MAKS_FOTO = 10;

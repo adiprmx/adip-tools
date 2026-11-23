@@ -1,7 +1,7 @@
 import { h as T, kv, fmtBytes, errBox, utils } from '../../core.js';
 import { loadFFmpeg, runFFmpeg, cancelFFmpeg, cleanupFFmpeg, friendlyError, isCancelled, supportsFFmpeg, CORE_SIZE_LABEL } from '../../ffmpeg-loader.js';
 
-export const meta = {"id": "pembuat-nada-dering", "name": "Pembuat Nada Dering", "cat": "musik", "icon": "📱", "desc": "Potong lagu jadi nada dering, dengan fade halus di awal dan akhir.", "keywords": "nada dering,ringtone,potong lagu,hp,iphone,android", "since": "6.17.0"};
+export const meta = {"id": "pembuat-nada-dering", "name": "Pembuat Nada Dering", "cat": "musik", "icon": "📱", "desc": "Potong lagu jadi nada dering, dengan fade halus di awal dan akhir.", "keywords": "nada dering,ringtone,potong lagu,hp,iphone,android", "since": "6.17.0", "online": true};
 
 /* Susun argumen ffmpeg untuk potongan nada dering. Fade (bila aktif)
    dipasang 1 detik di awal dan akhir potongan, atau seperempat panjang

@@ -62,6 +62,7 @@ export function render(root) {
       const cdEl = T.el('<div class="big" style="font-variant-numeric:tabular-nums">--:--:--:--</div>');
       const lbEl = T.el('<div class="dim"></div>');
       const hapus = T.btn('Hapus', () => {
+        if (!confirm('Hapus ujian "' + e.nama + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
         exams = exams.filter((x) => x.id !== e.id);
         save(exams);
         gambar();

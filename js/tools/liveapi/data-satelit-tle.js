@@ -20,7 +20,7 @@ function angka(v, digit) {
   return isFinite(n) ? n.toLocaleString('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }) : 'tidak ada data';
 }
 
-export const meta = {"id": "data-satelit-tle", "name": "Data Satelit TLE", "cat": "liveapi", "icon": "🛰️", "desc": "Data orbit satelit terkini (TLE): ISS, Hubble, dan satelit lain dari nomor katalognya.", "keywords": "satelit,tle,orbit,iss,celestrak,norad,stasiun luar angkasa", "since": "6.17.0"};
+export const meta = {"id": "data-satelit-tle", "name": "Data Satelit TLE", "cat": "liveapi", "icon": "🛰️", "desc": "Data orbit satelit terkini (TLE): ISS, Hubble, dan satelit lain dari nomor katalognya.", "keywords": "satelit,tle,orbit,iss,celestrak,norad,stasiun luar angkasa", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -63,7 +63,7 @@ export function render(root) {
         '<p class="hint">Sumber: CelesTrak. Data orbit diperbarui berkala oleh NORAD.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server CelesTrak tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server CelesTrak tidak bisa dihubungi dalam 15 detik.'
         : 'Data satelit gagal diambil. Cek koneksi internet, lalu coba lagi.');
     }
   };

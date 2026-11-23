@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id":"lirik-lagu","name":"Lirik Lagu","cat":"liveapi","icon":"🎤","desc":"Cari lirik lagu dari penyanyi & judul lagu favoritmu.","keywords":"lirik,lagu,musik,penyanyi,lyrics,teks lagu","since":"6.12.0"};
+export const meta = {"id":"lirik-lagu","name":"Lirik Lagu","cat":"liveapi","icon":"🎤","desc":"Cari lirik lagu dari penyanyi & judul lagu favoritmu.","keywords":"lirik,lagu,musik,penyanyi,lyrics,teks lagu","since":"6.12.0", "online": true};
 
 const API = 'https://api.lyrics.ovh/v1/';
 
@@ -50,7 +50,7 @@ export function render(root) {
     } catch (e) {
       clearTimeout(timer);
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
       else if (status === 429) msg = 'Terlalu banyak permintaan — tunggu sebentar lalu coba lagi.';
       else msg = 'Gagal mencari lirik. Periksa koneksi internet lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span>');

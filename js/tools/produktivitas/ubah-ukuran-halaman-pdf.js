@@ -7,7 +7,7 @@ import { h as T, utils, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.js';
 // BATASAN JUJUR: halaman yang rasionya beda jauh akan menyisakan ruang
 // kosong di sisi yang lebih panjang; tautan dan formulir di dalam PDF
 // tidak ikut pindah.
-export const meta = {"id": "ubah-ukuran-halaman-pdf", "name": "Ubah Ukuran Halaman PDF", "cat": "produktivitas", "icon": "📐", "desc": "Ganti ukuran halaman PDF (A4, Letter, Legal) dengan isi yang menyesuaikan.", "keywords": "ubah ukuran pdf,a4 ke letter,ukuran halaman pdf,resize pdf", "since": "6.17.0"};
+export const meta = {"id": "ubah-ukuran-halaman-pdf", "name": "Ubah Ukuran Halaman PDF", "cat": "produktivitas", "icon": "📐", "desc": "Ganti ukuran halaman PDF (A4, Letter, Legal) dengan isi yang menyesuaikan.", "keywords": "ubah ukuran pdf,a4 ke letter,ukuran halaman pdf,resize pdf", "since": "6.17.0", "online": true};
 
 const PDFLIB_CDN = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 const MAKS_HALAMAN = 200;

@@ -1,6 +1,6 @@
 import { h as T, utils } from '../../core.js';
 
-export const meta = {"id": "tes-buta-warna", "name": "Tes Buta Warna", "cat": "sehari", "icon": "👁️", "desc": "Tes Ishihara sederhana lewat gambar.", "keywords": "buta warna,ishihara,mata,tes", "file": "tools/sehari/tes-buta-warna.js"};
+export const meta = {"id": "tes-buta-warna", "name": "Tes Buta Warna", "cat": "sehari", "icon": "👁️", "desc": "Tes Ishihara sederhana lewat gambar.", "keywords": "buta warna,ishihara,mata,tes"};
 
 const PLATS = ['12', '8', '6', '29', '57', '74'];
 const BG_PAL = ['#9aa5a1', '#8b9a93', '#a8b0a6', '#97a3a8', '#b0a89e', '#8f9788', '#a3a8b0'];

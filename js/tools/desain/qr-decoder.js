@@ -22,7 +22,7 @@ export function deteksiIsi(teks) {
   return { jenis: 'teks', label: 'Teks biasa' };
 }
 
-export const meta = {"id": "qr-decoder", "name": "Baca QR Code", "cat": "desain", "icon": "📷", "desc": "Baca isi kode QR & barcode dari foto, screenshot, atau kamera.", "keywords": "qr,barcode,scan,baca,decode,kamera,screenshot", "since": "6.11.0"};
+export const meta = {"id": "qr-decoder", "name": "Baca QR Code", "cat": "desain", "icon": "📷", "desc": "Baca isi kode QR & barcode dari foto, screenshot, atau kamera.", "keywords": "qr,barcode,scan,baca,decode,kamera,screenshot,converter,baca qr", "since": "6.11.0", "online": true};
 export function render(root) {
     const JSQR_CDN = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
     const MAKS_FILE = 15 * 1024 * 1024;

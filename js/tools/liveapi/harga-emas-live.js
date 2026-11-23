@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"harga-emas-live","name":"Harga Emas Live","cat":"liveapi","icon":"🪙","desc":"Harga emas dunia terkini per troy ons dan per gram.","keywords":"emas,harga emas,xau,logam mulia,investasi,per gram","since":"6.16.0"};
+export const meta = {"id":"harga-emas-live","name":"Harga Emas Live","cat":"liveapi","icon":"🪙","desc":"Harga emas dunia terkini per troy ons dan per gram.","keywords":"emas,harga emas,xau,logam mulia,investasi,per gram","since":"6.16.0", "online": true};
 
 const API = 'https://api.gold-api.com/price/XAU';
 const GRAM_PER_OZ = 31.1035;
@@ -44,7 +44,7 @@ export function render(root) {
       tampilkan(j);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server harga emas tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server harga emas tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal ambil harga emas. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

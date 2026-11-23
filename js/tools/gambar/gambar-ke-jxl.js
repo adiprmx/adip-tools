@@ -51,7 +51,7 @@ export function render(root) {
     ['5', 'Seimbang'],
     ['7', 'Paling kecil — lebih lama'],
   ], '5');
-  const tanpaRugiChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#e07856">');
+  const tanpaRugiChk = T.el('<input type="checkbox" style="width:18px;height:18px;accent-color:#ff6f61">');
   const formatSel = T.select([
     ['png', 'PNG tanpa rugi (paling aman)'],
     ['webp', 'WebP tanpa rugi (lebih kecil)'],

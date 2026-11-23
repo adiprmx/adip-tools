@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"hadits-arbain","name":"Hadits Arbain","cat":"liveapi","icon":"📜","desc":"Hadits Arbain An-Nawawi nomor 1 sampai 42, teks Arab dan terjemahan Indonesia.","keywords":"hadits,arbain,nawawi,hadis,islam,arab,terjemahan","since":"6.16.0"};
+export const meta = {"id":"hadits-arbain","name":"Hadits Arbain","cat":"liveapi","icon":"📜","desc":"Hadits Arbain An-Nawawi nomor 1 sampai 42, teks Arab dan terjemahan Indonesia.","keywords":"hadits,arbain,nawawi,hadis,islam,arab,terjemahan","since":"6.16.0", "online": true};
 
 const API = 'https://api.myquran.com/v2/hadits/arbain/';
 
@@ -35,7 +35,7 @@ export function render(root) {
       tampil(j.data);
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server MyQuran tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server MyQuran tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal ambil hadits. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

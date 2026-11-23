@@ -184,6 +184,7 @@ export function render(root) {
   secs.forEach((s) => { root.appendChild(s.el); });
   root.appendChild(T.row(
     T.btn('↺ Reset semua', () => {
+      if (!confirm('Reset semua laporan laba rugi? Semua baris dan laporan yang tersimpan akan hilang dan tidak bisa dikembalikan.')) return;
       secs.forEach((s) => s.reset());
       try { localStorage.removeItem(K); } catch (e) { /* abaikan */ }
       T.toast('Laporan dikosongkan.');

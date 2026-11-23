@@ -1,6 +1,6 @@
 import { h as T, kv, errBox, utils } from '../../core.js';
 
-export const meta = {"id": "subtitle-otomatis-video", "name": "Subtitle Otomatis Video", "cat": "converter", "icon": "💬", "desc": "Buat file subtitle SRT dari suara di video.", "keywords": "subtitle,srt,video,otomatis,transkrip,suara", "since": "6.19.0"};
+export const meta = {"id": "subtitle-otomatis-video", "name": "Subtitle Otomatis Video", "cat": "converter", "icon": "💬", "desc": "Buat file subtitle SRT dari suara di video.", "keywords": "subtitle,srt,video,otomatis,transkrip,suara", "since": "6.19.0", "online": true};
 
 // Satu baris subtitle: mulai dan akhir dalam milidetik. Fungsi murni.
 export function buatCue(mulaiMs, akhirMs, teks) {

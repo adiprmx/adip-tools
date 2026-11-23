@@ -1,6 +1,6 @@
 import { h as T } from '../../core.js';
 
-export const meta = {"id": "packing-travel", "name": "Checklist Packing Traveling", "cat": "sehari", "icon": "🧳", "desc": "Daftar bawaan traveling, tersimpan otomatis.", "keywords": "packing,traveling,checklist,koper,liburan", "file": "tools/sehari/packing-travel.js"};
+export const meta = {"id": "packing-travel", "name": "Checklist Packing Traveling", "cat": "sehari", "icon": "🧳", "desc": "Daftar bawaan traveling, tersimpan otomatis.", "keywords": "packing,traveling,checklist,koper,liburan"};
 
 const LS_KEY = 'adip-packing';
 const DEFAULTS = [
@@ -71,6 +71,7 @@ export function render(root) {
         paint();
         cb.addEventListener('change', () => { it.c = cb.checked; paint(); saveState(state); updateProgress(); head.querySelector('span').textContent = ' ' + cat.items.filter((x) => x.c).length + '/' + cat.items.length; });
         const del = T.btn('✕', () => {
+          if (!confirm('Hapus "' + it.t + '" dari daftar packing? Data ini akan hilang dan tidak bisa dikembalikan.')) return;
           cat.items = cat.items.filter((x) => x !== it);
           saveState(state); draw();
         });

@@ -1,6 +1,6 @@
 import { h as T } from '../../core.js';
 
-export const meta = {"id": "nama-brand", "name": "Generator Nama Brand", "cat": "bisnis", "icon": "🏷️", "desc": "Racik kata jadi nama brand yang catchy.", "keywords": "brand,nama,bisnis,usaha,merk", "file": "tools/bisnis/nama-brand.js"};
+export const meta = {"id": "nama-brand", "name": "Generator Nama Brand", "cat": "bisnis", "icon": "🏷️", "desc": "Racik kata jadi nama brand yang catchy.", "keywords": "brand,nama,bisnis,usaha,merk"};
 
 // Kapitalisasi: besarkan huruf pertama SAJA, sisanya dibiarkan apa adanya —
 // supaya varian CamelCase seperti "KopiSusu" tidak diratakan jadi "Kopisusu".

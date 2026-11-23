@@ -2,7 +2,7 @@ import { h as T, esc, errBox } from '../../core.js';
 
 // Cari kode pos Indonesia, tanpa key.
 // Terverifikasi 17 Nov 2026: https://kodepos.vercel.app/search/?q=jakarta -> 200, CORS *.
-export const meta = {"id":"kode-pos-indonesia","name":"Kode Pos Indonesia","cat":"liveapi","icon":"📮","desc":"Cari kode pos dari nama tempat: kelurahan, kecamatan, kabupaten, dan provinsi.","keywords":"kode pos,pos indonesia,kelurahan,kecamatan,kabupaten,provinsi,alamat","since":"6.17.0"};
+export const meta = {"id":"kode-pos-indonesia","name":"Kode Pos Indonesia","cat":"liveapi","icon":"📮","desc":"Cari kode pos dari nama tempat: kelurahan, kecamatan, kabupaten, dan provinsi.","keywords":"kode pos,pos indonesia,kelurahan,kecamatan,kabupaten,provinsi,alamat","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -37,7 +37,7 @@ export function render(root) {
       ).join('') + '<p class="hint">Sumber: data kode pos Indonesia (kodepos.vercel.app).</p>');
     } catch (e) {
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari kode pos. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

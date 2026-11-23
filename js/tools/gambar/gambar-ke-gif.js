@@ -3,7 +3,7 @@ import { h as T, loadImage, fileInput, fmtBytes, LOCAL_NOTE } from '../../core.j
 // Gambar ke GIF: foto JPG/PNG/WebP jadi file GIF statis (satu gambar,
 // bukan animasi). Browser tidak bisa menyimpan GIF lewat canvas, jadi
 // encoding-nya memakai gifenc (murni JavaScript, sama seperti GIF Maker).
-export const meta = {"id": "gambar-ke-gif", "name": "Gambar ke GIF", "cat": "gambar", "icon": "🖼️", "desc": "Foto JPG atau PNG jadi file GIF. Cocok buat tempat yang cuma terima GIF.", "keywords": "gif,jpg ke gif,png ke gif,ubah format,gambar", "since": "6.17.0"};
+export const meta = {"id": "gambar-ke-gif", "name": "Gambar ke GIF", "cat": "gambar", "icon": "🖼️", "desc": "Foto JPG atau PNG jadi file GIF. Cocok buat tempat yang cuma terima GIF.", "keywords": "gif,jpg ke gif,png ke gif,ubah format,gambar", "since": "6.17.0", "online": true};
 
 const GIFENC_CDN = 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js';
 

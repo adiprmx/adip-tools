@@ -1,6 +1,6 @@
 import { h as T, kv, errBox, utils, fileInput } from '../../core.js';
 
-export const meta = {"id":"konverter-subtitle","name":"Konverter Subtitle","cat":"teks","icon":"💬","desc":"Ubah subtitle antar format SRT, VTT, ASS, SBV, dan TTML, ambil teks polosnya, atau geser waktunya.","keywords":"subtitle,srt,vtt,ass,sbv,ttml,film,video,waktu,subtitle ke teks,teks polos,ekstrak subtitle,transkrip subtitle","since":"6.11.0"};
+export const meta = {"id":"konverter-subtitle","name":"Konverter Subtitle","cat":"teks","icon":"💬","desc":"Ubah subtitle antar format SRT, VTT, ASS, SBV, dan TTML, ambil teks polosnya, atau geser waktunya.","keywords":"subtitle,srt,vtt,ass,sbv,ttml,film,video,waktu,subtitle ke teks,teks polos,ekstrak subtitle,transkrip subtitle,converter,musik","since":"6.11.0"};
 
 /* Konverter subtitle 5 format + teks polos + geser waktu.
    Hasil gabung v6.21.0 (B5): Konverter Subtitle (SRT<->VTT + geser) +

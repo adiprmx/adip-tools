@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id": "penerjemah", "name": "Penerjemah", "cat": "liveapi", "icon": "🌏", "desc": "Terjemahkan teks Indonesia↔Inggris secara instan.", "keywords": "terjemah,translate,inggris,indonesia,bahasa"};
+export const meta = {"id": "penerjemah", "name": "Penerjemah", "cat": "liveapi", "icon": "🌏", "desc": "Terjemahkan teks Indonesia↔Inggris secara instan.", "keywords": "terjemah,translate,inggris,indonesia,bahasa", "online": true};
 
 const MAX = 400;
 const DIR = [['id|en', 'Indonesia → Inggris'], ['en|id', 'Inggris → Indonesia']];

@@ -4,7 +4,7 @@ import { h as T, esc, errBox } from '../../core.js';
 // Terverifikasi 17 Nov 2026: /api/v7/cardinfo.php?name=Dark%20Magician -> 200, CORS *.
 // Parameter fname dipakai untuk pencarian nama sebagian (satu API yang sama);
 // name persis hanya cocok bila ejaannya sama persis.
-export const meta = {"id":"kartu-yu-gi-oh","name":"Kartu Yu-Gi-Oh!","cat":"liveapi","icon":"🐉","desc":"Cari kartu Yu-Gi-Oh! lengkap dengan gambar, serangan, pertahanan, dan harganya.","keywords":"yu-gi-oh,yugioh,kartu yugioh,ygoprodeck,duel,card game,tcg","since":"6.17.0"};
+export const meta = {"id":"kartu-yu-gi-oh","name":"Kartu Yu-Gi-Oh!","cat":"liveapi","icon":"🐉","desc":"Cari kartu Yu-Gi-Oh! lengkap dengan gambar, serangan, pertahanan, dan harganya.","keywords":"yu-gi-oh,yugioh,kartu yugioh,ygoprodeck,duel,card game,tcg","since":"6.17.0", "online": true};
 
 async function getJSON(url) {
   const c = new AbortController();
@@ -58,7 +58,7 @@ export function render(root) {
         return;
       }
       const msg = e.name === 'AbortError'
-        ? 'Waktu habis, server YGOPRODeck tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server YGOPRODeck tidak bisa dihubungi dalam 15 detik.'
         : 'Gagal mencari kartu. Cek koneksi internet, lalu coba lagi.';
       T.show(box, errBox(msg));
       const wr = T.el('<div style="margin-top:8px"></div>');

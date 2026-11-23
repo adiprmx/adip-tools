@@ -202,7 +202,7 @@ function bagiGrup(nama, opt) {
   return gagal(['Tidak bisa membagi grup dengan aturan yang ada setelah ' + maksCoba + ' kali mencoba. Coba kurangi aturannya.']);
 }
 
-export const meta = {"id": "acak-grup", "name": "Pembagi Grup Acak", "cat": "fun", "icon": "👥", "desc": "Bagi daftar nama jadi beberapa grup acak.", "keywords": "grup,acak,kelompok,bagi,random", "file": "tools/fun/acak-grup.js"};
+export const meta = {"id": "acak-grup", "name": "Pembagi Grup Acak", "cat": "fun", "icon": "👥", "desc": "Bagi daftar nama jadi beberapa grup acak.", "keywords": "grup,acak,kelompok,bagi,random"};
 export { parseNama, parsePasangan, bagiGrup };
 export function render(root) {
   const daftar = T.ta(6, 'Satu nama per baris…\ncth:\nBudi\nSari\nAndi\nDewi\nRudi\nTono');

@@ -17,7 +17,7 @@ async function getJSON(url) {
 // imgAman kanonis tinggal di utils.urlAman (core.js).
 const tautanAman = (u) => typeof u === 'string' && u.indexOf('https://') === 0;
 
-export const meta = {"id": "arsip-library-of-congress", "name": "Arsip Library of Congress", "cat": "liveapi", "icon": "🏛️", "desc": "Foto dan dokumen sejarah dari perpustakaan nasional Amerika Serikat.", "keywords": "library of congress,arsip,sejarah,foto lama,dokumen,loc,amerika", "since": "6.17.0"};
+export const meta = {"id": "arsip-library-of-congress", "name": "Arsip Library of Congress", "cat": "liveapi", "icon": "🏛️", "desc": "Foto dan dokumen sejarah dari perpustakaan nasional Amerika Serikat.", "keywords": "library of congress,arsip,sejarah,foto lama,dokumen,loc,amerika", "since": "6.17.0", "online": true};
 
 export function render(root) {
   const box = T.out();
@@ -58,7 +58,7 @@ export function render(root) {
       T.wireImgErr(box);
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server arsip tidak merespons dalam 15 detik.'
+        ? 'Waktu habis, server arsip tidak bisa dihubungi dalam 15 detik.'
         : 'Pencarian gagal. Cek koneksi internet, lalu coba lagi.');
     }
   };

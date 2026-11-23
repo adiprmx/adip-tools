@@ -1,6 +1,6 @@
 import { h as T, esc, errBox } from '../../core.js';
 
-export const meta = {"id":"cuaca-arsip","name":"Cuaca Arsip","cat":"liveapi","icon":"🗓️","desc":"Lihat cuaca hari-hari yang sudah lewat: suhu siang, malam, dan hujan.","keywords":"cuaca,arsip,historis,tanggal lampau,suhu,hujan,open-meteo","since":"6.18.0"};
+export const meta = {"id":"cuaca-arsip","name":"Cuaca Arsip","cat":"liveapi","icon":"🗓️","desc":"Lihat cuaca hari-hari yang sudah lewat: suhu siang, malam, dan hujan.","keywords":"cuaca,arsip,historis,tanggal lampau,suhu,hujan,open-meteo","since":"6.18.0", "online": true};
 
 // Cuaca tanggal lampau lewat Open-Meteo Archive, tanpa key.
 // Terverifikasi 18 Nov 2026: archive-api.open-meteo.com/v1/archive -> 200, CORS *.
@@ -125,7 +125,7 @@ export function render(root) {
         '<p class="hint">Sumber: Open-Meteo Archive. Suhu siang = tertinggi harian, suhu malam = terendah harian.</p>');
     } catch (e) {
       gagal(e.name === 'AbortError'
-        ? 'Waktu habis, server cuaca tidak merespons dalam 10 detik.'
+        ? 'Waktu habis, server cuaca tidak bisa dihubungi dalam 10 detik.'
         : 'Gagal mengambil data cuaca. Cek koneksi internet, lalu coba lagi.');
     }
   };

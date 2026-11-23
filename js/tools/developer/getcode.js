@@ -1,6 +1,6 @@
 import { h as T, errBox, utils } from '../../core.js';
 
-export const meta = {"id": "getcode", "name": "Get Code HTML", "cat": "developer", "icon": "💻", "desc": "Ambil & ekstrak source HTML dari URL mana pun.", "keywords": "html,source,kode,extract,view-source,scrape"};
+export const meta = {"id": "getcode", "name": "Get Code HTML", "cat": "developer", "icon": "💻", "desc": "Ambil & ekstrak source HTML dari URL mana pun.", "keywords": "html,source,kode,extract,view-source,scrape", "online": true};
 
 // F13 v6.21.0: proxy cors-anyway.huskymobile.com DICABUT (operator tidak
 // teridentifikasi). Rantai kini: Jina Reader dulu, lalu rantai kanonis
@@ -239,7 +239,7 @@ export function render(root) {
       if (h) { inp.value = h.url; extract(); }
     }));
   };
-  const bClearH = T.btn('Hapus Riwayat', () => { try { localStorage.removeItem(HIST_KEY); } catch (e) {} gambarHist(); });
+  const bClearH = T.btn('Hapus Riwayat', () => { if (!confirm('Hapus seluruh riwayat GetCode? Data ini akan hilang dan tidak bisa dikembalikan.')) return; try { localStorage.removeItem(HIST_KEY); } catch (e) {} gambarHist(); });
   bClearH.classList.add('small');
 
   root.appendChild(T.el('<p class="dim" style="font-size:13px;line-height:1.6">Ekstrak source HTML dari URL mana pun lewat proxy publik — tanpa backend sendiri.</p>'));

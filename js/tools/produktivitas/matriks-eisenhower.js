@@ -35,7 +35,7 @@ export function render(root) {
         const mover = T.select(QUADS.map((x) => [x.id, x.label]), t.q);
         mover.title = 'Pindah kuadran';
         mover.addEventListener('change', () => { t.q = mover.value; save(); draw(); });
-        const del = T.btn('✕', () => { tasks = tasks.filter((x) => x.id !== t.id); save(); draw(); });
+        const del = T.btn('✕', () => { if (!confirm('Hapus tugas "' + t.text + '"? Data ini akan hilang dan tidak bisa dikembalikan.')) return; tasks = tasks.filter((x) => x.id !== t.id); save(); draw(); });
         del.setAttribute('aria-label', 'Hapus tugas ' + t.text);
         line.appendChild(txt); line.appendChild(doneBtn); line.appendChild(mover); line.appendChild(del);
         sec.appendChild(line);

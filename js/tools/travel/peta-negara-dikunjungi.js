@@ -185,6 +185,7 @@ export function render(root) {
   });
   const imporBtn = T.btn('Impor JSON', () => fi.click());
   const hapusBtn = T.btn('Hapus semua centang', () => {
+    if (!confirm('Hapus semua centang negara? Data negara yang dikunjungi akan hilang dan tidak bisa dikembalikan.')) return;
     dikunjungi = new Set();
     simpan();
     tampil();

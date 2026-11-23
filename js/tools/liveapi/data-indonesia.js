@@ -1,6 +1,6 @@
 import { h as T, esc } from '../../core.js';
 
-export const meta = {"id":"data-indonesia","name":"Data Indonesia","cat":"liveapi","icon":"🇮🇩","desc":"Angka resmi Indonesia: penduduk, ekonomi, harapan hidup & lainnya dari Bank Dunia.","keywords":"indonesia,data,penduduk,pdb,ekonomi,harapan hidup,pengangguran,inflasi,bank dunia","since":"6.12.0"};
+export const meta = {"id":"data-indonesia","name":"Data Indonesia","cat":"liveapi","icon":"🇮🇩","desc":"Angka resmi Indonesia: penduduk, ekonomi, harapan hidup & lainnya dari Bank Dunia.","keywords":"indonesia,data,penduduk,pdb,ekonomi,harapan hidup,pengangguran,inflasi,bank dunia","since":"6.12.0", "online": true};
 
 const API = 'https://api.worldbank.org/v2/country/IDN/indicator/';
 
@@ -69,7 +69,7 @@ export function render(root) {
       T.show(box, html);
     } catch (e) {
       let msg;
-      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak merespons.';
+      if (e.name === 'AbortError') msg = 'Waktu permintaan habis (timeout 15 detik). Koneksi lambat atau server tidak bisa dihubungi.';
       else msg = 'Gagal memuat data Indonesia. Periksa koneksi internet lalu coba lagi.';
       T.show(box, '<span class="err">' + esc(msg) + '</span>');
       const wrap = T.el('<div style="margin-top:8px"></div>');

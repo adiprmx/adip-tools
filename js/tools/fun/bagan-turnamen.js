@@ -151,6 +151,7 @@ export function render(root) {
       tampil();
     }, true),
     T.btn('Hapus bagan', () => {
+      if (!confirm('Hapus seluruh bagan turnamen? Data bagan akan hilang dan tidak bisa dikembalikan.')) return;
       state = null;
       try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
       tampil();
