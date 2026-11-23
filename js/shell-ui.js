@@ -19,6 +19,11 @@
    ============================================================ */
 import { esc } from './core.js';
 import { CATS, catLabel } from './catalog.js';
+/* S-FIXUP-FOOTER (v6.22.0): baris penutup footer memuat nomor versi
+   dari VERSION (js/manifest.js) — bukan hardcode, supaya ikut
+   bump-version.py. Impor ini tidak menimbulkan siklus: manifest.js
+   tidak mengimpor apa pun, dan catalog.js sudah mengimpornya. */
+import { VERSION } from './manifest.js';
 
 const hcardHTML = (m) => `
   <a class="hcard glass" href="#/t/${esc(m.id)}" aria-label="${esc(m.name)}">
@@ -48,6 +53,13 @@ function watchFadeX(rail) {
    sentuh 44px (gaya di css/polish-p3.css). Desktop: .foot-main
    dua kolom (identitas + layanan di kiri, kategori di kanan).
    HP: satu kolom berurutan.
+   Baris penutup ikut memuat nomor versi ("© 2026 ADIP Tools ·
+   Versi 6.22.0", S-FIXUP-FOOTER v6.22.0): versi di-render sinkron
+   di sini, bukan lewat mount async pwa.js — mount itu kalah
+   balapan dengan cek footer di smoke preview live (5/6, 23 Nov
+   2026). Teks kecil netral (.foot-end, 12px var(--dim)), bukan
+   aksen; tombol "Periksa update" tetap dipasang pwa.js
+   (mountUpdateCheckEntry) di atas baris penutup.
    Opsi dipertahankan:
    - methodLink (default true): tautan "Metodologi". Halaman
      Metodologi sendiri memakainya false (tanpa tautan ke diri).
@@ -81,7 +93,7 @@ function footerHTML(n, { methodLink = true, rise = null } = {}) {
       </nav>
       <nav class="foot-links" aria-label="Layanan">${links}</nav>
     </div>
-    <div class="foot-end">© 2026 ADIP Tools</div>
+    <div class="foot-end">© 2026 ADIP Tools · Versi ${VERSION}</div>
   </footer>`;
 }
 

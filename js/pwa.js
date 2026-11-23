@@ -84,10 +84,6 @@
    ============================================================ */
 import '../css/pwa.css';
 import { hasSeenOnboarding } from './onboarding.js';
-/* VERSION dipakai entri footer "Versi …" (F-10): impor ini tidak
-   menambah bobot bundle — js/app.js sudah mengimpor modul yang
-   sama ke chunk shell. */
-import { VERSION } from './manifest.js';
 
 /* ---------- konstanta kontrak (R11 §3.1) ---------- */
 
@@ -1135,11 +1131,17 @@ async function manualUpdateCheck(btn) {
   }
 }
 
-/* Entri footer "Versi 6.21.0" + tombol "Periksa update".
-   Idempotent; footer di-render ulang tiap route (pola P17).
-   Nomor versi dari VERSION (js/manifest.js) — bukan hardcode,
-   supaya ikut bump-version.py. */
-function mountVersionEntry() {
+/* Tombol "Periksa update" di footer (dulu mountVersionEntry, S-F8
+   F-09/F-10). Label "Versi …" DICABUT di sini (S-FIXUP-FOOTER
+   v6.22.0): teks versi kini di-render sinkron oleh footerHTML()
+   (js/shell-ui.js, baris .foot-end) — dua salinan "Versi X" di
+   footer sama membingungkannya dengan dua redaksi yang sama di
+   tempat lain. Tombol tetap di sini karena perilakunya milik PWA
+   (manualUpdateCheck); id + kelas wrapper dipertahankan supaya
+   penjaga duplikat di js/components.js (:1144, :not(.pwa-version))
+   dan guard idempoten tetap berlaku. Idempotent; footer
+   di-render ulang tiap route (pola P17). */
+function mountUpdateCheckEntry() {
   try {
     if (typeof document === 'undefined') return;
     if (document.getElementById(VERSION_ENTRY_ID)) return;
@@ -1148,10 +1150,6 @@ function mountVersionEntry() {
     const wrap = document.createElement('div');
     wrap.className = 'rs-chips prevline pwa-version';
     wrap.id = VERSION_ENTRY_ID;
-    const label = document.createElement('span');
-    label.className = 'pwa-version-label';
-    label.textContent = `Versi ${VERSION}`;
-    wrap.appendChild(label);
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'schip pwa-version-check';
@@ -1189,7 +1187,7 @@ async function mountFooterEntries() {
       });
     }
   } catch { /* P17 belum selesai / gagal dimuat: diam */ }
-  mountVersionEntry();
+  mountUpdateCheckEntry();
   mountNetBadge();
 }
 
