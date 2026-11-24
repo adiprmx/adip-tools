@@ -1,7 +1,7 @@
 // ADIP Tools — konfigurasi Vite (P0-A, v6.14.0).
 //
 // Arsitektur: SPA hash-routing vanilla ESM, TANPA framework. Vite hanya
-// membundel + memberi hash nama file (menggantikan ?v= manual); 1.261 tool
+// membundel + memberi hash nama file (menggantikan ?v= manual); 1.262 tool
 // tetap file vanilla JS yang dimuat on-demand lewat import.meta.glob
 // di js/app.js (satu chunk ber-hash per tool).
 //

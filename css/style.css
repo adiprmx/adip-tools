@@ -657,6 +657,16 @@ input[type=file]::-webkit-file-upload-button:hover { border-color: var(--line-st
   outline: 2px solid var(--acc);
   outline-offset: 2px;
 }
+/* S-B13 (v6.23.0, D3 — temuan S-Q6): cincin fokus coral yang sama
+   untuk kontrol tool yang terlewat daftar di atas: tautan platform,
+   <summary> grup, dan tombol polos (mis. "Hapus filter" di Cek
+   Username). Sebelumnya mereka memakai cincin default browser 1px
+   — terlihat, tapi bukan coral 2px design lock seperti .btn/.inp. */
+.tool a:focus-visible, .tool summary:focus-visible,
+.tool button:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
 
 /* Judul yang difokus via JS saat ganti halaman (route(), app.js) tidak
    boleh menampilkan ring fokus: fokus itu untuk pembaca layar, bukan
@@ -926,6 +936,18 @@ table.inv-item th { font-weight: 700; }
   background: #1c1713;
   border: 1px solid rgba(255, 255, 255, 0.09); border-radius: var(--r-card);
   animation: tabs-in 0.3s var(--ease);
+}
+/* S-B13 (v6.23.0, D1 — WCAG 2.2 AA 2.4.11): tab bar bawah fixed
+   menutup fokus keyboard (terukur S-Q6: tautan TikTok 16,5/17px,
+   summary Developer 44/44px, tautan Steam 17/17px tertutup —
+   praktis tak terlihat saat terfokus). scroll-padding-bottom
+   membuat scroll-into-view browser berhenti di atas tab bar.
+   101px = 89px (tepi atas tab bar ke bawah viewport di 360x800,
+   terukur live) + 12px jarak aman; + safe-area perangkat bertakik.
+   Hanya <1024px — di desktop tab bar disembunyikan
+   (components.css, D-08). */
+@media (max-width: 1023px) {
+  html { scroll-padding-bottom: calc(101px + env(safe-area-inset-bottom, 0px)); }
 }
 @keyframes tabs-in { from { opacity: 0; transform: translateY(14px); } }
 .tab-ind {

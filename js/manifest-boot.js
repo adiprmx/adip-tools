@@ -1,4 +1,4 @@
-/* ADIP Tools v6.22.0 — manifest BOOT ramping (GENERATED, jangan edit manual).
+/* ADIP Tools v6.23.0 — manifest BOOT ramping (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js bersamaan dengan js/manifest.js
    (sumber kebenaran Node, TETAP PENUH) dan js/manifest-details.js.
    Entri di sini TANPA desc/keywords supaya entry chunk browser kecil di
@@ -7,7 +7,7 @@
    referensi manifest langsung melihat data penuh tanpa ganti array.
    Vite memetakan impor './manifest.js' ke file ini (resolve.alias).
 */
-export const VERSION = '6.22.0';
+export const VERSION = '6.23.0';
 export const manifest = [
   {"id":"analisis-swot","name":"Analisis SWOT","cat":"bisnis","icon":"🧭","file":"tools/bisnis/analisis-swot.js","since":"6.18.0"},
   {"id":"anggaran-50-30-20","name":"Anggaran 50/30/20","cat":"bisnis","icon":"💰","file":"tools/bisnis/anggaran-50-30-20.js","since":"6.11.0"},
@@ -747,6 +747,7 @@ export const manifest = [
   {"id":"cek-email-bocor","name":"Cek Email Bocor","cat":"liveapi","icon":"🔓","file":"tools/liveapi/cek-email-bocor.js","since":"6.17.0","online":true},
   {"id":"cek-email-sekali-pakai","name":"Cek Email Sekali Pakai","cat":"liveapi","icon":"📧","file":"tools/liveapi/cek-email-sekali-pakai.js","since":"6.18.0","online":true},
   {"id":"cek-kerentanan-paket","name":"Cek Kerentanan Paket","cat":"liveapi","icon":"🛡️","file":"tools/liveapi/cek-kerentanan-paket.js","since":"6.16.0","online":true},
+  {"id":"cek-username","name":"Cek Username","cat":"liveapi","icon":"📛","file":"tools/liveapi/cek-username.js","since":"6.23.0","online":true},
   {"id":"cuaca-antariksa-aurora","name":"Cuaca Antariksa/Aurora","cat":"liveapi","icon":"🌌","file":"tools/liveapi/cuaca-antariksa-aurora.js","since":"6.17.0","online":true},
   {"id":"cuaca-arsip","name":"Cuaca Arsip","cat":"liveapi","icon":"🗓️","file":"tools/liveapi/cuaca-arsip.js","since":"6.18.0","online":true},
   {"id":"cuaca-bmkg","name":"Cuaca BMKG","cat":"liveapi","icon":"🌤️","file":"tools/liveapi/cuaca-bmkg.js","since":"6.16.0","online":true},

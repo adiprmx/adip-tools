@@ -42,7 +42,7 @@ import { catMeta } from './beranda.js';
    beranda (diagnostik Playwright S-U5). */
 import { onManifestDetails } from './manifest-boot.js';
 export const HOME_DESC =
-  '1.261 tools gratis berbahasa Indonesia: kalkulator gaji & THR, kompres foto, QR, sampai tools DJ. Tanpa daftar, tanpa iklan.';
+  '1.262 tools gratis berbahasa Indonesia: kalkulator gaji & THR, kompres foto, QR, sampai tools DJ. Tanpa daftar, tanpa iklan.';
 
 /* Gambar share: ikon situs yang sudah ada (public/icons/icon-512.png,
    512x512, terverifikasi). Satu gambar untuk semua halaman — belum ada
@@ -108,7 +108,26 @@ export function buildTitle(tool) {
    karakter — pemangkasan untuk meta ditangani truncateMetaDesc() di
    syncMeta, bukan di sini, supaya teks bagikan tetap utuh). */
 export function buildDescription(tool) {
-  return tool && tool.desc ? String(tool.desc) : HOME_DESC;
+  return tool && tool.desc ? String(tool.desc) : buildHomeDesc();
+}
+
+/* Deskripsi beranda dengan angka jumlah tool yang diturunkan dari
+   manifest bila tersedia (S-B14 v6.23.0, F-Q8-01): satu sumber
+   kebenaran — angka meta homepage tidak lagi basi tiap ronde.
+   Urutan: argumen dulu, lalu manifest initSeoShare(), lalu HOME_DESC
+   apa adanya (fallback bila manifest belum dimuat). Regex + format
+   angka sama persis dengan yang dipakai buildSiteJsonLd() sebelumnya —
+   meta homepage dan JSON-LD situs selalu sepakat. */
+export function buildHomeDesc(toolCount) {
+  const count =
+    Number.isFinite(toolCount) && toolCount > 0
+      ? toolCount
+      : _manifest.length > 0
+        ? _manifest.length
+        : null;
+  return count
+    ? HOME_DESC.replace(/^[\d.]+ tools/, `${count.toLocaleString('id-ID')} tools`)
+    : HOME_DESC;
 }
 
 /* Pangkas deskripsi untuk meta/OG (batas tampil cuplikan ~160 karakter).
@@ -138,21 +157,13 @@ export function toolShareUrl(toolId, base) {
 }
 
 /* JSON-LD situs: WebSite + WebApplication (gratis, tanpa daftar).
-   Jumlah tool dihitung dinamis: argumen dulu, lalu manifest yang
-   disimpan initSeoShare(). Tanpa keduanya, deskripsi dibiarkan apa
-   adanya (tanpa angka hardcode — angka basi diam-diam begitu jumlah
-   tool berubah). SearchAction menunjuk rute cari yang memang ada
-   (#/semua?q=...); image memakai ikon situs yang sudah ada. */
+   Jumlah tool dihitung dinamis lewat buildHomeDesc() (argumen dulu,
+   lalu manifest yang disimpan initSeoShare(); tanpa keduanya,
+   deskripsi dibiarkan apa adanya). SearchAction menunjuk rute cari
+   yang memang ada (#/semua?q=...); image memakai ikon situs yang
+   sudah ada. */
 export function buildSiteJsonLd(toolCount) {
-  const count =
-    Number.isFinite(toolCount) && toolCount > 0
-      ? toolCount
-      : _manifest.length > 0
-        ? _manifest.length
-        : null;
-  const desc = count
-    ? HOME_DESC.replace(/^[\d.]+ tools/, `${count.toLocaleString('id-ID')} tools`)
-    : HOME_DESC;
+  const desc = buildHomeDesc(toolCount);
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -300,11 +311,11 @@ export function syncMeta() {
     canonical = hashUrl(`#/k/${catId}`);
   } else if (hash.startsWith('#/semua')) {
     title = ROUTE_TITLES.semua;
-    desc = HOME_DESC;
+    desc = buildHomeDesc();
     canonical = SITE_URL + '/';
   } else if (hash === '#/favorit') {
     title = ROUTE_TITLES.favorit;
-    desc = HOME_DESC;
+    desc = buildHomeDesc();
     canonical = SITE_URL + '/';
   } else if (hash.startsWith('#/metodologi')) {
     title = ROUTE_TITLES.metodologi;
@@ -312,7 +323,7 @@ export function syncMeta() {
     canonical = SITE_URL + '/';
   } else {
     title = HOME_TITLE;
-    desc = HOME_DESC;
+    desc = buildHomeDesc();
     canonical = SITE_URL + '/';
   }
 

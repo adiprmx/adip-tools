@@ -7,7 +7,7 @@
  *      DILARANG baca package.json (bump-version.py tidak mengelolanya).
  *   2. baca dist/.vite/manifest.json → entry chunk + CSS bundle + font.
  *   3. susun daftar precache SHELL-ONLY (guardrail keras: TIDAK PERNAH
- *      chunk tool — manifest berisi 1.261 chunk tool, semuanya difilter habis).
+ *      chunk tool — manifest berisi 1.262 chunk tool, semuanya difilter habis).
  *      S-U5 (v6.22.0, strategi precache): daftar TETAP 12 entri shell-only.
  *      Chunk detail manifest (manifest-details-*.js, ~75 KB gzip) SENGAJA
  *      TIDAK di-precache: (1) install SW all-or-nothing (cache.addAll) —
@@ -136,7 +136,7 @@ const PRECACHE = [
 ];
 
 // Guardrail keras (R12): daftar ini WAJIB shell-only. Assert eksplisit:
-// - tidak ada chunk tool (manifest berisi 1.261 chunk tool — semuanya terlarang)
+// - tidak ada chunk tool (manifest berisi 1.262 chunk tool — semuanya terlarang)
 // - tidak ada chunk detail manifest (S-U5: dimuat malas + runtime cache, bukan precache)
 // - tidak ada sw.js / sw-*.js (self-reference)
 // - tidak ada URL absolut / cross-origin

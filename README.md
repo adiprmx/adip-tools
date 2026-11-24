@@ -1,6 +1,6 @@
 # ADIP Tools 🧰
 
-**1.261 tools gratis berbahasa Indonesia** — kalkulator, converter, generator, dan alat sehari-hari, sebagian besar khusus untuk kebutuhan di Indonesia.
+**1.262 tools gratis berbahasa Indonesia** — kalkulator, converter, generator, dan alat sehari-hari, sebagian besar khusus untuk kebutuhan di Indonesia.
 
 🌐 Live: <https://tools.adipmusic.my.id>
 
@@ -174,7 +174,7 @@ Detail lengkap: [docs/arsitektur.md](docs/arsitektur.md).
 
 - **Statis murni.** HTML + CSS + vanilla JS, tanpa framework, tanpa backend sendiri. Build memakai Vite (`npm run build` → `dist/`): bundling + minifikasi + nama file ber-hash. Hosting cukup server file statis apa pun.
 - **Shell + hash routing.** `index.html` hanya berisi skip link + `<main id="app">` dan dua `<script type="module">`. `js/app.js` adalah router hash: `#/t/<id-tool>`, `#/k/<kategori>`, `#/semua`, `#/favorit`, `#/c/<koleksi>`, `#/metodologi`.
-- **Lazy load per tool.** Beranda hanya memuat `js/manifest.js` (metadata ringan 1.261 tool). Kode tool diimpor dinamis lewat `import.meta.glob` saat halamannya dibuka — satu chunk ber-hash per tool sebagai cache-buster.
+- **Lazy load per tool.** Beranda hanya memuat `js/manifest.js` (metadata ringan 1.262 tool). Kode tool diimpor dinamis lewat `import.meta.glob` saat halamannya dibuka — satu chunk ber-hash per tool sebagai cache-buster.
 - **Satu file = satu tool.** Tiap tool adalah ES module mandiri di `js/tools/<kategori>/<id>.js`, mengimpor helper dari `js/core.js` (komponen UI, format angka/Rupiah, download, ZIP, toast, dan lain-lain).
 - **Client-side, dengan dua pengecualian jujur:**
   - **Data Langsung (139 tool):** mengambil data publik dari API pihak ketiga (BMKG, Aladhan, CoinGecko, dan sejenisnya) langsung dari browser.
@@ -213,7 +213,7 @@ css/                  style.css (design lock) + fx-*.css (efek) + fonts/
 js/
   app.js              Router hash, beranda, pencarian, favorit, koleksi
   core.js             Helper bersama semua tool (namespace `h`, `utils`)
-  manifest.js         Metadata 1.261 tool (GENERATED)
+  manifest.js         Metadata 1.262 tool (GENERATED)
   beranda.js          Showcase "Baru ditambahkan" + pengantar kategori (v6.12.0)
   detail-riwayat.js   Rel riwayat + chip kembali di halaman tool (v6.12.0)
   seo-share.js        Meta/JSON-LD dinamis + tombol bagikan (v6.12.0)
@@ -225,7 +225,7 @@ js/
 scripts/              Generator manifest/TOOLS.md/sitemap/llms.txt, bump, cek
 docs/                 Panduan kontribusi & arsitektur
 supabase/             SQL pendukung pencarian (catatan: tidak cocok dengan app.js — lihat docs/arsitektur.md)
-TOOLS.md              Daftar lengkap 1.261 tool (GENERATED)
+TOOLS.md              Daftar lengkap 1.262 tool (GENERATED)
 llms.txt              Ringkasan situs untuk LLM (GENERATED)
 sitemap.xml           Sitemap (GENERATED)
 robots.txt            Mengizinkan semua crawler, menunjuk sitemap

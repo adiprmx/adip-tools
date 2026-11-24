@@ -1,8 +1,8 @@
-/* ADIP Tools v6.22.0 — manifest metadata (GENERATED, jangan edit manual).
+/* ADIP Tools v6.23.0 — manifest metadata (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js dari meta tiap file tool.
    Berisi metadata ringan untuk home/search/palette; kode tool di-load on-demand.
 */
-export const VERSION = '6.22.0';
+export const VERSION = '6.23.0';
 export const manifest = [
   {"id":"analisis-swot","name":"Analisis SWOT","cat":"bisnis","icon":"🧭","desc":"Petakan kekuatan, kelemahan, peluang, dan ancaman usahamu dalam satu matriks.","keywords":"swot,analisis,strength,weakness,opportunity,threat,usaha,bisnis,strategi,matriks","file":"tools/bisnis/analisis-swot.js","since":"6.18.0"},
   {"id":"anggaran-50-30-20","name":"Anggaran 50/30/20","cat":"bisnis","icon":"💰","desc":"Bagi penghasilan jadi kebutuhan, keinginan, dan tabungan, lalu cek apakah pengeluaranmu sudah sesuai.","keywords":"anggaran,budget,50 30 20,keuangan,penghasilan,tabungan,kebutuhan","file":"tools/bisnis/anggaran-50-30-20.js","since":"6.11.0"},
@@ -742,6 +742,7 @@ export const manifest = [
   {"id":"cek-email-bocor","name":"Cek Email Bocor","cat":"liveapi","icon":"🔓","desc":"Cek apakah emailmu pernah muncul di kebocoran data yang diketahui publik.","keywords":"email,bocor,kebocoran data,breach,keamanan,cek email,xposedornot,password","file":"tools/liveapi/cek-email-bocor.js","since":"6.17.0","online":true},
   {"id":"cek-email-sekali-pakai","name":"Cek Email Sekali Pakai","cat":"liveapi","icon":"📧","desc":"Cek apakah alamat email berasal dari layanan email sekali pakai.","keywords":"email,sekali pakai,disposable,cek email,validasi email,spam","file":"tools/liveapi/cek-email-sekali-pakai.js","since":"6.18.0","online":true},
   {"id":"cek-kerentanan-paket","name":"Cek Kerentanan Paket","cat":"liveapi","icon":"🛡️","desc":"Cek apakah versi paket software yang kamu pakai punya celah keamanan yang sudah diketahui.","keywords":"kerentanan,vulnerability,osv,cve,paket,npm,pypi,keamanan,cve","file":"tools/liveapi/cek-kerentanan-paket.js","since":"6.16.0","online":true},
+  {"id":"cek-username","name":"Cek Username","cat":"liveapi","icon":"📛","desc":"Cek di platform mana saja sebuah username dipakai, dari profil publik.","keywords":"username,cek username,profil,profil publik,stalker,osint,keamanan,cari akun,sosial media","file":"tools/liveapi/cek-username.js","since":"6.23.0","online":true},
   {"id":"cuaca-antariksa-aurora","name":"Cuaca Antariksa/Aurora","cat":"liveapi","icon":"🌌","desc":"Skala badai Matahari terkini dari NOAA: gangguan radio, radiasi, dan peluang aurora.","keywords":"cuaca antariksa,aurora,badai matahari,noaa,geomagnet,radio,matahari,space weather","file":"tools/liveapi/cuaca-antariksa-aurora.js","since":"6.17.0","online":true},
   {"id":"cuaca-arsip","name":"Cuaca Arsip","cat":"liveapi","icon":"🗓️","desc":"Lihat cuaca hari-hari yang sudah lewat: suhu siang, malam, dan hujan.","keywords":"cuaca,arsip,historis,tanggal lampau,suhu,hujan,open-meteo","file":"tools/liveapi/cuaca-arsip.js","since":"6.18.0","online":true},
   {"id":"cuaca-bmkg","name":"Cuaca BMKG","cat":"liveapi","icon":"🌤️","desc":"Prakiraan cuaca resmi BMKG per desa dan kelurahan, 3 hari ke depan.","keywords":"cuaca,bmkg,prakiraan,hujan,cerah,suhu,desa,kelurahan","file":"tools/liveapi/cuaca-bmkg.js","since":"6.16.0","online":true},

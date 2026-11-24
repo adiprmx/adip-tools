@@ -68,7 +68,7 @@ const COLLECTIONS = [
 const collectionById = (id) => COLLECTIONS.find((c) => c.id === id);
 
 /* ---------------- rantai antar-tool (v6.12.0, ide UX #7) ----------------
-   Langkah berikut yang relevan setelah memakai satu tool (441 dari 1.261 tool
+   Langkah berikut yang relevan setelah memakai satu tool (442 dari 1.262 tool
    punya rantai sejak v6.22.0; liveapi/bisnis/sehari 100%). Ditampilkan shell
    di bawah kotak tool (tanpa mengubah file tool). Tool yang mau menaruh
    rantai di dalam area hasilnya bisa pakai T.nextSteps() di core.js. */
@@ -310,6 +310,7 @@ const NEXT = {
   'cek-email-bocor': ['cek-email-sekali-pakai', 'kekuatan-pin', 'kuis-phising'],
   'cek-email-sekali-pakai': ['cek-email-bocor', 'penulis-cold-email', 'validator-email-url'],
   'cek-kerentanan-paket': ['info-cve', 'info-paket-npm', 'info-paket-python'],
+  'cek-username': ['cek-email-bocor', 'github-profile', 'jejak-digital'],
   'cuaca-antariksa-aurora': ['data-matahari-iklim', 'terbit-terbenam'],
   'cuaca-arsip': ['cuaca-bmkg', 'data-matahari-iklim', 'kurs-cuaca'],
   'cuaca-bmkg': ['cuaca-arsip', 'data-matahari-iklim', 'wilayah-indonesia'],
@@ -649,7 +650,7 @@ function relatedTools(id, n = 4) {
 
 /* ---------------- sub-kelompok tampilan kategori besar (S-U3, v6.22.0, P2-1) ----------------
    Pengelompokan TAMPILAN saja di halaman #/k/<id> — field `cat` di manifest TIDAK
-   berubah (mengubahnya mengguncang router/sitemap/1.261 file). Partisi: tiap tool
+   berubah (mengubahnya mengguncang router/sitemap/1.262 file). Partisi: tiap tool
    masuk TEPAT SATU subgrup; tumpang-tindih yang masuk akal dicatat di
    SUBGROUP_OVERLAPS (bukan digandakan tampilannya). Klaster dari audit S-A3 §3
    (dihitung dari manifest nyata); hitungan akhir adalah hasil partisi, bukan
@@ -659,7 +660,7 @@ const SUBGROUPS = {
   liveapi: [
     { id: 'data', label: 'Data & referensi', tools: ['akhir-dukungan-software', 'apod-harian', 'arsip-foto-nasa', 'arsip-library-of-congress', 'arsip-web', 'artikel-dev-terbaru', 'ayat-alkitab', 'baca-quran', 'berita-antariksa', 'berita-hacker-news', 'buku-indonesia', 'cari-buku', 'cari-jurnal-paper', 'cari-sekolah', 'data-bisbol-mlb', 'data-blockchain-bitcoin', 'data-covid-19-flu', 'data-digimon', 'data-dnd-5e', 'data-dota-2', 'data-f1-live', 'data-indonesia', 'data-matahari-iklim', 'data-satelit-tle', 'data-spesies-dunia', 'data-valorant', 'ensiklopedia-star-wars', 'film-baru-streaming', 'film-studio-ghibli', 'galeri-met', 'galeri-seni', 'hadits-arbain', 'hari-libur', 'info-crate-rust', 'info-cve', 'info-emoji', 'info-kopi', 'info-makanan', 'info-modul-go', 'info-musik-artis', 'info-obat-fda', 'info-paket-dotnet', 'info-paket-npm', 'info-paket-python', 'info-serial-tv', 'info-tim-olahraga', 'jurnal-medis', 'kamus-inggris', 'karakter-avatar', 'karakter-disney', 'karakter-rick-morty', 'kartu-magic-mtg', 'kartu-yu-gi-oh', 'kode-pos-dunia', 'kode-pos-indonesia', 'observasi-alam', 'pemenang-nobel', 'posisi-iss', 'puisi-klasik', 'ringkasan-wikipedia', 'sinonim-kata-terkait', 'tafsir-quran', 'uji-klinis', 'wilayah-indonesia'] },
     { id: 'hiburan', label: 'Hiburan & acak', tools: ['anjing-random', 'cari-adegan-anime', 'cari-aktivitas-acak', 'cari-lagu-film-app', 'diskon-game-pc', 'emoji-github', 'fakta-kucing', 'fakta-tak-berguna', 'foto-acak', 'game-gratis', 'kartu-remi', 'kelinci-acak', 'kucing-acak', 'kucing-status-http', 'kucing-teks', 'lelucon-acak', 'lelucon-bapak-bapak', 'lelucon-chuck-norris', 'lelucon-geek', 'lirik-lagu', 'pesan-commit-acak', 'pokemon-viewer', 'profil-catur-chess-com', 'quotes-kanye-west', 'quotes-random', 'quotes-ron-swanson', 'radio-online', 'resep-koktail', 'resep-makanan', 'rubah-acak', 'saran-random', 'status-server-minecraft', 'tebak-nama', 'teka-teki-catur-harian', 'template-meme-populer'] },
-    { id: 'utilitas', label: 'Utilitas live', tools: ['ambil-favicon-situs', 'avatar-inisial', 'banjir-sungai', 'bencana-alam-global', 'cari-foto-gratis-cc', 'cari-ikon-svg', 'cari-lokasi', 'cek-email-bocor', 'cek-email-sekali-pakai', 'cek-kerentanan-paket', 'cuaca-antariksa-aurora', 'cuaca-arsip', 'cuaca-bmkg', 'gempa-bmkg', 'gempa-dirasakan', 'gempa-dunia-terkini', 'generator-data-dummy', 'github-profile', 'harga-crypto', 'harga-emas-live', 'info-domain-rdap', 'ip-saya', 'jadwal-peluncuran-roket', 'jadwal-sholat', 'jawab-cepat', 'kalkulator-ekspresi', 'ketinggian-lokasi', 'kualitas-udara', 'kurs-cuaca', 'lowongan-kerja-eropa-remote', 'lowongan-kerja-remote', 'pemendek-url', 'penerjemah', 'penyelesaian-matematika', 'prakiraan-gelombang-laut', 'rute-jarak-perjalanan', 'sertifikat-ssl-domain', 'skor-keamanan-repo', 'terbit-terbenam', 'tes-kecepatan-internet'] },
+    { id: 'utilitas', label: 'Utilitas live', tools: ['ambil-favicon-situs', 'avatar-inisial', 'banjir-sungai', 'bencana-alam-global', 'cari-foto-gratis-cc', 'cari-ikon-svg', 'cari-lokasi', 'cek-email-bocor', 'cek-email-sekali-pakai', 'cek-kerentanan-paket', 'cek-username', 'cuaca-antariksa-aurora', 'cuaca-arsip', 'cuaca-bmkg', 'gempa-bmkg', 'gempa-dirasakan', 'gempa-dunia-terkini', 'generator-data-dummy', 'github-profile', 'harga-crypto', 'harga-emas-live', 'info-domain-rdap', 'ip-saya', 'jadwal-peluncuran-roket', 'jadwal-sholat', 'jawab-cepat', 'kalkulator-ekspresi', 'ketinggian-lokasi', 'kualitas-udara', 'kurs-cuaca', 'lowongan-kerja-eropa-remote', 'lowongan-kerja-remote', 'pemendek-url', 'penerjemah', 'penyelesaian-matematika', 'prakiraan-gelombang-laut', 'rute-jarak-perjalanan', 'sertifikat-ssl-domain', 'skor-keamanan-repo', 'terbit-terbenam', 'tes-kecepatan-internet'] },
   ],
   bisnis: [
     { id: 'investasi', label: 'Investasi & saham', tools: ['fee-broker-saham', 'kalkulator-aturan-72', 'kalkulator-cagr', 'kalkulator-capm-beta', 'kalkulator-dca', 'kalkulator-dcf', 'kalkulator-dividen', 'kalkulator-eps-rasio-p-e', 'kalkulator-fibonacci-retracement', 'kalkulator-harga-wajar-saham-graham-number', 'kalkulator-impermanent-loss', 'kalkulator-margin-of-safety', 'kalkulator-mirr', 'kalkulator-npv-irr', 'kalkulator-obligasi-yield-ytm', 'kalkulator-roi', 'kalkulator-rsi', 'kalkulator-sharpe-ratio', 'kalkulator-stock-split', 'kalkulator-ukuran-posisi', 'kalkulator-wacc'] },

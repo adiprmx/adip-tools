@@ -409,7 +409,7 @@ function openPalette() {
   }
   /* S-F9 (v6.22.0, S-A5 F2): debounce 150 ms, pola yang sama dengan
      #/semua (180 ms). Tanpa ini tiap ketikan = satu rankedSearchPlus
-     penuh atas 1.261 tool. Timer di-clear tiap ketikan, jadi
+     penuh atas 1.262 tool. Timer di-clear tiap ketikan, jadi
      pencarian hanya jalan sesudah pengguna berhenti mengetik. */
   let palT;
   inp.addEventListener('input', () => {

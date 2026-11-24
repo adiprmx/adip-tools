@@ -30,7 +30,7 @@
    .ct), .empty.
 
    Design Read (taste §0.B + antislop Part 3): chrome utilitas
-   untuk direktori 1.261 tools, pengunjung Indonesia yang
+   untuk direktori 1.262 tools, pengunjung Indonesia yang
    kebanyakan memakai HP, dalam bahasa visual terkunci "Arang &
    Coral" (bg #161311, aksen coral #ff6f61, Bricolage Grotesque).
    Dial ENERGY 1 / RHYTHM 1 / MOTION 1: tenang, seragam, gerak

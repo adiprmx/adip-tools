@@ -1,12 +1,12 @@
 # Daftar Tools Adip Tools
 
-> 1261 tool · v6.22.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
+> 1262 tool · v6.23.0 · dibuat otomatis dari js/manifest.js — jangan edit manual.
 
 ## Ringkasan kategori
 
 | Kategori | Jumlah |
 |---|---|
-| Data Langsung | 139 |
+| Data Langsung | 140 |
 | Bisnis | 124 |
 | Sehari-hari | 98 |
 | Gambar | 94 |
@@ -28,9 +28,9 @@
 | Rumah | 15 |
 | Masak | 9 |
 | Travel | 9 |
-| **Total** | **1261** |
+| **Total** | **1262** |
 
-## Data Langsung (139)
+## Data Langsung (140)
 
 1. **Akhir Dukungan Software** — Cek sampai kapan sebuah bahasa atau framework masih didukung, per versinya.
 2. **Ambil Favicon Situs** — Lihat dan unduh ikon kecil (favicon) dari situs web apa pun.
@@ -60,117 +60,118 @@
 26. **Cek Email Bocor** — Cek apakah emailmu pernah muncul di kebocoran data yang diketahui publik.
 27. **Cek Email Sekali Pakai** — Cek apakah alamat email berasal dari layanan email sekali pakai.
 28. **Cek Kerentanan Paket** — Cek apakah versi paket software yang kamu pakai punya celah keamanan yang sudah diketahui.
-29. **Cuaca Antariksa/Aurora** — Skala badai Matahari terkini dari NOAA: gangguan radio, radiasi, dan peluang aurora.
-30. **Cuaca Arsip** — Lihat cuaca hari-hari yang sudah lewat: suhu siang, malam, dan hujan.
-31. **Cuaca BMKG** — Prakiraan cuaca resmi BMKG per desa dan kelurahan, 3 hari ke depan.
-32. **Data Bisbol MLB** — Lihat daftar 30 tim bisbol MLB beserta stadion, kota, dan liganya.
-33. **Data Blockchain Bitcoin** — Blok Bitcoin terbaru, antrean transaksi yang menunggu, dan perkiraan biayanya.
-34. **Data COVID-19** — Angka COVID-19 terbaru, seluruh dunia atau satu negara.
-35. **Data Digimon** — Telusuri daftar Digimon lengkap dengan gambar dan levelnya.
-36. **Data D&D 5e** — Cari mantra, monster, dan ras Dungeons & Dragons edisi ke-5.
-37. **Data Dota 2** — Info hero Dota 2: atribut, peran, dan angka dasarnya.
-38. **Data F1** — Jadwal balapan Formula 1 per musim, sesi tiap seri, daftar pembalap, dan hasil balapan terakhir.
-39. **Data Indonesia** — Angka resmi Indonesia: penduduk, ekonomi, harapan hidup & lainnya dari Bank Dunia.
-40. **Data Matahari & Iklim** — Lihat suhu, sinar matahari, dan hujan harian di sebuah lokasi dari data NASA.
-41. **Data Satelit TLE** — Data orbit satelit terkini (TLE): ISS, Hubble, dan satelit lain dari nomor katalognya.
-42. **Data Spesies Dunia** — Cari nama latin hewan, tumbuhan, dan jamur di basis data GBIF.
-43. **Data Valorant** — Info agen, senjata, dan versi terbaru game Valorant.
-44. **Diskon Game PC** — Cari diskon game PC termurah di berbagai toko.
-45. **Emoji GitHub** — Telusuri semua emoji GitHub lengkap dengan kodenya.
-46. **Ensiklopedia Star Wars** — Cari tokoh, film, planet, pesawat, dan spesies dari dunia Star Wars.
-47. **Fakta Kucing** — Fakta acak tentang kucing dalam bahasa Inggris asli.
-48. **Fakta Tak Berguna** — Fakta acak yang tidak berguna tapi seru buat bahan obrolan.
-49. **Film Baru di Streaming** — Lihat film dan serial yang baru tayang dan segera tayang di Netflix dan layanan lain.
-50. **Film Studio Ghibli** — Daftar film Studio Ghibli lengkap: judul, sutradara, tahun, dan sinopsisnya.
-51. **Foto Acak** — Foto acak berkualitas tinggi dari Lorem Picsum, bisa diunduh dalam ukuran pilihanmu.
-52. **Galeri Met** — Jelajahi koleksi seni Metropolitan Museum of Art: lukisan, patung, sampai artefak kuno.
-53. **Galeri Seni Dunia** — Jelajahi karya seni acak dari Art Institute of Chicago.
-54. **Game Gratis** — Daftar game PC dan peramban yang gratis dimainkan, diurutkan dari yang paling populer.
-55. **Gempa BMKG Terkini** — Info gempa bumi terbaru langsung dari BMKG.
-56. **Gempa Dirasakan** — Gempa terbaru yang terasa di Indonesia, langsung dari BMKG.
-57. **Gempa Dunia Terkini** — Gempa bumi terbaru di seluruh dunia dari USGS, bisa difilter kekuatan dan waktunya.
-58. **Generator Data Dummy** — Buat profil acak untuk keperluan tes dan desain: nama, foto, email, dan alamat contoh.
-59. **Profil GitHub** — Lihat profil GitHub siapapun: avatar, bio, followers, repo.
-60. **Hadits Arbain** — Hadits Arbain An-Nawawi nomor 1 sampai 42, teks Arab dan terjemahan Indonesia.
-61. **Harga Crypto** — Harga crypto live (IDR & USD) + perubahan 24 jam.
-62. **Harga Emas Live** — Harga emas dunia terkini per troy ons dan per gram.
-63. **Hari Libur Indonesia** — Daftar hari libur nasional Indonesia per tahun.
-64. **Info Crate Rust** — Lihat versi terbaru, deskripsi, dan unduhan paket Rust di crates.io.
-65. **Info CVE** — Lihat detail kerentanan keamanan (CVE) dari basis data NIST: skor, deskripsi, dan referensinya.
-66. **Info Domain RDAP** — Lihat siapa pendaftar sebuah domain, kapan didaftarkan, dan kapan kedaluwarsanya.
-67. **Info Emoji** — Emoji acak beserta nama dan kategorinya, atau telusuri per kategori.
-68. **Info Kopi** — Daftar minuman kopi panas dan dingin beserta bahan dan deskripsinya.
-69. **Info Makanan Kemasan** — Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.
-70. **Info Modul Go** — Cari versi terbaru modul Go beserta tanggal rilisnya.
-71. **Info Musik Artis** — Cari artis atau band: asal negara, tahun aktif, dan jenis musiknya.
-72. **Info Obat FDA** — Lihat kegunaan dan peringatan sebuah obat dari data resmi FDA Amerika.
-73. **Info Paket .NET** — Cari paket .NET di NuGet: versi terbaru, deskripsi, dan unduhan.
-74. **Info Paket NPM** — Lihat versi terbaru, deskripsi, dan lisensi paket JavaScript di npm.
-75. **Info Paket Python** — Lihat versi terbaru, ringkasan, dan kebutuhan Python sebuah paket di PyPI.
-76. **Info Serial TV** — Cari serial TV: sinopsis, status tayang, genre, dan ratingnya.
-77. **Info Tim Olahraga** — Cari tim olahraga dunia dan lihat stadion, tahun berdiri, dan liganya.
-78. **IP & Lokasi Saya** — Cek alamat IP publik & perkiraan lokasimu.
-79. **Jadwal Peluncuran Roket** — Peluncuran roket dan misi antariksa yang akan datang.
-80. **Jadwal Sholat** — Jadwal sholat harian per kota + countdown ke waktu berikutnya.
-81. **Jawab Cepat** — Jawaban singkat untuk pertanyaan umum, dari DuckDuckGo.
-82. **Jurnal Medis** — Cari artikel dan jurnal medis dari Europe PMC, mencakup isi PubMed.
-83. **Kalkulator Ekspresi** — Hitung ekspresi matematika apa pun, dari yang sederhana sampai pakai akar dan pangkat.
-84. **Kamus Inggris** — Arti kata bahasa Inggris lengkap dengan cara baca & contoh kalimat.
-85. **Karakter Avatar** — Cari karakter Avatar: The Last Airbender dan lihat sekutu, musuh, dan kelompoknya.
-86. **Karakter Disney** — Cari karakter Disney: film, serial, dan game tempat mereka muncul.
-87. **Karakter Rick & Morty** — Cari karakter serial Rick and Morty: status, spesies, dan asal mereka.
-88. **Kartu Magic MTG** — Cari kartu Magic: The Gathering lengkap dengan gambar, teks, dan harganya.
-89. **Kartu Remi** — Kocok dek kartu remi virtual lalu tarik kartunya satu per satu.
-90. **Kartu Yu-Gi-Oh!** — Cari kartu Yu-Gi-Oh! lengkap dengan gambar, serangan, pertahanan, dan harganya.
-91. **Kelinci Acak** — GIF kelinci acak setiap kali kamu mengetuk tombolnya.
-92. **Ketinggian Lokasi** — Cek ketinggian sebuah titik di atas permukaan laut dari koordinatnya.
-93. **Kode Pos Dunia** — Cari kota dan wilayah dari kode pos berbagai negara di luar Indonesia.
-94. **Kode Pos Indonesia** — Cari kode pos dari nama tempat: kelurahan, kecamatan, kabupaten, dan provinsi.
-95. **Kualitas Udara** — Indeks kualitas udara (AQI), PM2.5 & PM10 kota pilihan.
-96. **Kucing Acak** — Foto kucing acak setiap kali kamu mengetuk tombolnya.
-97. **Kucing Status HTTP** — Gambar kucing lucu untuk tiap kode status HTTP, mis. 404.
-98. **Kucing + Teks** — Foto kucing acak dengan tulisanmu sendiri di atasnya.
-99. **Kurs & Cuaca** — Kurs mata uang live & cuaca kota.
-100. **Lelucon Acak** — Lelucon acak dari berbagai kategori, sudah disaring agar aman dibaca semua umur.
-101. **Lelucon Bapak-Bapak** — Lelucon receh gaya bapak-bapak, satu ketukan satu lelucon baru.
-102. **Lelucon Chuck Norris** — Lelucon acak bertema Chuck Norris, dalam bahasa Inggris.
-103. **Lelucon Geek** — Lelucon acak bertema teknologi dan programming, dalam bahasa Inggris.
-104. **Lirik Lagu** — Cari lirik lagu dari penyanyi & judul lagu favoritmu.
-105. **Lowongan Kerja Eropa Remote** — Lowongan kerja terbaru di Eropa dan yang bisa dikerjakan dari rumah.
-106. **Lowongan Kerja Remote** — Lowongan kerja remote dari seluruh dunia, dari berbagai bidang.
-107. **Observasi Alam** — Lihat foto dan lokasi pengamatan satwa atau tumbuhan dari masyarakat di iNaturalist.
-108. **Pemenang Nobel** — Lihat siapa saja pemenang Hadiah Nobel di tahun yang kamu pilih.
-109. **Pemendek URL** — Perpendek tautan panjang menjadi tautan pendek is.gd yang mudah dibagikan.
-110. **Penerjemah** — Terjemahkan teks Indonesia↔Inggris secara instan.
-111. **Penyelesaian Matematika** — Hitung turunan, integral, faktor, akar persamaan, dan fungsi trigonometri.
-112. **Pesan Commit Acak** — Pesan commit lucu acak untuk developer, dalam bahasa Inggris.
-113. **Pokemon Viewer** — Lihat sprite, tipe, dan kemampuan Pokemon dari PokeAPI.
-114. **Posisi ISS** — Lacak posisi Stasiun Luar Angkasa Internasional secara live.
-115. **Prakiraan Gelombang Laut** — Prakiraan tinggi gelombang laut per jam untuk lokasi pesisir yang kamu pilih.
-116. **Profil Catur Chess.com** — Lihat profil dan rating pemain Chess.com dari nama penggunanya.
-117. **Puisi Klasik** — Baca puisi klasik Inggris: acak, berdasarkan penulis, atau berdasarkan judul.
-118. **Quotes Kanye West** — Kutipan acak Kanye West, dalam bahasa Inggris.
-119. **Quotes Acak** — Dapatkan quotes inspiratif acak setiap kali dibuka.
-120. **Quotes Ron Swanson** — Kutipan acak Ron Swanson dari serial Parks & Recreation, dalam bahasa Inggris.
-121. **Radio Online** — Dengarkan stasiun radio Indonesia dan dunia, langsung dari browser.
-122. **Resep Koktail & Minuman** — Resep minuman dan koktail acak, lengkap dengan bahan dan cara buat.
-123. **Resep Makanan** — Cari resep masakan dari seluruh dunia, lengkap dengan bahan & cara masak.
-124. **Ringkasan Wikipedia** — Ringkasan artikel Wikipedia apa pun, dalam bahasa Indonesia atau Inggris.
-125. **Rubah Acak** — Foto rubah acak setiap kali kamu mengetuk tombolnya.
-126. **Rute & Jarak Perjalanan** — Hitung jarak dan waktu tempuh berkendara antara dua titik koordinat.
-127. **Saran Acak** — Kata-kata bijak & saran acak dari Advice Slip.
-128. **Sertifikat SSL Domain** — Lihat sertifikat SSL yang pernah diterbitkan untuk sebuah domain beserta masa berlakunya.
-129. **Sinonim & Kata Terkait** — Cari sinonim, lawan kata, kata yang berima, dan kata terkait dalam bahasa Inggris.
-130. **Skor Keamanan Repo** — Nilai keamanan rantai pasok repo GitHub: skor 0 sampai 10 beserta penjelasan tiap pemeriksaannya.
-131. **Status Server Minecraft** — Cek apakah server Minecraft sedang online, berapa pemainnya, dan versi apa yang dipakai.
-132. **Tafsir Quran** — Tafsir Al-Qur'an per surah, ayat demi ayat, dalam bahasa Indonesia.
-133. **Tebak Profil Nama** — Tebak dulu umur & gender sebuah nama, lalu cek tebakanmu ke data nama dunia.
-134. **Teka-Teki Catur Harian** — Teka-teki catur baru tiap hari dari Lichess, lengkap dengan papan dan jawabannya.
-135. **Template Meme Populer** — Jelajahi template meme paling populer dari Imgflip dan unduh gambarnya.
-136. **Terbit & Terbenam** — Jadwal matahari terbit & terbenam + hitung mundur.
-137. **Tes Kecepatan Internet** — Tes kecepatan unduh dan latensi koneksimu saat ini.
-138. **Uji Klinis** — Cari uji klinis medis di seluruh dunia berdasarkan penyakit atau obat.
-139. **Wilayah Indonesia** — Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.
+29. **Cek Username** — Cek di platform mana saja sebuah username dipakai, dari profil publik.
+30. **Cuaca Antariksa/Aurora** — Skala badai Matahari terkini dari NOAA: gangguan radio, radiasi, dan peluang aurora.
+31. **Cuaca Arsip** — Lihat cuaca hari-hari yang sudah lewat: suhu siang, malam, dan hujan.
+32. **Cuaca BMKG** — Prakiraan cuaca resmi BMKG per desa dan kelurahan, 3 hari ke depan.
+33. **Data Bisbol MLB** — Lihat daftar 30 tim bisbol MLB beserta stadion, kota, dan liganya.
+34. **Data Blockchain Bitcoin** — Blok Bitcoin terbaru, antrean transaksi yang menunggu, dan perkiraan biayanya.
+35. **Data COVID-19** — Angka COVID-19 terbaru, seluruh dunia atau satu negara.
+36. **Data Digimon** — Telusuri daftar Digimon lengkap dengan gambar dan levelnya.
+37. **Data D&D 5e** — Cari mantra, monster, dan ras Dungeons & Dragons edisi ke-5.
+38. **Data Dota 2** — Info hero Dota 2: atribut, peran, dan angka dasarnya.
+39. **Data F1** — Jadwal balapan Formula 1 per musim, sesi tiap seri, daftar pembalap, dan hasil balapan terakhir.
+40. **Data Indonesia** — Angka resmi Indonesia: penduduk, ekonomi, harapan hidup & lainnya dari Bank Dunia.
+41. **Data Matahari & Iklim** — Lihat suhu, sinar matahari, dan hujan harian di sebuah lokasi dari data NASA.
+42. **Data Satelit TLE** — Data orbit satelit terkini (TLE): ISS, Hubble, dan satelit lain dari nomor katalognya.
+43. **Data Spesies Dunia** — Cari nama latin hewan, tumbuhan, dan jamur di basis data GBIF.
+44. **Data Valorant** — Info agen, senjata, dan versi terbaru game Valorant.
+45. **Diskon Game PC** — Cari diskon game PC termurah di berbagai toko.
+46. **Emoji GitHub** — Telusuri semua emoji GitHub lengkap dengan kodenya.
+47. **Ensiklopedia Star Wars** — Cari tokoh, film, planet, pesawat, dan spesies dari dunia Star Wars.
+48. **Fakta Kucing** — Fakta acak tentang kucing dalam bahasa Inggris asli.
+49. **Fakta Tak Berguna** — Fakta acak yang tidak berguna tapi seru buat bahan obrolan.
+50. **Film Baru di Streaming** — Lihat film dan serial yang baru tayang dan segera tayang di Netflix dan layanan lain.
+51. **Film Studio Ghibli** — Daftar film Studio Ghibli lengkap: judul, sutradara, tahun, dan sinopsisnya.
+52. **Foto Acak** — Foto acak berkualitas tinggi dari Lorem Picsum, bisa diunduh dalam ukuran pilihanmu.
+53. **Galeri Met** — Jelajahi koleksi seni Metropolitan Museum of Art: lukisan, patung, sampai artefak kuno.
+54. **Galeri Seni Dunia** — Jelajahi karya seni acak dari Art Institute of Chicago.
+55. **Game Gratis** — Daftar game PC dan peramban yang gratis dimainkan, diurutkan dari yang paling populer.
+56. **Gempa BMKG Terkini** — Info gempa bumi terbaru langsung dari BMKG.
+57. **Gempa Dirasakan** — Gempa terbaru yang terasa di Indonesia, langsung dari BMKG.
+58. **Gempa Dunia Terkini** — Gempa bumi terbaru di seluruh dunia dari USGS, bisa difilter kekuatan dan waktunya.
+59. **Generator Data Dummy** — Buat profil acak untuk keperluan tes dan desain: nama, foto, email, dan alamat contoh.
+60. **Profil GitHub** — Lihat profil GitHub siapapun: avatar, bio, followers, repo.
+61. **Hadits Arbain** — Hadits Arbain An-Nawawi nomor 1 sampai 42, teks Arab dan terjemahan Indonesia.
+62. **Harga Crypto** — Harga crypto live (IDR & USD) + perubahan 24 jam.
+63. **Harga Emas Live** — Harga emas dunia terkini per troy ons dan per gram.
+64. **Hari Libur Indonesia** — Daftar hari libur nasional Indonesia per tahun.
+65. **Info Crate Rust** — Lihat versi terbaru, deskripsi, dan unduhan paket Rust di crates.io.
+66. **Info CVE** — Lihat detail kerentanan keamanan (CVE) dari basis data NIST: skor, deskripsi, dan referensinya.
+67. **Info Domain RDAP** — Lihat siapa pendaftar sebuah domain, kapan didaftarkan, dan kapan kedaluwarsanya.
+68. **Info Emoji** — Emoji acak beserta nama dan kategorinya, atau telusuri per kategori.
+69. **Info Kopi** — Daftar minuman kopi panas dan dingin beserta bahan dan deskripsinya.
+70. **Info Makanan Kemasan** — Cek info nutrisi & skor gizi makanan kemasan dari barcode atau nama.
+71. **Info Modul Go** — Cari versi terbaru modul Go beserta tanggal rilisnya.
+72. **Info Musik Artis** — Cari artis atau band: asal negara, tahun aktif, dan jenis musiknya.
+73. **Info Obat FDA** — Lihat kegunaan dan peringatan sebuah obat dari data resmi FDA Amerika.
+74. **Info Paket .NET** — Cari paket .NET di NuGet: versi terbaru, deskripsi, dan unduhan.
+75. **Info Paket NPM** — Lihat versi terbaru, deskripsi, dan lisensi paket JavaScript di npm.
+76. **Info Paket Python** — Lihat versi terbaru, ringkasan, dan kebutuhan Python sebuah paket di PyPI.
+77. **Info Serial TV** — Cari serial TV: sinopsis, status tayang, genre, dan ratingnya.
+78. **Info Tim Olahraga** — Cari tim olahraga dunia dan lihat stadion, tahun berdiri, dan liganya.
+79. **IP & Lokasi Saya** — Cek alamat IP publik & perkiraan lokasimu.
+80. **Jadwal Peluncuran Roket** — Peluncuran roket dan misi antariksa yang akan datang.
+81. **Jadwal Sholat** — Jadwal sholat harian per kota + countdown ke waktu berikutnya.
+82. **Jawab Cepat** — Jawaban singkat untuk pertanyaan umum, dari DuckDuckGo.
+83. **Jurnal Medis** — Cari artikel dan jurnal medis dari Europe PMC, mencakup isi PubMed.
+84. **Kalkulator Ekspresi** — Hitung ekspresi matematika apa pun, dari yang sederhana sampai pakai akar dan pangkat.
+85. **Kamus Inggris** — Arti kata bahasa Inggris lengkap dengan cara baca & contoh kalimat.
+86. **Karakter Avatar** — Cari karakter Avatar: The Last Airbender dan lihat sekutu, musuh, dan kelompoknya.
+87. **Karakter Disney** — Cari karakter Disney: film, serial, dan game tempat mereka muncul.
+88. **Karakter Rick & Morty** — Cari karakter serial Rick and Morty: status, spesies, dan asal mereka.
+89. **Kartu Magic MTG** — Cari kartu Magic: The Gathering lengkap dengan gambar, teks, dan harganya.
+90. **Kartu Remi** — Kocok dek kartu remi virtual lalu tarik kartunya satu per satu.
+91. **Kartu Yu-Gi-Oh!** — Cari kartu Yu-Gi-Oh! lengkap dengan gambar, serangan, pertahanan, dan harganya.
+92. **Kelinci Acak** — GIF kelinci acak setiap kali kamu mengetuk tombolnya.
+93. **Ketinggian Lokasi** — Cek ketinggian sebuah titik di atas permukaan laut dari koordinatnya.
+94. **Kode Pos Dunia** — Cari kota dan wilayah dari kode pos berbagai negara di luar Indonesia.
+95. **Kode Pos Indonesia** — Cari kode pos dari nama tempat: kelurahan, kecamatan, kabupaten, dan provinsi.
+96. **Kualitas Udara** — Indeks kualitas udara (AQI), PM2.5 & PM10 kota pilihan.
+97. **Kucing Acak** — Foto kucing acak setiap kali kamu mengetuk tombolnya.
+98. **Kucing Status HTTP** — Gambar kucing lucu untuk tiap kode status HTTP, mis. 404.
+99. **Kucing + Teks** — Foto kucing acak dengan tulisanmu sendiri di atasnya.
+100. **Kurs & Cuaca** — Kurs mata uang live & cuaca kota.
+101. **Lelucon Acak** — Lelucon acak dari berbagai kategori, sudah disaring agar aman dibaca semua umur.
+102. **Lelucon Bapak-Bapak** — Lelucon receh gaya bapak-bapak, satu ketukan satu lelucon baru.
+103. **Lelucon Chuck Norris** — Lelucon acak bertema Chuck Norris, dalam bahasa Inggris.
+104. **Lelucon Geek** — Lelucon acak bertema teknologi dan programming, dalam bahasa Inggris.
+105. **Lirik Lagu** — Cari lirik lagu dari penyanyi & judul lagu favoritmu.
+106. **Lowongan Kerja Eropa Remote** — Lowongan kerja terbaru di Eropa dan yang bisa dikerjakan dari rumah.
+107. **Lowongan Kerja Remote** — Lowongan kerja remote dari seluruh dunia, dari berbagai bidang.
+108. **Observasi Alam** — Lihat foto dan lokasi pengamatan satwa atau tumbuhan dari masyarakat di iNaturalist.
+109. **Pemenang Nobel** — Lihat siapa saja pemenang Hadiah Nobel di tahun yang kamu pilih.
+110. **Pemendek URL** — Perpendek tautan panjang menjadi tautan pendek is.gd yang mudah dibagikan.
+111. **Penerjemah** — Terjemahkan teks Indonesia↔Inggris secara instan.
+112. **Penyelesaian Matematika** — Hitung turunan, integral, faktor, akar persamaan, dan fungsi trigonometri.
+113. **Pesan Commit Acak** — Pesan commit lucu acak untuk developer, dalam bahasa Inggris.
+114. **Pokemon Viewer** — Lihat sprite, tipe, dan kemampuan Pokemon dari PokeAPI.
+115. **Posisi ISS** — Lacak posisi Stasiun Luar Angkasa Internasional secara live.
+116. **Prakiraan Gelombang Laut** — Prakiraan tinggi gelombang laut per jam untuk lokasi pesisir yang kamu pilih.
+117. **Profil Catur Chess.com** — Lihat profil dan rating pemain Chess.com dari nama penggunanya.
+118. **Puisi Klasik** — Baca puisi klasik Inggris: acak, berdasarkan penulis, atau berdasarkan judul.
+119. **Quotes Kanye West** — Kutipan acak Kanye West, dalam bahasa Inggris.
+120. **Quotes Acak** — Dapatkan quotes inspiratif acak setiap kali dibuka.
+121. **Quotes Ron Swanson** — Kutipan acak Ron Swanson dari serial Parks & Recreation, dalam bahasa Inggris.
+122. **Radio Online** — Dengarkan stasiun radio Indonesia dan dunia, langsung dari browser.
+123. **Resep Koktail & Minuman** — Resep minuman dan koktail acak, lengkap dengan bahan dan cara buat.
+124. **Resep Makanan** — Cari resep masakan dari seluruh dunia, lengkap dengan bahan & cara masak.
+125. **Ringkasan Wikipedia** — Ringkasan artikel Wikipedia apa pun, dalam bahasa Indonesia atau Inggris.
+126. **Rubah Acak** — Foto rubah acak setiap kali kamu mengetuk tombolnya.
+127. **Rute & Jarak Perjalanan** — Hitung jarak dan waktu tempuh berkendara antara dua titik koordinat.
+128. **Saran Acak** — Kata-kata bijak & saran acak dari Advice Slip.
+129. **Sertifikat SSL Domain** — Lihat sertifikat SSL yang pernah diterbitkan untuk sebuah domain beserta masa berlakunya.
+130. **Sinonim & Kata Terkait** — Cari sinonim, lawan kata, kata yang berima, dan kata terkait dalam bahasa Inggris.
+131. **Skor Keamanan Repo** — Nilai keamanan rantai pasok repo GitHub: skor 0 sampai 10 beserta penjelasan tiap pemeriksaannya.
+132. **Status Server Minecraft** — Cek apakah server Minecraft sedang online, berapa pemainnya, dan versi apa yang dipakai.
+133. **Tafsir Quran** — Tafsir Al-Qur'an per surah, ayat demi ayat, dalam bahasa Indonesia.
+134. **Tebak Profil Nama** — Tebak dulu umur & gender sebuah nama, lalu cek tebakanmu ke data nama dunia.
+135. **Teka-Teki Catur Harian** — Teka-teki catur baru tiap hari dari Lichess, lengkap dengan papan dan jawabannya.
+136. **Template Meme Populer** — Jelajahi template meme paling populer dari Imgflip dan unduh gambarnya.
+137. **Terbit & Terbenam** — Jadwal matahari terbit & terbenam + hitung mundur.
+138. **Tes Kecepatan Internet** — Tes kecepatan unduh dan latensi koneksimu saat ini.
+139. **Uji Klinis** — Cari uji klinis medis di seluruh dunia berdasarkan penyakit atau obat.
+140. **Wilayah Indonesia** — Jelajahi provinsi, kabupaten/kota, kecamatan & kelurahan/desa se-Indonesia.
 
 ## Bisnis (124)
 

@@ -1,4 +1,4 @@
-/* ADIP Tools v6.22.0 — detail manifest (GENERATED, jangan edit manual).
+/* ADIP Tools v6.23.0 — detail manifest (GENERATED, jangan edit manual).
    Dibangkitkan oleh scripts/sync-manifest.js bersamaan dengan js/manifest.js
    dan js/manifest-boot.js. Id-keyed (bukan paralel indeks) supaya merge
    tahan urutan: id tak dikenal diabaikan, id yang hilang tetap ramping.
@@ -744,6 +744,7 @@ export const manifestDetails = {
   "cek-email-bocor": ["Cek apakah emailmu pernah muncul di kebocoran data yang diketahui publik.","email,bocor,kebocoran data,breach,keamanan,cek email,xposedornot,password"],
   "cek-email-sekali-pakai": ["Cek apakah alamat email berasal dari layanan email sekali pakai.","email,sekali pakai,disposable,cek email,validasi email,spam"],
   "cek-kerentanan-paket": ["Cek apakah versi paket software yang kamu pakai punya celah keamanan yang sudah diketahui.","kerentanan,vulnerability,osv,cve,paket,npm,pypi,keamanan,cve"],
+  "cek-username": ["Cek di platform mana saja sebuah username dipakai, dari profil publik.","username,cek username,profil,profil publik,stalker,osint,keamanan,cari akun,sosial media"],
   "cuaca-antariksa-aurora": ["Skala badai Matahari terkini dari NOAA: gangguan radio, radiasi, dan peluang aurora.","cuaca antariksa,aurora,badai matahari,noaa,geomagnet,radio,matahari,space weather"],
   "cuaca-arsip": ["Lihat cuaca hari-hari yang sudah lewat: suhu siang, malam, dan hujan.","cuaca,arsip,historis,tanggal lampau,suhu,hujan,open-meteo"],
   "cuaca-bmkg": ["Prakiraan cuaca resmi BMKG per desa dan kelurahan, 3 hari ke depan.","cuaca,bmkg,prakiraan,hujan,cerah,suhu,desa,kelurahan"],

@@ -232,6 +232,52 @@ async function main() {
     }
   }
 
+  // 8. (v6.23.0, S-B15/Q3-03c; diperluas S-B16/Q3b) TRIPWIRE keamanan tool
+  //    Cek Username — BUKAN pemindai keamanan umum (yang itu tetap utang,
+  //    lihat catatan di bawah). Empat guard runtime yang menutup temuan
+  //    Red-2/Red-3 WAJIB tetap ada di js/tools/liveapi/cek-username.js:
+  //      - hostCocok(apiDomain, domain): Q3-01 — apiDomain yang
+  //        bertentangan dengan domain profil entri TIDAK di-fetch.
+  //      - hostAdalahIP(: Q3-02 — host IP literal ditolak builder +
+  //        entriSah (panggilan ada di domainSah/entriSah/kedua builder).
+  //      - placeholderDiPathQuery(pola): Q3b-02 — {u} yang hanya di
+  //        fragment (tidak pernah terkirim) ditolak kedua builder.
+  //        (Tripwire memakai SELURUH pernyataan pemanggilan, bukan nama
+  //        fungsi saja — definisi `function placeholderDiPathQuery(pola)`
+  //        mengandung nama+parameter yang sama, sehingga tripwire nama
+  //        saja tidak akan menyala bila pemanggilannya dihapus tapi
+  //        definisinya tertinggal. Pelajaran S-B16 saat uji staging.)
+  //      - hostAkhirCocok(r, entri.apiDomain): Q3b-03 — status respons
+  //        akhir hanya dipercaya bila host URL akhirnya cocok apiDomain.
+  //    Bila salah satu string hilang (mis. refactor yang tidak sengaja
+  //    menghapus guard), check GAGAL dengan keras supaya penghapusannya
+  //    jadi keputusan sadar — bukan kecelakaan diam-diam. Bila guard
+  //    diimplementasi ulang dengan nama/cara lain, perbarui tripwire ini
+  //    BERSAMAAN dengan refactor-nya (dan buktikan harness Q3 tetap hijau).
+  //    CATATAN JUJUR (Q3-03): di luar tripwire ini, check-tools.js tetap
+  //    0 pemeriksaan keamanan umum atas 1.262 tool lain (SR-4 S-B11):
+  //    tidak ada pemindai innerHTML/URL/jalur data generik — menambahkan
+  //    pemindai generik yang tidak banjir false positive adalah pekerjaan
+  //    tersendiri (utang S-Q3/S-V, bukan satu baris grep).
+  const cekUserFile = path.join(JS, 'tools', 'liveapi', 'cek-username.js');
+  if (!fs.existsSync(cekUserFile)) {
+    errors.push('tripwire Q3: js/tools/liveapi/cek-username.js hilang');
+  } else {
+    const srcCekUser = fs.readFileSync(cekUserFile, 'utf8');
+    if (!srcCekUser.includes('hostCocok(apiDomain, domain)')) {
+      errors.push('tripwire Q3-01: guard hostCocok(apiDomain, domain) HILANG dari js/tools/liveapi/cek-username.js (apiDomain yang bertentangan dengan domain profil akan di-fetch lagi — lihat fix/S-B15-blue2.md)');
+    }
+    if (!srcCekUser.includes('hostAdalahIP(')) {
+      errors.push('tripwire Q3-02: guard hostAdalahIP( HILANG dari js/tools/liveapi/cek-username.js (host IP literal akan lolos lagi — lihat fix/S-B15-blue2.md)');
+    }
+    if (!srcCekUser.includes('if (!placeholderDiPathQuery(pola)) return null;')) {
+      errors.push('tripwire Q3b-02: guard placeholderDiPathQuery(pola) HILANG dari js/tools/liveapi/cek-username.js ({u} hanya di fragment akan di-fetch lagi + "Ada" palsu — lihat fix/S-B16-blue3.md)');
+    }
+    if (!srcCekUser.includes('hostAkhirCocok(r, entri.apiDomain)')) {
+      errors.push('tripwire Q3b-03: guard hostAkhirCocok(r, entri.apiDomain) HILANG dari js/tools/liveapi/cek-username.js (status redirect lintas-origin akan dipercaya lagi — lihat fix/S-B16-blue3.md)');
+    }
+  }
+
   if (errors.length) {
     console.log('\n❌ KEGAGALAN:');
     errors.forEach((e) => console.log(' - ' + e));

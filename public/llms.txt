@@ -1,6 +1,6 @@
 # ADIP Tools
 
-> Kumpulan 1261 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar. Bisa dipasang sebagai aplikasi (opsional) — sebagian tool jalan offline setelah pernah dibuka. Versi 6.22.0.
+> Kumpulan 1262 tool gratis berbahasa Indonesia yang berjalan di browser, tanpa daftar. Bisa dipasang sebagai aplikasi (opsional) — sebagian tool jalan offline setelah pernah dibuka. Versi 6.23.0.
 
 ## Keamanan
 
@@ -1012,6 +1012,7 @@
 - [Cek Email Bocor](https://tools.adipmusic.my.id/#/t/cek-email-bocor): Cek apakah emailmu pernah muncul di kebocoran data yang diketahui publik.
 - [Cek Email Sekali Pakai](https://tools.adipmusic.my.id/#/t/cek-email-sekali-pakai): Cek apakah alamat email berasal dari layanan email sekali pakai.
 - [Cek Kerentanan Paket](https://tools.adipmusic.my.id/#/t/cek-kerentanan-paket): Cek apakah versi paket software yang kamu pakai punya celah keamanan yang sudah diketahui.
+- [Cek Username](https://tools.adipmusic.my.id/#/t/cek-username): Cek di platform mana saja sebuah username dipakai, dari profil publik.
 - [Cuaca Antariksa/Aurora](https://tools.adipmusic.my.id/#/t/cuaca-antariksa-aurora): Skala badai Matahari terkini dari NOAA: gangguan radio, radiasi, dan peluang aurora.
 - [Cuaca Arsip](https://tools.adipmusic.my.id/#/t/cuaca-arsip): Lihat cuaca hari-hari yang sudah lewat: suhu siang, malam, dan hujan.
 - [Cuaca BMKG](https://tools.adipmusic.my.id/#/t/cuaca-bmkg): Prakiraan cuaca resmi BMKG per desa dan kelurahan, 3 hari ke depan.

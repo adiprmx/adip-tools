@@ -52,7 +52,7 @@
      + VERSION + loader malas loadManifestDetails(). Vite memetakan
      impor './manifest.js' ke file ini (resolve.alias di
      vite.config.mjs), jadi entry chunk browser tidak lagi menelan
-     desc/keywords 1.261 tool di first load (hemat ~69 KB gzip).
+     desc/keywords 1.262 tool di first load (hemat ~69 KB gzip).
    - js/manifest-details.js — detail id-keyed
      {"id": ["desc", "keywords"], ...}, dimuat malas sesudah boot
      lalu ditempel ke entri yang sama (merge-in-place).

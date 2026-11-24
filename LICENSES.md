@@ -6,7 +6,7 @@ Semua lisensi di bawah ini diverifikasi satu per satu pada tanggal di atas — b
 
 ## Kode Adip Tools sendiri
 
-Kode situs ini (HTML, CSS, dan JavaScript di repo ini, termasuk 1.261 tool) **belum punya file LICENSE**. Artinya: hak cipta atas kode tersebut tetap pada pemiliknya dan tidak ada izin penggunaan yang dinyatakan secara tertulis. Bila pemilik ingin kode ini dipakai ulang orang lain, tambahkan file `LICENSE` di root repo (misalnya MIT atau Apache-2.0).
+Kode situs ini (HTML, CSS, dan JavaScript di repo ini, termasuk 1.262 tool) **belum punya file LICENSE**. Artinya: hak cipta atas kode tersebut tetap pada pemiliknya dan tidak ada izin penggunaan yang dinyatakan secara tertulis. Bila pemilik ingin kode ini dipakai ulang orang lain, tambahkan file `LICENSE` di root repo (misalnya MIT atau Apache-2.0).
 
 ## FFmpeg / ffmpeg.wasm
 

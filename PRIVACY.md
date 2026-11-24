@@ -14,7 +14,7 @@ Dokumen ini ditulis dengan bahasa sehari-hari dan berdasarkan cara kerja situs y
 
 ## 1. Cara kerja situs ini
 
-Adip Tools adalah situs statis berisi 1.261 tools gratis. Semua perhitungan, konversi, edit foto, dan kompresi video dilakukan oleh browser di perangkatmu sendiri, memakai kode JavaScript yang dimuat dari situs ini dan dari CDN (jaringan pengiriman file) publik.
+Adip Tools adalah situs statis berisi 1.262 tools gratis. Semua perhitungan, konversi, edit foto, dan kompresi video dilakukan oleh browser di perangkatmu sendiri, memakai kode JavaScript yang dimuat dari situs ini dan dari CDN (jaringan pengiriman file) publik.
 
 Karena tidak ada akun, kami tidak punya cara untuk tahu siapa kamu. Kami juga tidak bisa mengaitkan aktivitas di situs ini dengan identitas siapa pun.
 
